@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package fort.myrmidion.pb;
+
+import "google/protobuf/timestamp.proto";
+
+message Experiment {
+	repeated string DataDirectories = 1;
+
+	string Name    = 2;
+	string Author  = 3;
+	string Comment = 4;
+};
+
+
+message FiducialMarker {
+	double X     = 1;
+	double Y     = 2;
+	double Theta = 3;
+    int32  ID    = 4;
+};
+
+message Identification {
+	FiducialMarker Marker          = 1;
+	uint64         StartValidFrame = 2;
+};
+
+message Metadata {
+	string JSONData        = 1;
+	uint64 StartValidFrame = 2;
+}
+
+message AntMetadata {
+	int32                   ID       = 1;
+	repeated Identification Marker   = 3;
+	repeated Metadata       Metadata = 4;
+};
+
+message FileHeader {
+};
+
+
+message FileLine {
+	Experiment  Experiment = 1;
+	AntMetadata AntData    = 2;
+};

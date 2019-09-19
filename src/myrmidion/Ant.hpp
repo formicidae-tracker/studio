@@ -1,37 +1,29 @@
 #pragma once
 
-#include <vector>
-#include <utility>
 
+#include <Eigen/StdVector>
 #include <Eigen/Core>
 
-#include "VisualMarker.hpp"
+#include <memory>
 
 namespace fort {
 
 namespace myrmidion {
 
 
-
+class Metadata;
 
 class Ant {
 public:
-	typedef uint32_t Identifier;
-
-	class AlmostStaticData {
-		Identifier                                     d_identifier;
-		std::vector<std::pair<uint64_t,VisualMarker> > d_markers;
-		std::vector<std::pair<uint64_t,std::string> >  d_metadata;
-	};
-
-
-	const Eigen::Vector2d & Position() const;
-	double Angle() const;
-
-	std::string ID() const;
+	typedef std::vector<Ant,Eigen::aligned_allocator<Ant> > List;
 
 private:
-	Eigen::Vector3d d_position;
+	Eigen::Vector2d d_position;
+	double          d_angle;
+
+	std::shared_ptr<Metadata> d_metadata;
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 
