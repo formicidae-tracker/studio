@@ -23,6 +23,14 @@ set(PROTO_FILES Experiment.proto)
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 
+foreach(f ${PROTO_SRC})
+	set_property(SOURCE ${f} PROPERTY SKIP_AUTOGEN ON)
+endforeach(f ${PROTO_SRC})
+
+foreach(f ${PROTO_HDR})
+	set_property(SOURCE ${f} PROPERTY SKIP_AUTOGEN ON)
+endforeach(f ${PROTO_HDR})
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(HDR_PRIVATE_FILES Experiment.priv.hpp)
