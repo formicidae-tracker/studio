@@ -5,7 +5,7 @@ package fort.myrmidion.pb;
 import "google/protobuf/timestamp.proto";
 
 message Experiment {
-	repeated string DataDirectories = 1;
+	repeated string DataDirectory = 1;
 
 	string Name    = 2;
 	string Author  = 3;

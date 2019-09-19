@@ -46,4 +46,6 @@ set(SRC_FILES Frame.cpp
 	          Ant.cpp)
 
 
-add_library(myrmidon SHARED ${SRC_FILES} ${HDR_PUBLIC_FILES} ${PROTO_HDR} ${PROTO_SRC})
+add_library(myrmidion SHARED ${SRC_FILES} ${HDR_PUBLIC_FILES} ${PROTO_HDR} ${PROTO_SRC})
+
+target_link_libraries(myrmidion ${PROTOBUF_LIBRARIES})

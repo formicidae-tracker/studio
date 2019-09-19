@@ -19,7 +19,6 @@ public :
 
 	void Save(const std::string & filename) const;
 
-private:
 	fort::myrmidion::pb::Experiment d_experiment;
 
 	std::vector<fort::myrmidion::pb::AntMetadata> d_ants;
