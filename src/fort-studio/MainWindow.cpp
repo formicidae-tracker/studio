@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QSettings>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -15,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     d_ui->setupUi(this);
     d_ui->actionSave->setEnabled(false);
     setCurrentFile("");
+    loadSettings();
 }
 
 MainWindow::~MainWindow() {
@@ -66,14 +68,7 @@ void MainWindow::on_actionOpen_triggered() {
 	if (filename.isEmpty() ) {
 		return;
 	}
-
-	err = d_experiment.open(filename);
-	if (!err.OK()) {
-		promptError(err);
-		return;
-	}
-	setCurrentFile(filename);
-	d_ui->statusbar->showMessage(tr("Opened '%1'").arg(filename),2000);
+	open(filename);
 }
 
 
@@ -91,10 +86,11 @@ void MainWindow::on_actionSave_triggered() {
 
 void MainWindow::on_actionSaveAs_triggered() {
 	Error err = saveAs();
-    if (err.OK()) {
+    if (!err.OK()) {
+	    promptError(err);
 	    return;
     }
-    promptError(err);
+    pushRecent();
 }
 
 Error MainWindow::save() {
@@ -205,4 +201,97 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	default:
 		e->ignore();
 	}
+}
+
+
+void MainWindow::pushRecent() {
+	QString newPath = QFileInfo(d_currentFile).absoluteFilePath();
+
+	//if already in the vector, just move it to the top
+	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {
+		return;
+	}
+
+	auto fi =  std::find(d_recentPaths.begin(),d_recentPaths.end(),newPath);
+	if (fi != d_recentPaths.end() ) {
+		d_recentPaths.erase(fi);
+	}
+
+	d_recentPaths.push_front(newPath);
+
+	if ( d_recentPaths.size() > 5 ) {
+		d_recentPaths.resize(5);
+	}
+	QSettings settings;
+	for ( size_t i = 0; i < 5; ++i ) {
+		QString data;
+		if ( i < d_recentPaths.size() ) {
+			data = d_recentPaths[i];
+		}
+		settings.setValue("recent-files/"+QString::number(i),data);
+	}
+
+	rebuildRecentsFiles();
+}
+
+
+void MainWindow::loadSettings() {
+	d_recentPaths.clear();
+	QSettings settings;
+	for (size_t i = 0; i < 5; ++i ) {
+		QString data = settings.value("recent-files/" + QString::number(i)).toString();
+		if (data.isEmpty()) {
+			continue;
+		}
+		d_recentPaths.push_back(data);
+	}
+	rebuildRecentsFiles();
+}
+
+void MainWindow::rebuildRecentsFiles() {
+	std::vector<QAction*> actions = {d_ui->recentFile1,d_ui->recentFile2,d_ui->recentFile3,d_ui->recentFile4,d_ui->recentFile5};
+	for ( size_t i = 0 ; i < 5 ; ++i ) {
+		if ( i >= d_recentPaths.size() ) {
+			actions[i]->setVisible(false);
+			continue;
+		}
+		actions[i]->setText(d_recentPaths[i]);
+		actions[i]->setVisible(true);
+		actions[i]->setEnabled(QFileInfo::exists(d_recentPaths[i]));
+	}
+}
+
+
+#define IMPLEMENT_RECENT_FILE_SLOT(i) \
+	void MainWindow::on_recentFile ## i ## _triggered() { \
+		Error err = maybeSave(); \
+		if ( err == UserDiscard ) { \
+			return; \
+		} \
+		if (err.OK() == false) { \
+			promptError(err); \
+			return; \
+		} \
+		if ( i > d_recentPaths.size() ) { \
+			return; \
+		} \
+		open(d_recentPaths[i-1]); \
+	}
+
+IMPLEMENT_RECENT_FILE_SLOT(1);
+IMPLEMENT_RECENT_FILE_SLOT(2);
+IMPLEMENT_RECENT_FILE_SLOT(3);
+IMPLEMENT_RECENT_FILE_SLOT(4);
+IMPLEMENT_RECENT_FILE_SLOT(5);
+
+
+void MainWindow::open(const QString & path ) {
+	Error err = d_experiment.open(path);
+	if (!err.OK()) {
+		promptError(err);
+		return;
+	}
+	setCurrentFile(path);
+	d_ui->statusbar->showMessage(tr("Opened '%1'").arg(path),2000);
+	pushRecent();
 }
