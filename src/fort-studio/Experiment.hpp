@@ -23,6 +23,9 @@ signals:
 public slots:
 	Error addDataDirectory(const QString & path);
 	Error save(const QString & path);
+	Error open(const QString & path);
+	void  reset();
+
 private:
 	fort::myrmidion::priv::Experiment::Ptr d_experiment;
 	bool d_modified;

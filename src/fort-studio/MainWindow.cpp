@@ -28,6 +28,55 @@ void MainWindow::promptError(const Error & err) {
 	                     QMessageBox::Cancel);
 }
 
+
+void MainWindow::on_actionNew_triggered() {
+	Error err = maybeSave();
+	if ( err == UserDiscard ) {
+		return;
+	}
+	if (err.OK() == false) {
+		promptError(err);
+		return;
+	}
+
+	d_experiment.reset();
+	d_ui->statusbar->showMessage(tr("New experimental data"),2000);
+	setCurrentFile("");
+}
+
+void MainWindow::on_actionOpen_triggered() {
+	Error err = maybeSave();
+	if ( err == UserDiscard ) {
+		return;
+	}
+	if (err.OK() == false) {
+		promptError(err);
+		return;
+	}
+
+	QString dir = "";
+	if (!d_currentFile.isEmpty()) {
+		dir = QFileInfo(d_currentFile).absolutePath();
+	}
+
+	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
+	                                                dir,
+	                                                tr("FORT Studio Experiment (*.fortstudio)"));
+
+	if (filename.isEmpty() ) {
+		return;
+	}
+
+	err = d_experiment.open(filename);
+	if (!err.OK()) {
+		promptError(err);
+		return;
+	}
+	setCurrentFile(filename);
+	d_ui->statusbar->showMessage(tr("Opened '%1'").arg(filename),2000);
+}
+
+
 void MainWindow::on_actionQuit_triggered() {
 	this->close();
 }
@@ -58,7 +107,7 @@ Error MainWindow::save() {
 
 Error MainWindow::saveAs() {
 	QFileDialog dialog(this, tr("Save file"),"untilted.fortstudio");
-	dialog.setNameFilter("FORT Studio Experiment (*.fortstudio)");
+	dialog.setNameFilter(tr("FORT Studio Experiment (*.fortstudio)"));
 	dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix(".fortstudio");
@@ -108,7 +157,7 @@ Error MainWindow::maybeSave() {
 
 
 Error MainWindow::save(const QString & path) {
-	Error err = d_experiment.save(d_currentFile);
+	Error err = d_experiment.save(path);
 	if (!err.OK()) {
 		d_ui->statusbar->showMessage(tr("Could not save file '%1': %2").arg(path).arg(err.what()),2000);
 		return err;

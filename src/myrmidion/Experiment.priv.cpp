@@ -18,7 +18,7 @@ using namespace fort::myrmidion::priv;
 Experiment::Ptr Experiment::Open(const std::string & filename) {
 	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
 	if ( fd  < 0 ) {
-		throw MYRMIDION_SYSTEM_ERROR(open,errno);
+		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_RDONLY | O_BINARY)");
 	}
 
 	auto file = std::make_shared<google::protobuf::io::FileInputStream>(fd);
@@ -58,7 +58,7 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 void Experiment::Save(const std::string & filename) const {
 	int fd =  open(filename.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY);
 	if ( fd  < 0 ) {
-		throw MYRMIDION_SYSTEM_ERROR(open,errno);
+		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY)");
 	}
 
 	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);

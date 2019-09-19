@@ -17,6 +17,22 @@ Experiment::~Experiment() {
 
 
 
+void Experiment::reset() {
+	d_experiment = fort::myrmidion::priv::Experiment::Ptr(new fort::myrmidion::priv::Experiment());
+	markModified(false);
+}
+
+Error Experiment::open(const QString & path) {
+	try {
+		d_experiment->Open(path.toUtf8().constData());
+		markModified(false);
+	} catch( const std::exception & e) {
+		return Error(e.what());
+	}
+	return Error::NONE;
+}
+
+
 Error Experiment::addDataDirectory(const QString & path) {
 	d_experiment->d_experiment.add_datadirectory(path.toUtf8().constData());
 	markModified(true);
