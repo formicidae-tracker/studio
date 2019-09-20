@@ -40,12 +40,13 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 	fort::myrmidion::pb::FileLine line;
 
 	for (;;) {
-		if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&h, gunziped.get(), &cleanEOF) ) {
+		if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&line, gunziped.get(), &cleanEOF) ) {
 			if ( cleanEOF == true ) {
 				return res;
 			}
 			throw std::runtime_error("Could not read file line");
 		}
+
 		if (line.has_experiment() == true ) {
 			res->d_experiment.CheckTypeAndMergeFrom(line.experiment());
 		}
@@ -53,11 +54,12 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 		if (line.has_antdata() == true ) {
 			res->d_ants.push_back(std::make_shared<Ant>(line.release_antdata()));
 		}
-
+		line.Clear();
 	}
 }
 
 void Experiment::Save(const std::string & filename) const {
+
 	int fd =  open(filename.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
 	if ( fd  < 0 ) {
 		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
@@ -76,7 +78,7 @@ void Experiment::Save(const std::string & filename) const {
 
 	fort::myrmidion::pb::FileLine line;
 	line.set_allocated_experiment(const_cast<fort::myrmidion::pb::Experiment*>(&d_experiment));
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 		throw std::runtime_error("could not write experiment data");
 	}
 	line.release_experiment();
@@ -84,7 +86,7 @@ void Experiment::Save(const std::string & filename) const {
 
 	for (auto const & a : d_ants) {
 		line.set_allocated_antdata(const_cast<fort::myrmidion::pb::AntMetadata*>(a->Metadata()));
-		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
+		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
 		}
 		line.release_antdata();
@@ -102,8 +104,10 @@ void Experiment::AddTrackingDataDirectory(const fm::pb::TrackingDataDirectory & 
 		if ( path.path() == iter->path() ) {
 			throw std::invalid_argument("directory '" + path.path() + "' is already present");
 		}
-		if ( iter->startframe() < path.endframe() ) {
+
+		if ( path.endframe() <  iter->startframe() ) {
 			canInsert = true;
+			continue;
 		}
 
 		if ( iter->endframe() >= path.startframe() ) {
