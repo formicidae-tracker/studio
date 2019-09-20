@@ -24,6 +24,7 @@ signals:
 
 public slots:
 	Error addDataDirectory(const QString & path);
+	Error removeDataDirectory(const QString & path);
 	Error save(const QString & path);
 	Error open(const QString & path);
 	void  reset();

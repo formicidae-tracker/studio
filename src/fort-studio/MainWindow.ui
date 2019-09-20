@@ -20,6 +20,14 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <widget class="ExperimentInfoWidget" name="experimentInfo">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <attribute name="title">
+        <string>Infos</string>
+       </attribute>
+      </widget>
       <widget class="QWidget" name="taggerWidget">
        <attribute name="title">
         <string>Tagging</string>
@@ -27,7 +35,7 @@
       </widget>
       <widget class="QWidget" name="exploreWidget">
        <attribute name="title">
-        <string>Explore</string>
+        <string>Visualize</string>
        </attribute>
       </widget>
      </widget>
@@ -289,6 +297,12 @@
    <class>AntListWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/AntListWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ExperimentInfoWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/ExperimentInfoWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

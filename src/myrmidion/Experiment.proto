@@ -4,8 +4,15 @@ package fort.myrmidion.pb;
 
 import "google/protobuf/timestamp.proto";
 
+
+message TrackingDataDirectory {
+	string Path       = 1;
+	uint64 StartFrame = 2;
+	uint64 EndFrame   = 3;
+}
+
 message Experiment {
-	repeated string DataDirectory = 1;
+	repeated TrackingDataDirectory DataDirectory = 1;
 
 	string Name    = 2;
 	string Author  = 3;

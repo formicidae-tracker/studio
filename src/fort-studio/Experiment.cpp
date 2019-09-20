@@ -26,13 +26,13 @@ void Experiment::reset() {
 	m->set_x(1.5);
 	m->set_y(-2.0);
 	m->set_theta(42.3);
+	d_experiment->AddAnt(a);
 
-	d_experiment->d_ants.push_back(std::make_shared<priv::Ant>(a));
 	a = new pb::AntMetadata();
 	a->set_id(4236);
-	d_experiment->d_ants.push_back(std::make_shared<priv::Ant>(a));
-	a = new pb::AntMetadata();
+	d_experiment->AddAnt(a);
 
+	a = new pb::AntMetadata();
 	a->set_id(56201);
 	idtf = a->add_marker();
 	idtf->set_startvalidframe(0);
@@ -55,7 +55,7 @@ void Experiment::reset() {
 	m->set_x(-5.5);
 	m->set_y(-12.0);
 	m->set_theta(0.3);
-	d_experiment->d_ants.push_back(std::make_shared<priv::Ant>(a));
+	d_experiment->AddAnt(a);
 
 
 	emit antListModified();
@@ -75,9 +75,29 @@ Error Experiment::open(const QString & path) {
 
 
 Error Experiment::addDataDirectory(const QString & path) {
-	d_experiment->d_experiment.add_datadirectory(path.toUtf8().constData());
-	markModified(true);
-	return Error::NONE;
+	try {
+
+		//d_experiment->AddRelativeDataPath(path.toUtf8().constData());
+
+
+
+
+		markModified(true);
+		return Error::NONE;
+	} catch ( const std::exception & e) {
+		return Error(e.what());
+	}
+}
+
+
+Error Experiment::removeDataDirectory(const QString & path) {
+	try {
+		//		d_experiment->RemoveRelativeDataPath(path.toUtf8().constData());
+		markModified(true);
+		return Error::NONE;
+	} catch ( const std::exception & e) {
+		return Error(e.what());
+	}
 }
 
 Error Experiment::save(const QString & path ) {
@@ -91,7 +111,7 @@ Error Experiment::save(const QString & path ) {
 }
 
 const std::vector<fort::myrmidion::priv::Ant::Ptr> & Experiment::Ants() const {
-	return d_experiment->d_ants;
+	return d_experiment->Ants();
 }
 
 bool Experiment::isModified() const {

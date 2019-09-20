@@ -2,15 +2,18 @@ set(SRC_FILES main.cpp
               MainWindow.cpp
               Error.cpp
               Experiment.cpp
-              AntListWidget.cpp)
+              AntListWidget.cpp
+              ExperimentInfoWidget.cpp)
 
 set(HDR_FILES MainWindow.hpp
               Experiment.hpp
               Error.hpp
-              AntListWidget.hpp)
+              AntListWidget.hpp
+              ExperimentInfoWidget.hpp)
 
 set(UI_FILES MainWindow.ui
-             AntListWidget.ui)
+             AntListWidget.ui
+             ExperimentInfoWidget.ui)
 
 set(RCC_FILES )
 

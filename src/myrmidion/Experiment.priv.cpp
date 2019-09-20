@@ -8,12 +8,14 @@
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/io/gzip_stream.h>
 
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
 
+namespace fm = fort::myrmidion;
 
-using namespace fort::myrmidion::priv;
+using namespace fm::priv;
 
 Experiment::Ptr Experiment::Open(const std::string & filename) {
 	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
@@ -87,4 +89,72 @@ void Experiment::Save(const std::string & filename) const {
 		}
 		line.release_antdata();
 	}
+}
+
+
+
+void Experiment::AddTrackingDataDirectory(const fm::pb::TrackingDataDirectory & path) {
+
+	bool canInsert = d_experiment.datadirectory_size() == 0;
+	for (auto iter = d_experiment.mutable_datadirectory()->begin();
+	     iter != d_experiment.mutable_datadirectory()->end();
+	     ++iter) {
+		if ( path.path() == iter->path() ) {
+			throw std::invalid_argument("directory '" + path.path() + "' is already present");
+		}
+		if ( iter->startframe() < path.endframe() ) {
+			canInsert = true;
+		}
+
+		if ( iter->endframe() >= path.startframe() ) {
+			continue;
+		}
+
+		auto next = iter + 1;
+		if ( next == d_experiment.mutable_datadirectory()->end()  || path.endframe() < next->startframe() ) {
+			canInsert = true;
+		}
+	}
+
+	if ( canInsert == false ) {
+		throw std::runtime_error("The frame in the tracking data are overlapping");
+	}
+	auto toAdd = d_experiment.add_datadirectory();
+	toAdd->CheckTypeAndMergeFrom(path);
+
+	std::sort(d_experiment.mutable_datadirectory()->begin(),
+	          d_experiment.mutable_datadirectory()->end(),
+	          [](const fm::pb::TrackingDataDirectory & a, const fm::pb::TrackingDataDirectory & b ) {
+		          return a.startframe() < b.startframe();
+	          });
+}
+
+void Experiment::RemoveRelativeDataPath(const std::string & path) {
+	bool removed = false;
+	std::remove_if(d_experiment.mutable_datadirectory()->begin(),
+	               d_experiment.mutable_datadirectory()->end(),
+	               [&removed,path](const fm::pb::TrackingDataDirectory & a) {
+		               if ( a.path() != path ) {
+			               return false;
+		               }
+		               removed = true;
+		               return removed;
+	               });
+
+	if ( removed == false ) {
+		throw std::invalid_argument("Could not find data path '" + path + "'");
+	}
+}
+
+const std::vector<std::string> & Experiment::TrackingDataPath() const {
+	throw std::runtime_error("oups");
+}
+
+//TODO Remove this helper method
+void Experiment::AddAnt(const fort::myrmidion::pb::AntMetadata * md) {
+	throw std::runtime_error("oups");
+}
+
+const std::vector<fm::priv::Ant::Ptr> & Experiment::Ants() const {
+	return d_ants;
 }
