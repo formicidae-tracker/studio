@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     d_ui->actionSave->setEnabled(false);
     setCurrentFile("");
     loadSettings();
+    d_ui->antList->setExperiment(&d_experiment);
+
 }
 
 MainWindow::~MainWindow() {

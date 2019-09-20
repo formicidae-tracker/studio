@@ -33,7 +33,8 @@ endforeach(f ${PROTO_HDR})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(HDR_PRIVATE_FILES Experiment.priv.hpp)
+set(HDR_PRIVATE_FILES Experiment.priv.hpp
+                      Ant.priv.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -42,8 +43,9 @@ set(HDR_PUBLIC_FILES Frame.hpp
 
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp
-              Experiment.priv.cpp
-	          Ant.cpp)
+	          Experiment.priv.cpp
+	          Ant.cpp
+	          Ant.priv.cpp)
 
 
 add_library(myrmidion SHARED ${SRC_FILES} ${HDR_PUBLIC_FILES} ${PROTO_HDR} ${PROTO_SRC})

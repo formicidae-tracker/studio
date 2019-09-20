@@ -4,6 +4,7 @@
 
 #include "Experiment.pb.h"
 
+#include "Ant.priv.hpp"
 
 
 namespace fort {
@@ -21,7 +22,7 @@ public :
 
 	fort::myrmidion::pb::Experiment d_experiment;
 
-	std::vector<fort::myrmidion::pb::AntMetadata> d_ants;
+	std::vector<Ant::Ptr> d_ants;
 };
 
 } //namespace priv

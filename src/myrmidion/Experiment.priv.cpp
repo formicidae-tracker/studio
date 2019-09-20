@@ -49,7 +49,7 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 		}
 
 		if (line.has_antdata() == true ) {
-			res->d_ants.push_back(line.antdata());
+			res->d_ants.push_back(std::make_shared<Ant>(line.release_antdata()));
 		}
 
 	}
@@ -81,7 +81,7 @@ void Experiment::Save(const std::string & filename) const {
 
 
 	for (auto const & a : d_ants) {
-		line.set_allocated_antdata(const_cast<fort::myrmidion::pb::AntMetadata*>(&a));
+		line.set_allocated_antdata(const_cast<fort::myrmidion::pb::AntMetadata*>(a->Metadata()));
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
 		}

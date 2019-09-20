@@ -15,10 +15,12 @@ public:
 
 	bool isModified() const;
 
+	const std::vector<fort::myrmidion::priv::Ant::Ptr> & Ants() const;
+
 
 signals:
 	void modified(bool);
-	void error(QString);
+	void antListModified();
 
 public slots:
 	Error addDataDirectory(const QString & path);
