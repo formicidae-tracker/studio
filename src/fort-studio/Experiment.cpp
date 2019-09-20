@@ -2,7 +2,7 @@
 
 #include <QFileInfo>
 
-
+#include <QDebug>
 
 Experiment::Experiment( QObject * parent)
 	: QObject(parent)
@@ -90,8 +90,6 @@ Error Experiment::open(const QString & path) {
 
 Error Experiment::openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
                                                     fort::myrmidion::pb::TrackingDataDirectory & res) {
-
-
 
 	return Error("Not yet implemented");
 }

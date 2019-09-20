@@ -22,7 +22,6 @@ public :
 	void Save(const std::string & filename) const;
 
 
-
 	void AddTrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
 	void RemoveRelativeDataPath(const std::string & path);
 

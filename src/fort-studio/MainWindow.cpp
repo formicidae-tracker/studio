@@ -141,7 +141,7 @@ Error MainWindow::saveAs() {
 }
 
 void MainWindow::on_actionAddTrackingDataDir_triggered() {
-	d_ui->experimentInfo->on_addButton_triggered();
+	d_ui->experimentInfo->on_addButton_clicked();
 }
 
 

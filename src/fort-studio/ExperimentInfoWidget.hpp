@@ -23,8 +23,8 @@ signals:
 
 public slots:
 	void onExperimentPathModified(const QString & path);
-	void on_addButton_triggered();
-	void on_removeButton_triggered();
+	void on_addButton_clicked();
+	void on_removeButton_clicked();
 
 
 private:

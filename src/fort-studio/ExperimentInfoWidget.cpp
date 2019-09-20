@@ -2,6 +2,7 @@
 #include "ui_ExperimentInfoWidget.h"
 
 #include <QFileDialog>
+#include <QDebug>
 
 
 ExperimentInfoWidget::ExperimentInfoWidget(QWidget *parent)
@@ -35,16 +36,21 @@ void ExperimentInfoWidget::onExperimentPathModified(const QString & path) {
 	d_ui->addButton->setEnabled(path.isEmpty() == false);
 }
 
-void ExperimentInfoWidget::on_addButton_triggered() {
-	QString dataDir  = QFileDialog::getExistingDirectory(this->parentWidget(), tr("Open Tracking Data Directory"),
+void ExperimentInfoWidget::on_addButton_clicked() {
+	QString dataDir  = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
 	                                                     QFileInfo(d_experiment->AbsolutePath()).absolutePath(),
 	                                                     QFileDialog::ShowDirsOnly);
 
-	Error err = d_experiment->addDataDirectory(dataDir);
-	if (err.OK()) {
+	if ( dataDir.isEmpty() ) {
 		return;
 	}
 
+	Error err = d_experiment->addDataDirectory(dataDir);
+	if (err.OK()) {
+		qInfo() << "Added '" << dataDir << "'";
+	}
+	qWarning() << err.what();
+
 }
-void ExperimentInfoWidget::on_removeButton_triggered() {
+void ExperimentInfoWidget::on_removeButton_clicked() {
 }
