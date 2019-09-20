@@ -6,6 +6,7 @@
 class Error {
 public:
 	Error(const char * what);
+	Error(const QString & what);
 	~Error();
 
 	bool OK() const;

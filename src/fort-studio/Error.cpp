@@ -3,6 +3,9 @@
 Error::Error(const char * what)
 	: d_what(what) {}
 
+Error::Error(const QString & what)
+	: d_what(what) {}
+
 Error::~Error() {}
 
 bool Error::OK() const {
