@@ -1,8 +1,12 @@
 #include "Experiment.hpp"
 
 #include <QFileInfo>
+#include <QDir>
 
 #include <QDebug>
+
+#include <fort-hermes/FileContext.h>
+#include <fort-hermes/Error.h>
 
 Experiment::Experiment( QObject * parent)
 	: QObject(parent)
@@ -73,14 +77,20 @@ void Experiment::reset() {
 	emit antListModified();
 	markModified(false);
 	setPath("");
+	emit dataDirUpdated(QStringList());
 }
 
 Error Experiment::open(const QString & path) {
 	try {
-		d_experiment->Open(path.toUtf8().constData());
+		d_experiment = fort::myrmidion::priv::Experiment::Open(path.toUtf8().constData());
 		setPath(path);
 		markModified(false);
 		emit antListModified();
+		QStringList res;
+		for ( auto const & p : d_experiment->TrackingDataPath() ) {
+			res << p.c_str();
+		}
+		emit dataDirUpdated(res);
 	} catch( const std::exception & e) {
 		return Error(e.what());
 	}
@@ -88,22 +98,72 @@ Error Experiment::open(const QString & path) {
 }
 
 
-Error Experiment::openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
+Error Experiment::openAndParseTrackingDataDirectory(const QString & path, const QString & root,
                                                     fort::myrmidion::pb::TrackingDataDirectory & res) {
 
-	return Error("Not yet implemented");
+
+
+	QDir rootDir(root);
+	QString toSave = rootDir.relativeFilePath(path);
+
+	//list data
+
+	std::vector<QString> hermesFiles;
+	for ( auto const & f : QDir(path).entryInfoList(QStringList() << "*.hermes", QDir::Files) ) {
+		hermesFiles.push_back(f.canonicalFilePath());
+	}
+
+	std::sort(hermesFiles.begin(),hermesFiles.end());
+
+	if ( hermesFiles.empty() ) {
+		return Error("'" + path + "' does not contains any .hermes files");
+	}
+	uint64_t firstFrame;
+	uint64_t lastFrame;
+	fort::hermes::FrameReadout ro;
+	try {
+		fort::hermes::FileContext first(hermesFiles.front().toUtf8().constData());
+		first.Read(&ro);
+		firstFrame = ro.frameid();
+	} catch (const std::exception & e ) {
+		return Error("could not read first frame of '" + hermesFiles.front() + "':" + e.what());
+	}
+
+	try {
+		fort::hermes::FileContext last(hermesFiles.back().toUtf8().constData());
+		for (;;) {
+			last.Read(&ro);
+			lastFrame = ro.frameid();
+		}
+	} catch (const fort::hermes::EndOfFile & e ) {
+	} catch ( const std::exception & e) {
+		return Error("could not read last frame of '" + hermesFiles.back() + "':" + e.what());
+	}
+	res.set_path(toSave.toUtf8().constData());
+	res.set_startframe(firstFrame);
+	res.set_endframe(lastFrame);
+
+	qInfo() << res.DebugString().c_str();
+
+	return Error::NONE;
 }
 
 
-Error Experiment::addDataDirectory(const QString & path) {
+Error Experiment::addDataDirectory(const QString & path, QString & result) {
 	fort::myrmidion::pb::TrackingDataDirectory tdd;
 	Error err = openAndParseTrackingDataDirectory(path, QFileInfo(d_absolutePath).absolutePath(), tdd);
 	if ( !err.OK() ) {
 		return err;
 	}
+	result = tdd.path().c_str();
 	try {
 		d_experiment->AddTrackingDataDirectory(tdd);
 		markModified(true);
+		QStringList res;
+		for ( auto const & p : d_experiment->TrackingDataPath() ) {
+			res << p.c_str();
+		}
+		emit dataDirUpdated(res);
 		return Error::NONE;
 	} catch ( const std::exception & e) {
 		return Error(e.what());

@@ -74,7 +74,7 @@
        </spacer>
       </item>
       <item row="2" column="0" colspan="3">
-       <widget class="QListView" name="listView"/>
+       <widget class="QListWidget" name="listWidget"/>
       </item>
      </layout>
     </widget>

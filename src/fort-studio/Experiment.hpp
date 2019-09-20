@@ -21,11 +21,12 @@ public:
 
 signals:
 	void modified(bool);
+	void dataDirUpdated(QStringList);
 	void antListModified();
 	void pathModified(const QString & path);
 
 public slots:
-	Error addDataDirectory(const QString & relativePath);
+	Error addDataDirectory(const QString & path, QString & result);
 	Error removeDataDirectory(const QString & path);
 	Error save(const QString & path);
 	Error open(const QString & path);
