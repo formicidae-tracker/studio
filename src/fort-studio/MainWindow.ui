@@ -14,8 +14,30 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="AntListWidget" name="antList" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>280</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>280</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
        <number>0</number>
@@ -40,25 +62,25 @@
       </widget>
      </widget>
     </item>
-    <item>
-     <widget class="AntListWidget" name="antList" native="true">
+    <item row="1" column="0" colspan="2">
+     <widget class="QPlainTextEdit" name="console">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="minimumSize">
-       <size>
-        <width>280</width>
-        <height>0</height>
-       </size>
-      </property>
       <property name="maximumSize">
        <size>
-        <width>280</width>
-        <height>16777215</height>
+        <width>16777215</width>
+        <height>150</height>
        </size>
+      </property>
+      <property name="undoRedoEnabled">
+       <bool>false</bool>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -115,7 +137,6 @@
    <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="icon">
     <iconset theme="document-open">
@@ -171,6 +192,9 @@
    </property>
    <property name="text">
     <string>Add Tracking Data Directory</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a New Tracking Data Directory. The current project must be saved. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionHelpAbout">

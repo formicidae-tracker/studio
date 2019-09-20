@@ -1,5 +1,6 @@
 #include "Experiment.hpp"
 
+#include <QFileInfo>
 
 
 
@@ -12,6 +13,17 @@ Experiment::Experiment( QObject * parent)
 Experiment::~Experiment() {
 }
 
+void Experiment::setPath(const QString & path) {
+	QString oldPath = d_absolutePath;
+	d_absolutePath = QFileInfo(path).absoluteFilePath();
+	if ( oldPath != d_absolutePath) {
+		emit pathModified(d_absolutePath);
+	}
+}
+
+const QString & Experiment::AbsolutePath() const  {
+	return d_absolutePath;
+}
 
 void Experiment::reset() {
 	using namespace fort::myrmidion;
@@ -60,11 +72,13 @@ void Experiment::reset() {
 
 	emit antListModified();
 	markModified(false);
+	setPath("");
 }
 
 Error Experiment::open(const QString & path) {
 	try {
 		d_experiment->Open(path.toUtf8().constData());
+		setPath(path);
 		markModified(false);
 		emit antListModified();
 	} catch( const std::exception & e) {
@@ -74,14 +88,23 @@ Error Experiment::open(const QString & path) {
 }
 
 
+Error Experiment::openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
+                                                    fort::myrmidion::pb::TrackingDataDirectory & res) {
+
+
+
+	return Error("Not yet implemented");
+}
+
+
 Error Experiment::addDataDirectory(const QString & path) {
+	fort::myrmidion::pb::TrackingDataDirectory tdd;
+	Error err = openAndParseTrackingDataDirectory(path, QFileInfo(d_absolutePath).absolutePath(), tdd);
+	if ( !err.OK() ) {
+		return err;
+	}
 	try {
-
-		//d_experiment->AddRelativeDataPath(path.toUtf8().constData());
-
-
-
-
+		d_experiment->AddTrackingDataDirectory(tdd);
 		markModified(true);
 		return Error::NONE;
 	} catch ( const std::exception & e) {
@@ -104,6 +127,7 @@ Error Experiment::save(const QString & path ) {
 	try {
 		d_experiment->Save(path.toUtf8().constData());
 		markModified(false);
+		setPath(path);
 	} catch (const std::exception & e ) {
 		return Error(e.what());
 	}

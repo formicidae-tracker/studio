@@ -29,9 +29,8 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
-
 	void on_experiment_modified();
-
+	void on_experiment_pathModified(const QString & path);
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -57,7 +56,6 @@ private:
 
 
 	bool    d_modified;
-	QString d_currentFile;
 	Experiment d_experiment;
 	std::deque<QString> d_recentPaths;
 };

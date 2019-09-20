@@ -17,13 +17,15 @@ public:
 
 	const std::vector<fort::myrmidion::priv::Ant::Ptr> & Ants() const;
 
+	const QString & AbsolutePath() const;
 
 signals:
 	void modified(bool);
 	void antListModified();
+	void pathModified(const QString & path);
 
 public slots:
-	Error addDataDirectory(const QString & path);
+	Error addDataDirectory(const QString & relativePath);
 	Error removeDataDirectory(const QString & path);
 	Error save(const QString & path);
 	Error open(const QString & path);
@@ -32,6 +34,11 @@ public slots:
 private:
 	fort::myrmidion::priv::Experiment::Ptr d_experiment;
 	bool d_modified;
+	QString d_absolutePath;
 
 	void markModified(bool modified);
+	void setPath(const QString & path);
+
+	Error openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
+	                                        fort::myrmidion::pb::TrackingDataDirectory & res);
 };

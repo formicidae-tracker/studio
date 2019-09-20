@@ -1,22 +1,33 @@
-#ifndef EXPERIMENTINFOWIDGET_HPP
-#define EXPERIMENTINFOWIDGET_HPP
+#pragma once
 
 #include <QWidget>
+
+#include "Experiment.hpp"
+
 
 namespace Ui {
 class ExperimentInfoWidget;
 }
 
-class ExperimentInfoWidget : public QWidget
-{
+class ExperimentInfoWidget : public QWidget {
 	Q_OBJECT
-
 public:
 	explicit ExperimentInfoWidget(QWidget *parent = nullptr);
 	~ExperimentInfoWidget();
 
-private:
-	Ui::ExperimentInfoWidget *ui;
-};
+	void setExperiment(Experiment * exp);
 
-#endif // EXPERIMENTINFOWIDGET_HPP
+signals:
+	void addTriggered();
+	void deleteTriggered(const QString & path);
+
+public slots:
+	void onExperimentPathModified(const QString & path);
+	void on_addButton_triggered();
+	void on_removeButton_triggered();
+
+
+private:
+	Ui::ExperimentInfoWidget * d_ui;
+	Experiment               * d_experiment;
+};

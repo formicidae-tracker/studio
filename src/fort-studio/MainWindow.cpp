@@ -14,11 +14,34 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_experiment(this){
 	d_experiment.setObjectName("experiment");
     d_ui->setupUi(this);
+    static MainWindow * myself = this;
+    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) -> void{
+	                           QByteArray localMsg = msg.toLocal8Bit();
+	                           switch (type) {
+	                           case QtDebugMsg:
+		                           myself->d_ui->console->appendHtml("<font color=\"black\">"+msg+"</font></br>");
+		                           break;
+	                           case QtInfoMsg:
+		                           myself->d_ui->console->appendHtml("<font color=\"blue\">"+msg+"</font></br>");
+		                           break;
+	                           case QtWarningMsg:
+		                           myself->d_ui->console->appendHtml("<font color=\"orange\"><b>"+msg+"</b></font></br>");
+		                           break;
+	                           case QtCriticalMsg:
+		                           myself->d_ui->console->appendHtml("<font color=\"red\">"+msg+"</font></br>");
+		                           break;
+	                           case QtFatalMsg:
+		                           myself->d_ui->console->appendHtml("<font color=\"red\"><b>"+msg+"</b></font></br>");
+		                           break;
+	                           }
+                           });
+
     d_ui->actionSave->setEnabled(false);
     setCurrentFile("");
     loadSettings();
     d_ui->antList->setExperiment(&d_experiment);
-
+    d_ui->experimentInfo->setExperiment(&d_experiment);
+    d_ui->actionAddTrackingDataDir->setEnabled(false);
 }
 
 MainWindow::~MainWindow() {
@@ -26,10 +49,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::promptError(const Error & err) {
-	QMessageBox::warning(this, tr("Internal Error"),
-	                     tr("Unhandled internal error:\n"
-	                        "%1\n").arg(err.what()),
-	                     QMessageBox::Cancel);
+	qWarning() << "Unhandled internal error: " << err.what();
 }
 
 
@@ -42,9 +62,14 @@ void MainWindow::on_actionNew_triggered() {
 		promptError(err);
 		return;
 	}
+	if (d_experiment.AbsolutePath() == "") {
+		on_actionSaveAs_triggered();
+		return;
+	}
+
 
 	d_experiment.reset();
-	d_ui->statusbar->showMessage(tr("New experimental data"),2000);
+	qInfo() << tr("New experimental data");
 	setCurrentFile("");
 }
 
@@ -59,8 +84,8 @@ void MainWindow::on_actionOpen_triggered() {
 	}
 
 	QString dir = "";
-	if (!d_currentFile.isEmpty()) {
-		dir = QFileInfo(d_currentFile).absolutePath();
+	if (!d_experiment.AbsolutePath().isEmpty()) {
+		dir = QFileInfo(d_experiment.AbsolutePath()).absolutePath();
 	}
 
 	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
@@ -96,10 +121,10 @@ void MainWindow::on_actionSaveAs_triggered() {
 }
 
 Error MainWindow::save() {
-	if (d_currentFile.isEmpty() ) {
+	if (d_experiment.AbsolutePath().isEmpty() ) {
 		return saveAs();
 	} else {
-		return save(d_currentFile);
+		return save(d_experiment.AbsolutePath());
 	}
 }
 
@@ -116,11 +141,7 @@ Error MainWindow::saveAs() {
 }
 
 void MainWindow::on_actionAddTrackingDataDir_triggered() {
-	qInfo() << "Add tracking data trigger";
-	QString dataDir  = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
-	                                                     "",
-	                                                     QFileDialog::ShowDirsOnly);
-	d_experiment.addDataDirectory(dataDir);
+	d_ui->experimentInfo->on_addButton_triggered();
 }
 
 
@@ -157,19 +178,17 @@ Error MainWindow::maybeSave() {
 Error MainWindow::save(const QString & path) {
 	Error err = d_experiment.save(path);
 	if (!err.OK()) {
-		d_ui->statusbar->showMessage(tr("Could not save file '%1': %2").arg(path).arg(err.what()),2000);
 		return err;
 	}
 	setCurrentFile(path);
-	d_ui->statusbar->showMessage(tr("File '%1' saved").arg(d_currentFile), 2000);
+	qInfo() << tr("File '%1' saved").arg(d_experiment.AbsolutePath());
 	return err;
 }
 
 void MainWindow::setCurrentFile(const QString & path) {
-	d_currentFile = path;
 	setWindowModified(false);
-	QString shownName = d_currentFile;
-	if (d_currentFile.isEmpty()) {
+	QString shownName = d_experiment.AbsolutePath();
+	if (shownName.isEmpty()) {
 		shownName = "untitled.fortstudio";
 	}
 	setWindowFilePath(shownName);
@@ -205,9 +224,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	}
 }
 
-
 void MainWindow::pushRecent() {
-	QString newPath = QFileInfo(d_currentFile).absoluteFilePath();
+	QString newPath = QFileInfo(d_experiment.AbsolutePath()).absoluteFilePath();
 
 	//if already in the vector, just move it to the top
 	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {
@@ -294,6 +312,11 @@ void MainWindow::open(const QString & path ) {
 		return;
 	}
 	setCurrentFile(path);
-	d_ui->statusbar->showMessage(tr("Opened '%1'").arg(path),2000);
+	qInfo() << tr("Opened '%1'").arg(path);
 	pushRecent();
+}
+
+
+void MainWindow::on_experiment_pathModified(const QString & path) {
+	d_ui->actionAddTrackingDataDir->setEnabled( d_experiment.AbsolutePath().isEmpty() == false);
 }
