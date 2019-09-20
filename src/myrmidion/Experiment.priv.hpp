@@ -26,10 +26,10 @@ public :
 	void AddTrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
 	void RemoveRelativeDataPath(const std::string & path);
 
-	const std::vector<std::string> & TrackingDataPath() const;
+	std::vector<std::string> TrackingDataPath() const;
 
 	//TODO Remove this helper method
-	void AddAnt(const fort::myrmidion::pb::AntMetadata * md);
+	void AddAnt(fort::myrmidion::pb::AntMetadata * md);
 	const std::vector<Ant::Ptr> & Ants() const;
 
 private:

@@ -58,9 +58,9 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 }
 
 void Experiment::Save(const std::string & filename) const {
-	int fd =  open(filename.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY);
+	int fd =  open(filename.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
 	if ( fd  < 0 ) {
-		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY)");
+		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
 	}
 
 	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
@@ -146,13 +146,18 @@ void Experiment::RemoveRelativeDataPath(const std::string & path) {
 	}
 }
 
-const std::vector<std::string> & Experiment::TrackingDataPath() const {
-	throw std::runtime_error("oups");
+std::vector<std::string> Experiment::TrackingDataPath() const {
+	std::vector<std::string> res;
+	res.reserve(d_experiment.datadirectory_size());
+	for ( auto const & tdd : d_experiment.datadirectory() ) {
+		res.push_back(tdd.path());
+	}
+	return res;
 }
 
 //TODO Remove this helper method
-void Experiment::AddAnt(const fort::myrmidion::pb::AntMetadata * md) {
-	throw std::runtime_error("oups");
+void Experiment::AddAnt(fort::myrmidion::pb::AntMetadata * md) {
+	d_ants.push_back(std::make_shared<fm::priv::Ant>(md));
 }
 
 const std::vector<fm::priv::Ant::Ptr> & Experiment::Ants() const {
