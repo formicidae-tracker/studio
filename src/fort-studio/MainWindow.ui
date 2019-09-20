@@ -33,7 +33,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="AntListWidget" name="antList" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -42,24 +42,16 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>250</width>
+        <width>280</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>250</width>
+        <width>280</width>
         <height>16777215</height>
        </size>
       </property>
-      <property name="title">
-       <string>Ants</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="AntListWidget" name="antList" native="true"/>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>

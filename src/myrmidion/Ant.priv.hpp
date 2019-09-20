@@ -17,15 +17,22 @@ public:
 	Ant(fort::myrmidion::pb::AntMetadata * ant);
 	~Ant();
 
-	const fort::myrmidion::pb::AntMetadata * Metadata() const;
+	const fort::myrmidion::pb::AntMetadata * Metadata() const {
+		return d_metadata.get();
+	}
 
 	fort::myrmidion::Ant::ID ID() const {
 		return d_metadata->id();
 	}
 
+	const std::string & FormatID() const {
+		return d_ID;
+	}
+
 private:
 	std::shared_ptr<fort::myrmidion::pb::AntMetadata> d_metadata;
 
+	std::string d_ID;
 
 };
 

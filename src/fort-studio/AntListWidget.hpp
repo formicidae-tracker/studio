@@ -31,4 +31,5 @@ private:
 
 	QMap<uint32_t,QListWidgetItem*> d_items;
 
+	QString format(const fort::myrmidion::priv::Ant & a);
 };

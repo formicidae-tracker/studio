@@ -24,7 +24,35 @@ void AntListWidget::setExperiment(Experiment * experiment) {
 	updateList();
 }
 
+
+QString AntListWidget::format(const fort::myrmidion::priv::Ant & a) {
+
+	QMap<uint32_t,bool> tags;
+	for(auto const & m : a.Metadata()->marker()) {
+		if ( m.has_marker() == false ) {
+			continue;
+		}
+		tags[m.marker().id()] = true;
+	}
+	auto res = tr("%1, tags:").arg(a.FormatID().c_str());
+	if (tags.isEmpty()) {
+		return res + tr("<no-tags>");
+	}
+
+	QString sep = "";
+	for(auto const & t : tags.keys() ) {
+		res += sep + QString::number(t);
+		if (sep.isEmpty()) {
+			sep = ",";
+		}
+	}
+	return res;
+}
+
 void AntListWidget::updateList() {
+	d_ui->groupBox->setTitle(tr("Ants: %1").arg(d_experiment->Ants().size()));
+
+
 	QSet<uint32_t> notInList;
 
 	for ( auto const & k : d_items.keys() ) {
@@ -35,10 +63,10 @@ void AntListWidget::updateList() {
 		notInList.remove(a->ID());
 		auto item = d_items.find(a->ID());
 		if ( item != d_items.end() ) {
-			(*item)->setText(QString::number(a->ID()));
+			(*item)->setText(format(*a));
 			continue;
 		}
-		auto newItem = new QListWidgetItem(tr("%1 tags:").arg(a->ID()),d_ui->listWidget);
+		auto newItem = new QListWidgetItem(format(*a),d_ui->listWidget);
 		newItem->setData(Qt::UserRole,a->ID());
 		d_items[a->ID()] = newItem;
 		d_ui->listWidget->addItem(newItem);
@@ -53,7 +81,7 @@ void AntListWidget::updateList() {
 }
 
 void AntListWidget::on_listWidget_itemDoubleClicked(QListWidgetItem * item) {
-	qInfo() << "double clicked" << item->text();
+	qInfo() << "double clicked" << item->text() << item->data(Qt::UserRole).toInt();
 }
 
 
