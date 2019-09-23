@@ -26,4 +26,4 @@ include_directories(${PROJECT_BINARY_DIR}/src
 
 add_executable(fort-studio ${SRC_FILES} ${HDR_FILES} ${UI_FILES} ${RCC_FILES})
 
-target_link_libraries(fort-studio Qt5::Widgets myrmidion ${FORT_HERMES_CPP_LIBRARIES})
+target_link_libraries(fort-studio Qt5::Widgets myrmidion)

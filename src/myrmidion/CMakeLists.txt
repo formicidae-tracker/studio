@@ -47,7 +47,24 @@ set(SRC_FILES Frame.cpp
 	          Ant.cpp
 	          Ant.priv.cpp)
 
+set(SRC_UTEST_FILES main-check.cpp)
 
-add_library(myrmidion SHARED ${SRC_FILES} ${HDR_PUBLIC_FILES} ${PROTO_HDR} ${PROTO_SRC})
+set(HDR_UTEST_FILES )
 
-target_link_libraries(myrmidion ${PROTOBUF_LIBRARIES})
+add_library(myrmidion SHARED ${SRC_FILES}
+                             ${HDR_PUBLIC_FILES}
+                             ${PROTO_HDR}
+                             ${PROTO_SRC})
+
+target_link_libraries(myrmidion ${PROTOBUF_LIBRARIES}
+                                ${FORT_HERMES_CPP_LIBRARIES})
+
+
+add_executable(myrmidion-tests ${SRC_UTEST_FILES}
+                               ${HDR_UTEST_FILES}
+                               )
+target_link_libraries(myrmidion-tests myrmidion
+                                      gtest)
+
+gtest_discover_tests(myrmidion-tests)
+add_dependencies(check myrmidion-tests)
