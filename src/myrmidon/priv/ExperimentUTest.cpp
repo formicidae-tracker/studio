@@ -14,6 +14,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <iterator>
+#include <fstream>
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -23,18 +26,41 @@ namespace fm= fort::myrmidon;
 namespace fs = std::filesystem;
 using namespace fm::priv;
 
-TEST_F(ExperimentUTest,IOTest) {
 
+void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
+	data.clear();
+	data.reserve(fs::file_size(a));
+	std::ifstream f(a.c_str(),std::ios::binary);
+	data =  std::vector<uint8_t>(std::istreambuf_iterator<char>(f),{});
+}
+
+TEST_F(ExperimentUTest,IOTest) {
 	try{
 		auto e = Experiment::Open(s_testdir / "test.myrmidon" );
 		auto tdd = e->TrackingDataPaths();
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd["foo.0000"].Path,"foo.0000");
+		ASSERT_EQ(e->Ants().size(),3);
+		EXPECT_EQ(e->Ants().find(1)->second->ID(),1);
+		EXPECT_EQ(e->Ants().find(2)->second->ID(),2);
+		EXPECT_EQ(e->Ants().find(3)->second->ID(),3);
 
+		e->Save(s_testdir / "test2.myrmidon");
 	} catch (const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
 
+	try {
+		std::vector<uint8_t> originalData,newData;
+		ReadAll(s_testdir/"test.myrmidon",originalData);
+		ReadAll(s_testdir/"test2.myrmidon",newData);
+		ASSERT_EQ(newData.size(),originalData.size());
+		for(size_t i = 0; i < newData.size(); ++i) {
+			ASSERT_EQ(newData[i],originalData[i]) << "At byte " << i;
+		}
+	} catch ( const std::exception & e) {
+		ADD_FAILURE() << "Got unexpected exception: " << e.what();
+	}
 
 }
 
@@ -52,8 +78,6 @@ void ExperimentUTest::SetUpTestCase() {
 
 			//creates data
 			fm::pb::Experiment e;
-			fm::pb::AntMetadata a1;
-			fm::pb::AntMetadata a2;
 
 			auto p = e.add_datadirectory();
 			p->set_path("foo.0000");
@@ -63,10 +87,6 @@ void ExperimentUTest::SetUpTestCase() {
 			auto endDate = p->mutable_enddate();
 			ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:20.021-05:00",startDate),true);
 			ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:42.021-05:00",endDate),true);
-
-
-			a1.set_id(1);
-			a2.set_id(2);
 
 			fm::pb::FileHeader header;
 
@@ -93,21 +113,15 @@ void ExperimentUTest::SetUpTestCase() {
 			}
 			l.release_experiment();
 
-			l.set_allocated_antdata(&a1);
-			if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-				throw std::runtime_error("could not write ant data 1");
+			for (size_t i = 1; i <=3; ++i) {
+				fort::myrmidon::pb::AntMetadata a;
+				a.set_id(i);
+				l.set_allocated_antdata(&a);
+				if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+					throw std::runtime_error("could not write ant data 1");
+				}
+				l.release_antdata();
 			}
-			l.release_antdata();
-
-
-			l.set_allocated_antdata(&a2);
-			if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-				throw std::runtime_error("could not write ant data 2");
-			}
-			l.release_antdata();
-			ASSERT_NE(gunziped->ByteCount(),0);
-			ASSERT_NE(file->ByteCount(),0);
-			fsync(fd);
 		});
 	ASSERT_NE(fs::file_size(s_testdir / "test.myrmidon"),0);
 }

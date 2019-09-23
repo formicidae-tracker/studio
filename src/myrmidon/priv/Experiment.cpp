@@ -63,8 +63,9 @@ void Experiment::Load(const std::filesystem::path & filepath) {
 		}
 
 		if (line.has_antdata() == true ) {
-			d_antIDs.insert(line.antdata().id());
-			d_ants[line.antdata().id()] = std::make_shared<Ant>(line.release_antdata());
+			fort::myrmidon::Ant::ID id = line.antdata().id();
+			d_antIDs.insert(id);
+			d_ants[id] = std::make_shared<Ant>(line.release_antdata());
 		}
 	}
 	d_continuous = false;
@@ -111,8 +112,8 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	line.release_experiment();
 
 
-	for (auto const & a : d_ants) {
-		line.set_allocated_antdata(const_cast<fort::myrmidon::pb::AntMetadata*>(a.second->Metadata()));
+	for (auto const & ID : d_antIDs) {
+		line.set_allocated_antdata(const_cast<fort::myrmidon::pb::AntMetadata*>(d_ants.find(ID)->second->Metadata()));
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
 		}
