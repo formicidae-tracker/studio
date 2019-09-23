@@ -68,5 +68,5 @@ add_executable(myrmidon-tests ${SRC_UTEST_FILES}
 target_link_libraries(myrmidon-tests myrmidon
                                      gtest)
 
-gtest_discover_tests(myrmidon-tests)
+add_test(NAME myrmidon-tests COMMAND myrmidon-tests)
 add_dependencies(check myrmidon-tests)

@@ -87,21 +87,13 @@ TEST_F(ExperimentUTest,AndsAreCreatedSequentially) {
 		ant = e->CreateAnt();
 		ASSERT_EQ(ant->ID(),5);
 
-
 		ant = e->CreateAnt();
 		ASSERT_EQ(ant->ID(),7);
-
 
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
-
-
-
-
 }
-
-
 
 
 std::filesystem::path ExperimentUTest::s_testdir;
@@ -122,11 +114,11 @@ void ExperimentUTest::SetUpTestCase() {
 			auto p = e.add_datadirectory();
 			p->set_path("foo.0000");
 			p->set_startframe(100);
-			p->set_endframe(200);
+			p->set_endframe(105);
 			auto startDate = p->mutable_startdate();
 			auto endDate = p->mutable_enddate();
 			ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:20.021-05:00",startDate),true);
-			ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:42.021-05:00",endDate),true);
+			ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:21.271-05:00",endDate),true);
 
 			fm::pb::FileHeader header;
 
