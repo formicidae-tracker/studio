@@ -15,7 +15,7 @@ public:
 
 	bool isModified() const;
 
-	const std::vector<fort::myrmidon::priv::Ant::Ptr> & Ants() const;
+	const fort::myrmidon::priv::Experiment::AntByID & Ants() const;
 
 	const QString & AbsolutePath() const;
 

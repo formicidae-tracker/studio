@@ -2,39 +2,69 @@
 
 #include <memory>
 
-#include "Experiment.pb.h"
-
 #include "Ant.hpp"
 
-
+#include <filesystem>
+#include <chrono>
 namespace fort {
 namespace myrmidon {
+
+namespace pb {
+class Experiment;
+class TrackingDataDirectory;
+}
+
 namespace priv {
 
 using namespace fort::myrmidon;
 
 class Experiment {
 public :
+	using Clock = std::chrono::system_clock;
+	struct TrackingDataDirectory {
+		TrackingDataDirectory();
+		TrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
+		std::filesystem::path  Path;
+
+		uint64_t StartFrame;
+		uint64_t EndFrame;
+
+		std::chrono::time_point<Clock> StartDate,EndDate;
+	};
+	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
+	typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
+
 	typedef std::unique_ptr<Experiment> Ptr;
 
-	static Ptr Open(const std::string & filename);
+	static Ptr Open(const std::filesystem::path & filename);
+	void Save(const std::filesystem::path & filename) const;
 
-	void Save(const std::string & filename) const;
+	void CheckDirectories();
 
+	void AddTrackingDataDirectory(const std::filesystem::path & path);
+	void RemoveTrackingDataDirectory(const std::filesystem::path & path);
 
-	void AddTrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
-	void RemoveRelativeDataPath(const std::string & path);
+	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
 
-	std::vector<std::string> TrackingDataPath() const;
-
-	//TODO Remove this helper method
-	void AddAnt(fort::myrmidon::pb::AntMetadata * md);
-	const std::vector<Ant::Ptr> & Ants() const;
+	Ant::Ptr CreateAnt();
+	void DeleteAnt(fort::myrmidon::Ant::ID );
+	const AntByID & Ants() const;
 
 private:
-	fort::myrmidon::pb::Experiment d_experiment;
+	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 
-	std::vector<Ant::Ptr> d_ants;
+	Experiment(const std::filesystem::path & filepath);
+	void Load(const std::filesystem::path & filepath);
+	fort::myrmidon::Ant::ID NextAvailableID() const;
+
+
+	pb::Experiment              d_experiment;
+
+	std::filesystem::path       d_basepath;
+	TrackingDataDirectoryByPath d_dataDirs;
+	AntByID                     d_ants;
+	SetOfID                     d_antIDs;
+	bool                        d_continuous;
 };
 
 } //namespace priv

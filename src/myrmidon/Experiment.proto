@@ -9,6 +9,9 @@ message TrackingDataDirectory {
 	string Path       = 1;
 	uint64 StartFrame = 2;
 	uint64 EndFrame   = 3;
+
+	google.protobuf.Timestamp StartDate = 4;
+	google.protobuf.Timestamp EndDate   = 5;
 }
 
 message Experiment {
@@ -44,6 +47,8 @@ message AntMetadata {
 };
 
 message FileHeader {
+	int32 MajorVersion = 1;
+	int32 MinorVersion = 2;
 };
 
 

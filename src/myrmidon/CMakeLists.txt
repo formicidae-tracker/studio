@@ -47,9 +47,10 @@ set(SRC_FILES Frame.cpp
 	          Ant.cpp
 	          priv/Ant.cpp)
 
-set(SRC_UTEST_FILES main-check.cpp)
+set(SRC_UTEST_FILES main-check.cpp
+	                priv/ExperimentUTest.cpp)
 
-set(HDR_UTEST_FILES )
+set(HDR_UTEST_FILES priv/ExperimentUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${HDR_PUBLIC_FILES}
@@ -57,7 +58,8 @@ add_library(myrmidon SHARED ${SRC_FILES}
                             ${PROTO_SRC})
 
 target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
-                               ${FORT_HERMES_CPP_LIBRARIES})
+                               ${FORT_HERMES_CPP_LIBRARIES}
+                               stdc++fs)
 
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}

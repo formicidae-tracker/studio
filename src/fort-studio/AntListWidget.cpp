@@ -59,9 +59,9 @@ void AntListWidget::updateList() {
 		notInList.insert(k);
 	}
 
-	for ( auto const & a : d_experiment->Ants() ) {
-		notInList.remove(a->ID());
-		auto item = d_items.find(a->ID());
+	for ( auto const & [ID,a] : d_experiment->Ants() ) {
+		notInList.remove(ID);
+		auto item = d_items.find(ID);
 		if ( item != d_items.end() ) {
 			(*item)->setText(format(*a));
 			continue;

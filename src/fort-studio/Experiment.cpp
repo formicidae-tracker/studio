@@ -31,49 +31,7 @@ const QString & Experiment::AbsolutePath() const  {
 
 void Experiment::reset() {
 	using namespace fort::myrmidon;
-	d_experiment = priv::Experiment::Ptr(new priv::Experiment());
-	auto a  = new pb::AntMetadata();
-
-	a->set_id(1);
-	auto idtf = a->add_marker();
-	idtf->set_startvalidframe(0);
-	auto m = idtf->mutable_marker();
-	m->set_id(0);
-	m->set_x(1.5);
-	m->set_y(-2.0);
-	m->set_theta(42.3);
-	d_experiment->AddAnt(a);
-
-	a = new pb::AntMetadata();
-	a->set_id(4236);
-	d_experiment->AddAnt(a);
-
-	a = new pb::AntMetadata();
-	a->set_id(56201);
-	idtf = a->add_marker();
-	idtf->set_startvalidframe(0);
-	m = idtf->mutable_marker();
-	m->set_id(234);
-	m->set_x(-1.5);
-	m->set_y(2.0);
-	m->set_theta(-42.3);
-	idtf = a->add_marker();
-	idtf->set_startvalidframe(19674);
-	m = idtf->mutable_marker();
-	m->set_id(234);
-	m->set_x(2);
-	m->set_y(-12.0);
-	m->set_theta(89.3);
-	idtf = a->add_marker();
-	idtf->set_startvalidframe(35894);
-	m = idtf->mutable_marker();
-	m->set_id(589);
-	m->set_x(-5.5);
-	m->set_y(-12.0);
-	m->set_theta(0.3);
-	d_experiment->AddAnt(a);
-
-
+	d_experiment.reset();
 	emit antListModified();
 	markModified(false);
 	setPath("");
@@ -87,8 +45,8 @@ Error Experiment::open(const QString & path) {
 		markModified(false);
 		emit antListModified();
 		QStringList res;
-		for ( auto const & p : d_experiment->TrackingDataPath() ) {
-			res << p.c_str();
+		for ( auto const & p : d_experiment->TrackingDataPaths() ) {
+			res << p.first.c_str();
 		}
 		emit dataDirUpdated(res);
 	} catch( const std::exception & e) {
@@ -157,12 +115,12 @@ Error Experiment::addDataDirectory(const QString & path, QString & result) {
 	}
 	result = tdd.path().c_str();
 	try {
-		d_experiment->AddTrackingDataDirectory(tdd);
+		//d_experiment->AddTrackingDataDirectory(tdd);
 		markModified(true);
 		QStringList res;
-		for ( auto const & p : d_experiment->TrackingDataPath() ) {
-			res << p.c_str();
-		}
+		// for ( auto const & p : d_experiment->TrackingDataPath() ) {
+		// 	res << p.c_str();
+		// }
 		emit dataDirUpdated(res);
 		return Error::NONE;
 	} catch ( const std::exception & e) {
@@ -192,7 +150,7 @@ Error Experiment::save(const QString & path ) {
 	return Error::NONE;
 }
 
-const std::vector<fort::myrmidon::priv::Ant::Ptr> & Experiment::Ants() const {
+const fort::myrmidon::priv::Experiment::AntByID & Experiment::Ants() const {
 	return d_experiment->Ants();
 }
 
