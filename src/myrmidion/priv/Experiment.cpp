@@ -1,9 +1,9 @@
-#include "Experiment.priv.hpp"
+#include "Experiment.hpp"
 
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include "utils/PosixCall.h"
+#include "../utils/PosixCall.h"
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/io/gzip_stream.h>

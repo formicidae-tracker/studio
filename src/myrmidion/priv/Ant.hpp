@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Experiment.pb.h"
-#include "Ant.hpp"
+#include "../Ant.hpp"
 
 namespace fort {
 

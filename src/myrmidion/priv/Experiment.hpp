@@ -4,7 +4,7 @@
 
 #include "Experiment.pb.h"
 
-#include "Ant.priv.hpp"
+#include "Ant.hpp"
 
 
 namespace fort {

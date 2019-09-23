@@ -1,4 +1,4 @@
-#include "Ant.priv.hpp"
+#include "Ant.hpp"
 
 #include <sstream>
 #include <iomanip>

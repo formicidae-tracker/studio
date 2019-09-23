@@ -5,7 +5,7 @@
 
 #include "Error.hpp"
 
-#include <myrmidion/Experiment.priv.hpp>
+#include <myrmidion/priv/Experiment.hpp>
 
 class Experiment : public QObject {
 	Q_OBJECT
