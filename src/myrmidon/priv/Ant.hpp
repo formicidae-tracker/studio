@@ -7,21 +7,21 @@
 
 namespace fort {
 
-namespace myrmidion {
+namespace myrmidon {
 
 namespace priv {
 
 class Ant {
 public:
 	typedef std::shared_ptr<Ant> Ptr;
-	Ant(fort::myrmidion::pb::AntMetadata * ant);
+	Ant(fort::myrmidon::pb::AntMetadata * ant);
 	~Ant();
 
-	const fort::myrmidion::pb::AntMetadata * Metadata() const {
+	const fort::myrmidon::pb::AntMetadata * Metadata() const {
 		return d_metadata.get();
 	}
 
-	fort::myrmidion::Ant::ID ID() const {
+	fort::myrmidon::Ant::ID ID() const {
 		return d_metadata->id();
 	}
 
@@ -30,7 +30,7 @@ public:
 	}
 
 private:
-	std::shared_ptr<fort::myrmidion::pb::AntMetadata> d_metadata;
+	std::shared_ptr<fort::myrmidon::pb::AntMetadata> d_metadata;
 
 	std::string d_ID;
 
@@ -38,6 +38,6 @@ private:
 
 } //namespace priv
 
-} // namespace myrmidion
+} // namespace myrmidon
 
 } // namespace fort

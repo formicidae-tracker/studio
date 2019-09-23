@@ -3,7 +3,7 @@
 
 namespace fort {
 
-namespace myrmidion {
+namespace myrmidon {
 
 class VisualMarker {
 public :

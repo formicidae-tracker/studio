@@ -20,10 +20,10 @@ set(RCC_FILES )
 
 
 include_directories(${PROJECT_BINARY_DIR}/src
-                    ${PROJECT_BINARY_DIR}/src/myrmidion
+                    ${PROJECT_BINARY_DIR}/src/myrmidon
                     ${PROJECT_SOURCE_DIR}/src
                     ${GLOG_INCLUDE_DIRS})
 
 add_executable(fort-studio ${SRC_FILES} ${HDR_FILES} ${UI_FILES} ${RCC_FILES})
 
-target_link_libraries(fort-studio Qt5::Widgets myrmidion)
+target_link_libraries(fort-studio Qt5::Widgets myrmidon)

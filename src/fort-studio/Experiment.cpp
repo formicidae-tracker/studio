@@ -30,7 +30,7 @@ const QString & Experiment::AbsolutePath() const  {
 }
 
 void Experiment::reset() {
-	using namespace fort::myrmidion;
+	using namespace fort::myrmidon;
 	d_experiment = priv::Experiment::Ptr(new priv::Experiment());
 	auto a  = new pb::AntMetadata();
 
@@ -82,7 +82,7 @@ void Experiment::reset() {
 
 Error Experiment::open(const QString & path) {
 	try {
-		d_experiment = fort::myrmidion::priv::Experiment::Open(path.toUtf8().constData());
+		d_experiment = fort::myrmidon::priv::Experiment::Open(path.toUtf8().constData());
 		setPath(path);
 		markModified(false);
 		emit antListModified();
@@ -99,7 +99,7 @@ Error Experiment::open(const QString & path) {
 
 
 Error Experiment::openAndParseTrackingDataDirectory(const QString & path, const QString & root,
-                                                    fort::myrmidion::pb::TrackingDataDirectory & res) {
+                                                    fort::myrmidon::pb::TrackingDataDirectory & res) {
 
 
 
@@ -150,7 +150,7 @@ Error Experiment::openAndParseTrackingDataDirectory(const QString & path, const 
 
 
 Error Experiment::addDataDirectory(const QString & path, QString & result) {
-	fort::myrmidion::pb::TrackingDataDirectory tdd;
+	fort::myrmidon::pb::TrackingDataDirectory tdd;
 	Error err = openAndParseTrackingDataDirectory(path, QFileInfo(d_absolutePath).absolutePath(), tdd);
 	if ( !err.OK() ) {
 		return err;
@@ -192,7 +192,7 @@ Error Experiment::save(const QString & path ) {
 	return Error::NONE;
 }
 
-const std::vector<fort::myrmidion::priv::Ant::Ptr> & Experiment::Ants() const {
+const std::vector<fort::myrmidon::priv::Ant::Ptr> & Experiment::Ants() const {
 	return d_experiment->Ants();
 }
 

@@ -13,14 +13,14 @@
 #define O_BINARY 0
 #endif
 
-namespace fm = fort::myrmidion;
+namespace fm = fort::myrmidon;
 
 using namespace fm::priv;
 
 Experiment::Ptr Experiment::Open(const std::string & filename) {
 	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
 	if ( fd  < 0 ) {
-		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_RDONLY | O_BINARY)");
+		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filename + "',O_RDONLY | O_BINARY)");
 	}
 
 	auto file = std::make_shared<google::protobuf::io::FileInputStream>(fd);
@@ -28,7 +28,7 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 	auto gunziped = std::make_shared<google::protobuf::io::GzipInputStream>(file.get());
 
 
-	fort::myrmidion::pb::FileHeader h;
+	fort::myrmidon::pb::FileHeader h;
 
 	bool cleanEOF = false;
 	if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&h, gunziped.get(),&cleanEOF) ) {
@@ -37,7 +37,7 @@ Experiment::Ptr Experiment::Open(const std::string & filename) {
 
 	Ptr res = Ptr(new Experiment());
 
-	fort::myrmidion::pb::FileLine line;
+	fort::myrmidon::pb::FileLine line;
 
 	for (;;) {
 		if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&line, gunziped.get(), &cleanEOF) ) {
@@ -62,7 +62,7 @@ void Experiment::Save(const std::string & filename) const {
 
 	int fd =  open(filename.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
 	if ( fd  < 0 ) {
-		throw std::system_error(errno,MYRMIDION_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
+		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filename + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
 	}
 
 	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
@@ -70,14 +70,14 @@ void Experiment::Save(const std::string & filename) const {
 	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
 
 
-	fort::myrmidion::pb::FileHeader h;
+	fort::myrmidon::pb::FileHeader h;
 
 	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
 		throw std::runtime_error("could not write header message");
 	}
 
-	fort::myrmidion::pb::FileLine line;
-	line.set_allocated_experiment(const_cast<fort::myrmidion::pb::Experiment*>(&d_experiment));
+	fort::myrmidon::pb::FileLine line;
+	line.set_allocated_experiment(const_cast<fort::myrmidon::pb::Experiment*>(&d_experiment));
 	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 		throw std::runtime_error("could not write experiment data");
 	}
@@ -85,7 +85,7 @@ void Experiment::Save(const std::string & filename) const {
 
 
 	for (auto const & a : d_ants) {
-		line.set_allocated_antdata(const_cast<fort::myrmidion::pb::AntMetadata*>(a->Metadata()));
+		line.set_allocated_antdata(const_cast<fort::myrmidon::pb::AntMetadata*>(a->Metadata()));
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
 		}
@@ -160,7 +160,7 @@ std::vector<std::string> Experiment::TrackingDataPath() const {
 }
 
 //TODO Remove this helper method
-void Experiment::AddAnt(fort::myrmidion::pb::AntMetadata * md) {
+void Experiment::AddAnt(fort::myrmidon::pb::AntMetadata * md) {
 	d_ants.push_back(std::make_shared<fm::priv::Ant>(md));
 }
 

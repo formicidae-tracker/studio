@@ -4,9 +4,9 @@
 #include <iomanip>
 
 
-using namespace fort::myrmidion::priv;
+using namespace fort::myrmidon::priv;
 
-Ant::Ant(fort::myrmidion::pb::AntMetadata * ant)
+Ant::Ant(fort::myrmidon::pb::AntMetadata * ant)
 	: d_metadata(ant) {
 	std::ostringstream os;
 	os << "0x" << std::setw(4) << std::setfill('0') << std::hex

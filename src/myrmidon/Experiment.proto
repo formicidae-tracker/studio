@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package fort.myrmidion.pb;
+package fort.myrmidon.pb;
 
 import "google/protobuf/timestamp.proto";
 

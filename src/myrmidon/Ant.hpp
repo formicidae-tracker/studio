@@ -8,7 +8,7 @@
 
 namespace fort {
 
-namespace myrmidion {
+namespace myrmidon {
 
 
 class Metadata;
@@ -29,6 +29,6 @@ private:
 };
 
 
-} // namespace myrmidion
+} // namespace myrmidon
 
 } //namespace fort

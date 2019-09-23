@@ -8,7 +8,7 @@
 
 namespace fort {
 
-namespace myrmidion {
+namespace myrmidon {
 
 namespace priv { class Experiment; };
 
@@ -25,6 +25,6 @@ private:
 	std::unique_ptr<priv::Experiment> d_priv;
 };
 
-} //namespace mrymidion
+} //namespace mrymidon
 
 } // namespace fort

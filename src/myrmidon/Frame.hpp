@@ -6,7 +6,7 @@
 
 namespace fort {
 
-namespace myrmidion {
+namespace myrmidon {
 
 
 class Frame {
@@ -22,6 +22,6 @@ private:
 	Ant::List d_ants;
 };
 
-} //namespace myrmidion
+} //namespace myrmidon
 
 } //namespace fort

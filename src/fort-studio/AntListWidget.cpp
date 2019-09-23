@@ -25,7 +25,7 @@ void AntListWidget::setExperiment(Experiment * experiment) {
 }
 
 
-QString AntListWidget::format(const fort::myrmidion::priv::Ant & a) {
+QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 
 	QMap<uint32_t,bool> tags;
 	for(auto const & m : a.Metadata()->marker()) {

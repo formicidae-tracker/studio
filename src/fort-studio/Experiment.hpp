@@ -5,7 +5,7 @@
 
 #include "Error.hpp"
 
-#include <myrmidion/priv/Experiment.hpp>
+#include <myrmidon/priv/Experiment.hpp>
 
 class Experiment : public QObject {
 	Q_OBJECT
@@ -15,7 +15,7 @@ public:
 
 	bool isModified() const;
 
-	const std::vector<fort::myrmidion::priv::Ant::Ptr> & Ants() const;
+	const std::vector<fort::myrmidon::priv::Ant::Ptr> & Ants() const;
 
 	const QString & AbsolutePath() const;
 
@@ -33,7 +33,7 @@ public slots:
 	void  reset();
 
 private:
-	fort::myrmidion::priv::Experiment::Ptr d_experiment;
+	fort::myrmidon::priv::Experiment::Ptr d_experiment;
 	bool d_modified;
 	QString d_absolutePath;
 
@@ -41,5 +41,5 @@ private:
 	void setPath(const QString & path);
 
 	Error openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
-	                                        fort::myrmidion::pb::TrackingDataDirectory & res);
+	                                        fort::myrmidon::pb::TrackingDataDirectory & res);
 };

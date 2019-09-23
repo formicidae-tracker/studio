@@ -12,10 +12,10 @@ int main() {
 	return 1;
 }
 "
-MYRMIDION_USE_SYSTEM_CATEGORY)
+MYRMIDON_USE_SYSTEM_CATEGORY)
 
 
-configure_file(config.h.in myrmidion-config.h)
+configure_file(config.h.in myrmidon-config.h)
 
 
 
@@ -51,20 +51,20 @@ set(SRC_UTEST_FILES main-check.cpp)
 
 set(HDR_UTEST_FILES )
 
-add_library(myrmidion SHARED ${SRC_FILES}
-                             ${HDR_PUBLIC_FILES}
-                             ${PROTO_HDR}
-                             ${PROTO_SRC})
+add_library(myrmidon SHARED ${SRC_FILES}
+                            ${HDR_PUBLIC_FILES}
+                            ${PROTO_HDR}
+                            ${PROTO_SRC})
 
-target_link_libraries(myrmidion ${PROTOBUF_LIBRARIES}
-                                ${FORT_HERMES_CPP_LIBRARIES})
+target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
+                               ${FORT_HERMES_CPP_LIBRARIES})
 
 
-add_executable(myrmidion-tests ${SRC_UTEST_FILES}
-                               ${HDR_UTEST_FILES}
-                               )
-target_link_libraries(myrmidion-tests myrmidion
-                                      gtest)
+add_executable(myrmidon-tests ${SRC_UTEST_FILES}
+                              ${HDR_UTEST_FILES}
+                              )
+target_link_libraries(myrmidon-tests myrmidon
+                                     gtest)
 
-gtest_discover_tests(myrmidion-tests)
-add_dependencies(check myrmidion-tests)
+gtest_discover_tests(myrmidon-tests)
+add_dependencies(check myrmidon-tests)

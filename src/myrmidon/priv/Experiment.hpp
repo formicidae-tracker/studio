@@ -8,10 +8,10 @@
 
 
 namespace fort {
-namespace myrmidion {
+namespace myrmidon {
 namespace priv {
 
-using namespace fort::myrmidion;
+using namespace fort::myrmidon;
 
 class Experiment {
 public :
@@ -28,17 +28,17 @@ public :
 	std::vector<std::string> TrackingDataPath() const;
 
 	//TODO Remove this helper method
-	void AddAnt(fort::myrmidion::pb::AntMetadata * md);
+	void AddAnt(fort::myrmidon::pb::AntMetadata * md);
 	const std::vector<Ant::Ptr> & Ants() const;
 
 private:
-	fort::myrmidion::pb::Experiment d_experiment;
+	fort::myrmidon::pb::Experiment d_experiment;
 
 	std::vector<Ant::Ptr> d_ants;
 };
 
 } //namespace priv
 
-} //namespace myrmidion
+} //namespace myrmidon
 
 } //namespace fort
