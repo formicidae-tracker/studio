@@ -122,6 +122,12 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
+
+
+
+
+
+
 	throw std::runtime_error("not yet implemented");
 	// bool canInsert = d_experiment.datadirectory_size() == 0;
 	// for (auto iter = d_experiment.mutable_datadirectory()->begin();
@@ -193,7 +199,9 @@ fort::myrmidon::priv::Ant::Ptr Experiment::CreateAnt() {
 
 void Experiment::DeleteAnt(fort::myrmidon::Ant::ID id) {
 	if ( d_ants.count(id) == 0 ) {
-		throw std::out_of_range("Could not find Ant");
+		std::ostringstream os;
+		os << "Could not find ant " << id ;
+		throw std::out_of_range(os.str());
 	}
 	if ( id != d_ants.size() ) {
 		d_continuous = false;
@@ -234,14 +242,14 @@ fort::myrmidon::Ant::ID Experiment::NextAvailableID() const {
 	if ( d_continuous == true ) {
 		return d_ants.size() + 1;
 	}
-
 	fort::myrmidon::Ant::ID res = 0;
-	std::find_if(d_antIDs.begin(),d_antIDs.end(),[&res] (fort::myrmidon::Ant::ID toTest ) {
-		                                             return ++res != toTest;
-	                                             });
+	auto missingIndex = std::find_if(d_antIDs.begin(),d_antIDs.end(),[&res] (fort::myrmidon::Ant::ID toTest ) {
+		                                                                 return ++res != toTest;
+	                                                                 });
 
-	if (res == d_ants.size() + 1 ) {
+	if (missingIndex == d_antIDs.end() ) {
 		const_cast<Experiment*>(this)->d_continuous = true;
+		return d_antIDs.size() + 1;
 	}
 	return res;
 }
