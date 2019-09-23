@@ -12,13 +12,16 @@
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/io/gzip_stream.h>
 
+#include <fort-hermes/FileContext.h>
+#include <fort-hermes/Error.h>
+
 
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
 
 namespace fm = fort::myrmidon;
-
+namespace fs = std::filesystem;
 using namespace fm::priv;
 
 
@@ -94,11 +97,9 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	file->SetCloseOnDelete(true);
 	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
 
-
 	fort::myrmidon::pb::FileHeader h;
 	h.set_majorversion(0);
 	h.set_minorversion(1);
-
 
 	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
 		throw std::runtime_error("could not write header message");
@@ -122,65 +123,66 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
+	TrackingDataDirectory res;
+	LoadFromFSTrackingDataDirectory(path,res);
+	if (d_dataDirs.count(res.Path) != 0 ) {
+		throw std::invalid_argument("directory '" + path.string() + "' is already present");
+	}
 
+	std::vector<std::string> sortedInTime;
+	for(auto const & [path,tdd] : d_dataDirs ) {
+		sortedInTime.push_back(path);
+	}
 
+	std::sort(sortedInTime.begin(),sortedInTime.end(),
+	          [this](const std::string & a, const std::string & b) -> bool{
+		          return d_dataDirs[a].StartDate < d_dataDirs[b].StartDate;
+	          });
+	bool canInsert = d_experiment.datadirectory_size() == 0;
+	for(auto iter =  sortedInTime.cbegin();
+	    iter != sortedInTime.cend();
+	    ++iter) {
+		auto const & tdd = d_dataDirs[*iter];
+		if ( res.EndDate < tdd.StartDate ) {
+			canInsert = true;
+			break;
+		}
 
+		if ( tdd.EndDate >= res.StartDate ) {
+			continue;
+		}
+		auto next = iter+1;
+		if ( next == sortedInTime.cend() ) {
+			canInsert = true;
+			break;
+		}
+		auto const & nextTdd = d_dataDirs[*next];
 
+		if ( res.EndDate < nextTdd.StartDate ) {
+			canInsert = true;
+			break;
+		}
+	}
 
+	if ( canInsert == false ) {
+		throw std::runtime_error("Data in '" + path.string() + "' overlaps in time with existing data");
+	}
 
-	throw std::runtime_error("not yet implemented");
-	// bool canInsert = d_experiment.datadirectory_size() == 0;
-	// for (auto iter = d_experiment.mutable_datadirectory()->begin();
-	//      iter != d_experiment.mutable_datadirectory()->end();
-	//      ++iter) {
-	// 	if ( path.path() == iter->path() ) {
-	// 		throw std::invalid_argument("directory '" + path.path() + "' is already present");
-	// 	}
-
-	// 	if ( path.endframe() <  iter->startframe() ) {
-	// 		canInsert = true;
-	// 		continue;
-	// 	}
-
-	// 	if ( iter->endframe() >= path.startframe() ) {
-	// 		continue;
-	// 	}
-
-	// 	auto next = iter + 1;
-	// 	if ( next == d_experiment.mutable_datadirectory()->end()  || path.endframe() < next->startframe() ) {
-	// 		canInsert = true;
-	// 	}
-	// }
-
-	// if ( canInsert == false ) {
-	// 	throw std::runtime_error("The frame in the tracking data are overlapping");
-	// }
-	// auto toAdd = d_experiment.add_datadirectory();
-	// toAdd->CheckTypeAndMergeFrom(path);
-
-	// std::sort(d_experiment.mutable_datadirectory()->begin(),
-	//           d_experiment.mutable_datadirectory()->end(),
-	//           [](const fm::pb::TrackingDataDirectory & a, const fm::pb::TrackingDataDirectory & b ) {
-	// 	          return a.startframe() < b.startframe();
-	//           });
+	d_dataDirs[res.Path] = res;
 }
 
-void Experiment::RemoveTrackingDataDirectory(const std::filesystem::path & path) {
-	throw std::runtime_error("not yet implemented");
-	// bool removed = false;
-	// std::remove_if(d_experiment.mutable_datadirectory()->begin(),
-	//                d_experiment.mutable_datadirectory()->end(),
-	//                [&removed,path](const fm::pb::TrackingDataDirectory & a) {
-	// 	               if ( a.path() != path ) {
-	// 		               return false;
-	// 	               }
-	// 	               removed = true;
-	// 	               return removed;
-	//                });
+void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
 
-	// if ( removed == false ) {
-	// 	throw std::invalid_argument("Could not find data path '" + path + "'");
-	// }
+	if ( path.is_absolute() ) {
+		fs::path root = d_absoluteFilepath;
+		path = fs::relative(path,root.remove_filename());
+	}
+
+	if ( d_dataDirs.count(path) == 0 ) {
+		throw std::invalid_argument("Could not find data path '" + path.string() + "'");
+	}
+
+	d_dataDirs.erase(path);
 }
 
 const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataPaths() const {
@@ -219,22 +221,18 @@ Experiment::TrackingDataDirectory::TrackingDataDirectory()
 	, EndFrame(0) {
 }
 
-std::chrono::system_clock::time_point FromPB( const google::protobuf::Timestamp & ts) {
-	return std::chrono::system_clock::from_time_t(google::protobuf::util::TimeUtil::TimestampToTimeT(ts));
-}
 
 Experiment::TrackingDataDirectory::TrackingDataDirectory(const pb::TrackingDataDirectory & tdd)
 	: Path(tdd.path())
 	, StartFrame(tdd.startframe())
-	, EndFrame(tdd.endframe())
-	, StartDate(FromPB(tdd.startdate()))
-	, EndDate(FromPB(tdd.enddate())) {
+	, EndFrame(tdd.endframe()) {
+	StartDate.CheckTypeAndMergeFrom(tdd.startdate());
+	EndDate.CheckTypeAndMergeFrom(tdd.enddate());
 }
 
 
 Experiment::Experiment(const std::filesystem::path & filepath )
-	: d_basepath(filepath) {
-	d_basepath.remove_filename();
+	: d_absoluteFilepath(fs::canonical(filepath)) {
 }
 
 
@@ -252,4 +250,62 @@ fort::myrmidon::Ant::ID Experiment::NextAvailableID() const {
 		return d_antIDs.size() + 1;
 	}
 	return res;
+}
+
+
+void Experiment::LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
+                                                 TrackingDataDirectory & tdd) {
+	if ( fs::is_directory(path) == false ) {
+		throw std::invalid_argument( path.string() + " is not a directory");
+	}
+
+	std::vector<fs::path> hermesFiles;
+
+	for( auto const & f : fs::directory_iterator(path) ) {
+		if ( f.is_regular_file() == false ) {
+			continue;
+		}
+
+		if ( f.path().extension() != ".hermes") {
+			continue;
+		}
+		hermesFiles.push_back(f.path());
+	}
+	if ( hermesFiles.empty() ) {
+		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
+	}
+
+
+	std::sort(hermesFiles.begin(),hermesFiles.end());
+
+	fort::hermes::FrameReadout ro;
+	try {
+		fort::hermes::FileContext beginning(hermesFiles.front());
+		beginning.Read(&ro);
+		tdd.StartFrame = ro.frameid();
+		tdd.StartDate.Clear();
+		tdd.StartDate.CheckTypeAndMergeFrom(ro.time());
+	} catch ( const std::exception & e) {
+		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
+	}
+
+	try {
+		fort::hermes::FileContext ending(hermesFiles.front());
+		for (;;) {
+			ending.Read(&ro);
+			tdd.EndFrame = ro.frameid();
+			tdd.EndDate.CheckTypeAndMergeFrom(ro.time());
+		}
+
+	} catch ( const fort::hermes::EndOfFile &) {
+		//DO nothing
+	} catch ( const std::exception & e) {
+		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
+	}
+
+	fs::path root = d_absoluteFilepath;
+	root.remove_filename();
+
+	tdd.Path = fs::relative(path,root);
+
 }

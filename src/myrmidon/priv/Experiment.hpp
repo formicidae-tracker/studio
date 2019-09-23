@@ -6,6 +6,9 @@
 
 #include <filesystem>
 #include <chrono>
+
+#include <google/protobuf/timestamp.pb.h>
+
 namespace fort {
 namespace myrmidon {
 
@@ -20,7 +23,6 @@ using namespace fort::myrmidon;
 
 class Experiment {
 public :
-	using Clock = std::chrono::system_clock;
 	struct TrackingDataDirectory {
 		TrackingDataDirectory();
 		TrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
@@ -29,7 +31,7 @@ public :
 		uint64_t StartFrame;
 		uint64_t EndFrame;
 
-		std::chrono::time_point<Clock> StartDate,EndDate;
+		google::protobuf::Timestamp StartDate,EndDate;
 	};
 	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
 	typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
@@ -42,7 +44,7 @@ public :
 	void CheckDirectories();
 
 	void AddTrackingDataDirectory(const std::filesystem::path & path);
-	void RemoveTrackingDataDirectory(const std::filesystem::path & path);
+	void RemoveTrackingDataDirectory(std::filesystem::path path);
 
 	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
 
@@ -57,13 +59,15 @@ private:
 	void Load(const std::filesystem::path & filepath);
 	fort::myrmidon::Ant::ID NextAvailableID() const;
 
+	void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
+	                                     TrackingDataDirectory & tdd);
 
 
 
 
 	pb::Experiment              d_experiment;
 
-	std::filesystem::path       d_basepath;
+	std::filesystem::path       d_absoluteFilepath;
 	TrackingDataDirectoryByPath d_dataDirs;
 	AntByID                     d_ants;
 	SetOfID                     d_antIDs;

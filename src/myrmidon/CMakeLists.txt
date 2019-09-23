@@ -40,7 +40,6 @@ set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
 	                 Ant.hpp)
 
-
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp
 	          priv/Experiment.cpp
