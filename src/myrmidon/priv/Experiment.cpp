@@ -289,7 +289,7 @@ void Experiment::LoadFromFSTrackingDataDirectory(const std::filesystem::path & p
 	}
 
 	try {
-		fort::hermes::FileContext ending(hermesFiles.front());
+		fort::hermes::FileContext ending(hermesFiles.back());
 		for (;;) {
 			ending.Read(&ro);
 			tdd.EndFrame = ro.frameid();
@@ -299,7 +299,7 @@ void Experiment::LoadFromFSTrackingDataDirectory(const std::filesystem::path & p
 	} catch ( const fort::hermes::EndOfFile &) {
 		//DO nothing, we just reached EOF
 	} catch ( const std::exception & e) {
-		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
+		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
 
 	fs::path root = d_absoluteFilepath;

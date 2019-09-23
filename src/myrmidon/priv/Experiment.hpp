@@ -48,6 +48,9 @@ public :
 
 	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
 
+	void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
+	                                     TrackingDataDirectory & tdd);
+
 	Ant::Ptr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
@@ -59,8 +62,6 @@ private:
 	void Load(const std::filesystem::path & filepath);
 	fort::myrmidon::Ant::ID NextAvailableID() const;
 
-	void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
-	                                     TrackingDataDirectory & tdd);
 
 
 

@@ -95,6 +95,24 @@ TEST_F(ExperimentUTest,AndsAreCreatedSequentially) {
 	}
 }
 
+
+TEST_F(ExperimentUTest,ExtractInfoFromTrackingDatadirectories) {
+	try {
+		auto e = Experiment::Open(s_testdir / "test.myrmidon");
+		Experiment::TrackingDataDirectory tdd;
+		e->LoadFromFSTrackingDataDirectory(s_testdir/"foo.0001",tdd);
+		ASSERT_EQ(tdd.Path,"foo.0001");
+		ASSERT_EQ(tdd.StartFrame,5);
+		ASSERT_EQ(tdd.EndFrame,8);
+
+	} catch( const std::exception & e) {
+		ADD_FAILURE() << "Got unexpected exception: " << e.what();
+	}
+
+}
+
+
+
 TEST_F(ExperimentUTest,TestNewTrackingDataDirectories) {
 	try {
 		auto e = Experiment::Open(s_testdir / "test.myrmidon");
@@ -264,6 +282,6 @@ void ExperimentUTest::TearDownTestCase() {
 		return;
 	}
 	EXPECT_NO_THROW({
-			//std::filesystem::remove_all(s_testdir);
+			std::filesystem::remove_all(s_testdir);
 		});
 }
