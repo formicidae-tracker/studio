@@ -24,6 +24,14 @@ TrackingDataDirectory TrackingDataDirectory::FromSaved(const pb::TrackingDataDir
 	return res;
 }
 
+void TrackingDataDirectory::Encode(pb::TrackingDataDirectory & tdd) {
+	tdd.set_path(Path);
+	tdd.set_startframe(StartFrame);
+	tdd.set_endframe(EndFrame);
+	tdd.mutable_startdate()->CheckTypeAndMergeFrom(StartDate);
+	tdd.mutable_enddate()->CheckTypeAndMergeFrom(EndDate);
+}
+
 
 
 TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & path, const std::filesystem::path & base) {
