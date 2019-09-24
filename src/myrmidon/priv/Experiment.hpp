@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Ant.hpp"
-
+#include "TrackingDataDirectory.hpp"
 #include <filesystem>
 #include <chrono>
 
@@ -23,16 +23,6 @@ using namespace fort::myrmidon;
 
 class Experiment {
 public :
-	struct TrackingDataDirectory {
-		TrackingDataDirectory();
-		TrackingDataDirectory(const pb::TrackingDataDirectory & tdd);
-		std::filesystem::path  Path;
-
-		uint64_t StartFrame;
-		uint64_t EndFrame;
-
-		google::protobuf::Timestamp StartDate,EndDate;
-	};
 	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
 	typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
 
@@ -48,8 +38,8 @@ public :
 
 	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
 
-	void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
-	                                     TrackingDataDirectory & tdd);
+	// void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
+	//                                      TrackingDataDirectory & tdd);
 
 	Ant::Ptr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );

@@ -75,7 +75,7 @@ void Experiment::Load(const std::filesystem::path & filepath) {
 	NextAvailableID();
 	//builds the TrackingDataDirectory
 	for(auto const & tdd : d_experiment.datadirectory() ) {
-		d_dataDirs[tdd.path()] = tdd;
+		d_dataDirs[tdd.path()] = TrackingDataDirectory::FromSaved(tdd);
 	}
 
 }
@@ -123,8 +123,8 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
-	TrackingDataDirectory res;
-	LoadFromFSTrackingDataDirectory(path,res);
+	auto base = d_absoluteFilepath;
+	auto res = TrackingDataDirectory::Open(path,base.remove_filename());
 	if (d_dataDirs.count(res.Path) != 0 ) {
 		throw std::invalid_argument("directory '" + path.string() + "' is already present");
 	}
@@ -216,19 +216,6 @@ const Experiment::AntByID & Experiment::Ants() const {
 	return d_ants;
 }
 
-Experiment::TrackingDataDirectory::TrackingDataDirectory()
-	: StartFrame(0)
-	, EndFrame(0) {
-}
-
-
-Experiment::TrackingDataDirectory::TrackingDataDirectory(const pb::TrackingDataDirectory & tdd)
-	: Path(tdd.path())
-	, StartFrame(tdd.startframe())
-	, EndFrame(tdd.endframe()) {
-	StartDate.CheckTypeAndMergeFrom(tdd.startdate());
-	EndDate.CheckTypeAndMergeFrom(tdd.enddate());
-}
 
 
 Experiment::Experiment(const std::filesystem::path & filepath )
@@ -250,61 +237,4 @@ fort::myrmidon::Ant::ID Experiment::NextAvailableID() const {
 		return d_antIDs.size() + 1;
 	}
 	return res;
-}
-
-
-void Experiment::LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
-                                                 TrackingDataDirectory & tdd) {
-	if ( fs::is_directory(path) == false ) {
-		throw std::invalid_argument( path.string() + " is not a directory");
-	}
-
-	std::vector<fs::path> hermesFiles;
-
-	for( auto const & f : fs::directory_iterator(path) ) {
-		if ( f.is_regular_file() == false ) {
-			continue;
-		}
-
-		if ( f.path().extension() != ".hermes") {
-			continue;
-		}
-		hermesFiles.push_back(f.path());
-	}
-	if ( hermesFiles.empty() ) {
-		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
-	}
-
-	std::sort(hermesFiles.begin(),hermesFiles.end());
-
-	fort::hermes::FrameReadout ro;
-	try {
-		fort::hermes::FileContext beginning(hermesFiles.front());
-		beginning.Read(&ro);
-		tdd.StartFrame = ro.frameid();
-		tdd.StartDate.Clear();
-		tdd.StartDate.CheckTypeAndMergeFrom(ro.time());
-	} catch ( const std::exception & e) {
-		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
-	}
-
-	try {
-		fort::hermes::FileContext ending(hermesFiles.back());
-		for (;;) {
-			ending.Read(&ro);
-			tdd.EndFrame = ro.frameid();
-			tdd.EndDate.CheckTypeAndMergeFrom(ro.time());
-		}
-
-	} catch ( const fort::hermes::EndOfFile &) {
-		//DO nothing, we just reached EOF
-	} catch ( const std::exception & e) {
-		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
-	}
-
-	fs::path root = d_absoluteFilepath;
-	root.remove_filename();
-
-	tdd.Path = fs::relative(path,root);
-
 }
