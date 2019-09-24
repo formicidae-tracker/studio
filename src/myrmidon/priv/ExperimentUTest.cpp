@@ -80,39 +80,6 @@ TEST_F(ExperimentUTest,AndsAreCreatedSequentially) {
 }
 
 
-TEST_F(ExperimentUTest,ExtractInfoFromTrackingDatadirectories) {
-	Experiment::Ptr e;
-	try {
-		e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		TrackingDataDirectory tdd;
-		//e->LoadFromFSTrackingDataDirectory(s_testdir/"foo.0001",tdd);
-		//ASSERT_EQ(tdd.Path,"foo.0001");
-		//ASSERT_EQ(tdd.StartFrame,5);
-		//ASSERT_EQ(tdd.EndFrame,8);
-
-	} catch( const std::exception & e) {
-		ADD_FAILURE() << "Got unexpected exception: " << e.what();
-	}
-
-	EXPECT_THROW({
-			TrackingDataDirectory tdd;
-			// foo.0000 does not contain tracking data
-			//e->LoadFromFSTrackingDataDirectory(s_testdir / "foo.0000",tdd);
-		}, std::invalid_argument);
-
-	EXPECT_THROW({
-			TrackingDataDirectory tdd;
-			// foo.0000 does not contain tracking data
-			//e->LoadFromFSTrackingDataDirectory(s_testdir / "foo.0002",tdd);
-		}, std::invalid_argument);
-
-
-	EXPECT_THROW({
-			TrackingDataDirectory tdd;
-			// is a file
-			//e->LoadFromFSTrackingDataDirectory(s_testdir / "test.myrmidon",tdd);
-		}, std::invalid_argument);
-}
 
 
 

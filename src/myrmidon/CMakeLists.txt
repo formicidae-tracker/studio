@@ -49,11 +49,14 @@ set(SRC_FILES Frame.cpp
 	          priv/TrackingDataDirectory.cpp)
 
 set(SRC_UTEST_FILES main-check.cpp
+                    TestSetup.cpp
                     priv/ExperimentUTest.cpp
-                    TestSetup.cpp)
+                    priv/TrackingDataDirectoryUTest.cpp
+                    )
 
-set(HDR_UTEST_FILES priv/ExperimentUTest.hpp
-                    TestSetup.hpp)
+set(HDR_UTEST_FILES TestSetup.hpp
+                    priv/ExperimentUTest.hpp
+                    priv/TrackingDataDirectoryUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${HDR_PUBLIC_FILES}

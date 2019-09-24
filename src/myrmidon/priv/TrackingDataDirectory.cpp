@@ -27,7 +27,7 @@ TrackingDataDirectory TrackingDataDirectory::FromSaved(const pb::TrackingDataDir
 
 
 TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & path, const std::filesystem::path & base) {
-	if ( fs::is_directory(base) ) {
+	if ( fs::is_directory(base) == false ) {
 		throw std::invalid_argument("base path " + base.string() +  " is not a directory");
 	}
 	if ( fs::is_directory(path) == false ) {
