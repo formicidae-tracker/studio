@@ -65,7 +65,7 @@ add_library(myrmidon SHARED ${SRC_FILES}
 
 target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
                                ${FORT_HERMES_CPP_LIBRARIES}
-                               stdc++fs)
+                               ${CXXFS_LIBRARY})
 
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}

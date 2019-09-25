@@ -3,7 +3,7 @@ cmake_policy(SET CMP0048 NEW)
 project(fort-studio VERSION 0.1.0
                     LANGUAGES C CXX)
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.11)
 
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
@@ -23,7 +23,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 5.11 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 
 include(FetchContent)
@@ -51,5 +51,42 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
+
+
+include(CheckCXXSourceCompiles)
+
+
+set(CMAKE_REQUIRED_FLAGS "-lstdc++fs")
+
+check_cxx_source_compiles("#include <filesystem>
+
+int main(){
+	std::filesystem::path p;
+	return 0;
+}
+"
+	USE_SYSTEM_FS_LIBRARY
+)
+
+
+set(CMAKE_REQUIRED_FLAGS "/usr/lib/gcc/x86_64-linux-gnu/9/libstdc++fs.a")
+
+check_cxx_source_compiles("#include <filesystem>
+
+int main(){
+	std::filesystem::path p;
+	return 0;
+}
+"
+	USE_TARGETED_FS_LIBRARY
+)
+set(CMAKE_REQUIRED_FLAGS "")
+
+set(CXXFS_LIBRARIES "")
+if(USE_SYSTEM_FS_LIBRARY)
+	set(CXXFS_LIBRARY "-lstdc++fs")
+elseif(USE_TARGETED_FS_LIBRARY)
+	set(CXXFS_LIBRARY "/usr/lib/gcc/x86_64-linux-gnu/9/libstdc++fs.a")
+endif(USE_SYSTEM_FS_LIBRARY)
 
 add_subdirectory(src)
