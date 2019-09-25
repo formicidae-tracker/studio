@@ -238,3 +238,29 @@ fort::myrmidon::Ant::ID Experiment::NextAvailableID() const {
 	}
 	return res;
 }
+
+
+const std::string & Experiment::Name() const {
+	return d_experiment.name();
+}
+
+void Experiment::SetName(const std::string & name) {
+	d_experiment.set_name(name);
+}
+
+const std::string & Experiment::Author() const {
+	return d_experiment.author();
+}
+
+void Experiment::SetAuthor(const std::string & author) {
+	d_experiment.set_author(author);
+}
+
+
+const std::string & Experiment::Comment() const {
+	return d_experiment.comment();
+}
+
+void Experiment::SetComment(const std::string & comment) {
+	d_experiment.set_comment(comment);
+}

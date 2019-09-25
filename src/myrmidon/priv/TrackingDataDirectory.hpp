@@ -32,12 +32,11 @@ public:
 	TrackingDataDirectory();
 };
 
+} //namespace priv
 
-}
+} //namespace myrmidon
 
-}
-
-}
+} //namespace fort
 
 
 inline bool operator<(const fort::myrmidon::priv::TrackingDataDirectory & a,

@@ -33,7 +33,6 @@ void TrackingDataDirectory::Encode(pb::TrackingDataDirectory & tdd) {
 }
 
 
-
 TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & path, const std::filesystem::path & base) {
 	if ( fs::is_directory(base) == false ) {
 		throw std::invalid_argument("base path " + base.string() +  " is not a directory");

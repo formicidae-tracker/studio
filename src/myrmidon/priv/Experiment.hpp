@@ -38,12 +38,20 @@ public :
 
 	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
 
-	// void LoadFromFSTrackingDataDirectory(const std::filesystem::path & path,
-	//                                      TrackingDataDirectory & tdd);
-
 	Ant::Ptr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
+
+	const std::string & Name() const;
+	void SetName(const std::string & name);
+
+	const std::string & Author() const;
+	void SetAuthor(const std::string & author);
+
+
+	const std::string & Comment() const;
+	void SetComment(const std::string & comment);
+
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
