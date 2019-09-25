@@ -24,6 +24,17 @@ namespace fm = fort::myrmidon;
 namespace fs = std::filesystem;
 using namespace fm::priv;
 
+Experiment::Ptr Experiment::Create(const std::filesystem::path & filepath) {
+	auto absolutePath = fs::canonical(filepath);
+	auto base = absolutePath;
+	base.remove_filename();
+	Experiment::Ptr res(new Experiment(absolutePath));
+
+	fs::create_directories(base);
+	res->Save(absolutePath);
+	return res;
+}
+
 
 void Experiment::Load(const std::filesystem::path & filepath) {
 	int fd =  open(filepath.c_str(),O_RDONLY | O_BINARY);
@@ -87,6 +98,12 @@ Experiment::Ptr Experiment::Open(const std::filesystem::path & filepath) {
 }
 
 void Experiment::Save(const std::filesystem::path & filepath) const {
+	auto basedir = fs::canonical(d_absoluteFilepath);
+	auto newBasedir = fs::canonical(filepath);
+	//TODO: should not be an error.
+	if ( basedir.remove_filename() != newBasedir.remove_filename() ) {
+		throw std::runtime_error("Changing file directory is not yet supported");
+	}
 
 	int fd =  open(filepath.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
 	if ( fd  < 0 ) {

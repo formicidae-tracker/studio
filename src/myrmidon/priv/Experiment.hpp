@@ -29,6 +29,7 @@ public :
 	typedef std::unique_ptr<Experiment> Ptr;
 
 	static Ptr Open(const std::filesystem::path & filename);
+	static Ptr Create(const std::filesystem::path & filename);
 	void Save(const std::filesystem::path & filename) const;
 
 	void CheckDirectories();

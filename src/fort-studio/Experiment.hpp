@@ -7,38 +7,34 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 
-class Experiment : public QObject {
+namespace fmp = fort::myrmidon::priv;
+
+class ExperimentController : public QObject {
 	Q_OBJECT
 public:
-	Experiment( QObject * parent = NULL);
+	ExperimentController(fmp::Ptr,
+	                     QObject * parent = NULL);
 	virtual ~Experiment();
+
+	std::unique_ptr<const Experiment> & Experiment() const;
 
 	bool isModified() const;
 
-	const fort::myrmidon::priv::Experiment::AntByID & Ants() const;
-
-	const QString & AbsolutePath() const;
-
 signals:
 	void modified(bool);
-	void dataDirUpdated(QStringList);
-	void antListModified();
-	void pathModified(const QString & path);
-
+	void dataDirUpdated(const fmp::TrackingDataDirectoryByPath & );
+	void antListModified(const fmp::AntsByID & );
 public slots:
+
 	Error addDataDirectory(const QString & path, QString & result);
 	Error removeDataDirectory(const QString & path);
 	Error save(const QString & path);
-	Error open(const QString & path);
-	void  reset();
 
 private:
 	fort::myrmidon::priv::Experiment::Ptr d_experiment;
 	bool d_modified;
-	QString d_absolutePath;
 
-	void markModified(bool modified);
-	void setPath(const QString & path);
+	void setModified(bool modified);
 
 	Error openAndParseTrackingDataDirectory(const QString & relativePath, const QString & root,
 	                                        fort::myrmidon::pb::TrackingDataDirectory & res);
