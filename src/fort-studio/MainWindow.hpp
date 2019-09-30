@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 
-#include "Experiment.hpp"
+#include "ExperimentController.hpp"
 
 #include <deque>
 
@@ -29,33 +29,31 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
-	void on_experiment_modified();
-	void on_experiment_pathModified(const QString & path);
+	void onExperimentModified(bool);
+	void onNewController(ExperimentController * controller);
+
+
+signals:
+	void newController(ExperimentController * controller);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
 
 	Error maybeSave();
-	Error save();
-	Error saveAs();
-	Error save(const QString & path);
+	QString promptPath();
 
-	void open(const QString & path);
 
-	void setCurrentFile(const QString & path);
-	void promptError(const Error & e);
+
 	void pushRecent();
 	void loadSettings();
 	void rebuildRecentsFiles();
 
 	const static Error UserDiscard;
 
-
     Ui::MainWindow *d_ui;
 
-
-	bool    d_modified;
-	Experiment d_experiment;
+	ExperimentController * d_controller;
 	std::deque<QString> d_recentPaths;
 };

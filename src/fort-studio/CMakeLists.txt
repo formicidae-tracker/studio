@@ -1,12 +1,12 @@
 set(SRC_FILES main.cpp
               MainWindow.cpp
               Error.cpp
-              Experiment.cpp
+              ExperimentController.cpp
               AntListWidget.cpp
               ExperimentInfoWidget.cpp)
 
 set(HDR_FILES MainWindow.hpp
-              Experiment.hpp
+              ExperimentController.hpp
               Error.hpp
               AntListWidget.hpp
               ExperimentInfoWidget.hpp)

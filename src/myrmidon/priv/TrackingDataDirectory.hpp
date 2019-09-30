@@ -27,7 +27,7 @@ public:
 
 	static TrackingDataDirectory FromSaved(const fort::myrmidon::pb::TrackingDataDirectory & pb);
 
-	void Encode(fort::myrmidon::pb::TrackingDataDirectory & pb);
+	void Encode(fort::myrmidon::pb::TrackingDataDirectory & pb) const;
 
 	TrackingDataDirectory();
 };

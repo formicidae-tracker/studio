@@ -32,12 +32,14 @@ public :
 	static Ptr Create(const std::filesystem::path & filename);
 	void Save(const std::filesystem::path & filename) const;
 
+	std::filesystem::path AbsolutePath() const;
+
 	void CheckDirectories();
 
-	void AddTrackingDataDirectory(const std::filesystem::path & path);
+	void AddTrackingDataDirectory(const TrackingDataDirectory & tdd);
 	void RemoveTrackingDataDirectory(std::filesystem::path path);
 
-	const TrackingDataDirectoryByPath & TrackingDataPaths() const;
+	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
 
 	Ant::Ptr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );

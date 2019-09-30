@@ -9,10 +9,11 @@
 ExperimentInfoWidget::ExperimentInfoWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::ExperimentInfoWidget)
-	, d_experiment(NULL) {
+	, d_controller(NULL) {
 	d_ui->setupUi(this);
 	d_ui->addButton->setEnabled(false);
 	d_ui->removeButton->setEnabled(false);
+	onNewController(NULL);
 }
 
 
@@ -21,51 +22,87 @@ ExperimentInfoWidget::~ExperimentInfoWidget() {
 }
 
 
-void ExperimentInfoWidget::setExperiment(Experiment * exp) {
-	if ( d_experiment != NULL ) {
-		disconnect(d_experiment,SIGNAL(pathModified(const QString&)),this,SLOT(onExperimentPathModified(const QString&)));
-		disconnect(d_experiment,SIGNAL(dataDirUpdated(QStringList)),this,SLOT(setDataDir(QStringList)));
-
+void ExperimentInfoWidget::onNewController(ExperimentController * controller) {
+	if ( d_controller != NULL ) {
+		disconnect(d_controller,
+		           SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
+		           this,
+		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)));
 	}
-	d_experiment = exp;
-	if (exp == NULL ) {
+	d_controller = controller;
+	if (d_controller == NULL) {
+		d_ui->addButton->setEnabled(false);
+		d_ui->removeButton->setEnabled(true);
+		d_ui->listWidget->clear();
+		d_ui->authorEdit->clear();
+		d_ui->authorEdit->setEnabled(false);
+		d_ui->nameEdit->clear();
+		d_ui->nameEdit->setEnabled(false);
+		d_ui->commentEdit->clear();
+		d_ui->commentEdit->setEnabled(false);
 		return;
 	}
-	connect(d_experiment,SIGNAL(pathModified(const QString&)),this,SLOT(onExperimentPathModified(const QString&)));
-	connect(d_experiment,SIGNAL(dataDirUpdated(QStringList)),this,SLOT(setDataDir(QStringList)));
+	d_ui->addButton->setEnabled(true);
+	connect(d_controller,
+	        SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
+	        this,
+	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)));
+	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
+	d_ui->nameEdit->setText(d_controller->experiment().Name().c_str());
+	d_ui->nameEdit->setEnabled(true);
+	d_ui->authorEdit->setText(d_controller->experiment().Author().c_str());
+	d_ui->authorEdit->setEnabled(true);
+	d_ui->commentEdit->setPlainText(d_controller->experiment().Comment().c_str());
+	d_ui->commentEdit->setEnabled(true);
 }
 
-void ExperimentInfoWidget::onExperimentPathModified(const QString & path) {
-	d_ui->addButton->setEnabled(path.isEmpty() == false);
-}
 
 void ExperimentInfoWidget::on_addButton_clicked() {
 	QString dataDir  = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
-	                                                     QFileInfo(d_experiment->AbsolutePath()).absolutePath(),
+	                                                     QFileInfo(d_controller->experiment().AbsolutePath().c_str()).absolutePath(),
 	                                                     QFileDialog::ShowDirsOnly);
 	if ( dataDir.isEmpty() ) {
 		return;
 	}
-	QString res;
-	Error err = d_experiment->addDataDirectory(dataDir,res);
+	Error err = d_controller->addDataDirectory(dataDir);
 	if (!err.OK()) {
 		qWarning() << err.what();
 		return;
 	}
-
-
-	qInfo() << "Added '" << res << "'";
-
 }
+
 void ExperimentInfoWidget::on_removeButton_clicked() {
 }
 
 
-void ExperimentInfoWidget::setDataDir(QStringList data) {
+void ExperimentInfoWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
 	d_ui->listWidget->clear();
-	for(auto const & p : data ) {
-		auto item = new QListWidgetItem(p,d_ui->listWidget);
+	for(auto const & tdd : tdds ) {
+		auto item = new QListWidgetItem(tdd.second.Path.c_str(),d_ui->listWidget);
 		item->setIcon(QIcon::fromTheme("folder"));
 		d_ui->listWidget->addItem(item);
 	}
+}
+
+
+void ExperimentInfoWidget::on_nameEdit_textEdited(const QString & text) {
+	if(d_controller == NULL) {
+		return;
+	}
+	d_controller->setName(text);
+}
+
+void ExperimentInfoWidget::on_authorEdit_textEdited(const QString & text) {
+	if(d_controller == NULL) {
+		return;
+	}
+	d_controller->setAuthor(text);
+}
+
+
+void ExperimentInfoWidget::on_commentEdit_textChanged() {
+	if(d_controller == NULL) {
+		return;
+	}
+	d_controller->setComment(d_ui->commentEdit->toPlainText());
 }

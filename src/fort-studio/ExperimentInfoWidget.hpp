@@ -2,7 +2,7 @@
 
 #include <QWidget>
 
-#include "Experiment.hpp"
+#include "ExperimentController.hpp"
 
 
 namespace Ui {
@@ -15,23 +15,26 @@ public:
 	explicit ExperimentInfoWidget(QWidget *parent = nullptr);
 	~ExperimentInfoWidget();
 
-	void setExperiment(Experiment * exp);
 
 signals:
 	void addTriggered();
 	void deleteTriggered(const QString & path);
 
 public slots:
-	void onExperimentPathModified(const QString & path);
-	void setDataDir(QStringList);
+	void onNewController(ExperimentController * controller);
+
+	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
 
 	void on_addButton_clicked();
 	void on_removeButton_clicked();
+	void on_nameEdit_textEdited(const QString & text);
+	void on_authorEdit_textEdited(const QString & text);
+	void on_commentEdit_textChanged();
 
 
 
 
 private:
 	Ui::ExperimentInfoWidget * d_ui;
-	Experiment               * d_experiment;
+	ExperimentController     * d_controller;
 };

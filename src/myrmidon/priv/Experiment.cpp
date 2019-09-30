@@ -25,7 +25,7 @@ namespace fs = std::filesystem;
 using namespace fm::priv;
 
 Experiment::Ptr Experiment::Create(const std::filesystem::path & filepath) {
-	auto absolutePath = fs::canonical(filepath);
+	auto absolutePath = fs::weakly_canonical(filepath);
 	auto base = absolutePath;
 	base.remove_filename();
 	Experiment::Ptr res(new Experiment(absolutePath));
@@ -98,8 +98,8 @@ Experiment::Ptr Experiment::Open(const std::filesystem::path & filepath) {
 }
 
 void Experiment::Save(const std::filesystem::path & filepath) const {
-	auto basedir = fs::canonical(d_absoluteFilepath);
-	auto newBasedir = fs::canonical(filepath);
+	auto basedir = fs::weakly_canonical(d_absoluteFilepath);
+	auto newBasedir = fs::weakly_canonical(filepath);
 	//TODO: should not be an error.
 	if ( basedir.remove_filename() != newBasedir.remove_filename() ) {
 		throw std::runtime_error("Changing file directory is not yet supported");
@@ -123,6 +123,7 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	}
 
 	fort::myrmidon::pb::FileLine line;
+
 	line.set_allocated_experiment(const_cast<fort::myrmidon::pb::Experiment*>(&d_experiment));
 	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 		throw std::runtime_error("could not write experiment data");
@@ -139,11 +140,9 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	}
 }
 
-void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
-	auto base = d_absoluteFilepath;
-	auto res = TrackingDataDirectory::Open(path,base.remove_filename());
-	if (d_dataDirs.count(res.Path) != 0 ) {
-		throw std::invalid_argument("directory '" + path.string() + "' is already present");
+void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
+	if (d_dataDirs.count(toAdd.Path) != 0 ) {
+		throw std::invalid_argument("directory '" + toAdd.Path.string() + "' is already present");
 	}
 
 	std::vector<std::string> sortedInTime;
@@ -160,12 +159,12 @@ void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
 	    iter != sortedInTime.cend();
 	    ++iter) {
 		auto const & tdd = d_dataDirs[*iter];
-		if ( res.EndDate < tdd.StartDate ) {
+		if ( toAdd.EndDate < tdd.StartDate ) {
 			canInsert = true;
 			break;
 		}
 
-		if ( tdd.EndDate >= res.StartDate ) {
+		if ( tdd.EndDate >= toAdd.StartDate ) {
 			continue;
 		}
 		auto next = iter+1;
@@ -175,17 +174,19 @@ void Experiment::AddTrackingDataDirectory(const std::filesystem::path & path) {
 		}
 		auto const & nextTdd = d_dataDirs[*next];
 
-		if ( res.EndDate < nextTdd.StartDate ) {
+		if ( toAdd.EndDate < nextTdd.StartDate ) {
 			canInsert = true;
 			break;
 		}
 	}
 
 	if ( canInsert == false ) {
-		throw std::runtime_error("Data in '" + path.string() + "' overlaps in time with existing data");
+		throw std::runtime_error("Data in '" + toAdd.Path.string() + "' overlaps in time with existing data");
 	}
 
-	d_dataDirs[res.Path] = res;
+	d_dataDirs[toAdd.Path] = toAdd;
+	auto m = d_experiment.add_datadirectory();
+	toAdd.Encode(*m);
 }
 
 void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
@@ -200,9 +201,15 @@ void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
 	}
 
 	d_dataDirs.erase(path);
+	d_experiment.clear_datadirectory();
+	for(auto const & tdd : d_dataDirs) {
+		auto m = d_experiment.add_datadirectory();
+		tdd.second.Encode(*m);
+	}
+
 }
 
-const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataPaths() const {
+const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirectories() const {
 	return d_dataDirs;
 }
 
@@ -236,7 +243,7 @@ const Experiment::AntByID & Experiment::Ants() const {
 
 
 Experiment::Experiment(const std::filesystem::path & filepath )
-	: d_absoluteFilepath(fs::canonical(filepath)) {
+	: d_absoluteFilepath(fs::weakly_canonical(filepath)) {
 }
 
 
@@ -280,4 +287,9 @@ const std::string & Experiment::Comment() const {
 
 void Experiment::SetComment(const std::string & comment) {
 	d_experiment.set_comment(comment);
+}
+
+
+std::filesystem::path Experiment::AbsolutePath() const {
+	return d_absoluteFilepath;
 }

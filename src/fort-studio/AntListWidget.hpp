@@ -2,7 +2,8 @@
 
 #include <QWidget>
 #include <QListWidget>
-#include "Experiment.hpp"
+#include "MainWindow.hpp"
+#include "ExperimentController.hpp"
 
 namespace Ui {
 class AntListWidget;
@@ -14,10 +15,11 @@ public:
 	explicit AntListWidget(QWidget *parent = nullptr);
     ~AntListWidget();
 
-	void setExperiment(Experiment * experiment);
-
 public slots:
-	void updateList();
+	void onNewController(ExperimentController * controller);
+
+	void onAntListModified(const fort::myrmidon::priv::Experiment::AntByID & );
+
 	void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
 	void on_filterEdit_textChanged(const QString & text);
 
@@ -27,7 +29,7 @@ signals:
 private:
     Ui::AntListWidget *d_ui;
 
-	Experiment * d_experiment;
+	ExperimentController * d_controller;
 
 	QMap<uint32_t,QListWidgetItem*> d_items;
 

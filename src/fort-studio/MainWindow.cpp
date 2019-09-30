@@ -11,8 +11,7 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
-	, d_experiment(this){
-	d_experiment.setObjectName("experiment");
+	, d_controller(NULL){
     d_ui->setupUi(this);
     static MainWindow * myself = this;
     qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) -> void{
@@ -36,21 +35,22 @@ MainWindow::MainWindow(QWidget *parent)
 	                           }
                            });
 
-    d_ui->actionSave->setEnabled(false);
-    setCurrentFile("");
+    onNewController(NULL);
     loadSettings();
-    d_ui->antList->setExperiment(&d_experiment);
-    d_ui->experimentInfo->setExperiment(&d_experiment);
-    d_ui->actionAddTrackingDataDir->setEnabled(false);
+    connect(this,SIGNAL(newController(ExperimentController *)),
+            d_ui->antList,SLOT(onNewController(ExperimentController *)));
+    connect(this,SIGNAL(newController(ExperimentController *)),
+            d_ui->experimentInfo,SLOT(onNewController(ExperimentController *)));
+
+
+    connect(this,SIGNAL(newController(ExperimentController *)),
+            this,SLOT(onNewController(ExperimentController *)));
 }
 
 MainWindow::~MainWindow() {
     delete d_ui;
 }
 
-void MainWindow::promptError(const Error & err) {
-	qWarning() << "Unhandled internal error: " << err.what();
-}
 
 
 void MainWindow::on_actionNew_triggered() {
@@ -59,18 +59,22 @@ void MainWindow::on_actionNew_triggered() {
 		return;
 	}
 	if (err.OK() == false) {
-		promptError(err);
-		return;
-	}
-	if (d_experiment.AbsolutePath() == "") {
-		on_actionSaveAs_triggered();
+		qCritical() << err.what();
 		return;
 	}
 
+	QString path = promptPath();
+	if ( path.isEmpty() ) {
+		return;
+	}
+	ExperimentController * newCont = ExperimentController::create(path,this,err);
+	if ( err.OK() == false ) {
+		qCritical() << err.what();\
+		return;
+	}
+	emit newController(newCont);
+	qInfo() << tr("Created new file '%1'").arg(path);
 
-	d_experiment.reset();
-	qInfo() << tr("New experimental data");
-	setCurrentFile("");
 }
 
 void MainWindow::on_actionOpen_triggered() {
@@ -79,23 +83,30 @@ void MainWindow::on_actionOpen_triggered() {
 		return;
 	}
 	if (err.OK() == false) {
-		promptError(err);
+		qCritical() << err.what();
 		return;
 	}
 
 	QString dir = "";
-	if (!d_experiment.AbsolutePath().isEmpty()) {
-		dir = QFileInfo(d_experiment.AbsolutePath()).absolutePath();
+	if ( d_controller != NULL && !d_controller->experiment().AbsolutePath().empty()) {
+		dir = d_controller->experiment().AbsolutePath().remove_filename().c_str();
 	}
 
 	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
 	                                                dir,
-	                                                tr("FORT Studio Experiment (*.fortstudio)"));
+	                                                tr("FORT Experiment (*.myrmidon)"));
 
 	if (filename.isEmpty() ) {
 		return;
 	}
-	open(filename);
+
+	ExperimentController * newCont = ExperimentController::open(filename,this,err);
+	if ( err.OK() == false ) {
+		qCritical() << err.what();
+		return;
+	}
+	emit newController(newCont);
+	qInfo() << tr("Opened '%1'").arg(filename);
 }
 
 
@@ -104,40 +115,48 @@ void MainWindow::on_actionQuit_triggered() {
 }
 
 void MainWindow::on_actionSave_triggered() {
-	Error err = save();
-	if ( err.OK()) {
+	if ( d_controller == NULL ) {
 		return;
 	}
-	promptError(err);
+	Error err = d_controller->save(d_controller->experiment().AbsolutePath().c_str());
+	if ( err.OK() == false ) {
+		qCritical() << err.what();
+		return;
+	}
+	qInfo() << tr("Saved '%1'").arg(d_controller->experiment().AbsolutePath().c_str());
 }
 
 void MainWindow::on_actionSaveAs_triggered() {
-	Error err = saveAs();
+	if ( d_controller == NULL) {
+		return;
+	}
+	QString path = promptPath();
+	if ( path.isEmpty() ) {
+		return;
+	}
+
+	Error err = d_controller->save(path);
     if (!err.OK()) {
-	    promptError(err);
+	    qCritical() << err.what();
 	    return;
     }
     pushRecent();
 }
 
-Error MainWindow::save() {
-	if (d_experiment.AbsolutePath().isEmpty() ) {
-		return saveAs();
-	} else {
-		return save(d_experiment.AbsolutePath());
-	}
-}
 
-Error MainWindow::saveAs() {
-	QFileDialog dialog(this, tr("Save file"),"untilted.fortstudio");
-	dialog.setNameFilter(tr("FORT Studio Experiment (*.fortstudio)"));
+QString MainWindow::promptPath() {
+	QFileDialog dialog(this, tr("Save file"),"untilted.myrmidon");
+	dialog.setNameFilter(tr("FORT Experiment (*.myrmidon)"));
 	dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setDefaultSuffix(".fortstudio");
-    if (dialog.exec() != QDialog::Accepted) {
-	    return  Error::NONE;
+    dialog.setDefaultSuffix(".myrmidon");
+    if ( d_controller != NULL ) {
+	    dialog.setDirectory(d_controller->experiment().AbsolutePath().remove_filename().c_str());
     }
-    return save(dialog.selectedFiles().first());
+    if (dialog.exec() != QDialog::Accepted) {
+	    return  "";
+    }
+    return dialog.selectedFiles().first();
 }
 
 void MainWindow::on_actionAddTrackingDataDir_triggered() {
@@ -145,15 +164,19 @@ void MainWindow::on_actionAddTrackingDataDir_triggered() {
 }
 
 
-void MainWindow::on_experiment_modified() {
-	d_ui->actionSave->setEnabled(true);
+void MainWindow::onExperimentModified(bool modified) {
+	qInfo() << "coucpouc";
+	if ( modified == true ) {
+		d_ui->actionSave->setEnabled(true);
+	} else {
+		d_ui->actionSave->setEnabled(false);
+	}
 }
-
 
 const Error MainWindow::UserDiscard("User Discarded Action");
 
 Error MainWindow::maybeSave() {
-	if (d_experiment.isModified() == false ) {
+	if (d_controller == NULL || d_controller->isModified() == false ) {
 		return Error::NONE;
 	}
 
@@ -165,34 +188,13 @@ Error MainWindow::maybeSave() {
 
 	switch(res) {
 	case QMessageBox::Save:
-		return save();
+		return d_controller->save(d_controller->experiment().AbsolutePath().c_str());
 	case QMessageBox::Cancel:
 		return UserDiscard;
 	default:
 		break;
 	}
 	return Error::NONE;
-}
-
-
-Error MainWindow::save(const QString & path) {
-	Error err = d_experiment.save(path);
-	if (!err.OK()) {
-		return err;
-	}
-	setCurrentFile(path);
-	qInfo() << tr("File '%1' saved").arg(d_experiment.AbsolutePath());
-	return err;
-}
-
-void MainWindow::setCurrentFile(const QString & path) {
-	setWindowModified(false);
-	QString shownName = d_experiment.AbsolutePath();
-	if (shownName.isEmpty()) {
-		shownName = "untitled.fortstudio";
-	}
-	setWindowFilePath(shownName);
-	setWindowTitle(shownName);
 }
 
 
@@ -225,7 +227,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void MainWindow::pushRecent() {
-	QString newPath = QFileInfo(d_experiment.AbsolutePath()).absoluteFilePath();
+	if ( d_controller == NULL ) {
+		return;
+	}
+	QString newPath = d_controller->experiment().AbsolutePath().c_str();
 
 	//if already in the vector, just move it to the top
 	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {
@@ -289,13 +294,19 @@ void MainWindow::rebuildRecentsFiles() {
 			return; \
 		} \
 		if (err.OK() == false) { \
-			promptError(err); \
+			qCritical() << err.what(); \
 			return; \
 		} \
 		if ( i > d_recentPaths.size() ) { \
 			return; \
 		} \
-		open(d_recentPaths[i-1]); \
+		ExperimentController * newCont = ExperimentController::open(d_recentPaths[i-1],this,err); \
+		if ( err.OK() == false ) { \
+			qCritical() << err.what(); \
+			return; \
+		} \
+		emit newController(newCont); \
+		qInfo() << tr("Opened '%1'").arg(d_recentPaths[i-1]); \
 	}
 
 IMPLEMENT_RECENT_FILE_SLOT(1);
@@ -305,18 +316,27 @@ IMPLEMENT_RECENT_FILE_SLOT(4);
 IMPLEMENT_RECENT_FILE_SLOT(5);
 
 
-void MainWindow::open(const QString & path ) {
-	Error err = d_experiment.open(path);
-	if (!err.OK()) {
-		promptError(err);
+void MainWindow::onNewController(ExperimentController * controller) {
+	if ( d_controller != NULL ) {
+		disconnect(d_controller,
+		           SIGNAL(modified(bool)),
+		           this,
+		           SLOT(onExperimentModified(bool)));
+		delete d_controller;
+	}
+	d_controller = controller;
+	if ( d_controller == NULL ) {
+		d_ui->actionSave->setEnabled(false);
+		d_ui->actionSaveAs->setEnabled(false);
+		d_ui->actionAddTrackingDataDir->setEnabled(false);
 		return;
 	}
-	setCurrentFile(path);
-	qInfo() << tr("Opened '%1'").arg(path);
+	d_ui->actionSave->setEnabled(d_controller->isModified());
+	d_ui->actionSaveAs->setEnabled(true);
+	d_ui->actionAddTrackingDataDir->setEnabled(true);
+	connect(d_controller,
+	        SIGNAL(modified(bool)),
+	        this,
+	        SLOT(onExperimentModified(bool)));
 	pushRecent();
-}
-
-
-void MainWindow::on_experiment_pathModified(const QString & path) {
-	d_ui->actionAddTrackingDataDir->setEnabled( d_experiment.AbsolutePath().isEmpty() == false);
 }

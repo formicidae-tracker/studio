@@ -6,8 +6,9 @@
 AntListWidget::AntListWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::AntListWidget)
-	, d_experiment(NULL) {
+	, d_controller(NULL) {
 	d_ui->setupUi(this);
+	onNewController(NULL);
 }
 
 AntListWidget::~AntListWidget() {
@@ -15,13 +16,24 @@ AntListWidget::~AntListWidget() {
 }
 
 
-void AntListWidget::setExperiment(Experiment * experiment) {
-	if ( d_experiment != NULL ) {
-		disconnect(d_experiment,SIGNAL(antListModified()),this,SLOT(updateList()));
+void AntListWidget::onNewController(ExperimentController * controller) {
+	if ( d_controller != NULL ) {
+		disconnect(d_controller,
+		           SIGNAL(antListModified(const fort::myrmidon::priv::Experiment::AntByID &)),
+		           this,
+		           SLOT(onAntListModified(const fort::myrmidon::priv::Experiment::AntByID &)));
 	}
-	d_experiment = experiment;
-	connect(d_experiment,SIGNAL(antListModified()),this,SLOT(updateList()));
-	updateList();
+	d_controller = controller;
+	if (d_controller == NULL ) {
+		return;
+	}
+	connect(d_controller,
+	        SIGNAL(antListModified(const fort::myrmidon::priv::Experiment::AntByID &)),
+	        this,
+	        SLOT(onAntListModified(const fort::myrmidon::priv::Experiment::AntByID &)));
+	onAntListModified(d_controller->experiment().Ants());
+
+	onAntListModified(controller->experiment().Ants());
 }
 
 
@@ -49,9 +61,9 @@ QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 	return res;
 }
 
-void AntListWidget::updateList() {
-	d_ui->groupBox->setTitle(tr("Ants: %1").arg(d_experiment->Ants().size()));
 
+void AntListWidget::onAntListModified(const fort::myrmidon::priv::Experiment::AntByID & ants ) {
+	d_ui->groupBox->setTitle(tr("Ants: %1").arg(ants.size()));
 
 	QSet<uint32_t> notInList;
 
@@ -59,7 +71,7 @@ void AntListWidget::updateList() {
 		notInList.insert(k);
 	}
 
-	for ( auto const & [ID,a] : d_experiment->Ants() ) {
+	for ( auto const & [ID,a] : ants ) {
 		notInList.remove(ID);
 		auto item = d_items.find(ID);
 		if ( item != d_items.end() ) {

@@ -24,7 +24,7 @@ TrackingDataDirectory TrackingDataDirectory::FromSaved(const pb::TrackingDataDir
 	return res;
 }
 
-void TrackingDataDirectory::Encode(pb::TrackingDataDirectory & tdd) {
+void TrackingDataDirectory::Encode(pb::TrackingDataDirectory & tdd) const {
 	tdd.set_path(Path);
 	tdd.set_startframe(StartFrame);
 	tdd.set_endframe(EndFrame);
