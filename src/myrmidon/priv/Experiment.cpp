@@ -79,7 +79,7 @@ void Experiment::Load(const std::filesystem::path & filepath) {
 		if (line.has_antdata() == true ) {
 			fort::myrmidon::Ant::ID id = line.antdata().id();
 			d_antIDs.insert(id);
-			d_ants[id] = std::make_shared<Ant>(line.release_antdata());
+			d_ants[id] = Ant::FromSaved(line.antdata());
 		}
 	}
 	d_continuous = false;
@@ -131,12 +131,13 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	line.release_experiment();
 
 
-	for (auto const & ID : d_antIDs) {
-		line.set_allocated_antdata(const_cast<fort::myrmidon::pb::AntMetadata*>(d_ants.find(ID)->second->Metadata()));
+	for (const auto & ID : d_antIDs) {
+		line.Clear();
+		d_ants.find(ID)->second->Encode(*line.mutable_antdata());
+
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
 		}
-		line.release_antdata();
 	}
 }
 
@@ -215,11 +216,9 @@ const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirector
 
 
 fort::myrmidon::priv::Ant::Ptr Experiment::CreateAnt() {
-	auto md = new pb::AntMetadata();
-	md->set_id(NextAvailableID());
-	auto res = std::make_shared<Ant>(md);
-	d_ants[md->id()] =  res;
-	d_antIDs.insert(md->id());
+	auto res = std::make_shared<Ant>(NextAvailableID());
+	d_ants[res->ID()] =  res;
+	d_antIDs.insert(res->ID());
 	return res;
 }
 

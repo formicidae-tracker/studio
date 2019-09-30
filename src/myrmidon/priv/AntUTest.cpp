@@ -5,9 +5,7 @@
 using namespace fort::myrmidon;
 
 TEST_F(AntUTest,IdentificationChecking) {
-	auto md = new pb::AntMetadata();
-	md->set_id(1);
-	priv::Ant a(md);
+	priv::Ant a(1);
 
 	a.Identifications().push_back(priv::Ant::Identification());
 

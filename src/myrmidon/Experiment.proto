@@ -23,16 +23,36 @@ message Experiment {
 };
 
 
-message FiducialMarker {
+message FramePointer {
+	string Path  = 1;
+	uint64 Frame = 2;
+
+	google.protobuf.Timestamp PathStartDate = 3;
+};
+
+message Estimate {
+	string FromFile = 1;
+
+	double XHead = 2;
+	double YHead = 3;
+	double XTail = 4;
+	double YTail = 5;
+
+	double XPosition     = 6;
+	double YPosition     = 7;
+	double ThetaPosition = 8;
+}
+
+message Identification {
 	double X     = 1;
 	double Y     = 2;
 	double Theta = 3;
     int32  ID    = 4;
-};
 
-message Identification {
-	FiducialMarker Marker          = 1;
-	uint64         StartValidFrame = 2;
+	repeated Estimate Estimate = 5;
+
+	FramePointer StartFrame = 6;
+	FramePointer EndFrame   = 7;
 };
 
 message Metadata {
@@ -40,13 +60,6 @@ message Metadata {
 	uint64 StartValidFrame = 2;
 }
 
-message Estimate {
-	double XHead    = 1;
-	double YHead    = 2;
-	double XTail    = 3;
-	double YTail    = 4;
-	string FromFile = 5;
-}
 
 
 

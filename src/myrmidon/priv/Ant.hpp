@@ -20,7 +20,7 @@ public:
 	class Estimate {
 	public:
 		typedef std::vector<Estimate> List;
-
+		Estimate(){};
 		Estimate(const Eigen::Vector2d & head,
 		         const Eigen::Vector2d & tail,
 		         const Eigen::Vector3d & tagPosition,
@@ -31,6 +31,10 @@ public:
 		Eigen::Vector3d TagPosition() const;
 		Eigen::Vector3d Invert() const;
 		std::filesystem::path FromFile() const;
+
+		void Encode(fort::myrmidon::pb::Estimate & pb) const;
+		static Estimate FromSaved(const fort::myrmidon::pb::Estimate & pb);
+
 	private:
 		Eigen::Matrix<double,7,1> d_data;
 		std::filesystem::path d_fromFile;
@@ -46,6 +50,10 @@ public:
 		Estimate::List    Estimates;
 		Eigen::Vector3d   Position;
 		int32_t           TagValue;
+
+		void Encode(fort::myrmidon::pb::Identification & pb) const;
+		static Identification FromSaved(const fort::myrmidon::pb::Identification & pb);
+
 	};
 
 	class OverlappingIdentification : public std::runtime_error {
@@ -58,32 +66,31 @@ public:
 	};
 
 
-	Ant(fort::myrmidon::pb::AntMetadata * ant);
+	Ant(uint32_t ID);
 	~Ant();
 
 	Identification::List & Identifications();
+	const Identification::List & ConstIdentifications() const;
 	void SortAndCheckIdentifications();
 
-	const fort::myrmidon::pb::AntMetadata * Metadata() const {
-		return d_metadata.get();
-	}
 
 	fort::myrmidon::Ant::ID ID() const {
-		return d_metadata->id();
-	}
-
-	const std::string & FormatID() const {
 		return d_ID;
 	}
 
+	const std::string & FormatID() const {
+		return d_IDStr;
+	}
 
-	void CheckIdentification();
+	void Encode(fort::myrmidon::pb::AntMetadata & pb) const;
+	static Ptr FromSaved(const fort::myrmidon::pb::AntMetadata & pb);
 
 
 private:
-	std::shared_ptr<fort::myrmidon::pb::AntMetadata> d_metadata;
 
-	std::string d_ID;
+
+	uint32_t    d_ID;
+	std::string d_IDStr;
 	Identification::List d_identifications;
 };
 

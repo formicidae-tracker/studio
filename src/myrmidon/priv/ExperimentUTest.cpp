@@ -68,7 +68,7 @@ TEST_F(ExperimentUTest,IOTest) {
 		ReadAll( TestSetup::Basedir() /"test2.myrmidon",newData);
 		ASSERT_EQ(newData.size(),originalData.size());
 		for(size_t i = 0; i < newData.size(); ++i) {
-			ASSERT_EQ(newData[i],originalData[i]) << "At byte " << i;
+			ASSERT_EQ(newData[i],originalData[i]) << "At byte " << i << " over " << originalData.size();
 		}
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
