@@ -21,7 +21,11 @@ public slots:
 	void onAntListModified(const fort::myrmidon::priv::Experiment::AntByID & );
 
 	void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
+	void on_listWidget_itemSelectionChanged();
 	void on_filterEdit_textChanged(const QString & text);
+
+	void on_addButton_clicked();
+	void on_removeButton_clicked();
 
 signals:
 	void antSelected(uint32_t);

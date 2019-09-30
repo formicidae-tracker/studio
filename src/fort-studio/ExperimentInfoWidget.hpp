@@ -27,6 +27,7 @@ public slots:
 
 	void on_addButton_clicked();
 	void on_removeButton_clicked();
+	void on_listWidget_itemSelectionChanged();
 	void on_nameEdit_textEdited(const QString & text);
 	void on_authorEdit_textEdited(const QString & text);
 	void on_commentEdit_textChanged();

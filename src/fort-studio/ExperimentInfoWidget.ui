@@ -74,7 +74,14 @@
        </spacer>
       </item>
       <item row="2" column="0" colspan="3">
-       <widget class="QListWidget" name="listWidget"/>
+       <widget class="QListWidget" name="listWidget">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::MultiSelection</enum>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

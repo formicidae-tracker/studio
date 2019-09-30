@@ -165,7 +165,6 @@ void MainWindow::on_actionAddTrackingDataDir_triggered() {
 
 
 void MainWindow::onExperimentModified(bool modified) {
-	qInfo() << "coucpouc";
 	if ( modified == true ) {
 		d_ui->actionSave->setEnabled(true);
 	} else {

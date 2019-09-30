@@ -112,3 +112,20 @@ ExperimentController * ExperimentController::create(const QString & path, QObjec
 implement_setter(Name)
 implement_setter(Author)
 implement_setter(Comment)
+
+
+void ExperimentController::createAnt() {
+	d_experiment->CreateAnt();
+	emit antListModified(d_experiment->Ants());
+	setModified(true);
+}
+Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
+	try {
+		d_experiment->DeleteAnt(ID);
+		emit antListModified(d_experiment->Ants());
+		setModified(true);
+		return Error::NONE;
+	} catch ( const std::exception & e) {
+		return Error(e.what());
+	}
+}

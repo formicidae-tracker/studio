@@ -32,7 +32,7 @@ void ExperimentInfoWidget::onNewController(ExperimentController * controller) {
 	d_controller = controller;
 	if (d_controller == NULL) {
 		d_ui->addButton->setEnabled(false);
-		d_ui->removeButton->setEnabled(true);
+		d_ui->removeButton->setEnabled(false);
 		d_ui->listWidget->clear();
 		d_ui->authorEdit->clear();
 		d_ui->authorEdit->setEnabled(false);
@@ -72,6 +72,15 @@ void ExperimentInfoWidget::on_addButton_clicked() {
 }
 
 void ExperimentInfoWidget::on_removeButton_clicked() {
+	if (d_controller == NULL ) {
+		return;
+	}
+	for(auto const & item : d_ui->listWidget->selectedItems() ) {
+		Error err = d_controller->removeDataDirectory(item->text());
+		if ( err.OK() == false ) {
+			qCritical() << err.what();
+		}
+	}
 }
 
 
@@ -100,9 +109,16 @@ void ExperimentInfoWidget::on_authorEdit_textEdited(const QString & text) {
 }
 
 
+
+
 void ExperimentInfoWidget::on_commentEdit_textChanged() {
 	if(d_controller == NULL) {
 		return;
 	}
 	d_controller->setComment(d_ui->commentEdit->toPlainText());
+}
+
+
+void ExperimentInfoWidget::on_listWidget_itemSelectionChanged() {
+	d_ui->removeButton->setEnabled(!d_ui->listWidget->selectedItems().isEmpty());
 }

@@ -33,6 +33,9 @@ public slots:
 	Error save(const QString & path);
 	void  setModified(bool modified);
 
+	void createAnt();
+	Error removeAnt(fort::myrmidon::Ant::ID ID);
+
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
 	void setComment(const QString & comment);

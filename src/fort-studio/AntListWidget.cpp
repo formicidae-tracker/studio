@@ -25,6 +25,8 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 	}
 	d_controller = controller;
 	if (d_controller == NULL ) {
+		d_ui->filterEdit->setEnabled(false);
+		d_ui->addButton->setEnabled(false);
 		return;
 	}
 	connect(d_controller,
@@ -32,8 +34,9 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 	        this,
 	        SLOT(onAntListModified(const fort::myrmidon::priv::Experiment::AntByID &)));
 	onAntListModified(d_controller->experiment().Ants());
+	d_ui->filterEdit->setEnabled(true);
+	d_ui->addButton->setEnabled(true);
 
-	onAntListModified(controller->experiment().Ants());
 }
 
 
@@ -101,5 +104,32 @@ void AntListWidget::on_filterEdit_textChanged(const QString & text) {
 	QRegExp rex(text,Qt::CaseInsensitive);
 	for( auto const & item : d_items ) {
 		item->setHidden(rex.indexIn(item->text()) == -1 );
+	}
+}
+
+
+void AntListWidget::on_listWidget_itemSelectionChanged() {
+	d_ui->removeButton->setEnabled(!d_ui->listWidget->selectedItems().isEmpty());
+}
+
+
+void AntListWidget::on_addButton_clicked() {
+	if ( d_controller == NULL ) {
+		return;
+	}
+
+	d_controller->createAnt();
+}
+
+void AntListWidget::on_removeButton_clicked() {
+	if ( d_controller == NULL ) {
+		return;
+	}
+
+	for ( auto const & item : d_ui->listWidget->selectedItems() ) {
+		Error err = d_controller->removeAnt(item->data(Qt::UserRole).toInt());
+		if ( err.OK() == false ) {
+			qCritical() << err.what();
+		}
 	}
 }
