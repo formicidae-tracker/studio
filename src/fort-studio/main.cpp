@@ -4,12 +4,13 @@
 
 
 int main(int argc, char ** argv) {
-	QApplication fortStudio(argc,argv);
 
 	QCoreApplication::setOrganizationName("FORmicidae Tracker");
 	QCoreApplication::setOrganizationDomain("formicidae-tracker.github.io");
 	QCoreApplication::setApplicationName("FORT Studio");
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+	QApplication fortStudio(argc,argv);
 
 
 	MainWindow window;
