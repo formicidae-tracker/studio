@@ -119,6 +119,8 @@ void ExperimentController::createAnt() {
 	emit antListModified(d_experiment->Ants());
 	setModified(true);
 }
+
+
 Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
 	try {
 		d_experiment->DeleteAnt(ID);

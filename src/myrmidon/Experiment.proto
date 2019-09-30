@@ -40,6 +40,16 @@ message Metadata {
 	uint64 StartValidFrame = 2;
 }
 
+message Estimate {
+	double XHead    = 1;
+	double YHead    = 2;
+	double XTail    = 3;
+	double YTail    = 4;
+	string FromFile = 5;
+}
+
+
+
 message AntMetadata {
 	int32                   ID       = 1;
 	repeated Identification Marker   = 3;

@@ -35,7 +35,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(HDR_PRIVATE_FILES priv/Experiment.hpp
                       priv/Ant.hpp
-                      priv/TrackingDataDirectory.hpp)
+                      priv/TrackingDataDirectory.hpp
+                      priv/FramePointer.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -46,17 +47,19 @@ set(SRC_FILES Frame.cpp
 	          priv/Experiment.cpp
 	          Ant.cpp
 	          priv/Ant.cpp
-	          priv/TrackingDataDirectory.cpp)
+	          priv/TrackingDataDirectory.cpp
+	          priv/FramePointer.cpp)
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp
                     priv/ExperimentUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
-                    )
+                    priv/AntUTest.cpp)
 
 set(HDR_UTEST_FILES TestSetup.hpp
                     priv/ExperimentUTest.hpp
-                    priv/TrackingDataDirectoryUTest.hpp)
+                    priv/TrackingDataDirectoryUTest.hpp
+                    priv/AntUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${HDR_PUBLIC_FILES}
