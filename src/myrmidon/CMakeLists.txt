@@ -19,7 +19,7 @@ configure_file(config.h.in myrmidon-config.h)
 
 
 
-set(PROTO_FILES Experiment.proto Cache.proto)
+set(PROTO_FILES Experiment.proto)
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 

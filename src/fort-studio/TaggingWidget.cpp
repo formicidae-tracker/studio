@@ -10,3 +10,10 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 TaggingWidget::~TaggingWidget() {
     delete d_ui;
 }
+
+
+void TaggingWidget::onNewController(ExperimentController * controller) {
+}
+
+void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &) {
+}
