@@ -144,3 +144,11 @@ void ExperimentController::setTagFamily(fort::myrmidon::priv::Experiment::TagFam
 		qCritical() << e.what();
 	}
 }
+
+void ExperimentController::setThreshold(uint8_t th) {
+	if ( th == d_experiment->Threshold() ) {
+		return;
+	}
+	d_experiment->SetThreshold(th);
+	setModified(true);
+}

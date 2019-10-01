@@ -34,6 +34,7 @@ message Experiment {
 	string    Author    = 3;
 	string    Comment   = 4;
 	TagFamily TagFamily = 5;
+	uint32    Threshold = 6;
 };
 
 

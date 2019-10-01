@@ -288,6 +288,21 @@ void Experiment::SetComment(const std::string & comment) {
 	d_experiment.set_comment(comment);
 }
 
+uint8_t Experiment::Threshold() const {
+	uint32_t th = d_experiment.threshold();
+	if ( th == 0 || th >= 255 ) {
+		return 40;
+	}
+	return th;
+}
+
+void Experiment::SetThreshold(uint8_t th) {
+	if ( th == 0 || th >= 255 ) {
+		th = 40;
+	}
+	d_experiment.set_threshold(th);
+}
+
 
 std::filesystem::path Experiment::AbsolutePath() const {
 	return d_absoluteFilepath;

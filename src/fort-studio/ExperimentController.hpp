@@ -40,7 +40,7 @@ public slots:
 	void setAuthor(const QString & author);
 	void setComment(const QString & comment);
 	void setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf);
-
+	void setThreshold(uint8_t th);
 private:
 	fort::myrmidon::priv::Experiment::Ptr d_experiment;
 	bool d_modified;

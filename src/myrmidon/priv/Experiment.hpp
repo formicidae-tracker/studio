@@ -60,6 +60,10 @@ public :
 	TagFamily Family() const;
 	void SetFamily(TagFamily tf);
 
+	uint8_t Threshold() const;
+	void SetThreshold(uint8_t th);
+
+
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 
