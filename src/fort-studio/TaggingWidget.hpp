@@ -26,6 +26,8 @@ public slots:
 
 	void on_familySelector_activated(int);
 	void on_thresholdBox_valueChanged(int);
+	void on_tagList_itemActivated(QTreeWidgetItem *, int);
+
 
 	void onNewSnapshot(Snapshot::ConstPtr);
 

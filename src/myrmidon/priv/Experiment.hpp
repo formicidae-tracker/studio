@@ -34,7 +34,8 @@ public :
 	static Ptr Create(const std::filesystem::path & filename);
 	void Save(const std::filesystem::path & filename) const;
 
-	std::filesystem::path AbsolutePath() const;
+	const std::filesystem::path & AbsolutePath() const;
+	const std::filesystem::path & Basedir() const;
 
 	void CheckDirectories();
 
@@ -78,6 +79,7 @@ private:
 	pb::Experiment              d_experiment;
 
 	std::filesystem::path       d_absoluteFilepath;
+	std::filesystem::path       d_basedir;
 	TrackingDataDirectoryByPath d_dataDirs;
 	AntByID                     d_ants;
 	SetOfID                     d_antIDs;

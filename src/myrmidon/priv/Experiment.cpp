@@ -242,7 +242,9 @@ const Experiment::AntByID & Experiment::Ants() const {
 
 
 Experiment::Experiment(const std::filesystem::path & filepath )
-	: d_absoluteFilepath(fs::weakly_canonical(filepath)) {
+	: d_absoluteFilepath(fs::weakly_canonical(filepath))
+	, d_basedir(d_absoluteFilepath) {
+	d_basedir.remove_filename();
 }
 
 
@@ -304,8 +306,12 @@ void Experiment::SetThreshold(uint8_t th) {
 }
 
 
-std::filesystem::path Experiment::AbsolutePath() const {
+const std::filesystem::path & Experiment::AbsolutePath() const {
 	return d_absoluteFilepath;
+}
+
+const std::filesystem::path & Experiment::Basedir() const {
+	return d_basedir;
 }
 
 

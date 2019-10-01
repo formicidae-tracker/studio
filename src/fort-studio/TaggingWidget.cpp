@@ -1,6 +1,8 @@
 #include "TaggingWidget.hpp"
 #include "ui_TaggingWidget.h"
 
+#include <QPainter>
+
 TaggingWidget::TaggingWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TaggingWidget)
@@ -20,8 +22,13 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->familySelector->insertItem(9,"Standard52h13",(int)Experiment::TagFamily::Standard52h13);
     d_ui->familySelector->setCurrentIndex(-1);
     onNewController(NULL);
+    d_ui->tagList->sortByColumn(0,Qt::AscendingOrder);
     d_ui->tagList->setSortingEnabled(true);
-    d_ui->tagList->sortItems(0,Qt::DescendingOrder);
+
+    d_ui->imageLabel->setBackgroundRole(QPalette::Base);
+    d_ui->imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    // d_ui->imageLabel->setScaledContents(true);
+
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -77,9 +84,6 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 	}
 
 
-	std::filesystem::path basepath = d_controller->experiment().AbsolutePath();
-	basepath.remove_filename();
-
 	if ( d_ui->familySelector->currentIndex() == -1 ) {
 		clearIndexers();
 		return;
@@ -91,7 +95,10 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		if (d_indexers.count(p) != 0 ) {
 			continue;
 		}
-		auto indexer = std::make_shared<SnapshotIndexer>(tdd.Path,basepath,tf,d_ui->thresholdBox->value());
+		auto indexer = std::make_shared<SnapshotIndexer>(tdd.Path,
+		                                                 d_controller->experiment().Basedir(),
+		                                                 tf,
+		                                                 d_ui->thresholdBox->value());
 		connect(indexer.get(),SIGNAL(newSnapshot(Snapshot::ConstPtr)),
 		        this,SLOT(onNewSnapshot(Snapshot::ConstPtr)));
 		connect(indexer.get(),SIGNAL(done(size_t)),
@@ -155,12 +162,93 @@ void TaggingWidget::onNewSnapshot(Snapshot::ConstPtr s) {
 		d_tags[s->TagValue()] = tagWidget;
 
 	}
+	d_snapshots[s->Path().generic_string()] = s;
 	auto tagWidget = d_tags[s->TagValue()];
 	auto frameWidget = new QTreeWidgetItem(tagWidget);
 	frameWidget->setData(0,Qt::DisplayRole,(int)s->Frame());
-
+	frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
 }
 
 void TaggingWidget::onDone(size_t) {
 	d_ui->snapshotProgress->setValue(d_ui->snapshotProgress->value()+1);
+}
+
+
+
+void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
+	if ( item->data(0,Qt::UserRole).toString().isEmpty() || d_controller == NULL) {
+		return;
+	}
+	auto path = item->data(0,Qt::UserRole).toString();
+	auto fi = d_snapshots.find(path.toUtf8().constData());
+	if ( fi == d_snapshots.end() ) {
+		return;
+	}
+	auto s = fi->second;
+
+	auto imagePath = d_controller->experiment().Basedir() / s->ImagePath();
+	QImage image(imagePath.c_str());
+
+	if( image.format() != QImage::Format_RGB888 ) {
+		image = image.convertToFormat(QImage::Format_RGB888);
+	}
+	int roiSize = std::min(600,std::min(image.width(),image.height()));
+	QRect roi(s->TagPosition().x() - roiSize/2,
+	          s->TagPosition().y() - roiSize/2,
+	          roiSize,roiSize);
+
+	if (roi.x() < 0 ) {
+		roi.setX(0);
+	}
+	if ( roi.x() + roi.width() > image.width() ) {
+		roi.setX(std::max(0,image.width() - roiSize));
+		roi.setWidth(std::min(roiSize,image.width()-roi.x()));
+	}
+
+	if (roi.y() < 0 ) {
+		roi.setY(0);
+	}
+	if ( roi.y() + roi.height() > image.height() ) {
+		roi.setY(std::max(0,image.height() - roiSize));
+		roi.setHeight(std::min(roiSize,image.height()-roi.y()));
+	}
+
+	image = image.copy(roi);
+
+	QPixmap px;
+	px.convertFromImage(image,Qt::ColorOnly);
+	QPainter painter;
+	painter.begin(&px);
+	QPen tagPen(QColor(255,0,0),2);
+	if ( s->Corners().size() == 4 ) {
+		painter.setPen(tagPen);
+		painter.drawLine(s->Corners()[0].x() - roi.x(),
+		                 s->Corners()[0].y() - roi.y(),
+		                 s->Corners()[1].x() - roi.x(),
+		                 s->Corners()[1].y() - roi.y());
+
+		painter.drawLine(s->Corners()[1].x() - roi.x(),
+		                 s->Corners()[1].y() - roi.y(),
+		                 s->Corners()[2].x() - roi.x(),
+		                 s->Corners()[2].y() - roi.y());
+
+		painter.drawLine(s->Corners()[2].x() - roi.x(),
+		                 s->Corners()[2].y() - roi.y(),
+		                 s->Corners()[3].x() - roi.x(),
+		                 s->Corners()[3].y() - roi.y());
+
+		painter.drawLine(s->Corners()[3].x() - roi.x(),
+		                 s->Corners()[3].y() - roi.y(),
+		                 s->Corners()[0].x() - roi.x(),
+		                 s->Corners()[0].y() - roi.y());
+
+
+	}
+
+
+	d_ui->imageLabel->setPixmap(px);
+
+
+
+
 }

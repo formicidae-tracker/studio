@@ -109,8 +109,9 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 		if ( tp.Filter != NULL && d->id != *(tp.Filter) ) {
 			continue;
 		}
-		tp.Results.push_back(Snapshot::FromApriltag(d,tp.Path, tp.Datadir,tp
-		                                            .Frame));
+		tp.Results.push_back(Snapshot::FromApriltag(d,tp.Path,
+		                                            tp.Datadir,
+		                                            tp.Frame));
 	}
 }
 
@@ -141,7 +142,7 @@ size_t SnapshotIndexer::start() {
 		}
 		filtered =  std::regex("frame_([0-9]+).png");
 		if(std::regex_search(filename,ID,filtered) && ID.size() > 1) {
-			std::istringstream FrameS(ID.str(2));
+			std::istringstream FrameS(ID.str(1));
 			FrameS >> toProcess.Frame;
 			d_toProcess.push_back(toProcess);
 			continue;

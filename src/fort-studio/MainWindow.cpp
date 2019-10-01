@@ -91,7 +91,7 @@ void MainWindow::on_actionOpen_triggered() {
 
 	QString dir = "";
 	if ( d_controller != NULL && !d_controller->experiment().AbsolutePath().empty()) {
-		dir = d_controller->experiment().AbsolutePath().remove_filename().c_str();
+		dir = d_controller->experiment().Basedir().c_str();
 	}
 
 	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
@@ -153,7 +153,7 @@ QString MainWindow::promptPath() {
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix(".myrmidon");
     if ( d_controller != NULL ) {
-	    dialog.setDirectory(d_controller->experiment().AbsolutePath().remove_filename().c_str());
+	    dialog.setDirectory(d_controller->experiment().Basedir().c_str());
     }
     if (dialog.exec() != QDialog::Accepted) {
 	    return  "";

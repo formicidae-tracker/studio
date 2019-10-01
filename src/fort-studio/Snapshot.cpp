@@ -73,12 +73,12 @@ double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 
 
 Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
-                                          const std::filesystem::path & imagePath,
+                                          const std::filesystem::path & relativeImagePath,
                                           const std::filesystem::path & basedir,
                                           uint64_t frame) {
 	auto res = std::make_shared<Snapshot>();
 	res->d_basedir = basedir;
-	res->d_relativeImagePath = std::filesystem::relative(imagePath,basedir);
+	res->d_relativeImagePath = relativeImagePath;
 	res->d_frame = frame;
 	res->d_value = d->id;
 

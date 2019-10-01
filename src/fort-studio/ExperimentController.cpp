@@ -25,7 +25,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 
 	try {
 		auto tdd = fort::myrmidon::priv::TrackingDataDirectory::Open(path.toUtf8().constData(),
-		                                                             d_experiment->AbsolutePath().remove_filename());
+		                                                             d_experiment->Basedir());
 
 
 		d_experiment->AddTrackingDataDirectory(tdd);
