@@ -24,23 +24,24 @@ signals:
 	void newSnapshot(Snapshot::ConstPtr);
 
 public slots:
-	void start();
+	size_t start();
 	void cancel();
 
-private slots:
-	void onResultReady(int index);
+signals:
+	void resultReady(const QVector<Snapshot::ConstPtr>&);
+	void done(size_t v);
 
+private slots:
+	void onResultReady(const QVector<Snapshot::ConstPtr>&);
 private:
 	struct ImageToProcess {
 		std::filesystem::path Basedir,Datadir,Path;
 		uint64_t Frame;
 		uint32_t * Filter;
-		std::vector<Snapshot::ConstPtr> Results;
+		QVector<Snapshot::ConstPtr> Results;
 	};
 
-
-
-
+	void Process(ImageToProcess & tp);
 
 	std::filesystem::path d_basedir;
 	std::filesystem::path d_datadir;
@@ -51,7 +52,8 @@ private:
 	std::shared_ptr<apriltag_detector_t> d_detector;
 	std::mutex                           d_detectorMutex;
 
-	QVector<ImageToProcess>                d_toProcess;
+	QVector<ImageToProcess>    d_toProcess;
 	QFutureWatcher<void>       d_futureWatcher;
+	size_t                     d_done;
 
 };

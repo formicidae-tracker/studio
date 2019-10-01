@@ -1,7 +1,7 @@
 #include "Snapshot.hpp"
 
 
-uint32_t Snapshot::TagValue() {
+uint32_t Snapshot::TagValue() const{
 	return d_value;
 }
 
@@ -96,4 +96,8 @@ std::filesystem::path Snapshot::Path() const {
 	std::ostringstream os;
 	os << d_frame << "/" << d_value;
 	return d_basedir / os.str();
+}
+
+uint64_t Snapshot::Frame() const {
+	return d_frame;
 }

@@ -16,7 +16,7 @@ public:
 
 	uint64_t Frame() const;
 
-	uint32_t TagValue();
+	uint32_t TagValue() const;
 	Eigen::Vector2d TagPosition() const;
 	double TagAngle() const;
 
@@ -34,6 +34,8 @@ public:
 
 
 	std::filesystem::path Path() const;
+
+	const std::filesystem::path & Base() const;
 
 private:
 	Eigen::Vector3d       d_position;

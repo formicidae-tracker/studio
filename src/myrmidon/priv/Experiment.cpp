@@ -312,6 +312,7 @@ std::filesystem::path Experiment::AbsolutePath() const {
 Experiment::TagFamily Experiment::Family() const {
 	static std::map<fm::pb::TagFamily,Experiment::TagFamily>
 		mapping = {
+		           {fm::pb::UNSET,Experiment::TagFamily::Unset},
 		           {fm::pb::TAG16H5,Experiment::TagFamily::Tag16h5},
 		           {fm::pb::TAG25H9,Experiment::TagFamily::Tag25h9},
 		           {fm::pb::TAG36ARTAG,Experiment::TagFamily::Tag36ARTag},
@@ -332,6 +333,7 @@ Experiment::TagFamily Experiment::Family() const {
 void Experiment::SetFamily(TagFamily tf) {
 	static std::map<Experiment::TagFamily,fm::pb::TagFamily>
 		mapping = {
+		           {Experiment::TagFamily::Unset,fm::pb::UNSET},
 		           {Experiment::TagFamily::Tag16h5,fm::pb::TAG16H5},
 		           {Experiment::TagFamily::Tag25h9,fm::pb::TAG25H9},
 		           {Experiment::TagFamily::Tag36ARTag,fm::pb::TAG36ARTAG},

@@ -23,7 +23,7 @@ using namespace fort::myrmidon;
 
 class Experiment {
 public :
-	enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Size};
+	enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Unset};
 
 	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
 	typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;

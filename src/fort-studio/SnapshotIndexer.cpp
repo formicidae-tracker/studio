@@ -19,6 +19,7 @@
 #include <QImage>
 
 
+
 SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
                                  const std::filesystem::path & basedir,
                                  fort::myrmidon::priv::Experiment::TagFamily family,
@@ -28,8 +29,11 @@ SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
 	, d_basedir(basedir)
 	, d_datadir(datadir)
 	, d_familyValue(family) {
-	connect(&d_futureWatcher,SIGNAL(resultReadyAt(int)),
-	        this,SLOT(onResultReady(int)));
+	qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
+	connect(this,SIGNAL(resultReady(const QVector<Snapshot::ConstPtr>&)),
+	        this,SLOT(onResultReady(const QVector<Snapshot::ConstPtr>&)),
+	        Qt::QueuedConnection);
+
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
 		typedef void (*Destructor) (apriltag_family_t *);
@@ -49,6 +53,7 @@ SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
 		 {Experiment::TagFamily::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
 		 {Experiment::TagFamily::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
 	};
+
 
 	auto f = familyFactory.find(family);
 	if ( f == familyFactory.end() ) {
@@ -78,7 +83,38 @@ SnapshotIndexer::~SnapshotIndexer() {
 	cancel();
 }
 
-void SnapshotIndexer::start() {
+void SnapshotIndexer::Process(ImageToProcess & tp) {
+	auto path = tp.Basedir / tp.Datadir / tp.Path;
+	QImage image(path.c_str());
+	if ( image.format() != QImage::Format_Grayscale8 ) {
+		image = image.convertToFormat(QImage::Format_Grayscale8);
+	}
+	image_u8_t img = {
+	                  .width = image.width(),
+	                  .height = image.height(),
+	                  .stride = image.bytesPerLine(),
+	                  .buf =  image.bits(),
+	};
+
+
+	zarray_t * detections = NULL;
+	{
+		std::lock_guard lock(d_detectorMutex);
+		detections = apriltag_detector_detect(d_detector.get(),&img);
+	}
+	apriltag_detection_t * d;
+	tp.Results.reserve(zarray_size(detections));
+	for ( size_t i = 0; i < zarray_size(detections); ++i ) {
+		zarray_get(detections,i,&d);
+		if ( tp.Filter != NULL && d->id != *(tp.Filter) ) {
+			continue;
+		}
+		tp.Results.push_back(Snapshot::FromApriltag(d,tp.Path, tp.Datadir,tp
+		                                            .Frame));
+	}
+}
+
+size_t SnapshotIndexer::start() {
 	for ( const auto & de : std::filesystem::directory_iterator(d_basedir / d_datadir / "ants" ) ) {
 		auto ext = de.path().extension().string();
 		std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return std::tolower(c);});
@@ -111,36 +147,13 @@ void SnapshotIndexer::start() {
 			continue;
 		}
 	}
-
+	d_done = 0;
 	d_futureWatcher.setFuture(QtConcurrent::map(d_toProcess,
-	                                            [this](ImageToProcess & img) {
-		                                            QImage image( (img.Basedir / img.Datadir / img.Path).c_str());
-		                                            if ( image.format() != QImage::Format_Grayscale8 ) {
-			                                            image = image.convertToFormat(QImage::Format_Grayscale8);
-		                                            }
-		                                            image_u8_t imgAT = {
-		                                                                .width = image.width(),
-		                                                                .height = image.height(),
-		                                                                .stride = image.bytesPerLine(),
-		                                                                .buf =  image.bits(),
-		                                            };
-
-
-		                                            zarray_t * detections = NULL;
-		                                            {
-			                                            std::lock_guard lock(d_detectorMutex);
-			                                            detections = apriltag_detector_detect(d_detector.get(),&imgAT);
-		                                            }
-		                                            apriltag_detection_t * d;
-		                                            img.Results.reserve(zarray_size(detections));
-		                                            for ( size_t i = 0; i < zarray_size(detections); ++i ) {
-			                                            zarray_get(detections,i,&d);
-			                                            if ( img.Filter != NULL && d->id != *(img.Filter) ) {
-				                                            continue;
-			                                            }
-			                                            img.Results.push_back(Snapshot::FromApriltag(d,img.Path, img.Datadir,img.Frame));
-		                                            }
+	                                            [this](ImageToProcess & tp){
+		                                            Process(tp);
+		                                            emit resultReady(tp.Results);
 	                                            }));
+	return d_toProcess.size();
 }
 
 void SnapshotIndexer::cancel() {
@@ -149,8 +162,10 @@ void SnapshotIndexer::cancel() {
 }
 
 
-void SnapshotIndexer::onResultReady(int idx) {
-	for(const auto & s : d_toProcess[idx].Results ) {
+void SnapshotIndexer::onResultReady(const QVector<Snapshot::ConstPtr> & snapshots) {
+	for(const auto & s : snapshots ) {
 		emit newSnapshot(s);
 	}
+	++d_done;
+	emit done(d_done);
 }

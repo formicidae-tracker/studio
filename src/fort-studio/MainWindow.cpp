@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
             d_ui->antList,SLOT(onNewController(ExperimentController *)));
     connect(this,SIGNAL(newController(ExperimentController *)),
             d_ui->experimentInfo,SLOT(onNewController(ExperimentController *)));
+    connect(this,SIGNAL(newController(ExperimentController *)),
+            d_ui->taggingWidget,SLOT(onNewController(ExperimentController *)));
 
 
     connect(this,SIGNAL(newController(ExperimentController *)),
