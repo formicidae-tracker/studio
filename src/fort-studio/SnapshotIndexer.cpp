@@ -153,11 +153,12 @@ void SnapshotIndexer::start() {
 		                                            img.Results.reserve(zarray_size(detections));
 		                                            for ( size_t i = 0; i < zarray_size(detections); ++i ) {
 			                                            zarray_get(detections,i,&d);
+			                                            if ( img.Filter != NULL && d->id != *(img.Filter) ) {
+				                                            continue;
+			                                            }
 			                                            img.Results.push_back(Snapshot::FromApriltag(d,img.Path, img.Datadir,img.Frame));
 		                                            }
 	                                            }));
-
-
 }
 
 void SnapshotIndexer::cancel() {
