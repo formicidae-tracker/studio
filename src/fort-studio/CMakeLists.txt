@@ -3,13 +3,15 @@ set(SRC_FILES main.cpp
               Error.cpp
               ExperimentController.cpp
               AntListWidget.cpp
-              ExperimentInfoWidget.cpp)
+              ExperimentInfoWidget.cpp
+              TaggingWidget.cpp)
 
 set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
               Error.hpp
               AntListWidget.hpp
-              ExperimentInfoWidget.hpp)
+              ExperimentInfoWidget.hpp
+              TaggingWidget.hpp)
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui

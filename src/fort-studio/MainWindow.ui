@@ -40,7 +40,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="ExperimentInfoWidget" name="experimentInfo">
        <property name="enabled">
@@ -50,7 +50,7 @@
         <string>Infos</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="taggerWidget">
+      <widget class="TaggingWidget" name="taggingWidget">
        <attribute name="title">
         <string>Tagging</string>
        </attribute>
@@ -327,6 +327,12 @@
    <class>ExperimentInfoWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/ExperimentInfoWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TaggingWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/TaggingWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

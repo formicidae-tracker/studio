@@ -55,7 +55,6 @@ public :
 	const std::string & Comment() const;
 	void SetComment(const std::string & comment);
 
-
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 
