@@ -18,30 +18,10 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QImage>
 
-std::string ToString(TagFamily t ) {
-	static std::vector<std::string> names = {
-		 "Tag36h11",
-		 "Tag36h10",
-		 "Tag36ARTag",
-		 "Tag16h5",
-		 "Tag25h9",
-		 "Circle21h7",
-		 "Circle49h12",
-		 "Custom48h12",
-		 "Standard41h12",
-		 "Standard52h13",
-		 "<unknown>",
-	};
-	size_t idx = (size_t)(t);
-	if ( idx >= names.size() ) {
-		idx = names.size()-1;
-	}
-	return names[idx];
-}
 
 SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
                                  const std::filesystem::path & basedir,
-                                 TagFamily family,
+                                 fort::myrmidon::priv::Experiment::TagFamily family,
                                  uint8_t threshold,
                                  QObject * parent)
 	: QObject(parent)
@@ -56,23 +36,25 @@ SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
 		Constructor c;
 		Destructor  d;
 	};
-
-	static std::unordered_map<TagFamily,FamilyInterface>  familyFactory = {
-		 {TagFamily::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
-		 {TagFamily::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
-		 {TagFamily::Tag36h10,{.c =tag36h10_create, .d=tag36h10_destroy}},
-		 {TagFamily::Tag36h11,{.c =tag36h11_create, .d=tag36h11_destroy}},
-		 {TagFamily::Tag36ARTag,{.c =tag36ARTag_create, .d=tag36ARTag_destroy}},
-		 {TagFamily::Circle21h7,{.c =tagCircle21h7_create, .d=tagCircle21h7_destroy}},
-		 {TagFamily::Circle49h12,{.c =tagCircle49h12_create, .d=tagCircle49h12_destroy}},
-		 {TagFamily::Custom48h12,{.c =tagCustom48h12_create, .d=tagCustom48h12_destroy}},
-		 {TagFamily::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
-		 {TagFamily::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
+	using namespace fort::myrmidon::priv;
+	static std::unordered_map<Experiment::TagFamily,FamilyInterface>  familyFactory = {
+		 {Experiment::TagFamily::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
+		 {Experiment::TagFamily::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
+		 {Experiment::TagFamily::Tag36h10,{.c =tag36h10_create, .d=tag36h10_destroy}},
+		 {Experiment::TagFamily::Tag36h11,{.c =tag36h11_create, .d=tag36h11_destroy}},
+		 {Experiment::TagFamily::Tag36ARTag,{.c =tag36ARTag_create, .d=tag36ARTag_destroy}},
+		 {Experiment::TagFamily::Circle21h7,{.c =tagCircle21h7_create, .d=tagCircle21h7_destroy}},
+		 {Experiment::TagFamily::Circle49h12,{.c =tagCircle49h12_create, .d=tagCircle49h12_destroy}},
+		 {Experiment::TagFamily::Custom48h12,{.c =tagCustom48h12_create, .d=tagCustom48h12_destroy}},
+		 {Experiment::TagFamily::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
+		 {Experiment::TagFamily::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
 	};
 
 	auto f = familyFactory.find(family);
 	if ( f == familyFactory.end() ) {
-		throw std::runtime_error("Unsupported family : " + ToString(family));
+		std::ostringstream os;
+		os << "Unsupported family : " << family;
+		throw std::runtime_error(os.str());
 	}
 	d_family = std::shared_ptr<apriltag_family_t>(f->second.c(),f->second.d);
 	d_detector = std::shared_ptr<apriltag_detector_t>(apriltag_detector_create(),apriltag_detector_destroy);

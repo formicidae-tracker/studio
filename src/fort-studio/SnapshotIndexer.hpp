@@ -7,9 +7,7 @@
 
 #include "apriltag.h"
 
-enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Size};
-
-
+#include <myrmidon/priv/Experiment.hpp>
 
 
 class SnapshotIndexer : public QObject {
@@ -17,7 +15,7 @@ class SnapshotIndexer : public QObject {
 public:
 	SnapshotIndexer(const std::filesystem::path & datadir,
 	                const std::filesystem::path & basedir,
-	                TagFamily family,
+	                fort::myrmidon::priv::Experiment::TagFamily family,
 	                uint8_t threshold,
 	                QObject * parent = NULL);
 	virtual ~SnapshotIndexer();
@@ -46,7 +44,8 @@ private:
 
 	std::filesystem::path d_basedir;
 	std::filesystem::path d_datadir;
-	TagFamily             d_familyValue;
+
+	fort::myrmidon::priv::Experiment::TagFamily d_familyValue;
 
 	std::shared_ptr<apriltag_family_t>   d_family;
 	std::shared_ptr<apriltag_detector_t> d_detector;

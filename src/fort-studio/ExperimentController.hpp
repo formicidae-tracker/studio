@@ -39,7 +39,7 @@ public slots:
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
 	void setComment(const QString & comment);
-
+	void setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf);
 
 private:
 	fort::myrmidon::priv::Experiment::Ptr d_experiment;

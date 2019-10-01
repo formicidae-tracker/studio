@@ -14,12 +14,26 @@ message TrackingDataDirectory {
 	google.protobuf.Timestamp EndDate   = 5;
 }
 
+enum TagFamily {
+	TAG16H5       = 0;
+	TAG25H9       = 1;
+	TAG36ARTAG    = 2;
+	TAG36H10      = 3;
+	TAG36H11      = 4;
+	CIRCLE21H7    = 5;
+	CIRCLE49H12   = 6;
+	CUSTOM48H12   = 7;
+	STANDARD41H12 = 8;
+	STANDARD52H13 = 9;
+};
+
 message Experiment {
 	repeated TrackingDataDirectory DataDirectory = 1;
 
-	string Name    = 2;
-	string Author  = 3;
-	string Comment = 4;
+	string    Name      = 2;
+	string    Author    = 3;
+	string    Comment   = 4;
+	TagFamily TagFamily = 5;
 };
 
 
@@ -59,8 +73,6 @@ message Metadata {
 	string JSONData        = 1;
 	uint64 StartValidFrame = 2;
 }
-
-
 
 
 message AntMetadata {

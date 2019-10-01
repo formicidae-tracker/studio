@@ -131,3 +131,16 @@ Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
 		return Error(e.what());
 	}
 }
+
+
+void ExperimentController::setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf) {
+	if ( tf == d_experiment->Family() ) {
+		return;
+	}
+	try {
+		d_experiment->SetFamily(tf);
+		setModified(true);
+	} catch ( const std::exception & e) {
+		qCritical() << e.what();
+	}
+}
