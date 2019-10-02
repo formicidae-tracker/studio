@@ -44,7 +44,7 @@ QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 
 	QSet<uint32_t> tags;
 	for(auto const & i : a.ConstIdentifications() ) {
-		tags.insert(i->TagValue);
+		tags.insert(i->TagValue());
 	}
 	auto res = tr("%1, tags:").arg(a.FormatID().c_str());
 	if (tags.isEmpty()) {

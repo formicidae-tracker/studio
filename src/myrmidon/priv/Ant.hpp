@@ -7,6 +7,7 @@
 #include "../Ant.hpp"
 #include "FramePointer.hpp"
 
+#include "Identification.hpp"
 
 namespace fort {
 
@@ -41,49 +42,6 @@ public:
 		Eigen::Matrix<double,7,1> d_data;
 		std::filesystem::path d_fromFile;
 	};
-
-	class Identification {
-	public:
-		typedef std::shared_ptr<Identification> Ptr;
-		typedef std::vector<Ptr> List;
-		static std::pair<List::const_iterator,List::const_iterator>
-		SortAndCheckOverlap(List::iterator begin,
-		                    List::iterator end);
-
-
-
-		void Encode(fort::myrmidon::pb::Identification & pb) const;
-		static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb, const Ant::Ptr &);
-
-		const FramePointer::Ptr & Start() const;
-		const FramePointer::Ptr & End() const;
-		Eigen::Vector2d TagPosition() const;
-		double TagAngle() const;
-		uint32_t TagValue() const;
-		Ant::Ptr Target() const;
-
-	private:
-		Identification(const Ant::Ptr & ant);
-		friend class Ant;
-		friend class Resolver;
-
-		FramePointer::Ptr  d_start;
-		FramePointer::Ptr  d_end;
-		Eigen::Vector3d    d_position;
-		int32_t            d_tagValue;
-		std::weak_ptr<Ant> d_target;
-
-	};
-
-	class OverlappingIdentification : public std::runtime_error {
-	public:
-		OverlappingIdentification(const Identification & a,
-		                          const Identification & b);
-	private:
-		static std::string Reason(const Identification & a,
-		                          const Identification & b);
-	};
-
 
 	Ant(uint32_t ID);
 	~Ant();

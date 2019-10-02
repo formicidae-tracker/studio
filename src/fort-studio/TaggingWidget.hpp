@@ -24,5 +24,4 @@ private:
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;
 
-	QMap<QString,QFutureWatcher> d_crawlers;
 };
