@@ -39,7 +39,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Ant.hpp
                       priv/Identification.hpp
                       priv/TrackingDataDirectory.hpp
-                      priv/FramePointer.hpp)
+                      priv/FramePointer.hpp
+                      priv/DeletedReference.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -53,7 +54,8 @@ set(SRC_FILES Frame.cpp
 	          priv/Ant.cpp
 	          priv/Identification.cpp
 	          priv/TrackingDataDirectory.cpp
-	          priv/FramePointer.cpp)
+	          priv/FramePointer.cpp
+	          priv/DeletedReference.cpp)
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp

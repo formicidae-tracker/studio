@@ -1,6 +1,6 @@
 #include "Identification.hpp"
 #include "Ant.hpp"
-
+#include "DeletedReference.hpp"
 
 using namespace fort::myrmidon::priv;
 
@@ -101,7 +101,7 @@ uint32_t Identification::TagValue() const {
 Ant::Ptr Identification::Target() const {
 	auto res = d_target.lock();
 	if (!res) {
-		throw std::runtime_error("invalid ant reference");
+		throw DeletedReference<Ant>();
 	}
 	return res;
 }

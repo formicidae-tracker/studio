@@ -79,7 +79,7 @@ void Experiment::Load(const std::filesystem::path & filepath) {
 		}
 
 		if (line.has_antdata() == true ) {
-			Identifier::LoadAnt(d_identifier,line.antdata());
+			d_identifier->LoadAnt(line.antdata());
 		}
 	}
 	//builds the TrackingDataDirectory

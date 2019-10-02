@@ -24,16 +24,16 @@ class Identifier {
 public:
 	typedef std::shared_ptr<Identifier> Ptr;
 
-
 	static Ptr Create();
+
+	Ptr Itself() const;
 
 	AntPtr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
 
 
-	static void LoadAnt(const Ptr & itself,
-	                    const fort::myrmidon::pb::AntMetadata & pb);
+	void LoadAnt(const fort::myrmidon::pb::AntMetadata & pb);
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
@@ -44,7 +44,11 @@ private:
 	AntByID d_ants;
 	SetOfID d_antIDs;
 	bool    d_continuous;
+
+	std::weak_ptr<Identifier> d_itself;
 };
+
+
 
 } // namespace priv
 

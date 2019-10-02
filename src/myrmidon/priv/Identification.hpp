@@ -42,6 +42,14 @@ public:
 
 	void SetTagPosition(const Eigen::Vector2d & position, double angle);
 
+	class Creator {
+	private:
+		static Ptr Create(const IdentifierPtr & identifier, const AntPtr & ant);
+	public:
+		friend class Identifier;
+	};
+
+
 private:
 	Identification(const IdentifierPtr & identifier, const AntPtr & ant);
 	friend class Ant;

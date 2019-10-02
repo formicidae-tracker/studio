@@ -1,6 +1,8 @@
 #include "Identifier.hpp"
 
 #include "Ant.hpp"
+#include "DeletedReference.hpp"
+
 
 using namespace fort::myrmidon::priv;
 
@@ -10,7 +12,9 @@ Identifier::Identifier()
 }
 
 Identifier::Ptr Identifier::Create() {
-	return std::shared_ptr<Identifier>(new Identifier());
+    std::shared_ptr<Identifier> res(new Identifier());
+    res->d_itself = res;
+    return res;
 }
 
 AntPtr Identifier::CreateAnt() {
@@ -56,9 +60,17 @@ fort::myrmidon::Ant::ID Identifier::NextAvailableID() {
 
 
 
-void Identifier::LoadAnt(const Identifier::Ptr & itself,
-                         const fort::myrmidon::pb::AntMetadata & pb) {
+void Identifier::LoadAnt(const fort::myrmidon::pb::AntMetadata & pb) {
 	fort::myrmidon::Ant::ID id = pb.id();
-	itself->d_antIDs.insert(id);
-	itself->d_ants[id] = Ant::FromSaved(pb,itself);
+	d_antIDs.insert(id);
+	d_ants[id] = Ant::FromSaved(pb,Itself());
+}
+
+Identifier::Ptr Identifier::Itself() const {
+	auto res = d_itself.lock();
+
+	if ( !res ) {
+		throw DeletedReference<Identifier>();
+	}
+	return res;
 }
