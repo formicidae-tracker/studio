@@ -25,7 +25,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 
 	try {
 		auto tdd = fort::myrmidon::priv::TrackingDataDirectory::Open(path.toUtf8().constData(),
-		                                                             d_experiment->AbsolutePath().remove_filename());
+		                                                             d_experiment->Basedir());
 
 
 		d_experiment->AddTrackingDataDirectory(tdd);
@@ -130,4 +130,25 @@ Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
 	} catch ( const std::exception & e) {
 		return Error(e.what());
 	}
+}
+
+
+void ExperimentController::setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf) {
+	if ( tf == d_experiment->Family() ) {
+		return;
+	}
+	try {
+		d_experiment->SetFamily(tf);
+		setModified(true);
+	} catch ( const std::exception & e) {
+		qCritical() << e.what();
+	}
+}
+
+void ExperimentController::setThreshold(uint8_t th) {
+	if ( th == d_experiment->Threshold() ) {
+		return;
+	}
+	d_experiment->SetThreshold(th);
+	setModified(true);
 }

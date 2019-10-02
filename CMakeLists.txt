@@ -14,7 +14,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 
-find_package(Eigen3 REQUIRED)
+
+find_package(Eigen3 3.3.7 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(FortHermesCpp 0.2.0 REQUIRED)
 
@@ -23,7 +24,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
 
 
 include(FetchContent)
@@ -31,6 +32,11 @@ FetchContent_Declare(googletest
                      GIT_REPOSITORY https://github.com/google/googletest.git
                      GIT_TAG        release-1.8.1
                      )
+
+FetchContent_Declare(apriltag
+                     GIT_REPOSITORY https://github.com/AprilRobotics/apriltag.git
+                     GIT_TAG        v3.0.0)
+
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
@@ -43,9 +49,17 @@ enable_testing()
 enable_make_check()
 
 
+FetchContent_GetProperties(apriltag)
+if(NOT apriltag_POPULATED)
+	FetchContent_Populate(apriltag)
+	add_subdirectory(${apriltag_SOURCE_DIR} ${apriltag_BINARY_DIR})
+endif(NOT apriltag_POPULATED)
+
+
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_CPP_INCLUDE_DIRS}
+                    ${apriltag_SOURCE_DIR}
                     )
 
 set(CMAKE_CXX_STANDARD 17)

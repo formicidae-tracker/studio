@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>300</height>
+    <width>955</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="0" column="1" rowspan="2">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="imageLabel">
      <property name="text">
       <string>TextLabel</string>
      </property>
@@ -49,16 +49,60 @@
       </size>
      </property>
      <property name="title">
-      <string>Tags: 0</string>
+      <string>Tags</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="1">
+         <widget class="QComboBox" name="familySelector"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="familyLabel">
+          <property name="text">
+           <string>Family:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="thresholdBox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>254</number>
+          </property>
+          <property name="value">
+           <number>40</number>
+          </property>
+          <property name="displayIntegerBase">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="thresholdLabel">
+          <property name="text">
+           <string>B/W Threshold:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QTreeWidget" name="tagList">
         <column>
          <property name="text">
-          <string notr="true">1</string>
+          <string notr="true">Tag</string>
          </property>
         </column>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="snapshotProgress">
+        <property name="value">
+         <number>24</number>
+        </property>
        </widget>
       </item>
      </layout>

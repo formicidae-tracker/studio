@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+
+message Point2D {
+	double X = 1;
+	double Y = 2;
+};
+
+message Snapshot {
+	string Path  = 1;
+	uint64 Frame = 2;
+
+	uint32  TagValue = 3;
+	Point2D Position = 4;
+	double  Angle    = 5;
+
+	repeated Point2D Corner = 6;
+};
