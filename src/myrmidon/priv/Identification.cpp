@@ -63,7 +63,7 @@ Identification::SortAndCheckOverlap(Identification::List::iterator begin,
 		          return *(a->d_start) < *(b->d_start);
 	          });
 
-	if ( (end-begin) < 2 ) {
+	if ( std::distance(begin,end) < 2 ) {
 		return std::make_pair(List::const_iterator(),List::const_iterator());
 	}
 
@@ -71,7 +71,7 @@ Identification::SortAndCheckOverlap(Identification::List::iterator begin,
 	      i != end;
 	      ++i) {
 		auto prev = i-1;
-		if ( !((*i)->d_start) || !((*prev)->d_end) || !((*prev)->d_end < (*i)->d_start) ) {
+		if ( !((*i)->d_start) || !((*prev)->d_end) || !(*((*prev)->d_end) < *((*i)->d_start)) ) {
 			return std::make_pair(prev,i);
 		}
 	}
@@ -127,4 +127,9 @@ Identifier::Ptr Identification::ParentIdentifier() const {
 		throw DeletedReference<Identifier>();
 	}
 	return res;
+}
+
+
+Identification::Ptr Identification::Creator::Create(const IdentifierPtr & identifier, const AntPtr & ant) {
+	return std::shared_ptr<Identification>(new Identification(identifier,ant));
 }

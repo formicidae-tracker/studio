@@ -17,8 +17,6 @@ TEST_F(FramePointerUTest,CanBeOrdered) {
 		bool Expected;
 	};
 
-
-
 	std::vector<TestData> data
 		= {
 		   //if smae path, compare frame number
@@ -66,8 +64,6 @@ TEST_F(FramePointerUTest,IOTest) {
 		EXPECT_EQ(d.A.Path,pb.path());
 		EXPECT_EQ(d.A.PathStartDate,pb.pathstartdate());
 
-
-
 		auto decoded = FramePointer::FromSaved(pb);
 
 		if ( d.A.Path.empty() ) {
@@ -79,7 +75,5 @@ TEST_F(FramePointerUTest,IOTest) {
 		EXPECT_EQ(decoded->Frame,d.A.Frame);
 		EXPECT_EQ(decoded->PathStartDate,d.A.PathStartDate);
 	}
-
-
 
 }

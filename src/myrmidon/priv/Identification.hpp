@@ -7,6 +7,8 @@
 
 #include <Eigen/Core>
 
+class IdentificationUTest;
+
 namespace fort {
 
 namespace myrmidon {
@@ -31,7 +33,7 @@ public:
 	void Encode(fort::myrmidon::pb::Identification & pb) const;
 	static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb,
 	                     const IdentifierPtr & identifier,
-	                     const AntPtr &);
+	                     const AntPtr & ant);
 
 	const FramePointer::Ptr & Start() const;
 	const FramePointer::Ptr & End() const;
@@ -49,6 +51,7 @@ public:
 		static Ptr Create(const IdentifierPtr & identifier, const AntPtr & ant);
 	public:
 		friend class Identifier;
+		friend class ::IdentificationUTest;
 	};
 
 
@@ -56,6 +59,7 @@ private:
 	Identification(const IdentifierPtr & identifier, const AntPtr & ant);
 	friend class Ant;
 	friend class Identifier;
+	friend class ::IdentificationUTest;
 
 	FramePointer::Ptr         d_start;
 	FramePointer::Ptr         d_end;
@@ -63,6 +67,8 @@ private:
 	int32_t                   d_tagValue;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
+
+
 
 };
 
@@ -89,13 +95,13 @@ inline std::ostream & operator<<(std::ostream & out,
 	    << a.TagValue()
 	    << ", From:'";
 	if (a.Start()) {
-		out << a.Start()->Path << "/" << a.Start()->Frame;
+		out << *a.Start();
 	} else {
 		out << "<begin>";
 	}
 	out << "', To:'";
 	if (a.End()) {
-		out << a.End()->Path << "/" << a.End()->Frame;
+		out << *a.End();
 	} else {
 		out << "<end>";
 	}

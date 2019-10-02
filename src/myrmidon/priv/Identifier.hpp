@@ -18,7 +18,14 @@ namespace priv {
 
 class Ant;
 typedef std::shared_ptr<Ant> AntPtr;
+
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
+
+class Identification;
+typedef std::shared_ptr<Identification> IdentificationPtr;
+
+class FramePointer;
+typedef std::shared_ptr<FramePointer> FramePointerPtr;
 
 class Identifier {
 public:
@@ -32,6 +39,11 @@ public:
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
 
+
+	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
+	                                    uint32_t tagValue,
+	                                    const FramePointerPtr & start,
+	                                    const FramePointerPtr & end);
 
 	void LoadAnt(const fort::myrmidon::pb::AntMetadata & pb);
 
