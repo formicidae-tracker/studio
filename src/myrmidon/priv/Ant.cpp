@@ -37,16 +37,16 @@ void Ant::SortAndCheckIdentifications() {
 
 std::ostream & operator<<(std::ostream & out, const Ant::Identification & a) {
 	out << "Identification{ID:"
-	    << a.TagValue
+	    << a.TagValue()
 	    << ", From:'";
-	if (a.Start) {
-		out << a.Start->Path << "/" << a.Start->Frame;
+	if (a.Start()) {
+		out << a.Start()->Path << "/" << a.Start()->Frame;
 	} else {
 		out << "<begin>";
 	}
 	out << "', To:'";
-	if (a.End) {
-		out << a.End->Path << "/" << a.End->Frame;
+	if (a.End()) {
+		out << a.End()->Path << "/" << a.End()->Frame;
 	} else {
 		out << "<end>";
 	}
@@ -128,33 +128,33 @@ Ant::Estimate Ant::Estimate::FromSaved(const fort::myrmidon::pb::Estimate & pb) 
 
 void Ant::Identification::Encode(fort::myrmidon::pb::Identification & pb) const {
 	pb.Clear();
-	if ( Start ) {
-		Start->Encode(*pb.mutable_startframe());
+	if ( d_start ) {
+		d_start->Encode(*pb.mutable_startframe());
 	}
-	if ( End ) {
-		End->Encode(*pb.mutable_endframe());
+	if ( d_end ) {
+		d_end->Encode(*pb.mutable_endframe());
 	}
-	pb.set_x(Position.x());
-	pb.set_y(Position.y());
-	pb.set_theta(Position.z());
-	pb.set_id(TagValue);
+	pb.set_x(d_position.x());
+	pb.set_y(d_position.y());
+	pb.set_theta(d_position.z());
+	pb.set_id(d_tagValue);
 
 }
 
 Ant::Identification::Ptr Ant::Identification::FromSaved(const fort::myrmidon::pb::Identification & pb, const Ant::Ptr & target) {
 	std::shared_ptr<Identification> res(new Identification(target));
 	if ( pb.has_startframe() ) {
-		res->Start = FramePointer::FromSaved(pb.startframe());
+		res->d_start = FramePointer::FromSaved(pb.startframe());
 	}
 	if ( pb.has_endframe() ) {
-		res->End = FramePointer::FromSaved(pb.endframe());
+		res->d_end = FramePointer::FromSaved(pb.endframe());
 	}
-	res->Position <<
+	res->d_position <<
 		pb.x(),
 		pb.y(),
 		pb.theta();
 
-	res->TagValue = pb.id();
+	res->d_tagValue = pb.id();
 
 	return res;
 }
@@ -184,13 +184,13 @@ Ant::Identification::SortAndCheckOverlap(Ant::Identification::List::iterator beg
 	          end,
 	          [](const Ptr & a,
 	             const Ptr & b) -> bool {
-		          if ( !a->Start ) {
+		          if ( !a->d_start ) {
 			          return true;
 		          }
-		          if ( !b->Start ) {
+		          if ( !b->d_start ) {
 			          return false;
 		          }
-		          return *(a->Start) < *(b->Start);
+		          return *(a->d_start) < *(b->d_start);
 	          });
 
 	if ( (end-begin) < 2 ) {
@@ -201,9 +201,38 @@ Ant::Identification::SortAndCheckOverlap(Ant::Identification::List::iterator beg
 	      i != end;
 	      ++i) {
 		auto prev = i-1;
-		if ( !((*i)->Start) || !((*prev)->End) || !((*prev)->End < (*i)->Start) ) {
+		if ( !((*i)->d_start) || !((*prev)->d_end) || !((*prev)->d_end < (*i)->d_start) ) {
 			return std::make_pair(prev,i);
 		}
 	}
 	return std::make_pair(List::const_iterator(),List::const_iterator());
+}
+
+
+const FramePointer::Ptr & Ant::Identification::Start() const {
+	return d_start;
+}
+
+const FramePointer::Ptr & Ant::Identification::End() const {
+	return d_end;
+}
+
+Eigen::Vector2d Ant::Identification::TagPosition() const {
+	return d_position.block<2,1>(0,0);
+}
+
+double Ant::Identification::TagAngle() const {
+	return d_position.z();
+}
+
+uint32_t Ant::Identification::TagValue() const {
+	return d_tagValue;
+}
+
+Ant::Ptr Ant::Identification::Target() const {
+	auto res = d_target.lock();
+	if (!res) {
+		throw std::runtime_error("invalid ant reference");
+	}
+	return res;
 }

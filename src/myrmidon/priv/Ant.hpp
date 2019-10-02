@@ -14,6 +14,8 @@ namespace myrmidon {
 
 namespace priv {
 
+class Resolver;
+
 class Ant {
 public:
 	typedef std::shared_ptr<Ant> Ptr;
@@ -49,17 +51,28 @@ public:
 		                    List::iterator end);
 
 
-		FramePointer::Ptr  Start;
-		FramePointer::Ptr  End;
-		Eigen::Vector3d    Position;
-		int32_t            TagValue;
-		std::weak_ptr<Ant> Target;
 
 		void Encode(fort::myrmidon::pb::Identification & pb) const;
 		static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb, const Ant::Ptr &);
+
+		const FramePointer::Ptr & Start() const;
+		const FramePointer::Ptr & End() const;
+		Eigen::Vector2d TagPosition() const;
+		double TagAngle() const;
+		uint32_t TagValue() const;
+		Ant::Ptr Target() const;
+
 	private:
 		Identification(const Ant::Ptr & ant);
 		friend class Ant;
+		friend class Resolver;
+
+		FramePointer::Ptr  d_start;
+		FramePointer::Ptr  d_end;
+		Eigen::Vector3d    d_position;
+		int32_t            d_tagValue;
+		std::weak_ptr<Ant> d_target;
+
 	};
 
 	class OverlappingIdentification : public std::runtime_error {
