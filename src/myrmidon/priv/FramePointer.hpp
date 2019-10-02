@@ -22,7 +22,7 @@ public:
 	google::protobuf::Timestamp PathStartDate;
 	uint64_t                    Frame;
 
-	void Encode(fort::myrmidon::pb::FramePointer & fp);
+	void Encode(fort::myrmidon::pb::FramePointer & fp) const;
 	static FramePointer::Ptr FromSaved(const fort::myrmidon::pb::FramePointer & fp);
 };
 

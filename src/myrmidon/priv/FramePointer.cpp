@@ -4,7 +4,7 @@
 
 using namespace fort::myrmidon::priv;
 
-void FramePointer::Encode(fort::myrmidon::pb::FramePointer & fp){
+void FramePointer::Encode(fort::myrmidon::pb::FramePointer & fp) const{
 	fp.Clear();
 	fp.set_path(Path.string());
 	fp.set_frame(Frame);

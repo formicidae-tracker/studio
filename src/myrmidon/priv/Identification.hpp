@@ -40,6 +40,8 @@ public:
 	uint32_t TagValue() const;
 	AntPtr Target() const;
 
+	IdentifierPtr ParentIdentifier() const;
+
 	void SetTagPosition(const Eigen::Vector2d & position, double angle);
 
 	class Creator {

@@ -62,13 +62,17 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/ExperimentUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
                     priv/AntUTest.cpp
-                    priv/IdentifierUTest.cpp)
+                    priv/IdentifierUTest.cpp
+                    priv/IdentificationUTest.cpp
+                    priv/FramePointerUTest.cpp)
 
 set(HDR_UTEST_FILES TestSetup.hpp
                     priv/ExperimentUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp
                     priv/AntUTest.hpp
-                    priv/Identifier.hpp)
+                    priv/Identifier.hpp
+                    priv/Identification.hpp
+                    priv/FramePointerUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${HDR_PUBLIC_FILES}

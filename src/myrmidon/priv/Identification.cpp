@@ -1,6 +1,7 @@
 #include "Identification.hpp"
 #include "Ant.hpp"
 #include "DeletedReference.hpp"
+#include "Identifier.hpp"
 
 using namespace fort::myrmidon::priv;
 
@@ -117,4 +118,13 @@ std::string OverlappingIdentification::Reason(const Identification & a,
 	std::ostringstream os;
 	os << a << " and " << b << " overlaps";
 	return os.str();
+}
+
+
+Identifier::Ptr Identification::ParentIdentifier() const {
+	auto res = d_identifier.lock();
+	if (!res) {
+		throw DeletedReference<Identifier>();
+	}
+	return res;
 }
