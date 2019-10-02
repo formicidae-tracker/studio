@@ -113,9 +113,6 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 	};
 
 	for(auto & d: data) {
-		static int i = 0;
-		std::cerr << "test " << i << std::endl;
-		++i;
 		auto res = Identification::SortAndCheckOverlap(d.Start,d.End);
 		EXPECT_EQ(res.first,d.Expected.first);
 		EXPECT_EQ(res.second,d.Expected.second);
