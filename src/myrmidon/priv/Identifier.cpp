@@ -58,8 +58,6 @@ fort::myrmidon::Ant::ID Identifier::NextAvailableID() {
 	return res;
 }
 
-
-
 void Identifier::LoadAnt(const fort::myrmidon::pb::AntMetadata & pb) {
 	fort::myrmidon::Ant::ID id = pb.id();
 	d_antIDs.insert(id);

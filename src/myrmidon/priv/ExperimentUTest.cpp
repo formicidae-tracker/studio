@@ -76,37 +76,6 @@ TEST_F(ExperimentUTest,IOTest) {
 
 }
 
-TEST_F(ExperimentUTest,AndsAreCreatedSequentially) {
-	Experiment::Ptr e;
-
-	try{
-		e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
-		size_t startSize = e->Ants().size();
-		auto ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),e->Ants().size());
-		ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),e->Ants().size());
-		ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),e->Ants().size());
-		ASSERT_EQ(e->Ants().size(),startSize + 3);
-
-		e->DeleteAnt(2);
-		e->DeleteAnt(5);
-
-		ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),2);
-
-		ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),5);
-
-		ant = e->CreateAnt();
-		ASSERT_EQ(ant->ID(),7);
-
-	} catch ( const std::exception & e) {
-		ADD_FAILURE() << "Got unexpected exception: " << e.what();
-	}
-}
-
 
 
 TEST_F(ExperimentUTest,TestNewTrackingDataDirectories) {
