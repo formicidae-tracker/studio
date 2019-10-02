@@ -49,8 +49,6 @@ message Identification {
 	double Theta = 3;
     int32  ID    = 4;
 
-	repeated Estimate Estimate = 5;
-
 	FramePointer StartFrame = 6;
 	FramePointer EndFrame   = 7;
 };

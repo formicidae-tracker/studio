@@ -42,18 +42,24 @@ public:
 
 	class Identification {
 	public:
-		typedef std::vector<Identification> List;
-		void Update();
+		typedef std::shared_ptr<Identification> Ptr;
+		typedef std::vector<Ptr> List;
+		static std::pair<List::const_iterator,List::const_iterator>
+		SortAndCheckOverlap(List::iterator begin,
+		                    List::iterator end);
 
-		FramePointer::Ptr Start;
-		FramePointer::Ptr End;
-		Estimate::List    Estimates;
-		Eigen::Vector3d   Position;
-		int32_t           TagValue;
+
+		FramePointer::Ptr  Start;
+		FramePointer::Ptr  End;
+		Eigen::Vector3d    Position;
+		int32_t            TagValue;
+		std::weak_ptr<Ant> Target;
 
 		void Encode(fort::myrmidon::pb::Identification & pb) const;
-		static Identification FromSaved(const fort::myrmidon::pb::Identification & pb);
-
+		static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb, const Ant::Ptr &);
+	private:
+		Identification(const Ant::Ptr & ant);
+		friend class Ant;
 	};
 
 	class OverlappingIdentification : public std::runtime_error {
