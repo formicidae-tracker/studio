@@ -14,7 +14,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 
-
 find_package(Eigen3 3.3.7 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(FortHermesCpp 0.2.0 REQUIRED)
@@ -103,4 +102,22 @@ elseif(USE_TARGETED_FS_LIBRARY)
 	set(CXXFS_LIBRARY "/usr/lib/gcc/x86_64-linux-gnu/9/libstdc++fs.a")
 endif(USE_SYSTEM_FS_LIBRARY)
 
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	include(CodeCoverage)
+
+	APPEND_COVERAGE_COMPILER_FLAGS()
+endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 add_subdirectory(src)
+
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(COVERAGE_GCOVR_EXCLUDES ${apriltag_SOURCE_DIR}/*
+	                            ${googletest_SOURCE_DIR}/*
+	                            ${PROJECT_SOURCE_DIR}/src/fort-studio/*
+	                            ${PROJECT_SOURCE_DIR}/src/legacy-tags/*
+	                            ${PROJECT_BINARY_DIR}/src/fort-studio/*
+	                            ${PROJECT_BINARY_DIR}/src/myrmidon/Experiment.pb.*
+	                            )
+
+	setup_target_for_coverage_gcovr_html(NAME myrmidon-coverage EXECUTABLE ctest -V -j ${PROCESSOR_COUNT} DEPENDENCIES myrmidon-tests)
+endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
