@@ -33,7 +33,9 @@ endforeach(f ${PROTO_HDR})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(HDR_PRIVATE_FILES priv/Experiment.hpp
+set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
+                      priv/Experiment.hpp
+                      priv/Identifier.hpp
                       priv/Ant.hpp
                       priv/Identification.hpp
                       priv/TrackingDataDirectory.hpp
@@ -46,6 +48,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp
 	          priv/Experiment.cpp
+	          priv/Identifier.cpp
 	          Ant.cpp
 	          priv/Ant.cpp
 	          priv/Identification.cpp

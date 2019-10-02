@@ -15,8 +15,6 @@ namespace myrmidon {
 
 namespace priv {
 
-class Resolver;
-
 class Ant {
 public:
 	typedef std::shared_ptr<Ant> Ptr;
@@ -60,7 +58,7 @@ public:
 	}
 
 	void Encode(fort::myrmidon::pb::AntMetadata & pb) const;
-	static Ptr FromSaved(const fort::myrmidon::pb::AntMetadata & pb);
+	static Ptr FromSaved(const fort::myrmidon::pb::AntMetadata & pb, const IdentifierPtr & identifier);
 
 
 private:
@@ -70,6 +68,8 @@ private:
 	std::string d_IDStr;
 	Identification::List d_identifications;
 };
+
+typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
 
 } //namespace priv
 

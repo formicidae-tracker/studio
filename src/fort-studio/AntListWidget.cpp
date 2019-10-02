@@ -1,6 +1,8 @@
 #include "AntListWidget.hpp"
 #include "ui_AntListWidget.h"
 
+#include <myrmidon/priv/Ant.hpp>
+
 #include <QtDebug>
 
 AntListWidget::AntListWidget(QWidget *parent)
@@ -62,7 +64,7 @@ QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 }
 
 
-void AntListWidget::onAntListModified(const fort::myrmidon::priv::Experiment::AntByID & ants ) {
+void AntListWidget::onAntListModified(const fort::myrmidon::priv::AntByID & ants ) {
 	d_ui->groupBox->setTitle(tr("Ants: %1").arg(ants.size()));
 
 	QSet<uint32_t> notInList;

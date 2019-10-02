@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <list>
 
 #include "../utils/PosixCall.h"
 
@@ -15,7 +16,8 @@
 #include <fort-hermes/FileContext.h>
 #include <fort-hermes/Error.h>
 
-
+#include "Ant.hpp"
+#include "Identifier.hpp"
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -77,13 +79,9 @@ void Experiment::Load(const std::filesystem::path & filepath) {
 		}
 
 		if (line.has_antdata() == true ) {
-			fort::myrmidon::Ant::ID id = line.antdata().id();
-			d_antIDs.insert(id);
-			d_ants[id] = Ant::FromSaved(line.antdata());
+			Identifier::LoadAnt(d_identifier,line.antdata());
 		}
 	}
-	d_continuous = false;
-	NextAvailableID();
 	//builds the TrackingDataDirectory
 	for(auto const & tdd : d_experiment.datadirectory() ) {
 		d_dataDirs[tdd.path()] = TrackingDataDirectory::FromSaved(tdd);
@@ -131,9 +129,18 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 	line.release_experiment();
 
 
-	for (const auto & ID : d_antIDs) {
+	std::vector<fort::myrmidon::Ant::ID> antIDs;
+	for (const auto & [ID,a] : d_identifier->Ants() ) {
+		antIDs.push_back(ID);
+	}
+	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
+	                                         fort::myrmidon::Ant::ID b) -> bool {
+		                                      return a < b;
+	                                      });
+
+	for (const auto & ID : antIDs) {
 		line.Clear();
-		d_ants.find(ID)->second->Encode(*line.mutable_antdata());
+		d_identifier->Ants().find(ID)->second->Encode(*line.mutable_antdata());
 
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant metadata");
@@ -216,53 +223,24 @@ const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirector
 
 
 fort::myrmidon::priv::Ant::Ptr Experiment::CreateAnt() {
-	auto res = std::make_shared<Ant>(NextAvailableID());
-	d_ants[res->ID()] =  res;
-	d_antIDs.insert(res->ID());
-	return res;
+	return d_identifier->CreateAnt();
 }
 
 void Experiment::DeleteAnt(fort::myrmidon::Ant::ID id) {
-	if ( d_ants.count(id) == 0 ) {
-		std::ostringstream os;
-		os << "Could not find ant " << id ;
-		throw std::out_of_range(os.str());
-	}
-	if ( id != d_ants.size() ) {
-		d_continuous = false;
-	}
-	d_antIDs.erase(id);
-	d_ants.erase(id);
+	return d_identifier->DeleteAnt(id);
 }
 
-const Experiment::AntByID & Experiment::Ants() const {
-	return d_ants;
+const AntByID & Experiment::Ants() const {
+	return d_identifier->Ants();
 }
-
-
 
 Experiment::Experiment(const std::filesystem::path & filepath )
 	: d_absoluteFilepath(fs::weakly_canonical(filepath))
-	, d_basedir(d_absoluteFilepath) {
+	, d_basedir(d_absoluteFilepath)
+	, d_identifier(Identifier::Create()) {
 	d_basedir.remove_filename();
 }
 
-
-fort::myrmidon::Ant::ID Experiment::NextAvailableID() const {
-	if ( d_continuous == true ) {
-		return d_ants.size() + 1;
-	}
-	fort::myrmidon::Ant::ID res = 0;
-	auto missingIndex = std::find_if(d_antIDs.begin(),d_antIDs.end(),[&res] (fort::myrmidon::Ant::ID toTest ) {
-		                                                                 return ++res != toTest;
-	                                                                 });
-
-	if (missingIndex == d_antIDs.end() ) {
-		const_cast<Experiment*>(this)->d_continuous = true;
-		return d_antIDs.size() + 1;
-	}
-	return res;
-}
 
 
 const std::string & Experiment::Name() const {

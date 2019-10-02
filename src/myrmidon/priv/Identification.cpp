@@ -5,6 +5,12 @@
 using namespace fort::myrmidon::priv;
 
 
+Identification::Identification(const IdentifierPtr & identifier, const AntPtr & target)
+	: d_target(target)
+	, d_identifier(identifier) {
+}
+
+
 void Identification::Encode(fort::myrmidon::pb::Identification & pb) const {
 	pb.Clear();
 	if ( d_start ) {
@@ -20,8 +26,9 @@ void Identification::Encode(fort::myrmidon::pb::Identification & pb) const {
 }
 
 Identification::Ptr Identification::FromSaved(const fort::myrmidon::pb::Identification & pb,
+                                              const IdentifierPtr & identifier,
                                               const Ant::Ptr & target) {
-	std::shared_ptr<Identification> res(new Identification(target));
+	std::shared_ptr<Identification> res(new Identification(identifier,target));
 	if ( pb.has_startframe() ) {
 		res->d_start = FramePointer::FromSaved(pb.startframe());
 	}

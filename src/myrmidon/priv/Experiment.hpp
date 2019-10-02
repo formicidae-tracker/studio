@@ -2,12 +2,14 @@
 
 #include <memory>
 
-#include "Ant.hpp"
+#include "../Ant.hpp"
 #include "TrackingDataDirectory.hpp"
 #include <filesystem>
 #include <chrono>
 
 #include <google/protobuf/timestamp.pb.h>
+
+#include "Experiment.pb.h"
 
 namespace fort {
 namespace myrmidon {
@@ -19,14 +21,21 @@ class TrackingDataDirectory;
 
 namespace priv {
 
+class Ant;
+typedef std::shared_ptr<Ant> AntPtr;
+typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
+class Identifier;
+typedef std::shared_ptr<Identifier> IdentifierPtr;
+
 using namespace fort::myrmidon;
+
+
 
 class Experiment {
 public :
 	enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Unset};
 
 	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
-	typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
 
 	typedef std::unique_ptr<Experiment> Ptr;
 
@@ -44,7 +53,7 @@ public :
 
 	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
 
-	Ant::Ptr CreateAnt();
+	AntPtr CreateAnt();
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
 
@@ -66,24 +75,15 @@ public :
 
 
 private:
-	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
-
 	Experiment(const std::filesystem::path & filepath);
 	void Load(const std::filesystem::path & filepath);
-	fort::myrmidon::Ant::ID NextAvailableID() const;
-
-
-
-
 
 	pb::Experiment              d_experiment;
 
 	std::filesystem::path       d_absoluteFilepath;
 	std::filesystem::path       d_basedir;
 	TrackingDataDirectoryByPath d_dataDirs;
-	AntByID                     d_ants;
-	SetOfID                     d_antIDs;
-	bool                        d_continuous;
+	IdentifierPtr               d_identifier;
 };
 
 } //namespace priv

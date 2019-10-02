@@ -105,10 +105,11 @@ void Ant::Encode(fort::myrmidon::pb::AntMetadata & pb) const {
 	}
 }
 
-Ant::Ptr Ant::FromSaved(const fort::myrmidon::pb::AntMetadata & pb) {
+Ant::Ptr Ant::FromSaved(const fort::myrmidon::pb::AntMetadata & pb,
+                        const IdentifierPtr & identifier) {
 	auto res = std::make_shared<Ant>(pb.id());
 	for( const auto & i : pb.marker() ) {
-		res->d_identifications.push_back(Identification::FromSaved(i,res));
+		res->d_identifications.push_back(Identification::FromSaved(i,identifier,res));
 	}
 	return res;
 }

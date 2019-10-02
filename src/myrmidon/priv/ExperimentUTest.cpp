@@ -1,7 +1,7 @@
 #include "ExperimentUTest.hpp"
 
 #include "Experiment.hpp"
-
+#include "Ant.hpp"
 #include "../TestSetup.hpp"
 
 #include <fstream>

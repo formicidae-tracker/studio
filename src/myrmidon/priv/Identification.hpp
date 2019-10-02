@@ -13,8 +13,10 @@ namespace myrmidon {
 
 namespace priv {
 
+class Identifier;
 class Ant;
 typedef std::shared_ptr<Ant> AntPtr;
+typedef std::shared_ptr<Identifier> IdentifierPtr;
 
 class Identification {
 public:
@@ -27,7 +29,9 @@ public:
 
 
 	void Encode(fort::myrmidon::pb::Identification & pb) const;
-	static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb, const AntPtr &);
+	static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb,
+	                     const IdentifierPtr & identifier,
+	                     const AntPtr &);
 
 	const FramePointer::Ptr & Start() const;
 	const FramePointer::Ptr & End() const;
@@ -38,21 +42,17 @@ public:
 
 	void SetTagPosition(const Eigen::Vector2d & position, double angle);
 
-	void SetIdentifiers(uint32_t tagValue,
-	                    const FramePointer::Ptr & start,
-	                    const FramePointer::Ptr & end);
-
 private:
-	Identification(const AntPtr & ant);
+	Identification(const IdentifierPtr & identifier, const AntPtr & ant);
 	friend class Ant;
-	friend class Resolver;
+	friend class Identifier;
 
-	FramePointer::Ptr       d_start;
-	FramePointer::Ptr       d_end;
-	Eigen::Vector3d         d_position;
-	int32_t                 d_tagValue;
-	std::weak_ptr<Ant>      d_target;
-	std::weak_ptr<Resolver> d_resolver;
+	FramePointer::Ptr         d_start;
+	FramePointer::Ptr         d_end;
+	Eigen::Vector3d           d_position;
+	int32_t                   d_tagValue;
+	std::weak_ptr<Ant>        d_target;
+	std::weak_ptr<Identifier> d_identifier;
 
 };
 

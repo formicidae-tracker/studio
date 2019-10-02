@@ -25,7 +25,7 @@ public:
 signals:
 	void modified(bool);
 	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
-	void antListModified(const fort::myrmidon::priv::Experiment::AntByID & );
+	void antListModified(const fort::myrmidon::priv::AntByID & );
 public slots:
 
 	Error addDataDirectory(const QString & path);

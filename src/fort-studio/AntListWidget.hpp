@@ -18,7 +18,7 @@ public:
 public slots:
 	void onNewController(ExperimentController * controller);
 
-	void onAntListModified(const fort::myrmidon::priv::Experiment::AntByID & );
+	void onAntListModified(const fort::myrmidon::priv::AntByID & );
 
 	void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
 	void on_listWidget_itemSelectionChanged();
