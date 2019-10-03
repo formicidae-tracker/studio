@@ -16,6 +16,7 @@ namespace priv {
 class FramePointer {
 public:
 	typedef std::shared_ptr<FramePointer> Ptr;
+	typedef std::shared_ptr<const FramePointer> ConstPtr;
 	std::filesystem::path       Path;
 	google::protobuf::Timestamp PathStartDate;
 	uint64_t                    Frame;

@@ -51,10 +51,17 @@ public:
 	void DeleteIdentification(const IdentificationPtr & ident);
 
 
+
 	class UnmanagedAnt : public std::runtime_error {
 	public:
 		UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept;
 		virtual ~UnmanagedAnt() noexcept {};
+	};
+
+	class UnmanagedTag : public std::runtime_error {
+	public:
+		UnmanagedTag(uint32_t tagValue) noexcept;
+		virtual ~UnmanagedTag() noexcept {};
 	};
 
 	class UnmanagedIdentification : public std::runtime_error {
@@ -68,6 +75,16 @@ public:
 		AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept;
 		virtual ~AlreadyExistingAnt() noexcept {};
 	};
+
+	class Accessor {
+	private:
+		static IdentificationList & IdentificationsForTag(Identifier & identifier,uint32_t tagID);
+	public:
+		friend class Identification;
+	};
+
+	static void SortAndCheck(IdentificationList & tagSibling,
+	                         IdentificationList & antSibling);
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;

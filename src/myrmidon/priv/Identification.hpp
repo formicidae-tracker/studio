@@ -28,17 +28,23 @@ public:
 	SortAndCheckOverlap(List::iterator begin,
 	                    List::iterator end);
 
+	uint32_t TagValue() const;
 
-	const FramePointer::Ptr & Start() const;
-	const FramePointer::Ptr & End() const;
+	void SetStart(const FramePointer::Ptr & start);
+	void SetEnd(const FramePointer::Ptr & end);
+
+	FramePointer::ConstPtr Start() const;
+	FramePointer::ConstPtr End() const;
+
+	void SetTagPosition(const Eigen::Vector2d & position, double angle);
+
 	Eigen::Vector2d TagPosition() const;
 	double TagAngle() const;
-	uint32_t TagValue() const;
+
 	AntPtr Target() const;
 
 	IdentifierPtr ParentIdentifier() const;
 
-	void SetTagPosition(const Eigen::Vector2d & position, double angle);
 
 	class Accessor {
 	private:
@@ -60,6 +66,9 @@ private:
 	Identification(uint32_t tagValue,
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
+
+	void SetBound(const FramePointer::Ptr & start,
+	              const FramePointer::Ptr & end);
 	friend class Ant;
 	friend class Identifier;
 	friend class ::IdentificationUTest;

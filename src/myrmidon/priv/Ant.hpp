@@ -39,6 +39,7 @@ public:
 		static Identification::List & Identifications(Ant & a);
 	public:
 		friend class Identifier;
+		friend class Identification;
 	};
 
 private:

@@ -20,6 +20,14 @@ Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identificatio
 		                     return os.str();
 	                     }()) {}
 
+Identifier::UnmanagedTag::UnmanagedTag(uint32_t ID) noexcept
+	: std::runtime_error([ID](){
+		                     std::ostringstream os;
+		                     os << "Tag:" << ID <<  " is not managed by this object";
+		                     return os.str();
+	                     }()) {}
+
+
 Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept
 	: std::runtime_error([id](){
 		                     std::ostringstream os;
@@ -109,17 +117,12 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
 	Identification::Accessor::SetEnd(*res,end);
 	Identification::List current = d_identifications[tagValue];
 	current.push_back(res);
-	auto overlap = Identification::SortAndCheckOverlap(current.begin(),current.end());
-	if ( overlap.first != overlap.second ) {
-		throw OverlappingIdentification(**overlap.first,**overlap.second);
-	}
 
 	Identification::List antIdents = Ant::Accessor::Identifications(*ant);
 	antIdents.push_back(res);
-	overlap = Identification::SortAndCheckOverlap(current.begin(),current.end());
-	if ( overlap.first != overlap.second ) {
-		throw OverlappingIdentification(**overlap.first,**overlap.second);
-	}
+
+	SortAndCheck(current,antIdents);
+
 	d_identifications[tagValue] = current;
 	Ant::Accessor::Identifications(*ant) = antIdents;
 	return res;
@@ -165,5 +168,29 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 
 	siblings->second.erase(toErase);
 	Ant::Accessor::Identifications(*ant).erase(toEraseAnt);
+
+}
+
+Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & identifier,uint32_t tagID) {
+	auto fi = identifier.d_identifications.find(tagID);
+	if ( fi == identifier.d_identifications.end() ) {
+		throw UnmanagedTag(tagID);
+	}
+	return fi->second;
+}
+
+
+
+void Identifier::SortAndCheck(IdentificationList & tagSiblings,
+                              IdentificationList & antSiblings) {
+	auto overlap = Identification::SortAndCheckOverlap(tagSiblings.begin(),tagSiblings.end());
+	if ( overlap.first != overlap.second ) {
+		throw OverlappingIdentification(**overlap.first,**overlap.second);
+	}
+
+	overlap = Identification::SortAndCheckOverlap(antSiblings.begin(),antSiblings.end());
+	if ( overlap.first != overlap.second ) {
+		throw OverlappingIdentification(**overlap.first,**overlap.second);
+	}
 
 }

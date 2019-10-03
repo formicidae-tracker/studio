@@ -49,11 +49,11 @@ Identification::SortAndCheckOverlap(Identification::List::iterator begin,
 }
 
 
-const FramePointer::Ptr & Identification::Start() const {
+FramePointer::ConstPtr Identification::Start() const {
 	return d_start;
 }
 
-const FramePointer::Ptr & Identification::End() const {
+FramePointer::ConstPtr Identification::End() const {
 	return d_end;
 }
 
@@ -120,4 +120,31 @@ void Identification::Accessor::SetEnd(Identification & identification,
 void Identification::SetTagPosition(const Eigen::Vector2d & position, double angle) {
 	d_position.block<2,1>(0,0) = position;
 	d_position.z() = angle;
+}
+
+
+void Identification::SetBound(const FramePointer::Ptr & start,
+                              const FramePointer::Ptr & end) {
+	FramePointer::Ptr oldStart(d_start),oldEnd(d_end);
+
+	d_start = start;
+	d_end = end;
+
+	try {
+		List & tagSiblings = Identifier::Accessor::IdentificationsForTag(*ParentIdentifier(),d_tagValue);
+		List & antSiblings = Ant::Accessor::Identifications(*Target());
+		Identifier::SortAndCheck(tagSiblings,antSiblings);
+	} catch ( const std::exception & e) {
+		d_start = oldStart;
+		d_end = oldEnd;
+		throw;
+	}
+}
+
+void Identification::SetStart(const FramePointer::Ptr & start) {
+	SetBound(start,d_end);
+}
+
+void Identification::SetEnd(const FramePointer::Ptr & end) {
+	SetBound(d_start,end);
 }
