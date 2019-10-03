@@ -90,7 +90,7 @@ ExperimentController * ExperimentController::open(const QString & path, QObject 
 
 ExperimentController * ExperimentController::create(const QString & path, QObject * parent, Error & error) {
 	try {
-		auto exp = fort::myrmidon::priv::Experiment::Create(path.toUtf8().constData());
+		auto exp = fort::myrmidon::priv::Experiment::NewFile(path.toUtf8().constData());
 		error = Error::NONE;
 		return new ExperimentController(exp,parent);
 	} catch ( const std::exception & e ) {

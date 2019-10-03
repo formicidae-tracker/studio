@@ -14,24 +14,6 @@ TrackingDataDirectory::TrackingDataDirectory()
 }
 
 
-TrackingDataDirectory TrackingDataDirectory::FromSaved(const pb::TrackingDataDirectory & tdd) {
-	TrackingDataDirectory res;
-	res.Path = fs::path(tdd.path(),fs::path::generic_format);
-	res.StartFrame = tdd.startframe();
-	res.EndFrame = tdd.endframe();
-	res.StartDate.CheckTypeAndMergeFrom(tdd.startdate());
-	res.EndDate.CheckTypeAndMergeFrom(tdd.enddate());
-	return res;
-}
-
-void TrackingDataDirectory::Encode(pb::TrackingDataDirectory & tdd) const {
-	tdd.set_path(Path.generic_string());
-	tdd.set_startframe(StartFrame);
-	tdd.set_endframe(EndFrame);
-	tdd.mutable_startdate()->CheckTypeAndMergeFrom(StartDate);
-	tdd.mutable_enddate()->CheckTypeAndMergeFrom(EndDate);
-}
-
 
 TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & path, const std::filesystem::path & base) {
 	if ( fs::is_directory(base) == false ) {

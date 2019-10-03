@@ -25,10 +25,6 @@ public:
 
 	static TrackingDataDirectory Open(const std::filesystem::path & path, const std::filesystem::path & base);
 
-	static TrackingDataDirectory FromSaved(const fort::myrmidon::pb::TrackingDataDirectory & pb);
-
-	void Encode(fort::myrmidon::pb::TrackingDataDirectory & pb) const;
-
 	TrackingDataDirectory();
 };
 

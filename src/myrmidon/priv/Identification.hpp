@@ -46,9 +46,16 @@ public:
 
 	void SetTagPosition(const Eigen::Vector2d & position, double angle);
 
-	class Creator {
+	class Accessor {
 	private:
-		static Ptr Create(const IdentifierPtr & identifier, const AntPtr & ant);
+		static Ptr Create(uint32_t tagValue,
+		                  const IdentifierPtr & identifier,
+		                  const AntPtr & ant);
+		static void SetStart(Identification & identification,
+		                     const FramePointer::Ptr & start);
+		static void SetEnd(Identification & identification,
+		                   const FramePointer::Ptr & end);
+
 	public:
 		friend class Identifier;
 		friend class ::IdentificationUTest;
@@ -56,7 +63,9 @@ public:
 
 
 private:
-	Identification(const IdentifierPtr & identifier, const AntPtr & ant);
+	Identification(uint32_t tagValue,
+	               const IdentifierPtr & identifier,
+	               const AntPtr & ant);
 	friend class Ant;
 	friend class Identifier;
 	friend class ::IdentificationUTest;

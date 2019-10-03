@@ -23,6 +23,7 @@ typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 
 class Identification;
 typedef std::shared_ptr<Identification> IdentificationPtr;
+typedef std::vector<IdentificationPtr> IdentificationList;
 
 class FramePointer;
 typedef std::shared_ptr<FramePointer> FramePointerPtr;
@@ -35,7 +36,9 @@ public:
 
 	Ptr Itself() const;
 
-	AntPtr CreateAnt();
+	const static fort::myrmidon::Ant::ID NEXT_AVAILABLE_ID = 0;
+
+	AntPtr CreateAnt(fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
 
@@ -45,19 +48,44 @@ public:
 	                                    const FramePointerPtr & start,
 	                                    const FramePointerPtr & end);
 
-	void LoadAnt(const fort::myrmidon::pb::AntMetadata & pb);
+	void DeleteIdentification(const IdentificationPtr & ident);
+
+
+	class UnmanagedAnt : public std::runtime_error {
+	public:
+		UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept;
+		virtual ~UnmanagedAnt() noexcept {};
+	};
+
+	class UnmanagedIdentification : public std::runtime_error {
+	public:
+		UnmanagedIdentification(const Identification & ident) noexcept;
+		virtual ~UnmanagedIdentification() noexcept {};
+	};
+
+	class AlreadyExistingAnt : public std::runtime_error {
+	public:
+		AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept;
+		virtual ~AlreadyExistingAnt() noexcept {};
+	};
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
+	typedef std::unordered_map<uint32_t,IdentificationList> IdentificationByTagID;
+
 
 	Identifier();
 
 	fort::myrmidon::Ant::ID NextAvailableID();
+
+
+	std::weak_ptr<Identifier> d_itself;
+
 	AntByID d_ants;
 	SetOfID d_antIDs;
 	bool    d_continuous;
 
-	std::weak_ptr<Identifier> d_itself;
+	IdentificationByTagID d_identifications;
 };
 
 

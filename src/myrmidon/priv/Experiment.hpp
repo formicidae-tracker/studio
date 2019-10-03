@@ -3,13 +3,10 @@
 #include <memory>
 
 #include "../Ant.hpp"
-#include "TrackingDataDirectory.hpp"
 #include <filesystem>
-#include <chrono>
 
-#include <google/protobuf/timestamp.pb.h>
-
-#include "Experiment.pb.h"
+#include "TrackingDataDirectory.hpp"
+#include "Identifier.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -24,8 +21,6 @@ namespace priv {
 class Ant;
 typedef std::shared_ptr<Ant> AntPtr;
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
-class Identifier;
-typedef std::shared_ptr<Identifier> IdentifierPtr;
 
 using namespace fort::myrmidon;
 
@@ -41,21 +36,28 @@ public :
 
 	static Ptr Open(const std::filesystem::path & filename);
 	static Ptr Create(const std::filesystem::path & filename);
+	static Ptr NewFile(const std::filesystem::path & filename);
 	void Save(const std::filesystem::path & filename) const;
 
 	const std::filesystem::path & AbsolutePath() const;
 	const std::filesystem::path & Basedir() const;
-
-	void CheckDirectories();
 
 	void AddTrackingDataDirectory(const TrackingDataDirectory & tdd);
 	void RemoveTrackingDataDirectory(std::filesystem::path path);
 
 	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
 
-	AntPtr CreateAnt();
+	AntPtr CreateAnt(fort::myrmidon::Ant::ID = 0);
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
+
+	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
+	                                    uint32_t tagValue,
+	                                    const FramePointerPtr & start,
+	                                    const FramePointerPtr & end);
+
+	void DeleteIdentification(const IdentificationPtr & ident);
+
 
 	const std::string & Name() const;
 	void SetName(const std::string & name);
@@ -73,17 +75,21 @@ public :
 	uint8_t Threshold() const;
 	void SetThreshold(uint8_t th);
 
-
 private:
 	Experiment(const std::filesystem::path & filepath);
-	void Load(const std::filesystem::path & filepath);
-
-	pb::Experiment              d_experiment;
 
 	std::filesystem::path       d_absoluteFilepath;
 	std::filesystem::path       d_basedir;
 	TrackingDataDirectoryByPath d_dataDirs;
-	IdentifierPtr               d_identifier;
+	Identifier::Ptr             d_identifier;
+
+	std::string d_name;
+	std::string d_author;
+	std::string d_comment;
+	TagFamily   d_family;
+	uint8_t     d_threshold;
+
+
 };
 
 } //namespace priv

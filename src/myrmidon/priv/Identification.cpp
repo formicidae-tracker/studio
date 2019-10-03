@@ -6,8 +6,11 @@
 using namespace fort::myrmidon::priv;
 
 
-Identification::Identification(const IdentifierPtr & identifier, const AntPtr & target)
-	: d_target(target)
+Identification::Identification(uint32_t tagValue,
+                               const IdentifierPtr & identifier,
+                               const AntPtr & target)
+	: d_tagValue(tagValue)
+	, d_target(target)
 	, d_identifier(identifier) {
 }
 
@@ -29,19 +32,17 @@ void Identification::Encode(fort::myrmidon::pb::Identification & pb) const {
 Identification::Ptr Identification::FromSaved(const fort::myrmidon::pb::Identification & pb,
                                               const IdentifierPtr & identifier,
                                               const Ant::Ptr & target) {
-	std::shared_ptr<Identification> res(new Identification(identifier,target));
+	FramePointer::Ptr start,end;
 	if ( pb.has_startframe() ) {
-		res->d_start = FramePointer::FromSaved(pb.startframe());
+		start = FramePointer::FromSaved(pb.startframe());
 	}
 	if ( pb.has_endframe() ) {
-		res->d_end = FramePointer::FromSaved(pb.endframe());
+		end = FramePointer::FromSaved(pb.endframe());
 	}
-	res->d_position <<
-		pb.x(),
-		pb.y(),
-		pb.theta();
 
-	res->d_tagValue = pb.id();
+	auto res = identifier->AddIdentification(target->ID(),pb.id(),start,end);
+
+	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
 
 	return res;
 }
@@ -130,6 +131,24 @@ Identifier::Ptr Identification::ParentIdentifier() const {
 }
 
 
-Identification::Ptr Identification::Creator::Create(const IdentifierPtr & identifier, const AntPtr & ant) {
-	return std::shared_ptr<Identification>(new Identification(identifier,ant));
+Identification::Ptr Identification::Accessor::Create(uint32_t tagValue,
+                                                    const IdentifierPtr & identifier,
+                                                    const AntPtr & ant) {
+	return std::shared_ptr<Identification>(new Identification(tagValue,identifier,ant));
+}
+
+void Identification::Accessor::SetStart(Identification & identification,
+                                        const FramePointer::Ptr & start) {
+	identification.d_start = start;
+}
+
+void Identification::Accessor::SetEnd(Identification & identification,
+                                      const FramePointer::Ptr & end) {
+	identification.d_end = end;
+}
+
+
+void Identification::SetTagPosition(const Eigen::Vector2d & position, double angle) {
+	d_position.block<2,1>(0,0) = position;
+	d_position.z() = angle;
 }

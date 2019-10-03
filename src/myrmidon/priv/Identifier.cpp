@@ -6,6 +6,29 @@
 
 using namespace fort::myrmidon::priv;
 
+Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
+	: std::runtime_error([id](){
+		                     std::ostringstream os;
+		                     os << "Ant:" << Ant::FormatID(id) <<  " is not managed by this object";
+		                     return os.str();
+	                     }()) {}
+
+Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identification & ident) noexcept
+	: std::runtime_error([ident](){
+		                     std::ostringstream os;
+		                     os << "Identification:" << ident <<  " is not managed by this object";
+		                     return os.str();
+	                     }()) {}
+
+Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept
+	: std::runtime_error([id](){
+		                     std::ostringstream os;
+		                     os << "Ant:" << Ant::FormatID(id) <<  " already exist";
+		                     return os.str();
+	                     }()) {}
+
+
+
 Identifier::Identifier()
 	: d_continuous(false) {
 
@@ -17,8 +40,14 @@ Identifier::Ptr Identifier::Create() {
     return res;
 }
 
-AntPtr Identifier::CreateAnt() {
-	auto res = std::make_shared<Ant>(NextAvailableID());
+AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
+	if ( ID  == NEXT_AVAILABLE_ID ) {
+		ID = NextAvailableID();
+	}
+	if ( d_antIDs.count(ID) != 0 ) {
+		throw AlreadyExistingAnt(ID);
+	}
+	auto res = std::make_shared<Ant>(ID);
 	d_ants[res->ID()] =  res;
 	d_antIDs.insert(res->ID());
 	return res;
@@ -26,9 +55,7 @@ AntPtr Identifier::CreateAnt() {
 
 void Identifier::DeleteAnt(fort::myrmidon::Ant::ID id) {
 	if ( d_ants.count(id) == 0 ) {
-		std::ostringstream os;
-		os << "Could not find ant " << id ;
-		throw std::out_of_range(os.str());
+		throw UnmanagedAnt(id);
 	}
 	if ( id != d_ants.size() ) {
 		d_continuous = false;
@@ -58,12 +85,6 @@ fort::myrmidon::Ant::ID Identifier::NextAvailableID() {
 	return res;
 }
 
-void Identifier::LoadAnt(const fort::myrmidon::pb::AntMetadata & pb) {
-	fort::myrmidon::Ant::ID id = pb.id();
-	d_antIDs.insert(id);
-	d_ants[id] = Ant::FromSaved(pb,Itself());
-}
-
 Identifier::Ptr Identifier::Itself() const {
 	auto res = d_itself.lock();
 
@@ -71,4 +92,78 @@ Identifier::Ptr Identifier::Itself() const {
 		throw DeletedReference<Identifier>();
 	}
 	return res;
+}
+
+
+Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
+                                                  uint32_t tagValue,
+                                                  const FramePointerPtr & start,
+                                                  const FramePointerPtr & end) {
+	if ( d_antIDs.count(id) == 0 ) {
+		throw UnmanagedAnt(id);
+	}
+	auto ant = d_ants[id];
+
+	auto res = Identification::Accessor::Create(tagValue,Itself(),ant);
+	Identification::Accessor::SetStart(*res,start);
+	Identification::Accessor::SetEnd(*res,end);
+	Identification::List current = d_identifications[tagValue];
+	current.push_back(res);
+	auto overlap = Identification::SortAndCheckOverlap(current.begin(),current.end());
+	if ( overlap.first != overlap.second ) {
+		throw OverlappingIdentification(**overlap.first,**overlap.second);
+	}
+
+	Identification::List antIdents = ant->ConstIdentifications();
+	antIdents.push_back(res);
+	overlap = Identification::SortAndCheckOverlap(current.begin(),current.end());
+	if ( overlap.first != overlap.second ) {
+		throw OverlappingIdentification(**overlap.first,**overlap.second);
+	}
+	d_identifications[tagValue] = current;
+	ant->Identifications() = antIdents;
+	return res;
+}
+
+void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
+	if ( this != ident->ParentIdentifier().get() ) {
+		throw UnmanagedIdentification(*ident);
+	}
+
+
+	auto siblings = d_identifications.find(ident->TagValue());
+	if ( siblings == d_identifications.end() ) {
+		throw UnmanagedIdentification(*ident);
+	}
+
+	auto toErase = siblings->second.begin();
+	for( ; toErase != siblings->second.end(); ++toErase ) {
+		if ( ident.get() == toErase->get() ) {
+			break;
+		}
+	}
+
+	if ( toErase == siblings->second.end() ) {
+		throw UnmanagedIdentification(*ident);
+	}
+
+	auto ant = ident->Target();
+	if ( d_antIDs.count(ant->ID()) == 0 ) {
+		throw UnmanagedAnt(ant->ID());
+	}
+
+	auto toEraseAnt = ant->Identifications().begin();
+	for(;toEraseAnt != ant->Identifications().end();++toEraseAnt ) {
+		if ( ident.get() == toEraseAnt->get() ) {
+			break;
+		}
+	}
+
+	if ( toEraseAnt == ant->Identifications().end() ) {
+		throw UnmanagedIdentification(*ident);
+	}
+
+	siblings->second.erase(toErase);
+	ant->Identifications().erase(toEraseAnt);
+
 }
