@@ -53,9 +53,11 @@ TEST_F(ExperimentUTest,IOTest) {
 		EXPECT_EQ(e->Ants().find(1)->second->ID(),1);
 		EXPECT_EQ(e->Ants().find(2)->second->ID(),2);
 		EXPECT_EQ(e->Ants().find(3)->second->ID(),3);
-
-
-
+		EXPECT_EQ(e->Name(),"myrmidon test data");
+		EXPECT_EQ(e->Author(),"myrmidon-tests");
+		EXPECT_EQ(e->Comment(),"automatically generated data");
+		EXPECT_EQ(e->Threshold(),42);
+		EXPECT_EQ(e->Family(),Experiment::TagFamily::Tag16h5);
 
 		e->Save(TestSetup::Basedir() / "test2.myrmidon");
 	} catch (const std::exception & e) {

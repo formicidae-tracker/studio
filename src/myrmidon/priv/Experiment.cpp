@@ -39,6 +39,13 @@ Experiment::Ptr Experiment::Open(const std::filesystem::path & filepath) {
 }
 
 void Experiment::Save(const std::filesystem::path & filepath) const {
+	auto basedir = fs::weakly_canonical(d_absoluteFilepath);
+	auto newBasedir = fs::weakly_canonical(filepath);
+	//TODO: should not be an error.
+	if ( basedir.remove_filename() != newBasedir.remove_filename() ) {
+		throw std::runtime_error("Changing experiment file directory is not yet supported");
+	}
+
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
@@ -177,4 +184,16 @@ Experiment::TagFamily Experiment::Family() const {
 
 void Experiment::SetFamily(TagFamily tf) {
 	d_family = tf;
+}
+
+
+Identification::Ptr Experiment::AddIdentification(fort::myrmidon::Ant::ID id,
+                                                  uint32_t tagValue,
+                                                  const FramePointerPtr & start,
+                                                  const FramePointerPtr & end) {
+	return d_identifier->AddIdentification(id,tagValue,start,end);
+}
+
+void Experiment::DeleteIdentification(const IdentificationPtr & ident) {
+	d_identifier->DeleteIdentification(ident);
 }

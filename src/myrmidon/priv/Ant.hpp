@@ -3,7 +3,6 @@
 #include <memory>
 #include <filesystem>
 
-#include "Experiment.pb.h"
 #include "../Ant.hpp"
 #include "FramePointer.hpp"
 
@@ -21,8 +20,7 @@ public:
 	Ant(uint32_t ID);
 	~Ant();
 
-	Identification::List & Identifications();
-	const Identification::List & ConstIdentifications() const;
+	const Identification::List & Identifications() const;
 	void SortAndCheckIdentifications();
 
 
@@ -35,6 +33,13 @@ public:
 	}
 
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
+
+	class Accessor {
+	private:
+		static Identification::List & Identifications(Ant & a);
+	public:
+		friend class Identifier;
+	};
 
 private:
 

@@ -29,12 +29,6 @@ public:
 	                    List::iterator end);
 
 
-
-	void Encode(fort::myrmidon::pb::Identification & pb) const;
-	static Ptr FromSaved(const fort::myrmidon::pb::Identification & pb,
-	                     const IdentifierPtr & identifier,
-	                     const AntPtr & ant);
-
 	const FramePointer::Ptr & Start() const;
 	const FramePointer::Ptr & End() const;
 	Eigen::Vector2d TagPosition() const;

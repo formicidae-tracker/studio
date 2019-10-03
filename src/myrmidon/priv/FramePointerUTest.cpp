@@ -39,45 +39,6 @@ TEST_F(FramePointerUTest,CanBeOrdered) {
 
 
 
-TEST_F(FramePointerUTest,IOTest) {
-	struct TestData {
-		FramePointer A;
-	};
-
-	std::vector<TestData> data
-		= {
-		   TestData{.A={.Frame=0}},
-		   TestData{.A={.Frame=1}},
-		   TestData{.A={.Path="a",
-		                .PathStartDate=fromEpoch(1),
-		                .Frame=1}},
-		   TestData{.A={.Path="b",
-		                .PathStartDate=fromEpoch(2),
-		                .Frame=0}},
-	};
-
-
-	for(const auto & d : data ) {
-		fort::myrmidon::pb::FramePointer pb;
-		ASSERT_NO_THROW(d.A.Encode(pb));
-		EXPECT_EQ(d.A.Frame,pb.frame());
-		EXPECT_EQ(d.A.Path,pb.path());
-		EXPECT_EQ(d.A.PathStartDate,pb.pathstartdate());
-
-		auto decoded = FramePointer::FromSaved(pb);
-
-		if ( d.A.Path.empty() ) {
-			EXPECT_EQ(decoded.get(),(FramePointer*)NULL);
-			continue;
-		}
-
-		EXPECT_EQ(decoded->Path,d.A.Path);
-		EXPECT_EQ(decoded->Frame,d.A.Frame);
-		EXPECT_EQ(decoded->PathStartDate,d.A.PathStartDate);
-	}
-
-}
-
 
 TEST_F(FramePointerUTest,CanBeFormatted) {
 	struct TestData {

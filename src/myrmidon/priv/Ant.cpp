@@ -22,11 +22,11 @@ Ant::~Ant() {
 }
 
 
-Identification::List & Ant::Identifications(){
-	return d_identifications;
+Identification::List & Ant::Accessor::Identifications(Ant & a){
+	return a.d_identifications;
 }
 
-const Identification::List & Ant::ConstIdentifications() const {
+const Identification::List & Ant::Identifications() const {
 	return d_identifications;
 }
 

@@ -15,37 +15,6 @@ Identification::Identification(uint32_t tagValue,
 }
 
 
-void Identification::Encode(fort::myrmidon::pb::Identification & pb) const {
-	pb.Clear();
-	if ( d_start ) {
-		d_start->Encode(*pb.mutable_startframe());
-	}
-	if ( d_end ) {
-		d_end->Encode(*pb.mutable_endframe());
-	}
-	pb.set_x(d_position.x());
-	pb.set_y(d_position.y());
-	pb.set_theta(d_position.z());
-	pb.set_id(d_tagValue);
-}
-
-Identification::Ptr Identification::FromSaved(const fort::myrmidon::pb::Identification & pb,
-                                              const IdentifierPtr & identifier,
-                                              const Ant::Ptr & target) {
-	FramePointer::Ptr start,end;
-	if ( pb.has_startframe() ) {
-		start = FramePointer::FromSaved(pb.startframe());
-	}
-	if ( pb.has_endframe() ) {
-		end = FramePointer::FromSaved(pb.endframe());
-	}
-
-	auto res = identifier->AddIdentification(target->ID(),pb.id(),start,end);
-
-	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
-
-	return res;
-}
 
 std::pair<Identification::List::const_iterator,Identification::List::const_iterator>
 Identification::SortAndCheckOverlap(Identification::List::iterator begin,

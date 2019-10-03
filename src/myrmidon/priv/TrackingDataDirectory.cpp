@@ -1,7 +1,5 @@
 #include "TrackingDataDirectory.hpp"
 
-#include "Experiment.pb.h"
-
 #include <fort-hermes/Error.h>
 #include <fort-hermes/FileContext.h>
 

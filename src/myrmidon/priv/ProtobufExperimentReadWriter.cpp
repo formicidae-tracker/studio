@@ -1,6 +1,9 @@
 #include "ProtobufExperimentReadWriter.hpp"
 
 #include "Experiment.hpp"
+#include "FramePointer.hpp"
+#include "Ant.hpp"
+#include "FramePointer.hpp"
 
 #include <fcntl.h>
 
@@ -64,14 +67,56 @@ Experiment::Ptr ProtobufReadWriter::DoOpen(const std::filesystem::path & filenam
 		}
 
 		if (line.has_antdata() == true ) {
-			throw std::runtime_error("not yet implemented");
+			LoadAnt(*res, line.antdata());
 		}
 	}
 	return res;
 };
 
 
-void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesystem::path & filename) {
+void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesystem::path & filepath) {
+	int fd =  open(filepath.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
+	if ( fd  < 0 ) {
+		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filepath.string() + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
+	}
+
+	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
+	file->SetCloseOnDelete(true);
+	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
+
+	fort::myrmidon::pb::FileHeader h;
+	h.set_majorversion(0);
+	h.set_minorversion(1);
+
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
+		throw std::runtime_error("could not write header message");
+	}
+
+	fort::myrmidon::pb::FileLine line;
+
+	SaveExperiment(*(line.mutable_experiment()),experiment);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
+		throw std::runtime_error("could not write experiment data");
+	}
+
+	std::vector<fort::myrmidon::Ant::ID> antIDs;
+	for (const auto & [ID,a] : experiment.Ants() ) {
+		antIDs.push_back(ID);
+	}
+	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
+	                                         fort::myrmidon::Ant::ID b) -> bool {
+		                                      return a < b;
+	                                      });
+
+	for (const auto & ID : antIDs) {
+		line.Clear();
+		SaveAnt(*(line.mutable_antdata()),*(experiment.Ants().find(ID)->second));
+
+		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
+			throw std::runtime_error("could not write ant metadata");
+		}
+	}
+
 }
 
 
@@ -104,7 +149,6 @@ void ProtobufReadWriter::LoadExperiment(Experiment & e,const fort::myrmidon::pb:
 		e.AddTrackingDataDirectory(LoadTrackingDataDirectory(tdd));
 	}
 
-
 }
 
 
@@ -135,7 +179,9 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 	}
 	pb.set_tagfamily(fi->second);
 
-
+	for(const auto & [p,tdd] : e.TrackingDataDirectories() ) {
+		SaveTrackingDataDirectory(*(pb.add_datadirectory()),tdd);
+	}
 
 }
 
@@ -158,4 +204,70 @@ void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & p
 	pb.set_endframe(tdd.EndFrame);
 	pb.mutable_startdate()->CheckTypeAndMergeFrom(tdd.StartDate);
 	pb.mutable_enddate()->CheckTypeAndMergeFrom(tdd.EndDate);
+}
+
+
+void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
+	auto ant = e.CreateAnt(pb.id());
+	for ( const auto & ident : pb.marker() ) {
+		LoadIdentification(e,ant,ident);
+	}
+}
+
+void ProtobufReadWriter::SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant & ant) {
+	pb.Clear();
+	pb.set_id(ant.ID());
+	for ( const auto & ident : ant.Identifications() ) {
+		SaveIdentification(*(pb.add_marker()),*ident);
+	}
+}
+
+void ProtobufReadWriter::LoadIdentification(Experiment & e, const AntPtr & target,
+                                            const fort::myrmidon::pb::Identification & pb) {
+	FramePointer::Ptr start,end;
+	if ( pb.has_startframe() ) {
+		start = LoadFramePointer(pb.startframe());
+	}
+	if ( pb.has_endframe() ) {
+		end = LoadFramePointer(pb.startframe());
+	}
+
+	auto res = e.AddIdentification(target->ID(),pb.id(),start,end);
+
+	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
+}
+
+void ProtobufReadWriter::SaveIdentification(fort::myrmidon::pb::Identification & pb,
+                                            const Identification & ident) {
+	pb.Clear();
+	if ( ident.Start() ) {
+		SaveFramePointer(*(pb.mutable_startframe()),*(ident.Start()));
+	}
+	if ( ident.End() ) {
+		SaveFramePointer(*(pb.mutable_endframe()),*(ident.End()));
+	}
+	pb.set_x(ident.TagPosition().x());
+	pb.set_y(ident.TagPosition().y());
+	pb.set_theta(ident.TagAngle());
+	pb.set_id(ident.TagValue());
+}
+
+
+FramePointer::Ptr ProtobufReadWriter::LoadFramePointer(const fort::myrmidon::pb::FramePointer & pb) {
+	if ( pb.path().empty() == true ) {
+		return FramePointer::Ptr();
+	}
+	auto res = std::make_shared<FramePointer>();
+	res->Path = std::filesystem::path(pb.path(),std::filesystem::path::generic_format);
+	res->Frame = pb.frame();
+	res->PathStartDate.CheckTypeAndMergeFrom(pb.pathstartdate());
+	return res;
+}
+
+void ProtobufReadWriter::SaveFramePointer(fort::myrmidon::pb::FramePointer & pb,
+                                          const FramePointer & fp) {
+	pb.Clear();
+	pb.set_path(fp.Path.generic_string());
+	pb.set_frame(fp.Frame);
+	pb.mutable_pathstartdate()->CheckTypeAndMergeFrom(fp.PathStartDate);
 }

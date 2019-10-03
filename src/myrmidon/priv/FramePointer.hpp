@@ -4,8 +4,6 @@
 #include <memory>
 #include <iostream>
 
-
-#include "Experiment.pb.h"
 #include <google/protobuf/util/time_util.h>
 
 
@@ -21,9 +19,6 @@ public:
 	std::filesystem::path       Path;
 	google::protobuf::Timestamp PathStartDate;
 	uint64_t                    Frame;
-
-	void Encode(fort::myrmidon::pb::FramePointer & fp) const;
-	static FramePointer::Ptr FromSaved(const fort::myrmidon::pb::FramePointer & fp);
 };
 
 }

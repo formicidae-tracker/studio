@@ -4,6 +4,8 @@
 
 #include "TrackingDataDirectory.hpp"
 
+#include "ForwardDeclaration.hpp"
+
 namespace fort {
 
 namespace myrmidon {
@@ -11,9 +13,13 @@ namespace myrmidon {
 namespace pb {
 class Experiment;
 class TrackingDataDirectory;
+class AntMetadata;
+class Identification;
+class FramePointer;
 }
 
 namespace priv {
+
 
 class ProtobufReadWriter : public ExperimentReadWriter {
 public:
@@ -33,6 +39,24 @@ public:
 	static void SaveTrackingDataDirectory(fort::myrmidon::pb::TrackingDataDirectory & pb,
 	                                      const TrackingDataDirectory & tdd);
 
+	static void LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb);
+
+	static void SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant & a);
+
+
+
+
+	static void LoadIdentification(Experiment & e, const AntPtr & a,
+	                               const fort::myrmidon::pb::Identification & pb);
+
+	static void SaveIdentification(fort::myrmidon::pb::Identification & pb,
+	                               const Identification & ident);
+
+
+	static FramePointerPtr LoadFramePointer(const fort::myrmidon::pb::FramePointer & pb);
+
+	static void SaveFramePointer(fort::myrmidon::pb::FramePointer & pb,
+	                             const FramePointer & fp);
 
 };
 

@@ -114,14 +114,14 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
 		throw OverlappingIdentification(**overlap.first,**overlap.second);
 	}
 
-	Identification::List antIdents = ant->ConstIdentifications();
+	Identification::List antIdents = Ant::Accessor::Identifications(*ant);
 	antIdents.push_back(res);
 	overlap = Identification::SortAndCheckOverlap(current.begin(),current.end());
 	if ( overlap.first != overlap.second ) {
 		throw OverlappingIdentification(**overlap.first,**overlap.second);
 	}
 	d_identifications[tagValue] = current;
-	ant->Identifications() = antIdents;
+	Ant::Accessor::Identifications(*ant) = antIdents;
 	return res;
 }
 
@@ -164,6 +164,6 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 	}
 
 	siblings->second.erase(toErase);
-	ant->Identifications().erase(toEraseAnt);
+	Ant::Accessor::Identifications(*ant).erase(toEraseAnt);
 
 }

@@ -41,6 +41,13 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	//creates data
 	fm::pb::Experiment e;
 
+	e.set_author("myrmidon-tests");
+	e.set_name("myrmidon test data");
+	e.set_comment("automatically generated data");
+	e.set_threshold(42);
+	e.set_tagfamily(fm::pb::TAG16H5);
+
+
 	auto p = e.add_datadirectory();
 	p->set_path("foo.0000");
 	p->set_startframe(100);
