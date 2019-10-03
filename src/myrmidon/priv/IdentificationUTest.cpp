@@ -120,3 +120,47 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 
 
 }
+
+
+TEST_F(IdentificationUTest,TestIdentificationBoundary) {
+	auto identifier = Identifier::Create();
+	auto ant1 = identifier->CreateAnt();
+	auto ant2 = identifier->CreateAnt();
+	Identification::Ptr ant1ID1,ant2ID1,ant1ID2,ant2ID2;
+	ASSERT_NO_THROW({ant1ID1 = identifier->AddIdentification(ant1->ID(),0,NULL,NULL);});
+	// the two ant cannot share the same tag
+	ASSERT_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
+	ASSERT_NO_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),1,NULL,NULL);});
+	// we can always reduce the validity of ID1
+	ASSERT_NO_THROW({
+			auto ant1ID1end = std::make_shared<FramePointer>();
+			ant1ID1end->Path = "a";
+			ant1ID1end->Frame = 10;
+			ant1ID1->SetEnd(ant1ID1end);
+		});
+	auto ant1ID2start = std::make_shared<FramePointer>();
+	ant1ID2start->Path = "a";
+	ant1ID2start->Frame = 10;
+	// overlaps with ant1ID1
+	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),0,NULL,NULL);},OverlappingIdentification);
+	// still overlaps with ant1ID1 as end == start
+	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),0,ant1ID2start,NULL);},OverlappingIdentification);
+	ant1ID2start->Frame = 11;
+	// overlaps with ant2ID1
+	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),1,ant1ID2start,NULL);},OverlappingIdentification);
+	ASSERT_NO_THROW({
+			auto ant2ID1end = std::make_shared<FramePointer>();
+			ant2ID1end->Path = "a";
+			ant2ID1end->Frame = 10;
+			ant2ID1->SetEnd(ant2ID1end);
+		});
+	ant1ID2start->Frame = 10;
+	// overlaps with ant2ID1 as end == start
+	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant2->ID(),1,ant1ID2start,NULL);},OverlappingIdentification);
+	ant1ID2start->Frame = 11;
+
+	//works to swap the two id after frame a/10
+	ASSERT_NO_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),1,ant1ID2start,NULL);});
+	ASSERT_NO_THROW({ant2ID2 = identifier->AddIdentification(ant2->ID(),0,ant1ID2start,NULL);});
+
+}

@@ -35,8 +35,6 @@ Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) n
 		                     return os.str();
 	                     }()) {}
 
-
-
 Identifier::Identifier()
 	: d_continuous(false) {
 
@@ -178,8 +176,6 @@ Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & 
 	}
 	return fi->second;
 }
-
-
 
 void Identifier::SortAndCheck(IdentificationList & tagSiblings,
                               IdentificationList & antSiblings) {
