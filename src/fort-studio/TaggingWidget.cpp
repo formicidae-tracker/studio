@@ -9,6 +9,9 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	, d_controller(NULL) {
     d_ui->setupUi(this);
 
+    qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
+    qRegisterMetaType<size_t>("size_t");
+
     using namespace fort::myrmidon::priv;
     d_ui->familySelector->insertItem(0,"36h11",(int)Experiment::TagFamily::Tag36h11);
     d_ui->familySelector->insertItem(1,"36ARTag",(int)Experiment::TagFamily::Tag36ARTag);
@@ -99,22 +102,23 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		                                                 d_controller->experiment().Basedir(),
 		                                                 tf,
 		                                                 d_ui->thresholdBox->value());
-		connect(indexer.get(),SIGNAL(newSnapshot(Snapshot::ConstPtr)),
-		        this,SLOT(onNewSnapshot(Snapshot::ConstPtr)));
-		connect(indexer.get(),SIGNAL(done(size_t)),
-		        this,SLOT(onDone(size_t)));
+		connect(indexer.get(),SIGNAL(resultReady(const QVector<Snapshot::ConstPtr> & , size_t)),
+		        this,SLOT(onNewSnapshots(const QVector<Snapshot::ConstPtr> & , size_t)),
+		        Qt::QueuedConnection);
 		d_indexers[p] = indexer;
 		size_t toAdd = indexer->start();
 		d_ui->snapshotProgress->setMaximum(d_ui->snapshotProgress->maximum() + toAdd);
 	}
+
+	//todo : removes snapshots that are not present in the possibly removed datadirs;
 
 }
 
 
 void TaggingWidget::clearIndexers() {
 	for(auto & [p,indexer] :  d_indexers ) {
-		disconnect(indexer.get(),SIGNAL(newSnapshot(Snapshot::ConstPtr)),
-		           this,SLOT(onNewSnapshot(Snapshot::ConstPtr)));
+		disconnect(indexer.get(),SIGNAL(resultReady(const QVector<Snapshot::ConstPtr> & , size_t)),
+		           this,SLOT(onNewSnapshots(const QVector<Snapshot::ConstPtr> & , size_t)));
 	}
 	d_indexers.clear();
 	d_ui->tagList->clear();
@@ -142,35 +146,35 @@ void TaggingWidget::on_familySelector_activated(int row) {
 }
 
 
-void TaggingWidget::on_thresholdBox_valueChanged(int value) {
+void TaggingWidget::on_thresholdBox_editingFinished() {
 	if ( d_controller == NULL ) {
 		return;
 	}
-	if (d_controller->experiment().Threshold() ==  value ) {
+	if (d_controller->experiment().Threshold() ==  d_ui->thresholdBox->value() ) {
 		return;
 	}
-	d_controller->setThreshold(value);
+	d_controller->setThreshold(d_ui->thresholdBox->value());
 	clearIndexers();
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
 
 
-void TaggingWidget::onNewSnapshot(Snapshot::ConstPtr s) {
-	if ( d_tags.count(s->TagValue()) == 0 ) {
-		auto tagWidget = new QTreeWidgetItem(d_ui->tagList);
-		tagWidget->setData(0,Qt::DisplayRole,(int)s->TagValue());
-		d_tags[s->TagValue()] = tagWidget;
-
-	}
-	d_snapshots[s->Path().generic_string()] = s;
-	auto tagWidget = d_tags[s->TagValue()];
-	auto frameWidget = new QTreeWidgetItem(tagWidget);
-	frameWidget->setData(0,Qt::DisplayRole,(int)s->Frame());
-	frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
-}
-
-void TaggingWidget::onDone(size_t) {
+void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots, size_t done) {
 	d_ui->snapshotProgress->setValue(d_ui->snapshotProgress->value()+1);
+
+	for( const auto & s : snapshots) {
+		if ( d_tags.count(s->TagValue()) == 0 ) {
+			auto tagWidget = new QTreeWidgetItem(d_ui->tagList);
+			tagWidget->setData(0,Qt::DisplayRole,(int)s->TagValue());
+			d_tags[s->TagValue()] = tagWidget;
+
+		}
+		d_snapshots[s->Path().generic_string()] = s;
+		auto tagWidget = d_tags[s->TagValue()];
+		auto frameWidget = new QTreeWidgetItem(tagWidget);
+		frameWidget->setData(0,Qt::DisplayRole,(int)s->Frame());
+		frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
+	}
 }
 
 

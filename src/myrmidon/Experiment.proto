@@ -45,19 +45,6 @@ message FramePointer {
 	google.protobuf.Timestamp PathStartDate = 3;
 };
 
-message Estimate {
-	string FromFile = 1;
-
-	double XHead = 2;
-	double YHead = 3;
-	double XTail = 4;
-	double YTail = 5;
-
-	double XPosition     = 6;
-	double YPosition     = 7;
-	double ThetaPosition = 8;
-}
-
 message Identification {
 	double X     = 1;
 	double Y     = 2;

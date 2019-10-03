@@ -21,9 +21,9 @@ AntListWidget::~AntListWidget() {
 void AntListWidget::onNewController(ExperimentController * controller) {
 	if ( d_controller != NULL ) {
 		disconnect(d_controller,
-		           SIGNAL(antListModified(const fort::myrmidon::priv::Experiment::AntByID &)),
+		           SIGNAL(antListModified(const fort::myrmidon::priv::AntByID &)),
 		           this,
-		           SLOT(onAntListModified(const fort::myrmidon::priv::Experiment::AntByID &)));
+		           SLOT(onAntListModified(const fort::myrmidon::priv::AntByID &)));
 	}
 	d_controller = controller;
 	if (d_controller == NULL ) {
@@ -32,9 +32,9 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 		return;
 	}
 	connect(d_controller,
-	        SIGNAL(antListModified(const fort::myrmidon::priv::Experiment::AntByID &)),
+	        SIGNAL(antListModified(const fort::myrmidon::priv::AntByID &)),
 	        this,
-	        SLOT(onAntListModified(const fort::myrmidon::priv::Experiment::AntByID &)));
+	        SLOT(onAntListModified(const fort::myrmidon::priv::AntByID &)));
 	onAntListModified(d_controller->experiment().Ants());
 	d_ui->filterEdit->setEnabled(true);
 	d_ui->addButton->setEnabled(true);

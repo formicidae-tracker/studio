@@ -118,7 +118,6 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 		EXPECT_EQ(res.second,d.Expected.second);
 	}
 
-
 }
 
 
@@ -162,5 +161,6 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	//works to swap the two id after frame a/10
 	ASSERT_NO_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),1,ant1ID2start,NULL);});
 	ASSERT_NO_THROW({ant2ID2 = identifier->AddIdentification(ant2->ID(),0,ant1ID2start,NULL);});
+
 
 }

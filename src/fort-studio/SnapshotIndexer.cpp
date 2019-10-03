@@ -29,11 +29,6 @@ SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
 	, d_basedir(basedir)
 	, d_datadir(datadir)
 	, d_familyValue(family) {
-	qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
-	connect(this,SIGNAL(resultReady(const QVector<Snapshot::ConstPtr>&)),
-	        this,SLOT(onResultReady(const QVector<Snapshot::ConstPtr>&)),
-	        Qt::QueuedConnection);
-
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
 		typedef void (*Destructor) (apriltag_family_t *);
@@ -98,10 +93,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 
 
 	zarray_t * detections = NULL;
-	{
-		std::lock_guard lock(d_detectorMutex);
-		detections = apriltag_detector_detect(d_detector.get(),&img);
-	}
+	detections = apriltag_detector_detect(d_detector.get(),&img);
 	apriltag_detection_t * d;
 	tp.Results.reserve(zarray_size(detections));
 	for ( size_t i = 0; i < zarray_size(detections); ++i ) {
@@ -148,25 +140,33 @@ size_t SnapshotIndexer::start() {
 			continue;
 		}
 	}
-	d_done = 0;
-	d_futureWatcher.setFuture(QtConcurrent::map(d_toProcess,
-	                                            [this](ImageToProcess & tp){
-		                                            Process(tp);
-		                                            emit resultReady(tp.Results);
-	                                            }));
+	{
+		std::lock_guard<std::mutex> lock(d_mutex);
+		d_quit = false;
+	}
+	d_future = QtConcurrent::run(QThreadPool::globalInstance(),
+	                             [this]() {
+		                             size_t done = 0;
+		                             for(auto & toProcess : d_toProcess ) {
+			                             {
+				                             std::lock_guard<std::mutex> lock(d_mutex);
+				                             if ( d_quit == true ) {
+					                             return;
+				                             }
+			                             }
+			                             Process(toProcess);
+			                             ++done;
+			                             emit resultReady(toProcess.Results,done);
+		                             }
+	                             });
+
 	return d_toProcess.size();
 }
 
 void SnapshotIndexer::cancel() {
-	d_futureWatcher.cancel();
-	d_futureWatcher.waitForFinished();
-}
-
-
-void SnapshotIndexer::onResultReady(const QVector<Snapshot::ConstPtr> & snapshots) {
-	for(const auto & s : snapshots ) {
-		emit newSnapshot(s);
+	{
+		std::lock_guard<std::mutex> lock(d_mutex);
+		d_quit = true;
 	}
-	++d_done;
-	emit done(d_done);
+	d_future.waitForFinished();
 }

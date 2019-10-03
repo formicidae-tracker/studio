@@ -20,19 +20,13 @@ public:
 	                QObject * parent = NULL);
 	virtual ~SnapshotIndexer();
 
-signals:
-	void newSnapshot(Snapshot::ConstPtr);
-
 public slots:
 	size_t start();
 	void cancel();
 
 signals:
-	void resultReady(const QVector<Snapshot::ConstPtr>&);
-	void done(size_t v);
+	void resultReady(const QVector<Snapshot::ConstPtr>&, size_t done);
 
-private slots:
-	void onResultReady(const QVector<Snapshot::ConstPtr>&);
 private:
 	struct ImageToProcess {
 		std::filesystem::path Basedir,Datadir,Path;
@@ -50,10 +44,10 @@ private:
 
 	std::shared_ptr<apriltag_family_t>   d_family;
 	std::shared_ptr<apriltag_detector_t> d_detector;
-	std::mutex                           d_detectorMutex;
+	std::mutex                           d_mutex;
+	bool                                 d_quit;
 
 	QVector<ImageToProcess>    d_toProcess;
-	QFutureWatcher<void>       d_futureWatcher;
-	size_t                     d_done;
+	QFuture<void>              d_future;
 
 };

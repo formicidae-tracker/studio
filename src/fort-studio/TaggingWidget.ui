@@ -103,6 +103,9 @@
         <property name="value">
          <number>24</number>
         </property>
+        <property name="format">
+         <string>%v / %m</string>
+        </property>
        </widget>
       </item>
      </layout>

@@ -25,13 +25,11 @@ public slots:
 	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &);
 
 	void on_familySelector_activated(int);
-	void on_thresholdBox_valueChanged(int);
+	void on_thresholdBox_editingFinished();
 	void on_tagList_itemActivated(QTreeWidgetItem *, int);
 
 
-	void onNewSnapshot(Snapshot::ConstPtr);
-
-	void onDone(size_t);
+	void onNewSnapshots(const QVector<Snapshot::ConstPtr> &, size_t done);
 
 private:
 	void clearIndexers();
