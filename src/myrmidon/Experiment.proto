@@ -38,7 +38,6 @@ message Experiment {
 	uint32    Threshold = 6;
 };
 
-
 message FramePointer {
 	string Path  = 1;
 	uint64 Frame = 2;

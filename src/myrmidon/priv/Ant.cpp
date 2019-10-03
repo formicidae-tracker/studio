@@ -84,7 +84,7 @@ void Ant::Estimate::Encode(fort::myrmidon::pb::Estimate & pb) const {
 
 Ant::Estimate Ant::Estimate::FromSaved(const fort::myrmidon::pb::Estimate & pb) {
 	Estimate res;
-	res.d_fromFile = pb.fromfile();
+	res.d_fromFile = std::filesystem::path(pb.fromfile(),std::filesystem::path::generic_format);
 	res.d_data <<
 		pb.xhead(),
 		pb.yhead(),
