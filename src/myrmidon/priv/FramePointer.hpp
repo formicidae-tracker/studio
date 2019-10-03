@@ -42,5 +42,5 @@ inline bool operator<(const fort::myrmidon::priv::FramePointer & a,
 
 inline std::ostream& operator<<(std::ostream & out,
                                 const fort::myrmidon::priv::FramePointer & p) {
-	return out << p.Path << "/" << p.Frame;
+	return out << p.Path.generic_string() << "/" << p.Frame;
 }

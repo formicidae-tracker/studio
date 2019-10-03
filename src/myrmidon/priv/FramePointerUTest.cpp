@@ -77,3 +77,27 @@ TEST_F(FramePointerUTest,IOTest) {
 	}
 
 }
+
+
+TEST_F(FramePointerUTest,CanBeFormatted) {
+	struct TestData {
+		FramePointer A;
+		std::string Expected;
+	};
+
+	std::vector<TestData> data
+		= {
+		   TestData{.A={.Frame=0},.Expected="/0"},
+		   TestData{.A={.Frame=2134},.Expected="/2134"},
+		   TestData{.A={.Path="foo",.Frame=42},.Expected="foo/42"},
+		   TestData{.A={.Path="foo/bar/baz",.Frame=0},.Expected="foo/bar/baz/0"},
+	};
+
+	for(const auto & d : data ) {
+		std::ostringstream os;
+		os << d.A;
+		EXPECT_EQ(os.str(),d.Expected);
+	}
+
+
+}
