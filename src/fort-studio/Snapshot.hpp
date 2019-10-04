@@ -34,8 +34,9 @@ public:
 
 	const std::filesystem::path & Base() const;
 
-private:
 
+private:
+	friend class SnapshotIndexer;
 
 	Eigen::Vector3d       d_position;
 	uint32_t              d_value;

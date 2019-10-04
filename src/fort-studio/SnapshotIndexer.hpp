@@ -9,6 +9,13 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 
+namespace fort{
+namespace myrmidon{
+namespace pb{
+class Snapshot;
+}
+}
+}
 
 class SnapshotIndexer : public QObject {
 	Q_OBJECT
@@ -37,6 +44,12 @@ private:
 
 	void Process(ImageToProcess & tp);
 
+	void LoadCache();
+	void SaveCache();
+	Snapshot::ConstPtr LoadSnapshot(const fort::myrmidon::pb::Snapshot & pb);
+	void SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snapshot::ConstPtr & s);
+
+
 	fort::myrmidon::priv::TrackingDataDirectory d_tdd;
 	std::filesystem::path d_basedir;
 
@@ -49,5 +62,7 @@ private:
 
 	QVector<ImageToProcess>    d_toProcess;
 	QFuture<void>              d_future;
+
+	std::map<std::filesystem::path,QVector<Snapshot::ConstPtr> > d_cache;
 
 };

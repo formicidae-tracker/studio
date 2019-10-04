@@ -19,7 +19,9 @@
 #include <QImage>
 
 #include <myrmidon/priv/FramePointer.hpp>
+#include <myrmidon/utils/ProtobufFileReadWriter.hpp>
 
+#include "SnapshotCache.pb.h"
 
 SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
                                  const std::filesystem::path & basedir,
@@ -80,6 +82,13 @@ SnapshotIndexer::~SnapshotIndexer() {
 }
 
 void SnapshotIndexer::Process(ImageToProcess & tp) {
+	auto fi = d_cache.find(tp.RelativeImagePath);
+	if ( fi != d_cache.end() ) {
+		tp.Results = fi->second;
+		return;
+	}
+
+
 	auto path = tp.Basedir / tp.Frame->Path / tp.RelativeImagePath;
 	QImage image(path.c_str());
 	if ( image.format() != QImage::Format_Grayscale8 ) {
@@ -149,6 +158,14 @@ size_t SnapshotIndexer::start() {
 	}
 	d_future = QtConcurrent::run(QThreadPool::globalInstance(),
 	                             [this]() {
+		                             LoadCache();
+		                             {
+			                             std::lock_guard<std::mutex> lock(d_mutex);
+			                             if ( d_quit == true ) {
+				                             return;
+			                             }
+		                             }
+
 		                             size_t done = 0;
 		                             for(auto & toProcess : d_toProcess ) {
 			                             {
@@ -161,6 +178,7 @@ size_t SnapshotIndexer::start() {
 			                             ++done;
 			                             emit resultReady(toProcess.Results,done);
 		                             }
+		                             SaveCache();
 	                             });
 
 	return d_toProcess.size();
@@ -172,4 +190,99 @@ void SnapshotIndexer::cancel() {
 		d_quit = true;
 	}
 	d_future.waitForFinished();
+}
+
+Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snapshot & pb) {
+	if (pb.corners_size() != 4 ) {
+		throw std::runtime_error("Not enough corner");
+	}
+	auto res = std::make_shared<Snapshot>();
+	res->d_position <<
+		pb.tagposition().x(),
+		pb.tagposition().y(),
+		pb.tagangle();
+	res->d_value = pb.tagvalue();
+	for( size_t i = 0; i < 4; ++i ) {
+		res->d_corners.push_back(Eigen::Vector2d(pb.corners(i).x(),pb.corners(i).y()));
+	}
+	res->d_relativeImagePath = std::filesystem::path(pb.relativeimagepath(),std::filesystem::path::generic_format);
+	res->d_frame = d_tdd.FramePointer(pb.frame());
+	return res;
+}
+
+void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snapshot::ConstPtr & s) {
+	auto tagPos = pb.mutable_tagposition();
+	tagPos->set_x(s->TagPosition().x());
+	tagPos->set_y(s->TagPosition().y());
+	pb.set_tagangle(s->TagAngle());
+	pb.set_tagvalue(s->TagValue());
+
+	for(const auto & c: s->Corners()) {
+		auto cPb = pb.add_corners();
+		cPb->set_x(c.x());
+		cPb->set_y(c.y());
+	}
+	pb.set_frame(s->Frame()->Frame);
+	pb.set_relativeimagepath(s->d_relativeImagePath.generic_string());
+}
+
+
+
+void SnapshotIndexer::LoadCache() {
+	typedef fort::myrmidon::utils::ProtobufFileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
+	                                                      fort::myrmidon::pb::Snapshot>
+		ReadWriter;
+	try {
+		ReadWriter::Read(d_basedir / d_tdd.Path() / "ants" / "snapshot.cache",
+		                 [this](const fort::myrmidon::pb::SnapshotCacheHeader & h) {
+			                 if ( h.threshold() != d_detector->qtp.min_white_black_diff ) {
+				                 std::ostringstream os;
+				                 os << "Threshold cache value (" << h.threshold()
+				                    << " is different from expected: " << d_detector->qtp.min_white_black_diff;
+				                 throw std::runtime_error(os.str());
+			                 }
+
+			                 if ( h.familyname() != std::string(d_family->name) ){
+				                 std::ostringstream os;
+				                 os << "Family cache value (" << h.familyname()
+				                    << " is different from expected: " << d_family->name;
+				                 throw std::runtime_error(os.str());
+			                 }
+		                 },
+		                 [this](const fort::myrmidon::pb::Snapshot & s) {
+			                 try {
+				                 d_cache[s.relativeimagepath()].push_back(LoadSnapshot(s));
+			                 } catch ( const std::runtime_error & ) {
+			                 }
+		                 });
+	} catch ( const std::exception & e) {
+		std::cerr << "Could not load cache : " << e.what() << std::endl;
+	}
+}
+
+void SnapshotIndexer::SaveCache() {
+	typedef fort::myrmidon::utils::ProtobufFileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
+	                                                      fort::myrmidon::pb::Snapshot>
+		ReadWriter;
+
+
+	fort::myrmidon::pb::SnapshotCacheHeader h;
+	h.set_threshold(d_detector->qtp.min_white_black_diff);
+	h.set_familyname(d_family->name);
+
+	std::vector<std::function <void( fort::myrmidon::pb::Snapshot & s ) > >lines;
+	for(const auto & img : d_toProcess ) {
+		for ( const auto & s : img.Results ) {
+			lines.push_back([&s,this](fort::myrmidon::pb::Snapshot & pb) {
+				                SaveSnapshot(pb,s);
+			                });
+		}
+	}
+
+	try {
+		ReadWriter::Write(d_basedir / d_tdd.Path() / "ants" / "snapshot.cache",h,lines);
+	} catch ( const std::exception & e) {
+		std::cerr << "Could not save cache : " << e.what() << std::endl;
+	}
+
 }

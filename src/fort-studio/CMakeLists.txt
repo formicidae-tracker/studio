@@ -24,7 +24,7 @@ set(UI_FILES MainWindow.ui
 set(RCC_FILES )
 
 
-set(PROTO_FILES Snapshot.proto)
+set(PROTO_FILES SnapshotCache.proto Point2d.proto)
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 foreach(f ${PROTO_SRC})

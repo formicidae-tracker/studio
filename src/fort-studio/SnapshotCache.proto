@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+
+package fort.myrmidon.pb;
+
+import "Point2d.proto";
+
+message SnapshotCacheHeader {
+	uint32 Threshold  = 1;
+	string FamilyName = 2;
+};
+
+
+
+message Snapshot {
+	Point2d TagPosition = 1;
+	double  TagAngle    = 2;
+	uint32  TagValue    = 3;
+
+	repeated Point2d Corners = 4;
+
+	uint64 Frame             = 5;
+	string RelativeImagePath = 6;
+};

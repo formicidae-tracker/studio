@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+message Point2d {
+	double X = 1;
+	double Y = 2;
+}
