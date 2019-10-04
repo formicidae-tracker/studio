@@ -7,8 +7,41 @@ using namespace fort::myrmidon::priv;
 namespace fs = std::filesystem;
 
 TrackingDataDirectory::TrackingDataDirectory()
-	: StartFrame(0)
-	, EndFrame(0) {
+	: d_startFrame(0)
+	, d_endFrame(0) {
+}
+
+TrackingDataDirectory::TrackingDataDirectory(const std::filesystem::path & path,
+                                             uint64_t startFrame,
+                                             uint64_t endFrame,
+                                             const google::protobuf::Timestamp & startdate,
+                                             const google::protobuf::Timestamp & enddate)
+	: d_path(path)
+	, d_startFrame(startFrame)
+	, d_endFrame(endFrame)
+	, d_startDate(startdate)
+	, d_endDate(enddate) {
+}
+
+
+const std::filesystem::path &  TrackingDataDirectory::Path() const {
+	return d_path;
+}
+
+uint64_t TrackingDataDirectory::StartFrame() const {
+	return d_startFrame;
+}
+
+uint64_t TrackingDataDirectory::EndFrame() const {
+	return d_endFrame;
+}
+
+const google::protobuf::Timestamp & TrackingDataDirectory::StartDate() const {
+	return d_startDate;
+}
+
+const google::protobuf::Timestamp & TrackingDataDirectory::EndDate() const {
+	return d_endDate;
 }
 
 
@@ -45,9 +78,9 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 	try {
 		fort::hermes::FileContext beginning(hermesFiles.front());
 		beginning.Read(&ro);
-		tdd.StartFrame = ro.frameid();
-		tdd.StartDate.Clear();
-		tdd.StartDate.CheckTypeAndMergeFrom(ro.time());
+		tdd.d_startFrame = ro.frameid();
+		tdd.d_startDate.Clear();
+		tdd.d_startDate.CheckTypeAndMergeFrom(ro.time());
 	} catch ( const std::exception & e) {
 		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
 	}
@@ -56,8 +89,8 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		fort::hermes::FileContext ending(hermesFiles.back());
 		for (;;) {
 			ending.Read(&ro);
-			tdd.EndFrame = ro.frameid();
-			tdd.EndDate.CheckTypeAndMergeFrom(ro.time());
+			tdd.d_endFrame = ro.frameid();
+			tdd.d_endDate.CheckTypeAndMergeFrom(ro.time());
 		}
 
 	} catch ( const fort::hermes::EndOfFile &) {
@@ -66,7 +99,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
 
-	tdd.Path = fs::relative(path,base);
+	tdd.d_path = fs::relative(path,base);
 
 	return tdd;
 }

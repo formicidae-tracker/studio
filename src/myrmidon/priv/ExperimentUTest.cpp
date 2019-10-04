@@ -22,12 +22,11 @@ void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		TrackingDataDirectory tdd;
-		tdd.Path = "bar";
-		tdd.StartFrame = 9;
-		tdd.EndFrame = 11;
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&tdd.StartDate),true);
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:21.021-05:00",&tdd.EndDate),true);
+		google::protobuf::Timestamp start,end;
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&start),true);
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:21.021-05:00",&end),true);
+
+		TrackingDataDirectory tdd("bar",9,11,start,end);
 
 		e->AddTrackingDataDirectory(tdd);
 
@@ -48,11 +47,14 @@ TEST_F(ExperimentUTest,IOTest) {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		auto tdd = e->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
-		ASSERT_EQ(tdd["foo.0000"].Path,"foo.0000");
+		ASSERT_EQ(tdd["foo.0000"].Path(),"foo.0000");
 		ASSERT_EQ(e->Ants().size(),3);
 		EXPECT_EQ(e->Ants().find(1)->second->ID(),1);
 		EXPECT_EQ(e->Ants().find(2)->second->ID(),2);
 		EXPECT_EQ(e->Ants().find(3)->second->ID(),3);
+		EXPECT_EQ(e->AbsolutePath(),TestSetup::Basedir() / "test.myrmidon");
+		EXPECT_EQ(e->Basedir(), TestSetup::Basedir());
+
 		EXPECT_EQ(e->Name(),"myrmidon test data");
 		EXPECT_EQ(e->Author(),"myrmidon-tests");
 		EXPECT_EQ(e->Comment(),"automatically generated data");

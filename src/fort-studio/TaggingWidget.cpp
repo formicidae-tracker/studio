@@ -98,7 +98,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		if (d_indexers.count(p) != 0 ) {
 			continue;
 		}
-		auto indexer = std::make_shared<SnapshotIndexer>(tdd.Path,
+		auto indexer = std::make_shared<SnapshotIndexer>(tdd.Path(),
 		                                                 d_controller->experiment().Basedir(),
 		                                                 tf,
 		                                                 d_ui->thresholdBox->value());

@@ -13,9 +13,9 @@ namespace fmp = fort::myrmidon::priv;
 TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 	try {
 		auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-		ASSERT_EQ(tdd.Path,"foo.0001");
-		ASSERT_EQ(tdd.StartFrame,5);
-		ASSERT_EQ(tdd.EndFrame,8);
+		ASSERT_EQ(tdd.Path(),"foo.0001");
+		ASSERT_EQ(tdd.StartFrame(),5);
+		ASSERT_EQ(tdd.EndFrame(),8);
 
 	} catch( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();

@@ -24,11 +24,11 @@ TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
 
 	auto tdd = ProtobufReadWriter::LoadTrackingDataDirectory(pbTdd);
 
-	ASSERT_EQ(tdd.Path,"foo.0001");
-	ASSERT_EQ(tdd.StartFrame,5);
-	ASSERT_EQ(tdd.EndFrame,8);
-	ASSERT_EQ(tdd.StartDate,pbTdd.startdate());
-	ASSERT_EQ(tdd.EndDate,pbTdd.enddate());
+	ASSERT_EQ(tdd.Path(),"foo.0001");
+	ASSERT_EQ(tdd.StartFrame(),5);
+	ASSERT_EQ(tdd.EndFrame(),8);
+	ASSERT_EQ(tdd.StartDate(),pbTdd.startdate());
+	ASSERT_EQ(tdd.EndDate(),pbTdd.enddate());
 
 	EXPECT_NO_THROW({ProtobufReadWriter::SaveTrackingDataDirectory(encoded,tdd);});
 	ASSERT_EQ(google::protobuf::util::MessageDifferencer::Equals(encoded,pbTdd),true);

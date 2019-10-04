@@ -186,24 +186,22 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 }
 
 
-TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & tdd) {
-	TrackingDataDirectory res;
-	res.Path = fs::path(tdd.path(),fs::path::generic_format);
-	res.StartFrame = tdd.startframe();
-	res.EndFrame = tdd.endframe();
-	res.StartDate.CheckTypeAndMergeFrom(tdd.startdate());
-	res.EndDate.CheckTypeAndMergeFrom(tdd.enddate());
-	return res;
+TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb) {
+	return TrackingDataDirectory(pb.path(),
+	                             pb.startframe(),
+	                             pb.endframe(),
+	                             pb.startdate(),
+	                             pb.enddate());
 }
 
 void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
                                                    const TrackingDataDirectory & tdd) {
 	pb.Clear();
-	pb.set_path(tdd.Path.generic_string());
-	pb.set_startframe(tdd.StartFrame);
-	pb.set_endframe(tdd.EndFrame);
-	pb.mutable_startdate()->CheckTypeAndMergeFrom(tdd.StartDate);
-	pb.mutable_enddate()->CheckTypeAndMergeFrom(tdd.EndDate);
+	pb.set_path(tdd.Path().generic_string());
+	pb.set_startframe(tdd.StartFrame());
+	pb.set_endframe(tdd.EndFrame());
+	pb.mutable_startdate()->CheckTypeAndMergeFrom(tdd.StartDate());
+	pb.mutable_enddate()->CheckTypeAndMergeFrom(tdd.EndDate());
 }
 
 

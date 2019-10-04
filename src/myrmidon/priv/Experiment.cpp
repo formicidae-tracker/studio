@@ -11,11 +11,10 @@ using namespace fm::priv;
 
 Experiment::Experiment(const std::filesystem::path & filepath )
 	: d_absoluteFilepath(fs::weakly_canonical(filepath))
-	, d_basedir(d_absoluteFilepath)
+	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
 	, d_threshold(40)
 	, d_family(TagFamily::Unset) {
-	d_basedir.remove_filename();
 }
 
 Experiment::Ptr Experiment::Create(const std::filesystem::path & filename) {
@@ -39,10 +38,10 @@ Experiment::Ptr Experiment::Open(const std::filesystem::path & filepath) {
 }
 
 void Experiment::Save(const std::filesystem::path & filepath) const {
-	auto basedir = fs::weakly_canonical(d_absoluteFilepath);
-	auto newBasedir = fs::weakly_canonical(filepath);
+	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
+	auto newBasedir = fs::weakly_canonical(filepath).parent_path();
 	//TODO: should not be an error.
-	if ( basedir.remove_filename() != newBasedir.remove_filename() ) {
+	if ( basedir != newBasedir ) {
 		throw std::runtime_error("Changing experiment file directory is not yet supported");
 	}
 
@@ -50,8 +49,8 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.Path) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd.Path.string() + "' is already present");
+	if (d_dataDirs.count(toAdd.Path()) != 0 ) {
+		throw std::invalid_argument("directory '" + toAdd.Path().string() + "' is already present");
 	}
 
 	std::vector<std::string> sortedInTime;
@@ -61,7 +60,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 
 	std::sort(sortedInTime.begin(),sortedInTime.end(),
 	          [this](const std::string & a, const std::string & b) -> bool{
-		          return d_dataDirs[a].StartDate < d_dataDirs[b].StartDate;
+		          return d_dataDirs[a] < d_dataDirs[b];
 	          });
 
 	bool canInsert = d_dataDirs.size() == 0;
@@ -69,12 +68,12 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 	    iter != sortedInTime.cend();
 	    ++iter) {
 		auto const & tdd = d_dataDirs[*iter];
-		if ( toAdd.EndDate < tdd.StartDate ) {
+		if ( toAdd.EndDate() < tdd.StartDate() ) {
 			canInsert = true;
 			break;
 		}
 
-		if ( tdd.EndDate >= toAdd.StartDate ) {
+		if ( tdd.EndDate() >= toAdd.StartDate() ) {
 			continue;
 		}
 		auto next = iter+1;
@@ -84,17 +83,17 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		}
 		auto const & nextTdd = d_dataDirs[*next];
 
-		if ( toAdd.EndDate < nextTdd.StartDate ) {
+		if ( toAdd.EndDate() < nextTdd.StartDate() ) {
 			canInsert = true;
 			break;
 		}
 	}
 
 	if ( canInsert == false ) {
-		throw std::runtime_error("Data in '" + toAdd.Path.string() + "' overlaps in time with existing data");
+		throw std::runtime_error("Data in '" + toAdd.Path().string() + "' overlaps in time with existing data");
 	}
 
-	d_dataDirs[toAdd.Path] = toAdd;
+	d_dataDirs[toAdd.Path()] = toAdd;
 }
 
 void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
