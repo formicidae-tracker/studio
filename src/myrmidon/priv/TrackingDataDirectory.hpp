@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ForwardDeclaration.hpp"
+
 #include <filesystem>
 
 #include <google/protobuf/util/time_util.h>
@@ -32,7 +34,13 @@ public:
 	const google::protobuf::Timestamp & StartDate() const;
 	const google::protobuf::Timestamp & EndDate() const;
 
+	FramePointerPtr FramePointer(uint64_t frame);
+	FramePointerPtr FramePointer(const std::filesystem::path & path);
+
+
 	static TrackingDataDirectory Open(const std::filesystem::path & path, const std::filesystem::path & base);
+
+
 
 
 private:

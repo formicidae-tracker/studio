@@ -1,4 +1,5 @@
 #include "TrackingDataDirectory.hpp"
+#include "FramePointer.hpp"
 
 #include <fort-hermes/Error.h>
 #include <fort-hermes/FileContext.h>
@@ -21,6 +22,17 @@ TrackingDataDirectory::TrackingDataDirectory(const std::filesystem::path & path,
 	, d_endFrame(endFrame)
 	, d_startDate(startdate)
 	, d_endDate(enddate) {
+	if ( d_startFrame >= d_endFrame ) {
+		std::ostringstream os;
+		os << "TrackingDataDirectory: startFrame:" << d_startFrame << " >= endDate: " << d_endFrame;
+		throw std::invalid_argument(os.str());
+	}
+
+	if ( d_startDate >= d_endDate ) {
+		std::ostringstream os;
+		os << "TrackingDataDirectory: startDate:" << d_startDate << " >= endDate: " << d_endDate;
+		throw std::invalid_argument(os.str());
+	}
 }
 
 
@@ -54,7 +66,6 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		throw std::invalid_argument( path.string() + " is not a directory");
 	}
 
-	TrackingDataDirectory tdd;
 
 	std::vector<fs::path> hermesFiles;
 
@@ -72,15 +83,17 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
 	}
 
+	uint64_t start,end;
+	google::protobuf::Timestamp startDate,endDate;
+
 	std::sort(hermesFiles.begin(),hermesFiles.end());
 
 	fort::hermes::FrameReadout ro;
 	try {
 		fort::hermes::FileContext beginning(hermesFiles.front());
 		beginning.Read(&ro);
-		tdd.d_startFrame = ro.frameid();
-		tdd.d_startDate.Clear();
-		tdd.d_startDate.CheckTypeAndMergeFrom(ro.time());
+		start = ro.frameid();
+		startDate = ro.time();
 	} catch ( const std::exception & e) {
 		throw std::runtime_error("Could not extract first frame from " +  hermesFiles.front().string() + ": " + e.what());
 	}
@@ -89,8 +102,8 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		fort::hermes::FileContext ending(hermesFiles.back());
 		for (;;) {
 			ending.Read(&ro);
-			tdd.d_endFrame = ro.frameid();
-			tdd.d_endDate.CheckTypeAndMergeFrom(ro.time());
+			end = ro.frameid();
+			endDate = ro.time();
 		}
 
 	} catch ( const fort::hermes::EndOfFile &) {
@@ -99,7 +112,45 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
 
-	tdd.d_path = fs::relative(path,base);
 
-	return tdd;
+	return TrackingDataDirectory(fs::relative(path,base),
+	                             start,
+	                             end,
+	                             startDate,
+	                             endDate);
+}
+
+
+FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) {
+	if ( frame < d_startFrame || frame > d_endFrame ) {
+		std::ostringstream os;
+		os << frame << " is outside of range ["
+		   << d_startFrame << ";"
+		   << d_endFrame << "] for tracking data directory "
+		   << d_path;
+		throw std::out_of_range(os.str());
+	}
+	auto res = std::make_shared<fort::myrmidon::priv::FramePointer>();
+	res->Path = d_path;
+	res->PathStartDate = d_startDate;
+	res->Frame = frame;
+	return res;
+}
+
+FramePointer::Ptr TrackingDataDirectory::FramePointer(const std::filesystem::path & path) {
+	if (path.parent_path() != d_path ) {
+		std::ostringstream os;
+		os << "Path:" << path << " does not match tracking data directory path " << d_path;
+		throw std::invalid_argument(os.str());
+	}
+	std::istringstream iss(path.filename().generic_string());
+	uint64_t frame;
+	iss >> frame;
+	if ( !iss.good() ) {
+		std::ostringstream os;
+		os << "could not parse frame number in " << path;
+		throw std::invalid_argument(os.str());
+	}
+
+	return FramePointer(frame);
 }
