@@ -5,18 +5,9 @@
 #include "Ant.hpp"
 #include "FramePointer.hpp"
 
-#include <fcntl.h>
-
-#include "../utils/PosixCall.h"
-
-#include <google/protobuf/util/delimited_message_util.h>
-#include <google/protobuf/io/gzip_stream.h>
-
 #include "Experiment.pb.h"
 
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
+#include "../utils/ProtobufFileReadWriter.hpp"
 
 using namespace fort::myrmidon::priv;
 
@@ -27,77 +18,42 @@ ProtobufReadWriter::ProtobufReadWriter() {}
 ProtobufReadWriter::~ProtobufReadWriter() {}
 
 Experiment::Ptr ProtobufReadWriter::DoOpen(const std::filesystem::path & filename) {
+	typedef fm::utils::ProtobufFileReadWriter<fm::pb::FileHeader,fm::pb::FileLine> ReadWriter;
 	auto res = Experiment::Create(filename);
-	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
-	if ( fd  < 0 ) {
-		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filename.string() + "',O_RDONLY | O_BINARY)");
-	}
+	ReadWriter::Read(filename,
+	                 [filename](const fm::pb::FileHeader & h) {
+		                 if (h.majorversion() != 0 || h.minorversion() != 1 ) {
+			                 std::ostringstream os;
+			                 os << "unexpected version " << h.majorversion() << "." << h.minorversion()
+			                    << " in " << filename
+			                    << " can only works with 0.1";
+			                 throw std::runtime_error(os.str());
+		                 }
+	                 },
+	                 [&res](const fm::pb::FileLine & line) {
+		                 if (line.has_experiment() == true ) {
+			                 LoadExperiment(*res, line.experiment());
+		                 }
 
-	auto file = std::make_shared<google::protobuf::io::FileInputStream>(fd);
-	file->SetCloseOnDelete(true);
-	auto gunziped = std::make_shared<google::protobuf::io::GzipInputStream>(file.get());
-
-
-	fort::myrmidon::pb::FileHeader h;
-	bool cleanEOF = false;
-	if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&h, gunziped.get(),&cleanEOF) ) {
-		throw std::runtime_error("could not parse header message in '" + filename.string() + "'");
-	}
-
-	if (h.majorversion() != 0 || h.minorversion() != 1 ) {
-		std::ostringstream os;
-		os << "unexpected version " << h.majorversion() << "." << h.minorversion()
-		   << " in " << filename
-		   << " can only works with 0.1";
-		throw std::runtime_error(os.str());
-	}
-	fort::myrmidon::pb::FileLine line;
-
-	for (;;) {
-		line.Clear();
-		if (!google::protobuf::util::ParseDelimitedFromZeroCopyStream(&line, gunziped.get(), &cleanEOF) ) {
-			if ( cleanEOF == true ) {
-				break ;
-			}
-			throw std::runtime_error("Could not read file line");
-		}
-
-		if (line.has_experiment() == true ) {
-			LoadExperiment(*res, line.experiment());
-		}
-
-		if (line.has_antdata() == true ) {
-			LoadAnt(*res, line.antdata());
-		}
-	}
+		                 if (line.has_antdata() == true ) {
+			                 LoadAnt(*res, line.antdata());
+		                 }
+	                 });
 	return res;
-};
+}
 
 
 void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesystem::path & filepath) {
-	int fd =  open(filepath.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
-	if ( fd  < 0 ) {
-		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filepath.string() + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
-	}
-
-	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
-	file->SetCloseOnDelete(true);
-	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
-
+	typedef fm::utils::ProtobufFileReadWriter<fm::pb::FileHeader,fm::pb::FileLine> ReadWriter;
 	fort::myrmidon::pb::FileHeader h;
 	h.set_majorversion(0);
 	h.set_minorversion(1);
 
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(h, gunziped.get()) ) {
-		throw std::runtime_error("could not write header message");
-	}
+	std::vector<std::function < void ( fm::pb::FileLine &) > > lines;
 
-	fort::myrmidon::pb::FileLine line;
-
-	SaveExperiment(*(line.mutable_experiment()),experiment);
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
-		throw std::runtime_error("could not write experiment data");
-	}
+	lines.push_back([experiment](fm::pb::FileLine & line) {
+		                SaveExperiment(*(line.mutable_experiment()),experiment);
+	                });
 
 	std::vector<fort::myrmidon::Ant::ID> antIDs;
 	for (const auto & [ID,a] : experiment.Ants() ) {
@@ -109,14 +65,12 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesy
 	                                      });
 
 	for (const auto & ID : antIDs) {
-		line.Clear();
-		SaveAnt(*(line.mutable_antdata()),*(experiment.Ants().find(ID)->second));
-
-		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(line, gunziped.get()) ) {
-			throw std::runtime_error("could not write ant metadata");
-		}
+		lines.push_back([experiment,ID](fm::pb::FileLine & line) {
+			                SaveAnt(*(line.mutable_antdata()),*(experiment.Ants().find(ID)->second));
+		                });
 	}
 
+	ReadWriter::Write(filepath,h,lines);
 }
 
 

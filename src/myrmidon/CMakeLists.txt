@@ -42,7 +42,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/FramePointer.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
-                      priv/ProtobufExperimentReadWriter.hpp)
+                      priv/ProtobufExperimentReadWriter.hpp
+                      utils/ProtobufFileReadWriter.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -59,7 +60,8 @@ set(SRC_FILES Frame.cpp
 	          priv/FramePointer.cpp
 	          priv/DeletedReference.cpp
 	          priv/ExperimentReadWriter.cpp
-	          priv/ProtobufExperimentReadWriter.cpp)
+	          priv/ProtobufExperimentReadWriter.cpp
+	          utils/ProtobufFileReadWriter.cpp)
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp
