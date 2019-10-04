@@ -172,7 +172,7 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 		d_snapshots[s->Path().generic_string()] = s;
 		auto tagWidget = d_tags[s->TagValue()];
 		auto frameWidget = new QTreeWidgetItem(tagWidget);
-		frameWidget->setData(0,Qt::DisplayRole,(int)s->Frame());
+		frameWidget->setData(0,Qt::DisplayRole,s->Path().parent_path().generic_string().c_str());
 		frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
 	}
 }
