@@ -21,43 +21,6 @@ std::filesystem::path Snapshot::ImagePath() const {
 	return d_frame->Path / d_relativeImagePath;
 }
 
-// void Snapshot::Encode(fort::myrmidon::pb::Snapshot & pb) const {
-// 	pb.Clear();
-// 	pb.set_path(std::filesystem::relative(d_relativeImagePath,d_basedir).generic_string());
-// 	pb.set_tagvalue(d_value);
-// 	pb.set_frame(d_frame);
-// 	auto pos = pb.mutable_position();
-// 	pos->set_x(d_position.x());
-// 	pos->set_y(d_position.y());
-// 	pb.set_angle(d_position.z());
-
-// 	for ( const auto & c : d_corners ) {
-// 		auto cpb = pb.add_corner();
-// 		cpb->set_x(c.x());
-// 		cpb->set_y(c.y());
-// 	}
-// }
-
-// Snapshot::ConstPtr Snapshot::FromSaved(const fort::myrmidon::pb::Snapshot & pb, const std::filesystem::path & basedir) {
-// 	auto res = std::make_shared<Snapshot>();
-// 	res->d_frame = pb.frame();
-// 	res->d_relativeImagePath = pb.path();
-// 	res->d_basedir = basedir;
-// 	res->d_value = pb.tagvalue();
-// 	res->d_position <<
-// 		pb.position().x(),
-// 		pb.position().y(),
-// 		pb.angle();
-// 	if ( pb.corner_size() != 4 ) {
-// 		throw std::runtime_error(pb.DebugString() + " does not have 4 corners");
-// 	}
-
-// 	for ( const auto & cpb : pb.corner() ) {
-// 		res->d_corners.push_back(Eigen::Vector2d(cpb.x(),cpb.y()));
-// 	}
-// 	return res;
-// }
-
 double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 
 	Eigen::Vector2d c0(q->p[0][0],q->p[0][1]);
@@ -70,7 +33,6 @@ double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 
 	return atan2(delta.y(),delta.x());
 }
-
 
 Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
                                           const std::filesystem::path & relativeImagePath,
@@ -92,8 +54,8 @@ Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
 
 std::filesystem::path Snapshot::Path() const {
 	std::ostringstream os;
-	os << d_frame << "/" << d_value;
-	return d_frame->Path / os.str();
+	os << d_value;
+	return d_frame->FullPath() / os.str();
 }
 
 fort::myrmidon::priv::FramePointer::Ptr Snapshot::Frame() const {
