@@ -6,6 +6,8 @@
 
 #include "../Ant.hpp"
 
+#include "ForwardDeclaration.hpp"
+
 namespace fort {
 
 namespace myrmidon {
@@ -15,18 +17,6 @@ class AntMetadata;
 }
 
 namespace priv {
-
-class Ant;
-typedef std::shared_ptr<Ant> AntPtr;
-
-typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
-
-class Identification;
-typedef std::shared_ptr<Identification> IdentificationPtr;
-typedef std::vector<IdentificationPtr> IdentificationList;
-
-class FramePointer;
-typedef std::shared_ptr<FramePointer> FramePointerPtr;
 
 class Identifier {
 public:

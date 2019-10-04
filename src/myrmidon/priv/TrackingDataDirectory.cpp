@@ -121,7 +121,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 }
 
 
-FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) {
+FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) const {
 	if ( frame < d_startFrame || frame > d_endFrame ) {
 		std::ostringstream os;
 		os << frame << " is outside of range ["
@@ -137,7 +137,7 @@ FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) {
 	return res;
 }
 
-FramePointer::Ptr TrackingDataDirectory::FramePointer(const std::filesystem::path & path) {
+FramePointer::Ptr TrackingDataDirectory::FramePointer(const std::filesystem::path & path) const {
 	if (path.parent_path() != d_path ) {
 		std::ostringstream os;
 		os << "Path:" << path << " does not match tracking data directory path " << d_path;

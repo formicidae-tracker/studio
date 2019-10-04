@@ -34,8 +34,8 @@ public:
 	const google::protobuf::Timestamp & StartDate() const;
 	const google::protobuf::Timestamp & EndDate() const;
 
-	FramePointerPtr FramePointer(uint64_t frame);
-	FramePointerPtr FramePointer(const std::filesystem::path & path);
+	FramePointerPtr FramePointer(uint64_t frame) const;
+	FramePointerPtr FramePointer(const std::filesystem::path & path) const;
 
 
 	static TrackingDataDirectory Open(const std::filesystem::path & path, const std::filesystem::path & base);

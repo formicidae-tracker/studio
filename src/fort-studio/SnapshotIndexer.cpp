@@ -18,16 +18,17 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QImage>
 
+#include <myrmidon/priv/FramePointer.hpp>
 
 
-SnapshotIndexer::SnapshotIndexer(const std::filesystem::path & datadir,
+SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
                                  const std::filesystem::path & basedir,
                                  fort::myrmidon::priv::Experiment::TagFamily family,
                                  uint8_t threshold,
                                  QObject * parent)
 	: QObject(parent)
+	, d_tdd(tdd)
 	, d_basedir(basedir)
-	, d_datadir(datadir)
 	, d_familyValue(family) {
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
@@ -79,7 +80,7 @@ SnapshotIndexer::~SnapshotIndexer() {
 }
 
 void SnapshotIndexer::Process(ImageToProcess & tp) {
-	auto path = tp.Basedir / tp.Datadir / tp.Path;
+	auto path = tp.Basedir / tp.Frame->Path / tp.RelativeImagePath;
 	QImage image(path.c_str());
 	if ( image.format() != QImage::Format_Grayscale8 ) {
 		image = image.convertToFormat(QImage::Format_Grayscale8);
@@ -101,41 +102,43 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 		if ( tp.Filter != NULL && d->id != *(tp.Filter) ) {
 			continue;
 		}
-		tp.Results.push_back(Snapshot::FromApriltag(d,tp.Path,
-		                                            tp.Datadir,
+		tp.Results.push_back(Snapshot::FromApriltag(d,
+		                                            tp.RelativeImagePath,
 		                                            tp.Frame));
 	}
 }
 
 size_t SnapshotIndexer::start() {
-	for ( const auto & de : std::filesystem::directory_iterator(d_basedir / d_datadir / "ants" ) ) {
+	for ( const auto & de : std::filesystem::directory_iterator(d_basedir / d_tdd.Path() / "ants" ) ) {
 		auto ext = de.path().extension().string();
 		std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return std::tolower(c);});
 		if ( ext != ".png" ) {
 			continue;
 		}
 		ImageToProcess toProcess = {.Basedir = d_basedir,
-		                            .Datadir = d_datadir,
-		                            .Path = std::filesystem::relative(de.path(),d_basedir/d_datadir),
+		                            .RelativeImagePath = std::filesystem::relative(de.path(),d_basedir/d_tdd.Path()),
 		                            .Filter = NULL,
 		};
 		std::regex filtered("ant_([0-9]+)_frame_([0-9]+).png");
 		std::smatch ID;
 		std::string filename = de.path().filename().string();
+		uint64_t frameNumber;
 		if(std::regex_search(filename,ID,filtered) && ID.size() > 2) {
 			std::istringstream IDS(ID.str(1));
 			std::istringstream FrameS(ID.str(2));
 
 			toProcess.Filter = new uint32_t(0);
 			IDS >> *(toProcess.Filter);
-			FrameS >> toProcess.Frame;
+			FrameS >> frameNumber;
+			toProcess.Frame = d_tdd.FramePointer(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}
 		filtered =  std::regex("frame_([0-9]+).png");
 		if(std::regex_search(filename,ID,filtered) && ID.size() > 1) {
 			std::istringstream FrameS(ID.str(1));
-			FrameS >> toProcess.Frame;
+			FrameS >> frameNumber;
+			toProcess.Frame = d_tdd.FramePointer(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}

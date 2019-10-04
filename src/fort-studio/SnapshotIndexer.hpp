@@ -13,7 +13,7 @@
 class SnapshotIndexer : public QObject {
 	Q_OBJECT
 public:
-	SnapshotIndexer(const std::filesystem::path & datadir,
+	SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
 	                const std::filesystem::path & basedir,
 	                fort::myrmidon::priv::Experiment::TagFamily family,
 	                uint8_t threshold,
@@ -29,16 +29,16 @@ signals:
 
 private:
 	struct ImageToProcess {
-		std::filesystem::path Basedir,Datadir,Path;
-		uint64_t Frame;
+		std::filesystem::path Basedir,RelativeImagePath;
+		fort::myrmidon::priv::FramePointerPtr Frame;
 		uint32_t * Filter;
 		QVector<Snapshot::ConstPtr> Results;
 	};
 
 	void Process(ImageToProcess & tp);
 
+	fort::myrmidon::priv::TrackingDataDirectory d_tdd;
 	std::filesystem::path d_basedir;
-	std::filesystem::path d_datadir;
 
 	fort::myrmidon::priv::Experiment::TagFamily d_familyValue;
 
