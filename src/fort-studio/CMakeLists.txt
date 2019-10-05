@@ -6,7 +6,8 @@ set(SRC_FILES main.cpp
               ExperimentInfoWidget.cpp
               TaggingWidget.cpp
               Snapshot.cpp
-              SnapshotIndexer.cpp)
+              SnapshotIndexer.cpp
+              AntPoseEstimate.cpp)
 
 set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
@@ -15,7 +16,8 @@ set(HDR_FILES MainWindow.hpp
               ExperimentInfoWidget.hpp
               TaggingWidget.hpp
               Snapshot.hpp
-              SnapshotIndexer.hpp)
+              SnapshotIndexer.hpp
+              AntPoseEstimate.hpp)
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui
