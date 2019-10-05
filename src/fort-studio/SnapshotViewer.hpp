@@ -3,6 +3,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsItemGroup>
 
 #include "Snapshot.hpp"
 #include "AntPoseEstimate.hpp"
@@ -47,19 +48,19 @@ private:
 	};
 
 
-	class PositionMarker : public QGraphicsEllipseItem {
+	class PositionMarker : public QGraphicsItemGroup {
 	public:
 		PositionMarker(qreal x, qreal y,
 		               SnapshotViewer & viewer,
 		               QGraphicsItem * parent = NULL);
 		virtual ~PositionMarker();
-
+		const static int MARKER_SIZE;
+		const static QColor COLOR;
 	protected:
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
 		void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
 
 	private:
-		const static int MARKER_SIZE = 11;
 
 		SnapshotViewer & d_viewer;
 	};
@@ -69,6 +70,8 @@ private:
 
 	void setImageBackground();
 	void setImageCorner();
+
+	void updateLine();
 
 	QGraphicsScene     d_scene;
 
@@ -90,5 +93,6 @@ private:
 
 	AntPoseEstimate::Ptr  d_poseEstimate;
 	PositionMarker      * d_head, * d_tail;
-
+	QGraphicsLineItem   * d_estimateLine;
+	std::shared_ptr<QPointF> d_estimateOrig;
 };

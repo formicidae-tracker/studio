@@ -3,6 +3,7 @@
 #include <QGraphicsPixmapItem>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsPathItem>
 
 SnapshotViewer::SnapshotViewer(QWidget *parent)
 	: QGraphicsView(parent)
@@ -43,6 +44,15 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 
 
 	displaySnapshot(Snapshot::ConstPtr());
+
+	d_estimateLine = new QGraphicsLineItem(0,0,0,0);
+	d_estimateLine->setVisible(false);
+	QPen linePen(PositionMarker::COLOR);
+	linePen.setWidth(3);
+	d_estimateLine->setPen(linePen);
+	d_estimateLine->setZValue(3);
+	d_scene.addItem(d_estimateLine);
+
 }
 
 SnapshotViewer::~SnapshotViewer() {
@@ -164,51 +174,104 @@ SnapshotViewer::BackgroundPixmap::~BackgroundPixmap() {}
 
 
 void SnapshotViewer::BackgroundPixmap::mousePressEvent(QGraphicsSceneMouseEvent * e) {
-	//todo start line drawing
-
-	if ( d_viewer.d_head->isVisible() == false ) {
-		d_viewer.d_head->setVisible(true);
-		d_viewer.d_head->setEnabled(true);
-		d_viewer.d_head->setPos(e->scenePos());
+	if ( d_viewer.d_head->isVisible() == true ) {
 		return;
 	}
-	if ( d_viewer.d_tail->isVisible() == false ) {
-		d_viewer.d_tail->setVisible(true);
-		d_viewer.d_tail->setEnabled(true);
-		d_viewer.d_tail->setPos(e->scenePos());
-		return;
-	}
-}
 
-void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
-	//todo finish line drawing
+	d_viewer.d_head->setVisible(true);
+	d_viewer.d_head->setEnabled(true);
+	d_viewer.d_head->setPos(e->scenePos());
+
+	d_viewer.d_tail->setVisible(true);
+	d_viewer.d_tail->setEnabled(true);
+	d_viewer.d_tail->setPos(e->scenePos());
+
+	d_viewer.d_estimateOrig = std::make_shared<QPointF>(e->scenePos());
 }
 
 void SnapshotViewer::BackgroundPixmap::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_viewer.d_estimateOrig ) {
+		return;
+	}
+
+	d_viewer.d_tail->setPos(e->scenePos());
+
+	d_viewer.updateLine();
+	//todo finish line drawing
+}
+
+void SnapshotViewer::updateLine() {
+
+	Eigen::Vector2d head(d_head->pos().x(),d_head->pos().y());
+	Eigen::Vector2d tail(d_tail->pos().x(),d_tail->pos().y());
+	Eigen::Vector2d diff = head - tail;
+	double angle = 180.0 / M_PI * std::atan2(diff.y(),diff.x());
+	d_tail->setRotation(angle);
+	d_head->setRotation(angle);
+
+
+	if (diff.norm() < (PositionMarker::MARKER_SIZE * 2) ) {
+		d_estimateLine->setVisible(false);
+		return;
+	}
+
+	diff.normalize();
+	d_estimateLine->setVisible(true);
+	Eigen::Vector2d start = head - (PositionMarker::MARKER_SIZE * diff);
+	Eigen::Vector2d end = tail + (PositionMarker::MARKER_SIZE * diff);
+
+	d_estimateLine->setLine(start.x(),start.y(),end.x(),end.y());
+
+
+
+}
+
+
+
+void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	d_viewer.d_estimateOrig.reset();
 	//todo update line drawing
 }
 
 
+const  QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
+const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
 SnapshotViewer::PositionMarker::PositionMarker(qreal x, qreal y,
                                                SnapshotViewer & viewer,
                                                QGraphicsItem * parent)
-	: QGraphicsEllipseItem(QRect(-(MARKER_SIZE-1)/2,
-	                             -(MARKER_SIZE-1)/2,
-	                             MARKER_SIZE,
-	                             MARKER_SIZE),
-	                       parent)
+	: QGraphicsItemGroup(parent)
 	, d_viewer(viewer) {
+
 	setPos(x,y);
 	setFlags(QGraphicsItem::ItemIsMovable);
 
-	static QPen markerPen(QColor(10,150,255,150));
-	markerPen.setWidth(2);
-	static QBrush markerBrush(QColor(10,150,255,40));
-	setPen(markerPen);
-	setBrush(markerBrush);
+	QPen markerPen(COLOR);
+	markerPen.setWidth(3);
+	QBrush markerBrush(QColor(10,150,255,40));
 
-	auto center = new QGraphicsEllipseItem(QRect(0,0,1,1),this);
-	center->setPen(markerPen);
+	QPainterPath path;
+	path.moveTo(MARKER_SIZE,0);
+	path.lineTo(0,-MARKER_SIZE);
+	path.arcTo(QRect(-MARKER_SIZE,-MARKER_SIZE,2*MARKER_SIZE,2*MARKER_SIZE),90.0,180.0);
+	path.closeSubpath();
+
+	auto pathItem = new QGraphicsPathItem(path,this);
+	pathItem->setPen(markerPen);
+	pathItem->setBrush(markerBrush);
+
+
+	auto center = new QGraphicsEllipseItem(QRect(-2,-2,4,4),this);
+	QPen centerPen(COLOR);
+	centerPen.setWidth(2);
+	center->setPen(centerPen);
+
+
+	QPen highlightPen(QColor(255,255,255));
+	highlightPen.setWidth(1);
+
+	auto pathHighlight = new QGraphicsPathItem(path,this);
+	pathHighlight->setPen(highlightPen);
+
 
 }
 
@@ -216,17 +279,14 @@ SnapshotViewer::PositionMarker::~PositionMarker() {
 }
 
 
-void SnapshotViewer::PositionMarker::mousePressEvent(QGraphicsSceneMouseEvent * e) {
-	QGraphicsEllipseItem::mousePressEvent(e);
-}
-
 void SnapshotViewer::PositionMarker::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
-	QGraphicsEllipseItem::mouseReleaseEvent(e);
+	QGraphicsItemGroup::mouseReleaseEvent(e);
 	//todo update line
 
 }
 
 void SnapshotViewer::PositionMarker::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
-	QGraphicsEllipseItem::mouseMoveEvent(e);
+	QGraphicsItemGroup::mouseMoveEvent(e);
 	//todo update poseEstimate
+	d_viewer.updateLine();
 }
