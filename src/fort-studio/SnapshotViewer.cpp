@@ -78,6 +78,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 	}
 
 	setImageBackground();
+	setAntPoseEstimate(AntPoseEstimate::Ptr());
 }
 
 
@@ -174,7 +175,7 @@ SnapshotViewer::BackgroundPixmap::~BackgroundPixmap() {}
 
 
 void SnapshotViewer::BackgroundPixmap::mousePressEvent(QGraphicsSceneMouseEvent * e) {
-	if ( d_viewer.d_head->isVisible() == true ) {
+	if ( d_viewer.d_poseEstimate ) {
 		return;
 	}
 
@@ -199,6 +200,13 @@ void SnapshotViewer::BackgroundPixmap::mouseMoveEvent(QGraphicsSceneMouseEvent *
 	d_viewer.updateLine();
 	//todo finish line drawing
 }
+
+void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	d_viewer.d_estimateOrig.reset();
+	d_viewer.emitNewPoseEstimate();
+}
+
+
 
 void SnapshotViewer::updateLine() {
 
@@ -225,14 +233,6 @@ void SnapshotViewer::updateLine() {
 
 
 }
-
-
-
-void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
-	d_viewer.d_estimateOrig.reset();
-	//todo update line drawing
-}
-
 
 const  QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
 const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
@@ -281,7 +281,7 @@ SnapshotViewer::PositionMarker::~PositionMarker() {
 
 void SnapshotViewer::PositionMarker::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
 	QGraphicsItemGroup::mouseReleaseEvent(e);
-	//todo update line
+	d_viewer.emitNewPoseEstimate();
 
 }
 
@@ -289,4 +289,49 @@ void SnapshotViewer::PositionMarker::mouseMoveEvent(QGraphicsSceneMouseEvent * e
 	QGraphicsItemGroup::mouseMoveEvent(e);
 	//todo update poseEstimate
 	d_viewer.updateLine();
+}
+
+
+void SnapshotViewer::setAntPoseEstimate(const AntPoseEstimate::Ptr & estimate) {
+	if ( !d_snapshot ||  estimate->Path() != d_snapshot->Path() ) {
+		return;
+	}
+
+	d_poseEstimate = estimate;
+	if (!d_poseEstimate) {
+		d_head->setVisible(false);
+		d_tail->setVisible(true);
+	}
+	d_head->setPos(estimate->Head().x(),
+	               estimate->Head().y());
+	d_tail->setPos(estimate->Tail().x(),
+	               estimate->Tail().y());
+	d_head->setVisible(true);
+	d_tail->setVisible(true);
+
+}
+
+
+void SnapshotViewer::emitNewPoseEstimate() {
+	if (!d_snapshot) {
+		return;
+	}
+	Eigen::Vector2d head(d_head->pos().x(),
+	                     d_head->pos().y());
+	Eigen::Vector2d tail(d_tail->pos().x(),
+	                     d_tail->pos().y());
+
+	if (!d_poseEstimate) {
+		d_poseEstimate = std::make_shared<AntPoseEstimate>(head,
+		                                                   tail,
+		                                                   d_snapshot->Frame(),
+		                                                   d_snapshot->TagValue());
+	} else {
+		d_poseEstimate->SetHead(head);
+		d_poseEstimate->SetHead(tail);
+
+	}
+
+	emit antPoseEstimateUpdated(d_poseEstimate);
+
 }

@@ -25,7 +25,7 @@ public:
 public slots:
 	void displaySnapshot(const Snapshot::ConstPtr & s);
 	void setRoiSize(size_t);
-
+	void setAntPoseEstimate(const AntPoseEstimate::Ptr & s);
 
 signals:
 	void antPoseEstimateUpdated(const AntPoseEstimate::Ptr & estimate);
@@ -72,7 +72,7 @@ private:
 	void setImageCorner();
 
 	void updateLine();
-
+	void emitNewPoseEstimate();
 	QGraphicsScene     d_scene;
 
 	std::filesystem::path d_basedir;
