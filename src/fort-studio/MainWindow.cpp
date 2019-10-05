@@ -200,6 +200,11 @@ Error MainWindow::maybeSave() {
 
 
 void MainWindow::closeEvent(QCloseEvent *e) {
+	QSettings settings;
+	settings.setValue("window/geometry",saveGeometry());
+	settings.setValue("window/state",saveState());
+
+
 	Error err = maybeSave();
 
 	if ( err.OK() ) {
@@ -225,6 +230,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	default:
 		e->ignore();
 	}
+
+
 }
 
 void MainWindow::pushRecent() {
@@ -272,6 +279,8 @@ void MainWindow::loadSettings() {
 		d_recentPaths.push_back(data);
 	}
 	rebuildRecentsFiles();
+	restoreGeometry(settings.value("window/geometry").toByteArray());
+	restoreState(settings.value("window/state").toByteArray());
 }
 
 void MainWindow::rebuildRecentsFiles() {

@@ -2,7 +2,7 @@
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
-
+#include <QGraphicsPixmapItem>
 
 #include "Snapshot.hpp"
 #include "AntPoseEstimate.hpp"
@@ -31,6 +31,42 @@ signals:
 	void roiSizeChanged(size_t);
 
 private:
+	class BackgroundPixmap : public QGraphicsPixmapItem {
+	public:
+		BackgroundPixmap(const QPixmap & pixmap,
+		                 SnapshotViewer & viewer,
+		                 QGraphicsItem * parent = NULL);
+		virtual ~BackgroundPixmap();
+
+	protected:
+		void mousePressEvent(QGraphicsSceneMouseEvent * e) override;
+		void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
+		void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
+	private :
+		SnapshotViewer & d_viewer;
+	};
+
+
+	class PositionMarker : public QGraphicsEllipseItem {
+	public:
+		PositionMarker(qreal x, qreal y,
+		               SnapshotViewer & viewer,
+		               QGraphicsItem * parent = NULL);
+		virtual ~PositionMarker();
+
+	protected:
+		void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
+		void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
+
+	private:
+		const static int MARKER_SIZE = 11;
+
+		SnapshotViewer & d_viewer;
+	};
+
+	const static int TAG_CORNER_POINT_SIZE = 3;
+	const static int TAG_LINE_SIZE = 2;
+
 	void setImageBackground();
 	void setImageCorner();
 
@@ -45,14 +81,14 @@ private:
 	Snapshot::ConstPtr    d_snapshot;
 	QImage                d_image;
 	QPixmap               d_pixmap;
-	QGraphicsPixmapItem * d_pixmapItem;
+	BackgroundPixmap *    d_background;
 	QPen                  d_tagCornerPen,d_tagLinePen;
 	QBrush                d_tagCornerBrush;
 
 	QGraphicsRectItem *   d_tagCorners[4];
 	QGraphicsLineItem *   d_tagLines[4];
 
+	AntPoseEstimate::Ptr  d_poseEstimate;
+	PositionMarker      * d_head, * d_tail;
 
-	const static size_t TAG_CORNER_POINT_SIZE = 3;
-	const static size_t TAG_LINE_SIZE = 2;
 };

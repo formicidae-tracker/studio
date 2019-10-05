@@ -1,11 +1,13 @@
 #include "SnapshotViewer.hpp"
 
 #include <QGraphicsPixmapItem>
+#include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 
 SnapshotViewer::SnapshotViewer(QWidget *parent)
 	: QGraphicsView(parent)
-	, d_roiSize(400)
-	, d_pixmapItem(NULL) {
+	, d_roiSize(500)
+	, d_background(NULL) {
 	d_tagCornerBrush = QBrush(QColor(50,50,50));
 	d_tagCornerPen = QPen(QColor(255,255,255));
 	d_tagCornerPen.setWidth(1);
@@ -27,6 +29,19 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 
 	setScene(&d_scene);
 	setRoiSize(d_roiSize);
+
+	d_head = new PositionMarker(10.1,17.3,*this);
+	d_tail = new PositionMarker(42.0,38.1,*this);
+	d_head->setZValue(4);
+	d_tail->setZValue(5);
+	d_scene.addItem(d_head);
+	d_scene.addItem(d_tail);
+	d_head->setVisible(false);
+	d_head->setEnabled(false);
+	d_tail->setVisible(false);
+	d_tail->setEnabled(false);
+
+
 	displaySnapshot(Snapshot::ConstPtr());
 }
 
@@ -92,15 +107,15 @@ void SnapshotViewer::setImageBackground() {
 
 	d_pixmap.convertFromImage(d_image.copy(d_roi),Qt::ColorOnly);
 
-	if ( d_pixmapItem != NULL ) {
-		d_scene.removeItem(d_pixmapItem);
-		delete d_pixmapItem;
+	if ( d_background != NULL ) {
+		d_scene.removeItem(d_background);
+		delete d_background;
 	}
 
-	d_pixmapItem = d_scene.addPixmap(d_pixmap);
+	d_background = new BackgroundPixmap(d_pixmap,*this);
+	d_scene.addItem(d_background);
 
-	d_pixmapItem->setEnabled(false);
-	d_pixmapItem->setZValue(0);
+	d_background->setZValue(0);
 	setImageCorner();
 
 }
@@ -137,4 +152,81 @@ void SnapshotViewer::setImageCorner() {
 
 	}
 
+}
+
+SnapshotViewer::BackgroundPixmap::BackgroundPixmap(const QPixmap & pixmap,SnapshotViewer & viewer,QGraphicsItem * parent)
+	: QGraphicsPixmapItem(pixmap,parent)
+	, d_viewer(viewer) {
+
+}
+
+SnapshotViewer::BackgroundPixmap::~BackgroundPixmap() {}
+
+
+void SnapshotViewer::BackgroundPixmap::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	//todo start line drawing
+
+	if ( d_viewer.d_head->isVisible() == false ) {
+		d_viewer.d_head->setVisible(true);
+		d_viewer.d_head->setEnabled(true);
+		d_viewer.d_head->setPos(e->scenePos());
+		return;
+	}
+	if ( d_viewer.d_tail->isVisible() == false ) {
+		d_viewer.d_tail->setVisible(true);
+		d_viewer.d_tail->setEnabled(true);
+		d_viewer.d_tail->setPos(e->scenePos());
+		return;
+	}
+}
+
+void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	//todo finish line drawing
+}
+
+void SnapshotViewer::BackgroundPixmap::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	//todo update line drawing
+}
+
+
+SnapshotViewer::PositionMarker::PositionMarker(qreal x, qreal y,
+                                               SnapshotViewer & viewer,
+                                               QGraphicsItem * parent)
+	: QGraphicsEllipseItem(QRect(-(MARKER_SIZE-1)/2,
+	                             -(MARKER_SIZE-1)/2,
+	                             MARKER_SIZE,
+	                             MARKER_SIZE),
+	                       parent)
+	, d_viewer(viewer) {
+	setPos(x,y);
+	setFlags(QGraphicsItem::ItemIsMovable);
+
+	static QPen markerPen(QColor(10,150,255,150));
+	markerPen.setWidth(2);
+	static QBrush markerBrush(QColor(10,150,255,40));
+	setPen(markerPen);
+	setBrush(markerBrush);
+
+	auto center = new QGraphicsEllipseItem(QRect(0,0,1,1),this);
+	center->setPen(markerPen);
+
+}
+
+SnapshotViewer::PositionMarker::~PositionMarker() {
+}
+
+
+void SnapshotViewer::PositionMarker::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsEllipseItem::mousePressEvent(e);
+}
+
+void SnapshotViewer::PositionMarker::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsEllipseItem::mouseReleaseEvent(e);
+	//todo update line
+
+}
+
+void SnapshotViewer::PositionMarker::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsEllipseItem::mouseMoveEvent(e);
+	//todo update poseEstimate
 }
