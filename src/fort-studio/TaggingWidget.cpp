@@ -28,10 +28,6 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->tagList->sortByColumn(0,Qt::AscendingOrder);
     d_ui->tagList->setSortingEnabled(true);
 
-    d_ui->imageLabel->setBackgroundRole(QPalette::Base);
-    d_ui->imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    // d_ui->imageLabel->setScaledContents(true);
-
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -58,7 +54,7 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 		d_ui->snapshotProgress->setValue(0);
 		return;
 	}
-
+	d_ui->snapshotViewer->setBasedir(d_controller->experiment().Basedir());
 	connect(d_controller,SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
 	        this,
 	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)));
@@ -189,70 +185,6 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 		return;
 	}
 	auto s = fi->second;
-
-	auto imagePath = d_controller->experiment().Basedir() / s->ImagePath();
-	QImage image(imagePath.c_str());
-
-	if( image.format() != QImage::Format_RGB888 ) {
-		image = image.convertToFormat(QImage::Format_RGB888);
-	}
-	int roiSize = std::min(600,std::min(image.width(),image.height()));
-	QRect roi(s->TagPosition().x() - roiSize/2,
-	          s->TagPosition().y() - roiSize/2,
-	          roiSize,roiSize);
-
-	if (roi.x() < 0 ) {
-		roi.setX(0);
-	}
-	if ( roi.x() + roi.width() > image.width() ) {
-		roi.setX(std::max(0,image.width() - roiSize));
-		roi.setWidth(std::min(roiSize,image.width()-roi.x()));
-	}
-
-	if (roi.y() < 0 ) {
-		roi.setY(0);
-	}
-	if ( roi.y() + roi.height() > image.height() ) {
-		roi.setY(std::max(0,image.height() - roiSize));
-		roi.setHeight(std::min(roiSize,image.height()-roi.y()));
-	}
-
-	image = image.copy(roi);
-
-	QPixmap px;
-	px.convertFromImage(image,Qt::ColorOnly);
-	QPainter painter;
-	painter.begin(&px);
-	QPen tagPen(QColor(255,0,0),2);
-	if ( s->Corners().size() == 4 ) {
-		painter.setPen(tagPen);
-		painter.drawLine(s->Corners()[0].x() - roi.x(),
-		                 s->Corners()[0].y() - roi.y(),
-		                 s->Corners()[1].x() - roi.x(),
-		                 s->Corners()[1].y() - roi.y());
-
-		painter.drawLine(s->Corners()[1].x() - roi.x(),
-		                 s->Corners()[1].y() - roi.y(),
-		                 s->Corners()[2].x() - roi.x(),
-		                 s->Corners()[2].y() - roi.y());
-
-		painter.drawLine(s->Corners()[2].x() - roi.x(),
-		                 s->Corners()[2].y() - roi.y(),
-		                 s->Corners()[3].x() - roi.x(),
-		                 s->Corners()[3].y() - roi.y());
-
-		painter.drawLine(s->Corners()[3].x() - roi.x(),
-		                 s->Corners()[3].y() - roi.y(),
-		                 s->Corners()[0].x() - roi.x(),
-		                 s->Corners()[0].y() - roi.y());
-
-
-	}
-
-
-	d_ui->imageLabel->setPixmap(px);
-
-
-
+	d_ui->snapshotViewer->displaySnapshot(s);
 
 }

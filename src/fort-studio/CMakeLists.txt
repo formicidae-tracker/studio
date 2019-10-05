@@ -7,7 +7,9 @@ set(SRC_FILES main.cpp
               TaggingWidget.cpp
               Snapshot.cpp
               SnapshotIndexer.cpp
-              AntPoseEstimate.cpp)
+              AntPoseEstimate.cpp
+              TagInFramePointer.cpp
+			  SnapshotViewer.cpp)
 
 set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
@@ -17,7 +19,9 @@ set(HDR_FILES MainWindow.hpp
               TaggingWidget.hpp
               Snapshot.hpp
               SnapshotIndexer.hpp
-              AntPoseEstimate.hpp)
+              AntPoseEstimate.hpp
+              TagInFramePointer.hpp
+			  SnapshotViewer.hpp)
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui

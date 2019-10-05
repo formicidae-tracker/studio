@@ -196,17 +196,15 @@ Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snaps
 	if (pb.corners_size() != 4 ) {
 		throw std::runtime_error("Not enough corner");
 	}
-	auto res = std::make_shared<Snapshot>();
+	auto res = std::make_shared<Snapshot>(d_tdd.FramePointer(pb.frame()),pb.tagvalue());
 	res->d_position <<
 		pb.tagposition().x(),
 		pb.tagposition().y(),
 		pb.tagangle();
-	res->d_value = pb.tagvalue();
 	for( size_t i = 0; i < 4; ++i ) {
 		res->d_corners.push_back(Eigen::Vector2d(pb.corners(i).x(),pb.corners(i).y()));
 	}
 	res->d_relativeImagePath = std::filesystem::path(pb.relativeimagepath(),std::filesystem::path::generic_format);
-	res->d_frame = d_tdd.FramePointer(pb.frame());
 	return res;
 }
 

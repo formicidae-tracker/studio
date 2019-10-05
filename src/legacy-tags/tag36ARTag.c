@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <apriltag/apriltag.h>
+#include <apriltag.h>
 
 apriltag_family_t
 #ifndef _MSC_VER

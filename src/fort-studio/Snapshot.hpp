@@ -9,14 +9,17 @@
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
-class Snapshot {
+#include "TagInFramePointer.hpp"
+
+class Snapshot : public TagInFramePointer {
 public:
 	typedef std::shared_ptr<const Snapshot> ConstPtr;
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
 
-	fort::myrmidon::priv::FramePointerPtr Frame() const;
+	Snapshot(const fort::myrmidon::priv::FramePointer::Ptr & frame,
+	         uint32_t tagValue);
+	virtual ~Snapshot();
 
-	uint32_t TagValue() const;
 	Eigen::Vector2d TagPosition() const;
 	double TagAngle() const;
 
@@ -30,19 +33,11 @@ public:
 	                             const fort::myrmidon::priv::FramePointerPtr & frame);
 
 
-	std::filesystem::path Path() const;
-
-	const std::filesystem::path & Base() const;
-
-
 private:
 	friend class SnapshotIndexer;
 
 	Eigen::Vector3d       d_position;
-	uint32_t              d_value;
 	Vector2dList          d_corners;
 	std::filesystem::path d_relativeImagePath;
-
-	fort::myrmidon::priv::FramePointerPtr d_frame;
 
 };

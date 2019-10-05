@@ -1,9 +1,6 @@
 #include "Snapshot.hpp"
 #include <myrmidon/priv/FramePointer.hpp>
 
-uint32_t Snapshot::TagValue() const{
-	return d_value;
-}
 
 Eigen::Vector2d Snapshot::TagPosition() const {
 	return d_position.block<2,1>(0,0);
@@ -18,7 +15,7 @@ const Snapshot::Vector2dList & Snapshot::Corners() const {
 }
 
 std::filesystem::path Snapshot::ImagePath() const {
-	return d_frame->Path / d_relativeImagePath;
+	return Base() / d_relativeImagePath;
 }
 
 double ComputeAngleFromCorner(const apriltag_detection_t *q) {
@@ -36,11 +33,9 @@ double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 
 Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
                                           const std::filesystem::path & relativeImagePath,
-                                          const fort::myrmidon::priv::FramePointerPtr & frame) {
-	auto res = std::make_shared<Snapshot>();
-	res->d_frame = frame;
+                                          const fort::myrmidon::priv::FramePointer::Ptr & frame) {
+	auto res = std::make_shared<Snapshot>(frame,d->id);
 	res->d_relativeImagePath = relativeImagePath;
-	res->d_value = d->id;
 
 	res->d_position <<
 		d->c[0],
@@ -52,12 +47,11 @@ Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
 	return res;
 }
 
-std::filesystem::path Snapshot::Path() const {
-	std::ostringstream os;
-	os << d_value;
-	return d_frame->FullPath() / os.str();
+
+Snapshot::Snapshot(const fort::myrmidon::priv::FramePointer::Ptr& frame,
+                   uint32_t tagValue)
+	: TagInFramePointer(frame,tagValue) {
+
 }
 
-fort::myrmidon::priv::FramePointer::Ptr Snapshot::Frame() const {
-	return d_frame;
-}
+Snapshot::~Snapshot() {}

@@ -26,7 +26,7 @@ either expressed or implied, of the Regents of The University of Michigan.
 */
 
 #include <stdlib.h>
-#include "apriltag/apriltag.h"
+#include "apriltag.h"
 
 apriltag_family_t __attribute__((optimize("O0"))) *tag36h10_create()
 {
