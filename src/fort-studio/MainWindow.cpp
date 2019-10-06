@@ -350,3 +350,7 @@ void MainWindow::onNewController(ExperimentController * controller) {
 	        SLOT(onExperimentModified(bool)));
 	pushRecent();
 }
+
+void MainWindow::on_antList_antSelected(uint32_t i) {
+	qInfo() << "Ant " << i <<  " selected";
+}

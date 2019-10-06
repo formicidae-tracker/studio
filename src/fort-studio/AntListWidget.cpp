@@ -94,9 +94,9 @@ void AntListWidget::onAntListModified(const fort::myrmidon::priv::AntByID & ants
 	}
 }
 
-void AntListWidget::on_listWidget_itemDoubleClicked(QListWidgetItem * item) {
-	qInfo() << "double clicked" << item->text() << item->data(Qt::UserRole).toInt();
-}
+// void AntListWidget::on_listWidget_itemDoubleClicked(QListWidgetItem * item) {
+// 	emit antSelected(item->data(Qt::UserRole).toInt());
+// }
 
 
 void AntListWidget::on_filterEdit_textChanged(const QString & text) {
@@ -108,7 +108,12 @@ void AntListWidget::on_filterEdit_textChanged(const QString & text) {
 
 
 void AntListWidget::on_listWidget_itemSelectionChanged() {
-	d_ui->removeButton->setEnabled(!d_ui->listWidget->selectedItems().isEmpty());
+	auto items = d_ui->listWidget->selectedItems();
+	d_ui->removeButton->setEnabled(!items.isEmpty());
+	if (items.size() == 1 ) {
+		emit antSelected(items[0]->data(Qt::UserRole).toInt());
+	}
+
 }
 
 

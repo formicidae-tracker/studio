@@ -29,6 +29,8 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
+	void on_antList_antSelected(uint32_t);
+
 	void onExperimentModified(bool);
 	void onNewController(ExperimentController * controller);
 

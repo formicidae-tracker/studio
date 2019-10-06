@@ -20,7 +20,7 @@ public slots:
 
 	void onAntListModified(const fort::myrmidon::priv::AntByID & );
 
-	void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
+	//void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
 	void on_listWidget_itemSelectionChanged();
 	void on_filterEdit_textChanged(const QString & text);
 
