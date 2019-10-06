@@ -75,19 +75,43 @@ private:
 		const static int    SIZE;
 	};
 
+	class Handle : public QGraphicsItemGroup {
+	public:
+		const static int SIZE;
+		const static QColor COLOR;
+
+		Handle(QGraphicsItem * parent);
+		virtual ~Handle();
+
+	private:
+		QGraphicsRectItem * d_inside;
+
+	};
+
+
 	class Capsule : public QGraphicsItemGroup {
 	public :
+		const static QColor COLOR_BORDER,COLOR_INSIDE;
 		Capsule(qreal c1x,qreal c1y,qreal r1,
 		        qreal c2x, qreal c2y, qreal r2,
 		        QGraphicsItem *parent = NULL );
 		virtual ~Capsule();
+	private:
+		void Rebuild();
+
+		QGraphicsPathItem * d_path;
+		Handle * d_c1;
+		Handle * d_c2;
+		double d_r1,d_r2;
+
+
+		Handle * d_r1Handle;
+		Handle * d_r2Handle;
 	};
 
 	const static int DEFAULT_ROI_SIZE;
-	const static int TAG_CORNER_POINT_SIZE;
 	const static int TAG_LINE_SIZE;
 	const static QColor TAG_LINE_COLOR;
-	const static QColor TAG_CORNER_COLOR;
 
 	void setImageBackground();
 	void setTagCorner();
@@ -110,8 +134,8 @@ private:
 	QPen                  d_tagCornerPen,d_tagLinePen;
 	QBrush                d_tagCornerBrush;
 
-	QGraphicsRectItem *   d_tagCorners[4];
-	QGraphicsLineItem *   d_tagLines[4];
+	Handle            * d_tagCorners[4];
+	QGraphicsLineItem * d_tagLines[4];
 
 	AntPoseEstimate::Ptr     d_poseEstimate;
 	PositionMarker         * d_head, * d_tail;
@@ -119,5 +143,8 @@ private:
 	std::shared_ptr<QPointF> d_estimateOrig;
 
 	PoseMarker * d_poseMarker;
+
+
+	Capsule * d_capsule;
 
 };

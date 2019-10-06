@@ -7,11 +7,15 @@
 #include <QPainterPathStroker>
 #include <QScrollBar>
 
+#include <Eigen/Geometry>
+
 const int SnapshotViewer::DEFAULT_ROI_SIZE = 400;
-const int SnapshotViewer::TAG_CORNER_POINT_SIZE = 3;
+
 const int SnapshotViewer::TAG_LINE_SIZE = 2;
 const QColor SnapshotViewer::TAG_LINE_COLOR = QColor(255,20,20,120);
-const QColor SnapshotViewer::TAG_CORNER_COLOR = QColor(50,50,50,120);
+
+const int SnapshotViewer::Handle::SIZE = 5;
+const QColor SnapshotViewer::Handle::COLOR = QColor(50,50,50,120);
 
 const QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
 const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
@@ -20,19 +24,32 @@ const QColor SnapshotViewer::PoseMarker::INSIDE_COLOR = QColor(255,255,255,180);
 const QColor SnapshotViewer::PoseMarker::OUTSIDE_COLOR = QColor(0,0,0,180);
 const int SnapshotViewer::PoseMarker::SIZE = 9;
 
+const QColor SnapshotViewer::Capsule::COLOR_BORDER = QColor(150,10,255);
+const QColor SnapshotViewer::Capsule::COLOR_INSIDE = QColor(150,10,255,40);
+
+Eigen::Vector2d ToEigen(const QPointF & p) {
+	return Eigen::Vector2d(p.x(),p.y());
+}
+
+
+Eigen::Vector2d ToEigen(QGraphicsItem * item) {
+	return ToEigen(item->pos());
+}
+
+
 SnapshotViewer::SnapshotViewer(QWidget *parent)
 	: QGraphicsView(parent)
 	, d_roiSize(DEFAULT_ROI_SIZE)
 	, d_background(NULL) {
 
-	d_tagCornerBrush = QBrush(TAG_CORNER_COLOR);
-	d_tagCornerPen = QPen(QColor(255,255,255));
-	d_tagCornerPen.setWidth(1);
 	d_tagLinePen = QPen(TAG_LINE_COLOR);
 	d_tagLinePen.setWidth(TAG_LINE_SIZE);
 
 	for(size_t i = 0;i < 4; ++i ) {
-		d_tagCorners[i] = d_scene.addRect(QRect(0,0,TAG_CORNER_POINT_SIZE+2,TAG_CORNER_POINT_SIZE+2),d_tagCornerPen,d_tagCornerBrush);
+
+
+		d_tagCorners[i] = new Handle(NULL);
+		d_scene.addItem(d_tagCorners[i]);
 		d_tagCorners[i]->setVisible(false);
 		d_tagCorners[i]->setEnabled(false);
 
@@ -73,6 +90,10 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	d_scene.addItem(d_poseMarker);
 
 
+	d_capsule = new Capsule(120,120,50,220,220,80);
+	d_capsule->setVisible(false);
+	d_capsule->setZValue(31);
+	d_scene.addItem(d_capsule);
 
 
 	setScene(&d_scene);
@@ -94,6 +115,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 			d_tagLines[i]->setVisible(false);
 		}
 		d_poseMarker->setVisible(false);
+		d_capsule->setVisible(false);
 		return;
 	}
 
@@ -106,7 +128,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 
 	setImageBackground();
 	setAntPoseEstimate(AntPoseEstimate::Ptr());
-
+	d_capsule->setVisible(false);
 }
 
 
@@ -175,12 +197,8 @@ void SnapshotViewer::setTagCorner() {
 		auto & current = d_snapshot->Corners()[i];
 		auto & next = d_snapshot->Corners()[(i+1)%4];
 
-		const static size_t CORNER_OFFSET = (TAG_CORNER_POINT_SIZE-1)/2+1;
-
-		d_tagCorners[i]->setRect(current.x()-CORNER_OFFSET - d_roi.x(),
-		                         current.y()-CORNER_OFFSET - d_roi.y(),
-		                         TAG_CORNER_POINT_SIZE+1,
-		                         TAG_CORNER_POINT_SIZE+1);
+		d_tagCorners[i]->setPos(current.x() - d_roi.x(),
+		                        current.y() - d_roi.y());
 		d_tagCorners[i]->setVisible(true);
 
 
@@ -239,8 +257,8 @@ void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEven
 
 void SnapshotViewer::updateLine() {
 
-	Eigen::Vector2d head(d_head->pos().x(),d_head->pos().y());
-	Eigen::Vector2d tail(d_tail->pos().x(),d_tail->pos().y());
+	Eigen::Vector2d head(ToEigen(d_head));
+	Eigen::Vector2d tail(ToEigen(d_tail));
 	Eigen::Vector2d diff = head - tail;
 	double angle = 180.0 / M_PI * std::atan2(diff.y(),diff.x());
 	d_tail->setRotation(angle);
@@ -346,10 +364,8 @@ void SnapshotViewer::emitNewPoseEstimate() {
 	if (!d_snapshot) {
 		return;
 	}
-	Eigen::Vector2d head(d_head->pos().x(),
-	                     d_head->pos().y());
-	Eigen::Vector2d tail(d_tail->pos().x(),
-	                     d_tail->pos().y());
+	Eigen::Vector2d head(ToEigen(d_head));
+	Eigen::Vector2d tail(ToEigen(d_tail));
 
 	if (!d_poseEstimate) {
 		d_poseEstimate = std::make_shared<AntPoseEstimate>(head,
@@ -421,3 +437,87 @@ SnapshotViewer::PoseMarker::PoseMarker(QGraphicsItem * parent)
 }
 
 SnapshotViewer::PoseMarker::~PoseMarker() {}
+
+
+SnapshotViewer::Handle::Handle(QGraphicsItem * parent)
+	: QGraphicsItemGroup(parent) {
+	const static int HALF_SIZE = (SIZE-1)/2;
+	QPen empty;
+	empty.setStyle(Qt::NoPen);
+
+	d_inside = new QGraphicsRectItem(-HALF_SIZE-0.5,
+	                                 -HALF_SIZE-0.5,
+	                                 SIZE,
+	                                 SIZE,this);
+	d_inside->setPen(QPen(QColor(255,255,255),1));
+	d_inside->setBrush(COLOR);
+	setFlags(QGraphicsItem::ItemIsMovable);
+
+}
+
+SnapshotViewer::Handle::~Handle() {}
+
+
+
+SnapshotViewer::Capsule::Capsule(qreal c1x,qreal c1y,qreal r1,
+                                 qreal c2x, qreal c2y, qreal r2,
+                                 QGraphicsItem *parent)
+	: QGraphicsItemGroup(NULL)
+	, d_path(new QGraphicsPathItem(this))
+	, d_c1(new Handle(this))
+	, d_c2(new Handle(this))
+	, d_r1(r1)
+	, d_r2(r2)
+	, d_r1Handle(new Handle(this))
+	, d_r2Handle(new Handle(this)) {
+
+	d_c1->setPos(c1x,c1y);
+	d_c2->setPos(c2x,c2y);
+
+	d_path->setPen(QPen(COLOR_BORDER,2));
+	d_path->setBrush(COLOR_INSIDE);
+
+
+	Rebuild();
+}
+
+SnapshotViewer::Capsule::~Capsule() {}
+
+void SnapshotViewer::Capsule::Rebuild() {
+	Eigen::Vector2d c1(ToEigen(d_c1));
+	Eigen::Vector2d c2(ToEigen(d_c2));
+	Eigen::Vector2d diff = c2 - c1;
+	double distance = diff.norm();
+	double angle = std::atan2(d_r2-d_r1,distance);
+	diff /= distance;
+
+	Eigen::Vector2d normal = Eigen::Rotation2D<double>(-angle) * Eigen::Vector2d(-diff.y(),diff.x());
+
+	Eigen::Vector2d r1Pos = c1 - normal * d_r1;
+	Eigen::Vector2d r2Pos = c2 - normal * d_r2;
+	Eigen::Vector2d r2Opposite = c2 + Eigen::Rotation2D<double>(angle) * Eigen::Vector2d(-diff.y(),diff.x()) * d_r2;
+
+	d_r1Handle->setPos(r1Pos.x(),r1Pos.y());
+	d_r2Handle->setPos(r2Pos.x(),r2Pos.y());
+
+	QPainterPath path;
+	double startAngle1 = ( std::atan2(normal.y(),-normal.x()) ) * 180 / M_PI ;
+	double startAngle2 = 180.0 + startAngle1 - 2 * angle  * 180 / M_PI;
+
+	path.moveTo(r1Pos.x(),r1Pos.y());
+	path.arcTo(QRect(c1.x() - d_r1,
+	                 c1.y() - d_r1,
+	                 2*d_r1,
+	                 2*d_r1),
+	           startAngle1,
+	           180 - 2*angle * 180.0 / M_PI);
+	path.lineTo(r2Opposite.x(),r2Opposite.y());
+	path.arcTo(QRect(c2.x() - d_r2,
+	                 c2.y() - d_r2,
+	                 2 * d_r2,
+	                 2 * d_r2),
+	           startAngle2,
+	           180 + 2*angle * 180.0 / M_PI);
+	path.closeSubpath();
+	d_path->setPath(path);
+}
