@@ -504,8 +504,8 @@ SnapshotViewer::Capsule::Capsule(qreal c1x,qreal c1y,qreal r1,
 			                                d_c1->setPos(c1.x(),c1.y());
 			                                distance = MIN_SIZE;
 		                                }
-		                                d_r1 = std::min(distance,d_r1);
-		                                d_r2 = std::min(distance,d_r2);
+		                                d_r1 = std::max(std::min(distance,d_r1),MIN_SIZE/2.0);
+		                                d_r2 = std::max(std::min(distance,d_r2),MIN_SIZE/2.0);
 		                                Rebuild();
 
 	                                });
@@ -516,20 +516,20 @@ SnapshotViewer::Capsule::Capsule(qreal c1x,qreal c1y,qreal r1,
 			                                d_c2->setPos(c2.x(),c2.y());
 			                                distance = MIN_SIZE;
 		                                }
-		                                d_r1 = std::min(distance,d_r1);
-		                                d_r2 = std::min(distance,d_r2);
+		                                d_r1 = std::max(std::min(distance,d_r1),MIN_SIZE/2.0);
+		                                d_r2 = std::max(std::min(distance,d_r2),MIN_SIZE/2.0);
 		                                Rebuild();
 	                                });
 	d_c1->setPos(c1x,c1y);
 	d_c2->setPos(c2x,c2y);
 	d_r1Handle = std::make_shared<Handle>([this](const QPointF & pos) {
-		                                      d_r1 = std::min((ToEigen(d_c1.get()) - ToEigen(pos)).norm(),
-		                                                      segmentLength());
+		                                      d_r1 = std::max(std::min((ToEigen(d_c1.get()) - ToEigen(pos)).norm(),
+		                                                               segmentLength()),MIN_SIZE/2.0);
 		                                      Rebuild();
 	                                      });
 	d_r2Handle = std::make_shared<Handle>([this](const QPointF & pos) {
-		                                      d_r2 = std::min((ToEigen(d_c2.get()) - ToEigen(pos)).norm(),
-		                                                      segmentLength());
+		                                      d_r2 = std::max(std::min((ToEigen(d_c2.get()) - ToEigen(pos)).norm(),
+		                                                               segmentLength()),MIN_SIZE/2.0);
 		                                      Rebuild();
 	                                      });
 
