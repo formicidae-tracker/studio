@@ -4,15 +4,31 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsPathItem>
+#include <QPainterPathStroker>
+#include <QScrollBar>
+
+const int SnapshotViewer::DEFAULT_ROI_SIZE = 400;
+const int SnapshotViewer::TAG_CORNER_POINT_SIZE = 3;
+const int SnapshotViewer::TAG_LINE_SIZE = 2;
+const QColor SnapshotViewer::TAG_LINE_COLOR = QColor(255,20,20,120);
+const QColor SnapshotViewer::TAG_CORNER_COLOR = QColor(50,50,50,120);
+
+const QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
+const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
+
+const QColor SnapshotViewer::PoseMarker::INSIDE_COLOR = QColor(255,255,255,180);
+const QColor SnapshotViewer::PoseMarker::OUTSIDE_COLOR = QColor(0,0,0,180);
+const int SnapshotViewer::PoseMarker::SIZE = 9;
 
 SnapshotViewer::SnapshotViewer(QWidget *parent)
 	: QGraphicsView(parent)
-	, d_roiSize(500)
+	, d_roiSize(DEFAULT_ROI_SIZE)
 	, d_background(NULL) {
-	d_tagCornerBrush = QBrush(QColor(50,50,50));
+
+	d_tagCornerBrush = QBrush(TAG_CORNER_COLOR);
 	d_tagCornerPen = QPen(QColor(255,255,255));
 	d_tagCornerPen.setWidth(1);
-	d_tagLinePen = QPen(QColor(255,20,20,120));
+	d_tagLinePen = QPen(TAG_LINE_COLOR);
 	d_tagLinePen.setWidth(TAG_LINE_SIZE);
 
 	for(size_t i = 0;i < 4; ++i ) {
@@ -28,13 +44,11 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 
 	}
 
-	setScene(&d_scene);
-	setRoiSize(d_roiSize);
 
 	d_head = new PositionMarker(10.1,17.3,*this);
 	d_tail = new PositionMarker(42.0,38.1,*this);
-	d_head->setZValue(4);
-	d_tail->setZValue(5);
+	d_head->setZValue(12);
+	d_tail->setZValue(13);
 	d_scene.addItem(d_head);
 	d_scene.addItem(d_tail);
 	d_head->setVisible(false);
@@ -42,16 +56,28 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	d_tail->setVisible(false);
 	d_tail->setEnabled(false);
 
-
-	displaySnapshot(Snapshot::ConstPtr());
-
 	d_estimateLine = new QGraphicsLineItem(0,0,0,0);
 	d_estimateLine->setVisible(false);
 	QPen linePen(PositionMarker::COLOR);
 	linePen.setWidth(3);
 	d_estimateLine->setPen(linePen);
-	d_estimateLine->setZValue(3);
+	d_estimateLine->setZValue(11);
 	d_scene.addItem(d_estimateLine);
+
+
+	d_poseMarker = new PoseMarker();
+	d_poseMarker->setVisible(false);
+	d_poseMarker->setEnabled(false);
+
+	d_poseMarker->setZValue(21);
+	d_scene.addItem(d_poseMarker);
+
+
+
+
+	setScene(&d_scene);
+	setRoiSize(d_roiSize);
+	displaySnapshot(Snapshot::ConstPtr());
 
 }
 
@@ -67,6 +93,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 			d_tagCorners[i]->setVisible(false);
 			d_tagLines[i]->setVisible(false);
 		}
+		d_poseMarker->setVisible(false);
 		return;
 	}
 
@@ -79,6 +106,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 
 	setImageBackground();
 	setAntPoseEstimate(AntPoseEstimate::Ptr());
+
 }
 
 
@@ -127,12 +155,13 @@ void SnapshotViewer::setImageBackground() {
 	d_scene.addItem(d_background);
 
 	d_background->setZValue(0);
-	setImageCorner();
+	setTagCorner();
 
+	setSceneRect(QRect(0,0,d_roiSize,d_roiSize));
 }
 
 
-void SnapshotViewer::setImageCorner() {
+void SnapshotViewer::setTagCorner() {
 	if ( !d_snapshot || d_snapshot->Corners().size() != 4) {
 		for(size_t i = 0; i < 4; ++i) {
 			d_tagCorners[i]->setVisible(false);
@@ -230,12 +259,8 @@ void SnapshotViewer::updateLine() {
 
 	d_estimateLine->setLine(start.x(),start.y(),end.x(),end.y());
 
-
-
 }
 
-const  QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
-const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
 SnapshotViewer::PositionMarker::PositionMarker(qreal x, qreal y,
                                                SnapshotViewer & viewer,
                                                QGraphicsItem * parent)
@@ -293,22 +318,27 @@ void SnapshotViewer::PositionMarker::mouseMoveEvent(QGraphicsSceneMouseEvent * e
 
 
 void SnapshotViewer::setAntPoseEstimate(const AntPoseEstimate::Ptr & estimate) {
+	if ( !estimate ) {
+		d_poseEstimate.reset();
+		d_head->setVisible(false);
+		d_tail->setVisible(false);
+		d_estimateLine->setVisible(false);
+		return;
+	}
+
+
 	if ( !d_snapshot ||  estimate->Path() != d_snapshot->Path() ) {
 		return;
 	}
 
 	d_poseEstimate = estimate;
-	if (!d_poseEstimate) {
-		d_head->setVisible(false);
-		d_tail->setVisible(true);
-	}
 	d_head->setPos(estimate->Head().x(),
 	               estimate->Head().y());
 	d_tail->setPos(estimate->Tail().x(),
 	               estimate->Tail().y());
 	d_head->setVisible(true);
 	d_tail->setVisible(true);
-
+	updateLine();
 }
 
 
@@ -335,3 +365,59 @@ void SnapshotViewer::emitNewPoseEstimate() {
 	emit antPoseEstimateUpdated(d_poseEstimate);
 
 }
+
+
+SnapshotViewer::PoseMarker::PoseMarker(QGraphicsItem * parent)
+	: QGraphicsItemGroup(parent) {
+	static int HALF_SIZE =(SIZE-1)/2;
+
+	QPen empty;
+	empty.setWidth(0);
+	QPen outside = QPen(OUTSIDE_COLOR);
+	outside.setWidth(4);
+	QPen inside = QPen(INSIDE_COLOR);
+	inside.setWidth(1);
+
+	QPainterPath basepath;
+
+	basepath.moveTo(HALF_SIZE,0.5);
+	basepath.lineTo(3*SIZE,0.5);
+	basepath.lineTo(2*SIZE + HALF_SIZE,HALF_SIZE+0.5);
+	basepath.moveTo(2*SIZE + HALF_SIZE,-HALF_SIZE+0.5);
+	basepath.lineTo(3*SIZE,0.5);
+
+	QPainterPathStroker stroker;
+	stroker.setCapStyle(Qt::RoundCap);
+	QPainterPath path = stroker.createStroke(basepath);
+
+	auto outsidePath = new QGraphicsPathItem(path,this);
+	outsidePath->setPen(outside);
+	auto insidePath = new QGraphicsPathItem(path,this);
+	insidePath->setPen(inside);
+
+
+
+	auto centerOutside = new QGraphicsEllipseItem(QRect(-HALF_SIZE-1,
+	                                                    -HALF_SIZE-1,
+	                                                    SIZE+2,
+	                                                    SIZE+2),
+	                                              this);
+	auto centerInside = new QGraphicsEllipseItem(QRect(-HALF_SIZE,
+	                                                   -HALF_SIZE,
+	                                                   SIZE,
+	                                                   SIZE),
+	                                             this);
+
+	auto center = new QGraphicsEllipseItem(QRect(-1,-1,3,3),this);
+
+	centerOutside->setPen(empty);
+	centerOutside->setBrush(outside.brush());
+	centerInside->setPen(empty);
+	centerInside->setBrush(inside.brush());
+	center->setPen(empty);
+	center->setBrush(outside.brush());
+
+
+}
+
+SnapshotViewer::PoseMarker::~PoseMarker() {}

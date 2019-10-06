@@ -65,14 +65,36 @@ private:
 		SnapshotViewer & d_viewer;
 	};
 
-	const static int TAG_CORNER_POINT_SIZE = 3;
-	const static int TAG_LINE_SIZE = 2;
+	class PoseMarker : public QGraphicsItemGroup {
+	public:
+		PoseMarker(QGraphicsItem * parent = NULL);
+		virtual ~PoseMarker();
+
+		const static QColor OUTSIDE_COLOR;
+		const static QColor INSIDE_COLOR;
+		const static int    SIZE;
+	};
+
+	class Capsule : public QGraphicsItemGroup {
+	public :
+		Capsule(qreal c1x,qreal c1y,qreal r1,
+		        qreal c2x, qreal c2y, qreal r2,
+		        QGraphicsItem *parent = NULL );
+		virtual ~Capsule();
+	};
+
+	const static int DEFAULT_ROI_SIZE;
+	const static int TAG_CORNER_POINT_SIZE;
+	const static int TAG_LINE_SIZE;
+	const static QColor TAG_LINE_COLOR;
+	const static QColor TAG_CORNER_COLOR;
 
 	void setImageBackground();
-	void setImageCorner();
+	void setTagCorner();
 
 	void updateLine();
 	void emitNewPoseEstimate();
+
 	QGraphicsScene     d_scene;
 
 	std::filesystem::path d_basedir;
@@ -91,8 +113,11 @@ private:
 	QGraphicsRectItem *   d_tagCorners[4];
 	QGraphicsLineItem *   d_tagLines[4];
 
-	AntPoseEstimate::Ptr  d_poseEstimate;
-	PositionMarker      * d_head, * d_tail;
-	QGraphicsLineItem   * d_estimateLine;
+	AntPoseEstimate::Ptr     d_poseEstimate;
+	PositionMarker         * d_head, * d_tail;
+	QGraphicsLineItem      * d_estimateLine;
 	std::shared_ptr<QPointF> d_estimateOrig;
+
+	PoseMarker * d_poseMarker;
+
 };

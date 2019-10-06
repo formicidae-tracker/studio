@@ -31,13 +31,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>300</width>
+       <width>250</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>300</width>
+       <width>250</width>
        <height>16777215</height>
       </size>
      </property>
@@ -114,15 +114,24 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>500</width>
-       <height>500</height>
+       <width>420</width>
+       <height>420</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>500</width>
-       <height>500</height>
+       <width>420</width>
+       <height>420</height>
       </size>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
      </property>
     </widget>
    </item>
