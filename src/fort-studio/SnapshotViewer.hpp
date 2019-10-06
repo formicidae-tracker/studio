@@ -96,6 +96,7 @@ private:
 	class Capsule {
 	public :
 		const static QColor COLOR_BORDER,COLOR_INSIDE;
+		const static double MIN_SIZE;
 		Capsule(qreal c1x,qreal c1y,qreal r1,
 		        qreal c2x, qreal c2y, qreal r2,
 		        QGraphicsScene *parent);
@@ -106,7 +107,7 @@ private:
 		double d_r1,d_r2;
 		std::shared_ptr<Handle> d_c1,d_c2,d_r1Handle,d_r2Handle;
 		void Rebuild();
-
+		double segmentLength() const;
 	private:
 		std::shared_ptr<QGraphicsPathItem>  d_path;
 

@@ -27,6 +27,7 @@ const int SnapshotViewer::PoseMarker::SIZE = 9;
 
 const QColor SnapshotViewer::Capsule::COLOR_BORDER = QColor(150,10,255);
 const QColor SnapshotViewer::Capsule::COLOR_INSIDE = QColor(150,10,255,40);
+const double SnapshotViewer::Capsule::MIN_SIZE = 10.0;
 
 Eigen::Vector2d ToEigen(const QPointF & p) {
 	return Eigen::Vector2d(p.x(),p.y());
@@ -496,17 +497,39 @@ SnapshotViewer::Capsule::Capsule(qreal c1x,qreal c1y,qreal r1,
 	, d_r2(r2)
 	, d_path(std::make_shared<QGraphicsPathItem>())
 	, d_parent(parent) {
+	d_c1 = std::make_shared<Handle>([this](const QPointF &) {
+		                                double distance = segmentLength();
+		                                if ( distance < MIN_SIZE ) {
+			                                auto c1 = ToEigen(d_c2.get()) + MIN_SIZE * ( (ToEigen(d_c1.get()) - ToEigen(d_c2.get())).normalized());
+			                                d_c1->setPos(c1.x(),c1.y());
+			                                distance = MIN_SIZE;
+		                                }
+		                                d_r1 = std::min(distance,d_r1);
+		                                d_r2 = std::min(distance,d_r2);
+		                                Rebuild();
 
-	d_c1 = std::make_shared<Handle>([this](const QPointF &) { Rebuild(); });
-	d_c2 = std::make_shared<Handle>([this](const QPointF &) { Rebuild(); });
+	                                });
+	d_c2 = std::make_shared<Handle>([this](const QPointF &) {
+		                                double distance = segmentLength();
+		                                if ( distance < MIN_SIZE ) {
+			                                auto c2 = ToEigen(d_c1.get()) + MIN_SIZE * ( (ToEigen(d_c2.get()) - ToEigen(d_c1.get())).normalized());
+			                                d_c2->setPos(c2.x(),c2.y());
+			                                distance = MIN_SIZE;
+		                                }
+		                                d_r1 = std::min(distance,d_r1);
+		                                d_r2 = std::min(distance,d_r2);
+		                                Rebuild();
+	                                });
 	d_c1->setPos(c1x,c1y);
 	d_c2->setPos(c2x,c2y);
 	d_r1Handle = std::make_shared<Handle>([this](const QPointF & pos) {
-		                                      d_r1 = (ToEigen(d_c1.get()) - ToEigen(pos)).norm();
+		                                      d_r1 = std::min((ToEigen(d_c1.get()) - ToEigen(pos)).norm(),
+		                                                      segmentLength());
 		                                      Rebuild();
 	                                      });
 	d_r2Handle = std::make_shared<Handle>([this](const QPointF & pos) {
-		                                      d_r2 = (ToEigen(d_c2.get()) - ToEigen(pos)).norm();
+		                                      d_r2 = std::min((ToEigen(d_c2.get()) - ToEigen(pos)).norm(),
+		                                                      segmentLength());
 		                                      Rebuild();
 	                                      });
 
@@ -539,7 +562,9 @@ void SnapshotViewer::Capsule::setZValue(int z) {
 }
 
 
-
+double SnapshotViewer::Capsule::segmentLength() const {
+	return (ToEigen(d_c1.get()) - ToEigen(d_c2.get())).norm();
+}
 void SnapshotViewer::Capsule::Rebuild() {
 	Eigen::Vector2d c1(ToEigen(d_c1.get()));
 	Eigen::Vector2d c2(ToEigen(d_c2.get()));
@@ -550,7 +575,7 @@ void SnapshotViewer::Capsule::Rebuild() {
 		return;
 	}
 
-	double angle = std::atan2(d_r2-d_r1,distance);
+	double angle = std::asin((d_r2-d_r1)/distance);
 
 	diff /= distance;
 
