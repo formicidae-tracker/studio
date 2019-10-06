@@ -29,12 +29,19 @@
       <item row="0" column="0">
        <widget class="QLabel" name="dirLabel">
         <property name="text">
-         <string>Directory:</string>
+         <string>Path:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="comboBox">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="frameLabel">
@@ -44,7 +51,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="spinBox"/>
+       <widget class="QLongSpinBox" name="spinBox"/>
       </item>
      </layout>
     </widget>
@@ -58,6 +65,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QLongSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>fort-studio/QLongSpinBox.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

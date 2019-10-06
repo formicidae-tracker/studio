@@ -32,7 +32,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="FramePointerWidget" name="endFrame" native="true">
+         <widget class="FramePointerWidget" name="startFrame" native="true">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -42,7 +42,7 @@
          </widget>
         </item>
         <item>
-         <widget class="FramePointerWidget" name="startFrame" native="true">
+         <widget class="FramePointerWidget" name="endFrame" native="true">
           <property name="minimumSize">
            <size>
             <width>100</width>

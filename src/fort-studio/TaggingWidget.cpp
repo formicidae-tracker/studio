@@ -37,6 +37,7 @@ TaggingWidget::~TaggingWidget() {
 
 
 void TaggingWidget::onNewController(ExperimentController * controller) {
+	d_ui->identificationWidget->onNewController(controller);
 	if ( d_controller ) {
 		disconnect(d_controller,SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
 		           this,
