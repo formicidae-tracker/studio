@@ -188,3 +188,8 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 	d_ui->snapshotViewer->displaySnapshot(s);
 
 }
+
+
+void TaggingWidget::on_roiBox_valueChanged(int value) {
+	d_ui->snapshotViewer->setRoiSize(value);
+}
