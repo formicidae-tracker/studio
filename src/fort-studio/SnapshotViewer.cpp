@@ -16,6 +16,7 @@ const QColor SnapshotViewer::TAG_LINE_COLOR = QColor(255,20,20,120);
 
 const int SnapshotViewer::Handle::SIZE = 5;
 const QColor SnapshotViewer::Handle::COLOR = QColor(50,50,50,120);
+const QColor SnapshotViewer::Handle::HIGHLIGHT_COLOR = QColor(150,150,150,120);
 
 const QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
 const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
@@ -48,7 +49,7 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	for(size_t i = 0;i < 4; ++i ) {
 
 
-		d_tagCorners[i] = new Handle(NULL);
+		d_tagCorners[i] = new Handle();
 		d_scene.addItem(d_tagCorners[i]);
 		d_tagCorners[i]->setVisible(false);
 		d_tagCorners[i]->setEnabled(false);
@@ -90,12 +91,6 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	d_scene.addItem(d_poseMarker);
 
 
-	d_capsule = new Capsule(120,120,50,220,220,80);
-	d_capsule->setVisible(false);
-	d_capsule->setZValue(31);
-	d_scene.addItem(d_capsule);
-
-
 	setScene(&d_scene);
 	setRoiSize(d_roiSize);
 	displaySnapshot(Snapshot::ConstPtr());
@@ -109,13 +104,13 @@ SnapshotViewer::~SnapshotViewer() {
 void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 	d_snapshot = s;
 
+	d_capsule.reset();
 	if (!d_snapshot) {
 		for(size_t i = 0; i < 4; ++i) {
 			d_tagCorners[i]->setVisible(false);
 			d_tagLines[i]->setVisible(false);
 		}
 		d_poseMarker->setVisible(false);
-		d_capsule->setVisible(false);
 		return;
 	}
 
@@ -128,7 +123,6 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 
 	setImageBackground();
 	setAntPoseEstimate(AntPoseEstimate::Ptr());
-	d_capsule->setVisible(false);
 }
 
 
@@ -215,42 +209,70 @@ void SnapshotViewer::setTagCorner() {
 SnapshotViewer::BackgroundPixmap::BackgroundPixmap(const QPixmap & pixmap,SnapshotViewer & viewer,QGraphicsItem * parent)
 	: QGraphicsPixmapItem(pixmap,parent)
 	, d_viewer(viewer) {
-
+	setAcceptHoverEvents(true);
 }
 
 SnapshotViewer::BackgroundPixmap::~BackgroundPixmap() {}
 
 
 void SnapshotViewer::BackgroundPixmap::mousePressEvent(QGraphicsSceneMouseEvent * e) {
-	if ( d_viewer.d_poseEstimate ) {
+	if ( !d_viewer.d_poseEstimate ) {
+		d_viewer.d_head->setVisible(true);
+		d_viewer.d_head->setEnabled(true);
+		d_viewer.d_head->setPos(e->scenePos());
+
+		d_viewer.d_tail->setVisible(true);
+		d_viewer.d_tail->setEnabled(true);
+		d_viewer.d_tail->setPos(e->scenePos());
+
+		d_viewer.d_estimateOrig = std::make_shared<QPointF>(e->scenePos());
 		return;
 	}
 
-	d_viewer.d_head->setVisible(true);
-	d_viewer.d_head->setEnabled(true);
-	d_viewer.d_head->setPos(e->scenePos());
-
-	d_viewer.d_tail->setVisible(true);
-	d_viewer.d_tail->setEnabled(true);
-	d_viewer.d_tail->setPos(e->scenePos());
-
-	d_viewer.d_estimateOrig = std::make_shared<QPointF>(e->scenePos());
+	if ( !d_viewer.d_capsule ) {
+		auto pos = ToEigen(e->scenePos());
+		d_viewer.d_capsule = std::make_shared<Capsule>(pos.x(),pos.y(),0,
+		                                               pos.x(),pos.y(),0,
+		                                               &d_viewer.d_scene);
+		d_viewer.d_capsule->setZValue(0);
+		d_viewer.d_capsuleOrig = std::make_shared<QPointF>(e->scenePos());
+	}
 }
 
 void SnapshotViewer::BackgroundPixmap::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
-	if ( !d_viewer.d_estimateOrig ) {
+	if ( d_viewer.d_estimateOrig ) {
+		d_viewer.d_tail->setPos(e->scenePos());
+
+		d_viewer.updateLine();
 		return;
 	}
 
-	d_viewer.d_tail->setPos(e->scenePos());
+	if ( d_viewer.d_capsuleOrig ) {
+		d_viewer.d_capsule->d_c2->setPos(e->scenePos());
+		auto c1(ToEigen(d_viewer.d_capsule->d_c1.get()));
+		auto c2(ToEigen(d_viewer.d_capsule->d_c2.get()));
+		double radius = std::min(30.0,(c2-c1).norm()/2);
+		d_viewer.d_capsule->d_r1 = radius;
+		d_viewer.d_capsule->d_r2 = radius;
 
-	d_viewer.updateLine();
-	//todo finish line drawing
+		d_viewer.d_capsule->Rebuild();
+	}
+
+
+
 }
 
 void SnapshotViewer::BackgroundPixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
-	d_viewer.d_estimateOrig.reset();
-	d_viewer.emitNewPoseEstimate();
+	if ( d_viewer.d_estimateOrig ) {
+		d_viewer.d_estimateOrig.reset();
+		d_viewer.emitNewPoseEstimate();
+		return;
+	}
+
+	if ( d_viewer.d_capsuleOrig ) {
+		d_viewer.d_capsuleOrig.reset();
+	}
+
 }
 
 
@@ -439,8 +461,10 @@ SnapshotViewer::PoseMarker::PoseMarker(QGraphicsItem * parent)
 SnapshotViewer::PoseMarker::~PoseMarker() {}
 
 
-SnapshotViewer::Handle::Handle(QGraphicsItem * parent)
-	: QGraphicsItemGroup(parent) {
+SnapshotViewer::Handle::Handle(SnapshotViewer::Handle::MoveCallback onMove,
+                               QGraphicsItem * parent)
+	: QGraphicsItemGroup(parent)
+	, d_onMove(onMove) {
 	const static int HALF_SIZE = (SIZE-1)/2;
 	QPen empty;
 	empty.setStyle(Qt::NoPen);
@@ -452,43 +476,82 @@ SnapshotViewer::Handle::Handle(QGraphicsItem * parent)
 	d_inside->setPen(QPen(QColor(255,255,255),1));
 	d_inside->setBrush(COLOR);
 	setFlags(QGraphicsItem::ItemIsMovable);
-
+	setAcceptHoverEvents(true);
 }
 
 SnapshotViewer::Handle::~Handle() {}
 
 
+void SnapshotViewer::Handle::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsItem::mouseMoveEvent(e);
+	d_onMove(e->scenePos());
+}
+
+
 
 SnapshotViewer::Capsule::Capsule(qreal c1x,qreal c1y,qreal r1,
                                  qreal c2x, qreal c2y, qreal r2,
-                                 QGraphicsItem *parent)
-	: QGraphicsItemGroup(NULL)
-	, d_path(new QGraphicsPathItem(this))
-	, d_c1(new Handle(this))
-	, d_c2(new Handle(this))
-	, d_r1(r1)
+                                 QGraphicsScene * parent)
+	: d_r1(r1)
 	, d_r2(r2)
-	, d_r1Handle(new Handle(this))
-	, d_r2Handle(new Handle(this)) {
+	, d_path(std::make_shared<QGraphicsPathItem>())
+	, d_parent(parent) {
 
+	d_c1 = std::make_shared<Handle>([this](const QPointF &) { Rebuild(); });
+	d_c2 = std::make_shared<Handle>([this](const QPointF &) { Rebuild(); });
 	d_c1->setPos(c1x,c1y);
 	d_c2->setPos(c2x,c2y);
+	d_r1Handle = std::make_shared<Handle>([this](const QPointF & pos) {
+		                                      d_r1 = (ToEigen(d_c1.get()) - ToEigen(pos)).norm();
+		                                      Rebuild();
+	                                      });
+	d_r2Handle = std::make_shared<Handle>([this](const QPointF & pos) {
+		                                      d_r2 = (ToEigen(d_c2.get()) - ToEigen(pos)).norm();
+		                                      Rebuild();
+	                                      });
 
 	d_path->setPen(QPen(COLOR_BORDER,2));
 	d_path->setBrush(COLOR_INSIDE);
 
-
 	Rebuild();
+
+	d_parent->addItem(d_path.get());
+	d_parent->addItem(d_c1.get());
+	d_parent->addItem(d_c2.get());
+	d_parent->addItem(d_r1Handle.get());
+	d_parent->addItem(d_r2Handle.get());
 }
 
-SnapshotViewer::Capsule::~Capsule() {}
+SnapshotViewer::Capsule::~Capsule() {
+	d_parent->removeItem(d_r2Handle.get());
+	d_parent->removeItem(d_r1Handle.get());
+	d_parent->removeItem(d_c2.get());
+	d_parent->removeItem(d_c1.get());
+	d_parent->removeItem(d_path.get());
+}
+
+void SnapshotViewer::Capsule::setZValue(int z) {
+	d_path->setZValue(30 + 10*z + 0);
+	d_c1->setZValue(30 + 10*z + 1);
+	d_c2->setZValue(30 + 10*z + 2);
+	d_r1Handle->setZValue(30 + 10*z + 3);
+	d_r2Handle->setZValue(30 + 10*z + 4);
+}
+
+
 
 void SnapshotViewer::Capsule::Rebuild() {
-	Eigen::Vector2d c1(ToEigen(d_c1));
-	Eigen::Vector2d c2(ToEigen(d_c2));
+	Eigen::Vector2d c1(ToEigen(d_c1.get()));
+	Eigen::Vector2d c2(ToEigen(d_c2.get()));
 	Eigen::Vector2d diff = c2 - c1;
 	double distance = diff.norm();
+
+	if (d_r1 < 1e-6 || d_r2 < 1e-6 || distance < 1e-6) {
+		return;
+	}
+
 	double angle = std::atan2(d_r2-d_r1,distance);
+
 	diff /= distance;
 
 	Eigen::Vector2d normal = Eigen::Rotation2D<double>(-angle) * Eigen::Vector2d(-diff.y(),diff.x());

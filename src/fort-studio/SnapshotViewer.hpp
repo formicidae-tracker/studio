@@ -79,34 +79,40 @@ private:
 	public:
 		const static int SIZE;
 		const static QColor COLOR;
-
-		Handle(QGraphicsItem * parent);
+		const static QColor HIGHLIGHT_COLOR;
+		typedef std::function<void (const QPointF &)> MoveCallback;
+		Handle( MoveCallback onMove =[]( const QPointF &) {},QGraphicsItem * parent = NULL);
 		virtual ~Handle();
+
+	protected:
+		void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
 
 	private:
 		QGraphicsRectItem * d_inside;
-
+		MoveCallback d_onMove;
 	};
 
 
-	class Capsule : public QGraphicsItemGroup {
+	class Capsule {
 	public :
 		const static QColor COLOR_BORDER,COLOR_INSIDE;
 		Capsule(qreal c1x,qreal c1y,qreal r1,
 		        qreal c2x, qreal c2y, qreal r2,
-		        QGraphicsItem *parent = NULL );
-		virtual ~Capsule();
-	private:
+		        QGraphicsScene *parent);
+		~Capsule();
+
+		void setZValue(int z);
+
+		double d_r1,d_r2;
+		std::shared_ptr<Handle> d_c1,d_c2,d_r1Handle,d_r2Handle;
 		void Rebuild();
 
-		QGraphicsPathItem * d_path;
-		Handle * d_c1;
-		Handle * d_c2;
-		double d_r1,d_r2;
+	private:
+		std::shared_ptr<QGraphicsPathItem>  d_path;
+
+		QGraphicsScene * d_parent;
 
 
-		Handle * d_r1Handle;
-		Handle * d_r2Handle;
 	};
 
 	const static int DEFAULT_ROI_SIZE;
@@ -141,10 +147,11 @@ private:
 	PositionMarker         * d_head, * d_tail;
 	QGraphicsLineItem      * d_estimateLine;
 	std::shared_ptr<QPointF> d_estimateOrig;
+	std::shared_ptr<QPointF> d_capsuleOrig;
 
 	PoseMarker * d_poseMarker;
 
 
-	Capsule * d_capsule;
+	std::shared_ptr<Capsule> d_capsule;
 
 };
