@@ -7,6 +7,8 @@
 
 #include <Eigen/Core>
 
+#include "Isometry2D.hpp"
+
 class IdentificationUTest;
 
 namespace fort {
@@ -41,9 +43,23 @@ public:
 	Eigen::Vector2d TagPosition() const;
 	double TagAngle() const;
 
+	inline const Isometry2Dd & AntToTagTransform() const {
+		return d_antToTag;
+	}
+
 	AntPtr Target() const;
 
 	IdentifierPtr ParentIdentifier() const;
+
+	inline bool TargetsFrame(const FramePointer & frame ) {
+		return (!d_start || *d_start <= frame) &&
+			(!d_end || frame <= *d_end);
+	}
+
+	static void ComputeTagToAntTransform(Isometry2Dd & result,
+	                                     const Eigen::Vector2d & tagPosition, double tagAngle,
+	                                     const Eigen::Vector2d & head,
+	                                     const Eigen::Vector2d & tail);
 
 
 	class Accessor {
@@ -75,12 +91,11 @@ private:
 
 	FramePointer::Ptr         d_start;
 	FramePointer::Ptr         d_end;
-	Eigen::Vector3d           d_position;
+	Isometry2Dd               d_antToTag;
+
 	int32_t                   d_tagValue;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
-
-
 
 };
 

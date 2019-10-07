@@ -6,9 +6,13 @@
 #include <myrmidon/utils/NotYetImplemented.hpp>
 #include <myrmidon/utils/ProtobufFileReadWriter.hpp>
 
+#include <myrmidon/priv/Identification.hpp>
+
 #include "Estimate.pb.h"
 
 #include "utils.hpp"
+
+using namespace fort::myrmidon::priv;
 
 const std::filesystem::path TaggingWidget::ESTIMATE_SAVE_PATH = "ants/pose_estimates.fortstudio";
 
@@ -282,7 +286,52 @@ Error TaggingWidget::save() {
 
 
 void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e) {
+	using namespace fort::myrmidon::priv;
 	qInfo() << "Pose updated for " << e->Frame()->FullPath().generic_string().c_str();
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
+
+
+	updateIdentificationsForFrame(e->TagValue(),*e->Frame());
+}
+
+
+void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
+                                                  const FramePointer & f) {
+	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f);
+	if (!ident) {
+		return;
+	}
+
+	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
+	for(const auto & [p,ee] : d_estimates ) {
+		if (ee->TagValue() != tagValue || f != *(ee->Frame()) ) {
+			continue;
+		}
+		auto fi = d_snapshots.find(p);
+		if ( fi == d_snapshots.end() ) {
+			continue;
+		}
+		matched.push_back(std::make_pair(ee,fi->second));
+	}
+
+	if ( matched.size() == 0 ) {
+		return;
+	}
+
+	Eigen::Vector2d pos(0,0);
+	double angle(0);
+	for ( const auto & m : matched ) {
+		Isometry2Dd tagToAntTransform;
+		Identification::ComputeTagToAntTransform(tagToAntTransform,
+		                                         m.second->TagPosition(),m.second->TagAngle(),
+		                                         m.first->Head(),m.first->Tail());
+		pos += tagToAntTransform.translation();
+		angle += tagToAntTransform.angle();
+	}
+	pos /= matched.size();
+	angle /= matched.size();
+	ident->SetTagPosition(pos,angle);
+	d_controller->setModified(true);
+
 }

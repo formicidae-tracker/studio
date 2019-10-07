@@ -58,11 +58,11 @@ FramePointer::ConstPtr Identification::End() const {
 }
 
 Eigen::Vector2d Identification::TagPosition() const {
-	return d_position.block<2,1>(0,0);
+	return d_antToTag.inverse().translation();
 }
 
 double Identification::TagAngle() const {
-	return d_position.z();
+	return -d_antToTag.angle();
 }
 
 uint32_t Identification::TagValue() const {
@@ -118,8 +118,7 @@ void Identification::Accessor::SetEnd(Identification & identification,
 
 
 void Identification::SetTagPosition(const Eigen::Vector2d & position, double angle) {
-	d_position.block<2,1>(0,0) = position;
-	d_position.z() = angle;
+	d_antToTag = Isometry2Dd(angle,position).inverse();
 }
 
 
@@ -147,4 +146,15 @@ void Identification::SetStart(const FramePointer::Ptr & start) {
 
 void Identification::SetEnd(const FramePointer::Ptr & end) {
 	SetBound(d_start,end);
+}
+
+
+void Identification::ComputeTagToAntTransform(Isometry2Dd & result,
+                                              const Eigen::Vector2d & tagPosition, double tagAngle,
+                                              const Eigen::Vector2d & head,
+                                              const Eigen::Vector2d & tail) {
+	Eigen::Vector2d dir = head - tail;
+	dir.normalize();
+
+	result = Isometry2Dd(tagAngle,tagPosition) * Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse();
 }

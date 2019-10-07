@@ -38,6 +38,20 @@ inline bool operator<(const fort::myrmidon::priv::FramePointer & a,
 	return a.PathStartDate < b.PathStartDate;
 }
 
+inline bool operator<=(const fort::myrmidon::priv::FramePointer & a,
+                      const fort::myrmidon::priv::FramePointer & b) {
+	if (a.Path == b.Path) {
+		return a.Frame <= b.Frame;
+	}
+	return a.PathStartDate <= b.PathStartDate;
+}
+
+inline bool operator!=(const fort::myrmidon::priv::FramePointer & a,
+                       const fort::myrmidon::priv::FramePointer & b) {
+	return a.Path != b.Path || a.Frame != b.Frame;
+}
+
+
 inline std::ostream& operator<<(std::ostream & out,
                                 const fort::myrmidon::priv::FramePointer & p) {
 	return out << p.Path.generic_string() << "/" << p.Frame;

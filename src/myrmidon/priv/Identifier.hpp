@@ -32,14 +32,12 @@ public:
 	void DeleteAnt(fort::myrmidon::Ant::ID );
 	const AntByID & Ants() const;
 
-
 	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
 	                                    uint32_t tagValue,
 	                                    const FramePointerPtr & start,
 	                                    const FramePointerPtr & end);
 
 	void DeleteIdentification(const IdentificationPtr & ident);
-
 
 
 	class UnmanagedAnt : public std::runtime_error {
@@ -76,6 +74,8 @@ public:
 	static void SortAndCheck(IdentificationList & tagSibling,
 	                         IdentificationList & antSibling);
 
+	IdentificationPtr Identify(uint32_t tag,const FramePointer & frame) const;
+
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 	typedef std::unordered_map<uint32_t,IdentificationList> IdentificationByTagID;
@@ -93,6 +93,7 @@ private:
 	bool    d_continuous;
 
 	IdentificationByTagID d_identifications;
+
 };
 
 

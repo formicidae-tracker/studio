@@ -190,3 +190,17 @@ void Identifier::SortAndCheck(IdentificationList & tagSiblings,
 	}
 
 }
+
+Identification::Ptr Identifier::Identify(uint32_t tag,const FramePointer & frame) const {
+	auto fi = d_identifications.find(tag);
+	if ( fi == d_identifications.end()) {
+		return Identification::Ptr();
+	}
+
+	for(const auto & ident : fi->second ) {
+		if (ident->TargetsFrame(frame) == true ) {
+			return ident;
+		}
+	}
+	return Identification::Ptr();
+}

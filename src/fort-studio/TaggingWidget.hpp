@@ -40,6 +40,9 @@ private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;
 	void clearIndexers();
 
+	void updateIdentificationsForFrame(uint32_t tag,
+	                                   const fort::myrmidon::priv::FramePointer & f);
+
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;
 	std::map<std::filesystem::path,std::shared_ptr<SnapshotIndexer>> d_indexers;

@@ -44,7 +44,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
                       utils/ProtobufFileReadWriter.hpp
-					  utils/NotYetImplemented.hpp)
+					  utils/NotYetImplemented.hpp
+					  priv/Isometry2D.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -62,7 +63,8 @@ set(SRC_FILES Frame.cpp
 	          priv/DeletedReference.cpp
 	          priv/ExperimentReadWriter.cpp
 	          priv/ProtobufExperimentReadWriter.cpp
-	          utils/ProtobufFileReadWriter.cpp)
+	          utils/ProtobufFileReadWriter.cpp
+			  priv/Isometry2D.cpp)
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp
