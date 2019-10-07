@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(this,SIGNAL(newController(ExperimentController *)),
             this,SLOT(onNewController(ExperimentController *)));
+
+    connect(d_ui->antList,SIGNAL(antSelected(fort::myrmidon::Ant::ID)),
+            d_ui->taggingWidget,SLOT(onAntSelected(fort::myrmidon::Ant::ID)));
 }
 
 MainWindow::~MainWindow() {
@@ -351,7 +354,7 @@ void MainWindow::onNewController(ExperimentController * controller) {
 	pushRecent();
 }
 
-void MainWindow::on_antList_antSelected(uint32_t i) {
+void MainWindow::on_antList_antSelected(fort::myrmidon::Ant::ID i) {
 	qInfo() << "Ant " << i <<  " selected";
 }
 

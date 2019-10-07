@@ -109,11 +109,16 @@ void AntListWidget::on_filterEdit_textChanged(const QString & text) {
 
 void AntListWidget::on_listWidget_itemSelectionChanged() {
 	auto items = d_ui->listWidget->selectedItems();
-	d_ui->removeButton->setEnabled(!items.isEmpty());
-	if (items.size() == 1 ) {
+	switch (items.size()) {
+	case 0:
+		d_ui->removeButton->setEnabled(false);
+		emit antSelected(fort::myrmidon::Ant::NO_ANT);
+		break;
+	case 1 :
 		emit antSelected(items[0]->data(Qt::UserRole).toInt());
+	default:
+		d_ui->removeButton->setEnabled(true);
 	}
-
 }
 
 

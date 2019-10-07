@@ -28,7 +28,7 @@ public slots:
 	void on_removeButton_clicked();
 
 signals:
-	void antSelected(uint32_t);
+	void antSelected(fort::myrmidon::Ant::ID);
 
 private:
     Ui::AntListWidget *d_ui;

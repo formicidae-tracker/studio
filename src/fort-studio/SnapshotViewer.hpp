@@ -22,6 +22,16 @@ public:
 
 	size_t roiSize() const;
 
+	inline Snapshot::ConstPtr displayedSnapshot() const  {
+		return d_snapshot;
+	}
+
+	inline AntPoseEstimate::Ptr antPoseEstimate() const  {
+		return d_poseEstimate;
+	}
+
+
+
 public slots:
 	void displaySnapshot(const Snapshot::ConstPtr & s);
 	void setRoiSize(size_t);

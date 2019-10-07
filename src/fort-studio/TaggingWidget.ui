@@ -156,16 +156,16 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="newAntButton">
          <property name="text">
-          <string>PushButton</string>
+          <string>New Ant From Tag</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="addIdentButton">
          <property name="text">
-          <string>PushButton</string>
+          <string>Add Identification to Ant</string>
          </property>
         </widget>
        </item>
@@ -181,6 +181,13 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="deletePoseButton">
+         <property name="text">
+          <string>Delete Pose Estimation</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

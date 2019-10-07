@@ -27,7 +27,6 @@ public slots:
 
 	void onNewController(ExperimentController * controller);
 	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &);
-
 	void on_familySelector_activated(int);
 	void on_thresholdBox_editingFinished();
 	void on_tagList_itemActivated(QTreeWidgetItem *, int);
@@ -36,9 +35,18 @@ public slots:
 	void onNewSnapshots(const QVector<Snapshot::ConstPtr> &, size_t done);
 	void on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e);
 
+	void on_addIdentButton_clicked();
+	void on_newAntButton_clicked();
+	void on_deletePoseButton_clicked();
+
+	void onAntSelected(fort::myrmidon::Ant::ID);
+
+
 private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;
 	void clearIndexers();
+	void updateButtonState();
+
 
 	void updateIdentificationsForFrame(uint32_t tag,
 	                                   const fort::myrmidon::priv::FramePointer & f);
@@ -51,5 +59,7 @@ private:
 	std::unordered_map<std::string,Snapshot::ConstPtr> d_snapshots;
 
 	std::map<std::filesystem::path,AntPoseEstimate::Ptr> d_estimates;
+
+	fort::myrmidon::Ant::ID  d_selectedAnt;
 
 };

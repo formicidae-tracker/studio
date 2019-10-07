@@ -29,7 +29,7 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
-	void on_antList_antSelected(uint32_t);
+	void on_antList_antSelected(fort::myrmidon::Ant::ID);
 
 	void onExperimentModified(bool);
 	void onNewController(ExperimentController * controller);

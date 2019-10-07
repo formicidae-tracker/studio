@@ -1,12 +1,13 @@
 #include "TaggingWidget.hpp"
 #include "ui_TaggingWidget.h"
 
-#include <QPainter>
+#include <QSettings>
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
 #include <myrmidon/utils/ProtobufFileReadWriter.hpp>
 
 #include <myrmidon/priv/Identification.hpp>
+#include <myrmidon/priv/Ant.hpp>
 
 #include "Estimate.pb.h"
 
@@ -41,6 +42,12 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->tagList->sortByColumn(0,Qt::AscendingOrder);
     d_ui->tagList->setSortingEnabled(true);
 
+    QSettings settings;
+    if( settings.contains("taggingWidget/ROI") ) {
+	    d_ui->roiBox->setValue(settings.value("taggingWidget/ROI").toInt());
+    }
+
+    updateButtonState();
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -224,12 +231,14 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 
 void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 	if ( item->data(0,Qt::UserRole).toString().isEmpty() || d_controller == NULL) {
+		updateButtonState();
 		return;
 	}
 	auto pathQt = item->data(0,Qt::UserRole).toString();
 	std::filesystem::path path(pathQt.toUtf8().constData(),std::filesystem::path::generic_format);
 	auto fi = d_snapshots.find(path);
 	if ( fi == d_snapshots.end() ) {
+		updateButtonState();
 		return;
 	}
 	auto s = fi->second;
@@ -238,12 +247,14 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 	if ( efi != d_estimates.end() ) {
 		d_ui->snapshotViewer->setAntPoseEstimate(efi->second);
 	}
-
+	updateButtonState();
 }
 
 
 void TaggingWidget::on_roiBox_valueChanged(int value) {
 	d_ui->snapshotViewer->setRoiSize(value);
+	QSettings settings;
+	settings.setValue("taggingWidget/ROI",value);
 }
 
 
@@ -293,6 +304,7 @@ void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstima
 
 
 	updateIdentificationsForFrame(e->TagValue(),*e->Frame());
+	updateButtonState();
 }
 
 
@@ -316,6 +328,7 @@ void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
 	}
 
 	if ( matched.size() == 0 ) {
+		ident->SetTagPosition(Eigen::Vector2d::Zero(),0);
 		return;
 	}
 
@@ -333,5 +346,87 @@ void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
 	angle /= matched.size();
 	ident->SetTagPosition(pos,angle);
 	d_controller->setModified(true);
+
+}
+
+
+void TaggingWidget::on_addIdentButton_clicked() {
+	qInfo() << "add ident";
+
+}
+
+void TaggingWidget::on_newAntButton_clicked() {
+	qInfo() << "new ant pose";
+
+}
+
+void TaggingWidget::on_deletePoseButton_clicked() {
+	auto e = d_ui->snapshotViewer->antPoseEstimate();
+	if (!e) {
+		qCritical() << "No pose estimate to delete !";
+		return;
+	}
+	auto fi = d_estimates.find(e->Path());
+	if (fi == d_estimates.end() ) {
+		qCritical() << "Inconsistent state: snaphot pose estimate is not registered.";
+		return;
+	}
+
+	d_estimates.erase(fi);
+	d_ui->snapshotViewer->setAntPoseEstimate(AntPoseEstimate::Ptr());
+	d_controller->setModified(true);
+	updateButtonState();
+	updateIdentificationsForFrame(e->TagValue(),*(e->Frame()));
+
+}
+
+void TaggingWidget::onAntSelected(fort::myrmidon::Ant::ID ID) {
+	d_selectedAnt = ID;
+	updateButtonState();
+	//TODO: display Identification in identication widget;
+}
+
+void TaggingWidget::updateButtonState() {
+
+	if ( d_controller == NULL ||
+	     !d_ui->snapshotViewer->displayedSnapshot() ||
+	     !d_ui->snapshotViewer->antPoseEstimate()) {
+		d_ui->addIdentButton->setEnabled(false);
+		d_ui->newAntButton->setEnabled(false);
+		d_ui->deletePoseButton->setEnabled(false);
+		return;
+	}
+	const auto & identifier = d_controller->experiment().ConstIdentifier();
+
+	d_ui->deletePoseButton->setEnabled(true);
+
+	auto e = d_ui->snapshotViewer->antPoseEstimate();
+	//we only allow modification
+	bool enabled = !identifier.Identify(e->TagValue(),*(e->Frame()));
+
+	if ( enabled == false ) {
+		d_ui->addIdentButton->setEnabled(false);
+		d_ui->newAntButton->setEnabled(false);
+		return;
+	}
+
+	d_ui->newAntButton->setEnabled(true);
+
+	//we only allow to add identification if the selected ant is free to accept it
+	auto aFi =  identifier.Ants().find(d_selectedAnt);
+	if ( aFi == identifier.Ants().end() ) {
+		d_ui->addIdentButton->setEnabled(false);
+		return;
+	}
+	auto a = aFi->second;
+	for(const auto & ident : a->Identifications() ) {
+		if (ident->TargetsFrame(*(e->Frame())) ) {
+			d_ui->addIdentButton->setEnabled(false);
+			return;
+		}
+	}
+
+
+	d_ui->addIdentButton->setEnabled(true);
 
 }

@@ -51,7 +51,7 @@ public:
 
 	IdentifierPtr ParentIdentifier() const;
 
-	inline bool TargetsFrame(const FramePointer & frame ) {
+	inline bool TargetsFrame(const FramePointer & frame ) const {
 		return (!d_start || *d_start <= frame) &&
 			(!d_end || frame <= *d_end);
 	}
