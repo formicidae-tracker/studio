@@ -27,7 +27,8 @@ set(HDR_FILES MainWindow.hpp
 			  SnapshotViewer.hpp
 			  FramePointerWidget.hpp
 			  AntIdentificationWidget.hpp
-			  QLongSpinBox.hpp)
+			  QLongSpinBox.hpp
+			  utils.hpp)
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui
@@ -38,7 +39,7 @@ set(UI_FILES MainWindow.ui
 set(RCC_FILES )
 
 
-set(PROTO_FILES SnapshotCache.proto Point2d.proto)
+set(PROTO_FILES SnapshotCache.proto Point2d.proto Estimate.proto)
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 foreach(f ${PROTO_SRC})

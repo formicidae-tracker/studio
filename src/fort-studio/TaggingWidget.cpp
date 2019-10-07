@@ -3,6 +3,15 @@
 
 #include <QPainter>
 
+#include <myrmidon/utils/NotYetImplemented.hpp>
+#include <myrmidon/utils/ProtobufFileReadWriter.hpp>
+
+#include "Estimate.pb.h"
+
+#include "utils.hpp"
+
+const std::filesystem::path TaggingWidget::ESTIMATE_SAVE_PATH = "ants/pose_estimates.fortstudio";
+
 TaggingWidget::TaggingWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TaggingWidget)
@@ -34,7 +43,6 @@ TaggingWidget::~TaggingWidget() {
 	clearIndexers();
     delete d_ui;
 }
-
 
 void TaggingWidget::onNewController(ExperimentController * controller) {
 	d_ui->identificationWidget->onNewController(controller);
@@ -79,10 +87,12 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 }
 
 void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+	using namespace fort::myrmidon;
+	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+
 	if ( d_controller == NULL ) {
 		return;
 	}
-
 
 	if ( d_ui->familySelector->currentIndex() == -1 ) {
 		clearIndexers();
@@ -105,10 +115,40 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		d_indexers[p] = indexer;
 		size_t toAdd = indexer->start();
 		d_ui->snapshotProgress->setMaximum(d_ui->snapshotProgress->maximum() + toAdd);
+
+		auto path = p / ESTIMATE_SAVE_PATH;
+		if ( std::filesystem::exists(path) == false ) {
+			continue;
+		}
+
+		try {
+			ReadWriter::Read(path,
+			                 [](const pb::EstimateHeader & h) {
+				                 std::string version = h.majorversion() + "." + h.minorversion();
+				                 if ( version != "0.1" ) {
+					                 throw std::invalid_argument("Uncompatible version " + version + " (0.1 expected)");
+				                 }
+			                 },
+			                 [this,&tdd](const pb::Estimate & pb) {
+				                 try {
+					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
+					                                                            pb::Point2dToEigen(pb.tail()),
+					                                                            tdd.FramePointer(pb.frame()),
+					                                                            pb.tag());
+					                 d_estimates[e->Path()] = e;
+				                 } catch ( const std::exception & e )  {
+					                 qCritical() << "Invalid protobuf '"  << pb.ShortDebugString().c_str()
+					                             << "': " << e.what()
+					                             << ";skipping line and continuing";
+
+				                 }
+			                 });
+		} catch (const std::exception & e) {
+			qWarning() << "Could not load pose estimate from '" << path.c_str() << "': " << e.what();
+		}
 	}
 
 	//todo : removes snapshots that are not present in the possibly removed datadirs;
-
 }
 
 
@@ -193,4 +233,42 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 
 void TaggingWidget::on_roiBox_valueChanged(int value) {
 	d_ui->snapshotViewer->setRoiSize(value);
+}
+
+
+Error TaggingWidget::save() {
+	using namespace fort::myrmidon;
+	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+
+	std::map<std::filesystem::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
+	for(const auto & [p,e] : d_estimates ) {
+		sortedEstimate[e->Base()].push_back(e);
+	}
+
+	pb::EstimateHeader h;
+	h.set_majorversion(0);
+	h.set_minorversion(1);
+	for ( const auto & [base,estimates] : sortedEstimate ) {
+
+
+		std::vector<std::function<void (pb::Estimate & )> > lines;
+		for (const auto & e : estimates ) {
+			lines.push_back([&e](pb::Estimate & pb) {
+				                pb.set_frame(e->Frame()->Frame);
+				                pb.set_tag(e->TagValue());
+				                pb::EigenToPoint2d(pb.mutable_head(),e->Head());
+				                pb::EigenToPoint2d(pb.mutable_tail(),e->Tail());
+			                });
+		}
+
+		auto path = base / ESTIMATE_SAVE_PATH;
+
+		try {
+			ReadWriter::Write(path,h,lines);
+		} catch (const std::exception & err) {
+			return Error("could not save '" + path.string() + "': " + err.what());
+		}
+	}
+
+	return Error::NONE;
 }

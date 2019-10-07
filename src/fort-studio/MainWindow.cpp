@@ -120,7 +120,7 @@ void MainWindow::on_actionSave_triggered() {
 	if ( d_controller == NULL ) {
 		return;
 	}
-	Error err = d_controller->save(d_controller->experiment().AbsolutePath().c_str());
+	Error err = saveAll(d_controller->experiment().AbsolutePath().c_str());
 	if ( err.OK() == false ) {
 		qCritical() << err.what();
 		return;
@@ -137,7 +137,7 @@ void MainWindow::on_actionSaveAs_triggered() {
 		return;
 	}
 
-	Error err = d_controller->save(path);
+	Error err = saveAll(path);
     if (!err.OK()) {
 	    qCritical() << err.what();
 	    return;
@@ -189,7 +189,7 @@ Error MainWindow::maybeSave() {
 
 	switch(res) {
 	case QMessageBox::Save:
-		return d_controller->save(d_controller->experiment().AbsolutePath().c_str());
+		return saveAll(d_controller->experiment().AbsolutePath().c_str());
 	case QMessageBox::Cancel:
 		return UserDiscard;
 	default:
@@ -353,4 +353,19 @@ void MainWindow::onNewController(ExperimentController * controller) {
 
 void MainWindow::on_antList_antSelected(uint32_t i) {
 	qInfo() << "Ant " << i <<  " selected";
+}
+
+
+
+Error MainWindow::saveAll(const QString & path) {
+	if ( d_controller == NULL ) {
+		return Error("No experiment loaded: nothing to save");
+	}
+
+	Error error = d_controller->save(path);
+	if ( error.OK() == false ) {
+		return error;
+	}
+
+	return d_ui->taggingWidget->save();
 }

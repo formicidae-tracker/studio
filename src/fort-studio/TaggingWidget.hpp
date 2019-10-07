@@ -6,7 +6,9 @@
 #include "ExperimentController.hpp"
 
 #include "SnapshotIndexer.hpp"
+#include "AntPoseEstimate.hpp"
 
+#include <filesystem>
 
 
 namespace Ui {
@@ -21,6 +23,8 @@ public:
 
 
 public slots:
+	Error save();
+
 	void onNewController(ExperimentController * controller);
 	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &);
 
@@ -32,6 +36,7 @@ public slots:
 	void onNewSnapshots(const QVector<Snapshot::ConstPtr> &, size_t done);
 
 private:
+	const static std::filesystem::path ESTIMATE_SAVE_PATH;
 	void clearIndexers();
 
     Ui::TaggingWidget *d_ui;
@@ -40,5 +45,7 @@ private:
 
 	std::unordered_map<uint32_t,QTreeWidgetItem*>      d_tags;
 	std::unordered_map<std::string,Snapshot::ConstPtr> d_snapshots;
+
+	std::map<std::filesystem::path,AntPoseEstimate::Ptr> d_estimates;
 
 };

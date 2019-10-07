@@ -6,6 +6,10 @@ Error::Error(const char * what)
 Error::Error(const QString & what)
 	: d_what(what) {}
 
+Error::Error(const std::string & what)
+	: d_what(what.c_str()) {
+}
+
 Error::~Error() {}
 
 bool Error::OK() const {

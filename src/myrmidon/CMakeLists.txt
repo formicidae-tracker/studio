@@ -43,7 +43,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
-                      utils/ProtobufFileReadWriter.hpp)
+                      utils/ProtobufFileReadWriter.hpp
+					  utils/NotYetImplemented.hpp)
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp

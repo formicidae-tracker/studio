@@ -44,6 +44,7 @@ protected:
 private:
 
 	Error maybeSave();
+	Error saveAll(const QString & path);
 	QString promptPath();
 
 
