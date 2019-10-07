@@ -115,16 +115,16 @@ implement_setter(Comment)
 
 
 void ExperimentController::createAnt() {
-	d_experiment->CreateAnt();
-	emit antListModified(d_experiment->Ants());
+	d_experiment->Identifier().CreateAnt();
+	emit antListModified(d_experiment->ConstIdentifier().Ants());
 	setModified(true);
 }
 
 
 Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
 	try {
-		d_experiment->DeleteAnt(ID);
-		emit antListModified(d_experiment->Ants());
+		d_experiment->Identifier().DeleteAnt(ID);
+		emit antListModified(d_experiment->ConstIdentifier().Ants());
 		setModified(true);
 		return Error::NONE;
 	} catch ( const std::exception & e) {

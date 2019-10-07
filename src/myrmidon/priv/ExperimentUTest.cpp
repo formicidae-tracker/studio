@@ -48,10 +48,10 @@ TEST_F(ExperimentUTest,IOTest) {
 		auto tdd = e->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd["foo.0000"].Path(),"foo.0000");
-		ASSERT_EQ(e->Ants().size(),3);
-		EXPECT_EQ(e->Ants().find(1)->second->ID(),1);
-		EXPECT_EQ(e->Ants().find(2)->second->ID(),2);
-		EXPECT_EQ(e->Ants().find(3)->second->ID(),3);
+		ASSERT_EQ(e->ConstIdentifier().Ants().size(),3);
+		EXPECT_EQ(e->ConstIdentifier().Ants().find(1)->second->ID(),1);
+		EXPECT_EQ(e->ConstIdentifier().Ants().find(2)->second->ID(),2);
+		EXPECT_EQ(e->ConstIdentifier().Ants().find(3)->second->ID(),3);
 		EXPECT_EQ(e->AbsolutePath(),TestSetup::Basedir() / "test.myrmidon");
 		EXPECT_EQ(e->Basedir(), TestSetup::Basedir());
 

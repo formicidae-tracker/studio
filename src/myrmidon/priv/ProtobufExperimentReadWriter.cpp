@@ -56,7 +56,7 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesy
 	                });
 
 	std::vector<fort::myrmidon::Ant::ID> antIDs;
-	for (const auto & [ID,a] : experiment.Ants() ) {
+	for (const auto & [ID,a] : experiment.ConstIdentifier().Ants() ) {
 		antIDs.push_back(ID);
 	}
 	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
@@ -66,7 +66,7 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesy
 
 	for (const auto & ID : antIDs) {
 		lines.push_back([experiment,ID](fm::pb::FileLine & line) {
-			                SaveAnt(*(line.mutable_antdata()),*(experiment.Ants().find(ID)->second));
+			                SaveAnt(*(line.mutable_antdata()),*(experiment.ConstIdentifier().Ants().find(ID)->second));
 		                });
 	}
 
@@ -160,7 +160,7 @@ void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & p
 
 
 void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
-	auto ant = e.CreateAnt(pb.id());
+	auto ant = e.Identifier().CreateAnt(pb.id());
 	for ( const auto & ident : pb.marker() ) {
 		LoadIdentification(e,ant,ident);
 	}
@@ -184,7 +184,7 @@ void ProtobufReadWriter::LoadIdentification(Experiment & e, const AntPtr & targe
 		end = LoadFramePointer(pb.startframe());
 	}
 
-	auto res = e.AddIdentification(target->ID(),pb.id(),start,end);
+	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
 
 	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
 }

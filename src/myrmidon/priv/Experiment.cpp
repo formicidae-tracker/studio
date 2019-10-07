@@ -114,22 +114,6 @@ const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirector
 	return d_dataDirs;
 }
 
-
-fort::myrmidon::priv::Ant::Ptr Experiment::CreateAnt(fort::myrmidon::Ant::ID ID) {
-	return d_identifier->CreateAnt(ID);
-}
-
-void Experiment::DeleteAnt(fort::myrmidon::Ant::ID id) {
-	return d_identifier->DeleteAnt(id);
-}
-
-const AntByID & Experiment::Ants() const {
-	return d_identifier->Ants();
-}
-
-
-
-
 const std::string & Experiment::Name() const {
 	return d_name;
 }
@@ -183,16 +167,4 @@ Experiment::TagFamily Experiment::Family() const {
 
 void Experiment::SetFamily(TagFamily tf) {
 	d_family = tf;
-}
-
-
-Identification::Ptr Experiment::AddIdentification(fort::myrmidon::Ant::ID id,
-                                                  uint32_t tagValue,
-                                                  const FramePointerPtr & start,
-                                                  const FramePointerPtr & end) {
-	return d_identifier->AddIdentification(id,tagValue,start,end);
-}
-
-void Experiment::DeleteIdentification(const IdentificationPtr & ident) {
-	d_identifier->DeleteIdentification(ident);
 }

@@ -47,17 +47,13 @@ public :
 
 	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
 
-	AntPtr CreateAnt(fort::myrmidon::Ant::ID = 0);
-	void DeleteAnt(fort::myrmidon::Ant::ID );
-	const AntByID & Ants() const;
+	inline fort::myrmidon::priv::Identifier &  Identifier() {
+		return *d_identifier;
+	}
 
-	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
-	                                    uint32_t tagValue,
-	                                    const FramePointerPtr & start,
-	                                    const FramePointerPtr & end);
-
-	void DeleteIdentification(const IdentificationPtr & ident);
-
+	const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
+		return *d_identifier;
+	}
 
 	const std::string & Name() const;
 	void SetName(const std::string & name);

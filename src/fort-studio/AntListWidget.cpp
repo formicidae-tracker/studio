@@ -35,7 +35,7 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 	        SIGNAL(antListModified(const fort::myrmidon::priv::AntByID &)),
 	        this,
 	        SLOT(onAntListModified(const fort::myrmidon::priv::AntByID &)));
-	onAntListModified(d_controller->experiment().Ants());
+	onAntListModified(d_controller->experiment().ConstIdentifier().Ants());
 	d_ui->filterEdit->setEnabled(true);
 	d_ui->addButton->setEnabled(true);
 
