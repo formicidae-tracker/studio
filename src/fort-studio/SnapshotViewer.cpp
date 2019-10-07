@@ -71,9 +71,9 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	d_scene.addItem(d_head);
 	d_scene.addItem(d_tail);
 	d_head->setVisible(false);
-	d_head->setEnabled(false);
+	d_head->setEnabled(true);
 	d_tail->setVisible(false);
-	d_tail->setEnabled(false);
+	d_tail->setEnabled(true);
 
 	d_estimateLine = new QGraphicsLineItem(0,0,0,0);
 	d_estimateLine->setVisible(false);
@@ -100,7 +100,6 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 
 SnapshotViewer::~SnapshotViewer() {
 }
-
 
 void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 	d_snapshot = s;
@@ -138,6 +137,7 @@ void SnapshotViewer::setRoiSize(size_t roiSize) {
 	}
 	d_roiSize = roiSize;
 	setImageBackground();
+	setAntPoseEstimate(d_poseEstimate);
 	if ( emitSignal == true ) {
 		emit roiSizeChanged(roiSize);
 	}
@@ -367,16 +367,15 @@ void SnapshotViewer::setAntPoseEstimate(const AntPoseEstimate::Ptr & estimate) {
 		return;
 	}
 
-
 	if ( !d_snapshot ||  estimate->Path() != d_snapshot->Path() ) {
 		return;
 	}
 
 	d_poseEstimate = estimate;
-	d_head->setPos(estimate->Head().x(),
-	               estimate->Head().y());
-	d_tail->setPos(estimate->Tail().x(),
-	               estimate->Tail().y());
+	d_head->setPos(estimate->Head().x() - d_roi.x(),
+	               estimate->Head().y() - d_roi.y());
+	d_tail->setPos(estimate->Tail().x() - d_roi.x(),
+	               estimate->Tail().y() - d_roi.y());
 	d_head->setVisible(true);
 	d_tail->setVisible(true);
 	updateLine();
@@ -387,8 +386,8 @@ void SnapshotViewer::emitNewPoseEstimate() {
 	if (!d_snapshot) {
 		return;
 	}
-	Eigen::Vector2d head(ToEigen(d_head));
-	Eigen::Vector2d tail(ToEigen(d_tail));
+	Eigen::Vector2d head(ToEigen(d_head->pos()+d_roi.topLeft()));
+	Eigen::Vector2d tail(ToEigen(d_tail->pos()+d_roi.topLeft()));
 
 	if (!d_poseEstimate) {
 		d_poseEstimate = std::make_shared<AntPoseEstimate>(head,
@@ -397,8 +396,7 @@ void SnapshotViewer::emitNewPoseEstimate() {
 		                                                   d_snapshot->TagValue());
 	} else {
 		d_poseEstimate->SetHead(head);
-		d_poseEstimate->SetHead(tail);
-
+		d_poseEstimate->SetTail(tail);
 	}
 
 	emit antPoseEstimateUpdated(d_poseEstimate);

@@ -116,7 +116,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		size_t toAdd = indexer->start();
 		d_ui->snapshotProgress->setMaximum(d_ui->snapshotProgress->maximum() + toAdd);
 
-		auto path = p / ESTIMATE_SAVE_PATH;
+		auto path = d_controller->experiment().Basedir() / p / ESTIMATE_SAVE_PATH;
 		if ( std::filesystem::exists(path) == false ) {
 			continue;
 		}
@@ -124,9 +124,11 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		try {
 			ReadWriter::Read(path,
 			                 [](const pb::EstimateHeader & h) {
-				                 std::string version = h.majorversion() + "." + h.minorversion();
+				                 std::ostringstream os;
+				                 os << h.majorversion() << "." << h.minorversion();
+				                 std::string version = os.str();
 				                 if ( version != "0.1" ) {
-					                 throw std::invalid_argument("Uncompatible version " + version + " (0.1 expected)");
+					                 throw std::invalid_argument("Uncompatible version '" + version + "' (0.1 expected)");
 				                 }
 			                 },
 			                 [this,&tdd](const pb::Estimate & pb) {
@@ -220,13 +222,18 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 	if ( item->data(0,Qt::UserRole).toString().isEmpty() || d_controller == NULL) {
 		return;
 	}
-	auto path = item->data(0,Qt::UserRole).toString();
-	auto fi = d_snapshots.find(path.toUtf8().constData());
+	auto pathQt = item->data(0,Qt::UserRole).toString();
+	std::filesystem::path path(pathQt.toUtf8().constData(),std::filesystem::path::generic_format);
+	auto fi = d_snapshots.find(path);
 	if ( fi == d_snapshots.end() ) {
 		return;
 	}
 	auto s = fi->second;
 	d_ui->snapshotViewer->displaySnapshot(s);
+	auto efi = d_estimates.find(path);
+	if ( efi != d_estimates.end() ) {
+		d_ui->snapshotViewer->setAntPoseEstimate(efi->second);
+	}
 
 }
 
@@ -261,7 +268,7 @@ Error TaggingWidget::save() {
 			                });
 		}
 
-		auto path = base / ESTIMATE_SAVE_PATH;
+		auto path = d_controller->experiment().Basedir() / base / ESTIMATE_SAVE_PATH;
 
 		try {
 			ReadWriter::Write(path,h,lines);
@@ -271,4 +278,11 @@ Error TaggingWidget::save() {
 	}
 
 	return Error::NONE;
+}
+
+
+void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e) {
+	qInfo() << "Pose updated for " << e->Frame()->FullPath().generic_string().c_str();
+	d_estimates[e->Path()] = e;
+	d_controller->setModified(true);
 }

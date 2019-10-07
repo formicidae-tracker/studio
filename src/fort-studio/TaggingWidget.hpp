@@ -34,6 +34,7 @@ public slots:
 	void on_roiBox_valueChanged(int);
 
 	void onNewSnapshots(const QVector<Snapshot::ConstPtr> &, size_t done);
+	void on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e);
 
 private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;

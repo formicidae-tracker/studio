@@ -27,6 +27,8 @@ public slots:
 	void setRoiSize(size_t);
 	void setAntPoseEstimate(const AntPoseEstimate::Ptr & s);
 
+
+
 signals:
 	void antPoseEstimateUpdated(const AntPoseEstimate::Ptr & estimate);
 	void roiSizeChanged(size_t);
