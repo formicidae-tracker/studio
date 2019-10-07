@@ -301,7 +301,6 @@ Error TaggingWidget::save() {
 
 void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e) {
 	using namespace fort::myrmidon::priv;
-	qInfo() << "Pose updated for " << e->Frame()->FullPath().generic_string().c_str();
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
 
@@ -330,7 +329,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 
 	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
 	for(const auto & [p,ee] : d_estimates ) {
-		if (ee->TagValue() != tagValue || f != *(ee->Frame()) ) {
+		if (ee->TagValue() != tagValue || !ident->TargetsFrame(*(ee->Frame())) ) {
 			continue;
 		}
 		auto fi = d_snapshots.find(p);
@@ -349,6 +348,8 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 	double angle(0);
 	for ( const auto & m : matched ) {
 		Isometry2Dd tagToAntTransform;
+
+
 		Identification::ComputeTagToAntTransform(tagToAntTransform,
 		                                         m.second->TagPosition(),m.second->TagAngle(),
 		                                         m.first->Head(),m.first->Tail());

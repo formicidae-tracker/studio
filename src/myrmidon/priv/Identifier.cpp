@@ -60,15 +60,29 @@ AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
 }
 
 void Identifier::DeleteAnt(fort::myrmidon::Ant::ID id) {
-	if ( d_ants.count(id) == 0 ) {
+	auto fi = d_ants.find(id);
+	if ( fi == d_ants.end() ) {
 		throw UnmanagedAnt(id);
 	}
 	if ( id != d_ants.size() ) {
 		d_continuous = false;
 	}
+
+	for(const auto & ident : fi->second->Identifications() ) {
+		auto & identsWithTags = d_identifications[ident->TagValue()];
+		identsWithTags.erase(std::remove_if(identsWithTags.begin(),identsWithTags.end(),
+		                                    [fi](const Identification::Ptr & i) -> bool {
+			                                    return i->Target()->ID() == fi->second->ID();
+		                                    }));
+	}
+
+
 	d_antIDs.erase(id);
 	d_ants.erase(id);
+
+
 }
+
 
 const AntByID & Identifier::Ants() const {
 	return d_ants;

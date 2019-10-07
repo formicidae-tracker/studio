@@ -624,7 +624,11 @@ void SnapshotViewer::setIdentification(const fort::myrmidon::priv::Identificatio
 	d_poseMarker->setVisible(true);
 	d_poseMarker->setPos(trans.translation().x() - d_roi.x(),
 	                     trans.translation().y() - d_roi.y());
-	//	d_poseMarker->setRotation(trans.angle()*180.0/M_PI);
+	d_poseMarker->setRotation(trans.angle()*180.0/M_PI);
+
+	// d_poseMarker->setPos(d_snapshot->TagPosition().x() - d_roi.x(),
+	//                      d_snapshot->TagPosition().y() - d_roi.y());
+	// d_poseMarker->setRotation(d_snapshot->TagAngle()*180.0/M_PI);
 
 
 }

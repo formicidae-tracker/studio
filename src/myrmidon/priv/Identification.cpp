@@ -156,5 +156,5 @@ void Identification::ComputeTagToAntTransform(Isometry2Dd & result,
 	Eigen::Vector2d dir = head - tail;
 	dir.normalize();
 
-	result = Isometry2Dd(tagAngle,tagPosition) * Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse();
+	result = Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse() * Isometry2Dd(tagAngle,tagPosition);
 }

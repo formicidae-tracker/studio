@@ -128,6 +128,7 @@ Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
 	try {
 		fmp::Identification::Ptr res = d_experiment->Identifier().AddIdentification(ID,tagValue,start,end);
 		emit newAntIdentification(res);
+		emit antListModified(d_experiment->ConstIdentifier().Ants());
 		setModified(true);
 		return Error::NONE;
 	} catch (const std::exception & e) {

@@ -38,7 +38,15 @@ public:
 	Isometry2D() {}
 	Isometry2D(T angle, const Eigen::Matrix<T,2,1> & translation)
 		: d_angle(angle)
-		, d_translation(translation) { }
+		, d_translation(translation) {
+		while(d_angle < -M_PI ) {
+			d_angle += 2.0 * M_PI;
+		}
+		while( d_angle > M_PI ) {
+			d_angle -= 2.0 * M_PI;
+		}
+
+	}
 
 	const Eigen::Rotation2D<T> & rotation() const {
 		return Eigen::Rotation2D<T>(d_angle);
