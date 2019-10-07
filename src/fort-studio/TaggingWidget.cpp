@@ -247,6 +247,9 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 	if ( efi != d_estimates.end() ) {
 		d_ui->snapshotViewer->setAntPoseEstimate(efi->second);
 	}
+	auto ident = d_controller->experiment().ConstIdentifier().Identify(s->TagValue(),*s->Frame());
+	d_ui->snapshotViewer->setIdentification(ident);
+
 	updateButtonState();
 }
 
@@ -302,17 +305,27 @@ void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstima
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
 
-
-	updateIdentificationsForFrame(e->TagValue(),*e->Frame());
+	updateIdentificationForCurrentFrame();
 	updateButtonState();
 }
 
-
-void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
-                                                  const FramePointer & f) {
-	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f);
-	if (!ident) {
+void TaggingWidget::updateIdentificationForCurrentFrame() {
+	auto s = d_ui->snapshotViewer->displayedSnapshot();
+	if (!s) {
 		return;
+	}
+	auto ident = updateIdentificationForFrame(s->TagValue(),*(s->Frame()));
+	d_ui->snapshotViewer->setIdentification(ident);
+}
+
+
+Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValue,
+                                                                const FramePointer & f) {
+
+	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f);
+
+	if (!ident) {
+		return ident;
 	}
 
 	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
@@ -329,7 +342,7 @@ void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
 
 	if ( matched.size() == 0 ) {
 		ident->SetTagPosition(Eigen::Vector2d::Zero(),0);
-		return;
+		return ident;
 	}
 
 	Eigen::Vector2d pos(0,0);
@@ -346,19 +359,37 @@ void TaggingWidget::updateIdentificationsForFrame(uint32_t tagValue,
 	angle /= matched.size();
 	ident->SetTagPosition(pos,angle);
 	d_controller->setModified(true);
-
+	return ident;
 }
 
 
 void TaggingWidget::on_addIdentButton_clicked() {
-	qInfo() << "add ident";
 
 }
 
 void TaggingWidget::on_newAntButton_clicked() {
-	qInfo() << "new ant pose";
+	auto e = d_ui->snapshotViewer->antPoseEstimate();
+	if (!e) {
+		qCritical() << "A pose estimation is needed";
+		return;
+	}
+	auto a = d_controller->createAnt();
+	FramePointer::Ptr start;
+	FramePointer::Ptr end;
+	if ( d_controller->experiment().FreeRangeContaining(start,end,e->TagValue(),*(e->Frame())) == false ) {
+		qCritical() << e->Frame()->FullPath().generic_string().c_str() << " already identifies an ant";
+		return;
+	}
 
+	Error err = d_controller->addIdentification(a->ID(),e->TagValue(),start,end);
+	if ( err.OK() == false ) {
+		qCritical() << "Could not create identification: " << err.what();
+		return;
+	}
+	updateIdentificationForCurrentFrame();
+	updateButtonState();
 }
+
 
 void TaggingWidget::on_deletePoseButton_clicked() {
 	auto e = d_ui->snapshotViewer->antPoseEstimate();
@@ -376,7 +407,7 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 	d_ui->snapshotViewer->setAntPoseEstimate(AntPoseEstimate::Ptr());
 	d_controller->setModified(true);
 	updateButtonState();
-	updateIdentificationsForFrame(e->TagValue(),*(e->Frame()));
+	updateIdentificationForCurrentFrame();
 
 }
 

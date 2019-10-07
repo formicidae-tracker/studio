@@ -2,7 +2,7 @@
 
 #include "Ant.hpp"
 #include "DeletedReference.hpp"
-
+#include "FramePointer.hpp"
 
 using namespace fort::myrmidon::priv;
 
@@ -203,4 +203,53 @@ Identification::Ptr Identifier::Identify(uint32_t tag,const FramePointer & frame
 		}
 	}
 	return Identification::Ptr();
+}
+
+
+FramePointer::Ptr Identifier::UpperUnidentifiedBound(uint32_t tag, const FramePointer & frame) const {
+	auto fi = d_identifications.find(tag) ;
+	if ( fi == d_identifications.end() ) {
+		return FramePointer::Ptr();
+	}
+
+
+
+	for( const auto & ident : fi->second ) {
+		if ( ident->TargetsFrame(frame) ) {
+			std::ostringstream os;
+			os << "tag " << tag << " on " <<frame.FullPath() << " identifies Ant "
+			   << ident->Target()->FormattedID() ;
+			throw std::out_of_range(os.str());
+		}
+		if ( frame < *(ident->Start()) ) {
+			return std::make_shared<FramePointer>(*(ident->Start()));
+		}
+	}
+
+	return FramePointer::Ptr();
+}
+
+FramePointer::Ptr Identifier::LowerUnidentifiedBound(uint32_t tag, const FramePointer & frame) const {
+	auto fi = d_identifications.find(tag) ;
+	if ( fi == d_identifications.end() ) {
+		return FramePointer::Ptr();
+	}
+
+
+
+	for( auto iter = fi->second.rbegin();
+	     iter != fi->second.rend();
+	     ++iter ) {
+		if ( (*iter)->TargetsFrame(frame) ) {
+			std::ostringstream os;
+			os << "tag " << tag << " on " << frame.FullPath() << " identifies Ant "
+			   << (*iter)->Target()->FormattedID() ;
+			throw std::out_of_range(os.str());
+		}
+		if ( *((*iter)->End()) < frame ) {
+			return std::make_shared<FramePointer>(*((*iter)->End()));
+		}
+	}
+
+	return FramePointer::Ptr();
 }

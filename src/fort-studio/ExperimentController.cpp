@@ -114,11 +114,27 @@ implement_setter(Author)
 implement_setter(Comment)
 
 
-void ExperimentController::createAnt() {
-	d_experiment->Identifier().CreateAnt();
+fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
+	auto a = d_experiment->Identifier().CreateAnt();
 	emit antListModified(d_experiment->ConstIdentifier().Ants());
 	setModified(true);
+	return a;
 }
+
+Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
+                                              uint32_t tagValue,
+                                              const fmp::FramePointer::Ptr & start,
+                                              const fmp::FramePointer::Ptr & end) {
+	try {
+		fmp::Identification::Ptr res = d_experiment->Identifier().AddIdentification(ID,tagValue,start,end);
+		emit newAntIdentification(res);
+		setModified(true);
+		return Error::NONE;
+	} catch (const std::exception & e) {
+		return Error(e.what());
+	}
+}
+
 
 
 Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {

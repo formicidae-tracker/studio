@@ -9,6 +9,10 @@
 
 #include <Eigen/Geometry>
 
+#include <myrmidon/priv/Identification.hpp>
+
+using namespace fort::myrmidon::priv;
+
 const int SnapshotViewer::DEFAULT_ROI_SIZE = 400;
 
 const int SnapshotViewer::TAG_LINE_SIZE = 2;
@@ -123,6 +127,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 
 	setImageBackground();
 	setAntPoseEstimate(AntPoseEstimate::Ptr());
+	setIdentification(Identification::Ptr());
 }
 
 
@@ -606,4 +611,20 @@ void SnapshotViewer::Capsule::Rebuild() {
 	           180 + 2*angle * 180.0 / M_PI);
 	path.closeSubpath();
 	d_path->setPath(path);
+}
+
+
+void SnapshotViewer::setIdentification(const fort::myrmidon::priv::IdentificationPtr & ident) {
+	if ( !ident || !d_snapshot) {
+		d_poseMarker->setVisible(false);
+		return;
+	}
+
+	auto trans = Isometry2Dd(d_snapshot->TagAngle(),d_snapshot->TagPosition()) * ident->AntToTagTransform();
+	d_poseMarker->setVisible(true);
+	d_poseMarker->setPos(trans.translation().x() - d_roi.x(),
+	                     trans.translation().y() - d_roi.y());
+	//	d_poseMarker->setRotation(trans.angle()*180.0/M_PI);
+
+
 }

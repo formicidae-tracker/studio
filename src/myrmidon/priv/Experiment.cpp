@@ -96,6 +96,21 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 	d_dataDirs[toAdd.Path()] = toAdd;
 }
 
+bool Experiment::ContainsFramePointer()  const  {
+	//check if Identification contains any frame
+	for(const auto & [ID,a] :  d_identifier->Ants() ) {
+		for (const auto & ident : a->Identifications() ) {
+			if ( ident->Start() || ident->End() ) {
+				return true;
+			}
+		}
+	}
+
+	// TODO check if other things containing FramePointer contains any..
+
+	return false;
+}
+
 void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
 
 	if ( path.is_absolute() ) {
@@ -105,6 +120,10 @@ void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
 
 	if ( d_dataDirs.count(path) == 0 ) {
 		throw std::invalid_argument("Could not find data path '" + path.string() + "'");
+	}
+
+	if ( ContainsFramePointer() ) {
+		throw std::runtime_error("This Experiment contains FramePointer, and therefore removing a TrackingDataDirectory may breaks everything, and is therefore disabled");
 	}
 
 	d_dataDirs.erase(path);
@@ -167,4 +186,40 @@ Experiment::TagFamily Experiment::Family() const {
 
 void Experiment::SetFamily(TagFamily tf) {
 	d_family = tf;
+}
+
+
+bool Experiment::FreeRangeContaining(FramePointer::Ptr & start,
+                                     FramePointer::Ptr & end,
+                                     uint32_t tag, const FramePointer & f) const {
+	FramePointer::Ptr upperBound, lowerBound;
+	try {
+		upperBound = d_identifier->UpperUnidentifiedBound(tag,f);
+		lowerBound = d_identifier->LowerUnidentifiedBound(tag,f);
+	} catch ( const std::out_of_range &) {
+		return false;
+	}
+
+	if (!upperBound) {
+		end.reset();
+	} else {
+		// we may create tag that are not in the range of the
+		// TrackingDataDirectory but they will compare fine
+		auto res = std::make_shared<FramePointer>(*upperBound);
+		res->Frame += -1;
+		end = res;
+	}
+
+
+	if (!lowerBound) {
+		start.reset();
+	} else {
+		// we may create tag that are not in the range of the
+		// TrackingDataDirectory but they will compare fine
+		auto res = std::make_shared<FramePointer>(*lowerBound);
+		res->Frame += 1;
+		start = res;
+	}
+
+	return true;
 }

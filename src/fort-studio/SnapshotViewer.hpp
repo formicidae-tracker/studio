@@ -36,7 +36,7 @@ public slots:
 	void displaySnapshot(const Snapshot::ConstPtr & s);
 	void setRoiSize(size_t);
 	void setAntPoseEstimate(const AntPoseEstimate::Ptr & s);
-
+	void setIdentification(const fort::myrmidon::priv::IdentificationPtr & ident);
 
 
 signals:

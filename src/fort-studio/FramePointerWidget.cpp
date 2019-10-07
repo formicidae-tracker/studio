@@ -102,8 +102,8 @@ void FramePointerWidget::on_comboBox_currentIndexChanged(int i) {
 	std::filesystem::path path = d_ui->comboBox->currentData().toString().toUtf8().constData();
 	auto & tdd = d_controller->experiment().TrackingDataDirectories().find(path)->second;
 
-	d_ui->spinBox->setMinimum(tdd.StartFrame());
-	d_ui->spinBox->setMaximum(tdd.EndFrame());
+	d_ui->spinBox->setMinimum(tdd.StartFrame() == 0 ? 0 : tdd.StartFrame()-1);
+	d_ui->spinBox->setMaximum(tdd.EndFrame() + 1);
 	d_ui->spinBox->setToolTip(tr("Frame ∈ [%1;%2]").arg(tdd.StartFrame()).arg(tdd.EndFrame()));
 	d_inhibit = false;
 }

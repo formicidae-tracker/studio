@@ -76,6 +76,10 @@ public:
 
 	IdentificationPtr Identify(uint32_t tag,const FramePointer & frame) const;
 
+	FramePointerPtr UpperUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
+	FramePointerPtr LowerUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
+
+
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 	typedef std::unordered_map<uint32_t,IdentificationList> IdentificationByTagID;

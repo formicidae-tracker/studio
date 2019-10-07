@@ -21,7 +21,6 @@ public:
     explicit TaggingWidget(QWidget *parent = 0);
 	~TaggingWidget();
 
-
 public slots:
 	Error save();
 
@@ -48,8 +47,9 @@ private:
 	void updateButtonState();
 
 
-	void updateIdentificationsForFrame(uint32_t tag,
-	                                   const fort::myrmidon::priv::FramePointer & f);
+	void updateIdentificationForCurrentFrame();
+	fort::myrmidon::priv::IdentificationPtr
+	updateIdentificationForFrame(uint32_t tag, const fort::myrmidon::priv::FramePointer & f);
 
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;

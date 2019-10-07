@@ -71,7 +71,13 @@ public :
 	uint8_t Threshold() const;
 	void SetThreshold(uint8_t th);
 
+	bool FreeRangeContaining(FramePointerPtr & start,
+	                         FramePointerPtr & end,
+	                         uint32_t tag, const FramePointer & f) const;
+
 private:
+	bool ContainsFramePointer() const;
+
 	Experiment(const std::filesystem::path & filepath);
 
 	std::filesystem::path       d_absoluteFilepath;
