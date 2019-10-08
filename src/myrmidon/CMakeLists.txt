@@ -74,7 +74,8 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/IdentifierUTest.cpp
                     priv/IdentificationUTest.cpp
                     priv/FramePointerUTest.cpp
-                    priv/ProtobufExperimentReadWriterUTest.cpp)
+                    priv/ProtobufExperimentReadWriterUTest.cpp
+                    priv/Isometry2DUTest.cpp)
 
 set(HDR_UTEST_FILES TestSetup.hpp
                     priv/ExperimentUTest.hpp
@@ -83,7 +84,8 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/Identifier.hpp
                     priv/Identification.hpp
                     priv/FramePointerUTest.hpp
-                    priv/ProtobufExperimentReadWriterUTest.hpp)
+                    priv/ProtobufExperimentReadWriterUTest.hpp
+                    priv/Isometry2DUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${HDR_PUBLIC_FILES}

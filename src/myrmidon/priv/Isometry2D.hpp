@@ -42,13 +42,13 @@ public:
 		while(d_angle < -M_PI ) {
 			d_angle += 2.0 * M_PI;
 		}
-		while( d_angle > M_PI ) {
+		while( d_angle >= M_PI ) {
 			d_angle -= 2.0 * M_PI;
 		}
 
 	}
 
-	const Eigen::Rotation2D<T> & rotation() const {
+	Eigen::Rotation2D<T> rotation() const {
 		return Eigen::Rotation2D<T>(d_angle);
 	}
 
