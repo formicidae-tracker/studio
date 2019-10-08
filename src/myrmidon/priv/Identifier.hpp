@@ -79,6 +79,8 @@ public:
 	FramePointerPtr UpperUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
 	FramePointerPtr LowerUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
 
+	size_t UseCount(uint32_t tag) const;
+
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;

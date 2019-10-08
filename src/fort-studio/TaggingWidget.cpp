@@ -1,6 +1,8 @@
 #include "TaggingWidget.hpp"
 #include "ui_TaggingWidget.h"
 
+#include <iomanip>
+
 #include <QSettings>
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
@@ -24,6 +26,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->setupUi(this);
 
     qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
+    qRegisterMetaType<std::vector<uint32_t>>("std::vector<uint32_t>");
     qRegisterMetaType<size_t>("size_t");
 
     using namespace fort::myrmidon::priv;
@@ -83,6 +86,8 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 		d_ui->familySelector->setEnabled(false);
 		d_ui->thresholdBox->setEnabled(false);
 		d_ui->snapshotProgress->setValue(0);
+		d_ui->unusedTagDisplay->setText(tr("N.A."));
+		d_ui->missingTagDisplay->setText(tr("N.A."));
 		return;
 	}
 	d_ui->snapshotViewer->setBasedir(d_controller->experiment().Basedir());
@@ -114,6 +119,15 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	d_ui->thresholdBox->setValue(d_controller->experiment().Threshold());
 	d_ui->thresholdBox->setEnabled(true);
 
+	d_used.clear();
+	for ( const auto & [ID,a] : d_controller->experiment().ConstIdentifier().Ants() ) {
+		for ( const auto & i : a->Identifications() ) {
+			d_used.insert(i->TagValue());
+		}
+	}
+	d_allTrackedTags.clear();
+
+	updateUnusedCount();
 
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
@@ -145,6 +159,16 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		        this,SLOT(onNewSnapshots(const QVector<Snapshot::ConstPtr> & , size_t)),
 		        Qt::QueuedConnection);
 		d_indexers[p] = indexer;
+
+
+		auto extractor = std::make_shared<TagExtractor>();
+		connect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
+		        this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )),
+		        Qt::QueuedConnection);
+		d_extractors[p] = extractor;
+		extractor->start(tdd,d_controller->experiment().Basedir());
+
+
 		size_t toAdd = indexer->start();
 		d_ui->snapshotProgress->setMaximum(d_ui->snapshotProgress->maximum() + toAdd);
 
@@ -192,6 +216,13 @@ void TaggingWidget::clearIndexers() {
 		           this,SLOT(onNewSnapshots(const QVector<Snapshot::ConstPtr> & , size_t)));
 	}
 	d_indexers.clear();
+
+	for(auto & [p,extractor] :  d_extractors ) {
+		disconnect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
+		           this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )));
+	}
+	d_extractors.clear();
+
 	d_ui->tagList->clear();
 	d_tags.clear();
 	d_snapshots.clear();
@@ -246,6 +277,8 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 		frameWidget->setData(0,Qt::DisplayRole,s->Path().parent_path().generic_string().c_str());
 		frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
 	}
+
+	updateUnusedCount();
 }
 
 
@@ -486,13 +519,64 @@ void TaggingWidget::updateButtonState() {
 
 
 void TaggingWidget::onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr & i ) {
+	d_used.insert(i->TagValue());
+	updateUnusedCount();
 }
 
 void TaggingWidget::onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr & i ) {
+	if (!d_controller) {
+		return;
+	}
+	// the tag is not used anymore
+	if (d_controller->experiment().ConstIdentifier().UseCount(i->TagValue()) == 0 ) {
+		d_used.erase(i->TagValue());
+		updateUnusedCount();
+	}
+
 	auto s = d_ui->snapshotViewer->displayedSnapshot();
-	if ( i->TagValue() != s->TagValue() ||
+	if ( !s || i->TagValue() != s->TagValue() ||
 	     !i->TargetsFrame(*s->Frame()) ) {
 		return;
 	}
 	d_ui->snapshotViewer->displayIdentification(Identification::Ptr());
+
+}
+
+void TaggingWidget::updateUnusedCount() {
+	double percent;
+	int nb;
+	if ( d_used.size() >= d_tags.size() || d_tags.size() == 0) {
+		percent = 0.0;
+		nb = 0;
+	} else {
+		nb = d_tags.size() - d_used.size();
+		percent = 100.0 * ((double)nb / (double)d_tags.size());
+	}
+	std::ostringstream os;
+	os << nb << "(" << std::fixed << std::setprecision(1) << percent << "%)";
+	d_ui->unusedTagDisplay->setText(os.str().c_str());
+
+	if ( d_tags.size() >= d_allTrackedTags.size() || d_allTrackedTags.size() == 0 ) {
+		nb = 0;
+		percent = 0.0;
+	} else {
+		nb = d_allTrackedTags.size() - d_tags.size();
+		percent = 100.0 * ((double)nb / (double)d_allTrackedTags.size());
+	}
+	std::ostringstream os2;
+	os2 << nb << "(" << std::fixed << std::setprecision(1) << percent << "%)";
+	d_ui->missingTagDisplay->setText(os2.str().c_str());
+
+}
+
+
+
+void TaggingWidget::onNewTrackedTags(const std::vector<uint32_t> & tags) {
+	std::ostringstream os;
+	for(auto t : tags){
+		os << " " << t;
+		d_allTrackedTags.insert(t);
+	}
+	qDebug() << "tags : " << os.str().c_str();
+	updateUnusedCount();
 }

@@ -6,6 +6,7 @@
 #include "ExperimentController.hpp"
 
 #include "SnapshotIndexer.hpp"
+#include "TagExtractor.hpp"
 #include "AntPoseEstimate.hpp"
 
 #include <filesystem>
@@ -43,11 +44,13 @@ public slots:
 	void onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &);
 	void onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
 
+	void onNewTrackedTags(const std::vector<uint32_t> & );
+
 private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;
 	void clearIndexers();
 	void updateButtonState();
-
+	void updateUnusedCount();
 
 	void updateIdentificationForCurrentFrame();
 	fort::myrmidon::priv::IdentificationPtr
@@ -56,9 +59,14 @@ private:
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;
 	std::map<std::filesystem::path,std::shared_ptr<SnapshotIndexer>> d_indexers;
+	std::map<std::filesystem::path,std::shared_ptr<TagExtractor>>    d_extractors;
 
 	std::unordered_map<uint32_t,QTreeWidgetItem*>      d_tags;
 	std::unordered_map<std::string,Snapshot::ConstPtr> d_snapshots;
+	std::set<uint32_t>                                 d_used;
+
+	std::set<uint32_t>                                 d_allTrackedTags;
+
 
 	std::map<std::filesystem::path,AntPoseEstimate::Ptr> d_estimates;
 

@@ -264,3 +264,12 @@ FramePointer::Ptr Identifier::LowerUnidentifiedBound(uint32_t tag, const FramePo
 
 	return FramePointer::Ptr();
 }
+
+
+size_t Identifier::UseCount(uint32_t tag) const {
+	auto fi = d_identifications.find(tag);
+	if ( fi == d_identifications.end() ) {
+		return 0;
+	}
+	return fi->second.size();
+}

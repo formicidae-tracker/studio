@@ -12,7 +12,8 @@ set(SRC_FILES main.cpp
 			  SnapshotViewer.cpp
 			  FramePointerWidget.cpp
 			  AntIdentificationWidget.cpp
-			  QLongSpinBox.cpp)
+			  QLongSpinBox.cpp
+			  TagExtractor.cpp)
 
 set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
@@ -28,7 +29,8 @@ set(HDR_FILES MainWindow.hpp
 			  FramePointerWidget.hpp
 			  AntIdentificationWidget.hpp
 			  QLongSpinBox.hpp
-			  utils.hpp)
+			  utils.hpp
+			  TagExtractor.hpp)
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui
