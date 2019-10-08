@@ -30,7 +30,7 @@ public slots:
 	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &);
 	void on_familySelector_activated(int);
 	void on_thresholdBox_editingFinished();
-	void on_tagList_itemActivated(QTreeWidgetItem *, int);
+	void on_tagList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem*);
 	void on_roiBox_valueChanged(int);
 
 	void onNewSnapshots(const QVector<Snapshot::ConstPtr> &, size_t done);
@@ -48,6 +48,9 @@ public slots:
 
 private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;
+	const static char * GOOD_ICON;
+	const static char * BAD_ICON;
+
 	void clearIndexers();
 	void updateButtonState();
 	void updateUnusedCount();

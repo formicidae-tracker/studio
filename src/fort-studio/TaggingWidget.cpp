@@ -18,6 +18,8 @@
 using namespace fort::myrmidon::priv;
 
 const std::filesystem::path TaggingWidget::ESTIMATE_SAVE_PATH = "ants/pose_estimates.fortstudio";
+const char * TaggingWidget::GOOD_ICON = "emblem-system";
+const char * TaggingWidget::BAD_ICON = "emblem-unreadable";
 
 TaggingWidget::TaggingWidget(QWidget *parent)
 	: QWidget(parent)
@@ -42,6 +44,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->familySelector->insertItem(9,"Standard52h13",(int)Experiment::TagFamily::Standard52h13);
     d_ui->familySelector->setCurrentIndex(-1);
     onNewController(NULL);
+
     d_ui->tagList->sortByColumn(0,Qt::AscendingOrder);
     d_ui->tagList->setSortingEnabled(true);
 
@@ -74,7 +77,6 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 		           SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
 		           this,
 		           SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
-
 	}
 
 	// will cancel all pending parsing
@@ -105,6 +107,7 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	        this,
 	        SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
 
+	d_estimates.clear();
 
 	auto tf = d_controller->experiment().Family();
 	int idx = -1;
@@ -269,13 +272,22 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 			auto tagWidget = new QTreeWidgetItem(d_ui->tagList);
 			tagWidget->setData(0,Qt::DisplayRole,(int)s->TagValue());
 			d_tags[s->TagValue()] = tagWidget;
-
+			if ( d_controller != NULL && d_controller->experiment().ConstIdentifier().UseCount(s->TagValue()) != 0 ) {
+				tagWidget->setIcon(0,QIcon::fromTheme(GOOD_ICON));
+			} else {
+				tagWidget->setIcon(0,QIcon::fromTheme(BAD_ICON));
+			}
 		}
 		d_snapshots[s->Path().generic_string()] = s;
 		auto tagWidget = d_tags[s->TagValue()];
 		auto frameWidget = new QTreeWidgetItem(tagWidget);
 		frameWidget->setData(0,Qt::DisplayRole,s->Path().parent_path().generic_string().c_str());
 		frameWidget->setData(0,Qt::UserRole,s->Path().generic_string().c_str());
+		if (d_estimates.count(s->Path()) != 0 ) {
+			frameWidget->setIcon(0,QIcon::fromTheme(GOOD_ICON));
+		} else {
+			frameWidget->setIcon(0,QIcon::fromTheme(BAD_ICON));
+		}
 	}
 
 	updateUnusedCount();
@@ -283,7 +295,7 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 
 
 
-void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
+void TaggingWidget::on_tagList_currentItemChanged(QTreeWidgetItem *item, QTreeWidgetItem *) {
 	if ( item->data(0,Qt::UserRole).toString().isEmpty() || d_controller == NULL) {
 		updateButtonState();
 		return;
@@ -357,6 +369,8 @@ void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstima
 	using namespace fort::myrmidon::priv;
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
+
+	d_ui->tagList->currentItem()->setIcon(0,QIcon::fromTheme(GOOD_ICON));
 
 	updateIdentificationForCurrentFrame();
 	updateButtonState();
@@ -457,6 +471,8 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 		qCritical() << "Inconsistent state: snaphot pose estimate is not registered.";
 		return;
 	}
+	d_ui->tagList->currentItem()->setIcon(0,QIcon::fromTheme(BAD_ICON));
+
 
 	d_estimates.erase(fi);
 	d_ui->snapshotViewer->setAntPoseEstimate(AntPoseEstimate::Ptr());
@@ -521,6 +537,11 @@ void TaggingWidget::updateButtonState() {
 void TaggingWidget::onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr & i ) {
 	d_used.insert(i->TagValue());
 	updateUnusedCount();
+	auto fi = d_tags.find(i->TagValue());
+	if ( fi != d_tags.end() ) {
+		fi->second->setIcon(0,QIcon::fromTheme(GOOD_ICON));
+	}
+
 }
 
 void TaggingWidget::onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr & i ) {
@@ -530,6 +551,11 @@ void TaggingWidget::onIdentificationDeleted(const fort::myrmidon::priv::Identifi
 	// the tag is not used anymore
 	if (d_controller->experiment().ConstIdentifier().UseCount(i->TagValue()) == 0 ) {
 		d_used.erase(i->TagValue());
+		auto fi = d_tags.find(i->TagValue());
+		if (fi != d_tags.end() ) {
+			fi->second->setIcon(0,QIcon::fromTheme(BAD_ICON));
+		}
+
 		updateUnusedCount();
 	}
 
