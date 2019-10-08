@@ -14,7 +14,7 @@ Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
 	                     }()) {}
 
 Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identification & ident) noexcept
-	: std::runtime_error([ident](){
+	: std::runtime_error([&ident](){
 		                     std::ostringstream os;
 		                     os << "Identification:" << ident <<  " is not managed by this object";
 		                     return os.str();

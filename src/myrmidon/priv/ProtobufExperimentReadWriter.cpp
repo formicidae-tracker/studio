@@ -51,7 +51,7 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesy
 
 	std::vector<std::function < void ( fm::pb::FileLine &) > > lines;
 
-	lines.push_back([experiment](fm::pb::FileLine & line) {
+	lines.push_back([&experiment](fm::pb::FileLine & line) {
 		                SaveExperiment(*(line.mutable_experiment()),experiment);
 	                });
 
@@ -65,7 +65,7 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesy
 	                                      });
 
 	for (const auto & ID : antIDs) {
-		lines.push_back([experiment,ID](fm::pb::FileLine & line) {
+		lines.push_back([&experiment,ID](fm::pb::FileLine & line) {
 			                SaveAnt(*(line.mutable_antdata()),*(experiment.ConstIdentifier().Ants().find(ID)->second));
 		                });
 	}

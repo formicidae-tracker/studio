@@ -43,6 +43,8 @@ public:
 	};
 
 private:
+	Ant & operator=(const Ant&) = delete;
+	Ant(const Ant&)  = delete;
 
 
 	uint32_t    d_ID;

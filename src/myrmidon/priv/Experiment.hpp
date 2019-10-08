@@ -76,6 +76,10 @@ public :
 	                         uint32_t tag, const FramePointer & f) const;
 
 private:
+
+	Experiment & operator=(const Experiment&) = delete;
+	Experiment(const Experiment&)  = delete;
+
 	bool ContainsFramePointer() const;
 
 	Experiment(const std::filesystem::path & filepath);

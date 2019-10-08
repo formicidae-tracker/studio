@@ -86,6 +86,8 @@ private:
 
 
 	Identifier();
+	Identifier(const Identifier&) = delete;
+	Identifier & operator=(const Identifier&) = delete;
 
 	fort::myrmidon::Ant::ID NextAvailableID();
 

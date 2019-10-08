@@ -79,6 +79,9 @@ public:
 
 
 private:
+	Identification & operator=(const Identification&) = delete;
+	Identification(const Identification&)  = delete;
+
 	Identification(uint32_t tagValue,
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
