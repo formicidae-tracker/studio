@@ -7,6 +7,7 @@
 
 #include "Snapshot.hpp"
 #include "AntPoseEstimate.hpp"
+#include <myrmidon/priv/Identification.hpp>
 
 class SnapshotViewer : public QGraphicsView {
     Q_OBJECT
@@ -162,7 +163,7 @@ private:
 	std::shared_ptr<QPointF> d_capsuleOrig;
 
 	PoseMarker * d_poseMarker;
-
+	fort::myrmidon::priv::Identification::Ptr d_identification;
 
 	std::shared_ptr<Capsule> d_capsule;
 

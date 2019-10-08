@@ -142,7 +142,10 @@ void SnapshotViewer::setRoiSize(size_t roiSize) {
 	}
 	d_roiSize = roiSize;
 	setImageBackground();
+	//since local origin changed, we must redraw anything displayed
 	setAntPoseEstimate(d_poseEstimate);
+	displayIdentification(d_identification);
+
 	if ( emitSignal == true ) {
 		emit roiSizeChanged(roiSize);
 	}
@@ -615,12 +618,18 @@ void SnapshotViewer::Capsule::Rebuild() {
 
 
 void SnapshotViewer::displayIdentification(const fort::myrmidon::priv::IdentificationPtr & ident) {
+	if ( !ident ) {
+		d_identification.reset();
+	}
+
 	if ( !ident || !d_snapshot ||
 	     ident->TagValue() != d_snapshot->TagValue() ||
 	     !ident->TargetsFrame(*(d_snapshot->Frame())) ) {
 		d_poseMarker->setVisible(false);
 		return;
 	}
+
+	d_identification = ident;
 
 	auto trans = Isometry2Dd(d_snapshot->TagAngle(),d_snapshot->TagPosition()) * ident->AntToTagTransform();
 	d_poseMarker->setVisible(true);

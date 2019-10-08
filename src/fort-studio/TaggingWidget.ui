@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>614</height>
+    <height>616</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -150,6 +150,15 @@
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <property name="backgroundBrush">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>136</red>
+          <green>138</green>
+          <blue>133</blue>
+         </color>
+        </brush>
        </property>
       </widget>
      </item>
