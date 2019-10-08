@@ -127,7 +127,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 
 	setImageBackground();
 	setAntPoseEstimate(AntPoseEstimate::Ptr());
-	setIdentification(Identification::Ptr());
+	displayIdentification(Identification::Ptr());
 }
 
 
@@ -614,8 +614,10 @@ void SnapshotViewer::Capsule::Rebuild() {
 }
 
 
-void SnapshotViewer::setIdentification(const fort::myrmidon::priv::IdentificationPtr & ident) {
-	if ( !ident || !d_snapshot) {
+void SnapshotViewer::displayIdentification(const fort::myrmidon::priv::IdentificationPtr & ident) {
+	if ( !ident || !d_snapshot ||
+	     ident->TagValue() != d_snapshot->TagValue() ||
+	     !ident->TargetsFrame(*(d_snapshot->Frame())) ) {
 		d_poseMarker->setVisible(false);
 		return;
 	}

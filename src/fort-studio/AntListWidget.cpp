@@ -21,9 +21,29 @@ AntListWidget::~AntListWidget() {
 void AntListWidget::onNewController(ExperimentController * controller) {
 	if ( d_controller != NULL ) {
 		disconnect(d_controller,
-		           SIGNAL(antListModified(const fort::myrmidon::priv::AntByID &)),
+		           SIGNAL(antCreated(const fort::myrmidon::priv::AntPtr &)),
 		           this,
-		           SLOT(onAntListModified(const fort::myrmidon::priv::AntByID &)));
+		           SLOT(onAntCreated(const fort::myrmidon::priv::AntPtr &)));
+		disconnect(d_controller,
+		           SIGNAL(antModified(const fort::myrmidon::priv::AntPtr &)),
+		           this,
+		           SLOT(onAntModified(const fort::myrmidon::priv::AntPtr &)));
+		disconnect(d_controller,
+		           SIGNAL(antDeleted(const fort::myrmidon::priv::AntPtr &)),
+		           this,
+		           SLOT(onAntDeleted(const fort::myrmidon::priv::AntPtr &)));
+
+		disconnect(d_controller,
+		           SIGNAL(identificationCreated(const fort::myrmidon::priv::IdentificationPtr &)),
+		           this,
+		           SLOT(onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &)));
+
+		disconnect(d_controller,
+		           SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
+		           this,
+		           SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
+
+
 	}
 	d_controller = controller;
 	if (d_controller == NULL ) {
@@ -31,11 +51,31 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 		d_ui->addButton->setEnabled(false);
 		return;
 	}
+
 	connect(d_controller,
-	        SIGNAL(antListModified(const fort::myrmidon::priv::AntByID &)),
+	        SIGNAL(antCreated(const fort::myrmidon::priv::AntPtr &)),
 	        this,
-	        SLOT(onAntListModified(const fort::myrmidon::priv::AntByID &)));
-	onAntListModified(d_controller->experiment().ConstIdentifier().Ants());
+	        SLOT(onAntCreated(const fort::myrmidon::priv::AntPtr &)));
+	connect(d_controller,
+	        SIGNAL(antModified(const fort::myrmidon::priv::AntPtr &)),
+	        this,
+	        SLOT(onAntModified(const fort::myrmidon::priv::AntPtr &)));
+	connect(d_controller,
+	        SIGNAL(antDeleted(const fort::myrmidon::priv::AntPtr &)),
+	        this,
+	        SLOT(onAntDeleted(const fort::myrmidon::priv::AntPtr &)));
+
+	connect(d_controller,
+	        SIGNAL(identificationCreated(const fort::myrmidon::priv::IdentificationPtr &)),
+	        this,
+	        SLOT(onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &)));
+
+	connect(d_controller,
+	        SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
+	        this,
+	        SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
+
+	setupList();
 	d_ui->filterEdit->setEnabled(true);
 	d_ui->addButton->setEnabled(true);
 
@@ -64,44 +104,26 @@ QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 }
 
 
-void AntListWidget::onAntListModified(const fort::myrmidon::priv::AntByID & ants ) {
-	d_ui->groupBox->setTitle(tr("Ants: %1").arg(ants.size()));
+void AntListWidget::setupList() {
+	d_ui->listWidget->clear();
+	d_items.clear();
 
-	QSet<uint32_t> notInList;
+	auto & ants = d_controller->experiment().ConstIdentifier().Ants();
 
-	for ( auto const & k : d_items.keys() ) {
-		notInList.insert(k);
+	if (!d_controller) {
+		d_ui->groupBox->setTitle(tr("Ants: %1").arg(ants.size()));
+		return;
 	}
 
 	for ( auto const & [ID,a] : ants ) {
-		notInList.remove(ID);
-		auto item = d_items.find(ID);
-		if ( item != d_items.end() ) {
-			(*item)->setText(format(*a));
-			continue;
-		}
-		auto newItem = new QListWidgetItem(format(*a),d_ui->listWidget);
-		newItem->setData(Qt::UserRole,a->ID());
-		d_items[a->ID()] = newItem;
-		d_ui->listWidget->addItem(newItem);
-	}
-
-	for ( auto const & k : notInList ) {
-		auto item = d_items.find(k);
-		d_ui->listWidget->removeItemWidget(item.value());
-		delete item.value();
-		d_items.remove(k);
+		onAntCreated(a);
 	}
 }
-
-// void AntListWidget::on_listWidget_itemDoubleClicked(QListWidgetItem * item) {
-// 	emit antSelected(item->data(Qt::UserRole).toInt());
-// }
 
 
 void AntListWidget::on_filterEdit_textChanged(const QString & text) {
 	QRegExp rex(text,Qt::CaseInsensitive);
-	for( auto const & item : d_items ) {
+	for( auto const & [ID,item] : d_items ) {
 		item->setHidden(rex.indexIn(item->text()) == -1 );
 	}
 }
@@ -120,7 +142,6 @@ void AntListWidget::on_listWidget_itemSelectionChanged() {
 		d_ui->removeButton->setEnabled(true);
 	}
 }
-
 
 void AntListWidget::on_addButton_clicked() {
 	if ( d_controller == NULL ) {
@@ -141,4 +162,37 @@ void AntListWidget::on_removeButton_clicked() {
 			qCritical() << err.what();
 		}
 	}
+}
+
+
+void AntListWidget::onAntCreated(const fort::myrmidon::priv::AntPtr &a) {
+	auto newItem = std::make_shared<QListWidgetItem>(format(*a));
+	newItem->setData(Qt::UserRole,a->ID());
+	d_items[a->ID()] = newItem;
+	d_ui->listWidget->addItem(newItem.get());
+}
+
+void AntListWidget::onAntDeleted(const fort::myrmidon::priv::AntPtr & a) {
+	auto fi = d_items.find(a->ID());
+	if ( fi == d_items.end() ) {
+		return;
+	}
+	d_ui->listWidget->removeItemWidget(fi->second.get());
+	d_items.erase(fi);
+}
+
+void AntListWidget::onAntModified(const fort::myrmidon::priv::AntPtr& a) {
+	auto fi = d_items.find(a->ID());
+	if ( fi == d_items.end() ) {
+		return;
+	}
+	fi->second->setText(format(*a));
+}
+
+void AntListWidget::onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr & i) {
+	onAntModified(i->Target());
+}
+
+void AntListWidget::onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr & i) {
+	onAntModified(i->Target());
 }

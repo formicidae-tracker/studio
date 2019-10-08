@@ -10,6 +10,7 @@
 
 #include <filesystem>
 
+#include <myrmidon/priv/ForwardDeclaration.hpp>
 
 namespace Ui {
 class TaggingWidget;
@@ -39,7 +40,8 @@ public slots:
 	void on_deletePoseButton_clicked();
 
 	void onAntSelected(fort::myrmidon::Ant::ID);
-
+	void onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &);
+	void onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
 
 private:
 	const static std::filesystem::path ESTIMATE_SAVE_PATH;

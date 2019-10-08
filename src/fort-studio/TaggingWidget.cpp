@@ -61,6 +61,17 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 		disconnect(d_controller,SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
 		           this,
 		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)));
+
+		disconnect(d_controller,
+		           SIGNAL(identificationCreated(const fort::myrmidon::priv::IdentificationPtr &)),
+		           this,
+		           SLOT(onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &)));
+
+		disconnect(d_controller,
+		           SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
+		           this,
+		           SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
+
 	}
 
 	// will cancel all pending parsing
@@ -78,6 +89,16 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	connect(d_controller,SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)),
 	        this,
 	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &)));
+
+	connect(d_controller,
+	        SIGNAL(identificationCreated(const fort::myrmidon::priv::IdentificationPtr &)),
+	        this,
+	        SLOT(onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &)));
+
+	connect(d_controller,
+	        SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
+	        this,
+	        SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
 
 
 	auto tf = d_controller->experiment().Family();
@@ -248,7 +269,7 @@ void TaggingWidget::on_tagList_itemActivated(QTreeWidgetItem *item, int) {
 		d_ui->snapshotViewer->setAntPoseEstimate(efi->second);
 	}
 	auto ident = d_controller->experiment().ConstIdentifier().Identify(s->TagValue(),*s->Frame());
-	d_ui->snapshotViewer->setIdentification(ident);
+	d_ui->snapshotViewer->displayIdentification(ident);
 
 	updateButtonState();
 }
@@ -314,7 +335,7 @@ void TaggingWidget::updateIdentificationForCurrentFrame() {
 		return;
 	}
 	auto ident = updateIdentificationForFrame(s->TagValue(),*(s->Frame()));
-	d_ui->snapshotViewer->setIdentification(ident);
+	d_ui->snapshotViewer->displayIdentification(ident);
 }
 
 
@@ -461,4 +482,17 @@ void TaggingWidget::updateButtonState() {
 
 	d_ui->addIdentButton->setEnabled(true);
 
+}
+
+
+void TaggingWidget::onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr & i ) {
+}
+
+void TaggingWidget::onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr & i ) {
+	auto s = d_ui->snapshotViewer->displayedSnapshot();
+	if ( i->TagValue() != s->TagValue() ||
+	     !i->TargetsFrame(*s->Frame()) ) {
+		return;
+	}
+	d_ui->snapshotViewer->displayIdentification(Identification::Ptr());
 }

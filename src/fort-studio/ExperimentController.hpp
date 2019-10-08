@@ -26,8 +26,15 @@ public:
 signals:
 	void modified(bool);
 	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
-	void antListModified(const fort::myrmidon::priv::AntByID & );
-	void newAntIdentification(const fort::myrmidon::priv::IdentificationPtr &);
+
+	void antCreated(const fort::myrmidon::priv::AntPtr & );
+	void antModified(const fort::myrmidon::priv::AntPtr & );
+	void antDeleted(const fort::myrmidon::priv::AntPtr & );
+	void identificationCreated(const fort::myrmidon::priv::IdentificationPtr &);
+	void identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
+
+
+
 public slots:
 
 	Error addDataDirectory(const QString & path);
@@ -43,6 +50,7 @@ public slots:
 	                        const fort::myrmidon::priv::FramePointer::Ptr & start,
 	                        const fort::myrmidon::priv::FramePointer::Ptr & end);
 
+	Error deleteIdentification(const fort::myrmidon::priv::Identification::Ptr & );
 
 	void setName(const QString & name);
 	void setAuthor(const QString & author);

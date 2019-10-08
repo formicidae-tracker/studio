@@ -116,7 +116,7 @@ implement_setter(Comment)
 
 fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
 	auto a = d_experiment->Identifier().CreateAnt();
-	emit antListModified(d_experiment->ConstIdentifier().Ants());
+	emit antCreated(a);
 	setModified(true);
 	return a;
 }
@@ -127,8 +127,8 @@ Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
                                               const fmp::FramePointer::Ptr & end) {
 	try {
 		fmp::Identification::Ptr res = d_experiment->Identifier().AddIdentification(ID,tagValue,start,end);
-		emit newAntIdentification(res);
-		emit antListModified(d_experiment->ConstIdentifier().Ants());
+		emit identificationCreated(res);
+		emit antModified(d_experiment->ConstIdentifier().Ants().find(ID)->second);
 		setModified(true);
 		return Error::NONE;
 	} catch (const std::exception & e) {
@@ -140,13 +140,38 @@ Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
 
 Error ExperimentController::removeAnt(fort::myrmidon::Ant::ID ID) {
 	try {
+		auto & identifier = d_experiment->Identifier();
+		auto fi = identifier.Ants().find(ID);
+		if ( fi == identifier.Ants().end() ) {
+			return Error(tr("Unknown Ant %1").arg(fort::myrmidon::priv::Ant::FormatID(ID).c_str()));
+		}
+		for(const auto & ident : fi->second->Identifications() ) {
+			identifier.DeleteIdentification(ident);
+			emit identificationDeleted(ident);
+			emit antModified(fi->second);
+			setModified(true);
+		}
+
 		d_experiment->Identifier().DeleteAnt(ID);
-		emit antListModified(d_experiment->ConstIdentifier().Ants());
+		emit antDeleted(fi->second);
 		setModified(true);
 		return Error::NONE;
 	} catch ( const std::exception & e) {
 		return Error(e.what());
 	}
+}
+
+Error ExperimentController::deleteIdentification(const fort::myrmidon::priv::Identification::Ptr & ident) {
+	try {
+		auto & identifier = d_experiment->Identifier();
+		identifier.DeleteIdentification(ident);
+		emit identificationDeleted(ident);
+		emit antModified(ident->Target());
+		setModified(true);
+	} catch ( const std::exception & e) {
+		return Error(e.what());
+	}
+	return Error::NONE;
 }
 
 

@@ -68,18 +68,15 @@ void Identifier::DeleteAnt(fort::myrmidon::Ant::ID id) {
 		d_continuous = false;
 	}
 
-	for(const auto & ident : fi->second->Identifications() ) {
-		auto & identsWithTags = d_identifications[ident->TagValue()];
-		identsWithTags.erase(std::remove_if(identsWithTags.begin(),identsWithTags.end(),
-		                                    [fi](const Identification::Ptr & i) -> bool {
-			                                    return i->Target()->ID() == fi->second->ID();
-		                                    }));
-	}
 
+	if ( !fi->second->Identifications().empty() ) {
+		std::ostringstream os;
+		os <<"Ant:" <<fi->second->FormattedID() << " has Identification, delete them first";
+		throw std::logic_error(os.str());
+	}
 
 	d_antIDs.erase(id);
 	d_ants.erase(id);
-
 
 }
 

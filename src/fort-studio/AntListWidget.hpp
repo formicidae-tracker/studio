@@ -18,8 +18,6 @@ public:
 public slots:
 	void onNewController(ExperimentController * controller);
 
-	void onAntListModified(const fort::myrmidon::priv::AntByID & );
-
 	//void on_listWidget_itemDoubleClicked(QListWidgetItem * item);
 	void on_listWidget_itemSelectionChanged();
 	void on_filterEdit_textChanged(const QString & text);
@@ -27,15 +25,25 @@ public slots:
 	void on_addButton_clicked();
 	void on_removeButton_clicked();
 
+	void onAntCreated(const fort::myrmidon::priv::AntPtr &);
+	void onAntDeleted(const fort::myrmidon::priv::AntPtr &);
+	void onAntModified(const fort::myrmidon::priv::AntPtr&);
+
+	void onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &);
+	void onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
+
+
 signals:
 	void antSelected(fort::myrmidon::Ant::ID);
 
 private:
+	void setupList();
+
     Ui::AntListWidget *d_ui;
 
 	ExperimentController * d_controller;
 
-	QMap<uint32_t,QListWidgetItem*> d_items;
+	std::map<uint32_t,std::shared_ptr<QListWidgetItem> > d_items;
 
 	QString format(const fort::myrmidon::priv::Ant & a);
 };
