@@ -166,10 +166,9 @@ void AntListWidget::on_removeButton_clicked() {
 
 
 void AntListWidget::onAntCreated(const fort::myrmidon::priv::AntPtr &a) {
-	auto newItem = std::make_shared<QListWidgetItem>(format(*a));
+	auto newItem = new QListWidgetItem(format(*a),d_ui->listWidget);
 	newItem->setData(Qt::UserRole,a->ID());
 	d_items[a->ID()] = newItem;
-	d_ui->listWidget->addItem(newItem.get());
 }
 
 void AntListWidget::onAntDeleted(const fort::myrmidon::priv::AntPtr & a) {
@@ -177,7 +176,7 @@ void AntListWidget::onAntDeleted(const fort::myrmidon::priv::AntPtr & a) {
 	if ( fi == d_items.end() ) {
 		return;
 	}
-	d_ui->listWidget->removeItemWidget(fi->second.get());
+	delete fi->second;
 	d_items.erase(fi);
 }
 

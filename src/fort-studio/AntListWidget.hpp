@@ -43,7 +43,7 @@ private:
 
 	ExperimentController * d_controller;
 
-	std::map<uint32_t,std::shared_ptr<QListWidgetItem> > d_items;
+	std::map<uint32_t,QListWidgetItem*> d_items;
 
 	QString format(const fort::myrmidon::priv::Ant & a);
 };
