@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 namespace fort {
@@ -45,7 +46,6 @@ public:
 		while( d_angle >= M_PI ) {
 			d_angle -= 2.0 * M_PI;
 		}
-
 	}
 
 	Eigen::Rotation2D<T> rotation() const {

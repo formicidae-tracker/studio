@@ -296,6 +296,11 @@ void TaggingWidget::onNewSnapshots(const QVector<Snapshot::ConstPtr> & snapshots
 
 
 void TaggingWidget::on_tagList_currentItemChanged(QTreeWidgetItem *item, QTreeWidgetItem *) {
+	if (!item ) {
+		d_ui->snapshotViewer->displaySnapshot(Snapshot::ConstPtr());
+		updateButtonState();
+		return;
+	}
 	if ( item->data(0,Qt::UserRole).toString().isEmpty() || d_controller == NULL) {
 		updateButtonState();
 		return;
@@ -413,7 +418,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 	}
 
 	Eigen::Vector2d pos(0,0);
-	double angle(0);
+	double sinAngle(0.0),cosAngle(0.0);
 	for ( const auto & m : matched ) {
 		Isometry2Dd tagToAntTransform;
 
@@ -422,11 +427,15 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 		                                         m.second->TagPosition(),m.second->TagAngle(),
 		                                         m.first->Head(),m.first->Tail());
 		pos += tagToAntTransform.translation();
-		angle += tagToAntTransform.angle();
+		double a = tagToAntTransform.angle();
+		sinAngle += std::sin(a);
+		cosAngle += std::cos(a);
 	}
 	pos /= matched.size();
-	angle /= matched.size();
-	ident->SetTagPosition(pos,angle);
+	sinAngle /= matched.size();
+	cosAngle /= matched.size();
+
+	ident->SetTagPosition(pos,std::atan2(sinAngle,cosAngle));
 	d_controller->setModified(true);
 	return ident;
 }
