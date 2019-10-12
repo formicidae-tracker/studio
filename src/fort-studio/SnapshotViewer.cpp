@@ -25,9 +25,9 @@ const QColor SnapshotViewer::Handle::HIGHLIGHT_COLOR = QColor(150,150,150,120);
 const QColor SnapshotViewer::PositionMarker::COLOR = QColor(10,150,255,150);
 const int SnapshotViewer::PositionMarker::MARKER_SIZE = 8;
 
-const QColor SnapshotViewer::PoseMarker::INSIDE_COLOR = QColor(255,255,255,180);
-const QColor SnapshotViewer::PoseMarker::OUTSIDE_COLOR = QColor(0,0,0,180);
-const int SnapshotViewer::PoseMarker::SIZE = 9;
+const QColor SnapshotViewer::PoseIndicator::INSIDE_COLOR = QColor(255,255,255,180);
+const QColor SnapshotViewer::PoseIndicator::OUTSIDE_COLOR = QColor(0,0,0,180);
+const int SnapshotViewer::PoseIndicator::SIZE = 9;
 
 const QColor SnapshotViewer::Capsule::COLOR_BORDER = QColor(150,10,255);
 const QColor SnapshotViewer::Capsule::COLOR_INSIDE = QColor(150,10,255,40);
@@ -88,12 +88,12 @@ SnapshotViewer::SnapshotViewer(QWidget *parent)
 	d_scene.addItem(d_estimateLine);
 
 
-	d_poseMarker = new PoseMarker();
-	d_poseMarker->setVisible(false);
-	d_poseMarker->setEnabled(false);
+	d_poseIndicator = new PoseIndicator();
+	d_poseIndicator->setVisible(false);
+	d_poseIndicator->setEnabled(false);
 
-	d_poseMarker->setZValue(21);
-	d_scene.addItem(d_poseMarker);
+	d_poseIndicator->setZValue(21);
+	d_scene.addItem(d_poseIndicator);
 
 
 	setScene(&d_scene);
@@ -114,7 +114,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 			d_tagCorners[i]->setVisible(false);
 			d_tagLines[i]->setVisible(false);
 		}
-		d_poseMarker->setVisible(false);
+		d_poseIndicator->setVisible(false);
 		return;
 	}
 
@@ -412,7 +412,7 @@ void SnapshotViewer::emitNewPoseEstimate() {
 }
 
 
-SnapshotViewer::PoseMarker::PoseMarker(QGraphicsItem * parent)
+SnapshotViewer::PoseIndicator::PoseIndicator(QGraphicsItem * parent)
 	: QGraphicsItemGroup(parent) {
 	static int HALF_SIZE =(SIZE-1)/2;
 
@@ -465,7 +465,7 @@ SnapshotViewer::PoseMarker::PoseMarker(QGraphicsItem * parent)
 
 }
 
-SnapshotViewer::PoseMarker::~PoseMarker() {}
+SnapshotViewer::PoseIndicator::~PoseIndicator() {}
 
 
 SnapshotViewer::Handle::Handle(SnapshotViewer::Handle::MoveCallback onMove,
@@ -625,17 +625,17 @@ void SnapshotViewer::displayIdentification(const fort::myrmidon::priv::Identific
 	if ( !ident || !d_snapshot ||
 	     ident->TagValue() != d_snapshot->TagValue() ||
 	     !ident->TargetsFrame(*(d_snapshot->Frame())) ) {
-		d_poseMarker->setVisible(false);
+		d_poseIndicator->setVisible(false);
 		return;
 	}
 
 	d_identification = ident;
 
 	auto trans = Isometry2Dd(d_snapshot->TagAngle(),d_snapshot->TagPosition()) * ident->AntToTagTransform();
-	d_poseMarker->setVisible(true);
-	d_poseMarker->setPos(trans.translation().x() - d_roi.x(),
+	d_poseIndicator->setVisible(true);
+	d_poseIndicator->setPos(trans.translation().x() - d_roi.x(),
 	                     trans.translation().y() - d_roi.y());
-	d_poseMarker->setRotation(trans.angle()*180.0/M_PI);
+	d_poseIndicator->setRotation(trans.angle()*180.0/M_PI);
 
 	// d_poseMarker->setPos(d_snapshot->TagPosition().x() - d_roi.x(),
 	//                      d_snapshot->TagPosition().y() - d_roi.y());

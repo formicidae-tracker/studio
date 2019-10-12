@@ -44,6 +44,7 @@ signals:
 	void roiSizeChanged(size_t);
 
 private:
+
 	class BackgroundPixmap : public QGraphicsPixmapItem {
 	public:
 		BackgroundPixmap(const QPixmap & pixmap,
@@ -66,8 +67,10 @@ private:
 		               SnapshotViewer & viewer,
 		               QGraphicsItem * parent = NULL);
 		virtual ~PositionMarker();
+
 		const static int MARKER_SIZE;
 		const static QColor COLOR;
+
 	protected:
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
 		void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
@@ -77,10 +80,11 @@ private:
 		SnapshotViewer & d_viewer;
 	};
 
-	class PoseMarker : public QGraphicsItemGroup {
+
+	class PoseIndicator : public QGraphicsItemGroup {
 	public:
-		PoseMarker(QGraphicsItem * parent = NULL);
-		virtual ~PoseMarker();
+		PoseIndicator(QGraphicsItem * parent = NULL);
+		virtual ~PoseIndicator();
 
 		const static QColor OUTSIDE_COLOR;
 		const static QColor INSIDE_COLOR;
@@ -162,7 +166,8 @@ private:
 	std::shared_ptr<QPointF> d_estimateOrig;
 	std::shared_ptr<QPointF> d_capsuleOrig;
 
-	PoseMarker * d_poseMarker;
+	PoseIndicator * d_poseIndicator
+	;
 	fort::myrmidon::priv::Identification::Ptr d_identification;
 
 	std::shared_ptr<Capsule> d_capsule;
