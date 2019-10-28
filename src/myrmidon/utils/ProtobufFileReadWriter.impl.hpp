@@ -21,7 +21,7 @@ namespace utils {
 
 template<typename Header,typename Line>
 inline void
-ProtobufFileReadWriter<Header,Line>::Read(const std::filesystem::path & filename,
+ProtobufFileReadWriter<Header,Line>::Read(const fs::path & filename,
                                           std::function<void (const Header & h)> onHeader,
                                           std::function<void (const Line & l)> onLine) {
 	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
@@ -54,7 +54,7 @@ ProtobufFileReadWriter<Header,Line>::Read(const std::filesystem::path & filename
 }
 template<typename Header,typename Line>
 inline void
-ProtobufFileReadWriter<Header,Line>::Write(const std::filesystem::path & filepath,
+ProtobufFileReadWriter<Header,Line>::Write(const fs::path & filepath,
                                            const Header & header,
                                            const std::vector< std::function<void (Line & l)> > & lines) {
 	int fd =  open(filepath.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);

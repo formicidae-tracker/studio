@@ -9,7 +9,7 @@
 #include "TagExtractor.hpp"
 #include "AntPoseEstimate.hpp"
 
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
 
@@ -47,7 +47,7 @@ public slots:
 	void onNewTrackedTags(const std::vector<uint32_t> & );
 
 private:
-	const static std::filesystem::path ESTIMATE_SAVE_PATH;
+	const static fs::path ESTIMATE_SAVE_PATH;
 	const static char * GOOD_ICON;
 	const static char * BAD_ICON;
 
@@ -61,8 +61,8 @@ private:
 
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;
-	std::map<std::filesystem::path,std::shared_ptr<SnapshotIndexer>> d_indexers;
-	std::map<std::filesystem::path,std::shared_ptr<TagExtractor>>    d_extractors;
+	std::map<fs::path,std::shared_ptr<SnapshotIndexer>> d_indexers;
+	std::map<fs::path,std::shared_ptr<TagExtractor>>    d_extractors;
 
 	std::unordered_map<uint32_t,QTreeWidgetItem*>      d_tags;
 	std::unordered_map<std::string,Snapshot::ConstPtr> d_snapshots;
@@ -71,7 +71,7 @@ private:
 	std::set<uint32_t>                                 d_allTrackedTags;
 
 
-	std::map<std::filesystem::path,AntPoseEstimate::Ptr> d_estimates;
+	std::map<fs::path,AntPoseEstimate::Ptr> d_estimates;
 
 	fort::myrmidon::Ant::ID  d_selectedAnt;
 

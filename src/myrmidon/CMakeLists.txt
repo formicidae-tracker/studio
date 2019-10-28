@@ -14,9 +14,7 @@ int main() {
 "
 MYRMIDON_USE_SYSTEM_CATEGORY)
 
-
 configure_file(config.h.in myrmidon-config.h)
-
 
 
 set(PROTO_FILES Experiment.proto)
@@ -31,7 +29,8 @@ foreach(f ${PROTO_HDR})
 	set_property(SOURCE ${f} PROPERTY SKIP_AUTOGEN ON)
 endforeach(f ${PROTO_HDR})
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${PROJECT_BINARY_DIR}/src
+                    ${PROJECT_SOURCE_DIR}/src)
 
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Experiment.hpp
@@ -49,7 +48,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
-                     Ant.hpp)
+                     Ant.hpp
+                     utils/FileSystem.hpp)
 
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp

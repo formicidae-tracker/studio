@@ -18,7 +18,6 @@ find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(FortHermesCpp 0.2.0 REQUIRED)
 
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -78,29 +77,19 @@ int main(){
 	return 0;
 }
 "
-	USE_SYSTEM_FS_LIBRARY
+	USE_CXX17_FS_LIBRARY
 )
 
 
-set(CMAKE_REQUIRED_FLAGS "/usr/lib/gcc/x86_64-linux-gnu/9/libstdc++fs.a")
-
-check_cxx_source_compiles("#include <filesystem>
-
-int main(){
-	std::filesystem::path p;
-	return 0;
-}
-"
-	USE_TARGETED_FS_LIBRARY
-)
-set(CMAKE_REQUIRED_FLAGS "")
-
-set(CXXFS_LIBRARIES "")
-if(USE_SYSTEM_FS_LIBRARY)
+if(USE_CXX17_FS_LIBRARY)
 	set(CXXFS_LIBRARY "-lstdc++fs")
-elseif(USE_TARGETED_FS_LIBRARY)
-	set(CXXFS_LIBRARY "/usr/lib/gcc/x86_64-linux-gnu/9/libstdc++fs.a")
-endif(USE_SYSTEM_FS_LIBRARY)
+else(USE_CXX17_FS_LIBRARY)
+
+	find_package(Boost 1.60.0 REQUIRED COMPONENTS filesystem)
+	include_directories(${Boost_filesystem_INCLUDE_DIRS})
+	set(CXXFS_LIBRARY Boost::filesystem)
+	set(MYRMIDON_USE_BOOST_FILESYSTEM 1)
+endif(USE_CXX17_FS_LIBRARY)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	include(CodeCoverage)

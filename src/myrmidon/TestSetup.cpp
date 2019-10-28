@@ -1,6 +1,6 @@
 #include "TestSetup.hpp"
 
-#include "Experiment.pb.h"
+#include <myrmidon/Experiment.pb.h>
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>
@@ -21,7 +21,6 @@
 
 
 
-namespace fs=std::filesystem;
 namespace fm=fort::myrmidon;
 
 // Called before any test activity starts.
@@ -187,7 +186,7 @@ void TestSetup::OnTestProgramEnd(const ::testing::UnitTest& unit_test) {
 	if (Basedir().empty()) {
 		return;
 	}
-	std::cerr << "removing testdata in " << Basedir << std::endl;
+	std::cerr << "removing testdata in " << Basedir() << std::endl;
 	fs::remove_all(Basedir());
 	s_testdir = "";
 }

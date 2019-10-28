@@ -2,7 +2,7 @@
 
 #include "ForwardDeclaration.hpp"
 
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 #include <google/protobuf/util/time_util.h>
 
@@ -19,14 +19,14 @@ namespace priv {
 class TrackingDataDirectory {
 public:
 	TrackingDataDirectory();
-	TrackingDataDirectory(const std::filesystem::path & path,
+	TrackingDataDirectory(const fs::path & path,
 	                      uint64_t startFrame,
 	                      uint64_t endFrame,
 	                      const google::protobuf::Timestamp & start,
 	                      const google::protobuf::Timestamp & end);
 
 
-	const std::filesystem::path &  Path() const;
+	const fs::path &  Path() const;
 
 	uint64_t StartFrame() const;
 	uint64_t EndFrame() const;
@@ -35,16 +35,16 @@ public:
 	const google::protobuf::Timestamp & EndDate() const;
 
 	FramePointerPtr FramePointer(uint64_t frame) const;
-	FramePointerPtr FramePointer(const std::filesystem::path & path) const;
+	FramePointerPtr FramePointer(const fs::path & path) const;
 
 
-	static TrackingDataDirectory Open(const std::filesystem::path & path, const std::filesystem::path & base);
+	static TrackingDataDirectory Open(const fs::path & path, const fs::path & base);
 
 
 
 
 private:
-	std::filesystem::path       d_path;
+	fs::path                    d_path;
 	uint64_t                    d_startFrame,d_endFrame;
 	google::protobuf::Timestamp d_startDate,d_endDate;
 

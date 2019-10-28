@@ -53,7 +53,7 @@ void FramePointerWidget::onNewController(ExperimentController * controller ) {
 
 void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
 	d_inhibit = true;
-	std::filesystem::path selected;
+	fs::path selected;
 	if ( d_ui->comboBox->currentIndex() >= 0 ) {
 		selected = d_ui->comboBox->currentData().toString().toUtf8().constData();
 	}
@@ -99,8 +99,8 @@ void FramePointerWidget::on_comboBox_currentIndexChanged(int i) {
 	}
 	d_ui->spinBox->setEnabled(true);
 
-	std::filesystem::path path = d_ui->comboBox->currentData().toString().toUtf8().constData();
-	auto & tdd = d_controller->experiment().TrackingDataDirectories().find(path)->second;
+	fs::path path = d_ui->comboBox->currentData().toString().toUtf8().constData();
+	auto & tdd = d_controller->experiment().TrackingDataDirectories().find(path.generic_string())->second;
 
 	d_ui->spinBox->setMinimum(tdd.StartFrame() == 0 ? 0 : tdd.StartFrame()-1);
 	d_ui->spinBox->setMaximum(tdd.EndFrame() + 1);

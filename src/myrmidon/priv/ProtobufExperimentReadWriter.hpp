@@ -26,9 +26,9 @@ public:
 	ProtobufReadWriter();
 	virtual ~ProtobufReadWriter();
 
-	virtual ExperimentPtr DoOpen(const std::filesystem::path & filename);
+	virtual ExperimentPtr DoOpen(const fs::path & filename);
 
-	virtual void DoSave(const Experiment & experiment, const std::filesystem::path & filename);
+	virtual void DoSave(const Experiment & experiment, const fs::path & filename);
 
 	static void LoadExperiment(Experiment & e,const fort::myrmidon::pb::Experiment & pb);
 

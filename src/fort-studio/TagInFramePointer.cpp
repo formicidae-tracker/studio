@@ -1,5 +1,6 @@
 #include "TagInFramePointer.hpp"
 
+#include <sstream>
 
 
 TagInFramePointer::TagInFramePointer(const fort::myrmidon::priv::FramePointer::Ptr& frame,
@@ -19,12 +20,12 @@ uint32_t TagInFramePointer::TagValue() const {
 	return d_tagValue;
 }
 
-std::filesystem::path TagInFramePointer::Path() const {
+fs::path TagInFramePointer::Path() const {
 	std::ostringstream os;
 	os << d_tagValue;
 	return d_frame->FullPath() / os.str();
 }
 
-std::filesystem::path TagInFramePointer::Base() const {
+fs::path TagInFramePointer::Base() const {
 	return d_frame->Path;
 }

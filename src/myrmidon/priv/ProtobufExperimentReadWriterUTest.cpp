@@ -2,7 +2,7 @@
 
 #include <google/protobuf/util/message_differencer.h>
 
-#include "Experiment.pb.h"
+#include <myrmidon/Experiment.pb.h>
 
 #include "ProtobufExperimentReadWriter.hpp"
 
@@ -41,17 +41,22 @@ TEST_F(ProtobufExperimentReadWriterUTest,FramePointerIO) {
 		FramePointer A;
 	};
 
-	std::vector<TestData> data
-		= {
-		   TestData{.A={.Frame=0}},
-		   TestData{.A={.Frame=1}},
-		   TestData{.A={.Path="a",
-		                .PathStartDate=google::protobuf::util::TimeUtil::TimeTToTimestamp(1),
-		                .Frame=1}},
-		   TestData{.A={.Path="b",
-		                .PathStartDate=google::protobuf::util::TimeUtil::TimeTToTimestamp(2),
-		                .Frame=0}},
-	};
+	std::vector<TestData> data;
+	TestData a;
+	a.A.Frame=0;
+	data.push_back(a);
+
+	a.A.Frame=1;
+	data.push_back(a);
+
+	a.A.Path="a";
+	a.A.PathStartDate = google::protobuf::util::TimeUtil::TimeTToTimestamp(1);
+	data.push_back(a);
+
+	a.A.Path="b";
+	a.A.PathStartDate = google::protobuf::util::TimeUtil::TimeTToTimestamp(2);
+	a.A.Frame=0;
+	data.push_back(a);
 
 
 	for(const auto & d : data ) {
@@ -71,6 +76,7 @@ TEST_F(ProtobufExperimentReadWriterUTest,FramePointerIO) {
 		EXPECT_EQ(decoded->Path,d.A.Path);
 		EXPECT_EQ(decoded->Frame,d.A.Frame);
 		EXPECT_EQ(decoded->PathStartDate,d.A.PathStartDate);
+
 	}
 
 }

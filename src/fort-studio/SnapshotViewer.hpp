@@ -19,7 +19,7 @@ public:
 	explicit SnapshotViewer(QWidget *parent = 0);
     virtual ~SnapshotViewer();
 
-	void setBasedir(const std::filesystem::path & basedir);
+	void setBasedir(const fs::path & basedir);
 
 	size_t roiSize() const;
 
@@ -144,7 +144,7 @@ private:
 
 	QGraphicsScene     d_scene;
 
-	std::filesystem::path d_basedir;
+	fs::path           d_basedir;
 
 	size_t             d_roiSize;
 	QRect              d_roi;

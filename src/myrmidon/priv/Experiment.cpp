@@ -6,10 +6,9 @@
 #include "Identifier.hpp"
 
 namespace fm = fort::myrmidon;
-namespace fs = std::filesystem;
 using namespace fm::priv;
 
-Experiment::Experiment(const std::filesystem::path & filepath )
+Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::weakly_canonical(filepath))
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
@@ -17,11 +16,11 @@ Experiment::Experiment(const std::filesystem::path & filepath )
 	, d_family(TagFamily::Unset) {
 }
 
-Experiment::Ptr Experiment::Create(const std::filesystem::path & filename) {
+Experiment::Ptr Experiment::Create(const fs::path & filename) {
 	return Experiment::Ptr(new Experiment(filename));
 }
 
-Experiment::Ptr Experiment::NewFile(const std::filesystem::path & filepath) {
+Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 	auto absolutePath = fs::weakly_canonical(filepath);
 	auto base = absolutePath;
 	base.remove_filename();
@@ -33,11 +32,11 @@ Experiment::Ptr Experiment::NewFile(const std::filesystem::path & filepath) {
 }
 
 
-Experiment::Ptr Experiment::Open(const std::filesystem::path & filepath) {
+Experiment::Ptr Experiment::Open(const fs::path & filepath) {
 	return ExperimentReadWriter::Open(filepath);
 }
 
-void Experiment::Save(const std::filesystem::path & filepath) const {
+void Experiment::Save(const fs::path & filepath) const {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
 	auto newBasedir = fs::weakly_canonical(filepath).parent_path();
 	//TODO: should not be an error.
@@ -49,7 +48,7 @@ void Experiment::Save(const std::filesystem::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.Path()) != 0 ) {
+	if (d_dataDirs.count(toAdd.Path().generic_string()) != 0 ) {
 		throw std::invalid_argument("directory '" + toAdd.Path().string() + "' is already present");
 	}
 
@@ -93,7 +92,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::runtime_error("Data in '" + toAdd.Path().string() + "' overlaps in time with existing data");
 	}
 
-	d_dataDirs[toAdd.Path()] = toAdd;
+	d_dataDirs[toAdd.Path().generic_string()] = toAdd;
 }
 
 bool Experiment::ContainsFramePointer()  const  {
@@ -111,14 +110,14 @@ bool Experiment::ContainsFramePointer()  const  {
 	return false;
 }
 
-void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
+void Experiment::RemoveTrackingDataDirectory(fs::path path) {
 
 	if ( path.is_absolute() ) {
 		fs::path root = d_absoluteFilepath;
 		path = fs::relative(path,root.remove_filename());
 	}
 
-	if ( d_dataDirs.count(path) == 0 ) {
+	if ( d_dataDirs.count(path.generic_string()) == 0 ) {
 		throw std::invalid_argument("Could not find data path '" + path.string() + "'");
 	}
 
@@ -126,7 +125,7 @@ void Experiment::RemoveTrackingDataDirectory(std::filesystem::path path) {
 		throw std::runtime_error("This Experiment contains FramePointer, and therefore removing a TrackingDataDirectory may breaks everything, and is therefore disabled");
 	}
 
-	d_dataDirs.erase(path);
+	d_dataDirs.erase(path.generic_string());
 }
 
 const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirectories() const {
@@ -171,11 +170,11 @@ void Experiment::SetThreshold(uint8_t th) {
 	d_threshold = th;
 }
 
-const std::filesystem::path & Experiment::AbsolutePath() const {
+const fs::path & Experiment::AbsolutePath() const {
 	return d_absoluteFilepath;
 }
 
-const std::filesystem::path & Experiment::Basedir() const {
+const fs::path & Experiment::Basedir() const {
 	return d_basedir;
 }
 

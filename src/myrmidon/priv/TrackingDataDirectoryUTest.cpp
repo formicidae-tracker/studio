@@ -2,7 +2,7 @@
 
 
 #include "TrackingDataDirectory.hpp"
-#include "Experiment.pb.h"
+#include <myrmidon/Experiment.pb.h>
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/util/message_differencer.h>
 

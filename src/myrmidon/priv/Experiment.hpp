@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "../Ant.hpp"
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 #include "TrackingDataDirectory.hpp"
 #include "Identifier.hpp"
@@ -34,16 +34,16 @@ public :
 
 	typedef std::unique_ptr<Experiment> Ptr;
 
-	static Ptr Open(const std::filesystem::path & filename);
-	static Ptr Create(const std::filesystem::path & filename);
-	static Ptr NewFile(const std::filesystem::path & filename);
-	void Save(const std::filesystem::path & filename) const;
+	static Ptr Open(const fs::path & filename);
+	static Ptr Create(const fs::path & filename);
+	static Ptr NewFile(const fs::path & filename);
+	void Save(const fs::path & filename) const;
 
-	const std::filesystem::path & AbsolutePath() const;
-	const std::filesystem::path & Basedir() const;
+	const fs::path & AbsolutePath() const;
+	const fs::path & Basedir() const;
 
 	void AddTrackingDataDirectory(const TrackingDataDirectory & tdd);
-	void RemoveTrackingDataDirectory(std::filesystem::path path);
+	void RemoveTrackingDataDirectory(fs::path path);
 
 	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
 
@@ -82,10 +82,10 @@ private:
 
 	bool ContainsFramePointer() const;
 
-	Experiment(const std::filesystem::path & filepath);
+	Experiment(const fs::path & filepath);
 
-	std::filesystem::path       d_absoluteFilepath;
-	std::filesystem::path       d_basedir;
+	fs::path                    d_absoluteFilepath;
+	fs::path                    d_basedir;
 	TrackingDataDirectoryByPath d_dataDirs;
 	Identifier::Ptr             d_identifier;
 

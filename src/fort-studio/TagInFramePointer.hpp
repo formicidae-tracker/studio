@@ -1,6 +1,6 @@
 #pragma once
 
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 #include <myrmidon/priv/FramePointer.hpp>
 
@@ -13,9 +13,9 @@ public:
 	const fort::myrmidon::priv::FramePointer::Ptr & Frame() const;
 	uint32_t TagValue() const;
 
-	std::filesystem::path Path() const;
+	fs::path Path() const;
 
-	std::filesystem::path Base() const;
+	fs::path Base() const;
 
 
 private:
