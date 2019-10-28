@@ -12,6 +12,11 @@ addons:
       - libeigen3-dev
       - qtbase5-dev
       - libasio-dev
+      - libboost-regex-dev
+      - libssl-dev
+      - libboost-dev
+      - libboost-date-time-dev
+      - libboost-filesystem-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
