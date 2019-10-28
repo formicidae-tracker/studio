@@ -4,7 +4,7 @@ set -ex
 
 git clone https://github.com/formicidae-tracker/hermes.git
 cd hermes
-git checkout v0.2.2
+git checkout v0.2.3
 mkdir build
 cd build
 cmake ../

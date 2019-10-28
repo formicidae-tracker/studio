@@ -11,6 +11,7 @@ addons:
     packages:
       - libeigen3-dev
       - qtbase5-dev
+      - libasio-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
