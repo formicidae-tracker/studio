@@ -4,3 +4,18 @@ branches:
   - dev/compat
 notifications:
   email: false
+
+dist: bionic
+addons:
+  apt:
+    sources:
+      - ppa:ppa:maarten-fonville/protobuf
+    packages:
+      - protobuf-compiler
+      - libprotobuf-dev
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake  ..
+  - make all check
