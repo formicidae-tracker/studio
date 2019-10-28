@@ -69,7 +69,11 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	std::vector<fs::path> hermesFiles;
 
 	for( auto const & f : fs::directory_iterator(path) ) {
+#ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 		if ( f.status().type() != fs::regular_file ) {
+#else
+		if ( f.status().type() != fs::file_type::regular ) {
+#endif
 			continue;
 		}
 

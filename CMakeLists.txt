@@ -83,7 +83,6 @@ int main(){
 
 if(USE_CXX17_FS_LIBRARY)
 	set(CXXFS_LIBRARY "-lstdc++fs")
-	message(FATAL_ERROR "coucou")
 else(USE_CXX17_FS_LIBRARY)
 
 	find_package(Boost 1.60.0 REQUIRED COMPONENTS filesystem)

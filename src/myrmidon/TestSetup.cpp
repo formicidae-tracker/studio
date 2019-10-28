@@ -186,7 +186,7 @@ void TestSetup::OnTestProgramEnd(const ::testing::UnitTest& unit_test) {
 	if (Basedir().empty()) {
 		return;
 	}
-	std::cerr << "removing testdata in " << Basedir << std::endl;
+	std::cerr << "removing testdata in " << Basedir() << std::endl;
 	fs::remove_all(Basedir());
 	s_testdir = "";
 }

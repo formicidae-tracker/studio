@@ -190,7 +190,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 					                 throw std::invalid_argument("Uncompatible version '" + version + "' (0.1 expected)");
 				                 }
 			                 },
-			                 [this,&tdd](const pb::Estimate & pb) {
+			                 [this,tdd](const pb::Estimate & pb) {
 				                 try {
 					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
 					                                                            pb::Point2dToEigen(pb.tail()),
