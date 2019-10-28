@@ -8,62 +8,55 @@ void IdentificationUTest::SetUp() {
 	d_identifier = Identifier::Create();
 	d_ant = d_identifier->CreateAnt();
 	d_list.clear();
+
+	FramePointer f;
+
 	//0
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
 	//1
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
 	//2
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 11
-		});
+	f.Frame = 11;
+	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+
 	//3
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 12
-		});
+	f.Frame = 12;
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
 	//4
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 14
-		});
+	f.Frame = 14;
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
 	//5
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 11
-		});
+	f.Frame = 11;
+	d_list.back()->d_end = std::make_shared<FramePointer>(f);
 	//6
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 12
-		});
-	d_list.back()->d_end = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 14
-		});
+	f.Frame = 12;
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	f.Frame = 14;
+	d_list.back()->d_end = std::make_shared<FramePointer>(f);
 	//7
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 15
-		});
+	f.Frame = 15;
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
 	//8
+	f.Frame = 14;
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 14
-		});
+	d_list.back()->d_end = std::make_shared<FramePointer>(f);
 	//9
+	f.Frame=15;
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 15
-		});
-	d_list.back()->d_end = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 17
-		});
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	f.Frame=17;
+	d_list.back()->d_end = std::make_shared<FramePointer>(f);
 
 	//10
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(FramePointer{
-			.Frame = 16
-		});
+	f.Frame = 16;
+	d_list.back()->d_start = std::make_shared<FramePointer>(f);
 }
 
 

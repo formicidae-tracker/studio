@@ -17,20 +17,25 @@ TEST_F(FramePointerUTest,CanBeOrdered) {
 		bool Expected;
 	};
 
-	std::vector<TestData> data
-		= {
-		   //if smae path, compare frame number
-		   TestData{.A={.Frame=0},.B={.Frame=0},.Expected=false},
-		   TestData{.A={.Frame=0},.B={.Frame=1},.Expected=true},
-		   TestData{.A={.Frame=1},.B={.Frame=0},.Expected=false},
-		   // if different paths, compare path start date
-		   TestData{.A={.Path="a",.PathStartDate=fromEpoch(1),.Frame=1},
-		            .B={.Path="b",.PathStartDate=fromEpoch(2),.Frame=0},
-		            .Expected=true},
-		   TestData{.A={.Path="a",.PathStartDate=fromEpoch(2),.Frame=1},
-		            .B={.Path="b",.PathStartDate=fromEpoch(1),.Frame=0},
-		            .Expected=false},
-	};
+	std::vector<TestData> data;
+	TestData a;a.A.Frame=0;a.B.Frame=0;a.Expected=false;
+	data.push_back(a);
+
+	a.B.Frame = 1;a.Expected=true;
+	data.push_back(a);
+
+	a.A.Frame=1;a.B.Frame=0;a.Expected=false;
+	data.push_back(a);
+
+	a.A.Path="a";a.A.PathStartDate=fromEpoch(1);
+	a.B.Path="b";a.B.PathStartDate=fromEpoch(2);
+	a.Expected=true;
+	data.push_back(a);
+
+	a.A.PathStartDate=fromEpoch(2);
+	a.B.PathStartDate=fromEpoch(1);
+	a.Expected=false;
+	data.push_back(a);
 
 	for(const auto & d : data ) {
 		EXPECT_EQ(d.A<d.B,d.Expected);
@@ -46,13 +51,19 @@ TEST_F(FramePointerUTest,CanBeFormatted) {
 		std::string Expected;
 	};
 
-	std::vector<TestData> data
-		= {
-		   TestData{.A={.Frame=0},.Expected="/0"},
-		   TestData{.A={.Frame=2134},.Expected="/2134"},
-		   TestData{.A={.Path="foo",.Frame=42},.Expected="foo/42"},
-		   TestData{.A={.Path="foo/bar/baz",.Frame=0},.Expected="foo/bar/baz/0"},
-	};
+	std::vector<TestData> data;
+	TestData a;
+	a.A.Frame = 0; a.Expected="/0";
+	data.push_back(a);
+
+	a.A.Frame = 2134; a.Expected="/2134";
+	data.push_back(a);
+
+	a.A.Path="foo";a.A.Frame = 42; a.Expected="foo/42";
+	data.push_back(a);
+
+	a.A.Path="foo/bar/baz";a.A.Frame = 42; a.Expected="foo/bar/baz/42";
+	data.push_back(a);
 
 	for(const auto & d : data ) {
 		std::ostringstream os;

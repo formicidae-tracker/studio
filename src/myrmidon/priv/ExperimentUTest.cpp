@@ -7,7 +7,6 @@
 #include <fstream>
 
 namespace fm= fort::myrmidon;
-namespace fs = std::filesystem;
 using namespace fm::priv;
 
 
