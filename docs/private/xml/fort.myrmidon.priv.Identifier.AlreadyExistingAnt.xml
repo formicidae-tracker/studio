@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt" name="AlreadyExistingAnt" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <constructor abstract="yes" id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt::AlreadyExistingAnt" name="AlreadyExistingAnt">
+    <argument id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt::AlreadyExistingAnt::id" name="id">
+      <type name="Ant::ID" />
+    </argument>
+  </constructor>
+  <destructor id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt::~AlreadyExistingAnt" name="~AlreadyExistingAnt" virtual="yes" />
+</class>

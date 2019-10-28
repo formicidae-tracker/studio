@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort" name="fort" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>the fort global namespace</brief>
+  <namespace name="myrmidon" ref="fort::myrmidon#fort::myrmidon">
+    <brief>the myrmidon namespace</brief>
+  </namespace>
+</namespace>

@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::priv::Ant" name="Ant" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <class name="Accessor" ref="fort::myrmidon::priv::Ant::Accessor#fort::myrmidon::priv::Ant::Accessor" />
+  <typedef id="fort::myrmidon::priv::Ant::Ptr" name="Ptr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;" />
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::priv::Ant::Ant" name="Ant">
+    <argument id="fort::myrmidon::priv::Ant::Ant::ID" name="ID">
+      <type name="uint32_t" />
+    </argument>
+  </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::priv::Ant::~Ant" name="~Ant" />
+  <method abstract="yes" id="fort::myrmidon::priv::Ant::FormatID" name="FormatID" static="yes">
+    <return>
+      <type name="std::string" />
+    </return>
+    <argument id="fort::myrmidon::priv::Ant::FormatID::ID" name="ID">
+      <type name="Ant::ID" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::priv::Ant::FormattedID" name="FormattedID">
+    <return>
+      <type name="std::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Ant::ID" name="ID">
+    <return>
+      <type name="Ant::ID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Ant::Identifications" name="Identifications">
+    <return>
+      <type name="Identification::List" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification::List" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Ant::SortAndCheckIdentifications" name="SortAndCheckIdentifications">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+  </method>
+</class>

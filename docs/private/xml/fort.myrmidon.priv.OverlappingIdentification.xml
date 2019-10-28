@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::priv::OverlappingIdentification" interface="true" name="OverlappingIdentification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <constructor abstract="yes" id="fort::myrmidon::priv::OverlappingIdentification::OverlappingIdentification" name="OverlappingIdentification">
+    <argument id="fort::myrmidon::priv::OverlappingIdentification::OverlappingIdentification::a" name="a">
+      <type name="Identification" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+    </argument>
+    <argument id="fort::myrmidon::priv::OverlappingIdentification::OverlappingIdentification::b" name="b">
+      <type name="Identification" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+    </argument>
+  </constructor>
+</class>

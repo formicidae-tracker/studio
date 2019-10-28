@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::priv::Identification" name="Identification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <class name="Accessor" ref="fort::myrmidon::priv::Identification::Accessor#fort::myrmidon::priv::Identification::Accessor" />
+  <typedef id="fort::myrmidon::priv::Identification::List" name="List">
+    <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::Identification::Ptr" name="Ptr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;" />
+  </typedef>
+  <method id="fort::myrmidon::priv::Identification::AntToTagTransform" name="AntToTagTransform">
+    <return>
+      <type name="Isometry2Dd" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::Isometry2Dd" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform" name="ComputeTagToAntTransform" static="yes">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform::result" name="result">
+      <type name="Isometry2Dd" qualifier=" &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::Isometry2Dd" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform::tagPosition" name="tagPosition">
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform::tagAngle" name="tagAngle">
+      <type builtin="yes" name="double" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform::head" name="head">
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform::tail" name="tail">
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::End" name="End">
+    <return>
+      <type name="FramePointer::ConstPtr" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer::ConstPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::ParentIdentifier" name="ParentIdentifier">
+    <return>
+      <type name="IdentifierPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentifierPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::SetEnd" name="SetEnd">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::SetEnd::end" name="end">
+      <type name="FramePointer::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer::Ptr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::SetStart" name="SetStart">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::SetStart::start" name="start">
+      <type name="FramePointer::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer::Ptr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::SetTagPosition" name="SetTagPosition">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::SetTagPosition::position" name="position">
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::SetTagPosition::angle" name="angle">
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::SortAndCheckOverlap" name="SortAndCheckOverlap" static="yes">
+    <return>
+      <type name="std::pair&lt;__gnu_cxx::__normal_iterator&lt;const std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; *, std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt; &gt;, __gnu_cxx::__normal_iterator&lt;const std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; *, std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt; &gt; &gt;" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::SortAndCheckOverlap::begin" name="begin">
+      <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt;::iterator" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identification::SortAndCheckOverlap::end" name="end">
+      <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt;::iterator" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::Start" name="Start">
+    <return>
+      <type name="FramePointer::ConstPtr" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer::ConstPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::TagAngle" name="TagAngle">
+    <return>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::TagPosition" name="TagPosition">
+    <return>
+      <type name="Eigen::Vector2d" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::TagValue" name="TagValue">
+    <return>
+      <type name="uint32_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identification::Target" name="Target">
+    <return>
+      <type name="AntPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::AntPtr" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Identification::TargetsFrame" name="TargetsFrame">
+    <return>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identification::TargetsFrame::frame" name="frame">
+      <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+    </argument>
+  </method>
+</class>

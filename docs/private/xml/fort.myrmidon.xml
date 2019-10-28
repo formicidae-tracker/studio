@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort::myrmidon" name="myrmidon" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>the myrmidon namespace</brief>
+  <namespace name="pb" ref="fort::myrmidon::pb#fort::myrmidon::pb" />
+  <namespace name="priv" ref="fort::myrmidon::priv#fort::myrmidon::priv">
+    <brief>the private implemenation namespace</brief>
+  </namespace>
+</namespace>

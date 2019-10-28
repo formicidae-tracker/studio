@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort::myrmidon::priv" name="priv" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>the private implemenation namespace</brief>
+  <class name="Ant" ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant" />
+  <classtemplate name="DeletedReference" ref="fort::myrmidon::priv::DeletedReference#fort::myrmidon::priv::DeletedReference">
+    <templatetypeparameter id="fort::myrmidon::priv::DeletedReference::T" name="T" />
+  </classtemplate>
+  <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+  <class name="ExperimentReadWriter" ref="fort::myrmidon::priv::ExperimentReadWriter#fort::myrmidon::priv::ExperimentReadWriter" />
+  <class name="FramePointer" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+  <class name="Identification" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+  <class name="Identifier" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier">
+    <brief>An Identifier identifies Ants through Identifications</brief>
+  </class>
+  <classtemplate name="Isometry2D" ref="fort::myrmidon::priv::Isometry2D#fort::myrmidon::priv::Isometry2D">
+    <templatetypeparameter id="fort::myrmidon::priv::Isometry2D::T" name="T" />
+    <templatetypeparameter id="fort::myrmidon::priv::Isometry2D::T" name="T" />
+  </classtemplate>
+  <class name="OverlappingIdentification" ref="fort::myrmidon::priv::OverlappingIdentification#fort::myrmidon::priv::OverlappingIdentification" />
+  <class name="ProtobufReadWriter" ref="fort::myrmidon::priv::ProtobufReadWriter#fort::myrmidon::priv::ProtobufReadWriter" />
+  <class name="TrackingDataDirectory" ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory" />
+  <typedef id="fort::myrmidon::priv::AntByID" name="AntByID">
+    <type name="std::unordered_map&lt;unsigned int, std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;, std::hash&lt;unsigned int&gt;, std::equal_to&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt; &gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::AntByID" name="AntByID">
+    <type name="std::unordered_map&lt;unsigned int, std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;, std::hash&lt;unsigned int&gt;, std::equal_to&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt; &gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::AntPtr" name="AntPtr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::AntPtr" name="AntPtr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::ExperimentPtr" name="ExperimentPtr">
+    <type name="std::unique_ptr&lt;fort::myrmidon::priv::Experiment, std::default_delete&lt;fort::myrmidon::priv::Experiment&gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::ExperimentPtr" name="ExperimentPtr">
+    <type name="std::unique_ptr&lt;fort::myrmidon::priv::Experiment, std::default_delete&lt;fort::myrmidon::priv::Experiment&gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::FramePointerPtr" name="FramePointerPtr">
+    <type name="std::shared_ptr&lt;const fort::myrmidon::priv::FramePointer&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::IdentificationList" name="IdentificationList">
+    <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::IdentificationPtr" name="IdentificationPtr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::IdentifierPtr" name="IdentifierPtr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identifier&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::IdentifierPtr" name="IdentifierPtr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identifier&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::Isometry2Dd" name="Isometry2Dd">
+    <type name="Isometry2D&lt;double&gt;" />
+  </typedef>
+</namespace>

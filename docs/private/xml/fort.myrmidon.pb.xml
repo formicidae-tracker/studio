@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort::myrmidon::pb" name="pb" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <class name="AntMetadata" ref="fort::myrmidon::pb::AntMetadata#fort::myrmidon::pb::AntMetadata" />
+  <class name="Experiment" ref="fort::myrmidon::pb::Experiment#fort::myrmidon::pb::Experiment" />
+  <class name="FramePointer" ref="fort::myrmidon::pb::FramePointer#fort::myrmidon::pb::FramePointer" />
+  <class name="Identification" ref="fort::myrmidon::pb::Identification#fort::myrmidon::pb::Identification" />
+  <class name="TrackingDataDirectory" ref="fort::myrmidon::pb::TrackingDataDirectory#fort::myrmidon::pb::TrackingDataDirectory" />
+</namespace>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Ant" name="Ant" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <variable id="fort::myrmidon::Ant::NO_ANT" name="NO_ANT">
+    <type name="ID" qualifier=" const" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+  </variable>
+  <typedef id="fort::myrmidon::Ant::ID" name="ID">
+    <type name="uint32_t" />
+  </typedef>
+  <typedef id="fort::myrmidon::Ant::List" name="List">
+    <type name="std::vector&lt;fort::myrmidon::Ant, Eigen::aligned_allocator&lt;fort::myrmidon::Ant&gt; &gt;" />
+  </typedef>
+</class>

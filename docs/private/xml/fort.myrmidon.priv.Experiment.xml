@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::priv::Experiment" name="Experiment" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <enum class="yes" id="fort::myrmidon::priv::Experiment::TagFamily" name="TagFamily">
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Tag36h11" name="Tag36h11" value="0" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Tag36h10" name="Tag36h10" value="1" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Tag36ARTag" name="Tag36ARTag" value="2" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Tag16h5" name="Tag16h5" value="3" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Tag25h9" name="Tag25h9" value="4" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Circle21h7" name="Circle21h7" value="5" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Circle49h12" name="Circle49h12" value="6" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Custom48h12" name="Custom48h12" value="7" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Standard41h12" name="Standard41h12" value="8" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Standard52h13" name="Standard52h13" value="9" />
+    <enumvalue id="fort::myrmidon::priv::Experiment::TagFamily::Unset" name="Unset" value="10" />
+  </enum>
+  <typedef id="fort::myrmidon::priv::Experiment::Ptr" name="Ptr">
+    <type name="std::unique_ptr&lt;fort::myrmidon::priv::Experiment, std::default_delete&lt;fort::myrmidon::priv::Experiment&gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath" name="TrackingDataDirectoryByPath">
+    <type name="std::unordered_map&lt;std::__cxx11::basic_string&lt;char&gt;, fort::myrmidon::priv::TrackingDataDirectory, std::hash&lt;std::string&gt;, std::equal_to&lt;std::__cxx11::basic_string&lt;char&gt; &gt;, std::allocator&lt;std::pair&lt;const std::__cxx11::basic_string&lt;char&gt;, fort::myrmidon::priv::TrackingDataDirectory&gt; &gt; &gt;" />
+  </typedef>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::AbsolutePath" name="AbsolutePath">
+    <return>
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::AddTrackingDataDirectory" name="AddTrackingDataDirectory">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::AddTrackingDataDirectory::tdd" name="tdd">
+      <type name="TrackingDataDirectory" qualifier=" const &amp;" ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Author" name="Author">
+    <return>
+      <type name="std::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Basedir" name="Basedir">
+    <return>
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Comment" name="Comment">
+    <return>
+      <type name="std::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Experiment::ConstIdentifier" name="ConstIdentifier">
+    <return>
+      <type name="Identifier" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Create" name="Create" static="yes">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::Create::filename" name="filename">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Family" name="Family">
+    <return>
+      <type name="TagFamily" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::TagFamily" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::FreeRangeContaining" name="FreeRangeContaining">
+    <return>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::FreeRangeContaining::start" name="start">
+      <type name="FramePointerPtr" qualifier=" &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Experiment::FreeRangeContaining::end" name="end">
+      <type name="FramePointerPtr" qualifier=" &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Experiment::FreeRangeContaining::tag" name="tag">
+      <type name="uint32_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Experiment::FreeRangeContaining::f" name="f">
+      <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::priv::Experiment::Identifier" name="Identifier">
+    <return>
+      <type name="Identifier" qualifier=" &amp;" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Name" name="Name">
+    <return>
+      <type name="std::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::NewFile" name="NewFile" static="yes">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::NewFile::filename" name="filename">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Open" name="Open" static="yes">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::Open::filename" name="filename">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::RemoveTrackingDataDirectory" name="RemoveTrackingDataDirectory">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::RemoveTrackingDataDirectory::path" name="path">
+      <type name="std::filesystem::__cxx11::path" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Save" name="Save">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::Save::filename" name="filename">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::SetAuthor" name="SetAuthor">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::SetAuthor::author" name="author">
+      <type name="std::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::SetComment" name="SetComment">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::SetComment::comment" name="comment">
+      <type name="std::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::SetFamily" name="SetFamily">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::SetFamily::tf" name="tf">
+      <type name="TagFamily" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::TagFamily" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::SetName" name="SetName">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::SetName::name" name="name">
+      <type name="std::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::SetThreshold" name="SetThreshold">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Experiment::SetThreshold::th" name="th">
+      <type name="uint8_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::Threshold" name="Threshold">
+    <return>
+      <type name="uint8_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Experiment::TrackingDataDirectories" name="TrackingDataDirectories">
+    <return>
+      <type name="TrackingDataDirectoryByPath" qualifier=" const &amp;" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath" />
+    </return>
+  </method>
+</class>

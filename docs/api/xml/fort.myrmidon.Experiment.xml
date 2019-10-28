@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Experiment" interface="true" name="Experiment" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <typedef id="fort::myrmidon::Experiment::Ptr" name="Ptr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::Experiment&gt;" />
+  </typedef>
+  <method abstract="yes" id="fort::myrmidon::Experiment::GetFrame" name="GetFrame">
+    <return>
+      <type name="Frame::Ptr" ref="fort::myrmidon::Frame#fort::myrmidon::Frame::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::GetFrame::ID" name="ID">
+      <type name="Frame::ID" ref="fort::myrmidon::Frame#fort::myrmidon::Frame::ID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Open" name="Open" static="yes">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::Open::filename" name="filename">
+      <type name="std::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+</class>

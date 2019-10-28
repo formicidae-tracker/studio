@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::priv::Identifier" interface="true" name="Identifier" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>An Identifier identifies Ants through Identifications</brief>
+  <variable id="fort::myrmidon::priv::Identifier::NEXT_AVAILABLE_ID" name="NEXT_AVAILABLE_ID">
+    <type name="Ant::ID" qualifier=" const" />
+  </variable>
+  <class name="Accessor" ref="fort::myrmidon::priv::Identifier::Accessor#fort::myrmidon::priv::Identifier::Accessor" />
+  <class name="AlreadyExistingAnt" ref="fort::myrmidon::priv::Identifier::AlreadyExistingAnt#fort::myrmidon::priv::Identifier::AlreadyExistingAnt" />
+  <class name="UnmanagedAnt" ref="fort::myrmidon::priv::Identifier::UnmanagedAnt#fort::myrmidon::priv::Identifier::UnmanagedAnt" />
+  <class name="UnmanagedIdentification" ref="fort::myrmidon::priv::Identifier::UnmanagedIdentification#fort::myrmidon::priv::Identifier::UnmanagedIdentification" />
+  <class name="UnmanagedTag" ref="fort::myrmidon::priv::Identifier::UnmanagedTag#fort::myrmidon::priv::Identifier::UnmanagedTag" />
+  <typedef id="fort::myrmidon::priv::Identifier::Ptr" name="Ptr">
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identifier&gt;" />
+  </typedef>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::AddIdentification" name="AddIdentification">
+    <return>
+      <type name="IdentificationPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::AddIdentification::id" name="id">
+      <type name="Ant::ID" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::AddIdentification::tagValue" name="tagValue">
+      <type name="uint32_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::AddIdentification::start" name="start">
+      <type name="FramePointerPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::AddIdentification::end" name="end">
+      <type name="FramePointerPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::Ants" name="Ants">
+    <return>
+      <type name="AntByID" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::AntByID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::Create" name="Create" static="yes">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Ptr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::CreateAnt" name="CreateAnt">
+    <return>
+      <type name="AntPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::AntPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::CreateAnt::ID" name="ID">
+      <type name="Ant::ID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::DeleteAnt" name="DeleteAnt">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::DeleteAnt::" name="">
+      <type name="Ant::ID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::DeleteIdentification" name="DeleteIdentification">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::DeleteIdentification::ident" name="ident">
+      <type name="IdentificationPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::Identify" name="Identify">
+    <return>
+      <type name="IdentificationPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::Identify::tag" name="tag">
+      <type name="uint32_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::Identify::frame" name="frame">
+      <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::Itself" name="Itself">
+    <return>
+      <type name="Ptr" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Ptr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::LowerUnidentifiedBound" name="LowerUnidentifiedBound">
+    <return>
+      <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::LowerUnidentifiedBound::tag" name="tag">
+      <type name="uint32_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::LowerUnidentifiedBound::frame" name="frame">
+      <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::SortAndCheck" name="SortAndCheck" static="yes">
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::SortAndCheck::tagSibling" name="tagSibling">
+      <type name="IdentificationList" qualifier=" &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationList" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::SortAndCheck::antSibling" name="antSibling">
+      <type name="IdentificationList" qualifier=" &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationList" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::UpperUnidentifiedBound" name="UpperUnidentifiedBound">
+    <return>
+      <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::UpperUnidentifiedBound::tag" name="tag">
+      <type name="uint32_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Identifier::UpperUnidentifiedBound::frame" name="frame">
+      <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::Identifier::UseCount" name="UseCount">
+    <return>
+      <type name="size_t" />
+    </return>
+    <argument id="fort::myrmidon::priv::Identifier::UseCount::tag" name="tag">
+      <type name="uint32_t" />
+    </argument>
+  </method>
+</class>

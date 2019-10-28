@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::priv::TrackingDataDirectory" interface="true" name="TrackingDataDirectory" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <constructor abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory" />
+  <constructor abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory">
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::path" name="path">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::startFrame" name="startFrame">
+      <type name="uint64_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::endFrame" name="endFrame">
+      <type name="uint64_t" />
+    </argument>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::start" name="start">
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::end" name="end">
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::EndDate" name="EndDate">
+    <return>
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::EndFrame" name="EndFrame">
+    <return>
+      <type name="uint64_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+    <return>
+      <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer::frame" name="frame">
+      <type name="uint64_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+    <return>
+      <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
+    </return>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer::path" name="path">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::Open" name="Open" static="yes">
+    <return>
+      <type name="TrackingDataDirectory" ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory" />
+    </return>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::Open::path" name="path">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::priv::TrackingDataDirectory::Open::base" name="base">
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::Path" name="Path">
+    <return>
+      <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::StartDate" name="StartDate">
+    <return>
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::StartFrame" name="StartFrame">
+    <return>
+      <type name="uint64_t" />
+    </return>
+  </method>
+</class>

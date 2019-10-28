@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::priv::Identifier::UnmanagedTag" name="UnmanagedTag" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <constructor abstract="yes" id="fort::myrmidon::priv::Identifier::UnmanagedTag::UnmanagedTag" name="UnmanagedTag">
+    <argument id="fort::myrmidon::priv::Identifier::UnmanagedTag::UnmanagedTag::tagValue" name="tagValue">
+      <type name="uint32_t" />
+    </argument>
+  </constructor>
+  <destructor id="fort::myrmidon::priv::Identifier::UnmanagedTag::~UnmanagedTag" name="~UnmanagedTag" virtual="yes" />
+</class>

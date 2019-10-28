@@ -1,0 +1,629 @@
+<?xml version='1.0' encoding='utf-8'?>
+<report id="report" title="Documention generator" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <doc>
+This page provides a documentation coverage report. Any undocumented symbols
+are reported here together with the location of where you should document them.
+
+This report contains the following sections:
+
+1. [Coverage](#report/coverage): The documented symbols coverage.
+2. [Arguments](#report/arguments): Errors about undocumented, misspelled function arguments and
+return values.
+3. [References](#report/references): Unresolved cross references.
+</doc>
+  <coverage>
+    <type documented="3" name="function" undocumented="4">
+      <undocumented id="operator!=" name="operator!=">
+        <location column="1" file="src/myrmidon/priv/FramePointer.hpp" line="49" />
+      </undocumented>
+      <undocumented id="operator&lt;" name="operator&lt;">
+        <location column="1" file="src/myrmidon/priv/FramePointer.hpp" line="33" />
+      </undocumented>
+      <undocumented id="operator&lt;&lt;" name="operator&lt;&lt;">
+        <location column="1" file="src/myrmidon/priv/FramePointer.hpp" line="55" />
+      </undocumented>
+      <undocumented id="operator&lt;=" name="operator&lt;=">
+        <location column="1" file="src/myrmidon/priv/FramePointer.hpp" line="41" />
+      </undocumented>
+    </type>
+    <type documented="0" name="typedef" undocumented="20">
+      <undocumented id="fort::myrmidon::priv::Ant::Ptr" name="Ptr">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="19" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::AntByID" name="AntByID">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="28" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="23" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::AntByID" name="AntByID">
+        <location column="1" file="src/myrmidon/priv/Ant.hpp" line="55" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::AntPtr" name="AntPtr">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="23" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="22" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::AntPtr" name="AntPtr">
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="22" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Ptr" name="Ptr">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath" name="TrackingDataDirectoryByPath">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="33" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentPtr" name="ExperimentPtr">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="22" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentPtr" name="ExperimentPtr">
+        <location column="1" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="13" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer::ConstPtr" name="ConstPtr">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="19" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer::Ptr" name="Ptr">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="18" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointerPtr" name="FramePointerPtr">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="27" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::List" name="List">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="28" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::Ptr" name="Ptr">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="27" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::IdentificationList" name="IdentificationList">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="25" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::IdentificationPtr" name="IdentificationPtr">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="24" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Ptr" name="Ptr">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="27" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::IdentifierPtr" name="IdentifierPtr">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="26" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::IdentifierPtr" name="IdentifierPtr">
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="23" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2Dd" name="Isometry2Dd">
+        <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="83" />
+      </undocumented>
+    </type>
+    <type documented="0" name="classtemplate" undocumented="2">
+      <undocumented id="fort::myrmidon::priv::DeletedReference" name="DeletedReference">
+        <location column="1" file="src/myrmidon/priv/DeletedReference.hpp" line="11" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D" name="Isometry2D">
+        <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="12" />
+        <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="36" />
+      </undocumented>
+    </type>
+    <type documented="0" name="templatetypeparameter" undocumented="7">
+      <undocumented id="fort::myrmidon::priv::DeletedReference::T" name="T">
+        <location column="10" file="src/myrmidon/priv/DeletedReference.hpp" line="11" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::T" name="T">
+        <location column="11" file="src/myrmidon/priv/Isometry2D.hpp" line="12" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::T" name="T">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="36" />
+      </undocumented>
+      <undocumented id="operator*::T" name="T">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="21" />
+      </undocumented>
+      <undocumented id="operator*::T" name="T">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="25" />
+      </undocumented>
+      <undocumented id="operator*::T" name="T">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="93" />
+      </undocumented>
+      <undocumented id="operator*::T" name="T">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="99" />
+      </undocumented>
+    </type>
+    <type documented="0" name="enum" undocumented="1">
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily" name="TagFamily">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+    </type>
+    <type documented="3" name="namespace" undocumented="1">
+      <undocumented id="fort::myrmidon::pb" name="pb">
+        <location column="1" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="13" />
+        <location column="1" file="src/myrmidon/priv/Identifier.hpp" line="17" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="14" />
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="13" />
+      </undocumented>
+    </type>
+    <type documented="0" name="method" undocumented="82">
+      <undocumented id="fort::myrmidon::priv::Ant::FormatID" name="FormatID">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::FormattedID" name="FormattedID">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::ID" name="ID">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="27" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::Identifications" name="Identifications">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="23" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::SortAndCheckIdentifications" name="SortAndCheckIdentifications">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="24" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::AbsolutePath" name="AbsolutePath">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="42" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::AddTrackingDataDirectory" name="AddTrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="45" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Author" name="Author">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="61" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Basedir" name="Basedir">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="43" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Comment" name="Comment">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="65" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::ConstIdentifier" name="ConstIdentifier">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="54" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Create" name="Create">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="38" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Family" name="Family">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="68" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::FreeRangeContaining" name="FreeRangeContaining">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="74" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Identifier" name="Identifier">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="50" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Name" name="Name">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="58" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::NewFile" name="NewFile">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="39" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Open" name="Open">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="37" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::RemoveTrackingDataDirectory" name="RemoveTrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="46" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Save" name="Save">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="40" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::SetAuthor" name="SetAuthor">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="62" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::SetComment" name="SetComment">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="66" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::SetFamily" name="SetFamily">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="69" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::SetName" name="SetName">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="59" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::SetThreshold" name="SetThreshold">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="72" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::Threshold" name="Threshold">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="71" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TrackingDataDirectories" name="TrackingDataDirectories">
+        <location column="2" file="src/myrmidon/priv/Experiment.hpp" line="48" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::DoOpen" name="DoOpen">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="20" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::DoSave" name="DoSave">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="21" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::Open" name="Open">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="24" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::Save" name="Save">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="25" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer::FullPath" name="FullPath">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="24" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::AntToTagTransform" name="AntToTagTransform">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="46" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::ComputeTagToAntTransform" name="ComputeTagToAntTransform">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="59" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::End" name="End">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="39" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::ParentIdentifier" name="ParentIdentifier">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="52" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::SetEnd" name="SetEnd">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="36" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::SetStart" name="SetStart">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::SetTagPosition" name="SetTagPosition">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="41" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::SortAndCheckOverlap" name="SortAndCheckOverlap">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="29" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::Start" name="Start">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="38" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::TagAngle" name="TagAngle">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="44" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::TagPosition" name="TagPosition">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="43" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::TagValue" name="TagValue">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="33" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::Target" name="Target">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="50" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::TargetsFrame" name="TargetsFrame">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="54" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::AddIdentification" name="AddIdentification">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="39" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Ants" name="Ants">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="37" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Create" name="Create">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="29" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::CreateAnt" name="CreateAnt">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::DeleteAnt" name="DeleteAnt">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="36" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::DeleteIdentification" name="DeleteIdentification">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="44" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Identify" name="Identify">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="81" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Itself" name="Itself">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::LowerUnidentifiedBound" name="LowerUnidentifiedBound">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="84" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::SortAndCheck" name="SortAndCheck">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="78" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UpperUnidentifiedBound" name="UpperUnidentifiedBound">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="83" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UseCount" name="UseCount">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="86" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::angle" name="angle">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="55" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::inverse" name="inverse">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="63" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::rotation" name="rotation">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="51" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::translation" name="translation">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="59" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::DoOpen" name="DoOpen">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="29" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::DoSave" name="DoSave">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::LoadAnt" name="LoadAnt">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="42" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::LoadExperiment" name="LoadExperiment">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="33" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::LoadFramePointer" name="LoadFramePointer">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="56" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::LoadIdentification" name="LoadIdentification">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="49" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::LoadTrackingDataDirectory" name="LoadTrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="37" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::SaveAnt" name="SaveAnt">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="44" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::SaveExperiment" name="SaveExperiment">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::SaveFramePointer" name="SaveFramePointer">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="58" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::SaveIdentification" name="SaveIdentification">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="52" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::SaveTrackingDataDirectory" name="SaveTrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="39" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::EndDate" name="EndDate">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="35" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::EndFrame" name="EndFrame">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="32" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="37" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="38" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::Open" name="Open">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="41" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::Path" name="Path">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="29" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::StartDate" name="StartDate">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="34" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::StartFrame" name="StartFrame">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="31" />
+      </undocumented>
+    </type>
+    <type documented="0" name="field" undocumented="3">
+      <undocumented id="fort::myrmidon::priv::FramePointer::Frame" name="Frame">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="23" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer::Path" name="Path">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="21" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer::PathStartDate" name="PathStartDate">
+        <location column="2" file="src/myrmidon/priv/FramePointer.hpp" line="22" />
+      </undocumented>
+    </type>
+    <type documented="2" name="functiontemplate" undocumented="0" />
+    <type documented="0" name="constructor" undocumented="14">
+      <undocumented id="NotYetImplemented::NotYetImplemented" name="NotYetImplemented">
+        <location column="2" file="src/myrmidon/utils/NotYetImplemented.hpp" line="7" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::Ant" name="Ant">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="20" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::DeletedReference::DeletedReference&lt;T&gt;" name="DeletedReference&lt;T&gt;">
+        <location column="2" file="src/myrmidon/priv/DeletedReference.hpp" line="14" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::ExperimentReadWriter" name="ExperimentReadWriter">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="17" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt::AlreadyExistingAnt" name="AlreadyExistingAnt">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="67" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedAnt::UnmanagedAnt" name="UnmanagedAnt">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="49" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedIdentification::UnmanagedIdentification" name="UnmanagedIdentification">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="61" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedTag::UnmanagedTag" name="UnmanagedTag">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="55" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;" name="Isometry2D&lt;T&gt;">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="39" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;" name="Isometry2D&lt;T&gt;">
+        <location column="2" file="src/myrmidon/priv/Isometry2D.hpp" line="40" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::OverlappingIdentification::OverlappingIdentification" name="OverlappingIdentification">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="107" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::ProtobufReadWriter" name="ProtobufReadWriter">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="26" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="21" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory">
+        <location column="2" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="22" />
+      </undocumented>
+    </type>
+    <type documented="0" name="variable" undocumented="1">
+      <undocumented id="fort::myrmidon::priv::Identifier::NEXT_AVAILABLE_ID" name="NEXT_AVAILABLE_ID">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="33" />
+      </undocumented>
+    </type>
+    <type documented="0" name="destructor" undocumented="9">
+      <undocumented id="NotYetImplemented::~NotYetImplemented" name="~NotYetImplemented">
+        <location column="2" file="src/myrmidon/utils/NotYetImplemented.hpp" line="10" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::~Ant" name="~Ant">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="21" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::DeletedReference::~DeletedReference&lt;T&gt;" name="~DeletedReference&lt;T&gt;">
+        <location column="2" file="src/myrmidon/priv/DeletedReference.hpp" line="15" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter::~ExperimentReadWriter" name="~ExperimentReadWriter">
+        <location column="2" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="18" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt::~AlreadyExistingAnt" name="~AlreadyExistingAnt">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="68" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedAnt::~UnmanagedAnt" name="~UnmanagedAnt">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="50" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedIdentification::~UnmanagedIdentification" name="~UnmanagedIdentification">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="62" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedTag::~UnmanagedTag" name="~UnmanagedTag">
+        <location column="3" file="src/myrmidon/priv/Identifier.hpp" line="56" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter::~ProtobufReadWriter" name="~ProtobufReadWriter">
+        <location column="2" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="27" />
+      </undocumented>
+    </type>
+    <type documented="1" name="class" undocumented="22">
+      <undocumented id="IdentificationUTest" name="IdentificationUTest">
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="12" />
+      </undocumented>
+      <undocumented id="NotYetImplemented" name="NotYetImplemented">
+        <location column="1" file="src/myrmidon/utils/NotYetImplemented.hpp" line="5" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::pb::AntMetadata" name="AntMetadata">
+        <location column="1" file="src/myrmidon/priv/Identifier.hpp" line="18" />
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="16" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::pb::Experiment" name="Experiment">
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="15" />
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="14" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::pb::FramePointer" name="FramePointer">
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="18" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::pb::Identification" name="Identification">
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="17" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::pb::TrackingDataDirectory" name="TrackingDataDirectory">
+        <location column="1" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="14" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="16" />
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="15" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant" name="Ant">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="17" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="21" />
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="21" />
+        <location column="1" file="src/myrmidon/priv/Ant.hpp" line="17" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Ant::Accessor" name="Accessor">
+        <location column="2" file="src/myrmidon/priv/Ant.hpp" line="37" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment" name="Experiment">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="16" />
+        <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="29" />
+        <location column="1" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="12" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ExperimentReadWriter" name="ExperimentReadWriter">
+        <location column="1" file="src/myrmidon/priv/ExperimentReadWriter.hpp" line="15" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::FramePointer" name="FramePointer">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="20" />
+        <location column="1" file="src/myrmidon/priv/FramePointer.hpp" line="16" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification" name="Identification">
+        <location column="1" file="src/myrmidon/priv/ForwardDeclaration.hpp" line="18" />
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="25" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identification::Accessor" name="Accessor">
+        <location column="2" file="src/myrmidon/priv/Identification.hpp" line="65" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::Accessor" name="Accessor">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="71" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::AlreadyExistingAnt" name="AlreadyExistingAnt">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="65" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedAnt" name="UnmanagedAnt">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="47" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedIdentification" name="UnmanagedIdentification">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="59" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Identifier::UnmanagedTag" name="UnmanagedTag">
+        <location column="2" file="src/myrmidon/priv/Identifier.hpp" line="53" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::OverlappingIdentification" name="OverlappingIdentification">
+        <location column="1" file="src/myrmidon/priv/Identification.hpp" line="105" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::ProtobufReadWriter" name="ProtobufReadWriter">
+        <location column="1" file="src/myrmidon/priv/ProtobufExperimentReadWriter.hpp" line="24" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::TrackingDataDirectory" name="TrackingDataDirectory">
+        <location column="1" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="19" />
+      </undocumented>
+    </type>
+    <type documented="0" name="enumvalue" undocumented="12">
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Circle21h7" name="Circle21h7">
+        <location column="71" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Circle49h12" name="Circle49h12">
+        <location column="82" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Custom48h12" name="Custom48h12">
+        <location column="94" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Standard41h12" name="Standard41h12">
+        <location column="106" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Standard52h13" name="Standard52h13">
+        <location column="120" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Tag16h5" name="Tag16h5">
+        <location column="55" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Tag25h9" name="Tag25h9">
+        <location column="63" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Tag36ARTag" name="Tag36ARTag">
+        <location column="44" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Tag36h10" name="Tag36h10">
+        <location column="35" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Tag36h11" name="Tag36h11">
+        <location column="24" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Experiment::TagFamily::Unset" name="Unset">
+        <location column="134" file="src/myrmidon/priv/Experiment.hpp" line="31" />
+      </undocumented>
+      <undocumented id="fort::myrmidon::priv::Isometry2D::NeedsToAlign" name="NeedsToAlign">
+        <location column="10" file="src/myrmidon/priv/Isometry2D.hpp" line="71" />
+      </undocumented>
+    </type>
+  </coverage>
+  <arguments>
+    <function id="operator&lt;" name="operator&lt;">
+      <location column="1" file="src/myrmidon/priv/TrackingDataDirectory.hpp" line="61" />
+      <undocumented-return />
+      <undocumented name="a" />
+      <undocumented name="b" />
+    </function>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/myrmidon/priv/Experiment.hpp" line="108" />
+      <undocumented-return />
+      <undocumented name="t" />
+      <undocumented name="out" />
+    </function>
+    <function id="operator*" name="operator*">
+      <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="21" />
+      <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="99" />
+      <undocumented-return />
+      <undocumented name="a" />
+      <undocumented name="b" />
+    </function>
+    <function id="operator*" name="operator*">
+      <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="25" />
+      <location column="1" file="src/myrmidon/priv/Isometry2D.hpp" line="93" />
+      <undocumented-return />
+      <undocumented name="i" />
+      <undocumented name="p" />
+    </function>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/myrmidon/priv/Identification.hpp" line="122" />
+      <undocumented-return />
+      <undocumented name="a" />
+      <undocumented name="out" />
+    </function>
+  </arguments>
+  <references />
+</report>

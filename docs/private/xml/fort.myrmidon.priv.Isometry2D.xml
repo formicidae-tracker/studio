@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<classtemplate id="fort::myrmidon::priv::Isometry2D" name="Isometry2D" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <templatetypeparameter id="fort::myrmidon::priv::Isometry2D::T" name="T" />
+  <templatetypeparameter id="fort::myrmidon::priv::Isometry2D::T" name="T" />
+  <constructor id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;" name="Isometry2D&lt;T&gt;" />
+  <constructor id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;" name="Isometry2D&lt;T&gt;">
+    <argument id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;::angle" name="angle">
+      <type name="T" />
+    </argument>
+    <argument id="fort::myrmidon::priv::Isometry2D::Isometry2D&lt;T&gt;::translation" name="translation">
+      <type name="Eigen::Matrix&lt;_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols&gt;" qualifier=" const &amp;" />
+    </argument>
+  </constructor>
+  <method id="fort::myrmidon::priv::Isometry2D::rotation" name="rotation">
+    <return>
+      <type name="Eigen::Rotation2D&lt;_Scalar&gt;" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Isometry2D::angle" name="angle">
+    <return>
+      <type name="T" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Isometry2D::translation" name="translation">
+    <return>
+      <type name="Eigen::Matrix&lt;_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols&gt;" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::priv::Isometry2D::inverse" name="inverse">
+    <return>
+      <type name="Isometry2D&lt;T&gt;" ref="fort::myrmidon::priv::Isometry2D#fort::myrmidon::priv::Isometry2D" />
+    </return>
+  </method>
+</classtemplate>

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<classtemplate id="fort::myrmidon::priv::DeletedReference" name="DeletedReference" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <templatetypeparameter id="fort::myrmidon::priv::DeletedReference::T" name="T" />
+  <constructor id="fort::myrmidon::priv::DeletedReference::DeletedReference&lt;T&gt;" name="DeletedReference&lt;T&gt;" />
+  <destructor id="fort::myrmidon::priv::DeletedReference::~DeletedReference&lt;T&gt;" name="~DeletedReference&lt;T&gt;" virtual="yes" />
+</classtemplate>

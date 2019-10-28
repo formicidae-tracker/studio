@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<index xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <namespace name="fort" ref="fort#fort">
+    <namespace name="myrmidon" ref="fort::myrmidon#fort::myrmidon">
+      <namespace name="priv" ref="fort::myrmidon::priv#fort::myrmidon::priv">
+        <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+      </namespace>
+      <class name="Ant" ref="fort::myrmidon::Ant#fort::myrmidon::Ant" />
+      <class name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment" />
+      <class name="Frame" ref="fort::myrmidon::Frame#fort::myrmidon::Frame" />
+      <class name="Metadata" ref="fort::myrmidon::Metadata#fort::myrmidon::Metadata" />
+    </namespace>
+  </namespace>
+  <report name="Documentation generator" ref="report" />
+</index>
