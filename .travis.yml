@@ -1,0 +1,6 @@
+language: cpp
+branches:
+  only:
+  - dev/compat
+notifications:
+  email: false
