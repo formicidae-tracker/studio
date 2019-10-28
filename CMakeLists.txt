@@ -121,3 +121,9 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 	setup_target_for_coverage_gcovr_html(NAME myrmidon-coverage EXECUTABLE ctest -V -j ${PROCESSOR_COUNT} DEPENDENCIES myrmidon-tests)
 endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+option(BUILD_DOCS "Builds the documentation" Off)
+
+if(BUILD_DOCS)
+	add_subdirectory(docs)
+endif(BUILD_DOCS)
