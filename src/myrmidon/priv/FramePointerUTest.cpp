@@ -65,6 +65,12 @@ TEST_F(FramePointerUTest,CanBeFormatted) {
 	a.A.Path="foo/bar/baz";a.A.Frame = 42; a.Expected="foo/bar/baz/42";
 	data.push_back(a);
 
+	if (fs::path::preferred_separator == '\\') {
+		a.A.Path="foo\bar\baz";a.A.Frame = 42; a.Expected="foo/bar/baz/42";
+		data.push_back(a);
+	}
+
+
 	for(const auto & d : data ) {
 		std::ostringstream os;
 		os << d.A;
