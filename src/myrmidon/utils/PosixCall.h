@@ -3,7 +3,7 @@
 
 #include <system_error>
 
-#include <myrmidon-config.h>
+#include <myrmidon/myrmidon-config.h>
 
 #ifdef MYRMIDON_USE_SYSTEM_CATEGORY
 #define MYRMIDON_SYSTEM_CATEGORY() std::system_category()

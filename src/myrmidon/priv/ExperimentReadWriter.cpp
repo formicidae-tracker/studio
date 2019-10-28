@@ -13,12 +13,12 @@ ExperimentReadWriter::~ExperimentReadWriter() {
 }
 
 
-Experiment::Ptr ExperimentReadWriter::Open(const std::filesystem::path & filename) {
+Experiment::Ptr ExperimentReadWriter::Open(const fs::path & filename) {
 	ProtobufReadWriter pbRW;
 	return pbRW.DoOpen(filename);
 }
 
-void ExperimentReadWriter::Save(const Experiment & experiment, const std::filesystem::path & filename) {
+void ExperimentReadWriter::Save(const Experiment & experiment, const fs::path & filename) {
 	ProtobufReadWriter pbRW;
 	pbRW.DoSave(experiment,filename);
 }

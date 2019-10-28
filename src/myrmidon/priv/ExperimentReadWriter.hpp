@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 namespace fort {
 
@@ -17,12 +17,12 @@ public:
 	ExperimentReadWriter();
 	virtual ~ExperimentReadWriter();
 
-	virtual ExperimentPtr DoOpen(const std::filesystem::path & filename) = 0;
-	virtual void DoSave(const Experiment & experiment, const std::filesystem::path & filename) = 0;
+	virtual ExperimentPtr DoOpen(const fs::path & filename) = 0;
+	virtual void DoSave(const Experiment & experiment, const fs::path & filename) = 0;
 
 
-	static ExperimentPtr Open(const std::filesystem::path & filename);
-	static void Save(const Experiment & experiment, const std::filesystem::path & filename);
+	static ExperimentPtr Open(const fs::path & filename);
+	static void Save(const Experiment & experiment, const fs::path & filename);
 };
 
 } //namespace priv;

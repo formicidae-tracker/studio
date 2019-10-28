@@ -151,7 +151,7 @@ void SnapshotViewer::setRoiSize(size_t roiSize) {
 	}
 }
 
-void SnapshotViewer::setBasedir(const std::filesystem::path & path) {
+void SnapshotViewer::setBasedir(const fs::path & path) {
 	d_basedir = path;
 }
 

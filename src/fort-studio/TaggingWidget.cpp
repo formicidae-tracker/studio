@@ -17,7 +17,7 @@
 
 using namespace fort::myrmidon::priv;
 
-const std::filesystem::path TaggingWidget::ESTIMATE_SAVE_PATH = "ants/pose_estimates.fortstudio";
+const fs::path TaggingWidget::ESTIMATE_SAVE_PATH = "ants/pose_estimates.fortstudio";
 const char * TaggingWidget::GOOD_ICON = "emblem-system";
 const char * TaggingWidget::BAD_ICON = "emblem-unreadable";
 
@@ -176,7 +176,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		d_ui->snapshotProgress->setMaximum(d_ui->snapshotProgress->maximum() + toAdd);
 
 		auto path = d_controller->experiment().Basedir() / p / ESTIMATE_SAVE_PATH;
-		if ( std::filesystem::exists(path) == false ) {
+		if ( fs::exists(path) == false ) {
 			continue;
 		}
 
@@ -306,8 +306,8 @@ void TaggingWidget::on_tagList_currentItemChanged(QTreeWidgetItem *item, QTreeWi
 		return;
 	}
 	auto pathQt = item->data(0,Qt::UserRole).toString();
-	std::filesystem::path path(pathQt.toUtf8().constData(),std::filesystem::path::generic_format);
-	auto fi = d_snapshots.find(path);
+	fs::path path(pathQt.toUtf8().constData());
+	auto fi = d_snapshots.find(path.generic_string());
 	if ( fi == d_snapshots.end() ) {
 		updateButtonState();
 		return;
@@ -336,7 +336,7 @@ Error TaggingWidget::save() {
 	using namespace fort::myrmidon;
 	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
-	std::map<std::filesystem::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
+	std::map<fs::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
 	for(const auto & [p,e] : d_estimates ) {
 		sortedEstimate[e->Base()].push_back(e);
 	}
@@ -405,7 +405,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 		if (ee->TagValue() != tagValue || !ident->TargetsFrame(*(ee->Frame())) ) {
 			continue;
 		}
-		auto fi = d_snapshots.find(p);
+		auto fi = d_snapshots.find(p.generic_string());
 		if ( fi == d_snapshots.end() ) {
 			continue;
 		}

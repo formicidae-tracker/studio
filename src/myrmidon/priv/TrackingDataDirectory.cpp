@@ -5,14 +5,13 @@
 #include <fort-hermes/FileContext.h>
 
 using namespace fort::myrmidon::priv;
-namespace fs = std::filesystem;
 
 TrackingDataDirectory::TrackingDataDirectory()
 	: d_startFrame(0)
 	, d_endFrame(0) {
 }
 
-TrackingDataDirectory::TrackingDataDirectory(const std::filesystem::path & path,
+TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              uint64_t startFrame,
                                              uint64_t endFrame,
                                              const google::protobuf::Timestamp & startdate,
@@ -36,7 +35,7 @@ TrackingDataDirectory::TrackingDataDirectory(const std::filesystem::path & path,
 }
 
 
-const std::filesystem::path &  TrackingDataDirectory::Path() const {
+const fs::path &  TrackingDataDirectory::Path() const {
 	return d_path;
 }
 
@@ -58,7 +57,7 @@ const google::protobuf::Timestamp & TrackingDataDirectory::EndDate() const {
 
 
 
-TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & path, const std::filesystem::path & base) {
+TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & base) {
 	if ( fs::is_directory(base) == false ) {
 		throw std::invalid_argument("base path " + base.string() +  " is not a directory");
 	}
@@ -70,7 +69,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 	std::vector<fs::path> hermesFiles;
 
 	for( auto const & f : fs::directory_iterator(path) ) {
-		if ( f.is_regular_file() == false ) {
+		if ( f.status().type() != fs::regular_file ) {
 			continue;
 		}
 
@@ -90,7 +89,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 
 	fort::hermes::FrameReadout ro;
 	try {
-		fort::hermes::FileContext beginning(hermesFiles.front());
+		fort::hermes::FileContext beginning(hermesFiles.front().string());
 		beginning.Read(&ro);
 		start = ro.frameid();
 		startDate = ro.time();
@@ -99,7 +98,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const std::filesystem::path & 
 	}
 
 	try {
-		fort::hermes::FileContext ending(hermesFiles.back());
+		fort::hermes::FileContext ending(hermesFiles.back().string());
 		for (;;) {
 			ending.Read(&ro);
 			end = ro.frameid();
@@ -137,7 +136,7 @@ FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) const {
 	return res;
 }
 
-FramePointer::Ptr TrackingDataDirectory::FramePointer(const std::filesystem::path & path) const {
+FramePointer::Ptr TrackingDataDirectory::FramePointer(const fs::path & path) const {
 	if (path.parent_path() != d_path ) {
 		std::ostringstream os;
 		os << "Path:" << path << " does not match tracking data directory path " << d_path;

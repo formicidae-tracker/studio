@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 #include <Eigen/StdVector>
 
@@ -26,10 +26,10 @@ public:
 	const Vector2dList & Corners() const;
 
 
-	std::filesystem::path ImagePath() const;
+	fs::path ImagePath() const;
 
 	static ConstPtr FromApriltag(const apriltag_detection_t * d,
-	                             const std::filesystem::path & relativeImagePath,
+	                             const fs::path & relativeImagePath,
 	                             const fort::myrmidon::priv::FramePointerPtr & frame);
 
 
@@ -38,6 +38,6 @@ private:
 
 	Eigen::Vector3d       d_position;
 	Vector2dList          d_corners;
-	std::filesystem::path d_relativeImagePath;
+	fs::path              d_relativeImagePath;
 
 };

@@ -14,7 +14,7 @@ const Snapshot::Vector2dList & Snapshot::Corners() const {
 	return d_corners;
 }
 
-std::filesystem::path Snapshot::ImagePath() const {
+fs::path Snapshot::ImagePath() const {
 	return Base() / d_relativeImagePath;
 }
 
@@ -32,7 +32,7 @@ double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 }
 
 Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
-                                          const std::filesystem::path & relativeImagePath,
+                                          const fs::path & relativeImagePath,
                                           const fort::myrmidon::priv::FramePointer::Ptr & frame) {
 	auto res = std::make_shared<Snapshot>(frame,d->id);
 	res->d_relativeImagePath = relativeImagePath;

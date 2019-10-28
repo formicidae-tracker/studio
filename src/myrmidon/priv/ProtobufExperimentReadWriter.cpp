@@ -5,19 +5,18 @@
 #include "Ant.hpp"
 #include "FramePointer.hpp"
 
-#include "Experiment.pb.h"
+#include <myrmidon/Experiment.pb.h>
 
 #include "../utils/ProtobufFileReadWriter.hpp"
 
 using namespace fort::myrmidon::priv;
 
 namespace fm = fort::myrmidon;
-namespace fs = std::filesystem;
 
 ProtobufReadWriter::ProtobufReadWriter() {}
 ProtobufReadWriter::~ProtobufReadWriter() {}
 
-Experiment::Ptr ProtobufReadWriter::DoOpen(const std::filesystem::path & filename) {
+Experiment::Ptr ProtobufReadWriter::DoOpen(const fs::path & filename) {
 	typedef fm::utils::ProtobufFileReadWriter<fm::pb::FileHeader,fm::pb::FileLine> ReadWriter;
 	auto res = Experiment::Create(filename);
 	ReadWriter::Read(filename,
@@ -43,7 +42,7 @@ Experiment::Ptr ProtobufReadWriter::DoOpen(const std::filesystem::path & filenam
 }
 
 
-void ProtobufReadWriter::DoSave(const Experiment & experiment, const std::filesystem::path & filepath) {
+void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & filepath) {
 	typedef fm::utils::ProtobufFileReadWriter<fm::pb::FileHeader,fm::pb::FileLine> ReadWriter;
 	fort::myrmidon::pb::FileHeader h;
 	h.set_majorversion(0);
@@ -210,7 +209,7 @@ FramePointer::Ptr ProtobufReadWriter::LoadFramePointer(const fort::myrmidon::pb:
 		return FramePointer::Ptr();
 	}
 	auto res = std::make_shared<FramePointer>();
-	res->Path = std::filesystem::path(pb.path(),std::filesystem::path::generic_format);
+	res->Path = fs::path(pb.path());
 	res->Frame = pb.frame();
 	res->PathStartDate.CheckTypeAndMergeFrom(pb.pathstartdate());
 	return res;

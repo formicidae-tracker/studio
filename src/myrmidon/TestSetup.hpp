@@ -2,11 +2,11 @@
 
 #include <gtest/gtest.h>
 
-#include <filesystem>
+#include <myrmidon/utils/FileSystem.hpp>
 
 class TestSetup : public ::testing::EmptyTestEventListener {
 public:
-	inline static const std::filesystem::path & Basedir() {
+	inline static const fs::path & Basedir() {
 		return s_testdir;
 	}
 
@@ -25,6 +25,6 @@ private:
 	void OnTestEnd(const ::testing::TestInfo& test_info) override;
 
 
-	static std::filesystem::path s_testdir;
+	static fs::path s_testdir;
 
 };  // class TestSetup

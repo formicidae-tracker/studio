@@ -14,7 +14,7 @@ TagExtractor::~TagExtractor() {
 }
 
 void TagExtractor::start(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
-                         const std::filesystem::path & basedir) {
+                         const fs::path & basedir) {
 	{
 		std::lock_guard<std::mutex> lock(d_mutex);
 		d_quit = false;

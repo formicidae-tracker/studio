@@ -24,7 +24,7 @@
 #include "SnapshotCache.pb.h"
 
 SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
-                                 const std::filesystem::path & basedir,
+                                 const fs::path & basedir,
                                  fort::myrmidon::priv::Experiment::TagFamily family,
                                  uint8_t threshold,
                                  QObject * parent)
@@ -118,16 +118,17 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 }
 
 size_t SnapshotIndexer::start() {
-	for ( const auto & de : std::filesystem::directory_iterator(d_basedir / d_tdd.Path() / "ants" ) ) {
+	for ( const auto & de : fs::directory_iterator(d_basedir / d_tdd.Path() / "ants" ) ) {
 		auto ext = de.path().extension().string();
 		std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return std::tolower(c);});
 		if ( ext != ".png" ) {
 			continue;
 		}
-		ImageToProcess toProcess = {.Basedir = d_basedir,
-		                            .RelativeImagePath = std::filesystem::relative(de.path(),d_basedir/d_tdd.Path()),
-		                            .Filter = NULL,
-		};
+		ImageToProcess toProcess;
+		toProcess.Basedir = d_basedir;
+		toProcess.RelativeImagePath = fs::relative(de.path(),d_basedir/d_tdd.Path());
+		toProcess.Filter = NULL;
+
 		std::regex filtered("ant_([0-9]+)_frame_([0-9]+).png");
 		std::smatch ID;
 		std::string filename = de.path().filename().string();
@@ -204,7 +205,7 @@ Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snaps
 	for( size_t i = 0; i < 4; ++i ) {
 		res->d_corners.push_back(Eigen::Vector2d(pb.corners(i).x(),pb.corners(i).y()));
 	}
-	res->d_relativeImagePath = std::filesystem::path(pb.relativeimagepath(),std::filesystem::path::generic_format);
+	res->d_relativeImagePath = fs::path(pb.relativeimagepath());
 	return res;
 }
 

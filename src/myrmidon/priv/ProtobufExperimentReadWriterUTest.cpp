@@ -2,7 +2,7 @@
 
 #include <google/protobuf/util/message_differencer.h>
 
-#include "Experiment.pb.h"
+#include <myrmidon/Experiment.pb.h>
 
 #include "ProtobufExperimentReadWriter.hpp"
 
