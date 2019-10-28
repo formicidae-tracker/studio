@@ -43,9 +43,9 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
-                      utils/ProtobufFileReadWriter.hpp
 					  utils/NotYetImplemented.hpp
 					  priv/Isometry2D.hpp)
+
 
 set(HDR_PUBLIC_FILES Frame.hpp
                      Experiment.hpp
@@ -105,3 +105,13 @@ target_link_libraries(myrmidon-tests myrmidon
 
 add_test(NAME myrmidon-tests COMMAND myrmidon-tests)
 add_dependencies(check myrmidon-tests)
+
+foreach(h ${HDR_PUBLIC_FILES})
+	list(APPEND MYRMIDON_API_DOC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h})
+endforeach(h ${HDR_PUBLIC_FILES})
+set(MYRMIDON_API_DOC_FILES ${MYRMIDON_API_DOC_FILES} PARENT_SCOPE)
+
+foreach(h ${HDR_PRIVATE_FILES})
+	list(APPEND MYRMIDON_PRIVATE_DOC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h})
+endforeach(h ${HDR_PRIVATE_FILES})
+set(MYRMIDON_PRIVATE_DOC_FILES ${MYRMIDON_PRIVATE_DOC_FILES} PARENT_SCOPE)
