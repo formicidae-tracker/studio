@@ -5,12 +5,6 @@ project(fort-studio VERSION 0.1.0
 
 cmake_minimum_required(VERSION 3.11)
 
-
-if(CMAKE_VERSION VERSION_LESS "3.7.0")
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
-endif()
-
-
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 
@@ -18,12 +12,7 @@ find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(FortHermesCpp 0.2.0 REQUIRED)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
 find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
-
 
 include(FetchContent)
 FetchContent_Declare(googletest
