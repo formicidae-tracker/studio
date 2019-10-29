@@ -36,9 +36,26 @@ set(UI_FILES MainWindow.ui
              AntListWidget.ui
              ExperimentInfoWidget.ui
 			 FramePointerWidget.ui
-			 AntIdentificationWidget.ui)
+			 AntIdentificationWidget.ui
+			 TaggingWidget.ui)
 
 set(RCC_FILES )
+
+#pinclude_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+qt5_wrap_ui(UI_HEADERS ${UI_FILES})
+
+set(MOC_FILES )
+foreach(H ${HDR_FILES})
+	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/${H} HFILE)
+	foreach(m ${CMAKE_AUTOMOC_MACRO_NAMES})
+		string(REGEX MATCH ${m} NEED_MOC ${HFILE})
+		if(NOT "${NEED_MOC}" STREQUAL "")
+			qt5_generate_moc(${H} ${H}.moc.cpp)
+			list(APPEND MOC_FILES ${H}.moc.cpp)
+		endif(NOT "${NEED_MOC}" STREQUAL "")
+	endforeach(m ${AUTOMOC_MACRO_NAMES})
+endforeach(H ${HDR_FILES})
 
 
 set(PROTO_FILES SnapshotCache.proto Point2d.proto Estimate.proto)
@@ -61,8 +78,8 @@ include_directories(${PROJECT_BINARY_DIR}/src
 
 add_executable(fort-studio ${SRC_FILES}
                            ${HDR_FILES}
-                           ${UI_FILES}
-                           ${RCC_FILES}
+                           ${UI_HEADERS}
+                           ${MOC_FILES}
                            ${PROTO_SRC}
                            ${PROTO_HDR})
 
