@@ -51,13 +51,13 @@ The main dependencies for this project are:
   * Qt 5
   * Google Protobuf (>=3.3.0)
   * [FORT hermes](https://github.com/formicidae-tracker/hermes) library (>=0.2.2)
- 
+
  You debian based systems, you can install the packaged dependencies using the following commands
- 
+
  ```bash
  sudo apt install build-essentials cmake libeigen3-dev qt5base-dev libprotobuf-dev protobuf-compiler
  ```
- 
+
 *__Note__: On Ubuntu 18.04 the lack of support for C++17 std::filesystem, protobuf(>= 3.3.0) and a recent cmake, you will need to performs the following commands:*
 
 ```bash
@@ -75,7 +75,7 @@ git clone https://github.com/formicidae-tracker/hermes.git
 cd hermes
 git checkout v0.2.2
 mkdir -p build
-cd build cmake .. 
+cd build cmake ..
 make
 sudo make install
 ```
@@ -108,9 +108,13 @@ No binary package/ distribution is available at the moment.
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
+## Roadmap
+
+Please refer to the general [roadmap](ROADMAP.md) and the [issue tracker](https://github.com/formicidae-tracker/studio/labels/enhancement).
+
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/formicidae-tracker/studio/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/formicidae-tracker/studio/tags).
 
 ## Authors
 
