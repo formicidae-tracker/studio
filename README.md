@@ -110,7 +110,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Roadmap
 
-Please refer to the general [roadmap](ROADMAP.md) and the [issue tracker](https://github.com/formicidae-tracker/studio/labels/enhancement).
+The roadmap is managed using GitHub's [project](https://github.com/formicidae-tracker/studio/projects).
 
 ## Versioning
 
