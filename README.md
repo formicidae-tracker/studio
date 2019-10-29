@@ -92,6 +92,37 @@ cmake ../
 make
 ```
 
+## Running the unit tests
+
+Unit tests for the myrmidon API are runned through gtest, which is automatically downloaded by the cmake build process. A `check` target that will build the tests and run them is also created.
+
+```bash
+make check
+```
+
+## Distribution
+
+No binary package/ distribution is available at the moment.
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/formicidae-tracker/studio/tags). 
+
+## Authors
+
+The file [AUTHORS](AUTHORS) lists all copyright holders (physical or moral person) for this repository.
+
+See also the list of [contributors](https://github.com/formicidae-tracker/studio/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the GNU Lesser General Public License v3.0 or later - see the [COPYING.LESSER](COPYING.LESSER) file for details
+
+## Acknowledgments
 
 
 
