@@ -1,53 +1,91 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class id="fort::myrmidon::priv::Identifier" interface="true" name="Identifier" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <brief>An Identifier identifies Ants through Identifications</brief>
+  <brief>An Identifier identifies Ants through Identification</brief>
+  <doc>The <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Identifier">Identifier</ref> and <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Identifier">Identifier</ref> is responsible to keep track in the the
+<ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> of the <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> i and their
+Identification. Both <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> and <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> need to
+be created and deleted through its interface as it the only way to
+make sure that we respect the non-<ref ref="fort::myrmidon::priv::OverlappingIdentification#fort::myrmidon::priv::OverlappingIdentification">fort::myrmidon::priv::OverlappingIdentification</ref>
+invariant in the library.</doc>
   <variable id="fort::myrmidon::priv::Identifier::NEXT_AVAILABLE_ID" name="NEXT_AVAILABLE_ID">
+    <brief>A default asking for the next available ID</brief>
     <type name="Ant::ID" qualifier=" const" />
   </variable>
   <class name="Accessor" ref="fort::myrmidon::priv::Identifier::Accessor#fort::myrmidon::priv::Identifier::Accessor" />
-  <class name="AlreadyExistingAnt" ref="fort::myrmidon::priv::Identifier::AlreadyExistingAnt#fort::myrmidon::priv::Identifier::AlreadyExistingAnt" />
-  <class name="UnmanagedAnt" ref="fort::myrmidon::priv::Identifier::UnmanagedAnt#fort::myrmidon::priv::Identifier::UnmanagedAnt" />
-  <class name="UnmanagedIdentification" ref="fort::myrmidon::priv::Identifier::UnmanagedIdentification#fort::myrmidon::priv::Identifier::UnmanagedIdentification" />
-  <class name="UnmanagedTag" ref="fort::myrmidon::priv::Identifier::UnmanagedTag#fort::myrmidon::priv::Identifier::UnmanagedTag" />
+  <class name="AlreadyExistingAnt" ref="fort::myrmidon::priv::Identifier::AlreadyExistingAnt#fort::myrmidon::priv::Identifier::AlreadyExistingAnt">
+    <brief>An exeption when an Ant is already existing</brief>
+  </class>
+  <class name="UnmanagedAnt" ref="fort::myrmidon::priv::Identifier::UnmanagedAnt#fort::myrmidon::priv::Identifier::UnmanagedAnt">
+    <brief>An exeption when an Ant is not managed by this Identifier</brief>
+  </class>
+  <class name="UnmanagedIdentification" ref="fort::myrmidon::priv::Identifier::UnmanagedIdentification#fort::myrmidon::priv::Identifier::UnmanagedIdentification">
+    <brief>An exeption when an Identification is not managed by this Identifier</brief>
+  </class>
+  <class name="UnmanagedTag" ref="fort::myrmidon::priv::Identifier::UnmanagedTag#fort::myrmidon::priv::Identifier::UnmanagedTag">
+    <brief>An exeption when a TagID is not managed by this Identifier</brief>
+  </class>
   <typedef id="fort::myrmidon::priv::Identifier::Ptr" name="Ptr">
+    <brief>A Pointer to an Identifier</brief>
     <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identifier&gt;" />
   </typedef>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::AddIdentification" name="AddIdentification">
+    <brief>Adds a new Identification</brief>
+    <doc>Adds a new Identification. It may throw
+<ref ref="fort::myrmidon::priv::OverlappingIdentification#fort::myrmidon::priv::OverlappingIdentification">fort::myrmidon::priv::OverlappingIdentification</ref> if any exists for the desired
+<ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> or &amp;lt;TagID&amp;gt;.</doc>
     <return>
       <type name="IdentificationPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
     </return>
     <argument id="fort::myrmidon::priv::Identifier::AddIdentification::id" name="id">
+      <doc>the targeted <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref></doc>
       <type name="Ant::ID" />
     </argument>
     <argument id="fort::myrmidon::priv::Identifier::AddIdentification::tagValue" name="tagValue">
+      <doc>the used TagID</doc>
       <type name="uint32_t" />
     </argument>
     <argument id="fort::myrmidon::priv::Identifier::AddIdentification::start" name="start">
+      <doc>the first valid time for this <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref></doc>
       <type name="FramePointerPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </argument>
     <argument id="fort::myrmidon::priv::Identifier::AddIdentification::end" name="end">
+      <doc>the last valid time for this &amp;lt;proiv::Identification&amp;gt;</doc>
       <type name="FramePointerPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::Ants" name="Ants">
+    <brief>Gets the Ants in the Identifier</brief>
     <return>
       <type name="AntByID" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::AntByID" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::Create" name="Create" static="yes">
+    <brief>Creates a new Identifier</brief>
+    <doc>Creates a new <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier">fort::myrmidon::priv::Identifier</ref>. It has to be shared_ptr as
+&amp;lt;priv::identification&amp;gt; keeps a std::weak_ptr to this object. and the</doc>
     <return>
       <type name="Ptr" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Ptr" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::CreateAnt" name="CreateAnt">
+    <brief>Create an Ant</brief>
+    <doc>Creats a new Ant with the iven ID. It will throw an
+<ref ref="fort::myrmidon::priv::Identifier::AlreadyExistingAnt#fort::myrmidon::priv::Identifier::AlreadyExistingAnt">fort::myrmidon::priv::Identifier::AlreadyExistingAnt</ref> if the ID is already used. If
+NEXT_AVAILABLE_ID is used, a unique ID will be automatically
+chosen.</doc>
     <return>
       <type name="AntPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::AntPtr" />
     </return>
     <argument id="fort::myrmidon::priv::Identifier::CreateAnt::ID" name="ID">
+      <doc>the desired ID</doc>
       <type name="Ant::ID" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::DeleteAnt" name="DeleteAnt">
+    <brief>Deletes an Ant</brief>
+    <doc>Deletes an <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> from the Identifier. It should have no
+Identification targetting her otherwise an exception will be
+thrown.</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -56,30 +94,39 @@
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::DeleteIdentification" name="DeleteIdentification">
+    <brief>Removes an Identification</brief>
+    <doc>Any <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> targetting a given <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref>
+should be deleted before removing the <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref></doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::priv::Identifier::DeleteIdentification::ident" name="ident">
+      <doc>the <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> to remove</doc>
       <type name="IdentificationPtr" qualifier=" const &amp;" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::Identify" name="Identify">
+    <brief>Identifies an ant from a point in time and a TagID</brief>
     <return>
       <type name="IdentificationPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::IdentificationPtr" />
     </return>
     <argument id="fort::myrmidon::priv::Identifier::Identify::tag" name="tag">
+      <doc>&amp;lt;TagID&amp;gt; to look for</doc>
       <type name="uint32_t" />
     </argument>
     <argument id="fort::myrmidon::priv::Identifier::Identify::frame" name="frame">
+      <doc>the frame to look for</doc>
       <type name="FramePointer" qualifier=" const &amp;" ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::Itself" name="Itself">
+    <brief>A self-referencing pointer</brief>
     <return>
       <type name="Ptr" ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Ptr" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::LowerUnidentifiedBound" name="LowerUnidentifiedBound">
+    <brief>Return the first previoys frame if any where tag is not used</brief>
     <return>
       <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </return>
@@ -91,6 +138,7 @@
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::SortAndCheck" name="SortAndCheck" static="yes">
+    <brief>Performs invarinat checks for two tags sharing the same ant or the same TagID</brief>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -102,6 +150,7 @@
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::UpperUnidentifiedBound" name="UpperUnidentifiedBound">
+    <brief>Return the first next frame if any where tag is not used</brief>
     <return>
       <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </return>
@@ -113,6 +162,7 @@
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Identifier::UseCount" name="UseCount">
+    <brief>Returns the number of time a given tag is used.</brief>
     <return>
       <type name="size_t" />
     </return>

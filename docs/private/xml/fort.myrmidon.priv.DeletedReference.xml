@@ -1,9 +1,29 @@
 <?xml version='1.0' encoding='utf-8'?>
 <classtemplate id="fort::myrmidon::priv::DeletedReference" name="DeletedReference" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Exception for deleted reference</brief>
+  <doc>Since <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> need to point to their related <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref>, that
+own the list of the same identification we need to use
+std::weak_ptr in <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref>. Same problem arises as any
+<ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> needs a reference to the <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier">fort::myrmidon::priv::Identifier</ref> owning them.
+
+Therefore we should be able to report the case that should never
+happen under normal circonstances (it wouls be considered a real
+bug) where we have an Identification with a <ref ref="fort::myrmidon::priv::DeletedReference#fort::myrmidon::priv::DeletedReference">DeletedReference</ref> to
+one of these object.
+
+TODO: maybe it hsould be a std::logic_error</doc>
   <base access="public">
     <type name="std::runtime_error" />
   </base>
-  <templatetypeparameter id="fort::myrmidon::priv::DeletedReference::T" name="T" />
-  <constructor id="fort::myrmidon::priv::DeletedReference::DeletedReference&lt;T&gt;" name="DeletedReference&lt;T&gt;" />
-  <destructor id="fort::myrmidon::priv::DeletedReference::~DeletedReference&lt;T&gt;" name="~DeletedReference&lt;T&gt;" virtual="yes" />
+  <templatetypeparameter id="fort::myrmidon::priv::DeletedReference::T" name="T">
+    <brief>the type of reference</brief>
+  </templatetypeparameter>
+  <constructor id="fort::myrmidon::priv::DeletedReference::DeletedReference&lt;T&gt;" name="DeletedReference&lt;T&gt;">
+    <brief>Its Constructor</brief>
+    <doc>It initialize the reason of the exception to Deleted reference
+to <ref ref="fort::myrmidon::priv::DeletedReference#fort::myrmidon::priv::DeletedReference::T">fort::myrmidon::priv::DeletedReference::T</ref> with <ref ref="fort::myrmidon::priv::DeletedReference#fort::myrmidon::priv::DeletedReference::T">fort::myrmidon::priv::DeletedReference::T</ref> actually replaced by the typeid name.</doc>
+  </constructor>
+  <destructor id="fort::myrmidon::priv::DeletedReference::~DeletedReference&lt;T&gt;" name="~DeletedReference&lt;T&gt;" virtual="yes">
+    <brief>Its destructor</brief>
+  </destructor>
 </classtemplate>

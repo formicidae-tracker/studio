@@ -1,43 +1,91 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class id="fort::myrmidon::priv::ExperimentReadWriter" interface="true" name="ExperimentReadWriter" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <subclass access="public" name="ProtobufReadWriter" ref="fort::myrmidon::priv::ProtobufReadWriter#fort::myrmidon::priv::ProtobufReadWriter" />
-  <constructor abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::ExperimentReadWriter" name="ExperimentReadWriter" />
-  <destructor abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::~ExperimentReadWriter" name="~ExperimentReadWriter" virtual="yes" />
+  <brief>A IO Abstraction to Read and Write an Experiment on the filesystem</brief>
+  <doc>All the business logic of this library is scattered in small object
+such as <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref>, <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref>, <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> ,
+<ref ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer">fort::myrmidon::priv::FramePointer</ref>. This class is here to avoid to scatter the
+marshalling/unmarshalling logic of this object to be scatter over
+all of them.
+
+This approach gives the benefit that the read/write logic is
+completely decoupled from these objects, and we can know supports
+different file type version, or change this logic completely
+without touching any of these objects.
+
+
+ExperimentReadWriter is therefore an abstract interface, where
+differnet file format version could use different logic by
+re-implementing <ref ref="fort::myrmidon::priv::ExperimentReadWriter#fort::myrmidon::priv::ExperimentReadWriter::DoOpen">DoOpen</ref> or <ref ref="fort::myrmidon::priv::ExperimentReadWriter#fort::myrmidon::priv::ExperimentReadWriter::DoSave">DoSave</ref>.
+
+To save or open an <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> using the default file
+format, simply use the <ref ref="fort::myrmidon::priv::ExperimentReadWriter#fort::myrmidon::priv::ExperimentReadWriter::Open">Open</ref> and <ref ref="fort::myrmidon::priv::ExperimentReadWriter#fort::myrmidon::priv::ExperimentReadWriter::Save">Save</ref> methods.</doc>
+  <subclass access="public" name="ProtobufReadWriter" ref="fort::myrmidon::priv::ProtobufReadWriter#fort::myrmidon::priv::ProtobufReadWriter">
+    <brief>Saves Experiment using protocol buffer</brief>
+  </subclass>
+  <constructor abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::ExperimentReadWriter" name="ExperimentReadWriter">
+    <brief>A Constructor</brief>
+  </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::~ExperimentReadWriter" name="~ExperimentReadWriter" virtual="yes">
+    <brief>A Destructor</brief>
+  </destructor>
   <method abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::DoOpen" name="DoOpen" virtual="yes">
+    <brief>Actually opens a file on the filesystem and unmarshal its data</brief>
+    <doc>The choice has been made to not give a std::ifstream on purpose
+as the file format is free to use this own function if its
+comes from a third party library. The implementation is allowed
+to throw std::exception</doc>
     <return>
       <type name="ExperimentPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::ExperimentPtr" />
     </return>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::DoOpen::filename" name="filename">
+      <doc>the path to the actual file to open</doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::DoSave" name="DoSave" virtual="yes">
+    <brief>Actually saves an Experiment on the filesystem</brief>
+    <doc>The choice has been made to not give a std::ofstream on purpose
+as the file format is free to use this own function if its
+comes from a third party library. The implementation is allowed
+to throw std::exception</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::DoSave::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> to save</doc>
       <type name="Experiment" qualifier=" const &amp;" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
     </argument>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::DoSave::filename" name="filename">
+      <doc>the path to the actual file to save to</doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::Open" name="Open" static="yes">
+    <brief>Opens a file with the preferred file format</brief>
+    <doc>Opens a file with the preferred file format. This method can
+throws std:exception</doc>
     <return>
       <type name="ExperimentPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::ExperimentPtr" />
     </return>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::Open::filename" name="filename">
+      <doc>the path to file to open</doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::ExperimentReadWriter::Save" name="Save" static="yes">
+    <brief>Saves a file with the preferred file format</brief>
+    <doc>Creates a file and saves the Experiment inside it. Truncate it
+if it is already existing. This ,method can throws
+std::exception.</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::Save::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> to save</doc>
       <type name="Experiment" qualifier=" const &amp;" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
     </argument>
     <argument id="fort::myrmidon::priv::ExperimentReadWriter::Save::filename" name="filename">
+      <doc>the path to file to save</doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
   </method>

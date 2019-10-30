@@ -1,42 +1,66 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class id="fort::myrmidon::priv::TrackingDataDirectory" interface="true" name="TrackingDataDirectory" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <constructor abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory" />
+  <brief>Reference to a directory containing tracking data</brief>
+  <doc>This object references an actuakl directory on the filesystem that
+contains the tracking data.
+
+Each directory has a start and end time and a start and end frame</doc>
   <constructor abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory">
+    <brief>Empty undefined constructor</brief>
+  </constructor>
+  <constructor abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory" name="TrackingDataDirectory">
+    <brief>Complete constructor</brief>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::path" name="path">
+      <doc>relative path from <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::Basedir">fort::myrmidon::priv::Experiment::Basedir</ref></doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::startFrame" name="startFrame">
+      <doc>the first frame number in this directory</doc>
       <type name="uint64_t" />
     </argument>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::endFrame" name="endFrame">
+      <doc>the last frame number contained in this directory</doc>
       <type name="uint64_t" />
     </argument>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::start" name="start">
+      <doc>the time of the first frame in this directory</doc>
       <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::TrackingDataDirectory::end" name="end">
+      <doc>the time of the last frame in this directory</doc>
       <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
     </argument>
   </constructor>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::EndDate" name="EndDate">
+    <brief>Gets the time of the last frame in this directory</brief>
     <return>
       <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::EndFrame" name="EndFrame">
+    <brief>Gets the last frame number</brief>
     <return>
       <type name="uint64_t" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+    <brief>Creates a FramePointer from this directory</brief>
+    <doc>Creates a FramePointer from this directory. It will throw
+std::invalid_argument if <ref ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory::FramePointer::frame">frame</ref> is not in [&amp;lt;Start&amp;gt;,&amp;lt;End&amp;gt;]</doc>
     <return>
       <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </return>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer::frame" name="frame">
+      <doc>the desired frame number</doc>
       <type name="uint64_t" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::FramePointer" name="FramePointer">
+    <brief>Creates a FramePointer from this directory</brief>
+    <doc>Creates a FramePointer from this directory by a path of the
+form `path/frameID`. It will throw std::invalid_argument if
+`frameID` is not in [&amp;lt;Start&amp;gt;,&amp;lt;End&amp;gt;] or if `path` is different
+from <ref ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory::Path">fort::myrmidon::priv::TrackingDataDirectory::Path</ref>.</doc>
     <return>
       <type name="FramePointerPtr" ref="fort::myrmidon::priv#fort::myrmidon::priv::FramePointerPtr" />
     </return>
@@ -45,27 +69,37 @@
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::Open" name="Open" static="yes">
+    <brief>Opens an actual TrackingDataDirectory on the filesystem</brief>
+    <doc>Opens an actual TrackingDataDirectory on the filesystem, and
+populate its data form its actual content. This function will
+look for tracking data file open the first and last segment to
+obtain infoirmation on the first and last frame.</doc>
     <return>
       <type name="TrackingDataDirectory" ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory" />
     </return>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::Open::path" name="path">
+      <doc>path to the tracking data directory</doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::priv::TrackingDataDirectory::Open::base" name="base">
+      <doc>basepath to sets the relative path. Should use <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment::Basedir">fort::myrmidon::priv::Experiment::Basedir</ref></doc>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::Path" name="Path">
+    <brief>Gets the relative path</brief>
     <return>
       <type name="std::filesystem::__cxx11::path" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::StartDate" name="StartDate">
+    <brief>Gets the time of the first frame in this directory</brief>
     <return>
       <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::TrackingDataDirectory::StartFrame" name="StartFrame">
+    <brief>Gets the first frame number</brief>
     <return>
       <type name="uint64_t" />
     </return>

@@ -1,21 +1,30 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class id="fort::myrmidon::priv::FramePointer" interface="true" name="FramePointer" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Identifies an Experimental Point in Time</brief>
+  <doc>Identifies an Experimental Point in Time. This class should either
+be renamed, deleted or moved to the &amp;lt;mymidon&amp;gt; namespace.</doc>
   <field id="fort::myrmidon::priv::FramePointer::Path" name="Path">
+    <brief>The path to the parent TrackingDataDirectory</brief>
     <type name="std::filesystem::__cxx11::path" />
   </field>
   <field id="fort::myrmidon::priv::FramePointer::PathStartDate" name="PathStartDate">
+    <brief>The StartingDate of the parent TrackingDataDirectory</brief>
     <type name="google::protobuf::Timestamp" />
   </field>
   <field id="fort::myrmidon::priv::FramePointer::Frame" name="Frame">
+    <brief>The frame number</brief>
     <type name="uint64_t" />
   </field>
   <typedef id="fort::myrmidon::priv::FramePointer::ConstPtr" name="ConstPtr">
+    <brief>A const pointer to FramePointer (Ugly)</brief>
     <type name="std::shared_ptr&lt;const fort::myrmidon::priv::FramePointer&gt;" />
   </typedef>
   <typedef id="fort::myrmidon::priv::FramePointer::Ptr" name="Ptr">
+    <brief>A pointer to FramePointer (Ugly)</brief>
     <type name="std::shared_ptr&lt;const fort::myrmidon::priv::FramePointer&gt;" />
   </typedef>
   <method abstract="yes" id="fort::myrmidon::priv::FramePointer::FullPath" name="FullPath">
+    <brief>A Path uniquely defining the FramePointer</brief>
     <return>
       <type name="std::filesystem::__cxx11::path" />
     </return>

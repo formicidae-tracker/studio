@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<class id="fort::myrmidon::pb::AntMetadata" name="AntMetadata" xmlns="http://jessevdk.github.com/cldoc/1.0" />
+<class id="fort::myrmidon::pb::AntMetadata" name="AntMetadata" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>This message holds all metadata related to an <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref>
+  </brief>
+</class>

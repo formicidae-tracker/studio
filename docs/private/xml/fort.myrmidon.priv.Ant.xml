@@ -1,39 +1,77 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class abstract="true" id="fort::myrmidon::priv::Ant" name="Ant" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <class name="Accessor" ref="fort::myrmidon::priv::Ant::Accessor#fort::myrmidon::priv::Ant::Accessor" />
+  <brief>The Object of Interest of any Experiment</brief>
+  <doc><ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">Ant</ref> are the unique object of interest of an <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> they are
+uniquely identified by their &amp;lt;myrmidon::Ant::ID&amp;gt;.
+
+<ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> relates an <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">Ant</ref> to a
+&amp;lt;myrmidon::TagID&amp;gt;. <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::Identify">fort::myrmidon::priv::Identifier::Identify</ref> can be used to retrieve
+the <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> associated to a &amp;lt;TagID&amp;gt; if it exist in any
+point in time of an <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> defined by a <ref ref="fort::myrmidon::priv::FramePointer#fort::myrmidon::priv::FramePointer">fort::myrmidon::priv::FramePointer</ref>.
+
+An <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">Ant</ref> could have multiple <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref>
+associated with it, but they should not overlap in
+time. &amp;lt;Ant::SortAndCheckIdentifications&amp;gt; could be used to ensure
+this.</doc>
+  <class name="Accessor" ref="fort::myrmidon::priv::Ant::Accessor#fort::myrmidon::priv::Ant::Accessor">
+    <brief>C++ shenanigans</brief>
+  </class>
   <typedef id="fort::myrmidon::priv::Ant::Ptr" name="Ptr">
+    <brief>A pointer to an Ant</brief>
     <type name="std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;" />
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::priv::Ant::Ant" name="Ant">
+    <brief>The Constructor for an Ant</brief>
     <argument id="fort::myrmidon::priv::Ant::Ant::ID" name="ID">
       <type name="uint32_t" />
     </argument>
   </constructor>
-  <destructor abstract="yes" id="fort::myrmidon::priv::Ant::~Ant" name="~Ant" />
+  <destructor abstract="yes" id="fort::myrmidon::priv::Ant::~Ant" name="~Ant">
+    <brief>Its destructor</brief>
+  </destructor>
   <method abstract="yes" id="fort::myrmidon::priv::Ant::FormatID" name="FormatID" static="yes">
+    <brief>Formats an Ant::ID to "0xabcd"</brief>
     <return>
-      <type name="std::string" />
+      <doc>the &amp;lt;myrmidon::Ant::ID&amp;gt; formatted in hexadecimal "0xabcd"</doc>
+      <type name="std::__cxx11::string" />
     </return>
     <argument id="fort::myrmidon::priv::Ant::FormatID::ID" name="ID">
       <type name="Ant::ID" />
     </argument>
   </method>
   <method id="fort::myrmidon::priv::Ant::FormattedID" name="FormattedID">
+    <brief>Get a formatted ID.</brief>
     <return>
-      <type name="std::string" qualifier=" const &amp;" />
+      <doc>a string in the format "0xabcd"</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method id="fort::myrmidon::priv::Ant::ID" name="ID">
+    <brief>Gets the Unique ID of the Ant</brief>
+    <doc><ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant::Ant">fort::myrmidon::priv::Ant::Ant</ref> and <ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant::Ant">fort::myrmidon::priv::Ant::Ant</ref> managed by the same <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier">fort::myrmidon::priv::Identifier</ref> are uniquely identified
+by an Unique ID.
+
+</doc>
     <return>
+      <doc>the unique ID of the Ant</doc>
       <type name="Ant::ID" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Ant::Identifications" name="Identifications">
+    <brief>The Identification::List associated with this priv::Ant.</brief>
+    <doc>A sorted <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification::List">fort::myrmidon::priv::Identification::List</ref> associated with this
+<ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref>. Adding and removing of <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> have to be
+respectively performed using <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier::AddIdentification">fort::myrmidon::priv::Identifier::AddIdentification</ref>
+and &amp;lt;Identifier::RemoveIdentification&amp;gt;.</doc>
     <return>
       <type name="Identification::List" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification::List" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::priv::Ant::SortAndCheckIdentifications" name="SortAndCheckIdentifications">
+    <brief>Sorts and checks the Identification associated with this Ant.</brief>
+    <doc>Sorts and checks the <ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">fort::myrmidon::priv::Identification</ref> associated with this
+<ref ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">fort::myrmidon::priv::Ant</ref> and throws <ref ref="fort::myrmidon::priv::OverlappingIdentification#fort::myrmidon::priv::OverlappingIdentification">fort::myrmidon::priv::OverlappingIdentification</ref> if any
+overlaps in time.</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
