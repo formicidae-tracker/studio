@@ -9,6 +9,8 @@
 
 #include "Isometry2D.hpp"
 
+#include "ForwardDeclaration.hpp"
+
 class IdentificationUTest;
 
 namespace fort {
@@ -16,11 +18,6 @@ namespace fort {
 namespace myrmidon {
 
 namespace priv {
-
-class Identifier;
-class Ant;
-typedef std::shared_ptr<Ant> AntPtr;
-typedef std::shared_ptr<Identifier> IdentifierPtr;
 
 class Identification {
 public:

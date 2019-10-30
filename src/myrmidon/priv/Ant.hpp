@@ -52,8 +52,6 @@ private:
 	Identification::List d_identifications;
 };
 
-typedef std::unordered_map<fort::myrmidon::Ant::ID,Ant::Ptr> AntByID;
-
 } //namespace priv
 
 } // namespace myrmidon

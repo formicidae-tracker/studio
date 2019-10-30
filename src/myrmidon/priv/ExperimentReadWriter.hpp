@@ -3,14 +3,13 @@
 #include <memory>
 #include <myrmidon/utils/FileSystem.hpp>
 
+#include "ForwardDeclaration.hpp"
+
 namespace fort {
 
 namespace myrmidon {
 
 namespace priv {
-
-class Experiment;
-typedef std::unique_ptr<Experiment> ExperimentPtr;
 
 class ExperimentReadWriter {
 public:

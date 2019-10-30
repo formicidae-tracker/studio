@@ -8,17 +8,17 @@
 
 #include "ForwardDeclaration.hpp"
 
-// the fort global namespace
+
 namespace fort {
 
-// the myrmidon namespace
+
 namespace myrmidon {
 
 namespace pb {
 class AntMetadata;
 }
 
-// the private implemenation namespace
+
 namespace priv {
 
 // An Identifier identifies Ants through Identifications
