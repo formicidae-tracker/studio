@@ -23,12 +23,14 @@ add_custom_target(docs-private
 	        generate
 	        -std=c++17
 	        -I/usr/include/eigen3
-	        -I${PROJECT_BINARY_DIR}/src/myrmidon
+	        -I${PROJECT_BINARY_DIR}/src/
+	        -I${PROJECT_SOURCE_DIR}/src/
 	        --
 	        --report
 	        --output
 	        ${PROJECT_SOURCE_DIR}/docs/private
 	        --language c++
 	        --merge docs/cldoc/private
+	        --merge docs/cldoc/api
 	        ${MYRMIDON_PRIVATE_DOC_FILES}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
