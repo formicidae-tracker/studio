@@ -5,6 +5,9 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+
+#include <google/protobuf/util/time_util.h>
+
 namespace fort {
 
 namespace myrmidon {
@@ -75,26 +78,49 @@ const static Duration Nanosecond(1);
 //
 // Every time are considered UTC.
 class Time {
-	typedef uint64_t MonoclockID;
+
+	class Overflow : public std::runtime_error {
+	public:
+		Overflow(const std::string & clocktype)
+			: std::runtime_error(clocktype + " value will overflow") {}
+		virtual ~Overflow() {}
+	};
+
+	typedef uint32_t MonoclockID;
+
 	static Time Now();
-	static Time Date(int year, int month, int day, int hour, int minute, int seconds, int nanoseconds);
-	static Time FromTimeT();
-	static Time FromTimestamp();
+
+	static Time FromTimeT(time_t value);
+	static Time FromTimeval(const timeval & );
+	static Time FromTimestamp(const google::protobuf::Timestamp & timestamp);
+	static Time FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
+	                                      uint64_t nsecs,
+	                                      MonoclockID monotonic);
 
 	Time();
-	Time(,uint64_t monoNanoseconds,MonoclockID ID);
-	Time(int64_t seconds,int32_t nanoseconds,uint64_t monoNanoseconds,MonoclockID ID);
 
-	Time Add(const Duration & d);
+	Time Add(const Duration & d) const;
 	bool After(const Time & t) const;
 	bool Before(const Time & t) const;
 	Duration Sub(const Time & time) const;
 
 
+	const static MonoclockID MONOTONIC_CLOCK = 0;
+
+	const static uint64_t NANOS_PER_SECOND = 1000000000;
+	const static uint64_t NANOS_PER_MILLISECOND = 1000000;
+	const static uint64_t NANOS_PER_MICROSECOND = 1000;
+
 private:
-	uint64_t    d_wall;
-	uint64_t    d_monotonic;
-	MonoclockID d_monotonicID;
+	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono,MonoclockID ID);
+
+	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
+
+	const static uint64_t HAS_MONO_BIT = 0x8000000000000000ULL;
+	int64_t     d_wallSec;
+	int32_t     d_wallNsec;
+	uint64_t    d_mono;
+	MonoclockID d_monoID;
 };
 
 
@@ -125,55 +151,4 @@ fort::myrmidon::Duration operator-(const fort::myrmidon::Duration & a) {
 
 
 std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::Duration & d) {
-	using namespace fort::myrmidon;
-	int64_t ns = d.Nanoseconds();
-	if ( ns == 0 ) {
-		return out << "0s";
-	}
-	std::string sign = "";
-
-	if (ns == std::numeric_limits<int64_t>::min()) {
-		return out << "-2562047h47m16.854775808s";
-	}
-
-	if (ns < 0) {
-		sign = "-";
-		ns = -ns;
-	}
-
-	if ( ns < Microsecond.Nanoseconds() ) {
-		return out << sign << ns << "ns";
-	}
-
-	if ( ns < Millisecond.Nanoseconds() ) {
-		return out << d.Microseconds() << "µs";
-	}
-
-	if ( ns < Second.Nanoseconds() ) {
-		return out << d.Milliseconds() << "ms";
-	}
-
-	int64_t minutes = ns / 60e9;
-	double seconds = Duration(ns % 60000000000LL).Seconds();
-
-
-
-	if ( minutes == 0 ) {
-		return out << d.Seconds() << "s";
-	}
-
-	int64_t hours = minutes / 60;
-	minutes = minutes % 60;
-	auto flags = out.flags();
-	out << std::setprecision(12);
-	if ( hours == 0 ) {
-		out << sign << minutes << "m" << seconds << "s";
-		out.setf(flags);
-		return out;
-	}
-
-	out << sign << hours << "h" << minutes << "m" << seconds << "s";
-	out.setf(flags);
-	return out;
-}
+                          const fort::myrmidon::Duration & d);
