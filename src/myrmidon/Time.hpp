@@ -3,7 +3,8 @@
 #include <cstdint>
 #include <chrono>
 #include <string>
-
+#include <iostream>
+#include <iomanip>
 namespace fort {
 
 namespace myrmidon {
@@ -68,4 +69,60 @@ fort::myrmidon::Duration operator-(const fort::myrmidon::Duration & a,
 
 fort::myrmidon::Duration operator-(const fort::myrmidon::Duration & a) {
 	return -a.Nanoseconds();
+}
+
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Duration & d) {
+	using namespace fort::myrmidon;
+	int64_t ns = d.Nanoseconds();
+	if ( ns == 0 ) {
+		return out << "0s";
+	}
+	std::string sign = "";
+
+	if (ns == std::numeric_limits<int64_t>::min()) {
+		return out << "-2562047h47m16.854775808s";
+	}
+
+	if (ns < 0) {
+		sign = "-";
+		ns = -ns;
+	}
+
+	if ( ns < Microsecond.Nanoseconds() ) {
+		return out << sign << ns << "ns";
+	}
+
+	if ( ns < Millisecond.Nanoseconds() ) {
+		return out << d.Microseconds() << "µs";
+	}
+
+	if ( ns < Second.Nanoseconds() ) {
+		return out << d.Milliseconds() << "ms";
+	}
+
+	int64_t minutes = ns / 60e9;
+	double seconds = Duration(ns % 60000000000LL).Seconds();
+
+
+
+	if ( minutes == 0 ) {
+		return out << d.Seconds() << "s";
+	}
+
+	int64_t hours = minutes / 60;
+	minutes = minutes % 60;
+	auto flags = out.flags();
+	out << std::setprecision(12);
+	if ( hours == 0 ) {
+		out << sign << minutes << "m" << seconds << "s";
+		out.setf(flags);
+		return out;
+	}
+
+	out << sign << hours << "h" << minutes << "m" << seconds << "s";
+	out.setf(flags);
+	return out;
 }

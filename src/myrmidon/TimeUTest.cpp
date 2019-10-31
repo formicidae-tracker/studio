@@ -117,3 +117,32 @@ TEST_F(TimeUTest,DurationParsing) {
 		}
 	}
 }
+
+
+TEST_F(TimeUTest,DurationFormatting) {
+	struct TestData {
+		std::string Expected;
+		Duration Value;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {"0s", 0},
+		   {"1ns", 1 * Nanosecond},
+		   {"1.1µs", 1100 * Nanosecond},
+		   {"2.2ms", 2200 * Microsecond},
+		   {"3.3s", 3300 * Millisecond},
+		   {"4m5s", 4*Minute + 5*Second},
+		   {"4m5.001s", 4*Minute + 5001*Millisecond},
+		   {"5h6m7.001s", 5*Hour + 6*Minute + 7001*Millisecond},
+		   {"8m1e-09s", 8*Minute + 1*Nanosecond},
+		   {"2562047h47m16.854775807s", std::numeric_limits<int64_t>::max()},
+		   {"-2562047h47m16.854775808s", std::numeric_limits<int64_t>::min()},
+	};
+
+	for ( const auto & d : data ) {
+		std::ostringstream os;
+		os << d.Value;
+		EXPECT_EQ(os.str(),d.Expected);
+	}
+}
