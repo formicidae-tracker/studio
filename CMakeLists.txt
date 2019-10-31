@@ -20,15 +20,15 @@ FetchContent_Declare(googletest
                      GIT_TAG        release-1.8.1
                      )
 
-FetchContent_Declare(apriltag
-                     GIT_REPOSITORY https://github.com/AprilRobotics/apriltag.git
-                     GIT_TAG        v3.0.0)
+FetchContent_Declare(fort-tags
+                     GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
+                     GIT_TAG        v1.0.0)
 
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
 	FetchContent_Populate(googletest)
-	add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+	add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif(NOT googletest_POPULATED)
 include(GoogleTest)
 include(EnableMakeCheck)
@@ -36,17 +36,17 @@ enable_testing()
 enable_make_check()
 
 
-FetchContent_GetProperties(apriltag)
+FetchContent_GetProperties(fort-tags)
 if(NOT apriltag_POPULATED)
-	FetchContent_Populate(apriltag)
-	add_subdirectory(${apriltag_SOURCE_DIR} ${apriltag_BINARY_DIR})
+	FetchContent_Populate(fort-tags)
+	add_subdirectory(${fort-tags_SOURCE_DIR} ${fort-tags_BINARY_DIR})
 endif(NOT apriltag_POPULATED)
 
 
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_CPP_INCLUDE_DIRS}
-                    ${apriltag_SOURCE_DIR}
+                    ${fort-tags_SOURCE_DIR}/src
                     )
 
 set(CMAKE_CXX_STANDARD 17)

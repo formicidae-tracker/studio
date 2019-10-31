@@ -83,4 +83,4 @@ add_executable(fort-studio ${SRC_FILES}
                            ${PROTO_SRC}
                            ${PROTO_HDR})
 
-target_link_libraries(fort-studio Qt5::Widgets Qt5::Concurrent myrmidon legacy-tags)
+target_link_libraries(fort-studio Qt5::Widgets Qt5::Concurrent myrmidon fort-tags)

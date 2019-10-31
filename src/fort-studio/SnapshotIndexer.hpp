@@ -5,7 +5,7 @@
 
 #include "Snapshot.hpp"
 
-#include "apriltag.h"
+#include <apriltag/apriltag.h>
 
 #include <myrmidon/priv/Experiment.hpp>
 

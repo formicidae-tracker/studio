@@ -5,7 +5,7 @@
 
 #include <Eigen/StdVector>
 
-#include <apriltag.h>
+#include <apriltag/apriltag.h>
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
