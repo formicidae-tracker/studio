@@ -371,8 +371,6 @@ std::ostream & operator<<(std::ostream & out,
 	int64_t minutes = ns / 60e9;
 	double seconds = Duration(ns % 60000000000LL).Seconds();
 
-
-
 	if ( minutes == 0 ) {
 		return out << d.Seconds() << "s";
 	}

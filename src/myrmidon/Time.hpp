@@ -17,8 +17,9 @@ namespace myrmidon {
 // A duration could be negative. Why not using std::chrono::duration ?
 // The C++ comittee took more than 9 years before figuring out that
 // people may want to convert "1m" to a duration. Since <Time> should
-// be re-implemented with a strong [golang](https://golang.org)
-// inspiration, why not doing the same for the associated <Duration>.
+// be re-implemented with a strong [golang
+// time](https://golang.org/pkg/time) inspiration, why not doing the
+// same for the associated <Duration>.
 //
 // This class aims to replicate a go syntax. For example to represent
 // one hour, 10 minute, one may write:
@@ -142,8 +143,8 @@ private:
 // time, and we would end up with issue where a time difference
 // between two consecutive frame could be negative.
 //
-// Inspired from golang [time.Time](https://golang.org/pkg/time) we
-// propose an Object that store both a Wall time, and a Monotonic
+// Inspired from golang [time.Time](https://golang.org/pkg/time#Time)
+// we propose an Object that store both a Wall time, and a Monotonic
 // timestamp. But here we could have different monotonic timestamp. We
 // try, whenever its possible (both <Time> have a monotonic time, and
 // they are issued from the same monotonic clock), use that value for
@@ -338,18 +339,26 @@ private:
 
 } // namespace fort
 
-
-
+// C++ shenanigans
 inline fort::myrmidon::Duration operator*(int64_t a,
                                           const fort::myrmidon::Duration & b) {
 	return a * b.Nanoseconds();
 }
 
 
-
+// Formats a Duration
+// @out the std::ostream to format to
+// @d the <fort::myrmidon::Duration> to format
+// @return a reference to <out>
+//
+// Formats the <fort::myrmidon::Duration> to the form
+// "1h2m3.4s". Leading zero unit are omitted, and unit smaller than 1s
+// uses a smalle unit ms us or ns. The zero duration formats to 0s. It
+// mimic golang's
+// [time.Duration.String()](https://golang.org/pkg/time/#Duration.String)
+// behavior.
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Duration & d);
-
 
 // Formats to RFC 3339 date string format
 // @out the output iostream
