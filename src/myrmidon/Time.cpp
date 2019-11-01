@@ -9,9 +9,15 @@
 
 using namespace fort::myrmidon;
 
-Duration::Duration(int64_t ns) : d_nanoseconds(ns) { }
-
 using nanos = std::chrono::duration<uint64_t,std::nano>;
+
+const Duration Duration::Hour        = 3600e9;
+const Duration Duration::Minute      = 60e9;
+const Duration Duration::Second      = 1e9;
+const Duration Duration::Millisecond = 1e6;
+const Duration Duration::Microsecond = 1e3;
+const Duration Duration::Nanosecond  = 1;
+
 
 double Duration::Hours() const {
 	using hourf = std::chrono::duration<double,std::ratio<3600>>;
@@ -282,15 +288,15 @@ std::ostream & operator<<(std::ostream & out,
 		ns = -ns;
 	}
 
-	if ( ns < Microsecond.Nanoseconds() ) {
+	if ( ns < Duration::Microsecond.Nanoseconds() ) {
 		return out << sign << ns << "ns";
 	}
 
-	if ( ns < Millisecond.Nanoseconds() ) {
+	if ( ns < Duration::Millisecond.Nanoseconds() ) {
 		return out << d.Microseconds() << "µs";
 	}
 
-	if ( ns < Second.Nanoseconds() ) {
+	if ( ns < Duration::Second.Nanoseconds() ) {
 		return out << d.Milliseconds() << "ms";
 	}
 
