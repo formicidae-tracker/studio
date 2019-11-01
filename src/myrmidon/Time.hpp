@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <google/protobuf/util/time_util.h>
+#include <google/protobuf/timestamp.pb.h>
 
 namespace fort {
 
@@ -80,6 +80,7 @@ public:
 	//
 	// It may throw <std::exception> on any parsing error.
 	static Duration Parse(const std::string & string);
+
 
 	bool operator==(const Duration & other) const {
 		return d_nanoseconds == other.d_nanoseconds;
@@ -161,6 +162,7 @@ private:
 //
 // Every time are considered UTC.
 class Time {
+public:
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
@@ -228,6 +230,17 @@ class Time {
 	static Time FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
 	                                      uint64_t nsecs,
 	                                      MonoclockID monoID);
+
+
+	// Parses from RFC 3339 date string format.
+	// @input the string to parse
+	//
+	// Parses from [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt)
+	// date string format, i.e. string of the form
+	// `1972-01-01T10:00:20.021-05:00`. It is merely a wrapper from
+	// google::protobuf::time_util functions.
+	static Time Parse(const std::string & input);
+
 
 	// Converts to a `time_t`
 	// @return `time_t`representing the <Time>.
@@ -336,3 +349,16 @@ inline fort::myrmidon::Duration operator*(int64_t a,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Duration & d);
+
+
+// Formats to RFC 3339 date string format
+// @out the output iostream
+// @t the <fort::myrmidon::Time> to format
+// @return a reference to <out>
+//
+// Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
+// string format, i.e. string of the form
+// `1972-01-01T10:00:20.021Z`. It is merely a wrapper from
+// google::protobuf::time_util functions.
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Time & t);

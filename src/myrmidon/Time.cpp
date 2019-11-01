@@ -7,6 +7,8 @@
 
 #include "utils/PosixCall.h"
 
+#include <google/protobuf/util/time_util.h>
+
 using namespace fort::myrmidon;
 
 using nanos = std::chrono::duration<uint64_t,std::nano>;
@@ -231,6 +233,15 @@ Time Time::FromTimestampAndMonotonic(const google::protobuf::Timestamp & timesta
 	            HAS_MONO_BIT | monoID);
 }
 
+
+Time Time::Parse(const std::string & input) {
+	google::protobuf::Timestamp pb;
+	if ( google::protobuf::util::TimeUtil::FromString(input,&pb) == false ) {
+		throw std::runtime_error("Time: could not parse '" + input + "'");
+	}
+	return FromTimestamp(pb);
+}
+
 Time::Time()
 	: d_wallSec(0)
 	, d_wallNsec(0)
@@ -379,4 +390,10 @@ std::ostream & operator<<(std::ostream & out,
 	out << sign << hours << "h" << minutes << "m" << seconds << "s";
 	out.setf(flags);
 	return out;
+}
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Time & t) {
+	return out << google::protobuf::util::TimeUtil::ToString(t.ToTimestamp());
 }
