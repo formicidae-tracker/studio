@@ -281,7 +281,7 @@ Time Time::Add(const Duration & d) const{
 		mono = d_mono + toAdd;
 	}
 
-	int64_t seconds = toAdd / NANOS_PER_SECOND;
+	int64_t seconds = toAdd / NANOS_PER_SECOND_SINT64;
 
 	return Time(d_wallSec + seconds, d_wallNsec + (toAdd - seconds),mono,d_monoID);
 }
@@ -312,7 +312,7 @@ Duration Time::Sub(const Time & t) const {
 		throw Overflow("duration");
 	}
 
-	seconds *= NANOS_PER_SECOND;
+	seconds *= NANOS_PER_SECOND_SINT64;
 
 	if ( (nsecs > 0 && seconds > MAX_SINT64 - nsecs) ||
 	     (nsecs < 0 && seconds < MIN_SINT64 - nsecs) ) {
