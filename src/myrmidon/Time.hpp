@@ -322,10 +322,20 @@ public:
 	// this <Time> has no monotonic clock value (see <HasMono>).
 	MonoclockID MonoID() const;
 
+
+	// Helpers to convert (sec,nsec) to nsec
+	// @sec the amount of second
+	// @nsec the amount of nanos
+	// @return sec * 1e9 + nsec if no overflow
+	//
+	// Helpers to convert (sec,nsec) to nsec. Throws <Overflow> on
+	// overflow.
+	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
+
+
 private:
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
-	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
 	const static uint32_t HAS_MONO_BIT = 0x80000000ULL;
 	int64_t     d_wallSec;

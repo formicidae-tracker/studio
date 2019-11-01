@@ -22,28 +22,23 @@ const Duration Duration::Nanosecond  = 1;
 
 
 double Duration::Hours() const {
-	using hourf = std::chrono::duration<double,std::ratio<3600>>;
-	return hourf(nanos(d_nanoseconds)).count();
+	return double(d_nanoseconds)/double(3600.0e9);
 }
 
 double Duration::Minutes() const {
-	using minutef = std::chrono::duration<double,std::ratio<60>>;
-	return minutef(nanos(d_nanoseconds)).count();
+	return double(d_nanoseconds)/double(60.0e9);
 }
 
 double Duration::Seconds() const {
-	using secondef = std::chrono::duration<double,std::ratio<1>>;
-	return secondef(nanos(d_nanoseconds)).count();
+	return double(d_nanoseconds)/double(1.0e9);
 }
 
 double Duration::Milliseconds() const {
-	using millif = std::chrono::duration<double,std::milli>;
-	return millif(nanos(d_nanoseconds)).count();
+	return double(d_nanoseconds)/double(1.0e6);
 }
 
 double Duration::Microseconds() const {
-	using microf = std::chrono::duration<double,std::micro>;
-	return microf(nanos(d_nanoseconds)).count();
+	return double(d_nanoseconds)/double(1.0e3);
 }
 
 Duration Duration::Parse(const std::string & i) {
@@ -254,20 +249,20 @@ Time::Time(int64_t wallSec, int32_t wallNsec, uint64_t mono, MonoclockID monoID)
 	, d_wallNsec(wallNsec)
 	, d_mono(mono)
 	, d_monoID(monoID) {
-	while(d_wallNsec >= NANOS_PER_SECOND ) {
-		if (d_wallSec == MAX_UINT64 ) {
-			throw Overflow("Wall");
-		}
-		++d_wallSec;
-		d_wallNsec -= NANOS_PER_SECOND;
-	}
-
-	while(d_wallNsec < 0) {
+	while(d_wallNsec >= NANOS_PER_SECOND_SINT64 ) {
 		if (d_wallSec == MAX_SINT64 ) {
 			throw Overflow("Wall");
 		}
+		++d_wallSec;
+		d_wallNsec -= NANOS_PER_SECOND_SINT64;
+	}
+
+	while(d_wallNsec < 0) {
+		if (d_wallSec == MIN_SINT64 ) {
+			throw Overflow("Wall");
+		}
 		--d_wallNsec;
-		d_wallNsec += NANOS_PER_SECOND;
+		d_wallNsec += NANOS_PER_SECOND_SINT64;
 	}
 }
 
@@ -368,7 +363,7 @@ std::ostream & operator<<(std::ostream & out,
 		return out << d.Milliseconds() << "ms";
 	}
 
-	int64_t minutes = ns / 60e9;
+	int64_t minutes = ns / int64_t(60000000000LL);
 	double seconds = Duration(ns % 60000000000LL).Seconds();
 
 	if ( minutes == 0 ) {

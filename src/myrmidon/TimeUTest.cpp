@@ -2,6 +2,8 @@
 
 #include "Time.hpp"
 
+#include <google/protobuf/util/time_util.h>
+
 using namespace fort::myrmidon;
 
 
@@ -133,6 +135,7 @@ TEST_F(TimeUTest,DurationFormatting) {
 		   {"1.1µs", 1100 * Duration::Nanosecond},
 		   {"2.2ms", 2200 * Duration::Microsecond},
 		   {"3.3s", 3300 * Duration::Millisecond},
+		   {"-4.4s", -4400 * Duration::Millisecond},
 		   {"4m5s", 4*Duration::Minute + 5*Duration::Second},
 		   {"4m5.001s", 4*Duration::Minute + 5001*Duration::Millisecond},
 		   {"5h6m7.001s", 5*Duration::Hour + 6*Duration::Minute + 7001*Duration::Millisecond},
@@ -146,4 +149,259 @@ TEST_F(TimeUTest,DurationFormatting) {
 		os << d.Value;
 		EXPECT_EQ(os.str(),d.Expected);
 	}
+}
+
+
+TEST_F(TimeUTest,HasMonotonicClock) {
+
+	struct TestData {
+		Time T;
+		bool OK;
+		Time::MonoclockID Expected;
+	};
+	timeval tv;
+	google::protobuf::Timestamp pb;
+	std::vector<TestData> data
+		= {
+		   { Time(), false , 0},
+		   { Time::Now(), true , Time::SYSTEM_MONOTONIC_CLOCK},
+		   { Time::FromTimeT(10), false , 0},
+		   { Time::FromTimeval(tv), false , 0},
+		   { Time::FromTimestamp(pb), false , 0},
+		   { Time::FromTimestampAndMonotonic(pb,0,1), true, 1 },
+		   { Time::Now().Add(2 * Duration::Nanosecond), true, Time::SYSTEM_MONOTONIC_CLOCK},
+	};
+
+	for ( const auto & d : data) {
+		EXPECT_EQ(d.T.HasMono(),d.OK);
+		if ( d.OK == true ) {
+			EXPECT_NO_THROW({
+					EXPECT_EQ(d.T.MonoID(),d.Expected);
+				});
+		} else {
+			EXPECT_THROW({
+					d.T.MonoID();
+				},std::exception);
+		}
+	}
+
+}
+
+TEST_F(TimeUTest,TimeSubstraction) {
+
+	google::protobuf::Timestamp zero = google::protobuf::util::TimeUtil::TimeTToTimestamp(0);
+	google::protobuf::Timestamp oneSecond = google::protobuf::util::TimeUtil::TimeTToTimestamp(1);
+	google::protobuf::Timestamp twoSecond = google::protobuf::util::TimeUtil::TimeTToTimestamp(2);
+
+	struct TestData {
+		Time A;
+		Time B;
+		Duration Expected;
+		char Comp;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {
+		    Time::FromTimestamp(zero),
+		    Time::FromTimestamp(zero),
+		    0,
+		    '=',
+		   },
+		   {
+		    Time::FromTimestamp(oneSecond),
+		    Time::FromTimestamp(zero),
+		    1 * Duration::Second,
+		    '>',
+		   },
+		   {
+		    Time::FromTimestamp(oneSecond),
+		    Time::FromTimestamp(twoSecond),
+		    -1 * Duration::Second,
+		    '<',
+		   },
+		   {
+		    Time::FromTimestampAndMonotonic(twoSecond,(2*Duration::Second + 1).Nanoseconds(),1),
+		    Time::FromTimestamp(oneSecond),
+		    1 * Duration::Second,
+		    '>',
+		   },
+		   {
+		    Time::FromTimestamp(twoSecond),
+		    Time::FromTimestampAndMonotonic(oneSecond,(1*Duration::Second - 1).Nanoseconds(),1),
+		    1 * Duration::Second,
+		    '>',
+		   },
+		   {
+		    Time::FromTimestampAndMonotonic(twoSecond, (2*Duration::Second + 1).Nanoseconds(),1),
+		    Time::FromTimestampAndMonotonic(oneSecond, (1*Duration::Second - 1).Nanoseconds(),1),
+		    1 * Duration::Second + 2 * Duration::Nanosecond,
+		    '>',
+		   },
+		   {
+		    //won't use monotonic clock as ID don't matches
+		    Time::FromTimestampAndMonotonic(twoSecond,(2*Duration::Second + 1).Nanoseconds(),1),
+		    Time::FromTimestampAndMonotonic(oneSecond,(1*Duration::Second - 1).Nanoseconds(),2),
+		    1 * Duration::Second,
+		    '>',
+		   },
+	};
+
+
+	for( const auto & d : data ) {
+		EXPECT_EQ(d.A.Sub(d.B),d.Expected);
+		switch(d.Comp) {
+		case '=' :
+			EXPECT_TRUE(d.A.Equals(d.B));
+			break;
+		case '<':
+			EXPECT_TRUE(d.A.Before(d.B));
+			break;
+		case '>':
+			EXPECT_TRUE(d.A.After(d.B));
+			break;
+		default:
+			ADD_FAILURE() << "Intern test failure: unknown comparison test '" << d.Comp << "'";
+		}
+	}
+
+
+}
+
+
+TEST_F(TimeUTest,Overflow) {
+
+	EXPECT_THROW({
+			google::protobuf::Timestamp a;
+			a.set_seconds(std::numeric_limits<int64_t>::max());
+			a.set_nanos((1*Duration::Second + 1).Nanoseconds());
+			auto t = Time::FromTimestamp(a);
+		}, Time::Overflow);
+
+	EXPECT_THROW({
+			google::protobuf::Timestamp a;
+			a.set_seconds(std::numeric_limits<int64_t>::min());
+			a.set_nanos(-1);
+			auto t = Time::FromTimestamp(a);
+		}, Time::Overflow);
+
+	EXPECT_THROW({
+			google::protobuf::Timestamp a;
+			auto t = Time::FromTimestampAndMonotonic(a,std::numeric_limits<uint64_t>::max(),1);
+			t.Add(1);
+		}, Time::Overflow);
+
+	EXPECT_THROW({
+			google::protobuf::Timestamp a;
+			auto t = Time::FromTimestampAndMonotonic(a,1,1);
+			t.Add(-2);
+		}, Time::Overflow);
+
+
+	google::protobuf::Timestamp a,b;
+	a.set_seconds(std::numeric_limits<int64_t>::max()/1e9 + 1);
+	b.set_seconds(std::numeric_limits<int64_t>::min()/1e9 - 1);
+
+	EXPECT_THROW({
+			Time::FromTimestamp(a).Sub(Time::FromTimestamp(b));
+		}, Time::Overflow);
+
+	EXPECT_THROW({
+			Time::FromTimestamp(b).Sub(Time::FromTimestamp(a));
+		}, Time::Overflow);
+
+
+	a.set_seconds(std::numeric_limits<int64_t>::max()/1e9);
+	b.set_seconds(0);
+	EXPECT_NO_THROW({
+			Time::FromTimestamp(a).Sub(Time::FromTimestamp(b));
+		});
+	a.set_nanos( std::numeric_limits<int32_t>::max() );
+	EXPECT_THROW({
+			Time::FromTimestamp(a).Sub(Time::FromTimestamp(b));
+		},Time::Overflow);
+
+	a.set_nanos(1e9-1);
+	b.set_seconds(0);
+	b.set_nanos(0);
+	EXPECT_THROW({
+			Time::FromTimestamp(b).Sub(Time::FromTimestamp(a));
+		},Time::Overflow);
+
+
+
+
+	EXPECT_THROW({
+			Time::MonoFromSecNSec(std::numeric_limits<uint64_t>::max(), 0);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::MonoFromSecNSec(std::numeric_limits<uint64_t>::max()/1e9, 1e9);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::FromTimestampAndMonotonic(a,
+			                                0,
+			                                uint32_t(std::numeric_limits<int32_t>::max()) + uint32_t(1));
+		}, Time::Overflow);
+
+}
+
+
+TEST_F(TimeUTest,TimeConversion) {
+
+	time_t t = 10;
+	EXPECT_EQ(Time::FromTimeT(t).ToTimeT(),t);
+
+	timeval tv;
+	tv.tv_sec = 11;
+	tv.tv_usec = 10002;
+	auto res = Time::FromTimeval(tv).ToTimeval();
+	EXPECT_EQ(res.tv_sec,tv.tv_sec);
+	EXPECT_EQ(res.tv_usec,tv.tv_usec);
+
+	google::protobuf::Timestamp pb,resC,resInPlace;
+
+	pb.set_seconds(-2);
+	pb.set_nanos(3);
+
+	resC = Time::FromTimestamp(pb).ToTimestamp();
+	Time::FromTimestamp(pb).ToTimestamp(resInPlace);
+
+	EXPECT_EQ(resC,pb);
+	EXPECT_EQ(resInPlace,pb);
+
+
+}
+
+
+TEST_F(TimeUTest,TimeFormat) {
+	struct TestData {
+		int64_t Sec;
+		int64_t Nanos;
+		std::string Expected;
+		std::string Input;
+	};
+
+	std::vector<TestData> data
+		= {
+		   { ((2*365*24+5)*Duration::Hour + 20 * Duration::Second).Nanoseconds()/1000000000LL,
+		     (21 * Duration::Millisecond).Nanoseconds(),
+		     "1972-01-01T05:00:20.021Z",
+		     "1972-01-01T10:00:20.021+05:00"},
+	};
+
+
+	for ( const auto & d : data ) {
+		google::protobuf::Timestamp pb;
+		pb.set_seconds(d.Sec);
+		pb.set_nanos(d.Nanos);
+		auto expectedTime = Time::FromTimestamp(pb);
+		std::ostringstream os;
+		os << expectedTime;
+		EXPECT_EQ(os.str(),d.Expected);
+		auto parsed = Time::Parse(d.Input);
+		EXPECT_TRUE(parsed.Equals(expectedTime));
+	}
+
 }

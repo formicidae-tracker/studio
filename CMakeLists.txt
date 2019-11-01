@@ -89,9 +89,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 add_subdirectory(src)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(COVERAGE_GCOVR_EXCLUDES ${apriltag_SOURCE_DIR}/*
-	                            ${googletest_SOURCE_DIR}/*
-	                            ${PROJECT_SOURCE_DIR}/src/fort-studio/*
+	set(COVERAGE_GCOVR_EXCLUDES ${PROJECT_SOURCE_DIR}/src/fort-studio/*
 	                            ${PROJECT_SOURCE_DIR}/src/legacy-tags/*
 	                            ${PROJECT_BINARY_DIR}/src/fort-studio/*
 	                            ${PROJECT_BINARY_DIR}/src/myrmidon/Experiment.pb.*
