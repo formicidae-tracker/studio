@@ -151,7 +151,6 @@ private:
 //
 // Every time are considered UTC.
 class Time {
-
 	class Overflow : public std::runtime_error {
 	public:
 		Overflow(const std::string & clocktype)
@@ -175,6 +174,7 @@ class Time {
 	Time Add(const Duration & d) const;
 	bool After(const Time & t) const;
 	bool Before(const Time & t) const;
+	bool Equals(const Time & t) const;xb
 	Duration Sub(const Time & time) const;
 
 
@@ -184,12 +184,14 @@ class Time {
 	const static uint64_t NANOS_PER_MILLISECOND = 1000000;
 	const static uint64_t NANOS_PER_MICROSECOND = 1000;
 
+	MonoclockID MonoID() const;
+
 private:
-	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono,MonoclockID ID);
+	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
-	const static uint64_t HAS_MONO_BIT = 0x8000000000000000ULL;
+	const static uint32_t HAS_MONO_BIT = 0x80000000ULL;
 	int64_t     d_wallSec;
 	int32_t     d_wallNsec;
 	uint64_t    d_mono;
