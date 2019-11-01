@@ -8,7 +8,8 @@
 #include <fort-hermes/FileContext.h>
 #include <fort-hermes/Error.h>
 
-namespace fmp=fort::myrmidon::priv;
+namespace fm=fort::myrmidon;
+namespace fmp=fm::priv;
 
 ExperimentController::ExperimentController(fmp::Experiment::Ptr & experiment,
                                            QObject * parent)
@@ -123,8 +124,8 @@ fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
 
 Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
                                               uint32_t tagValue,
-                                              const fmp::FramePointer::Ptr & start,
-                                              const fmp::FramePointer::Ptr & end) {
+                                              const fm::Time::ConstPtr & start,
+                                              const fm::Time::ConstPtr & end) {
 	try {
 		fmp::Identification::Ptr res = d_experiment->Identifier().AddIdentification(ID,tagValue,start,end);
 		emit identificationCreated(res);

@@ -2,61 +2,61 @@
 
 #include "Identification.hpp"
 
-using namespace fort::myrmidon::priv;
+namespace fm = fort::myrmidon;
+using namespace fm::priv;
 
 void IdentificationUTest::SetUp() {
 	d_identifier = Identifier::Create();
 	d_ant = d_identifier->CreateAnt();
 	d_list.clear();
 
-	FramePointer f;
-
+	fm::Time t;
 	//0
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
 	//1
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
+	d_list.push_back(Identification::Accessor::Create(1,d_identifier,d_ant));
 	//2
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 11;
-	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(2,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(11);
+	d_list.back()->d_end = std::make_shared<fm::Time>(t);
 
 	//3
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 12;
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(3,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(11);
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
 	//4
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 14;
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(4,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(14);
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
 	//5
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 11;
-	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(5,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(11);
+	d_list.back()->d_end = std::make_shared<fm::Time>(t);
 	//6
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 12;
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
-	f.Frame = 14;
-	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(6,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(11);
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = fm::Time::FromTimeT(14);
+	d_list.back()->d_end = std::make_shared<fm::Time>(t);
 	//7
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 15;
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(7,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(14);
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
 	//8
-	f.Frame = 14;
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+	t = fm::Time::FromTimeT(14);
+	d_list.push_back(Identification::Accessor::Create(8,d_identifier,d_ant));
+	d_list.back()->d_end = std::make_shared<fm::Time>(t);
 	//9
-	f.Frame=15;
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
-	f.Frame=17;
-	d_list.back()->d_end = std::make_shared<FramePointer>(f);
+	t = fm::Time::FromTimeT(15);
+	d_list.push_back(Identification::Accessor::Create(9,d_identifier,d_ant));
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = fm::Time::FromTimeT(17);
+	d_list.back()->d_end = std::make_shared<fm::Time>(t);
 
 	//10
-	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
-	f.Frame = 16;
-	d_list.back()->d_start = std::make_shared<FramePointer>(f);
+	d_list.push_back(Identification::Accessor::Create(10,d_identifier,d_ant));
+	t = fm::Time::FromTimeT(16);
+	d_list.back()->d_start = std::make_shared<fm::Time>(t);
 }
 
 
@@ -106,9 +106,18 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 	};
 
 	for(auto & d: data) {
+		std::ostringstream os;
+		os << "List:BEGIN" << std::endl;
+		for(auto i = d.Start; i != d.End; ++i) {
+			os << **i << std::endl;
+		}
+		os << "List:END" << std::endl;
+
 		auto res = Identification::SortAndCheckOverlap(d.Start,d.End);
-		EXPECT_EQ(res.first,d.Expected.first);
-		EXPECT_EQ(res.second,d.Expected.second);
+
+
+		EXPECT_EQ(res.first,d.Expected.first) << os.str();
+		EXPECT_EQ(res.second,d.Expected.second) << os.str();
 	}
 
 }
@@ -124,36 +133,42 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	ASSERT_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
 	ASSERT_NO_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),1,NULL,NULL);});
 	// we can always reduce the validity of ID1
+	auto swapTime = std::make_shared<fm::Time>(fm::Time::FromTimeT(0));
+
 	ASSERT_NO_THROW({
-			auto ant1ID1end = std::make_shared<FramePointer>();
-			ant1ID1end->Path = "a";
-			ant1ID1end->Frame = 10;
-			ant1ID1->SetEnd(ant1ID1end);
+			ant1ID1->SetEnd(swapTime);
 		});
-	auto ant1ID2start = std::make_shared<FramePointer>();
-	ant1ID2start->Path = "a";
-	ant1ID2start->Frame = 10;
 	// overlaps with ant1ID1
-	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),0,NULL,NULL);},OverlappingIdentification);
-	// still overlaps with ant1ID1 as end == start
-	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),0,ant1ID2start,NULL);},OverlappingIdentification);
-	ant1ID2start->Frame = 11;
+	ASSERT_THROW({
+			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			                                        0,
+			                                        fm::Time::ConstPtr(),
+			                                        fm::Time::ConstPtr());
+		},OverlappingIdentification);
 	// overlaps with ant2ID1
-	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),1,ant1ID2start,NULL);},OverlappingIdentification);
+	ASSERT_THROW({
+			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			                                        1,
+			                                        swapTime,
+			                                        fm::Time::ConstPtr());
+		},OverlappingIdentification);
 	ASSERT_NO_THROW({
-			auto ant2ID1end = std::make_shared<FramePointer>();
-			ant2ID1end->Path = "a";
-			ant2ID1end->Frame = 10;
-			ant2ID1->SetEnd(ant2ID1end);
+			ant2ID1->SetEnd(swapTime);
 		});
-	ant1ID2start->Frame = 10;
-	// overlaps with ant2ID1 as end == start
-	ASSERT_THROW({ant1ID2 = identifier->AddIdentification(ant2->ID(),1,ant1ID2start,NULL);},OverlappingIdentification);
-	ant1ID2start->Frame = 11;
 
 	//works to swap the two id after frame a/10
-	ASSERT_NO_THROW({ant1ID2 = identifier->AddIdentification(ant1->ID(),1,ant1ID2start,NULL);});
-	ASSERT_NO_THROW({ant2ID2 = identifier->AddIdentification(ant2->ID(),0,ant1ID2start,NULL);});
+	ASSERT_NO_THROW({
+			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			                                        1,
+			                                        swapTime,
+			                                        fm::Time::ConstPtr());
+		});
+	ASSERT_NO_THROW({
+			ant2ID2 = identifier->AddIdentification(ant2->ID(),
+			                                        0,
+			                                        swapTime,
+			                                        fm::Time::ConstPtr());
+		});
 
 
 }

@@ -4,6 +4,8 @@
 #include "DeletedReference.hpp"
 #include "FramePointer.hpp"
 
+
+namespace fm = fort::myrmidon;
 using namespace fort::myrmidon::priv;
 
 Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
@@ -114,8 +116,8 @@ Identifier::Ptr Identifier::Itself() const {
 
 Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
                                                   uint32_t tagValue,
-                                                  const FramePointerPtr & start,
-                                                  const FramePointerPtr & end) {
+                                                  const Time::ConstPtr & start,
+                                                  const Time::ConstPtr & end) {
 	if ( d_antIDs.count(id) == 0 ) {
 		throw UnmanagedAnt(id);
 	}
@@ -190,26 +192,26 @@ Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & 
 
 void Identifier::SortAndCheck(IdentificationList & tagSiblings,
                               IdentificationList & antSiblings) {
-	auto overlap = Identification::SortAndCheckOverlap(tagSiblings.begin(),tagSiblings.end());
+	auto overlap = TimeValid::SortAndCheckOverlap(tagSiblings.begin(),tagSiblings.end());
 	if ( overlap.first != overlap.second ) {
 		throw OverlappingIdentification(**overlap.first,**overlap.second);
 	}
 
-	overlap = Identification::SortAndCheckOverlap(antSiblings.begin(),antSiblings.end());
+	overlap = TimeValid::SortAndCheckOverlap(antSiblings.begin(),antSiblings.end());
 	if ( overlap.first != overlap.second ) {
 		throw OverlappingIdentification(**overlap.first,**overlap.second);
 	}
 
 }
 
-Identification::Ptr Identifier::Identify(uint32_t tag,const FramePointer & frame) const {
+Identification::Ptr Identifier::Identify(uint32_t tag,const Time & t) const {
 	auto fi = d_identifications.find(tag);
 	if ( fi == d_identifications.end()) {
 		return Identification::Ptr();
 	}
 
 	for(const auto & ident : fi->second ) {
-		if (ident->TargetsFrame(frame) == true ) {
+		if (ident->IsValid(t) == true ) {
 			return ident;
 		}
 	}
@@ -217,52 +219,22 @@ Identification::Ptr Identifier::Identify(uint32_t tag,const FramePointer & frame
 }
 
 
-FramePointer::Ptr Identifier::UpperUnidentifiedBound(uint32_t tag, const FramePointer & frame) const {
+fm::Time::ConstPtr Identifier::UpperUnidentifiedBound(uint32_t tag, const fm::Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
-		return FramePointer::Ptr();
+		return Time::ConstPtr();
 	}
 
-
-
-	for( const auto & ident : fi->second ) {
-		if ( ident->TargetsFrame(frame) ) {
-			std::ostringstream os;
-			os << "tag " << tag << " on " <<frame.FullPath() << " identifies Ant "
-			   << ident->Target()->FormattedID() ;
-			throw std::out_of_range(os.str());
-		}
-		if ( frame < *(ident->Start()) ) {
-			return std::make_shared<FramePointer>(*(ident->Start()));
-		}
-	}
-
-	return FramePointer::Ptr();
+	return TimeValid::UpperUnvalidBound(t,fi->second.begin(),fi->second.end());
 }
 
-FramePointer::Ptr Identifier::LowerUnidentifiedBound(uint32_t tag, const FramePointer & frame) const {
+fm::Time::ConstPtr Identifier::LowerUnidentifiedBound(uint32_t tag, const fm::Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
-		return FramePointer::Ptr();
+		return Time::ConstPtr();
 	}
 
-
-
-	for( auto iter = fi->second.rbegin();
-	     iter != fi->second.rend();
-	     ++iter ) {
-		if ( (*iter)->TargetsFrame(frame) ) {
-			std::ostringstream os;
-			os << "tag " << tag << " on " << frame.FullPath() << " identifies Ant "
-			   << (*iter)->Target()->FormattedID() ;
-			throw std::out_of_range(os.str());
-		}
-		if ( *((*iter)->End()) < frame ) {
-			return std::make_shared<FramePointer>(*((*iter)->End()));
-		}
-	}
-
-	return FramePointer::Ptr();
+	return TimeValid::LowerUnvalidBound(t,fi->second.begin(),fi->second.end());
 }
 
 

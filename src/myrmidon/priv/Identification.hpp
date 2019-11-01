@@ -3,13 +3,13 @@
 #include <memory>
 #include <vector>
 
-#include "FramePointer.hpp"
-
 #include <Eigen/Core>
 
 #include "Isometry2D.hpp"
 
 #include "ForwardDeclaration.hpp"
+
+#include "TimeValid.hpp"
 
 class IdentificationUTest;
 
@@ -38,56 +38,49 @@ namespace priv {
 // time pair of point and sometimes translation and orientation. A
 // bbit of uniformity would help.
 
-class Identification {
+class Identification : public TimeValid {
 public:
+	virtual ~Identification() {}
+
 	// A Pointer to an Identification
 	typedef std::shared_ptr<Identification> Ptr;
 	// A List of Identification
 	typedef std::vector<Ptr> List;
 
-	// Sorts a list of identification and returns any overlap
-	// @begin an iterator to the start of the range
-	// @end an iterator the end of the range
-	// @return the first pair of Identification overlapping in time. a
-	//         pair of empty pointer if none.
-	//
-	static std::pair<List::const_iterator,List::const_iterator>
-	SortAndCheckOverlap(List::iterator begin,
-	                    List::iterator end);
 
 	// Gets the TagID of this Identification
 	// @return <TagID> this <priv::Identification> refers to.
 	uint32_t TagValue() const;
 
 	// Sets the starting validity time for this Identification
-	// @start the starting time, could be an empty pointer to remove
-	//        any boundary
+	// @start the starting <Time> could be an empty pointer to remove
+	//        any boundaries
 	//
-	// Sets the starting validity time for this <Identification>. This
-	// methods will throw any <OverlappingIdentification> if such
-	// modification will create any collision for the same <TagID> or
-	// the same <priv::Ant>. In such a case the boundaries remain
-	// unchanged.
-	void SetStart(const FramePointer::Ptr & start);
+	// Sets the starting validity <Time> for this
+	// <Identification>. This methods will throw any
+	// <OverlappingIdentification> if such modification will create
+	// any collision for the same <TagID> or the same <priv::Ant>. In
+	// such a case the boundaries remain unchanged.
+	void SetStart(const Time::ConstPtr & start);
 
 	// Sets the ending validity time for this Identification
-	// @end the ending time, could be an empty pointer to remove
+	// @end the ending <Time>, could be an empty pointer to remove
 	//        any boundary
 	//
-	// Sets the ending validity time for this <Identification>. This
+	// Sets the ending validity <Time> for this <Identification>. This
 	// methods will throw any <OverlappingIdentification> if such
 	// modification will create any collision for the same <TagID> or
 	// the same <priv::Ant>. In such a case the boundaries remain
 	// unchanged.
-	void SetEnd(const FramePointer::Ptr & end);
+	void SetEnd(const Time::ConstPtr & end);
 
 	// Gets the starting validity time
-	// @return the first valid time or an empty pointer if no boundary.
-	FramePointer::ConstPtr Start() const;
+	// @return the time after which this Identification is valid.
+	Time::ConstPtr Start() const;
 
 	// Get the ending validity time
-	// @return the last valid time or an empty pointer if no boundary.
-	FramePointer::ConstPtr End() const;
+	// @return the time after which this identification is unvalid.
+	Time::ConstPtr End() const;
 
 	// Sets the Tag Position relative to the Ant
 	// @position the translation from the <priv::Ant> origin to the Tag center.
@@ -131,12 +124,11 @@ public:
 	IdentifierPtr ParentIdentifier() const;
 
 	// Tests if this identification targets a given point in time.
-	// @frame the point in time to test for
-	// @return true if this Identification is valid for this point in
-	// time.
-	inline bool TargetsFrame(const FramePointer & frame ) const {
-		return (!d_start || *d_start <= frame) &&
-			(!d_end || frame <= *d_end);
+	// @time the <Time> to test for
+	// @return true if this Identification is valid for <time>
+	inline bool IsValid(const Time & time ) const {
+		return ( !d_start || time.After(*d_start) ) &&
+			( !d_end || time.Before(*d_end) );
 	}
 
 	// Computes the TagToAntTransform
@@ -159,9 +151,9 @@ public:
 		                  const IdentifierPtr & identifier,
 		                  const AntPtr & ant);
 		static void SetStart(Identification & identification,
-		                     const FramePointer::Ptr & start);
+		                     const Time::ConstPtr & start);
 		static void SetEnd(Identification & identification,
-		                   const FramePointer::Ptr & end);
+		                   const Time::ConstPtr & end);
 
 	public:
 		friend class Identifier;
@@ -177,14 +169,12 @@ private:
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
 
-	void SetBound(const FramePointer::Ptr & start,
-	              const FramePointer::Ptr & end);
+	void SetBound(const Time::ConstPtr & start,
+	              const Time::ConstPtr & end);
 	friend class Ant;
 	friend class Identifier;
 	friend class ::IdentificationUTest;
 
-	FramePointer::Ptr         d_start;
-	FramePointer::Ptr         d_end;
 	Isometry2Dd               d_antToTag;
 
 	int32_t                   d_tagValue;
@@ -192,6 +182,7 @@ private:
 	std::weak_ptr<Identifier> d_identifier;
 
 };
+
 // An std::exception when tow Identification overlaps in time.
 //
 // Two <priv::Identification> overlaps in time if they have
@@ -220,21 +211,5 @@ private:
 // @out the stream to format to
 // @a the <fort::myrmidon::priv::Identification> to format
 // @return a reference to <out>
-inline std::ostream & operator<<(std::ostream & out,
-                                 const fort::myrmidon::priv::Identification & a) {
-	out << "Identification{ID:"
-	    << a.TagValue()
-	    << ", From:'";
-	if (a.Start()) {
-		out << *a.Start();
-	} else {
-		out << "<begin>";
-	}
-	out << "', To:'";
-	if (a.End()) {
-		out << *a.End();
-	} else {
-		out << "<end>";
-	}
-	return out << "'}";
-}
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Identification & a);

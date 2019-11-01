@@ -318,7 +318,7 @@ void TaggingWidget::on_tagList_currentItemChanged(QTreeWidgetItem *item, QTreeWi
 	if ( efi != d_estimates.end() ) {
 		d_ui->snapshotViewer->setAntPoseEstimate(efi->second);
 	}
-	auto ident = d_controller->experiment().ConstIdentifier().Identify(s->TagValue(),*s->Frame());
+	auto ident = d_controller->experiment().ConstIdentifier().Identify(s->TagValue(),s->Frame()->Time());
 	d_ui->snapshotViewer->displayIdentification(ident);
 
 	updateButtonState();
@@ -394,7 +394,7 @@ void TaggingWidget::updateIdentificationForCurrentFrame() {
 Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValue,
                                                                 const FramePointer & f) {
 
-	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f);
+	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f.Time());
 
 	if (!ident) {
 		return ident;
@@ -402,7 +402,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 
 	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
 	for(const auto & [p,ee] : d_estimates ) {
-		if (ee->TagValue() != tagValue || !ident->TargetsFrame(*(ee->Frame())) ) {
+		if (ee->TagValue() != tagValue || !ident->IsValid(ee->Frame()->Time()) ) {
 			continue;
 		}
 		auto fi = d_snapshots.find(p.generic_string());
@@ -452,9 +452,9 @@ void TaggingWidget::on_newAntButton_clicked() {
 		return;
 	}
 	auto a = d_controller->createAnt();
-	FramePointer::Ptr start;
-	FramePointer::Ptr end;
-	if ( d_controller->experiment().FreeRangeContaining(start,end,e->TagValue(),*(e->Frame())) == false ) {
+	Time::ConstPtr start;
+	Time::ConstPtr end;
+	if ( d_controller->experiment().FreeRangeContaining(start,end,e->TagValue(),e->Frame()->Time()) == false ) {
 		qCritical() << e->Frame()->FullPath().generic_string().c_str() << " already identifies an ant";
 		return;
 	}
@@ -513,7 +513,7 @@ void TaggingWidget::updateButtonState() {
 
 	auto e = d_ui->snapshotViewer->antPoseEstimate();
 	//we only allow modification
-	bool enabled = !identifier.Identify(e->TagValue(),*(e->Frame()));
+	bool enabled = !identifier.Identify(e->TagValue(),e->Frame()->Time());
 
 	if ( enabled == false ) {
 		d_ui->addIdentButton->setEnabled(false);
@@ -531,7 +531,7 @@ void TaggingWidget::updateButtonState() {
 	}
 	auto a = aFi->second;
 	for(const auto & ident : a->Identifications() ) {
-		if (ident->TargetsFrame(*(e->Frame())) ) {
+		if (ident->IsValid(e->Frame()->Time()) ) {
 			d_ui->addIdentButton->setEnabled(false);
 			return;
 		}
@@ -570,7 +570,7 @@ void TaggingWidget::onIdentificationDeleted(const fort::myrmidon::priv::Identifi
 
 	auto s = d_ui->snapshotViewer->displayedSnapshot();
 	if ( !s || i->TagValue() != s->TagValue() ||
-	     !i->TargetsFrame(*s->Frame()) ) {
+	     !i->IsValid(s->Frame()->Time()) ) {
 		return;
 	}
 	d_ui->snapshotViewer->displayIdentification(Identification::Ptr());

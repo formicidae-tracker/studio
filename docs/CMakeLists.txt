@@ -33,4 +33,5 @@ add_custom_target(docs-private
 	        --merge docs/cldoc/private
 	        --merge docs/cldoc/api
 	        ${MYRMIDON_PRIVATE_DOC_FILES}
+	        ${MYRMIDON_API_DOC_FILES}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

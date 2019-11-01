@@ -3,6 +3,7 @@
 #include "DeletedReference.hpp"
 #include "Identifier.hpp"
 
+namespace fm = fort::myrmidon;
 using namespace fort::myrmidon::priv;
 
 
@@ -14,46 +15,11 @@ Identification::Identification(uint32_t tagValue,
 	, d_identifier(identifier) {
 }
 
-
-
-std::pair<Identification::List::const_iterator,Identification::List::const_iterator>
-Identification::SortAndCheckOverlap(Identification::List::iterator begin,
-                                    Identification::List::iterator end) {
-
-	std::sort(begin,
-	          end,
-	          [](const Ptr & a,
-	             const Ptr & b) -> bool {
-		          if ( !a->d_start ) {
-			          return true;
-		          }
-		          if ( !b->d_start ) {
-			          return false;
-		          }
-		          return *(a->d_start) < *(b->d_start);
-	          });
-
-	if ( std::distance(begin,end) < 2 ) {
-		return std::make_pair(List::const_iterator(),List::const_iterator());
-	}
-
-	for ( auto i = begin + 1;
-	      i != end;
-	      ++i) {
-		auto prev = i-1;
-		if ( !((*i)->d_start) || !((*prev)->d_end) || !(*((*prev)->d_end) < *((*i)->d_start)) ) {
-			return std::make_pair(prev,i);
-		}
-	}
-	return std::make_pair(List::const_iterator(),List::const_iterator());
-}
-
-
-FramePointer::ConstPtr Identification::Start() const {
+fm::Time::ConstPtr Identification::Start() const {
 	return d_start;
 }
 
-FramePointer::ConstPtr Identification::End() const {
+fm::Time::ConstPtr Identification::End() const {
 	return d_end;
 }
 
@@ -107,12 +73,12 @@ Identification::Ptr Identification::Accessor::Create(uint32_t tagValue,
 }
 
 void Identification::Accessor::SetStart(Identification & identification,
-                                        const FramePointer::Ptr & start) {
+                                        const fm::Time::ConstPtr & start) {
 	identification.d_start = start;
 }
 
 void Identification::Accessor::SetEnd(Identification & identification,
-                                      const FramePointer::Ptr & end) {
+                                      const Time::ConstPtr & end) {
 	identification.d_end = end;
 }
 
@@ -122,9 +88,9 @@ void Identification::SetTagPosition(const Eigen::Vector2d & position, double ang
 }
 
 
-void Identification::SetBound(const FramePointer::Ptr & start,
-                              const FramePointer::Ptr & end) {
-	FramePointer::Ptr oldStart(d_start),oldEnd(d_end);
+void Identification::SetBound(const Time::ConstPtr & start,
+                              const Time::ConstPtr & end) {
+	Time::ConstPtr oldStart(d_start),oldEnd(d_end);
 
 	d_start = start;
 	d_end = end;
@@ -140,11 +106,11 @@ void Identification::SetBound(const FramePointer::Ptr & start,
 	}
 }
 
-void Identification::SetStart(const FramePointer::Ptr & start) {
+void Identification::SetStart(const Time::ConstPtr & start) {
 	SetBound(start,d_end);
 }
 
-void Identification::SetEnd(const FramePointer::Ptr & end) {
+void Identification::SetEnd(const Time::ConstPtr & end) {
 	SetBound(d_start,end);
 }
 
@@ -157,4 +123,26 @@ void Identification::ComputeTagToAntTransform(Isometry2Dd & result,
 	dir.normalize();
 
 	result = Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse() * Isometry2Dd(tagAngle,tagPosition);
+}
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Identification & a) {
+	out << "Identification{ID:"
+	    << a.TagValue()
+	    << "↦"
+	    << a.Target()->ID()
+	    << ", From:'";
+	if (a.Start()) {
+		out << *a.Start();
+	} else {
+		out << "-∞";
+	}
+	out << "', To:'";
+	if (a.End()) {
+		out << *a.End();
+	} else {
+		out << "+∞";
+	}
+	return out << "'}";
 }

@@ -44,7 +44,7 @@ Experiment::Ptr ProtobufReadWriter::DoOpen(const fs::path & filename) {
 
 void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & filepath) {
 	typedef fm::utils::ProtobufFileReadWriter<fm::pb::FileHeader,fm::pb::FileLine> ReadWriter;
-	fort::myrmidon::pb::FileHeader h;
+	fm::pb::FileHeader h;
 	h.set_majorversion(0);
 	h.set_minorversion(1);
 
@@ -54,12 +54,12 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & 
 		                SaveExperiment(*(line.mutable_experiment()),experiment);
 	                });
 
-	std::vector<fort::myrmidon::Ant::ID> antIDs;
+	std::vector<fm::Ant::ID> antIDs;
 	for (const auto & [ID,a] : experiment.ConstIdentifier().Ants() ) {
 		antIDs.push_back(ID);
 	}
-	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
-	                                         fort::myrmidon::Ant::ID b) -> bool {
+	std::sort(antIDs.begin(),antIDs.end(),[](fm::Ant::ID a,
+	                                         fm::Ant::ID b) -> bool {
 		                                      return a < b;
 	                                      });
 
@@ -73,7 +73,7 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & 
 }
 
 
-void ProtobufReadWriter::LoadExperiment(Experiment & e,const fort::myrmidon::pb::Experiment & pb) {
+void ProtobufReadWriter::LoadExperiment(Experiment & e,const fm::pb::Experiment & pb) {
 	e.SetAuthor(pb.author());
 	e.SetName(pb.name());
 	e.SetComment(pb.comment());
@@ -175,12 +175,12 @@ void ProtobufReadWriter::SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant
 
 void ProtobufReadWriter::LoadIdentification(Experiment & e, const AntPtr & target,
                                             const fort::myrmidon::pb::Identification & pb) {
-	FramePointer::Ptr start,end;
-	if ( pb.has_startframe() ) {
-		start = LoadFramePointer(pb.startframe());
+	Time::ConstPtr start,end;
+	if ( pb.has_start() ) {
+		start = std::make_shared<fm::Time>(fm::Time::FromTimestamp(pb.start()));
 	}
-	if ( pb.has_endframe() ) {
-		end = LoadFramePointer(pb.startframe());
+	if ( pb.has_end() ) {
+		end = std::make_shared<fm::Time>(fm::Time::FromTimestamp(pb.end()));
 	}
 
 	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
@@ -192,33 +192,13 @@ void ProtobufReadWriter::SaveIdentification(fort::myrmidon::pb::Identification &
                                             const Identification & ident) {
 	pb.Clear();
 	if ( ident.Start() ) {
-		SaveFramePointer(*(pb.mutable_startframe()),*(ident.Start()));
+		ident.Start()->ToTimestamp(*(pb.mutable_start()));
 	}
 	if ( ident.End() ) {
-		SaveFramePointer(*(pb.mutable_endframe()),*(ident.End()));
+		ident.End()->ToTimestamp(*(pb.mutable_end()));
 	}
 	pb.set_x(ident.TagPosition().x());
 	pb.set_y(ident.TagPosition().y());
 	pb.set_theta(ident.TagAngle());
 	pb.set_id(ident.TagValue());
-}
-
-
-FramePointer::Ptr ProtobufReadWriter::LoadFramePointer(const fort::myrmidon::pb::FramePointer & pb) {
-	if ( pb.path().empty() == true ) {
-		return FramePointer::Ptr();
-	}
-	auto res = std::make_shared<FramePointer>();
-	res->Path = fs::path(pb.path());
-	res->Frame = pb.frame();
-	res->PathStartDate.CheckTypeAndMergeFrom(pb.pathstartdate());
-	return res;
-}
-
-void ProtobufReadWriter::SaveFramePointer(fort::myrmidon::pb::FramePointer & pb,
-                                          const FramePointer & fp) {
-	pb.Clear();
-	pb.set_path(fp.Path.generic_string());
-	pb.set_frame(fp.Frame);
-	pb.mutable_pathstartdate()->CheckTypeAndMergeFrom(fp.PathStartDate);
 }

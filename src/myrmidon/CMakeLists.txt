@@ -43,7 +43,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
 					  utils/NotYetImplemented.hpp
-					  priv/Isometry2D.hpp)
+					  priv/Isometry2D.hpp
+					  priv/TimeValid.hpp)
 
 
 set(HDR_PUBLIC_FILES Frame.hpp
@@ -52,21 +53,25 @@ set(HDR_PUBLIC_FILES Frame.hpp
                      Time.hpp
                      utils/FileSystem.hpp)
 
+set(SRC_PRIV_FILES priv/TimeValid.cpp
+                   priv/Experiment.cpp
+                   priv/Identifier.cpp
+	               priv/Ant.cpp
+	               priv/Identification.cpp
+	               priv/TrackingDataDirectory.cpp
+	               priv/FramePointer.cpp
+	               priv/DeletedReference.cpp
+	               priv/ExperimentReadWriter.cpp
+	               priv/ProtobufExperimentReadWriter.cpp
+	               utils/ProtobufFileReadWriter.cpp
+	               priv/Isometry2D.cpp
+	               )
+
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp
-	          priv/Experiment.cpp
-	          priv/Identifier.cpp
 	          Ant.cpp
-	          priv/Ant.cpp
-	          priv/Identification.cpp
-	          priv/TrackingDataDirectory.cpp
-	          priv/FramePointer.cpp
-	          priv/DeletedReference.cpp
-	          priv/ExperimentReadWriter.cpp
-	          priv/ProtobufExperimentReadWriter.cpp
-	          utils/ProtobufFileReadWriter.cpp
-	          priv/Isometry2D.cpp
-	          Time.cpp)
+	          Time.cpp
+	          )
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp
@@ -92,6 +97,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     TimeUTest.hpp)
 
 add_library(myrmidon SHARED ${SRC_FILES}
+                            ${SRC_PRIV_FILES}
                             ${HDR_PUBLIC_FILES}
                             ${PROTO_HDR}
                             ${PROTO_SRC})

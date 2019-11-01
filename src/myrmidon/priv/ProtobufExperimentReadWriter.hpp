@@ -82,17 +82,6 @@ public:
 	                               const Identification & ident);
 
 
-	// Loads a FramePointer from protobuf message
-	// @pb the message to save to
-	// @return the <FramePointer>
-	static FramePointerPtr LoadFramePointer(const fort::myrmidon::pb::FramePointer & pb);
-
-	// Saves a FramePointer to protobuf message
-	// @pb the message to save to
-	// @fp the <FramePointer> to save to
-	static void SaveFramePointer(fort::myrmidon::pb::FramePointer & pb,
-	                             const FramePointer & fp);
-
 };
 
 } // namespace priv

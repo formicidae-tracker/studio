@@ -624,7 +624,7 @@ void SnapshotViewer::displayIdentification(const fort::myrmidon::priv::Identific
 
 	if ( !ident || !d_snapshot ||
 	     ident->TagValue() != d_snapshot->TagValue() ||
-	     !ident->TargetsFrame(*(d_snapshot->Frame())) ) {
+	     !ident->IsValid(d_snapshot->Frame()->Time()) ) {
 		d_poseIndicator->setVisible(false);
 		return;
 	}

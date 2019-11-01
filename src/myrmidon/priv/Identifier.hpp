@@ -5,6 +5,7 @@
 #include <set>
 
 #include "../Ant.hpp"
+#include "../Time.hpp"
 
 #include "ForwardDeclaration.hpp"
 
@@ -80,8 +81,8 @@ public:
 	// <priv::Ant> or <TagID>.
 	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
 	                                    uint32_t tagValue,
-	                                    const FramePointerPtr & start,
-	                                    const FramePointerPtr & end);
+	                                    const Time::ConstPtr & start,
+	                                    const Time::ConstPtr & end);
 
 	// Removes an Identification
 	// @ident the <priv::Identification> to remove
@@ -130,12 +131,12 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(uint32_t tag,const FramePointer & frame) const;
+	IdentificationPtr Identify(uint32_t tag,const Time & frame) const;
 
 	// Return the first next frame if any where tag is not used
-	FramePointerPtr UpperUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
+	Time::ConstPtr UpperUnidentifiedBound(uint32_t tag, const Time & t) const;
 	// Return the first previoys frame if any where tag is not used
-	FramePointerPtr LowerUnidentifiedBound(uint32_t tag, const FramePointer & frame) const;
+	Time::ConstPtr LowerUnidentifiedBound(uint32_t tag, const Time & t) const;
 
 	// Returns the number of time a given tag is used.
 	size_t UseCount(uint32_t tag) const;

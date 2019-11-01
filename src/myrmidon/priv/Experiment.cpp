@@ -5,6 +5,8 @@
 #include "Ant.hpp"
 #include "Identifier.hpp"
 
+#include "../utils/NotYetImplemented.hpp"
+
 namespace fm = fort::myrmidon;
 using namespace fm::priv;
 
@@ -188,37 +190,18 @@ void Experiment::SetFamily(TagFamily tf) {
 }
 
 
-bool Experiment::FreeRangeContaining(FramePointer::Ptr & start,
-                                     FramePointer::Ptr & end,
-                                     uint32_t tag, const FramePointer & f) const {
-	FramePointer::Ptr upperBound, lowerBound;
+bool Experiment::FreeRangeContaining(Time::ConstPtr & start,
+                                     Time::ConstPtr & end,
+                                     uint32_t tag, const Time & t) const {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	Time::ConstPtr upperBound, lowerBound;
 	try {
-		upperBound = d_identifier->UpperUnidentifiedBound(tag,f);
-		lowerBound = d_identifier->LowerUnidentifiedBound(tag,f);
-	} catch ( const std::out_of_range &) {
+		end = d_identifier->UpperUnidentifiedBound(tag,t);
+		start = d_identifier->LowerUnidentifiedBound(tag,t);
+		return true;
+	} catch ( const std::invalid_argument &) {
+		end.reset();
+		start.reset();
 		return false;
 	}
-
-	if (!upperBound) {
-		end.reset();
-	} else {
-		// we may create tag that are not in the range of the
-		// TrackingDataDirectory but they will compare fine
-		auto res = std::make_shared<FramePointer>(*upperBound);
-		res->Frame += -1;
-		end = res;
-	}
-
-
-	if (!lowerBound) {
-		start.reset();
-	} else {
-		// we may create tag that are not in the range of the
-		// TrackingDataDirectory but they will compare fine
-		auto res = std::make_shared<FramePointer>(*lowerBound);
-		res->Frame += 1;
-		start = res;
-	}
-
-	return true;
 }

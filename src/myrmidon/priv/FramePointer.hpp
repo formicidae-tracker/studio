@@ -6,6 +6,7 @@
 
 #include <google/protobuf/util/time_util.h>
 
+#include "../Time.hpp"
 
 namespace fort {
 
@@ -37,6 +38,9 @@ public:
 	// A Path uniquely defining the FramePointer
 	// @return a fs::path uniquely identifying the Frame
 	fs::path                    FullPath() const;
+
+	// The corresponding Time
+	const fort::myrmidon::Time & Time() const;
 };
 
 }

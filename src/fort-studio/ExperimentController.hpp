@@ -47,8 +47,8 @@ public slots:
 
 	Error addIdentification(fort::myrmidon::Ant::ID ID,
 	                        uint32_t tagValue,
-	                        const fort::myrmidon::priv::FramePointer::Ptr & start,
-	                        const fort::myrmidon::priv::FramePointer::Ptr & end);
+	                        const fort::myrmidon::Time::ConstPtr & start,
+	                        const fort::myrmidon::Time::ConstPtr & end);
 
 	Error deleteIdentification(const fort::myrmidon::priv::Identification::Ptr & );
 

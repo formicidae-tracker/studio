@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "../Ant.hpp"
+#include "../Time.hpp"
 #include <myrmidon/utils/FileSystem.hpp>
 
 #include "TrackingDataDirectory.hpp"
@@ -167,9 +168,9 @@ public :
 	//
 	// TODO: this logic clearly is owned by the Identifier, move it
 	// here.
-	bool FreeRangeContaining(FramePointerPtr & start,
-	                         FramePointerPtr & end,
-	                         uint32_t tag, const FramePointer & f) const;
+	bool FreeRangeContaining(Time::ConstPtr & start,
+	                         Time::ConstPtr & end,
+	                         uint32_t tag, const Time & t) const;
 
 private:
 

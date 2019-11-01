@@ -38,12 +38,6 @@ message Experiment {
 	uint32    Threshold = 6;
 };
 
-message FramePointer {
-	string Path  = 1;
-	uint64 Frame = 2;
-
-	google.protobuf.Timestamp PathStartDate = 3;
-};
 
 message Identification {
 	double X     = 1;
@@ -51,8 +45,8 @@ message Identification {
 	double Theta = 3;
     int32  ID    = 4;
 
-	FramePointer StartFrame = 6;
-	FramePointer EndFrame   = 7;
+	google.protobuf.Timestamp Start = 6;
+	google.protobuf.Timestamp End   = 7;
 };
 
 message Metadata {

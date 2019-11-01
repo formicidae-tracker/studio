@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 #include <google/protobuf/timestamp.pb.h>
 
@@ -164,6 +165,9 @@ private:
 // Every time are considered UTC.
 class Time {
 public:
+	typedef std::shared_ptr<Time> Ptr;
+	typedef std::shared_ptr<const Time> ConstPtr;
+
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
