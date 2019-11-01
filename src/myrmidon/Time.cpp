@@ -150,12 +150,12 @@ Duration Duration::Parse(const std::string & i) {
 #define MAX_UINT64 (uint64_t(0xffffffffffffffffULL))
 #define MAX_SINT64 (int64_t(0x7fffffffffffffffLL))
 #define MIN_SINT64 (int64_t(0x8000000000000000LL))
-#define NANO_PER_SECOND_UINT64 1000000000ULL
-#define NANO_PER_SECOND_SINT64 1000000000LL
+#define NANOS_PER_SECOND_UINT64 1000000000ULL
+#define NANOS_PER_SECOND_SINT64 1000000000LL
 
-#define MAX_SECOND_UINT64 uint64_t(MAX_UINT64 / NANO_PER_SECOND_UINT64)
-#define MAX_SECOND_SINT64 int64_t(MAX_SINT64 / NANO_PER_SECOND_SINT64)
-#define MIN_SECOND_SINT64 int64_t(MIN_SINT64 / NANO_PER_SECOND_SINT64)
+#define MAX_SECOND_UINT64 uint64_t(MAX_UINT64 / NANOS_PER_SECOND_UINT64)
+#define MAX_SECOND_SINT64 int64_t(MAX_SINT64 / NANOS_PER_SECOND_SINT64)
+#define MIN_SECOND_SINT64 int64_t(MIN_SINT64 / NANOS_PER_SECOND_SINT64)
 
 
 
@@ -181,19 +181,42 @@ Time Time::Now() {
 
 	return Time (wall.tv_sec, wall.tv_nsec,
 	             MonoFromSecNSec(mono.tv_sec, mono.tv_nsec),
-	             HAS_NONO_BIT | MONOTONIC_CLOCK);
+	             HAS_MONO_BIT | SYSTEM_MONOTONIC_CLOCK);
 }
 
 Time Time::FromTimeT(time_t value) {
 	return Time(value,0 ,0,0);
 }
 
+time_t Time::ToTimeT() const {
+	return d_wallSec;
+}
+
 Time Time::FromTimeval(const timeval & t) {
 	return Time(t.tv_sec, t.tv_usec * NANOS_PER_MICROSECOND,0,0);
 }
 
+timeval Time::ToTimeval() const {
+	timeval res;
+	res.tv_sec = d_wallSec;
+	res.tv_usec = d_wallNsec / NANOS_PER_MICROSECOND;
+	return res;
+}
+
 Time Time::FromTimestamp(const google::protobuf::Timestamp & timestamp) {
 	return Time(timestamp.seconds(), timestamp.nanos(), 0, 0);
+}
+
+google::protobuf::Timestamp Time::ToTimestamp() const {
+	google::protobuf::Timestamp pb;
+	ToTimestamp(pb);
+	return pb;
+}
+
+
+void Time::ToTimestamp(google::protobuf::Timestamp & timestamp) const {
+	timestamp.set_seconds(d_wallSec);
+	timestamp.set_nanos(d_wallNsec);
 }
 
 Time Time::FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
@@ -293,6 +316,16 @@ Duration Time::Sub(const Time & t) const {
 	return seconds + nsecs;
 }
 
+bool Time::HasMono() const {
+	return (d_monoID & HAS_MONO_BIT) != 0;
+}
+
+Time::MonoclockID Time::MonoID() const {
+	if ( (d_monoID & HAS_MONO_BIT) == 0 ) {
+		throw std::runtime_error("Time has no monotonic value");
+	}
+	return d_monoID & MONO_MASK;
+}
 
 std::ostream & operator<<(std::ostream & out,
                           const Duration & d) {

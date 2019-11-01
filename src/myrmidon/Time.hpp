@@ -144,13 +144,24 @@ private:
 // Inspired from golang [time.Time](https://golang.org/pkg/time) we
 // propose an Object that store both a Wall time, and a Monotonic
 // timestamp. But here we could have different monotonic timestamp. We
-// try, whenever its possible (both Time have a monotonic time, and
+// try, whenever its possible (both <Time> have a monotonic time, and
 // they are issued from the same monotonic clock), use that value for
 // Time difference and Comparison. Otherwise the Wall clock value will
 // be used with the issue regarding the jitter or Wall clock reset.
 //
+// Differentiaing Monotonic clock is done through <MonoclockID>
+// values. The 0 value is reserved for the <SYSTEM_MONOTONIC_CLOCK>
+// and which is used by <Now>. When reading saved monotonic Timestamp
+// from the filesystem (as it is the case when reading data from
+// different <TrackingDataDirectory> ), care must be taken to assign
+// different <MonoclockID> for each of those reading. This class does
+// not enforce any mechanism. The only entry point to define the
+// <MonoclockID> is through the utility function
+// <FromTimestampAndMonotonic>.
+//
 // Every time are considered UTC.
 class Time {
+	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
 		Overflow(const std::string & clocktype)
@@ -158,32 +169,143 @@ class Time {
 		virtual ~Overflow() {}
 	};
 
+	// ID for a Monotonic Clock
 	typedef uint32_t MonoclockID;
 
+	// Gets the current Time
+	// @return the current time
+	//
+	// Gets the current <Time>. This time will both have a wall and a
+	// monotonic clock reading associated with the
+	// <SYSTEM_MONOTONIC_CLOCK>. Therefore such idioms:
+	//
+	// ```
+	// Time start = Time::Now();
+	// SomeFunction();
+	// Duration ellapsed = Time::Now().Sub(start);
+	// ```
+	//
+	// Will always return a positive Duration, even if the wall clock
+	// has been reset between the two calls to <Now>
 	static Time Now();
 
-	static Time FromTimeT(time_t value);
-	static Time FromTimeval(const timeval & );
+	// Creates a Time from `time_t`
+	// @t the time_t value
+	//
+	// Creates a <Time> from `time_t`. The <Time> will not have any
+	// monotonic clock value.
+	static Time FromTimeT(time_t t);
+
+	// Creates a Time from `struct timeval`
+	// @t the `struct timeval`
+	//
+	// Creates a <Time> from `struct timeval`. The <Time> will not
+	// have any monotonic clock value.
+	static Time FromTimeval(const timeval & t);
+
+	// Creates a Time from a protobuf Timestamp
+	// @timestamp the `google.protobuf.Timestamp` message
+	//
+	// Creates a <Time> from a protobuf Timestamp. The <Time> will not
+	// have any monotonic clock value.
 	static Time FromTimestamp(const google::protobuf::Timestamp & timestamp);
+
+	// Creates a Time from a protobuf Timestamp and an external Monotonic clock
+	// @timestamp the `google.protobuf.Timestamp` message
+	// @nsecs the external monotonic value in nanoseconds
+	// @monoID the external monoID
+	//
+	// Creates a <Time> from a protobuf Timestamp and an external
+	// monotonic clock. The two values should correspond to the same
+	// physical time. It is an helper function to create accurate
+	// <Time> from data saved in `fort.hermes.FrameReadout` protobuf
+	// messages that saves both a Wall time value and a framegrabber
+	// timestamp for each frame. It is the caller responsability to
+	// manage <monoID> value for not mixing timestamp issued from
+	// different clocks. Nothing prevent you to use
+	// <SYSTEM_MONOTONIC_CLOCK> for the <monoID> value but the
+	// behavior manipulating resulting time is undefined.
 	static Time FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
 	                                      uint64_t nsecs,
-	                                      MonoclockID monotonic);
+	                                      MonoclockID monoID);
 
+	// Converts to a `time_t`
+	// @return `time_t`representing the <Time>.
+	//
+	// Converts to a `time_t`. Please note that time_t have a maximal
+	// resolution of a second.
+	time_t ToTimeT() const;
+
+	// Converts to a `struct timeval`
+	// @return `struct timeval`representing the <Time>.
+	//
+	// Converts to a `struct timeval`. Please note that time_t have a maximal
+	// resolution of a microsecond.
+	timeval ToTimeval() const;
+
+	// Converts to a protobuf Timestamp message
+	// @return the protobuf Timestamp representing the <Time>.
+	google::protobuf::Timestamp ToTimestamp() const;
+
+	// In-place conversion to a protobuf Timestamp
+	// @timestamp the timestamp to modify to represent the <Time>
+	void ToTimestamp(google::protobuf::Timestamp & timestamp) const;
+
+	// Zero time constructor
 	Time();
 
+	// Adds a Duration to a Time
+	// @d the <Duration> to add
+	// @return a new <Time> distant by <d> from this <Time>
 	Time Add(const Duration & d) const;
+
+	// Reports if this time is after t
+	// @t the <Time> to test against
+	// @return `true` if this <Time> is strictly after <t>
 	bool After(const Time & t) const;
+
+	// Reports if this time is before t
+	// @t the <Time> to test against
+	// @return `true` if this <Time> is strictly before <t>
 	bool Before(const Time & t) const;
-	bool Equals(const Time & t) const;xb
-	Duration Sub(const Time & time) const;
+
+	// Reports if this time is the same than t
+	// @t the <Time> to test against
+	// @return `true` if this <Time> is the same than <t>
+	bool Equals(const Time & t) const;
+
+	// Computes time difference with another time
+	// @t the <Time> to substract to this one.
+	// @return a <Duration> representing the time ellapsed between
+	// <this> and <t>. It could be negative.
+	Duration Sub(const Time & t) const;
 
 
-	const static MonoclockID MONOTONIC_CLOCK = 0;
+	// The <MonoclockID> reserved for the current system
+	// `CLOCK_MONOTONIC`.
+	const static MonoclockID SYSTEM_MONOTONIC_CLOCK = 0;
 
-	const static uint64_t NANOS_PER_SECOND = 1000000000;
-	const static uint64_t NANOS_PER_MILLISECOND = 1000000;
-	const static uint64_t NANOS_PER_MICROSECOND = 1000;
+	// Number of nanoseconds in a second.
+	const static uint64_t NANOS_PER_SECOND = 1000000000ULL;
+	// Number of nanoseconds in a millisecond.
+	const static uint64_t NANOS_PER_MILLISECOND = 1000000ULL;
+	// Number of nanoseconds in a microsecond.
+	const static uint64_t NANOS_PER_MICROSECOND = 1000ULL;
 
+	// Reports the presence of a monotonic time value
+	// @true if <this> contains a monotonic clock value.
+	//
+	// Reports the presence of a monotonic time value. Only <Time>
+	// issued by <Now> or <FromTimestampAndMonotonic> contains a
+	// monotonic time value.
+	bool HasMono() const;
+
+	// Returns the referred MonoclockID.
+	// @return the <MonoclockID> designating the monotonic clock the
+	//         monotonic time value refers to.
+	//
+	// Returns the referred <MonoclockID>. It throws std::exception if
+	// this <Time> has no monotonic clock value (see <HasMono>).
 	MonoclockID MonoID() const;
 
 private:
