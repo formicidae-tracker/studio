@@ -29,7 +29,7 @@ void AntIdentificationWidget::onNewController(ExperimentController * controller)
 }
 
 
-void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::Ptr & frame) {
+void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::ConstPtr & frame) {
 	if (!frame) {
 		qDebug() << "start:  no frame";
 		return;
@@ -37,7 +37,7 @@ void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrm
 	qDebug() << "start: " << frame->FullPath().c_str();
 }
 
-void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::Ptr & frame) {
+void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::ConstPtr & frame) {
 	if (!frame) {
 		qDebug() << "end:  no frame";
 		return;

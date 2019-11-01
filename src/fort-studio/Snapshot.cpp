@@ -33,7 +33,7 @@ double ComputeAngleFromCorner(const apriltag_detection_t *q) {
 
 Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
                                           const fs::path & relativeImagePath,
-                                          const fort::myrmidon::priv::FramePointer::Ptr & frame) {
+                                          const fort::myrmidon::priv::FramePointer::ConstPtr & frame) {
 	auto res = std::make_shared<Snapshot>(frame,d->id);
 	res->d_relativeImagePath = relativeImagePath;
 
@@ -48,7 +48,7 @@ Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
 }
 
 
-Snapshot::Snapshot(const fort::myrmidon::priv::FramePointer::Ptr& frame,
+Snapshot::Snapshot(const fort::myrmidon::priv::FramePointer::ConstPtr& frame,
                    uint32_t tagValue)
 	: TagInFramePointer(frame,tagValue) {
 

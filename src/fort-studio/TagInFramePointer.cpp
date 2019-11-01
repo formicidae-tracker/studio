@@ -3,7 +3,7 @@
 #include <sstream>
 
 
-TagInFramePointer::TagInFramePointer(const fort::myrmidon::priv::FramePointer::Ptr& frame,
+TagInFramePointer::TagInFramePointer(const fort::myrmidon::priv::FramePointer::ConstPtr& frame,
                                      uint32_t tagValue)
 	: d_frame(frame)
 	, d_tagValue(tagValue) {
@@ -12,7 +12,7 @@ TagInFramePointer::TagInFramePointer(const fort::myrmidon::priv::FramePointer::P
 
 TagInFramePointer::~TagInFramePointer() {}
 
-const fort::myrmidon::priv::FramePointer::Ptr& TagInFramePointer::Frame() const {
+const fort::myrmidon::priv::FramePointer::ConstPtr& TagInFramePointer::Frame() const {
 	return d_frame;
 }
 
@@ -27,5 +27,5 @@ fs::path TagInFramePointer::Path() const {
 }
 
 fs::path TagInFramePointer::Base() const {
-	return d_frame->Path;
+	return d_frame->Basepath();
 }

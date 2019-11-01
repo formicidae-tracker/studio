@@ -16,7 +16,7 @@ public:
 	typedef std::shared_ptr<const Snapshot> ConstPtr;
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
 
-	Snapshot(const fort::myrmidon::priv::FramePointer::Ptr & frame,
+	Snapshot(const fort::myrmidon::priv::FramePointer::ConstPtr & frame,
 	         uint32_t tagValue);
 	virtual ~Snapshot();
 

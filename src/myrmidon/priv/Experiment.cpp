@@ -193,7 +193,6 @@ void Experiment::SetFamily(TagFamily tf) {
 bool Experiment::FreeRangeContaining(Time::ConstPtr & start,
                                      Time::ConstPtr & end,
                                      uint32_t tag, const Time & t) const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 	Time::ConstPtr upperBound, lowerBound;
 	try {
 		end = d_identifier->UpperUnidentifiedBound(tag,t);

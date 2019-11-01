@@ -124,7 +124,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 }
 
 
-FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) const {
+FramePointer::ConstPtr TrackingDataDirectory::FramePointer(uint64_t frame) const {
 	if ( frame < d_startFrame || frame > d_endFrame ) {
 		std::ostringstream os;
 		os << frame << " is outside of range ["
@@ -133,14 +133,11 @@ FramePointer::Ptr TrackingDataDirectory::FramePointer(uint64_t frame) const {
 		   << d_path;
 		throw std::out_of_range(os.str());
 	}
-	auto res = std::make_shared<fort::myrmidon::priv::FramePointer>();
-	res->Path = d_path;
-	res->PathStartDate = d_startDate;
-	res->Frame = frame;
-	return res;
+	throw std::logic_error("Time readout is not yet implemented");
+	return FramePointer::Create(d_path,frame,fort::myrmidon::Time());
 }
 
-FramePointer::Ptr TrackingDataDirectory::FramePointer(const fs::path & path) const {
+FramePointer::ConstPtr TrackingDataDirectory::FramePointer(const fs::path & path) const {
 	if (path.parent_path() != d_path ) {
 		std::ostringstream os;
 		os << "Path:" << path << " does not match tracking data directory path " << d_path;

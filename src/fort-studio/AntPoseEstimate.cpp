@@ -3,7 +3,7 @@
 
 AntPoseEstimate::AntPoseEstimate(const Eigen::Vector2d & head,
                                  const Eigen::Vector2d & tail,
-                                 const fort::myrmidon::priv::FramePointer::Ptr & frame,
+                                 const fort::myrmidon::priv::FramePointer::ConstPtr & frame,
                                  uint32_t tagValue)
 	: TagInFramePointer(frame,tagValue)
 	, d_head(head)

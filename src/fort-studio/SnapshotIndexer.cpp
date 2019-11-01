@@ -89,7 +89,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 	}
 
 
-	auto path = tp.Basedir / tp.Frame->Path / tp.RelativeImagePath;
+	auto path = tp.Basedir / tp.Frame->Basepath() / tp.RelativeImagePath;
 	QImage image(path.c_str());
 	if ( image.format() != QImage::Format_Grayscale8 ) {
 		image = image.convertToFormat(QImage::Format_Grayscale8);
@@ -221,7 +221,7 @@ void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snap
 		cPb->set_x(c.x());
 		cPb->set_y(c.y());
 	}
-	pb.set_frame(s->Frame()->Frame);
+	pb.set_frame(s->Frame()->Frame());
 	pb.set_relativeimagepath(s->d_relativeImagePath.generic_string());
 }
 

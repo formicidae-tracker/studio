@@ -6,11 +6,11 @@
 
 class TagInFramePointer {
 public:
-	TagInFramePointer(const fort::myrmidon::priv::FramePointer::Ptr & frame,
+	TagInFramePointer(const fort::myrmidon::priv::FramePointer::ConstPtr & frame,
 	                  uint32_t tagValue);
 	virtual ~TagInFramePointer();
 
-	const fort::myrmidon::priv::FramePointer::Ptr & Frame() const;
+	const fort::myrmidon::priv::FramePointer::ConstPtr & Frame() const;
 	uint32_t TagValue() const;
 
 	fs::path Path() const;
@@ -19,6 +19,6 @@ public:
 
 
 private:
-	fort::myrmidon::priv::FramePointer::Ptr d_frame;
-	uint32_t                                d_tagValue;
+	fort::myrmidon::priv::FramePointer::ConstPtr d_frame;
+	uint32_t                                     d_tagValue;
 };

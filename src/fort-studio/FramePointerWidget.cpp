@@ -111,7 +111,7 @@ void FramePointerWidget::on_comboBox_currentIndexChanged(int i) {
 
 void FramePointerWidget::on_groupBox_toggled(bool enabled) {
 	if ( enabled == false ) {
-		emit framePointerUpdated(FramePointer::Ptr());
+		emit framePointerUpdated(FramePointer::ConstPtr());
 		d_ui->comboBox->setCurrentIndex(-1);
 	}
 }
