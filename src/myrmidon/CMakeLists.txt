@@ -37,6 +37,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
                       priv/Identification.hpp
+                      prib/SegmentIndexer.hpp
                       priv/TrackingDataDirectory.hpp
                       priv/FramePointer.hpp
                       priv/DeletedReference.hpp
@@ -56,7 +57,8 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIV_FILES priv/TimeValid.cpp
                    priv/Experiment.cpp
                    priv/Identifier.cpp
-	               priv/Ant.cpp
+                   priv/Ant.cpp
+                   priv/SegmentIndexer.cpp
 	               priv/Identification.cpp
 	               priv/TrackingDataDirectory.cpp
 	               priv/FramePointer.cpp
@@ -83,7 +85,9 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/FramePointerUTest.cpp
                     priv/ProtobufExperimentReadWriterUTest.cpp
                     priv/Isometry2DUTest.cpp
-                    TimeUTest.cpp)
+                    TimeUTest.cpp
+                    priv/SegmentIndexerUTest.cpp
+                    )
 
 set(HDR_UTEST_FILES TestSetup.hpp
                     priv/ExperimentUTest.hpp
@@ -94,7 +98,9 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/FramePointerUTest.hpp
                     priv/ProtobufExperimentReadWriterUTest.hpp
                     priv/Isometry2DUTest.hpp
-                    TimeUTest.hpp)
+                    TimeUTest.hpp
+                    priv/SegmentIndexerUTest.hpp
+                    )
 
 add_library(myrmidon SHARED ${SRC_FILES}
                             ${SRC_PRIV_FILES}
