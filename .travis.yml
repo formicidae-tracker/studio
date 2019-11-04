@@ -2,6 +2,7 @@ language: cpp
 branches:
   only:
   - master
+
 notifications:
   email: false
 
@@ -22,10 +23,13 @@ before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
   - sudo apt-get -q update
   - sudo apt-get -y install protobuf-compiler libprotobuf-dev
-  - ./scripts/install_fort_hermes.sh
 
 script:
   - mkdir -p build
   - cd build
   - cmake  ..
   - make all check
+
+cache:
+  directories:
+    - build/_deps
