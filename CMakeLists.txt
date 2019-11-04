@@ -10,7 +10,6 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
-find_package(FortHermesCpp 0.2.0 REQUIRED)
 
 find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
 
@@ -22,7 +21,12 @@ FetchContent_Declare(googletest
 
 FetchContent_Declare(fort-tags
                      GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.0.0)
+                     GIT_TAG        v1.0.1)
+
+FetchContent_Declare(hermes
+                     GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
+                     GIT_TAG        v0.2.3)
+
 
 
 FetchContent_GetProperties(googletest)
@@ -43,10 +47,20 @@ if(NOT fort-tags_POPULATED)
 endif(NOT fort-tags_POPULATED)
 
 
+FetchContent_GetProperties(hermes)
+if(NOT hermes_POPULATED)
+	FetchContent_Populate(hermes)
+	add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})
+endif(NOT hermes_POPULATED)
+set(HERMES_INCLUDE_DIRS ${hermes_SOURCE_DIR}/src ${hermes_BINARY_DIR}/src)
+
+
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_CPP_INCLUDE_DIRS}
+                    ${APRILTAG_INCLUDE_DIRS}
                     ${fort-tags_SOURCE_DIR}/include
+                    ${HERMES_INCLUDE_DIRS}
                     )
 
 set(CMAKE_CXX_STANDARD 17)

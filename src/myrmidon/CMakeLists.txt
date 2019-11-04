@@ -109,7 +109,7 @@ add_library(myrmidon SHARED ${SRC_FILES}
                             ${PROTO_SRC})
 
 target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
-                               ${FORT_HERMES_CPP_LIBRARIES}
+                               fort-hermes-cpp
                                ${CXXFS_LIBRARY})
 
 
