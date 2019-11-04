@@ -6,17 +6,12 @@
 
 #include "ForwardDeclaration.hpp"
 
+#include <myrmidon/Experiment.pb.h>
+
 namespace fort {
 
 namespace myrmidon {
 
-namespace pb {
-class Experiment;
-class TrackingDataDirectory;
-class AntMetadata;
-class Identification;
-class FramePointer;
-}
 
 namespace priv {
 
@@ -47,10 +42,22 @@ public:
 	// @e the <priv::Experiment> to save
 	static void SaveExperiment(fort::myrmidon::pb::Experiment & pb, const Experiment & e);
 
+
+	static Time LoadTime(const fort::myrmidon::pb::Time & pb, Time::MonoclockID mID);
+	static void SaveTime(fort::myrmidon::pb::Time & pb, const Time & t);
+
+	static void LoadSegmentIndexer(SegmentIndexer & si,
+	                               const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::Segment> & pb,
+	                               Time::MonoclockID mID);
+
+	static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::Segment> * pb,
+	                               const SegmentIndexer & si);
+
 	// Unmarshals a TrackingDataDirectory from a protobuf message
 	// @pb the protobuf message to read from
 	// @return <TrackingDataDirectory> contained in the message
-	static TrackingDataDirectory LoadTrackingDataDirectory(const fort::myrmidon::pb::TrackingDataDirectory & pb);
+	static TrackingDataDirectory LoadTrackingDataDirectory(const fort::myrmidon::pb::TrackingDataDirectory & pb,
+	                                                       const fs::path & base);
 
 	// Saves a TrackingDataDirectory to a protobuf message
 	// @pb the protobuf message to save to

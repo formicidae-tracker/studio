@@ -21,7 +21,7 @@ public:
 	void setTitle(const QString & title);
 
 signals:
-	void framePointerUpdated(const fort::myrmidon::priv::FramePointerPtr & frame);
+	void framePointerUpdated(const fort::myrmidon::priv::RawFrameConstPtr & frame);
 
 public slots:
 	void onNewController(ExperimentController * controller);

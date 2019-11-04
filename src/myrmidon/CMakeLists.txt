@@ -39,7 +39,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Identification.hpp
                       prib/SegmentIndexer.hpp
                       priv/TrackingDataDirectory.hpp
-                      priv/FramePointer.hpp
+                      priv/RawFrame.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
@@ -61,7 +61,7 @@ set(SRC_PRIV_FILES priv/TimeValid.cpp
                    priv/SegmentIndexer.cpp
 	               priv/Identification.cpp
 	               priv/TrackingDataDirectory.cpp
-	               priv/FramePointer.cpp
+	               priv/RawFrame.cpp
 	               priv/DeletedReference.cpp
 	               priv/ExperimentReadWriter.cpp
 	               priv/ProtobufExperimentReadWriter.cpp

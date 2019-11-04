@@ -3,7 +3,7 @@
 
 #include <QDebug>
 
-#include <myrmidon/priv/FramePointer.hpp>
+#include <myrmidon/priv/RawFrame.hpp>
 
 using namespace fort::myrmidon::priv;
 
@@ -111,7 +111,7 @@ void FramePointerWidget::on_comboBox_currentIndexChanged(int i) {
 
 void FramePointerWidget::on_groupBox_toggled(bool enabled) {
 	if ( enabled == false ) {
-		emit framePointerUpdated(FramePointer::ConstPtr());
+		emit framePointerUpdated(RawFrame::ConstPtr());
 		d_ui->comboBox->setCurrentIndex(-1);
 	}
 }
@@ -127,7 +127,7 @@ void FramePointerWidget::on_spinBox_valueChanged(uint64_t value) {
 		return;
 	}
 	try {
-		emit framePointerUpdated(fi->second.FramePointer(value));
+		emit framePointerUpdated(*fi->second.FrameAt(value));
 	} catch ( const std::exception & ) {
 
 	}

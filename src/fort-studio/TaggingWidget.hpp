@@ -57,7 +57,7 @@ private:
 
 	void updateIdentificationForCurrentFrame();
 	fort::myrmidon::priv::IdentificationPtr
-	updateIdentificationForFrame(uint32_t tag, const fort::myrmidon::priv::FramePointer & f);
+	updateIdentificationForFrame(uint32_t tag, const fort::myrmidon::priv::RawFrame & f);
 
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;

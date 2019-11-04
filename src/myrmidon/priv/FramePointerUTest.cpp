@@ -1,6 +1,7 @@
 #include "FramePointerUTest.hpp"
 
-#include "FramePointer.hpp"
+#include "RawFrame.hpp"
+
 #include <google/protobuf/util/time_util.h>
 
 #include "../utils/NotYetImplemented.hpp"
@@ -17,33 +18,37 @@ google::protobuf::Timestamp fromEpoch(uint64_t sec) {
 
 
 
-
 TEST_F(FramePointerUTest,CanBeFormatted) {
 
 	struct TestData {
-		FramePointer::ConstPtr A;
+		fs::path Path;
+		uint64_t FID;
 		std::string Expected;
 	};
 
 	std::vector<TestData> data
 		= {
-		   {FramePointer::Create("",0,fm::Time()),"/0"},
-		   {FramePointer::Create("",2134,fm::Time()),"/2134"},
-		   {FramePointer::Create("foo",42,fm::Time()),"foo/42"},
-		   {FramePointer::Create("foo/bar/baz",42,fm::Time()),"foo/bar/baz/42"},
+		   {"",0,"/0"},
+		   {"",2134,"/2134"},
+		   {"foo",42,"foo/42"},
+		   {"foo/bar/baz",42,"foo/bar/baz/42"},
 	};
 
 
 
 
 	if (fs::path::preferred_separator == '\\') {
-		data.push_back({FramePointer::Create("foo\bar\baz",42,fm::Time()),"foo/bar/baz/42"});
+		data.push_back({"foo\bar\baz",42,"foo/bar/baz/42"});
 	}
 
 
 	for(const auto & d : data ) {
+		fort::hermes::FrameReadout pb;
+		pb.set_frameid(d.FID);
+		auto a = RawFrame::Create(d.Path,pb,0);
+
 		std::ostringstream os;
-		os << *d.A;
+		os << a;
 		EXPECT_EQ(os.str(),d.Expected);
 	}
 

@@ -6,6 +6,10 @@
 
 #include <google/protobuf/util/time_util.h>
 
+#include <fort-hermes/FileContext.h>
+
+#include "SegmentIndexer.hpp"
+
 namespace fort {
 
 namespace myrmidon {
@@ -24,20 +28,39 @@ namespace priv {
 // Each directory has a start and end time and a start and end frame
 class TrackingDataDirectory {
 public:
-	// Empty undefined constructor
+	typedef int32_t UID;
+
+
+	class const_iterator {
+	public:
+		const_iterator(std::unique_ptr<fort::hermes::FileContext> & fc);
+		const_iterator& operator++();
+		bool operator==(const const_iterator & other);
+		bool operator!=(const const_iterator & other);
+		RawFrameConstPtr operator*();
+		using difference_type = int64_t;
+		using value_type = RawFrameConstPtr;
+		using pointer = const RawFrameConstPtr *;
+		using reference = const RawFrameConstPtr &;
+		using iterator_category = std::forward_iterator_tag;
+
+	private:
+		const std::unique_ptr<fort::hermes::FileContext> d_file;
+		fort::hermes::FrameReadout                       d_message;
+	};
+
+
+	static UID GetUID(const fs::path & path,  const fs::path & base);
+
 	TrackingDataDirectory();
 
-	// Complete constructor
-	// @path relative path from <Experiment::Basedir>
-	// @startFrame the first frame number in this directory
-	// @endFrame the last frame number contained in this directory
-	// @start the time of the first frame in this directory
-	// @end the time of the last frame in this directory
 	TrackingDataDirectory(const fs::path & path,
 	                      uint64_t startFrame,
 	                      uint64_t endFrame,
-	                      const google::protobuf::Timestamp & start,
-	                      const google::protobuf::Timestamp & end);
+	                      const Time & start,
+	                      const Time & end,
+	                      const SegmentIndexer & segments);
+
 
 	// Gets the relative path
 	// @return a relative path to this directory from <Experiment::Basedir>
@@ -53,31 +76,19 @@ public:
 
 	// Gets the time of the first frame in this directory
 	// @return the time of the first frame in this directory
-	const google::protobuf::Timestamp & StartDate() const;
+	const Time & StartDate() const;
 
 	// Gets the time of the last frame in this directory
 	// @return the time of the last frame in this directory
-	const google::protobuf::Timestamp & EndDate() const;
-
-	// Creates a FramePointer from this directory
-	// @frame the desired frame number
-	// @return a FramePointer identifying a frame from this directory
-	//
-	// Creates a FramePointer from this directory. It will throw
-	// std::invalid_argument if <frame> is not in [<Start>,<End>]
-	FramePointerPtr FramePointer(uint64_t frame) const;
+	const Time & EndDate() const;
 
 
-	// Creates a FramePointer from this directory
-	// @frame the desired FramePointer path
-	// @return a FramePointer identifying a frame from this directory
-	//
-	// Creates a FramePointer from this directory by a path of the
-	// form `path/frameID`. It will throw std::invalid_argument if
-	// `frameID` is not in [<Start>,<End>] or if `path` is different
-	// from <Path>.
-	FramePointerPtr FramePointer(const fs::path & path) const;
+	const_iterator begin() const;
+	const_iterator end() const;
 
+	const_iterator FrameAt(uint64_t frameID) const;
+
+	const_iterator FrameNear(const Time & t) const;
 
 	// Opens an actual TrackingDataDirectory on the filesystem
 	// @path path to the tracking data directory
@@ -90,13 +101,14 @@ public:
 	// obtain infoirmation on the first and last frame.
 	static TrackingDataDirectory Open(const fs::path & path, const fs::path & base);
 
+	const SegmentIndexer & TrackingIndex() const;
 
 
 private:
-	fs::path                    d_path;
-	uint64_t                    d_startFrame,d_endFrame;
-	google::protobuf::Timestamp d_startDate,d_endDate;
-
+	fs::path       d_path;
+	uint64_t       d_startFrame,d_endFrame;
+	Time           d_startDate,d_endDate;
+	SegmentIndexer d_segments;
 
 };
 
@@ -109,5 +121,5 @@ private:
 
 inline bool operator<(const fort::myrmidon::priv::TrackingDataDirectory & a,
                       const fort::myrmidon::priv::TrackingDataDirectory & b) {
-	return a.StartDate() < b.StartDate();
+	return a.StartDate().Before(b.StartDate());
 }

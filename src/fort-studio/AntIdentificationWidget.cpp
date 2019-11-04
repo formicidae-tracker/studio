@@ -2,7 +2,7 @@
 #include "ui_AntIdentificationWidget.h"
 
 #include <QDebug>
-#include <myrmidon/priv/FramePointer.hpp>
+#include <myrmidon/priv/RawFrame.hpp>
 
 AntIdentificationWidget::AntIdentificationWidget(QWidget *parent)
 	: QWidget(parent)
@@ -29,19 +29,19 @@ void AntIdentificationWidget::onNewController(ExperimentController * controller)
 }
 
 
-void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::ConstPtr & frame) {
+void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrame::ConstPtr & frame) {
 	if (!frame) {
 		qDebug() << "start:  no frame";
 		return;
 	}
-	qDebug() << "start: " << frame->FullPath().c_str();
+	qDebug() << "start: " << frame->Path().c_str();
 }
 
-void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointer::ConstPtr & frame) {
+void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrame::ConstPtr & frame) {
 	if (!frame) {
 		qDebug() << "end:  no frame";
 		return;
 	}
-	qDebug() << "end: " << frame->FullPath().c_str();
+	qDebug() << "end: " << frame->Path().c_str();
 
 }

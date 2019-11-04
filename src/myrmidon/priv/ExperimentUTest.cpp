@@ -21,11 +21,12 @@ void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		google::protobuf::Timestamp start,end;
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&start),true);
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:21.021-05:00",&end),true);
-
-		TrackingDataDirectory tdd("bar",9,11,start,end);
+		google::protobuf::Timestamp startG,endG;
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&startG),true);
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:21.021-05:00",&endG),true);
+		auto start = Time::FromTimestamp(startG);
+		auto end = Time::FromTimestamp(endG);
+		TrackingDataDirectory tdd("bar",9,11,start,end,SegmentIndexer());
 
 		e->AddTrackingDataDirectory(tdd);
 

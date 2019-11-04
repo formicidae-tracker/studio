@@ -2,7 +2,6 @@
 
 #include "Ant.hpp"
 #include "DeletedReference.hpp"
-#include "FramePointer.hpp"
 
 
 namespace fm = fort::myrmidon;

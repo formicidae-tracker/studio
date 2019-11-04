@@ -69,14 +69,13 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 	    iter != sortedInTime.cend();
 	    ++iter) {
 		auto const & tdd = d_dataDirs[*iter];
-		if ( toAdd.EndDate() < tdd.StartDate() ) {
+		if ( !toAdd.EndDate().After(tdd.StartDate()) ) {
 			canInsert = true;
 			break;
-		}
-
-		if ( tdd.EndDate() >= toAdd.StartDate() ) {
+		} else {
 			continue;
 		}
+
 		auto next = iter+1;
 		if ( next == sortedInTime.cend() ) {
 			canInsert = true;
@@ -84,7 +83,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		}
 		auto const & nextTdd = d_dataDirs[*next];
 
-		if ( toAdd.EndDate() < nextTdd.StartDate() ) {
+		if ( toAdd.EndDate().Before(nextTdd.StartDate())) {
 			canInsert = true;
 			break;
 		}

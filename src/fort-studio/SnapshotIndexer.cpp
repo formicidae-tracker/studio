@@ -18,7 +18,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QImage>
 
-#include <myrmidon/priv/FramePointer.hpp>
+#include <myrmidon/priv/RawFrame.hpp>
 #include <myrmidon/utils/ProtobufFileReadWriter.hpp>
 
 #include "SnapshotCache.pb.h"
@@ -140,7 +140,7 @@ size_t SnapshotIndexer::start() {
 			toProcess.Filter = new uint32_t(0);
 			IDS >> *(toProcess.Filter);
 			FrameS >> frameNumber;
-			toProcess.Frame = d_tdd.FramePointer(frameNumber);
+			toProcess.Frame = *d_tdd.FrameAt(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}
@@ -148,7 +148,7 @@ size_t SnapshotIndexer::start() {
 		if(std::regex_search(filename,ID,filtered) && ID.size() > 1) {
 			std::istringstream FrameS(ID.str(1));
 			FrameS >> frameNumber;
-			toProcess.Frame = d_tdd.FramePointer(frameNumber);
+			toProcess.Frame = *d_tdd.FrameAt(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}
@@ -197,7 +197,7 @@ Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snaps
 	if (pb.corners_size() != 4 ) {
 		throw std::runtime_error("Not enough corner");
 	}
-	auto res = std::make_shared<Snapshot>(d_tdd.FramePointer(pb.frame()),pb.tagvalue());
+	auto res = std::make_shared<Snapshot>(*d_tdd.FrameAt(pb.frame()),pb.tagvalue());
 	res->d_position <<
 		pb.tagposition().x(),
 		pb.tagposition().y(),
@@ -221,7 +221,7 @@ void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snap
 		cPb->set_x(c.x());
 		cPb->set_y(c.y());
 	}
-	pb.set_frame(s->Frame()->Frame());
+	pb.set_frame(s->Frame()->FrameID());
 	pb.set_relativeimagepath(s->d_relativeImagePath.generic_string());
 }
 

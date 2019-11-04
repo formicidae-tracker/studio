@@ -17,7 +17,7 @@ class Experiment;
 class Ant;
 class Identification;
 class Identifier;
-class FramePointer;
+class RawFrame;
 
 // Forward decalation for an <Experiment::Ptr>
 typedef std::unique_ptr<Experiment>     ExperimentPtr;
@@ -27,8 +27,8 @@ typedef std::shared_ptr<Ant>            AntPtr;
 typedef std::shared_ptr<Identification> IdentificationPtr;
 // Forward decalation for an <Identifier::Ptr>
 typedef std::shared_ptr<Identifier>     IdentifierPtr;
-// Forward decalation for an <FramePointer::Ptr>
-typedef std::shared_ptr<const FramePointer>   FramePointerPtr;
+// Forward decalation for an <RawFrame::ConstPtr>
+typedef std::shared_ptr<const RawFrame>   RawFrameConstPtr;
 
 
 // A Map of <Ant> identified by their <Ant::ID>

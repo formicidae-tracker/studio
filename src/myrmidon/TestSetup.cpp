@@ -47,14 +47,14 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_tagfamily(fm::pb::TAG16H5);
 
 
-	auto p = e.add_datadirectory();
-	p->set_path("foo.0000");
-	p->set_startframe(100);
-	p->set_endframe(105);
-	auto startDate = p->mutable_startdate();
-	auto endDate = p->mutable_enddate();
-	google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:20.021-05:00",startDate);
-	google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:21.271-05:00",endDate);
+	fm::pb::TrackingDataDirectory tdd;
+	tdd.set_path("foo.0000");
+	tdd.set_startframe(100);
+	tdd.set_endframe(105);
+	auto startDate = tdd.mutable_startdate();
+	auto endDate = tdd.mutable_enddate();
+	google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:20.021-05:00",startDate->mutable_timestamp());
+	google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:21.271-05:00",endDate->mutable_timestamp());
 
 	fm::pb::FileHeader header;
 
@@ -90,6 +90,15 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		}
 		l.release_antdata();
 	}
+
+	l.set_allocated_trackingdatadirectory(&tdd);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+		throw std::runtime_error("could not write tracking directory data");
+	}
+	l.release_experiment();
+
+
+
 
 	//creates fake tracking data
 

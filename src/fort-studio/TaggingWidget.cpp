@@ -194,7 +194,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 				                 try {
 					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
 					                                                            pb::Point2dToEigen(pb.tail()),
-					                                                            tdd.FramePointer(pb.frame()),
+					                                                            *tdd.FrameAt(pb.frame()),
 					                                                            pb.tag());
 					                 d_estimates[e->Path()] = e;
 				                 } catch ( const std::exception & e )  {
@@ -350,7 +350,7 @@ Error TaggingWidget::save() {
 		std::vector<std::function<void (pb::Estimate & )> > lines;
 		for (const auto & e : estimates ) {
 			lines.push_back([&e](pb::Estimate & pb) {
-				                pb.set_frame(e->Frame()->Frame());
+				                pb.set_frame(e->Frame()->FrameID());
 				                pb.set_tag(e->TagValue());
 				                pb::EigenToPoint2d(pb.mutable_head(),e->Head());
 				                pb::EigenToPoint2d(pb.mutable_tail(),e->Tail());
@@ -392,7 +392,7 @@ void TaggingWidget::updateIdentificationForCurrentFrame() {
 
 
 Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValue,
-                                                                const FramePointer & f) {
+                                                                const RawFrame & f) {
 
 	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f.Time());
 
@@ -455,7 +455,7 @@ void TaggingWidget::on_newAntButton_clicked() {
 	Time::ConstPtr start;
 	Time::ConstPtr end;
 	if ( d_controller->experiment().FreeRangeContaining(start,end,e->TagValue(),e->Frame()->Time()) == false ) {
-		qCritical() << e->Frame()->FullPath().generic_string().c_str() << " already identifies an ant";
+		qCritical() << e->Frame()->Path().generic_string().c_str() << " already identifies an ant";
 		return;
 	}
 

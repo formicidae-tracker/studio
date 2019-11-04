@@ -13,7 +13,7 @@ public:
 	typedef std::shared_ptr<AntPoseEstimate> Ptr;
 	AntPoseEstimate(const Eigen::Vector2d & head,
 	                const Eigen::Vector2d & tail,
-	                const fort::myrmidon::priv::FramePointer::ConstPtr & frame,
+	                const fort::myrmidon::priv::RawFrame::ConstPtr & frame,
 	                uint32_t tagvalue);
 	virtual ~AntPoseEstimate();
 

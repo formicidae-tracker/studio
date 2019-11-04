@@ -333,6 +333,13 @@ Time::MonoclockID Time::MonoID() const {
 	return d_monoID & MONO_MASK;
 }
 
+uint64_t Time::MonotonicValue() const {
+	if ( (d_monoID & HAS_MONO_BIT) == 0 ) {
+		throw std::runtime_error("Time has no monotonic value");
+	}
+	return d_mono;
+}
+
 std::ostream & operator<<(std::ostream & out,
                           const Duration & d) {
 

@@ -16,7 +16,7 @@ public:
 	typedef std::shared_ptr<const Snapshot> ConstPtr;
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
 
-	Snapshot(const fort::myrmidon::priv::FramePointer::ConstPtr & frame,
+	Snapshot(const fort::myrmidon::priv::RawFrame::ConstPtr & frame,
 	         uint32_t tagValue);
 	virtual ~Snapshot();
 
@@ -30,7 +30,7 @@ public:
 
 	static ConstPtr FromApriltag(const apriltag_detection_t * d,
 	                             const fs::path & relativeImagePath,
-	                             const fort::myrmidon::priv::FramePointerPtr & frame);
+	                             const fort::myrmidon::priv::RawFrame::ConstPtr & frame);
 
 
 private:

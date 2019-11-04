@@ -327,6 +327,14 @@ public:
 	MonoclockID MonoID() const;
 
 
+	// Returns the monotonic value.
+	// @return the monotonic clock value.
+	//
+	// Returns the monotonic value. It throws std::exception if
+	// this <Time> has no monotonic clock value (see <HasMono>).
+	uint64_t MonotonicValue() const;
+
+
 	// Helpers to convert (sec,nsec) to nsec
 	// @sec the amount of second
 	// @nsec the amount of nanos

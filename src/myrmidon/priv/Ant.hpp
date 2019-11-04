@@ -4,7 +4,6 @@
 #include <myrmidon/utils/FileSystem.hpp>
 
 #include "../Ant.hpp"
-#include "FramePointer.hpp"
 
 #include "Identification.hpp"
 

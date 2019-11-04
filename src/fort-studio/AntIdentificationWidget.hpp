@@ -16,8 +16,8 @@ public:
 
 public slots:
 	void onNewController(ExperimentController * controller);
-	void on_startFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointerPtr &);
-	void on_endFrame_framePointerUpdated(const fort::myrmidon::priv::FramePointerPtr &);
+	void on_startFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrameConstPtr &);
+	void on_endFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrameConstPtr &);
 
 private:
 	Ui::AntIdentificationWidget * d_ui;
