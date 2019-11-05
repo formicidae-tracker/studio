@@ -95,7 +95,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
 		throw std::runtime_error("could not write tracking directory data");
 	}
-	l.release_experiment();
+	l.release_trackingdatadirectory();
 
 
 

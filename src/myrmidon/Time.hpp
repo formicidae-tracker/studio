@@ -334,6 +334,8 @@ public:
 	// this <Time> has no monotonic clock value (see <HasMono>).
 	uint64_t MonotonicValue() const;
 
+	std::string DebugString() const;
+
 
 	// Helpers to convert (sec,nsec) to nsec
 	// @sec the amount of second

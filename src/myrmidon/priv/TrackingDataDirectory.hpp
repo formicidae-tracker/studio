@@ -8,6 +8,7 @@
 
 #include <fort-hermes/FileContext.h>
 
+#include "TimeValid.hpp"
 #include "SegmentIndexer.hpp"
 
 namespace fort {
@@ -26,18 +27,21 @@ namespace priv {
 // contains the tracking data.
 //
 // Each directory has a start and end time and a start and end frame
-class TrackingDataDirectory {
+class TrackingDataDirectory : public TimeValid {
 public:
 	typedef int32_t UID;
 
 
 	class const_iterator {
 	public:
-		const_iterator(std::unique_ptr<fort::hermes::FileContext> & fc);
+		const_iterator();
+		const_iterator(const fs::path & filepath,
+		               const fs::path & parentPath,
+		               UID uid);
 		const_iterator& operator++();
-		bool operator==(const const_iterator & other);
-		bool operator!=(const const_iterator & other);
-		RawFrameConstPtr operator*();
+		bool operator==(const const_iterator & other) const;
+		bool operator!=(const const_iterator & other) const;
+		RawFrameConstPtr operator*() const;
 		using difference_type = int64_t;
 		using value_type = RawFrameConstPtr;
 		using pointer = const RawFrameConstPtr *;
@@ -45,8 +49,11 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 	private:
-		const std::unique_ptr<fort::hermes::FileContext> d_file;
-		fort::hermes::FrameReadout                       d_message;
+		const fs::path                             d_parentPath;
+		UID                                        d_uid;
+		std::unique_ptr<fort::hermes::FileContext> d_file;
+		fort::hermes::FrameReadout                 d_message;
+		RawFrameConstPtr                           d_frame;
 	};
 
 
@@ -107,7 +114,6 @@ public:
 private:
 	fs::path       d_path;
 	uint64_t       d_startFrame,d_endFrame;
-	Time           d_startDate,d_endDate;
 	SegmentIndexer d_segments;
 
 };
@@ -118,6 +124,9 @@ private:
 
 } //namespace fort
 
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::TrackingDataDirectory & a);
 
 inline bool operator<(const fort::myrmidon::priv::TrackingDataDirectory & a,
                       const fort::myrmidon::priv::TrackingDataDirectory & b) {

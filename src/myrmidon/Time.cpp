@@ -340,6 +340,17 @@ uint64_t Time::MonotonicValue() const {
 	return d_mono;
 }
 
+std::string Time::DebugString() const {
+	std::ostringstream os;
+	os << "{Time:" << *this;
+	if ( HasMono() ) {
+		os << ";monoID:" << MonoID()
+		   << ";mono:" << MonotonicValue();
+	}
+	os << "}";
+	return os.str();
+}
+
 std::ostream & operator<<(std::ostream & out,
                           const Duration & d) {
 

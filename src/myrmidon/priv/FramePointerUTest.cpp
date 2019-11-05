@@ -48,7 +48,7 @@ TEST_F(FramePointerUTest,CanBeFormatted) {
 		auto a = RawFrame::Create(d.Path,pb,0);
 
 		std::ostringstream os;
-		os << a;
+		os << *a;
 		EXPECT_EQ(os.str(),d.Expected);
 	}
 

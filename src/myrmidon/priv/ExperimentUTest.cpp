@@ -22,8 +22,8 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		google::protobuf::Timestamp startG,endG;
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&startG),true);
-		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:21.021-05:00",&endG),true);
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:18.021-05:00",&startG),true);
+		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&endG),true);
 		auto start = Time::FromTimestamp(startG);
 		auto end = Time::FromTimestamp(endG);
 		TrackingDataDirectory tdd("bar",9,11,start,end,SegmentIndexer());

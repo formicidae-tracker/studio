@@ -54,43 +54,16 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::invalid_argument("directory '" + toAdd.Path().string() + "' is already present");
 	}
 
-	std::vector<std::string> sortedInTime;
-	for(auto const & [path,tdd] : d_dataDirs ) {
-		sortedInTime.push_back(path);
+	std::vector<const TrackingDataDirectory*> sortedInTime;
+	for(const auto & el : d_dataDirs ) {
+		sortedInTime.push_back(&(el.second));
 	}
-
-	std::sort(sortedInTime.begin(),sortedInTime.end(),
-	          [this](const std::string & a, const std::string & b) -> bool{
-		          return d_dataDirs[a] < d_dataDirs[b];
-	          });
-
-	bool canInsert = d_dataDirs.size() == 0;
-	for(auto iter =  sortedInTime.cbegin();
-	    iter != sortedInTime.cend();
-	    ++iter) {
-		auto const & tdd = d_dataDirs[*iter];
-		if ( !toAdd.EndDate().After(tdd.StartDate()) ) {
-			canInsert = true;
-			break;
-		} else {
-			continue;
-		}
-
-		auto next = iter+1;
-		if ( next == sortedInTime.cend() ) {
-			canInsert = true;
-			break;
-		}
-		auto const & nextTdd = d_dataDirs[*next];
-
-		if ( toAdd.EndDate().Before(nextTdd.StartDate())) {
-			canInsert = true;
-			break;
-		}
-	}
-
-	if ( canInsert == false ) {
-		throw std::runtime_error("Data in '" + toAdd.Path().string() + "' overlaps in time with existing data");
+	sortedInTime.push_back(&toAdd);
+	auto fi = TimeValid::SortAndCheckOverlap(sortedInTime.begin(),sortedInTime.end());
+	if ( fi.first != fi.second ) {
+		std::ostringstream os;
+		os << *fi.first << " and " << *fi.second << " overlaps in time";
+		throw std::invalid_argument(os.str());
 	}
 
 	d_dataDirs[toAdd.Path().generic_string()] = toAdd;

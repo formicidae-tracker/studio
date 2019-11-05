@@ -1,10 +1,13 @@
 #include "TrackingDataDirectory.hpp"
 
+#include "RawFrame.hpp"
+
 #include <mutex>
 
 #include <fort-hermes/Error.h>
 #include <fort-hermes/FileContext.h>
 
+#include "../utils/NotYetImplemented.hpp"
 
 
 namespace fort {
@@ -25,18 +28,18 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 	: d_path(path)
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
-	, d_startDate(startdate)
-	, d_endDate(enddate)
 	, d_segments(si) {
+	d_start = std::make_shared<const Time>(startdate);
+	d_end = std::make_shared<const Time>(enddate);
 	if ( d_startFrame >= d_endFrame ) {
 		std::ostringstream os;
 		os << "TrackingDataDirectory: startFrame:" << d_startFrame << " >= endDate: " << d_endFrame;
 		throw std::invalid_argument(os.str());
 	}
 
-	if ( d_startDate.Before(d_endDate) == false ) {
+	if ( d_start->Before(*d_end) == false ) {
 		std::ostringstream os;
-		os << "TrackingDataDirectory: startDate:" << d_startDate << " >= endDate: " << d_endDate;
+		os << "TrackingDataDirectory: startDate:" << *d_start << " >= endDate: " << *d_end;
 		throw std::invalid_argument(os.str());
 	}
 }
@@ -55,11 +58,11 @@ uint64_t TrackingDataDirectory::EndFrame() const {
 }
 
 const Time & TrackingDataDirectory::StartDate() const {
-	return d_startDate;
+	return *d_start;
 }
 
 const Time & TrackingDataDirectory::EndDate() const {
-	return d_endDate;
+	return *d_end;
 }
 
 TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & path,  const fs::path & base) {
@@ -140,7 +143,11 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		for (;;) {
 			fc->Read(&ro);
 			end = ro.frameid();
-			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp(),monoID);
+			//we add 1 nanosecond to transform the valid range from
+			//[start;end[ to [start;end] by making it
+			//[start;end+1ns[. There are no time existing between end
+			//and end+1ns;
+			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp(),monoID).Add(1);
 		}
 	} catch ( const fort::hermes::EndOfFile &) {
 		//DO nothing, we just reached EOF
@@ -161,6 +168,79 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 const SegmentIndexer & TrackingDataDirectory::TrackingIndex() const {
 	return d_segments;
 }
+
+ TrackingDataDirectory::const_iterator::const_iterator() {}
+
+TrackingDataDirectory::const_iterator::const_iterator(const fs::path & filepath,
+                                                      const fs::path & parentPath,
+                                                      TrackingDataDirectory::UID uid)
+	: d_file(std::unique_ptr<hermes::FileContext>( new hermes::FileContext(filepath.string())))
+	, d_parentPath(parentPath)
+	, d_uid(uid) {
+	++(*this);
+}
+
+TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {
+	try {
+		d_file->Read(&d_message);
+		d_frame = RawFrame::Create(d_parentPath,d_message,d_uid);
+	} catch ( fort::hermes::EndOfFile & ) {
+		d_file.reset();
+		d_frame.reset();
+		d_message.Clear();
+	}
+}
+
+bool TrackingDataDirectory::const_iterator::operator==(const const_iterator & other) const {
+	if ( !d_frame ) {
+		return !other.d_frame;
+	}
+
+	if (!other.d_frame) {
+		return false;
+	}
+
+	return d_frame->Time().MonoID() == other.d_frame->Time().MonoID() &&
+		d_frame->FrameID() == other.d_frame->FrameID();
+}
+
+bool TrackingDataDirectory::const_iterator::operator!=(const const_iterator & other) const {
+	return !(*this == other);
+}
+
+RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() const{
+	return d_frame;
+}
+
+TrackingDataDirectory::const_iterator TrackingDataDirectory::begin() const {
+	auto first = d_segments.Find(d_startFrame);
+	return const_iterator(first,d_path,d_start->MonoID());
+}
+
+TrackingDataDirectory::const_iterator TrackingDataDirectory::end() const {
+	return const_iterator();
+}
+
+TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t frameID) const {
+	auto start = d_segments.Find(frameID);
+	for(auto res = 	const_iterator(start,d_path,d_start->MonoID()) ;res != end() ; ++res) {
+		if ((*res)->FrameID() == frameID ) {
+			return res;
+		}
+		if ((*res)->FrameID() > frameID ) {
+			break;
+		}
+	}
+	std::ostringstream os;
+	os << "Could not find frame " << frameID << " in [" << d_startFrame << ";" << d_endFrame << "]";
+	throw std::out_of_range(os.str());
+}
+
+TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+
 
 }
 }
