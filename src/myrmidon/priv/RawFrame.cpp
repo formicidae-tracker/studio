@@ -54,12 +54,12 @@ RawFrame::RawFrame(const fs::path & path,
                    fort::hermes::FrameReadout & pb,
                    Time::MonoclockID clockID)
 	: d_path(path)
-	, d_time(Time::FromTimestampAndMonotonic(pb.time(), pb.timestamp(), clockID))
+	, d_time(Time::FromTimestampAndMonotonic(pb.time(), pb.timestamp() * 1000, clockID))
 	, d_frame(pb.frameid())
 	, d_error(pb.error())
 	, d_width(pb.width())
 	, d_height(pb.height()) {
-
+	d_tags.Swap(pb.mutable_tags());
 }
 
 
