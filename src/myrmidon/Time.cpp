@@ -261,7 +261,7 @@ Time::Time(int64_t wallSec, int32_t wallNsec, uint64_t mono, MonoclockID monoID)
 		if (d_wallSec == MIN_SINT64 ) {
 			throw Overflow("Wall");
 		}
-		--d_wallNsec;
+		--d_wallSec;
 		d_wallNsec += NANOS_PER_SECOND_SINT64;
 	}
 }
@@ -269,7 +269,7 @@ Time::Time(int64_t wallSec, int32_t wallNsec, uint64_t mono, MonoclockID monoID)
 #define MONO_MASK ( HAS_MONO_BIT - 1 )
 
 Time Time::Add(const Duration & d) const{
-	uint64_t mono = 0;
+	uint64_t mono = d_mono;
 	int64_t toAdd = d.Nanoseconds();
 	if ( (d_monoID & HAS_MONO_BIT) != 0 ) {
 
@@ -282,8 +282,9 @@ Time Time::Add(const Duration & d) const{
 	}
 
 	int64_t seconds = toAdd / NANOS_PER_SECOND_SINT64;
+	int64_t nanos = toAdd - seconds * NANOS_PER_SECOND_SINT64;
 
-	return Time(d_wallSec + seconds, d_wallNsec + (toAdd - seconds),mono,d_monoID);
+	return Time(d_wallSec + seconds, d_wallNsec + nanos ,mono,d_monoID);
 }
 
 bool Time::After(const Time & t) const {

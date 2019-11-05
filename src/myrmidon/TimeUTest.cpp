@@ -245,6 +245,13 @@ TEST_F(TimeUTest,TimeSubstraction) {
 		    1 * Duration::Second,
 		    '>',
 		   },
+		   {
+		    Time::FromTimestamp(zero),
+		    Time::FromTimestamp(zero).Add(-1*Duration::Nanosecond),
+		    1 * Duration::Nanosecond,
+		    '>',
+		   },
+
 	};
 
 
