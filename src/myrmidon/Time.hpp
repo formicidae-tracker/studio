@@ -395,3 +395,6 @@ std::ostream & operator<<(std::ostream & out,
 // google::protobuf::time_util functions.
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t);
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Time::ConstPtr & t );

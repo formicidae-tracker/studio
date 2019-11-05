@@ -34,12 +34,6 @@ std::ostream & operator<<(std::ostream & out, const TestObject & o ) {
 	return out << o.String();
 }
 
-std::ostream & operator<<(std::ostream & out, const Time::ConstPtr & t ) {
-	if (!t) {
-		return out << "+-∞";
-	}
-	return out << *t;
-}
 
 TEST_F(TimeValidUTest,CanCheckOverlap) {
 
@@ -175,7 +169,5 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 			},std::invalid_argument) << " for time " << t;
 
 	}
-
-
 
 }

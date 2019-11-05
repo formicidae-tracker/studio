@@ -408,3 +408,11 @@ std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t) {
 	return out << google::protobuf::util::TimeUtil::ToString(t.ToTimestamp());
 }
+
+
+std::ostream & operator<<(std::ostream & out, const Time::ConstPtr & t ) {
+	if (!t) {
+		return out << "+-∞";
+	}
+	return out << *t;
+}
