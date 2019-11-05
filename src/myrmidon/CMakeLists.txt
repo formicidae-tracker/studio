@@ -87,6 +87,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/Isometry2DUTest.cpp
                     TimeUTest.cpp
                     priv/SegmentIndexerUTest.cpp
+                    priv/TimeValidUTest.cpp
                     )
 
 set(HDR_UTEST_FILES TestSetup.hpp
@@ -100,6 +101,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/Isometry2DUTest.hpp
                     TimeUTest.hpp
                     priv/SegmentIndexerUTest.hpp
+                    priv/TimeValidUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
