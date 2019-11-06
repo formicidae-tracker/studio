@@ -8,9 +8,53 @@
 
 #include "TrackingDataDirectory.hpp"
 
+#include "../UtilsUTest.hpp"
 
 
-using namespace fort::myrmidon::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
+
+
+
+
+TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
+	google::protobuf::Timestamp pbt;
+	google::protobuf::util::TimeUtil::FromString("2019-01-T10:12:34.567+01:00",&pbt);
+
+	struct TestData {
+		Time     T;
+		int64_t  Seconds;
+		int64_t  Nanos;
+		uint64_t Mono;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {Time(),0,0,0},
+		   {Time::FromTimeT(1234),1234,0,0},
+		   {Time::FromTimestamp(pbt),pbt.seconds(),pbt.nanos(),0},
+		   {
+		    Time::FromTimestampAndMonotonic(pbt, 123456789, 42),
+		    pbt.seconds(),
+		    pbt.nanos(),
+		    123456789
+		   },
+	};
+
+	for (const auto & d : data ) {
+		pb::Time t;
+		pb::Time expected;
+		expected.mutable_timestamp()->set_seconds(d.Seconds);
+		expected.mutable_timestamp()->set_nanos(d.Nanos);
+		expected.set_monotonic(d.Mono);
+		ProtobufReadWriter::SaveTime(t, d.T);
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(t,expected));
+		auto res = ProtobufReadWriter::LoadTime(t, 42);
+		EXPECT_TRUE(TimeEqual(res,d.T));
+	}
+
+}
 
 
 TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
@@ -32,4 +76,8 @@ TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
 	EXPECT_NO_THROW({ProtobufReadWriter::SaveTrackingDataDirectory(encoded,tdd);});
 	ASSERT_EQ(google::protobuf::util::MessageDifferencer::Equals(encoded,pbTdd),true);
 
+}
+
+}
+}
 }

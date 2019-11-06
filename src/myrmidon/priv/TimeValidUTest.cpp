@@ -2,6 +2,7 @@
 
 #include "TimeValid.hpp"
 
+#include "../UtilsUTest.hpp"
 
 using namespace fort::myrmidon;
 
@@ -86,16 +87,6 @@ TEST_F(TimeValidUTest,CanCheckOverlap) {
 	}
 }
 
-bool TimePtrEquals(const Time::ConstPtr & a,
-                   const Time::ConstPtr & b) {
-	if (!a ) {
-		return !b;
-	}
-	if (!b) {
-		return false;
-	}
-	return a->Equals(*b);
-}
 
 
 TEST_F(TimeValidUTest,CanGiveBoundaries) {
@@ -161,8 +152,8 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 				auto t = Time::FromTimeT(d.T);
 				auto lower = priv::TimeValid::LowerUnvalidBound(t,list.begin(),list.end());
 				auto upper = priv::TimeValid::UpperUnvalidBound(t,list.begin(),list.end());
-				EXPECT_PRED2(TimePtrEquals,upper,d.ExpectedUpper);
-				EXPECT_PRED2(TimePtrEquals,lower,d.ExpectedLower);
+				EXPECT_TRUE(TimePtrEqual(upper,d.ExpectedUpper));
+				EXPECT_TRUE(TimePtrEqual(lower,d.ExpectedLower));
 			});
 
 	}

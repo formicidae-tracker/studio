@@ -88,7 +88,10 @@ set(SRC_UTEST_FILES main-check.cpp
                     TimeUTest.cpp
                     priv/SegmentIndexerUTest.cpp
                     priv/TimeValidUTest.cpp
+                    UtilsUTest.cpp
                     )
+
+
 
 set(HDR_UTEST_FILES TestSetup.hpp
                     priv/ExperimentUTest.hpp
@@ -102,6 +105,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     TimeUTest.hpp
                     priv/SegmentIndexerUTest.hpp
                     priv/TimeValidUTest.hpp
+                    UtilsUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
