@@ -1,4 +1,5 @@
 [![Build Status][build-status-shield]][build-status-url]
+[![Coverage Status][coverage-status-shield]][coverage-status-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -138,6 +139,8 @@ This project is licensed under the GNU Lesser General Public License v3.0 or lat
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [build-status-shield]: https://img.shields.io/travis/com/formicidae-tracker/studio/master?style=flat-square
 [build-status-url]: https://travis-ci.com/formicidae-tracker/studio
+[coverage-status-shield]: https://img.shields.io/coveralls/github/formicidae-tracker/studio?style=flat-square
+[coverage-status-url]: https://coveralls.io/github/formicidae-tracker/studio
 [contributors-shield]: https://img.shields.io/github/contributors/formicidae-tracker/studio.svg?style=flat-square
 [contributors-url]: https://github.com/formicidae-tracker/studio/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/formicidae-tracker/studio.svg?style=flat-square
