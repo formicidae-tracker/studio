@@ -37,3 +37,46 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "test.myrmidon",TestSetup::Basedir());
 		}, std::invalid_argument);
 }
+
+
+TEST_F(TrackingDataDirectoryUTest,HasUIDBasedOnPath) {
+	struct TestData {
+		std::pair<fs::path,fs::path> A,B;
+		bool Expected;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {
+		    std::make_pair("foo","bar"),
+		    std::make_pair("foo","bar"),
+		    true,
+		   },
+		   {
+		    std::make_pair("foo","bar"),
+		    std::make_pair("foo","bar////"),
+		    true,
+		   },
+		   {
+		    std::make_pair("foo","bar"),
+		    std::make_pair("foo","baz"),
+		    false,
+		   },
+		   {
+		    std::make_pair("foo/baz","bar"),
+		    std::make_pair("baz","bar/foo"),
+		    true,
+		   },
+		   {
+		    std::make_pair("../foo","bar"),
+		    std::make_pair("../foo","baz"),
+		    true,
+		   },
+	};
+
+	for(const auto & d : data ) {
+		auto aUID = fmp::TrackingDataDirectory::GetUID(d.A.first,d.A.second);
+		auto bUID = fmp::TrackingDataDirectory::GetUID(d.B.first,d.B.second);
+		EXPECT_EQ(aUID == bUID,d.Expected);
+	}
+}

@@ -15,9 +15,6 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-
-
-
 TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 	google::protobuf::Timestamp pbt;
 	google::protobuf::util::TimeUtil::FromString("2019-01-T10:12:34.567+01:00",&pbt);
@@ -31,9 +28,13 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 
 	std::vector<TestData> data
 		= {
+		   //An empty time
 		   {Time(),0,0,0},
+		   // A Timestamp
 		   {Time::FromTimeT(1234),1234,0,0},
+		   // A more complicated timestamp
 		   {Time::FromTimestamp(pbt),pbt.seconds(),pbt.nanos(),0},
+		   // A Time with a monotonic value
 		   {
 		    Time::FromTimestampAndMonotonic(pbt, 123456789, 42),
 		    pbt.seconds(),
@@ -55,6 +56,7 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 	}
 
 }
+
 
 TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
 	SegmentIndexer si,res;
@@ -87,7 +89,6 @@ TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
 		EXPECT_TRUE(TimeEqual(std::get<1>(ress[i]),std::get<1>(expecteds[i])));
 		EXPECT_EQ(std::get<2>(ress[i]),std::get<2>(expecteds[i]));
 	}
-
 
 }
 

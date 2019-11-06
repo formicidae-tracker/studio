@@ -70,7 +70,7 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & path, 
 	static UID last = 0;
 	static std::map<fs::path,UID> d_UIDs;
 	std::lock_guard<std::mutex> lock(mutex);
-	fs::path fpath = base / path;
+	fs::path fpath = fs::weakly_canonical(base / path);
 	auto fi = d_UIDs.find(fpath);
 	if ( fi == d_UIDs.end() ) {
 		d_UIDs.insert(std::make_pair(fpath,++last));
@@ -189,6 +189,7 @@ TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::op
 		d_frame.reset();
 		d_message.Clear();
 	}
+	return *this;
 }
 
 bool TrackingDataDirectory::const_iterator::operator==(const const_iterator & other) const {
