@@ -56,6 +56,42 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 
 }
 
+TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
+	SegmentIndexer si,res;
+	google::protobuf::RepeatedPtrField<pb::Segment> expected,pbRes;
+	for(size_t i = 0; i < 20; ++i) {
+		uint64_t fid = 100 * i;
+		Time t = Time::FromTimeT(100*i);
+		std::ostringstream os;
+		os << i;
+		si.Insert(fid,t,os.str());
+
+		auto pb = expected.Add();
+		pb->set_frameid(fid);
+		t.ToTimestamp(*pb->mutable_time()->mutable_timestamp());
+		pb->set_data(os.str());
+	}
+
+	ProtobufReadWriter::SaveSegmentIndexer(&pbRes, si);
+	ASSERT_EQ(pbRes.size(),expected.size());
+	for(size_t i = 0; i < pbRes.size(); ++i) {
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(pbRes.Get(i),expected.Get(i)));
+	}
+	ProtobufReadWriter::LoadSegmentIndexer(res, pbRes, 42);
+	auto ress = res.Segments();
+	auto expecteds = si.Segments();
+
+	ASSERT_EQ(ress.size(),expecteds.size());
+	for(size_t i = 0; i < ress.size(); ++i) {
+		EXPECT_EQ(std::get<0>(ress[i]),std::get<0>(expecteds[i]));
+		EXPECT_TRUE(TimeEqual(std::get<1>(ress[i]),std::get<1>(expecteds[i])));
+		EXPECT_EQ(std::get<2>(ress[i]),std::get<2>(expecteds[i]));
+	}
+
+
+}
+
+
 
 TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
 	fort::myrmidon::pb::TrackingDataDirectory pbTdd,encoded;
