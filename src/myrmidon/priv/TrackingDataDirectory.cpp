@@ -127,7 +127,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		try {
 			fc = std::make_shared<fort::hermes::FileContext>(f.string());
 			fc->Read(&ro);
-			Time startTime = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp(),monoID);
+			Time startTime = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID);
 
 			if ( first == true) {
 				start = ro.frameid();
@@ -147,7 +147,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 			//[start;end[ to [start;end] by making it
 			//[start;end+1ns[. There are no time existing between end
 			//and end+1ns;
-			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp(),monoID).Add(1);
+			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID).Add(1);
 		}
 	} catch ( const fort::hermes::EndOfFile &) {
 		//DO nothing, we just reached EOF

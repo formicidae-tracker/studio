@@ -8,14 +8,20 @@
 
 #include "../TestSetup.hpp"
 
+#include "../UtilsUTest.hpp"
+
 namespace fmp = fort::myrmidon::priv;
 
 TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
+
 	try {
 		auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
 		ASSERT_EQ(tdd.Path(),"foo.0001");
-		ASSERT_EQ(tdd.StartFrame(),5);
-		ASSERT_EQ(tdd.EndFrame(),8);
+		ASSERT_EQ(tdd.StartFrame(),0);
+		ASSERT_EQ(tdd.EndFrame(),999);
+		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
+		EXPECT_TRUE(TimeEqual(tdd.EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
+
 
 	} catch( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
@@ -23,7 +29,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 	EXPECT_THROW({
 			//no tracking data
-			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
+			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "bar.0000",TestSetup::Basedir());
 		}, std::invalid_argument);
 
 	EXPECT_THROW({
