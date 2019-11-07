@@ -134,7 +134,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 				startDate = startTime;
 				first = false;
 			}
-			si.Insert(ro.frameid(),startTime,f.generic_string());
+			si.Insert(ro.frameid(),startTime,fs::relative(f,path).generic_string());
 		} catch ( const std::exception & e) {
 			throw std::runtime_error("Could not extract frame from " +  f.string() + ": " + e.what());
 		}

@@ -16,11 +16,26 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 	try {
 		auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-		ASSERT_EQ(tdd.Path(),"foo.0001");
-		ASSERT_EQ(tdd.StartFrame(),0);
-		ASSERT_EQ(tdd.EndFrame(),999);
+		EXPECT_EQ(tdd.Path(),"foo.0001");
+		EXPECT_EQ(tdd.StartFrame(),0);
+		EXPECT_EQ(tdd.EndFrame(),999);
 		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
 		EXPECT_TRUE(TimeEqual(tdd.EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
+
+		std::vector<fmp::SegmentIndexer::Segment> segments;
+
+		for(size_t i = 0; i < 10; ++i ) {
+			std::ostringstream os;
+			os << "tracking." << std::setw(4) << std::setfill('0') << i << ".hermes";
+			segments.push_back(std::make_tuple(100*i,TestSetup::StartTime("foo.0001/" + os.str()),os.str()));
+		}
+		ASSERT_EQ(segments.size(),tdd.TrackingIndex().Segments().size());
+		for(size_t i = 0;  i < segments.size(); ++i) {
+			EXPECT_EQ(std::get<0>(segments[i]),std::get<0>(tdd.TrackingIndex().Segments()[i]));
+			EXPECT_TRUE(TimeEqual(std::get<1>(segments[i]),std::get<1>(tdd.TrackingIndex().Segments()[i])));
+			EXPECT_EQ(std::get<2>(segments[i]),std::get<2>(tdd.TrackingIndex().Segments()[i]));
+
+		}
 
 
 	} catch( const std::exception & e) {
