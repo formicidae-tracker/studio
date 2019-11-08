@@ -118,14 +118,14 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	google::protobuf::util::TimeUtil::FromString("2019-11-02T10:00:20.021+01:00",&ts);
 	auto startTime = Time::FromTimestampAndMonotonic(ts,
 	                                                 123456,
-	                                                 priv::TrackingDataDirectory::GetUID("foo.0001",s_testdir));
+	                                                 priv::TrackingDataDirectory::GetUID(s_testdir /"foo.0001"));
 	auto saveStartTime = startTime;
 
 	for(auto const & d : foodirs) {
 		fs::create_directories(Basedir() / d);
 		startTime = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
 		                                            startTime.MonotonicValue(),
-		                                            priv::TrackingDataDirectory::GetUID(d,s_testdir));
+		                                            priv::TrackingDataDirectory::GetUID(s_testdir/ d));
 		const static size_t NB_FILES = 10;
 		for(size_t i = 0; i < NB_FILES; ++i) {
 			auto next = std::make_shared<size_t>(i+1);

@@ -177,13 +177,15 @@ void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<p
 
 
 TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
-	TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path(),base);
+	TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
 
 	SegmentIndexer si;
 	LoadSegmentIndexer(si,pb.index(),uid);
 	auto start = LoadTime(pb.startdate(),uid);
 	auto end = LoadTime(pb.enddate(),uid);
-	return TrackingDataDirectory(pb.path(),
+
+	return TrackingDataDirectory(base / pb.path(),
+	                             base,
 	                             pb.startframe(),
 	                             pb.endframe(),
 	                             start,
@@ -194,7 +196,7 @@ TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::Tr
 void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
                                                    const TrackingDataDirectory & tdd) {
 	pb.Clear();
-	pb.set_path(tdd.Path().generic_string());
+	pb.set_path(tdd.LocalPath().generic_string());
 	pb.set_startframe(tdd.StartFrame());
 	pb.set_endframe(tdd.EndFrame());
 	SaveTime(*pb.mutable_startdate(),tdd.StartDate());

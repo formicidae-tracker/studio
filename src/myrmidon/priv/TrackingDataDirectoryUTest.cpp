@@ -16,7 +16,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 	try {
 		auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-		EXPECT_EQ(tdd.Path(),"foo.0001");
+		EXPECT_EQ(tdd.LocalPath(),"foo.0001");
 		EXPECT_EQ(tdd.StartFrame(),0);
 		EXPECT_EQ(tdd.EndFrame(),999);
 		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
@@ -62,42 +62,37 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 TEST_F(TrackingDataDirectoryUTest,HasUIDBasedOnPath) {
 	struct TestData {
-		std::pair<fs::path,fs::path> A,B;
+		fs::path A,B;
 		bool Expected;
 	};
 
 	std::vector<TestData> data
 		= {
 		   {
-		    std::make_pair("foo","bar"),
-		    std::make_pair("foo","bar"),
+		    "bar/foo",
+		    "bar/foo",
 		    true,
 		   },
 		   {
-		    std::make_pair("foo","bar"),
-		    std::make_pair("foo","bar////"),
+		    "bar/foo",
+		    "bar////foo",
 		    true,
 		   },
 		   {
-		    std::make_pair("foo","bar"),
-		    std::make_pair("foo","baz"),
+		    "bar/foo",
+		    "baz/foo",
 		    false,
 		   },
 		   {
-		    std::make_pair("foo/baz","bar"),
-		    std::make_pair("baz","bar/foo"),
-		    true,
-		   },
-		   {
-		    std::make_pair("../foo","bar"),
-		    std::make_pair("../foo","baz"),
+		    "bar/../foo",
+		    "baz/../foo",
 		    true,
 		   },
 	};
 
 	for(const auto & d : data ) {
-		auto aUID = fmp::TrackingDataDirectory::GetUID(d.A.first,d.A.second);
-		auto bUID = fmp::TrackingDataDirectory::GetUID(d.B.first,d.B.second);
+		auto aUID = fmp::TrackingDataDirectory::GetUID(d.A);
+		auto bUID = fmp::TrackingDataDirectory::GetUID(d.B);
 		EXPECT_EQ(aUID == bUID,d.Expected);
 	}
 }

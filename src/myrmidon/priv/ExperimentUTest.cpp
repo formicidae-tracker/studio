@@ -26,7 +26,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&endG),true);
 		auto start = Time::FromTimestamp(startG);
 		auto end = Time::FromTimestamp(endG);
-		TrackingDataDirectory tdd("bar",9,11,start,end,SegmentIndexer());
+		TrackingDataDirectory tdd("bar","baz",9,11,start,end,SegmentIndexer());
 
 		e->AddTrackingDataDirectory(tdd);
 
@@ -47,7 +47,8 @@ TEST_F(ExperimentUTest,IOTest) {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		auto tdd = e->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
-		ASSERT_EQ(tdd["foo.0000"].Path(),"foo.0000");
+		ASSERT_EQ(tdd["foo.0000"].LocalPath(),"foo.0000");
+		ASSERT_EQ(tdd["foo.0000"].FilePath(),TestSetup::Basedir() / "foo.0000");
 		ASSERT_EQ(e->ConstIdentifier().Ants().size(),3);
 		EXPECT_EQ(e->ConstIdentifier().Ants().find(1)->second->ID(),1);
 		EXPECT_EQ(e->ConstIdentifier().Ants().find(2)->second->ID(),2);

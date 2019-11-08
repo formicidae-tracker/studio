@@ -57,11 +57,14 @@ public:
 	};
 
 
-	static UID GetUID(const fs::path & path,  const fs::path & base);
+	static UID GetUID(const fs::path & path);
+
+	UID GetUID() const;
 
 	TrackingDataDirectory();
 
 	TrackingDataDirectory(const fs::path & path,
+	                      const fs::path & experimentRoot,
 	                      uint64_t startFrame,
 	                      uint64_t endFrame,
 	                      const Time & start,
@@ -69,9 +72,13 @@ public:
 	                      const SegmentIndexer & segments);
 
 
-	// Gets the relative path
-	// @return a relative path to this directory from <Experiment::Basedir>
-	const fs::path &  Path() const;
+	// Gets the path designating the TrackingDataDirectory
+	// @return a path relative to the experiment <Experiment>
+	const fs::path & LocalPath() const;
+
+	// Gets the actual path on the filesystem of teh TrackingDataDirectory
+	// @return the actual path on the filesystem
+	fs::path FilePath() const;
 
 	// Gets the first frame number
 	// @return the first frame number in this directory
@@ -98,21 +105,21 @@ public:
 	const_iterator FrameNear(const Time & t) const;
 
 	// Opens an actual TrackingDataDirectory on the filesystem
-	// @path path to the tracking data directory
-	// @base basepath to sets the relative path. Should use <Experiment::Basedir>
+	// @path path to the tracking data directory.
+	// @experimentRoot root of the <Experiment>
 	// @return a new <trackingDataDirectory> with all field populated accordingly
 	//
 	// Opens an actual TrackingDataDirectory on the filesystem, and
 	// populate its data form its actual content. This function will
 	// look for tracking data file open the first and last segment to
 	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory Open(const fs::path & path, const fs::path & base);
+	static TrackingDataDirectory Open(const fs::path & path, const fs::path & experimentRoot);
 
 	const SegmentIndexer & TrackingIndex() const;
 
 
 private:
-	fs::path       d_path;
+	fs::path       d_experimentRoot, d_path;
 	uint64_t       d_startFrame,d_endFrame;
 	SegmentIndexer d_segments;
 

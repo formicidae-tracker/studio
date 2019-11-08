@@ -37,7 +37,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
                       priv/Identification.hpp
-                      prib/SegmentIndexer.hpp
+                      priv/SegmentIndexer.hpp
                       priv/TrackingDataDirectory.hpp
                       priv/RawFrame.hpp
                       priv/DeletedReference.hpp
@@ -54,20 +54,20 @@ set(HDR_PUBLIC_FILES Frame.hpp
                      Time.hpp
                      utils/FileSystem.hpp)
 
-set(SRC_PRIV_FILES priv/TimeValid.cpp
-                   priv/Experiment.cpp
-                   priv/Identifier.cpp
-                   priv/Ant.cpp
-                   priv/SegmentIndexer.cpp
-	               priv/Identification.cpp
-	               priv/TrackingDataDirectory.cpp
-	               priv/RawFrame.cpp
-	               priv/DeletedReference.cpp
-	               priv/ExperimentReadWriter.cpp
-	               priv/ProtobufExperimentReadWriter.cpp
-	               utils/ProtobufFileReadWriter.cpp
-	               priv/Isometry2D.cpp
-	               )
+set(SRC_PRIVATE_FILES priv/TimeValid.cpp
+                      priv/Experiment.cpp
+                      priv/Identifier.cpp
+                      priv/Ant.cpp
+                      priv/SegmentIndexer.cpp
+                      priv/Identification.cpp
+                      priv/TrackingDataDirectory.cpp
+                      priv/RawFrame.cpp
+                      priv/DeletedReference.cpp
+                      priv/ExperimentReadWriter.cpp
+                      priv/ProtobufExperimentReadWriter.cpp
+                      utils/ProtobufFileReadWriter.cpp
+                      priv/Isometry2D.cpp
+                      )
 
 set(SRC_FILES Frame.cpp
 	          Experiment.cpp
@@ -109,7 +109,8 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
-                            ${SRC_PRIV_FILES}
+                            ${SRC_PRIVATE_FILES}
+                            ${HDR_PRIVATE_FILES}
                             ${HDR_PUBLIC_FILES}
                             ${PROTO_HDR}
                             ${PROTO_SRC})

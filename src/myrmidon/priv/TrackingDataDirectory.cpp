@@ -10,6 +10,13 @@
 #include "../utils/NotYetImplemented.hpp"
 
 
+#ifdef MYRMIDON_USE_BOOST_FILESYSTEM
+#define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
+#else
+#define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::file_type::regular)
+#endif
+
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -20,15 +27,18 @@ TrackingDataDirectory::TrackingDataDirectory()
 }
 
 TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
+                                             const fs::path & experimentRoot,
                                              uint64_t startFrame,
                                              uint64_t endFrame,
                                              const Time & startdate,
                                              const Time & enddate,
                                              const SegmentIndexer & si)
-	: d_path(path)
+	: d_experimentRoot(fs::weakly_canonical(experimentRoot))
+	, d_path(fs::relative(path,d_experimentRoot))
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_segments(si) {
+
 	d_start = std::make_shared<const Time>(startdate);
 	d_end = std::make_shared<const Time>(enddate);
 	if ( d_startFrame >= d_endFrame ) {
@@ -45,9 +55,14 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 }
 
 
-const fs::path &  TrackingDataDirectory::Path() const {
+const fs::path &  TrackingDataDirectory::LocalPath() const {
 	return d_path;
 }
+
+fs::path  TrackingDataDirectory::FilePath() const {
+	return d_experimentRoot / d_path;
+}
+
 
 uint64_t TrackingDataDirectory::StartFrame() const {
 	return d_startFrame;
@@ -65,12 +80,12 @@ const Time & TrackingDataDirectory::EndDate() const {
 	return *d_end;
 }
 
-TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & path,  const fs::path & base) {
+TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepath) {
 	static std::mutex mutex;
 	static UID last = 0;
 	static std::map<fs::path,UID> d_UIDs;
 	std::lock_guard<std::mutex> lock(mutex);
-	fs::path fpath = fs::weakly_canonical(base / path);
+	fs::path fpath = fs::weakly_canonical(filepath);
 	auto fi = d_UIDs.find(fpath);
 	if ( fi == d_UIDs.end() ) {
 		d_UIDs.insert(std::make_pair(fpath,++last));
@@ -81,9 +96,9 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & path, 
 
 
 
-TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & base) {
-	if ( fs::is_directory(base) == false ) {
-		throw std::invalid_argument("base path " + base.string() +  " is not a directory");
+TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
+	if ( fs::is_directory(experimentRoot) == false ) {
+		throw std::invalid_argument("experiment root path " + experimentRoot.string() +  " is not a directory");
 	}
 	if ( fs::is_directory(path) == false ) {
 		throw std::invalid_argument( path.string() + " is not a directory");
@@ -93,11 +108,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	std::vector<fs::path> hermesFiles;
 
 	for( auto const & f : fs::directory_iterator(path) ) {
-#ifdef MYRMIDON_USE_BOOST_FILESYSTEM
-		if ( f.status().type() != fs::regular_file ) {
-#else
-		if ( f.status().type() != fs::file_type::regular ) {
-#endif
+		if ( ! MYRMIDON_FILE_IS_REGULAR(f.status()) ) {
 			continue;
 		}
 
@@ -110,7 +121,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
 	}
 
-	Time::MonoclockID monoID = TrackingDataDirectory::GetUID(path,base);
+	Time::MonoclockID monoID = TrackingDataDirectory::GetUID(path);
 
 
 	uint64_t start,end;
@@ -156,20 +167,21 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	}
 
 
-	return TrackingDataDirectory(fs::relative(path,base),
+	return TrackingDataDirectory(path,
+	                             experimentRoot,
 	                             start,
 	                             end,
 	                             startDate,
 	                             endDate,
 	                             si);
-	}
+}
 
 
 const SegmentIndexer & TrackingDataDirectory::TrackingIndex() const {
 	return d_segments;
 }
 
- TrackingDataDirectory::const_iterator::const_iterator() {}
+TrackingDataDirectory::const_iterator::const_iterator() {}
 
 TrackingDataDirectory::const_iterator::const_iterator(const fs::path & filepath,
                                                       const fs::path & parentPath,
