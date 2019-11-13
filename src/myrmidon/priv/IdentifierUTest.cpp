@@ -156,7 +156,6 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 	EXPECT_TRUE(TimePtrEqual(freeStart,end));
 	EXPECT_TRUE(TimePtrEqual(freeEnd,secondStart));
 
-
 }
 
 
