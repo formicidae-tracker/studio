@@ -244,3 +244,20 @@ size_t Identifier::UseCount(uint32_t tag) const {
 	}
 	return fi->second.size();
 }
+
+
+
+bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
+                                     Time::ConstPtr & end,
+                                     uint32_t tag, const Time & t) const {
+	Time::ConstPtr upperBound, lowerBound;
+	try {
+		end = UpperUnidentifiedBound(tag,t);
+		start = LowerUnidentifiedBound(tag,t);
+		return true;
+	} catch ( const std::invalid_argument &) {
+		end.reset();
+		start.reset();
+		return false;
+	}
+}

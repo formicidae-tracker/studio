@@ -151,26 +151,6 @@ public :
 	uint8_t Threshold() const;
 	void SetThreshold(uint8_t th);
 
-	// Found the largest time range where a <TagID> is unused.
-	// @start sets the first frame where the tag is unused, or an
-	//        empty pointer if the tag isn't used before <f>
-	// @end   set the last frame where the tag is unused, or an
-	//        empty pointer if the tag isn't used after <f>
-	// @tag the <TagID> to inquire for
-	// @f the <FramePointer> designating the point in time we want a free range.
-	// @return true if such a range was found, false if <t> is already used at time <f>
-	//
-	// Try to find the largest range where the <t> is not used,
-	// containing the Frame <f>. If the tag is actually used at this
-	// frame returns false. Otherwise returns true and sets <start>
-	// and <end> accordingly. Note that a reset pointer means that the
-	// tag was not used before or after t.
-	//
-	// TODO: this logic clearly is owned by the Identifier, move it
-	// here.
-	bool FreeRangeContaining(Time::ConstPtr & start,
-	                         Time::ConstPtr & end,
-	                         uint32_t tag, const Time & t) const;
 
 private:
 

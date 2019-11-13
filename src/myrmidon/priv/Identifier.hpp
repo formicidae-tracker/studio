@@ -141,6 +141,25 @@ public:
 	// Returns the number of time a given tag is used.
 	size_t UseCount(uint32_t tag) const;
 
+	// Found the largest time range where a <TagID> is unused.
+	// @start is set to the first frametime the tag is unused, or an
+	//        empty pointer if the tag isn't used before <t>
+	// @end   set the last time where the tag is unused, or an
+	//        empty pointer if the tag isn't used after <t>
+	// @tag the <TagID> to inquire for
+	// @t the <Time> designating the point in time we want a free range.
+	// @return true if such a range was found, false if <tag> is already used at time <t>
+	//
+	// Try to find the largest range where the <tag> is not used,
+	// containing the <Time> <f>. If the tag is actually used at this
+	// time, returns false. Otherwise returns true and sets <start>
+	// and <end> accordingly. Note that a reset <time::ConstPtr> means
+	// +/-∞.
+	bool FreeRangeContaining(Time::ConstPtr & start,
+	                         Time::ConstPtr & end,
+	                         uint32_t tag, const Time & t) const;
+
+
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
 	typedef std::unordered_map<uint32_t,IdentificationList> IdentificationByTagID;

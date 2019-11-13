@@ -160,19 +160,3 @@ Experiment::TagFamily Experiment::Family() const {
 void Experiment::SetFamily(TagFamily tf) {
 	d_family = tf;
 }
-
-
-bool Experiment::FreeRangeContaining(Time::ConstPtr & start,
-                                     Time::ConstPtr & end,
-                                     uint32_t tag, const Time & t) const {
-	Time::ConstPtr upperBound, lowerBound;
-	try {
-		end = d_identifier->UpperUnidentifiedBound(tag,t);
-		start = d_identifier->LowerUnidentifiedBound(tag,t);
-		return true;
-	} catch ( const std::invalid_argument &) {
-		end.reset();
-		start.reset();
-		return false;
-	}
-}
