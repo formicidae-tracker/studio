@@ -16,9 +16,6 @@ fs::path RawFrame::Path() const {
 	return d_path / std::to_string(d_frame);
 }
 
-uint64_t RawFrame::FrameID() const {
-	return d_frame;
-}
 
 const Time & RawFrame::Time() const {
 	return d_time;

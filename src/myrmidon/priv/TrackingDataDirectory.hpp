@@ -44,10 +44,9 @@ public:
 		const_iterator(const_iterator & other);
 
 		const_iterator& operator++();
-		const_iterator operator++(int);
 		bool operator==(const const_iterator & other) const;
 		bool operator!=(const const_iterator & other) const;
-		RawFrameConstPtr operator*() const;
+		RawFrameConstPtr operator*();
 		using difference_type = int64_t;
 		using value_type = RawFrameConstPtr;
 		using pointer = const RawFrameConstPtr *;
@@ -55,7 +54,7 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 	private:
-
+		void OpenAt(uint64_t frameID);
 
 
 		const fs::path           d_parentPath;

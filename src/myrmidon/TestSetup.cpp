@@ -138,7 +138,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 			startTime = startTime.Add(10 * Duration::Second
 			                          + 103 * Duration::Millisecond
 			                          + 14 * Duration::Microsecond);
-
 		}
 		startTime = startTime.Add(13 * Duration::Second);
 

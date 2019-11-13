@@ -39,7 +39,9 @@ public:
 	fs::path Path() const;
 
 	// The FrameID
-	uint64_t FrameID() const;
+	inline uint64_t FrameID() const {
+		return d_frame;
+	}
 
 	// The corresponding Time
 	const fort::myrmidon::Time & Time() const;

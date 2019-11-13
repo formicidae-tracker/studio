@@ -200,36 +200,53 @@ TrackingDataDirectory::const_iterator::const_iterator(const fs::path & parentPat
 	, d_uid(uid) {
 }
 
+TrackingDataDirectory::const_iterator & TrackingDataDirectory::const_iterator::operator=(const_iterator & other) {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+TrackingDataDirectory::const_iterator::const_iterator(const_iterator & other) {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
 TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {
-	try {
-		d_file->Read(&d_message);
-		d_frame = RawFrame::Create(d_parentPath,d_message,d_uid);
-	} catch ( fort::hermes::EndOfFile & ) {
-		d_file.reset();
-		d_frame.reset();
-		d_message.Clear();
+	if ( d_current <= d_end ) {
+		++d_current;
 	}
 	return *this;
 }
 
 bool TrackingDataDirectory::const_iterator::operator==(const const_iterator & other) const {
-	if ( !d_frame ) {
-		return !other.d_frame;
-	}
-
-	if (!other.d_frame) {
-		return false;
-	}
-
-	return d_frame->Time().MonoID() == other.d_frame->Time().MonoID() &&
-		d_frame->FrameID() == other.d_frame->FrameID();
+	return (d_uid == other.d_uid) && (d_current == other.d_current);
 }
 
 bool TrackingDataDirectory::const_iterator::operator!=(const const_iterator & other) const {
 	return !(*this == other);
 }
 
-RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() const{
+RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() {
+	if ( d_current > d_end ) {
+		return RawFrameConstPtr();
+	}
+	while ( !d_frame || d_frame->FrameID() < d_current) {
+		if ( !d_file ) {
+			auto p = d_parentPath / d_segments->Find(d_current);
+			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
+			d_message.Clear();
+		}
+
+		try {
+			d_file->Read(&d_message);
+			d_frame = RawFrame::Create(d_parentPath,d_message,d_uid);
+
+		} catch( const fort::hermes::EndOfFile & ) {
+			d_current = d_end + 1;
+			d_frame.reset();
+			return RawFrameConstPtr();
+		}
+	}
+	if ( d_frame->FrameID() > d_current ) {
+		d_current = d_frame->FrameID();
+	}
 	return d_frame;
 }
 

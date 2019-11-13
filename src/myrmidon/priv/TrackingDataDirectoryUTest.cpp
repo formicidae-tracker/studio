@@ -10,6 +10,8 @@
 
 #include "../UtilsUTest.hpp"
 
+#include "RawFrame.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -17,7 +19,12 @@ namespace priv {
 TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 	try {
-		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
+		auto tddPath = TestSetup::Basedir() / "foo.0001";
+		auto startOpen = Time::Now();
+
+		auto tdd = TrackingDataDirectory::Open(tddPath,TestSetup::Basedir());
+		auto endOpen = Time::Now();
+		std::cerr << "Opening " <<  tddPath << " took " << endOpen.Sub(startOpen) << std::endl;
 		EXPECT_EQ(tdd.LocalPath(),"foo.0001");
 		EXPECT_EQ(tdd.StartFrame(),0);
 		EXPECT_EQ(tdd.EndFrame(),999);
@@ -36,9 +43,29 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			EXPECT_EQ(std::get<0>(segments[i]),std::get<0>(tdd.TrackingIndex().Segments()[i]));
 			EXPECT_TRUE(TimeEqual(std::get<1>(segments[i]),std::get<1>(tdd.TrackingIndex().Segments()[i])));
 			EXPECT_EQ(std::get<2>(segments[i]),std::get<2>(tdd.TrackingIndex().Segments()[i]));
-
 		}
 
+
+
+		uint64_t i  = tdd.StartFrame();
+		auto iterStart = Time::Now();
+
+		for ( auto it = tdd.begin(); it != tdd.end() ; ++it) {
+			auto f = *it;
+			EXPECT_EQ(f->FrameID(),i);
+			ASSERT_EQ(f->Tags().size(),1);
+			EXPECT_EQ(f->Tags().Get(0).id(),123);
+			++i;
+		}
+		auto iterEnd = Time::Now();
+		std::cerr << "Iterating over all frames from " <<  tddPath << " took " << iterEnd.Sub(iterStart) << std::endl;
+		i = tdd.EndFrame()-3;
+		for( auto it = tdd.FrameAt(tdd.EndFrame()-3); it != tdd.end(); ++it ) {
+			EXPECT_EQ((*it)->FrameID(),i);
+			ASSERT_EQ((*it)->Tags().size(),1);
+			EXPECT_EQ((*it)->Tags().Get(0).id(),123);
+			++i;
+		}
 
 	} catch( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
@@ -64,6 +91,8 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			//root does not exist
 			auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001", TestSetup::Basedir() /  "does-not-exists");
 		}, std::invalid_argument);
+
+
 }
 
 
