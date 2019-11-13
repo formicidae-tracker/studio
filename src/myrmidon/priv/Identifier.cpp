@@ -246,7 +246,6 @@ size_t Identifier::UseCount(uint32_t tag) const {
 }
 
 
-
 bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
                                      Time::ConstPtr & end,
                                      uint32_t tag, const Time & t) const {

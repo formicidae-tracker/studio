@@ -134,13 +134,13 @@ std::ostream & operator<<(std::ostream & out,
 	    << a.Target()->ID()
 	    << ", From:'";
 	if (a.Start()) {
-		out << *a.Start();
+		out << a.Start()->DebugString();
 	} else {
 		out << "-∞";
 	}
 	out << "', To:'";
 	if (a.End()) {
-		out << *a.End();
+		out << a.End()->DebugString();
 	} else {
 		out << "+∞";
 	}

@@ -9,6 +9,7 @@
 
 #include "ForwardDeclaration.hpp"
 
+#include "DeletedReference.hpp"
 
 namespace fort {
 

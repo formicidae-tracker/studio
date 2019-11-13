@@ -123,14 +123,6 @@ public:
 	// destroyed.
 	IdentifierPtr ParentIdentifier() const;
 
-	// Tests if this identification targets a given point in time.
-	// @time the <Time> to test for
-	// @return true if this Identification is valid for <time>
-	inline bool IsValid(const Time & time ) const {
-		return ( !d_start || time.After(*d_start) ) &&
-			( !d_end || time.Before(*d_end) );
-	}
-
 	// Computes the TagToAntTransform
 	// @result the result transform
 	// @tagPosition the position to the tag in image space

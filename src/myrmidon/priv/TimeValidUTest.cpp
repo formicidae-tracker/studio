@@ -40,12 +40,15 @@ TEST_F(TimeValidUTest,HaveTimeValidity) {
 	             std::make_shared<Time>(Time::FromTimeT(10)));
 
 	EXPECT_FALSE(o.IsValid(Time::FromTimeT(0)));
+	EXPECT_TRUE(o.IsValid(Time::FromTimeT(1)));
 	EXPECT_TRUE(o.IsValid(Time::FromTimeT(5)));
 	EXPECT_TRUE(o.IsValid(Time::FromTimeT(9)));
 	EXPECT_TRUE(o.IsValid(Time::FromTimeT(10).Add(-1 * Duration::Nanosecond)));
 	EXPECT_FALSE(o.IsValid(Time::FromTimeT(10)));
 	EXPECT_FALSE(o.IsValid(Time::FromTimeT(11)));
 }
+
+
 
 
 TEST_F(TimeValidUTest,CanCheckOverlap) {
