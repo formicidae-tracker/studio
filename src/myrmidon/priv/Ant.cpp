@@ -28,11 +28,3 @@ Identification::List & Ant::Accessor::Identifications(Ant & a){
 const Identification::List & Ant::Identifications() const {
 	return d_identifications;
 }
-
-void Ant::SortAndCheckIdentifications() {
-	auto firstOverlap = Identification::SortAndCheckOverlap(d_identifications.begin(),
-	                                                        d_identifications.end());
-	if ( firstOverlap.first != firstOverlap.second) {
-		throw OverlappingIdentification(**(firstOverlap.first),**(firstOverlap.second));
-	}
-}

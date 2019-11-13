@@ -46,13 +46,6 @@ public:
 	// and <Identifier::RemoveIdentification>.
 	const Identification::List & Identifications() const;
 
-	// Sorts and checks the Identification associated with this Ant.
-	//
-	// Sorts and checks the <Identification> associated with this
-	// <priv::Ant> and throws <OverlappingIdentification> if any
-	// overlaps in time.
-	void SortAndCheckIdentifications();
-
 	// Gets the Unique ID of the Ant
 	//
 	// <Ant> managed by the same <Identifier> are uniquely identified
