@@ -21,7 +21,8 @@ namespace priv {
 // <Time>
 class SegmentIndexer {
 public:
-
+	typedef std::shared_ptr<SegmentIndexer> Ptr;
+	typedef std::shared_ptr<const SegmentIndexer> ConstPtr;
 	typedef std::tuple<uint64_t,Time,std::string> Segment;
 
 	void Insert(uint64_t frameID, const Time & t, const std::string & value);

@@ -59,22 +59,18 @@ void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment
 	}
 
 	d_ui->comboBox->clear();
-	std::vector<TrackingDataDirectory> sorted;
+	std::vector<const TrackingDataDirectory*> sorted;
 	sorted.reserve(tdds.size());
-	for ( const auto & [p,tdd] : tdds ) {
-		sorted.push_back(tdd);
+	for ( const auto & el : tdds ) {
+		sorted.push_back(&el.second);
 	}
 
-	std::sort(sorted.begin(),sorted.end(),
-	          [](const TrackingDataDirectory & a,
-	             const TrackingDataDirectory & b) -> bool {
-		          return a < b;
-	          });
+	priv::TimeValid::SortAndCheckOverlap(sorted.begin(),sorted.end());
 	size_t i = 0;
 	bool set = false;
 	for ( const auto & tdd : sorted ) {
-		d_ui->comboBox->insertItem(i,tdd.LocalPath().generic_string().c_str(),tdd.LocalPath().generic_string().c_str());
-		if ( tdd.LocalPath() == selected ) {
+		d_ui->comboBox->insertItem(i,tdd->LocalPath().generic_string().c_str(),tdd->LocalPath().generic_string().c_str());
+		if ( tdd->LocalPath() == selected ) {
 			d_ui->comboBox->setCurrentIndex(i);
 			set = true;
 		}

@@ -34,11 +34,17 @@ public:
 
 	class const_iterator {
 	public:
-		const_iterator();
-		const_iterator(const fs::path & filepath,
-		               const fs::path & parentPath,
+		const_iterator(const fs::path & parentPath,
+		               const SegmentIndexer::ConstPtr & segments,
+		               uint64_t start,
+		               uint64_t end,
+		               uint64_t current,
 		               UID uid);
+		const_iterator & operator=(const_iterator & other);
+		const_iterator(const_iterator & other);
+
 		const_iterator& operator++();
+		const_iterator operator++(int);
 		bool operator==(const const_iterator & other) const;
 		bool operator!=(const const_iterator & other) const;
 		RawFrameConstPtr operator*() const;
@@ -49,8 +55,14 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 	private:
-		const fs::path                             d_parentPath;
-		UID                                        d_uid;
+
+
+
+		const fs::path           d_parentPath;
+		SegmentIndexer::ConstPtr d_segments;
+		uint64_t                 d_start,d_end,d_current;
+		UID                      d_uid;
+
 		std::unique_ptr<fort::hermes::FileContext> d_file;
 		fort::hermes::FrameReadout                 d_message;
 		RawFrameConstPtr                           d_frame;
@@ -69,7 +81,7 @@ public:
 	                      uint64_t endFrame,
 	                      const Time & start,
 	                      const Time & end,
-	                      const SegmentIndexer & segments);
+	                      const SegmentIndexer::Ptr & segments);
 
 
 	// Gets the path designating the TrackingDataDirectory
@@ -121,8 +133,8 @@ public:
 private:
 	fs::path       d_experimentRoot, d_path;
 	uint64_t       d_startFrame,d_endFrame;
-	SegmentIndexer d_segments;
 
+	SegmentIndexer::Ptr d_segments;
 };
 
 } //namespace priv
@@ -134,8 +146,3 @@ private:
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::priv::TrackingDataDirectory & a);
-
-inline bool operator<(const fort::myrmidon::priv::TrackingDataDirectory & a,
-                      const fort::myrmidon::priv::TrackingDataDirectory & b) {
-	return a.StartDate().Before(b.StartDate());
-}

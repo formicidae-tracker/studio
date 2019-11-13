@@ -141,6 +141,9 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 		}
 		startTime = startTime.Add(13 * Duration::Second);
+
+		fs::create_directories(Basedir() / d / "ants");
+		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
 	}
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {

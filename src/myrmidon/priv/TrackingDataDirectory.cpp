@@ -32,7 +32,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              uint64_t endFrame,
                                              const Time & startdate,
                                              const Time & enddate,
-                                             const SegmentIndexer & si)
+                                             const SegmentIndexer::Ptr & si)
 	: d_experimentRoot(fs::weakly_canonical(experimentRoot))
 	, d_path(fs::relative(path,d_experimentRoot))
 	, d_startFrame(startFrame)
@@ -94,6 +94,10 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 	return fi->second;
 }
 
+TrackingDataDirectory::UID TrackingDataDirectory::GetUID() const {
+	return GetUID(d_experimentRoot/d_path);
+}
+
 
 
 TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
@@ -130,7 +134,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	std::sort(hermesFiles.begin(),hermesFiles.end());
 
 	fort::hermes::FrameReadout ro;
-	SegmentIndexer si;
+	auto si = std::make_shared<SegmentIndexer>();
 	bool first = true;
 	std::shared_ptr<fort::hermes::FileContext> fc;
 
@@ -145,7 +149,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 				startDate = startTime;
 				first = false;
 			}
-			si.Insert(ro.frameid(),startTime,fs::relative(f,path).generic_string());
+			si->Insert(ro.frameid(),startTime,fs::relative(f,path).generic_string());
 		} catch ( const std::exception & e) {
 			throw std::runtime_error("Could not extract frame from " +  f.string() + ": " + e.what());
 		}
@@ -178,18 +182,22 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 
 
 const SegmentIndexer & TrackingDataDirectory::TrackingIndex() const {
-	return d_segments;
+	return *d_segments;
 }
 
-TrackingDataDirectory::const_iterator::const_iterator() {}
 
-TrackingDataDirectory::const_iterator::const_iterator(const fs::path & filepath,
-                                                      const fs::path & parentPath,
+TrackingDataDirectory::const_iterator::const_iterator(const fs::path & parentPath,
+                                                      const SegmentIndexer::ConstPtr & segments,
+                                                      uint64_t start,
+                                                      uint64_t end,
+                                                      uint64_t current,
                                                       TrackingDataDirectory::UID uid)
-	: d_file(std::unique_ptr<hermes::FileContext>( new hermes::FileContext(filepath.string())))
-	, d_parentPath(parentPath)
+	: d_parentPath(parentPath)
+	, d_segments(segments)
+	, d_start(start)
+	, d_end(end)
+	, d_current(current)
 	, d_uid(uid) {
-	++(*this);
 }
 
 TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {
@@ -226,27 +234,20 @@ RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() const{
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::begin() const {
-	auto first = d_segments.Find(d_startFrame);
-	return const_iterator(first,d_path,d_start->MonoID());
+	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,d_startFrame,GetUID());
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::end() const {
-	return const_iterator();
+	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,d_endFrame+1,GetUID());;
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t frameID) const {
-	auto start = d_segments.Find(frameID);
-	for(auto res = 	const_iterator(start,d_path,d_start->MonoID()) ;res != end() ; ++res) {
-		if ((*res)->FrameID() == frameID ) {
-			return res;
-		}
-		if ((*res)->FrameID() > frameID ) {
-			break;
-		}
+	if ( frameID < d_startFrame || frameID > d_endFrame ) {
+		std::ostringstream os;
+		os << "Could not find frame " << frameID << " in [" << d_startFrame << ";" << d_endFrame << "]";
+		throw std::out_of_range(os.str());
 	}
-	std::ostringstream os;
-	os << "Could not find frame " << frameID << " in [" << d_startFrame << ";" << d_endFrame << "]";
-	throw std::out_of_range(os.str());
+	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,frameID,GetUID());
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {
