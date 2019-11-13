@@ -13,9 +13,7 @@ const fs::path & RawFrame::Basepath() const {
 }
 
 fs::path RawFrame::Path() const {
-	std::ostringstream os;
-	os << d_frame;
-	return d_path / os.str();
+	return d_path / std::to_string(d_frame);
 }
 
 uint64_t RawFrame::FrameID() const {
