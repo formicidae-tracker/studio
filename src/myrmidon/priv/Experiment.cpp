@@ -66,7 +66,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::invalid_argument(os.str());
 	}
 
-	d_dataDirs[toAdd.LocalPath().generic_string()] = toAdd;
+	d_dataDirs.insert(std::make_pair(toAdd.LocalPath().generic_string(),toAdd));
 }
 
 bool Experiment::ContainsFramePointer()  const  {

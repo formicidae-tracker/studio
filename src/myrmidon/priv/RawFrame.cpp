@@ -8,12 +8,12 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-const fs::path & RawFrame::Basepath() const {
+const std::string & RawFrame::Basepath() const {
 	return d_path;
 }
 
 fs::path RawFrame::Path() const {
-	return d_path / std::to_string(d_frame);
+	return fs::path(d_path) / std::to_string(d_frame);
 }
 
 
@@ -38,14 +38,14 @@ const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & RawFrame::Tags
 }
 
 
-RawFrame::ConstPtr RawFrame::Create(const fs::path & path,
+RawFrame::ConstPtr RawFrame::Create(const std::string & path,
                                     fort::hermes::FrameReadout & pb,
                                     Time::MonoclockID clockID) {
 	return std::shared_ptr<const RawFrame>(new RawFrame(path,pb,clockID));
 }
 
 
-RawFrame::RawFrame(const fs::path & path,
+RawFrame::RawFrame(const std::string & path,
                    fort::hermes::FrameReadout & pb,
                    Time::MonoclockID clockID)
 	: d_path(path)
@@ -63,5 +63,5 @@ RawFrame::RawFrame(const fs::path & path,
 } //namespace fort
 std::ostream& operator<<(std::ostream & out,
                          const fort::myrmidon::priv::RawFrame & p) {
-	return out << p.Basepath().generic_string() << "/" << p.FrameID();
+	return out << p.Basepath() << "/" << p.FrameID();
 }
