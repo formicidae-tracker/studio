@@ -43,6 +43,10 @@ public:
 	// <priv::identification> keeps a std::weak_ptr to this object. and the
 	static Ptr Create();
 
+
+	// For unit test purpose only
+	static Identifier Invalid();
+
 	// A self-referencing pointer
 	//@return a pointer to itself.
 	Ptr Itself() const;

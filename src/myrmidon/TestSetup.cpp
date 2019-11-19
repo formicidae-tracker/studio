@@ -18,6 +18,8 @@
 #include "priv/TrackingDataDirectory.hpp"
 
 #include <cmath>
+#include <fstream>
+
 
 #ifndef O_BINARY
 #define O_BINARY 0

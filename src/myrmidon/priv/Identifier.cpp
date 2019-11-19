@@ -47,6 +47,11 @@ Identifier::Ptr Identifier::Create() {
     return res;
 }
 
+Identifier Identifier::Invalid() {
+	return Identifier();
+}
+
+
 AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
 	if ( ID  == NEXT_AVAILABLE_ID ) {
 		ID = NextAvailableID();
