@@ -40,13 +40,13 @@ public:
 		               uint64_t end,
 		               uint64_t current,
 		               UID uid);
-		const_iterator & operator=(const_iterator & other);
-		const_iterator(const_iterator & other);
+		const_iterator & operator=(const const_iterator & other) = delete;
+		const_iterator(const const_iterator & other);
 
 		const_iterator& operator++();
 		bool operator==(const const_iterator & other) const;
 		bool operator!=(const const_iterator & other) const;
-		RawFrameConstPtr operator*();
+		const RawFrameConstPtr & operator*();
 		using difference_type = int64_t;
 		using value_type = RawFrameConstPtr;
 		using pointer = const RawFrameConstPtr *;
@@ -54,6 +54,8 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 	private:
+		const static RawFrameConstPtr NULLPTR;
+
 		void OpenAt(uint64_t frameID);
 
 
@@ -70,7 +72,9 @@ public:
 
 	static UID GetUID(const fs::path & path);
 
-	UID GetUID() const;
+	inline UID GetUID() const {
+		return d_uid;
+	}
 
 	TrackingDataDirectory();
 
@@ -109,7 +113,10 @@ public:
 
 
 	const_iterator begin() const;
-	const_iterator end() const;
+
+	inline const const_iterator & end() const {
+		return d_endIterator;
+	}
 
 	const_iterator FrameAt(uint64_t frameID) const;
 
@@ -134,6 +141,10 @@ private:
 	uint64_t       d_startFrame,d_endFrame;
 
 	SegmentIndexer::Ptr d_segments;
+
+	UID            d_uid;
+	const_iterator d_endIterator;
+
 };
 
 } //namespace priv

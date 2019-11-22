@@ -23,7 +23,9 @@ namespace priv {
 
 TrackingDataDirectory::TrackingDataDirectory()
 	: d_startFrame(0)
-	, d_endFrame(0) {
+	, d_endFrame(0)
+	, d_uid(0)
+	, d_endIterator("",SegmentIndexer::Ptr(),0,0,1,0) {
 }
 
 TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
@@ -37,7 +39,9 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 	, d_path(fs::relative(path,d_experimentRoot))
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
-	, d_segments(si) {
+	, d_segments(si)
+	, d_uid(GetUID(d_experimentRoot/d_path))
+	, d_endIterator(d_experimentRoot/d_path,si,startFrame,endFrame,endFrame+1,d_uid) {
 
 	d_start = std::make_shared<const Time>(startdate);
 	d_end = std::make_shared<const Time>(enddate);
@@ -52,6 +56,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 		os << "TrackingDataDirectory: startDate:" << *d_start << " >= endDate: " << *d_end;
 		throw std::invalid_argument(os.str());
 	}
+
 }
 
 
@@ -93,11 +98,6 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 	}
 	return fi->second;
 }
-
-TrackingDataDirectory::UID TrackingDataDirectory::GetUID() const {
-	return GetUID(d_experimentRoot/d_path);
-}
-
 
 
 TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
@@ -200,12 +200,13 @@ TrackingDataDirectory::const_iterator::const_iterator(const fs::path & parentPat
 	, d_uid(uid) {
 }
 
-TrackingDataDirectory::const_iterator & TrackingDataDirectory::const_iterator::operator=(const_iterator & other) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
-}
-
-TrackingDataDirectory::const_iterator::const_iterator(const_iterator & other) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+TrackingDataDirectory::const_iterator::const_iterator(const const_iterator & other)
+	: d_parentPath(other.d_parentPath)
+	, d_segments(other.d_segments)
+	, d_start(other.d_start)
+	, d_end(other.d_end)
+	, d_current(other.d_current)
+	, d_uid(other.d_uid) {
 }
 
 TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {
@@ -223,9 +224,11 @@ bool TrackingDataDirectory::const_iterator::operator!=(const const_iterator & ot
 	return !(*this == other);
 }
 
-RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() {
+const RawFrameConstPtr TrackingDataDirectory::const_iterator::NULLPTR;
+
+const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	if ( d_current > d_end ) {
-		return RawFrameConstPtr();
+		return NULLPTR;
 	}
 	while ( !d_frame || d_frame->FrameID() < d_current) {
 		if ( !d_file ) {
@@ -236,12 +239,12 @@ RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() {
 
 		try {
 			d_file->Read(&d_message);
-			d_frame = RawFrame::Create(d_parentPath,d_message,d_uid);
+			d_frame = RawFrame::Create(d_parentPath.generic_string(),d_message,d_uid);
 
 		} catch( const fort::hermes::EndOfFile & ) {
 			d_current = d_end + 1;
 			d_frame.reset();
-			return RawFrameConstPtr();
+			return NULLPTR;
 		}
 	}
 	if ( d_frame->FrameID() > d_current ) {
@@ -252,10 +255,6 @@ RawFrameConstPtr TrackingDataDirectory::const_iterator::operator*() {
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::begin() const {
 	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,d_startFrame,GetUID());
-}
-
-TrackingDataDirectory::const_iterator TrackingDataDirectory::end() const {
-	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,d_endFrame+1,GetUID());;
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t frameID) const {

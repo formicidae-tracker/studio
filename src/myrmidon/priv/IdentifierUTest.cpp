@@ -47,13 +47,8 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 }
 
 TEST_F(IdentifierUTest,MemoryRobust) {
-	auto i = Identifier::Create();
-
-	// DO NOT DO THIS. EVER. PERIOD.
-	Identifier * ii = i.get();
-	i.reset();
 	EXPECT_THROW({
-			ii->Itself();
+			Identifier::Invalid().Itself();
 		},DeletedReference<Identifier>);
 }
 

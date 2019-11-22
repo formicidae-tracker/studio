@@ -32,7 +32,7 @@ public:
 	typedef std::shared_ptr<const RawFrame> ConstPtr;
 
 
-	const fs::path & Basepath() const;
+	const std::string & Basepath() const;
 
 	// A Path uniquely defining the FramePointer
 	// @return a fs::path uniquely identifying the Frame
@@ -58,17 +58,17 @@ public:
 	const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & Tags() const;
 
 
-	static RawFrame::ConstPtr Create(const fs::path & path,
+	static RawFrame::ConstPtr Create(const std::string & path,
 	                                 fort::hermes::FrameReadout & pb,
 	                                 Time::MonoclockID clockID);
 
 private:
 
-	RawFrame(const fs::path & path,
+	RawFrame(const std::string & path,
 	         fort::hermes::FrameReadout & pb,
 	         Time::MonoclockID clockID);
 
-	fs::path              d_path;
+	std::string           d_path;
 	fort::myrmidon::Time  d_time;
 
 

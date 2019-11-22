@@ -47,7 +47,7 @@ TEST_F(RawFrameUTest,CanBeFormatted) {
 	for(const auto & d : data ) {
 		fort::hermes::FrameReadout pb;
 		pb.set_frameid(d.FID);
-		auto a = RawFrame::Create(d.Path,pb,0);
+		auto a = RawFrame::Create(d.Path.generic_string(),pb,0);
 
 		std::ostringstream os;
 		os << *a;

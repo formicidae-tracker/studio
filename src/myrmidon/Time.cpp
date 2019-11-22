@@ -42,7 +42,7 @@ double Duration::Microseconds() const {
 }
 
 Duration Duration::Parse(const std::string & i) {
-	int64_t integer(0);
+	uint64_t integer(0);
 	double frac(0);
 	bool neg(false);
 
@@ -70,7 +70,7 @@ Duration Duration::Parse(const std::string & i) {
 		ok = true;
 		integer = integer * 10 + (*it - '0');
 	}
-	if ( integer < 0 ) {
+	if ( integer > std::numeric_limits<int64_t>::max() ) {
 		throws("integer overflow");
 	}
 
