@@ -49,6 +49,7 @@ The main dependencies for this project are:
   * std::filesystem support (gcc >= 8.3.0) or boost::filesystem (>=1.60.0)
   * cmake (>=3.11)
   * Eigen 3
+  * Asio Library
   * Qt 5
   * Google Protobuf (>=3.3.0)
   * [FORT hermes](https://github.com/formicidae-tracker/hermes) library (>=0.2.2)
@@ -56,7 +57,7 @@ The main dependencies for this project are:
  You debian based systems, you can install the packaged dependencies using the following commands
 
  ```bash
- sudo apt install build-essentials cmake libeigen3-dev qt5base-dev libprotobuf-dev protobuf-compiler
+ sudo apt install build-essentials cmake libeigen3-dev qt5base-dev libprotobuf-dev protobuf-compiler libasio-dev
  ```
 
 *__Note__: On Ubuntu 18.04 the lack of support for C++17 std::filesystem, protobuf(>= 3.3.0) and a recent cmake, you will need to performs the following commands:*
