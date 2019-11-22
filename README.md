@@ -52,12 +52,11 @@ The main dependencies for this project are:
   * Asio Library
   * Qt 5
   * Google Protobuf (>=3.3.0)
-  * [FORT hermes](https://github.com/formicidae-tracker/hermes) library (>=0.2.2)
 
  You debian based systems, you can install the packaged dependencies using the following commands
 
  ```bash
- sudo apt install build-essentials cmake libeigen3-dev qt5base-dev libprotobuf-dev protobuf-compiler libasio-dev
+ sudo apt install build-essentials cmake libeigen3-dev qtbase5-dev libprotobuf-dev protobuf-compiler libasio-dev
  ```
 
 *__Note__: On Ubuntu 18.04 the lack of support for C++17 std::filesystem, protobuf(>= 3.3.0) and a recent cmake, you will need to performs the following commands:*
@@ -70,17 +69,6 @@ sudo apt update
 sudo apt install cmake libprotobuf-dev protobuf-compiler libboost-dev libboost-filesystem-dev
 ```
 
-To install the hermes library from sources, please use the following commands:
-
-```bash
-git clone https://github.com/formicidae-tracker/hermes.git
-cd hermes
-git checkout v0.2.2
-mkdir -p build
-cd build cmake ..
-make
-sudo make install
-```
 ### Installing
 
 Download the latest sources and compile them with cmake:
