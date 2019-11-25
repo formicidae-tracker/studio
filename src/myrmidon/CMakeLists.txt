@@ -45,7 +45,9 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/ProtobufExperimentReadWriter.hpp
 					  utils/NotYetImplemented.hpp
 					  priv/Isometry2D.hpp
-					  priv/TimeValid.hpp)
+					  priv/TimeValid.hpp
+					  priv/MovieSegment.hpp
+					  )
 
 
 set(HDR_PUBLIC_FILES Frame.hpp
@@ -67,6 +69,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/ProtobufExperimentReadWriter.cpp
                       utils/ProtobufFileReadWriter.cpp
                       priv/Isometry2D.cpp
+                      priv/MovieSegment.cpp
                       )
 
 set(SRC_FILES Frame.cpp
