@@ -34,12 +34,14 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              uint64_t endFrame,
                                              const Time & startdate,
                                              const Time & enddate,
-                                             const SegmentIndexer::Ptr & si)
+                                             const SegmentIndexer::Ptr & si,
+                                             const MovieSegment::List & movies)
 	: d_experimentRoot(fs::weakly_canonical(experimentRoot))
 	, d_path(fs::relative(path,d_experimentRoot))
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_segments(si)
+	, d_movies(movies)
 	, d_uid(GetUID(d_experimentRoot/d_path))
 	, d_endIterator(d_experimentRoot/d_path,si,startFrame,endFrame,endFrame+1,d_uid) {
 
@@ -110,17 +112,37 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 
 
 	std::vector<fs::path> hermesFiles;
-
+	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
+	auto extractID =
+		[](const fs::path & p) -> uint32_t {
+			std::istringstream iss(p.stem().extension());
+			uint32_t res;
+			iss.ignore(std::numeric_limits<std::streamsize>::max(),'.');
+			iss >> res;
+			if (!iss) {
+				throw std::runtime_error("Could not extract id in " +p.string());
+			}
+			return res;
+		};
 	for( auto const & f : fs::directory_iterator(path) ) {
 		if ( ! MYRMIDON_FILE_IS_REGULAR(f.status()) ) {
 			continue;
 		}
-
-		if ( f.path().extension() != ".hermes") {
+		auto p = f.path();
+		if ( p.extension() == ".hermes") {
+			hermesFiles.push_back(p);
 			continue;
 		}
-		hermesFiles.push_back(f.path());
+
+		if ( p.extension() == ".mp4" && p.stem().stem() == "stream" ) {
+			moviesPaths[extractID(p)].first = p;
+		}
+
+		if ( p.extension() == ".txt" && p.stem().stem() == "stream.frame-matching" ) {
+			moviesPaths[extractID(p)].second = p;
+		}
 	}
+
 	if ( hermesFiles.empty() ) {
 		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
 	}
@@ -170,6 +192,10 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
 
+	MovieSegment::List movies;
+	for ( const auto & [id,paths] : moviesPaths ) {
+		movies.push_back(MovieSegment::Open(paths.first,paths.second));
+	}
 
 	return TrackingDataDirectory(path,
 	                             experimentRoot,
@@ -177,7 +203,8 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	                             end,
 	                             startDate,
 	                             endDate,
-	                             si);
+	                             si,
+	                             movies);
 }
 
 
@@ -268,6 +295,11 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t fr
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+
+const MovieSegment::List & TrackingDataDirectory::MovieSegments() const {
+	return d_movies;
 }
 
 

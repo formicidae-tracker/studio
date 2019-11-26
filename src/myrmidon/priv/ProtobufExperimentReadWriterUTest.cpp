@@ -60,7 +60,7 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 
 TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
 	SegmentIndexer si,res;
-	google::protobuf::RepeatedPtrField<pb::Segment> expected,pbRes;
+	google::protobuf::RepeatedPtrField<pb::TrackingSegment> expected,pbRes;
 	for(size_t i = 0; i < 20; ++i) {
 		uint64_t fid = 100 * i;
 		Time t = Time::FromTimeT(100*i);
@@ -92,6 +92,53 @@ TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
 
 }
 
+
+TEST_F(ProtobufExperimentReadWriterUTest,MovieSegmentIO) {
+	MovieSegment::Ptr ms,res;
+	fort::myrmidon::pb::MovieSegment expected,pbRes;
+	MovieSegment::ListOfOffset offsets;
+	offsets.push_back(std::make_pair(0,1234));
+	offsets.push_back(std::make_pair(42,1236));
+	offsets.push_back(std::make_pair(12,1235));
+
+	std::sort(offsets.begin(),offsets.end());
+	std::reverse(offsets.begin(),offsets.end());
+
+	ms = std::make_shared<MovieSegment>("bar/foo",1234,1234+100+2,0,100,offsets);
+
+	expected.set_path("foo");
+	expected.set_trackingstart(1234);
+	expected.set_trackingend(1234+100+2);
+	expected.set_moviestart(0);
+	expected.set_movieend(100);
+	for ( const auto & o : offsets ) {
+		auto pbo = expected.add_offsets();
+		pbo->set_movieframeid(o.first);
+		pbo->set_offset(o.second);
+	}
+
+
+
+	ProtobufReadWriter::SaveMovieSegment(&pbRes,ms,"bar");
+	EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(pbRes,expected)) <<
+		"Got " << pbRes.ShortDebugString() << " but expected: " << expected.ShortDebugString();
+
+	res = ProtobufReadWriter::LoadMovieSegment(pbRes, "bar");
+	EXPECT_EQ(res->MovieFilepath(), ms->MovieFilepath());
+	EXPECT_EQ(res->StartFrame(),ms->StartFrame());
+	EXPECT_EQ(res->EndFrame(),ms->EndFrame());
+
+	EXPECT_EQ(res->StartMovieFrame(),ms->StartMovieFrame());
+	EXPECT_EQ(res->EndMovieFrame(),ms->EndMovieFrame());
+
+	ASSERT_EQ(res->Offsets().size(),ms->Offsets().size());
+
+	for (size_t i = 0; i < ms->Offsets().size(); ++i) {
+		EXPECT_EQ(res->Offsets()[i],ms->Offsets()[i]);
+	}
+
+
+}
 
 
 TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {

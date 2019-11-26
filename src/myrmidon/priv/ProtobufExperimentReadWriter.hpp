@@ -47,11 +47,19 @@ public:
 	static void SaveTime(fort::myrmidon::pb::Time & pb, const Time & t);
 
 	static void LoadSegmentIndexer(SegmentIndexer & si,
-	                               const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::Segment> & pb,
+	                               const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
 	                               Time::MonoclockID mID);
 
-	static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::Segment> * pb,
+	static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
 	                               const SegmentIndexer & si);
+
+
+	static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+	                                          const fs::path & base);
+
+	static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb, const MovieSegment::Ptr & ms,
+	                             const fs::path & base);
+
 
 	// Unmarshals a TrackingDataDirectory from a protobuf message
 	// @pb the protobuf message to read from

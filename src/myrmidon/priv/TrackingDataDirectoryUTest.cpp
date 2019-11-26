@@ -140,17 +140,17 @@ TEST_F(TrackingDataDirectoryUTest,HaveCOnstructorChecks) {
 	auto startTime = Time::Parse("2019-11-02T22:02:24.674+01:00");
 	auto endTime = Time::Parse("2019-11-02T22:02:25.783+01:00");
 	auto segments = std::make_shared<SegmentIndexer>();
-
+	MovieSegment::List movies;
 	EXPECT_NO_THROW({
-			TrackingDataDirectory("foo","bar",startFrame,endFrame,startTime,endTime,segments);
+			TrackingDataDirectory("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies);
 		});
 
 	EXPECT_THROW({
-			TrackingDataDirectory("foo","bar",endFrame,startFrame,startTime,endTime,segments);
+			TrackingDataDirectory("foo","bar",endFrame,startFrame,startTime,endTime,segments,movies);
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			TrackingDataDirectory("foo","bar",startFrame,endFrame,endTime,startTime,segments);
+			TrackingDataDirectory("foo","bar",startFrame,endFrame,endTime,startTime,segments,movies);
 		},std::invalid_argument);
 
 

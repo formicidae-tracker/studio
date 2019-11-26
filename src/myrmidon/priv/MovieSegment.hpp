@@ -13,6 +13,7 @@ namespace priv {
 class MovieSegment {
 public:
 	typedef std::shared_ptr<MovieSegment> Ptr;
+	typedef std::vector<Ptr>              List;
 
 	typedef std::vector<std::pair<MovieFrameID,FrameID> > ListOfOffset;
 

@@ -158,14 +158,14 @@ void ProtobufReadWriter::SaveTime(pb::Time & pb,const Time & t) {
 }
 
 void ProtobufReadWriter::LoadSegmentIndexer(SegmentIndexer & si,
-                                            const google::protobuf::RepeatedPtrField<pb::Segment> & pb,
+                                            const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
                                             Time::MonoclockID mID) {
 	for(const auto & s : pb) {
 		si.Insert(s.frameid(),LoadTime(s.time(),mID),s.data());
 	}
 }
 
-void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::Segment> * pb,
+void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
                                             const SegmentIndexer & si) {
 	for(const auto & s: si.Segments()) {
 		auto spb = pb->Add();
@@ -175,22 +175,57 @@ void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<p
 	}
 }
 
+MovieSegment::Ptr ProtobufReadWriter::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+                                                       const fs::path & base) {
+	MovieSegment::ListOfOffset offsets;
+	for ( const auto & o : ms.offsets() ) {
+		offsets.push_back(std::make_pair(o.movieframeid(),o.offset()));
+	}
+
+	return std::make_shared<MovieSegment>(base / ms.path(),
+	                                      ms.trackingstart(),
+	                                      ms.trackingend(),
+	                                      ms.moviestart(),
+	                                      ms.movieend(),
+	                                      offsets);
+}
+
+void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
+                                          const MovieSegment::Ptr & ms,
+                                          const fs::path & base) {
+	pb->set_path(fs::relative(ms->MovieFilepath(),base));
+	pb->set_trackingstart(ms->StartFrame());
+	pb->set_trackingend(ms->EndFrame());
+	pb->set_moviestart(ms->StartMovieFrame());
+	pb->set_movieend(ms->EndMovieFrame());
+	for ( const auto & o : ms->Offsets() ) {
+		auto pbo = pb->add_offsets();
+		pbo->set_movieframeid(o.first);
+		pbo->set_offset(o.second);
+	}
+}
 
 TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
 	TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
 
 	auto si = std::make_shared<SegmentIndexer>();
-	LoadSegmentIndexer(*si,pb.index(),uid);
+	LoadSegmentIndexer(*si,pb.tracking(),uid);
 	auto start = LoadTime(pb.startdate(),uid);
 	auto end = LoadTime(pb.enddate(),uid);
 
+	MovieSegment::List movies;
+	movies.reserve(pb.movies_size());
+	for ( const auto & pbMS : pb.movies() ) {
+		movies.push_back(LoadMovieSegment(pbMS,base/pb.path()));
+	}
 	return TrackingDataDirectory(base / pb.path(),
 	                             base,
 	                             pb.startframe(),
 	                             pb.endframe(),
 	                             start,
 	                             end,
-	                             si);
+	                             si,
+	                             movies);
 }
 
 void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
@@ -201,7 +236,10 @@ void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & p
 	pb.set_endframe(tdd.EndFrame());
 	SaveTime(*pb.mutable_startdate(),tdd.StartDate());
 	SaveTime(*pb.mutable_enddate(),tdd.EndDate());
-	SaveSegmentIndexer(pb.mutable_index(),tdd.TrackingIndex());
+	SaveSegmentIndexer(pb.mutable_tracking(),tdd.TrackingIndex());
+	for ( const auto & ms : tdd.MovieSegments() ) {
+		SaveMovieSegment(pb.add_movies(),ms,tdd.FilePath());
+	}
 }
 
 

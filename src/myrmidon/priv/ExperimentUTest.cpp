@@ -26,7 +26,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 		ASSERT_EQ(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:01:20.021-05:00",&endG),true);
 		auto start = Time::FromTimestamp(startG);
 		auto end = Time::FromTimestamp(endG);
-		TrackingDataDirectory tdd("bar","baz",9,11,start,end,std::make_shared<SegmentIndexer>());
+		TrackingDataDirectory tdd("bar","baz",9,11,start,end,std::make_shared<SegmentIndexer>(),MovieSegment::List());
 
 		e->AddTrackingDataDirectory(tdd);
 

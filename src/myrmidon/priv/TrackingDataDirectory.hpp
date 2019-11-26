@@ -11,6 +11,9 @@
 #include "TimeValid.hpp"
 #include "SegmentIndexer.hpp"
 
+#include "MovieSegment.hpp"
+
+
 namespace fort {
 
 namespace myrmidon {
@@ -84,7 +87,8 @@ public:
 	                      uint64_t endFrame,
 	                      const Time & start,
 	                      const Time & end,
-	                      const SegmentIndexer::Ptr & segments);
+	                      const SegmentIndexer::Ptr & segments,
+	                      const MovieSegment::List & movies);
 
 
 	// Gets the path designating the TrackingDataDirectory
@@ -135,12 +139,14 @@ public:
 
 	const SegmentIndexer & TrackingIndex() const;
 
+	const MovieSegment::List & MovieSegments() const;
 
 private:
 	fs::path       d_experimentRoot, d_path;
 	uint64_t       d_startFrame,d_endFrame;
 
 	SegmentIndexer::Ptr d_segments;
+	MovieSegment::List  d_movies;
 
 	UID            d_uid;
 	const_iterator d_endIterator;
