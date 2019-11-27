@@ -193,7 +193,7 @@ MovieSegment::Ptr ProtobufReadWriter::LoadMovieSegment(const fort::myrmidon::pb:
 void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
                                           const MovieSegment::Ptr & ms,
                                           const fs::path & base) {
-	pb->set_path(fs::relative(ms->MovieFilepath(),base));
+	pb->set_path(fs::relative(ms->MovieFilepath(),base).generic_string());
 	pb->set_trackingstart(ms->StartFrame());
 	pb->set_trackingend(ms->EndFrame());
 	pb->set_moviestart(ms->StartMovieFrame());
