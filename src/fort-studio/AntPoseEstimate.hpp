@@ -3,6 +3,8 @@
 #include <Eigen/Core>
 
 #include <myrmidon/utils/FileSystem.hpp>
+#include <myrmidon/priv/Types.hpp>
+
 #include <memory>
 
 #include "TagInFramePointer.hpp"
@@ -14,7 +16,7 @@ public:
 	AntPoseEstimate(const Eigen::Vector2d & head,
 	                const Eigen::Vector2d & tail,
 	                const fort::myrmidon::priv::RawFrame::ConstPtr & frame,
-	                uint32_t tagvalue);
+	                fort::myrmidon::priv::TagID tagvalue);
 	virtual ~AntPoseEstimate();
 
 	const Eigen::Vector2d & Head() const;

@@ -46,7 +46,7 @@ public slots:
 	Error removeAnt(fort::myrmidon::Ant::ID ID);
 
 	Error addIdentification(fort::myrmidon::Ant::ID ID,
-	                        uint32_t tagValue,
+	                        fort::myrmidon::priv::TagID tagValue,
 	                        const fort::myrmidon::Time::ConstPtr & start,
 	                        const fort::myrmidon::Time::ConstPtr & end);
 

@@ -15,11 +15,11 @@ public slots:
 	           const fs::path & basedir);
 	void cancel();
 signals:
-	void resultReady(const std::vector<uint32_t> & );
+	void resultReady(const std::vector<fort::myrmidon::priv::TagID> & );
 
 private:
-	std::map<uint32_t,uint64_t> d_tags;
-	std::vector<uint32_t>       d_results;
+	std::map<fort::myrmidon::priv::TagID,uint64_t> d_tags;
+	std::vector<fort::myrmidon::priv::TagID>       d_results;
 
 
 	std::mutex d_mutex;

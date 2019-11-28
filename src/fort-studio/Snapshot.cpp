@@ -49,7 +49,7 @@ Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
 
 
 Snapshot::Snapshot(const fort::myrmidon::priv::RawFrame::ConstPtr& frame,
-                   uint32_t tagValue)
+                   fort::myrmidon::priv::TagID tagValue)
 	: TagInFramePointer(frame,tagValue) {
 
 }

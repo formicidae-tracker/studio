@@ -137,7 +137,7 @@ size_t SnapshotIndexer::start() {
 			std::istringstream IDS(ID.str(1));
 			std::istringstream FrameS(ID.str(2));
 
-			toProcess.Filter = new uint32_t(0);
+			toProcess.Filter = new fort::myrmidon::priv::TagID(0);
 			IDS >> *(toProcess.Filter);
 			FrameS >> frameNumber;
 			toProcess.Frame = *d_tdd.FrameAt(frameNumber);

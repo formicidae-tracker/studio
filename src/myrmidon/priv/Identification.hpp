@@ -5,6 +5,8 @@
 
 #include <Eigen/Core>
 
+#include "Types.hpp"
+
 #include "Isometry2D.hpp"
 
 #include "ForwardDeclaration.hpp"
@@ -50,7 +52,7 @@ public:
 
 	// Gets the TagID of this Identification
 	// @return <TagID> this <priv::Identification> refers to.
-	uint32_t TagValue() const;
+	TagID TagValue() const;
 
 	// Sets the starting validity time for this Identification
 	// @start the starting <Time> could be an empty pointer to remove
@@ -139,7 +141,7 @@ public:
 
 	class Accessor {
 	private:
-		static Ptr Create(uint32_t tagValue,
+		static Ptr Create(TagID tagValue,
 		                  const IdentifierPtr & identifier,
 		                  const AntPtr & ant);
 		static void SetStart(Identification & identification,
@@ -157,7 +159,7 @@ private:
 	Identification & operator=(const Identification&) = delete;
 	Identification(const Identification&)  = delete;
 
-	Identification(uint32_t tagValue,
+	Identification(TagID tagValue,
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
 

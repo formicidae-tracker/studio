@@ -47,6 +47,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
 					  priv/Isometry2D.hpp
 					  priv/TimeValid.hpp
 					  priv/MovieSegment.hpp
+					  priv/Types.hpp
 					  )
 
 

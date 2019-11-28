@@ -3,11 +3,11 @@
 #include "DeletedReference.hpp"
 #include "Identifier.hpp"
 
-namespace fm = fort::myrmidon;
-using namespace fort::myrmidon::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
-
-Identification::Identification(uint32_t tagValue,
+Identification::Identification(TagID tagValue,
                                const IdentifierPtr & identifier,
                                const AntPtr & target)
 	: d_tagValue(tagValue)
@@ -15,11 +15,11 @@ Identification::Identification(uint32_t tagValue,
 	, d_identifier(identifier) {
 }
 
-fm::Time::ConstPtr Identification::Start() const {
+Time::ConstPtr Identification::Start() const {
 	return d_start;
 }
 
-fm::Time::ConstPtr Identification::End() const {
+Time::ConstPtr Identification::End() const {
 	return d_end;
 }
 
@@ -31,7 +31,7 @@ double Identification::TagAngle() const {
 	return -d_antToTag.angle();
 }
 
-uint32_t Identification::TagValue() const {
+TagID Identification::TagValue() const {
 	return d_tagValue;
 }
 
@@ -66,14 +66,14 @@ Identifier::Ptr Identification::ParentIdentifier() const {
 }
 
 
-Identification::Ptr Identification::Accessor::Create(uint32_t tagValue,
-                                                    const IdentifierPtr & identifier,
-                                                    const AntPtr & ant) {
+Identification::Ptr Identification::Accessor::Create(TagID tagValue,
+                                                     const IdentifierPtr & identifier,
+                                                     const AntPtr & ant) {
 	return std::shared_ptr<Identification>(new Identification(tagValue,identifier,ant));
 }
 
 void Identification::Accessor::SetStart(Identification & identification,
-                                        const fm::Time::ConstPtr & start) {
+                                        const Time::ConstPtr & start) {
 	identification.d_start = start;
 }
 
@@ -124,6 +124,10 @@ void Identification::ComputeTagToAntTransform(Isometry2Dd & result,
 
 	result = Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse() * Isometry2Dd(tagAngle,tagPosition);
 }
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort
 
 
 std::ostream & operator<<(std::ostream & out,
