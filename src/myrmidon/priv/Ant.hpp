@@ -6,6 +6,7 @@
 #include "../Ant.hpp"
 
 #include "Identification.hpp"
+#include "Shape.hpp"
 
 namespace fort {
 
@@ -31,6 +32,13 @@ class Ant {
 public:
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant> Ptr;
+
+	// A List of Measurement;
+	typedef std::map<std::string,double> ListOfMeasurements;
+
+	// A List of shape
+	typedef std::vector<Capsule::Ptr> Shapes;
+
 
 	// The Constructor for an Ant
 	Ant(uint32_t ID);
@@ -68,6 +76,18 @@ public:
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
 
+
+	// Gets its measurement
+	//
+	// @return indexed values of measurement.
+	const ListOfMeasurements & Measurements() const;
+
+	void SetMeasurement(const std::string & name, double value);
+
+	const Shapes & Shape() const;
+
+	void AddCapsule(const Capsule::Ptr & capsule);
+
 	// C++ shenanigans
 	//
 	// C++ shenanigan class to give restricted unlimited access to the
@@ -85,9 +105,11 @@ private:
 	Ant(const Ant&)  = delete;
 
 
-	uint32_t    d_ID;
-	std::string d_IDStr;
+	uint32_t             d_ID;
+	std::string          d_IDStr;
 	Identification::List d_identifications;
+	Shapes               d_shape;
+	ListOfMeasurements   d_measurements;
 };
 
 } //namespace priv

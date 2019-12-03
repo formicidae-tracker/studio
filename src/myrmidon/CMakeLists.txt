@@ -47,6 +47,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
 					  priv/Isometry2D.hpp
 					  priv/TimeValid.hpp
 					  priv/MovieSegment.hpp
+					  priv/Shape.hpp
 					  )
 
 
@@ -70,6 +71,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/ProtobufFileReadWriter.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
+                      priv/Shape.cpp
                       )
 
 set(SRC_FILES Frame.cpp

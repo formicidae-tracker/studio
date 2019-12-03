@@ -67,9 +67,9 @@ message Experiment {
 
 
 message Identification {
-	double X     = 1;
-	double Y     = 2;
-	double Theta = 3;
+	double x     = 1;
+	double y     = 2;
+	double theta = 3;
     int32  ID    = 4;
 
 	google.protobuf.Timestamp Start = 6;
@@ -81,11 +81,32 @@ message Metadata {
 	uint64 StartValidFrame = 2;
 }
 
+message Capsule {
+	double a_x      = 1;
+	double a_y      = 2;
+	double a_radius = 3;
+	double b_x      = 4;
+	double b_y      = 5;
+	double b_radius = 6;
+}
+
+message Shape {
+	repeated Capsule capsules = 1;
+}
+
+message Measurement {
+	string name  = 1;
+	double length = 2;
+};
+
 
 message AntMetadata {
 	int32                   ID       = 1;
-	repeated Identification Marker   = 3;
-	repeated Metadata       Metadata = 4;
+	Shape                   shape    = 2;
+	repeated Identification marker   = 3;
+	repeated Metadata       metadata = 4;
+
+	repeated Measurement measurements = 5;
 };
 
 message FileHeader {
