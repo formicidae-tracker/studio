@@ -237,25 +237,58 @@ void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & p
 	SaveTime(*pb.mutable_startdate(),tdd.StartDate());
 	SaveTime(*pb.mutable_enddate(),tdd.EndDate());
 	SaveSegmentIndexer(pb.mutable_tracking(),tdd.TrackingIndex());
+
 	for ( const auto & ms : tdd.MovieSegments() ) {
 		SaveMovieSegment(pb.add_movies(),ms,tdd.FilePath());
 	}
+
 }
 
 
 void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
 	auto ant = e.Identifier().CreateAnt(pb.id());
+
 	for ( const auto & ident : pb.marker() ) {
 		LoadIdentification(e,ant,ident);
 	}
+
+	for ( const auto & mpb : pb.measurements() ) {
+		ant->SetMeasurement(mpb.name(),mpb.length());
+	}
+
+	for ( const auto & mc : pb.shape().capsules() ) {
+		ant->AddCapsule(std::make_shared<Capsule>(Eigen::Vector2d(mc.a_x(),mc.a_y()),
+		                                          Eigen::Vector2d(mc.b_x(),mc.b_y()),
+		                                          mc.a_radius(),
+		                                          mc.b_radius()));
+	}
+
 }
 
 void ProtobufReadWriter::SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant & ant) {
 	pb.Clear();
 	pb.set_id(ant.ID());
+
 	for ( const auto & ident : ant.Identifications() ) {
 		SaveIdentification(*(pb.add_marker()),*ident);
 	}
+
+	for ( const auto & m : ant.Measurements() ) {
+		auto mpb = pb.add_measurements();
+		mpb->set_name(m.first);
+		mpb->set_length(m.second);
+	}
+
+	for ( const auto & c : ant.Shape() ) {
+		auto cpb = pb.mutable_shape()->add_capsules();
+		cpb->set_a_x(c->A().x());
+		cpb->set_a_y(c->A().y());
+		cpb->set_a_radius(c->RadiusA());
+		cpb->set_b_x(c->B().x());
+		cpb->set_b_y(c->B().y());
+		cpb->set_b_radius(c->RadiusB());
+	}
+
 }
 
 void ProtobufReadWriter::LoadIdentification(Experiment & e, const AntPtr & target,
