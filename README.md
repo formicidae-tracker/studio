@@ -31,9 +31,7 @@
 
 ## About the project
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
-The Studio is a Graphical User Interface to visualize large Ant tracking dataset. It is used to creates Ant Metadata project files (.myrmidon), that catalogs ant identification with the help of fiducial tags, and other properties such as size and shapes and user metadata and provide through the myrmidon API a C/C++ interface to access tracking data set efficiently.
-
-The latter aims to provide an user friendly API to help researcher focus more on the data analysis and less on C++ code usability.
+The Studio is a Graphical User Interface to manage and visualize large Ant tracking datasets. It is used to create Ant Metadata project files (.myrmidon). Those files catalog ant identification with the help of fiducial tags, and other properties such as size and shapes and user metadata. The yrmidon API a C/C++ provides an interface to access a tracking data set efficiently. Its goal is to provide a user friendly API to help researchers focus more on the data analysis and less on C++ code usability.
 
 
 ## Getting Started
