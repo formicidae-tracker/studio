@@ -22,7 +22,7 @@ class SnapshotIndexer : public QObject {
 public:
 	SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
 	                const fs::path & basedir,
-	                fort::myrmidon::priv::Experiment::TagFamily family,
+	                fort::tags::Family family,
 	                uint8_t threshold,
 	                QObject * parent = NULL);
 	virtual ~SnapshotIndexer();
@@ -53,7 +53,7 @@ private:
 	fort::myrmidon::priv::TrackingDataDirectory d_tdd;
 	fs::path                                    d_basedir;
 
-	fort::myrmidon::priv::Experiment::TagFamily d_familyValue;
+	fort::tags::Family d_familyValue;
 
 	std::shared_ptr<apriltag_family_t>   d_family;
 	std::shared_ptr<apriltag_detector_t> d_detector;

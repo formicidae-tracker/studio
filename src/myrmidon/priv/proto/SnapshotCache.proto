@@ -10,8 +10,6 @@ message SnapshotCacheHeader {
 	string FamilyName = 2;
 };
 
-
-
 message Snapshot {
 	Point2d TagPosition = 1;
 	double  TagAngle    = 2;

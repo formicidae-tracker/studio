@@ -57,18 +57,6 @@ foreach(H ${HDR_FILES})
 	endforeach(m ${AUTOMOC_MACRO_NAMES})
 endforeach(H ${HDR_FILES})
 
-
-set(PROTO_FILES SnapshotCache.proto Point2d.proto Estimate.proto)
-
-protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
-foreach(f ${PROTO_SRC})
-	set_property(SOURCE ${f} PROPERTY SKIP_AUTOGEN ON)
-endforeach(f ${PROTO_SRC})
-
-foreach(f ${PROTO_HDR})
-	set_property(SOURCE ${f} PROPERTY SKIP_AUTOGEN ON)
-endforeach(f ${PROTO_HDR})
-
 include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_BINARY_DIR}/src/myrmidon
                     ${PROJECT_BINARY_DIR}/src/fort-studio

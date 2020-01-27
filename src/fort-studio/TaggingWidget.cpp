@@ -32,16 +32,16 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     qRegisterMetaType<size_t>("size_t");
 
     using namespace fort::myrmidon::priv;
-    d_ui->familySelector->insertItem(0,"36h11",(int)Experiment::TagFamily::Tag36h11);
-    d_ui->familySelector->insertItem(1,"36ARTag",(int)Experiment::TagFamily::Tag36ARTag);
-    d_ui->familySelector->insertItem(2,"36h10",(int)Experiment::TagFamily::Tag36h10);
-    d_ui->familySelector->insertItem(3,"Standard41h12",(int)Experiment::TagFamily::Standard41h12);
-    d_ui->familySelector->insertItem(4,"16h5",(int)Experiment::TagFamily::Tag16h5);
-    d_ui->familySelector->insertItem(5,"25h9",(int)Experiment::TagFamily::Tag25h9);
-    d_ui->familySelector->insertItem(6,"Circle21h7",(int)Experiment::TagFamily::Circle21h7);
-    d_ui->familySelector->insertItem(7,"Circle49h12",(int)Experiment::TagFamily::Circle49h12);
-    d_ui->familySelector->insertItem(8,"Custom48h12",(int)Experiment::TagFamily::Custom48h12);
-    d_ui->familySelector->insertItem(9,"Standard52h13",(int)Experiment::TagFamily::Standard52h13);
+    d_ui->familySelector->insertItem(0,"36h11",(int)fort::tags::Family::Tag36h11);
+    d_ui->familySelector->insertItem(1,"36ARTag",(int)fort::tags::Family::Tag36ARTag);
+    d_ui->familySelector->insertItem(2,"36h10",(int)fort::tags::Family::Tag36h10);
+    d_ui->familySelector->insertItem(3,"Standard41h12",(int)fort::tags::Family::Standard41h12);
+    d_ui->familySelector->insertItem(4,"16h5",(int)fort::tags::Family::Tag16h5);
+    d_ui->familySelector->insertItem(5,"25h9",(int)fort::tags::Family::Tag25h9);
+    d_ui->familySelector->insertItem(6,"Circle21h7",(int)fort::tags::Family::Circle21h7);
+    d_ui->familySelector->insertItem(7,"Circle49h12",(int)fort::tags::Family::Circle49h12);
+    d_ui->familySelector->insertItem(8,"Custom48h12",(int)fort::tags::Family::Custom48h12);
+    d_ui->familySelector->insertItem(9,"Standard52h13",(int)fort::tags::Family::Standard52h13);
     d_ui->familySelector->setCurrentIndex(-1);
     onNewController(NULL);
 
@@ -148,7 +148,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		return;
 	}
 
-	auto tf = (fort::myrmidon::priv::Experiment::TagFamily)(d_ui->familySelector->currentData().toInt());
+	auto tf = (fort::tags::Family)(d_ui->familySelector->currentData().toInt());
 
 	for(const auto & [p,tdd] :  tdds ) {
 		if (d_indexers.count(p) != 0 ) {
@@ -241,7 +241,7 @@ void TaggingWidget::on_familySelector_activated(int row) {
 	if ( row < 0 ) {
 		return;
 	}
-	auto tf = (fort::myrmidon::priv::Experiment::TagFamily)(d_ui->familySelector->itemData(row).toInt());
+	auto tf = (fort::tags::Family)(d_ui->familySelector->itemData(row).toInt());
 	if ( tf == d_controller->experiment().Family() ) {
 		return;
 	}

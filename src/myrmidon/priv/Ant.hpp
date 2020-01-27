@@ -39,7 +39,6 @@ public:
 	// A List of shape
 	typedef std::vector<Capsule::Ptr> Shapes;
 
-
 	// The Constructor for an Ant
 	Ant(fort::myrmidon::Ant::ID ID);
 

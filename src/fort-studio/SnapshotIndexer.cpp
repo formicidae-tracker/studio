@@ -25,7 +25,7 @@
 
 SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
                                  const fs::path & basedir,
-                                 fort::myrmidon::priv::Experiment::TagFamily family,
+                                 fort::tags::Family family,
                                  uint8_t threshold,
                                  QObject * parent)
 	: QObject(parent)
@@ -39,17 +39,17 @@ SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirecto
 		Destructor  d;
 	};
 	using namespace fort::myrmidon::priv;
-	static std::unordered_map<Experiment::TagFamily,FamilyInterface>  familyFactory = {
-		 {Experiment::TagFamily::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
-		 {Experiment::TagFamily::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
-		 {Experiment::TagFamily::Tag36h10,{.c =tag36h10_create, .d=tag36h10_destroy}},
-		 {Experiment::TagFamily::Tag36h11,{.c =tag36h11_create, .d=tag36h11_destroy}},
-		 {Experiment::TagFamily::Tag36ARTag,{.c =tag36ARTag_create, .d=tag36ARTag_destroy}},
-		 {Experiment::TagFamily::Circle21h7,{.c =tagCircle21h7_create, .d=tagCircle21h7_destroy}},
-		 {Experiment::TagFamily::Circle49h12,{.c =tagCircle49h12_create, .d=tagCircle49h12_destroy}},
-		 {Experiment::TagFamily::Custom48h12,{.c =tagCustom48h12_create, .d=tagCustom48h12_destroy}},
-		 {Experiment::TagFamily::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
-		 {Experiment::TagFamily::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
+	static std::unordered_map<fort::tags::Family,FamilyInterface>  familyFactory = {
+		 {fort::tags::Family::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
+		 {fort::tags::Family::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
+		 {fort::tags::Family::Tag36h10,{.c =tag36h10_create, .d=tag36h10_destroy}},
+		 {fort::tags::Family::Tag36h11,{.c =tag36h11_create, .d=tag36h11_destroy}},
+		 {fort::tags::Family::Tag36ARTag,{.c =tag36ARTag_create, .d=tag36ARTag_destroy}},
+		 {fort::tags::Family::Circle21h7,{.c =tagCircle21h7_create, .d=tagCircle21h7_destroy}},
+		 {fort::tags::Family::Circle49h12,{.c =tagCircle49h12_create, .d=tagCircle49h12_destroy}},
+		 {fort::tags::Family::Custom48h12,{.c =tagCustom48h12_create, .d=tagCustom48h12_destroy}},
+		 {fort::tags::Family::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
+		 {fort::tags::Family::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
 	};
 
 

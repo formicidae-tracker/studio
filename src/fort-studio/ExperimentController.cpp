@@ -176,7 +176,7 @@ Error ExperimentController::deleteIdentification(const fort::myrmidon::priv::Ide
 }
 
 
-void ExperimentController::setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf) {
+void ExperimentController::setTagFamily(fort::tags::Family tf) {
 	if ( tf == d_experiment->Family() ) {
 		return;
 	}

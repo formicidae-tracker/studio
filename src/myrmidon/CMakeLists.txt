@@ -17,7 +17,15 @@ MYRMIDON_USE_SYSTEM_CATEGORY)
 configure_file(config.h.in myrmidon-config.h)
 
 
-set(PROTO_FILES Experiment.proto)
+set(PROTO_FILES priv/proto/Experiment.proto
+                priv/proto/AntMetadata.proto
+                priv/proto/Point2d.proto
+                priv/proto/Time.proto
+                priv/proto/TrackingDataDirectory.proto
+                priv/proto/ExperimentFile.proto
+                priv/proto/EstimateFile.proto
+                priv/proto/SnapshotCache.proto
+                )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 

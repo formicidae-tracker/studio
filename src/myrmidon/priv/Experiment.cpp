@@ -15,7 +15,7 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
 	, d_threshold(40)
-	, d_family(TagFamily::Unset) {
+	, d_family(fort::tags::Family::Undefined) {
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -153,10 +153,10 @@ const fs::path & Experiment::Basedir() const {
 }
 
 
-Experiment::TagFamily Experiment::Family() const {
+fort::tags::Family Experiment::Family() const {
 	return d_family;
 }
 
-void Experiment::SetFamily(TagFamily tf) {
+void Experiment::SetFamily(fort::tags::Family tf) {
 	d_family = tf;
 }

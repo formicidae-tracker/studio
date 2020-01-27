@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "Experiment.proto";
+import "TrackingDataDirectory.proto";
+import "AntMetadata.proto";
+
+
+message FileHeader {
+	int32 MajorVersion = 1;
+	int32 MinorVersion = 2;
+};
+
+
+message FileLine {
+	Experiment            Experiment = 1;
+	AntMetadata           AntData    = 2;
+	TrackingDataDirectory TrackingDataDirectory = 3;
+};

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "Time.proto";
+
+message TrackingSegment {
+	uint64 frameid = 1;
+	Time   time    = 2;
+	string data    = 3;
+}
+
+
+message MovieOffset {
+	uint64 movieFrameID = 1;
+	uint64 offset       = 2;
+}
+
+message MovieSegment {
+	string path          = 1;
+	uint64 trackingStart = 2;
+	uint64 trackingEnd   = 3;
+	uint64 movieStart    = 4;
+	uint64 movieEnd      = 5;
+
+	repeated MovieOffset offsets = 6;
+}
+
+message TrackingDataDirectory {
+	string Path       = 1;
+	uint64 StartFrame = 2;
+	uint64 EndFrame   = 3;
+
+	Time StartDate = 4;
+	Time EndDate   = 5;
+
+	repeated TrackingSegment tracking = 6;
+	repeated MovieSegment    movies = 7;
+}

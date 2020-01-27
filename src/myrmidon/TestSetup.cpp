@@ -1,6 +1,6 @@
 #include "TestSetup.hpp"
 
-#include <myrmidon/Experiment.pb.h>
+#include <myrmidon/File.pb.h>
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>

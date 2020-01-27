@@ -88,19 +88,19 @@ void ProtobufReadWriter::LoadExperiment(Experiment & e,const pb::Experiment & pb
 	e.SetAuthor(pb.author());
 	e.SetName(pb.name());
 	e.SetComment(pb.comment());
-	static std::map<pb::TagFamily,Experiment::TagFamily>
+	static std::map<pb::TagFamily,fort::tags::Family>
 		mapping = {
-		           {pb::UNSET,Experiment::TagFamily::Unset},
-		           {pb::TAG16H5,Experiment::TagFamily::Tag16h5},
-		           {pb::TAG25H9,Experiment::TagFamily::Tag25h9},
-		           {pb::TAG36ARTAG,Experiment::TagFamily::Tag36ARTag},
-		           {pb::TAG36H10,Experiment::TagFamily::Tag36h10},
-		           {pb::TAG36H11,Experiment::TagFamily::Tag36h11},
-		           {pb::CIRCLE21H7,Experiment::TagFamily::Circle21h7},
-		           {pb::CIRCLE49H12,Experiment::TagFamily::Circle49h12},
-		           {pb::CUSTOM48H12,Experiment::TagFamily::Custom48h12},
-		           {pb::STANDARD41H12,Experiment::TagFamily::Standard41h12},
-		           {pb::STANDARD52H13,Experiment::TagFamily::Standard52h13},
+		           {pb::UNSET,fort::tags::Family::Undefined},
+		           {pb::TAG16H5,fort::tags::Family::Tag16h5},
+		           {pb::TAG25H9,fort::tags::Family::Tag25h9},
+		           {pb::TAG36ARTAG,fort::tags::Family::Tag36ARTag},
+		           {pb::TAG36H10,fort::tags::Family::Tag36h10},
+		           {pb::TAG36H11,fort::tags::Family::Tag36h11},
+		           {pb::CIRCLE21H7,fort::tags::Family::Circle21h7},
+		           {pb::CIRCLE49H12,fort::tags::Family::Circle49h12},
+		           {pb::CUSTOM48H12,fort::tags::Family::Custom48h12},
+		           {pb::STANDARD41H12,fort::tags::Family::Standard41h12},
+		           {pb::STANDARD52H13,fort::tags::Family::Standard52h13},
 	};
 	auto fi = mapping.find(pb.tagfamily());
 	if ( fi == mapping.end() ) {
@@ -119,19 +119,19 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 	pb.set_comment(e.Comment());
 	pb.set_threshold(e.Threshold());
 
-	static std::map<Experiment::TagFamily,pb::TagFamily>
+	static std::map<fort::tags::Family,pb::TagFamily>
 		mapping = {
-		           {Experiment::TagFamily::Unset,pb::UNSET},
-		           {Experiment::TagFamily::Tag16h5,pb::TAG16H5},
-		           {Experiment::TagFamily::Tag25h9,pb::TAG25H9},
-		           {Experiment::TagFamily::Tag36ARTag,pb::TAG36ARTAG},
-		           {Experiment::TagFamily::Tag36h10,pb::TAG36H10},
-		           {Experiment::TagFamily::Tag36h11,pb::TAG36H11},
-		           {Experiment::TagFamily::Circle21h7,pb::CIRCLE21H7},
-		           {Experiment::TagFamily::Circle49h12,pb::CIRCLE49H12},
-		           {Experiment::TagFamily::Custom48h12,pb::CUSTOM48H12},
-		           {Experiment::TagFamily::Standard41h12,pb::STANDARD41H12},
-		           {Experiment::TagFamily::Standard52h13,pb::STANDARD52H13},
+		           {fort::tags::Family::Undefined,pb::UNSET},
+		           {fort::tags::Family::Tag16h5,pb::TAG16H5},
+		           {fort::tags::Family::Tag25h9,pb::TAG25H9},
+		           {fort::tags::Family::Tag36ARTag,pb::TAG36ARTAG},
+		           {fort::tags::Family::Tag36h10,pb::TAG36H10},
+		           {fort::tags::Family::Tag36h11,pb::TAG36H11},
+		           {fort::tags::Family::Circle21h7,pb::CIRCLE21H7},
+		           {fort::tags::Family::Circle49h12,pb::CIRCLE49H12},
+		           {fort::tags::Family::Custom48h12,pb::CUSTOM48H12},
+		           {fort::tags::Family::Standard41h12,pb::STANDARD41H12},
+		           {fort::tags::Family::Standard52h13,pb::STANDARD52H13},
 	};
 	auto fi = mapping.find(e.Family());
 	if ( fi == mapping.end() ) {

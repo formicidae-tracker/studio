@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <fort-tags/fort-tags.h>
+
 #include "../Ant.hpp"
 #include "../Time.hpp"
 #include <myrmidon/utils/FileSystem.hpp>
@@ -42,10 +44,6 @@ class Experiment {
 public :
 	// The AprilTag families supported by the FORT project.
 	//
-	// The AprilTag families supported by the FORT project.
-	// TODO: should it move to fort hermes ?
-	enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Unset};
-
 	// Maps <TrackingDataDirectory> by their path
 	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
 
@@ -145,8 +143,8 @@ public :
 	const std::string & Comment() const;
 	void SetComment(const std::string & comment);
 
-	TagFamily Family() const;
-	void SetFamily(TagFamily tf);
+	fort::tags::Family Family() const;
+	void SetFamily(fort::tags::Family tf);
 
 	uint8_t Threshold() const;
 	void SetThreshold(uint8_t th);
@@ -166,11 +164,11 @@ private:
 	TrackingDataDirectoryByPath d_dataDirs;
 	Identifier::Ptr             d_identifier;
 
-	std::string d_name;
-	std::string d_author;
-	std::string d_comment;
-	TagFamily   d_family;
-	uint8_t     d_threshold;
+	std::string        d_name;
+	std::string        d_author;
+	std::string        d_comment;
+	fort::tags::Family d_family;
+	uint8_t            d_threshold;
 
 
 };
@@ -181,9 +179,8 @@ private:
 
 } //namespace fort
 
-
 inline std::ostream & operator<<( std::ostream & out,
-                                  fort::myrmidon::priv::Experiment::TagFamily t) {
+                                  fort::tags::Family t) {
 	static std::vector<std::string> names = {
 		 "Tag36h11",
 		 "Tag36h10",

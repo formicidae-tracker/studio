@@ -11,10 +11,17 @@ message EstimateHeader {
 	uint32 MinorVersion = 2;
 };
 
+message Vector {
+	Point2d Start = 1;
+	Point2d End   = 2;
+}
+
 
 message Estimate {
 	uint64 Frame = 1;
 	uint32 Tag   = 2;
-	Point2d Head = 3;
-	Point2d Tail = 4;
+
+	double TagPhysicalSize = 3;
+
+	repeated Vector Vectors = 4;
 };
