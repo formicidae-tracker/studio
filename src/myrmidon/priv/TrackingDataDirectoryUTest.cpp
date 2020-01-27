@@ -52,7 +52,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 		for ( auto it = tdd.begin(); it != tdd.end() ; ++it) {
 			auto f = *it;
-			EXPECT_EQ(f->FrameID(),i);
+			EXPECT_EQ(f->ID(),i);
 			ASSERT_EQ(f->Tags().size(),1);
 			EXPECT_EQ(f->Tags().Get(0).id(),123);
 			++i;
@@ -61,7 +61,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		std::cerr << "Iterating over all frames from " <<  tddPath << " took " << iterEnd.Sub(iterStart) << std::endl;
 		i = tdd.EndFrame()-3;
 		for( auto it = tdd.FrameAt(tdd.EndFrame()-3); it != tdd.end(); ++it ) {
-			EXPECT_EQ((*it)->FrameID(),i);
+			EXPECT_EQ((*it)->ID(),i);
 			ASSERT_EQ((*it)->Tags().size(),1);
 			EXPECT_EQ((*it)->Tags().Get(0).id(),123);
 			++i;

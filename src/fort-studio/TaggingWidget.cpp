@@ -350,7 +350,7 @@ Error TaggingWidget::save() {
 		std::vector<std::function<void (pb::Estimate & )> > lines;
 		for (const auto & e : estimates ) {
 			lines.push_back([&e](pb::Estimate & pb) {
-				                pb.set_frame(e->Frame()->FrameID());
+				                pb.set_frame(e->Frame()->ID());
 				                pb.set_tag(e->TagValue());
 				                pb::EigenToPoint2d(pb.mutable_head(),e->Head());
 				                pb::EigenToPoint2d(pb.mutable_tail(),e->Tail());

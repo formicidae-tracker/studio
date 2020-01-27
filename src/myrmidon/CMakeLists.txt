@@ -57,6 +57,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/MovieSegment.hpp
                       priv/Types.hpp
                       priv/Shape.hpp
+                      priv/FrameReference.hpp
+                      priv/TagInFrameReference.hpp
                       )
 
 
@@ -81,6 +83,8 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
                       priv/Shape.cpp
+                      priv/FrameReference.cpp
+                      priv/TagInFrameReference.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -105,6 +109,8 @@ set(SRC_UTEST_FILES main-check.cpp
                     UtilsUTest.cpp
                     utils/NotYetImplementedUTest.cpp
                     priv/MovieSegmentUTest.cpp
+                    priv/FrameReferenceUTest.cpp
+                    priv/TagInFrameReferenceUTest.cpp
                     )
 
 
@@ -124,6 +130,8 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     UtilsUTest.hpp
                     utils/NotYetImplementedUTest.hpp
                     priv/MovieSegmentUTest.hpp
+                    priv/FrameReferenceUTest.hpp
+                    priv/TagInFrameReferenceUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

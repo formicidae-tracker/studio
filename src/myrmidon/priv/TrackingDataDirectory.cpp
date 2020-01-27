@@ -257,7 +257,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	if ( d_current > d_end ) {
 		return NULLPTR;
 	}
-	while ( !d_frame || d_frame->FrameID() < d_current) {
+	while ( !d_frame || d_frame->ID() < d_current) {
 		if ( !d_file ) {
 			auto p = d_parentPath / d_segments->Find(d_current);
 			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
@@ -274,8 +274,8 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 			return NULLPTR;
 		}
 	}
-	if ( d_frame->FrameID() > d_current ) {
-		d_current = d_frame->FrameID();
+	if ( d_frame->ID() > d_current ) {
+		d_current = d_frame->ID();
 	}
 	return d_frame;
 }

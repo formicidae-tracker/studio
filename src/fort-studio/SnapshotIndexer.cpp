@@ -221,7 +221,7 @@ void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snap
 		cPb->set_x(c.x());
 		cPb->set_y(c.y());
 	}
-	pb.set_frame(s->Frame()->FrameID());
+	pb.set_frame(s->Frame()->ID());
 	pb.set_relativeimagepath(s->d_relativeImagePath.generic_string());
 }
 

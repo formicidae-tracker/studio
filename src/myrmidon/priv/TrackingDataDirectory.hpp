@@ -43,6 +43,14 @@ public:
 		               uint64_t end,
 		               uint64_t current,
 		               UID uid);
+
+		const_iterator(const fs::path & parentPath,
+		               const SegmentIndexer::ConstPtr & segments,
+		               uint64_t start,
+		               uint64_t end,
+		               const RawFrameConstPtr & rawFrame,
+		               UID uid);
+
 		const_iterator & operator=(const const_iterator & other) = delete;
 		const_iterator(const const_iterator & other);
 
