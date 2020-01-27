@@ -6,7 +6,7 @@
 
 #include "ForwardDeclaration.hpp"
 
-#include <myrmidon/File.pb.h>
+#include <myrmidon/ExperimentFile.pb.h>
 
 namespace fort {
 

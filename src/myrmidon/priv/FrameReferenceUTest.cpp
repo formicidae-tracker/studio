@@ -25,7 +25,7 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 
 
 	for(const auto & d : data ) {
-		fort::myrmidon::priv::FrameReference a(d.Path,
+		fort::myrmidon::priv::FrameReference a(d.Path.generic_string(),
 		                                       d.FID,
 		                                       fort::myrmidon::Time::FromTimeT(0));
 

@@ -24,7 +24,7 @@ TEST_F(TagInFrameReferenceUTest,CanBeFormatted) {
 	}
 
 	for(const auto & d : data ) {
-		FrameReference a(d.Path,
+		FrameReference a(d.Path.generic_string(),
 		                 d.FID,
 		                 fort::myrmidon::Time::FromTimeT(0));
 		TagInFrameReference t(a,d.TID);
