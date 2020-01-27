@@ -41,7 +41,7 @@ public:
 
 
 	// The Constructor for an Ant
-	Ant(uint32_t ID);
+	Ant(fort::myrmidon::Ant::ID ID);
 
 	// Its destructor
 	~Ant();
@@ -105,11 +105,11 @@ private:
 	Ant(const Ant&)  = delete;
 
 
-	uint32_t             d_ID;
-	std::string          d_IDStr;
-	Identification::List d_identifications;
-	Shapes               d_shape;
-	ListOfMeasurements   d_measurements;
+	fort::myrmidon::Ant::ID d_ID;
+	std::string             d_IDStr;
+	Identification::List    d_identifications;
+	Shapes                  d_shape;
+	ListOfMeasurements      d_measurements;
 };
 
 } //namespace priv

@@ -43,12 +43,13 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
                       priv/ProtobufExperimentReadWriter.hpp
-					  utils/NotYetImplemented.hpp
-					  priv/Isometry2D.hpp
-					  priv/TimeValid.hpp
-					  priv/MovieSegment.hpp
-					  priv/Shape.hpp
-					  )
+                      utils/NotYetImplemented.hpp
+                      priv/Isometry2D.hpp
+                      priv/TimeValid.hpp
+                      priv/MovieSegment.hpp
+                      priv/Types.hpp
+                      priv/Shape.hpp
+                      )
 
 
 set(HDR_PUBLIC_FILES Frame.hpp

@@ -84,7 +84,7 @@ void AntListWidget::onNewController(ExperimentController * controller) {
 
 QString AntListWidget::format(const fort::myrmidon::priv::Ant & a) {
 
-	QSet<uint32_t> tags;
+	QSet<fort::myrmidon::priv::TagID> tags;
 	for(auto const & i : a.Identifications() ) {
 		tags.insert(i->TagValue());
 	}

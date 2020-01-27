@@ -38,7 +38,7 @@ private:
 	struct ImageToProcess {
 		fs::path Basedir,RelativeImagePath;
 		fort::myrmidon::priv::RawFrameConstPtr Frame;
-		uint32_t * Filter;
+		fort::myrmidon::priv::TagID * Filter;
 		QVector<Snapshot::ConstPtr> Results;
 	};
 

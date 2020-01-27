@@ -28,7 +28,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->setupUi(this);
 
     qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
-    qRegisterMetaType<std::vector<uint32_t>>("std::vector<uint32_t>");
+    qRegisterMetaType<std::vector<fort::myrmidon::priv::TagID>>("std::vector<fort::myrmidon::priv::TagID>");
     qRegisterMetaType<size_t>("size_t");
 
     using namespace fort::myrmidon::priv;
@@ -165,8 +165,8 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 
 
 		auto extractor = std::make_shared<TagExtractor>();
-		connect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
-		        this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )),
+		connect(extractor.get(),SIGNAL(resultReady(const std::vector<fort::myrmidon::TagID> &)),
+		        this,SLOT(onNewTrackedTags(const std::vector<fort::myrmidon::TagID> & )),
 		        Qt::QueuedConnection);
 		d_extractors[p] = extractor;
 		extractor->start(tdd,d_controller->experiment().Basedir());
@@ -221,8 +221,8 @@ void TaggingWidget::clearIndexers() {
 	d_indexers.clear();
 
 	for(auto & [p,extractor] :  d_extractors ) {
-		disconnect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
-		           this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )));
+		disconnect(extractor.get(),SIGNAL(resultReady(const std::vector<fort::myrmidon::TagID> &)),
+		           this,SLOT(onNewTrackedTags(const std::vector<fort::myrmidon::TagID> & )));
 	}
 	d_extractors.clear();
 
@@ -391,7 +391,7 @@ void TaggingWidget::updateIdentificationForCurrentFrame() {
 }
 
 
-Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValue,
+Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::priv::TagID tagValue,
                                                                 const RawFrame & f) {
 
 	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f.Time());
@@ -606,7 +606,7 @@ void TaggingWidget::updateUnusedCount() {
 
 
 
-void TaggingWidget::onNewTrackedTags(const std::vector<uint32_t> & tags) {
+void TaggingWidget::onNewTrackedTags(const std::vector<fort::myrmidon::priv::TagID> & tags) {
 	std::ostringstream os;
 	for(auto t : tags){
 		os << " " << t;

@@ -44,7 +44,7 @@ public slots:
 	void onIdentificationCreated(const fort::myrmidon::priv::IdentificationPtr &);
 	void onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
 
-	void onNewTrackedTags(const std::vector<uint32_t> & );
+	void onNewTrackedTags(const std::vector<fort::myrmidon::priv::TagID> & );
 
 private:
 	const static fs::path ESTIMATE_SAVE_PATH;
@@ -57,18 +57,18 @@ private:
 
 	void updateIdentificationForCurrentFrame();
 	fort::myrmidon::priv::IdentificationPtr
-	updateIdentificationForFrame(uint32_t tag, const fort::myrmidon::priv::RawFrame & f);
+	updateIdentificationForFrame(fort::myrmidon::priv::TagID tag, const fort::myrmidon::priv::RawFrame & f);
 
     Ui::TaggingWidget *d_ui;
 	ExperimentController * d_controller;
 	std::map<fs::path,std::shared_ptr<SnapshotIndexer>> d_indexers;
 	std::map<fs::path,std::shared_ptr<TagExtractor>>    d_extractors;
 
-	std::unordered_map<uint32_t,QTreeWidgetItem*>      d_tags;
-	std::unordered_map<std::string,Snapshot::ConstPtr> d_snapshots;
-	std::set<uint32_t>                                 d_used;
+	std::unordered_map<fort::myrmidon::priv::TagID,QTreeWidgetItem*> d_tags;
+	std::unordered_map<std::string,Snapshot::ConstPtr>               d_snapshots;
+	std::set<fort::myrmidon::priv::TagID>                            d_used;
 
-	std::set<uint32_t>                                 d_allTrackedTags;
+	std::set<fort::myrmidon::priv::TagID>                            d_allTrackedTags;
 
 
 	std::map<fs::path,AntPoseEstimate::Ptr> d_estimates;

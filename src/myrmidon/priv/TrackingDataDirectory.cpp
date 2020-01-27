@@ -115,7 +115,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
 	auto extractID =
 		[](const fs::path & p) -> uint32_t {
-			std::istringstream iss(p.stem().extension());
+			std::istringstream iss(p.stem().extension().string());
 			uint32_t res;
 			iss.ignore(std::numeric_limits<std::streamsize>::max(),'.');
 			iss >> res;

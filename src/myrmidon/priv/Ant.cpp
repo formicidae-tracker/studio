@@ -15,7 +15,7 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 	return os.str();
 }
 
-Ant::Ant(uint32_t ID)
+Ant::Ant(fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
 	, d_IDStr(FormatID(ID)) {
 }

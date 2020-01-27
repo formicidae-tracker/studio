@@ -17,7 +17,7 @@ public:
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
 
 	Snapshot(const fort::myrmidon::priv::RawFrame::ConstPtr & frame,
-	         uint32_t tagValue);
+	         fort::myrmidon::priv::TagID tagValue);
 	virtual ~Snapshot();
 
 	Eigen::Vector2d TagPosition() const;

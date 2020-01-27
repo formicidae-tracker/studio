@@ -4,8 +4,9 @@
 #include "DeletedReference.hpp"
 
 
-namespace fm = fort::myrmidon;
-using namespace fort::myrmidon::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
 	: std::runtime_error([id](){
@@ -21,7 +22,7 @@ Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identificatio
 		                     return os.str();
 	                     }()) {}
 
-Identifier::UnmanagedTag::UnmanagedTag(uint32_t ID) noexcept
+Identifier::UnmanagedTag::UnmanagedTag(TagID ID) noexcept
 	: std::runtime_error([ID](){
 		                     std::ostringstream os;
 		                     os << "Tag:" << ID <<  " is not managed by this object";
@@ -119,7 +120,7 @@ Identifier::Ptr Identifier::Itself() const {
 
 
 Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
-                                                  uint32_t tagValue,
+                                                  TagID tagValue,
                                                   const Time::ConstPtr & start,
                                                   const Time::ConstPtr & end) {
 	if ( d_antIDs.count(id) == 0 ) {
@@ -186,7 +187,7 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 
 }
 
-Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & identifier,uint32_t tagID) {
+Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & identifier,TagID tagID) {
 	auto fi = identifier.d_identifications.find(tagID);
 	if ( fi == identifier.d_identifications.end() ) {
 		throw UnmanagedTag(tagID);
@@ -208,7 +209,7 @@ void Identifier::SortAndCheck(IdentificationList & tagSiblings,
 
 }
 
-Identification::Ptr Identifier::Identify(uint32_t tag,const Time & t) const {
+Identification::Ptr Identifier::Identify(TagID tag,const Time & t) const {
 	auto fi = d_identifications.find(tag);
 	if ( fi == d_identifications.end()) {
 		return Identification::Ptr();
@@ -223,7 +224,7 @@ Identification::Ptr Identifier::Identify(uint32_t tag,const Time & t) const {
 }
 
 
-fm::Time::ConstPtr Identifier::UpperUnidentifiedBound(uint32_t tag, const fm::Time & t) const {
+Time::ConstPtr Identifier::UpperUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
 		return Time::ConstPtr();
@@ -232,7 +233,7 @@ fm::Time::ConstPtr Identifier::UpperUnidentifiedBound(uint32_t tag, const fm::Ti
 	return TimeValid::UpperUnvalidBound(t,fi->second.begin(),fi->second.end());
 }
 
-fm::Time::ConstPtr Identifier::LowerUnidentifiedBound(uint32_t tag, const fm::Time & t) const {
+Time::ConstPtr Identifier::LowerUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
 		return Time::ConstPtr();
@@ -242,7 +243,7 @@ fm::Time::ConstPtr Identifier::LowerUnidentifiedBound(uint32_t tag, const fm::Ti
 }
 
 
-size_t Identifier::UseCount(uint32_t tag) const {
+size_t Identifier::UseCount(TagID tag) const {
 	auto fi = d_identifications.find(tag);
 	if ( fi == d_identifications.end() ) {
 		return 0;
@@ -253,7 +254,7 @@ size_t Identifier::UseCount(uint32_t tag) const {
 
 bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
                                      Time::ConstPtr & end,
-                                     uint32_t tag, const Time & t) const {
+                                     TagID tag, const Time & t) const {
 	Time::ConstPtr upperBound, lowerBound;
 	try {
 		end = UpperUnidentifiedBound(tag,t);
@@ -265,3 +266,9 @@ bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
 		return false;
 	}
 }
+
+
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

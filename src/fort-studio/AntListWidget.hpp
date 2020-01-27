@@ -5,6 +5,8 @@
 #include "MainWindow.hpp"
 #include "ExperimentController.hpp"
 
+#include <myrmidon/Ant.hpp>
+
 namespace Ui {
 class AntListWidget;
 }
@@ -43,7 +45,7 @@ private:
 
 	ExperimentController * d_controller;
 
-	std::map<uint32_t,QListWidgetItem*> d_items;
+	std::map<fort::myrmidon::Ant::ID,QListWidgetItem*> d_items;
 
 	QString format(const fort::myrmidon::priv::Ant & a);
 };

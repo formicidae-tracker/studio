@@ -7,6 +7,8 @@
 #include "../Ant.hpp"
 #include "../Time.hpp"
 
+#include "Types.hpp"
+
 #include "ForwardDeclaration.hpp"
 
 #include "DeletedReference.hpp"
@@ -85,7 +87,7 @@ public:
 	// <OverlappingIdentification> if any exists for the desired
 	// <priv::Ant> or <TagID>.
 	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
-	                                    uint32_t tagValue,
+	                                    TagID tagValue,
 	                                    const Time::ConstPtr & start,
 	                                    const Time::ConstPtr & end);
 
@@ -105,7 +107,7 @@ public:
 	// An exeption when a TagID is not managed by this Identifier
 	class UnmanagedTag : public std::runtime_error {
 	public:
-		UnmanagedTag(uint32_t tagValue) noexcept;
+		UnmanagedTag(TagID tagValue) noexcept;
 		virtual ~UnmanagedTag() noexcept {};
 	};
 	// An exeption when an Identification is not managed by this Identifier
@@ -123,7 +125,7 @@ public:
 
 	class Accessor {
 	private:
-		static IdentificationList & IdentificationsForTag(Identifier & identifier,uint32_t tagID);
+		static IdentificationList & IdentificationsForTag(Identifier & identifier,TagID tagID);
 	public:
 		friend class Identification;
 	};
@@ -136,15 +138,15 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(uint32_t tag,const Time & frame) const;
+	IdentificationPtr Identify(TagID tag,const Time & frame) const;
 
 	// Return the first next frame if any where tag is not used
-	Time::ConstPtr UpperUnidentifiedBound(uint32_t tag, const Time & t) const;
+	Time::ConstPtr UpperUnidentifiedBound(TagID tag, const Time & t) const;
 	// Return the first previoys frame if any where tag is not used
-	Time::ConstPtr LowerUnidentifiedBound(uint32_t tag, const Time & t) const;
+	Time::ConstPtr LowerUnidentifiedBound(TagID tag, const Time & t) const;
 
 	// Returns the number of time a given tag is used.
-	size_t UseCount(uint32_t tag) const;
+	size_t UseCount(TagID tag) const;
 
 	// Found the largest time range where a <TagID> is unused.
 	// @start is set to the first frametime the tag is unused, or an
@@ -162,12 +164,12 @@ public:
 	// +/-∞.
 	bool FreeRangeContaining(Time::ConstPtr & start,
 	                         Time::ConstPtr & end,
-	                         uint32_t tag, const Time & t) const;
+	                         TagID tag, const Time & t) const;
 
 
 private:
 	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
-	typedef std::unordered_map<uint32_t,IdentificationList> IdentificationByTagID;
+	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
 
 
 	Identifier();

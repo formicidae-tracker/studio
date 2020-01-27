@@ -37,12 +37,6 @@ typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 // A List of <Identification>
 typedef std::vector<IdentificationPtr>  IdentificationList;
 
-// The ID of a frame
-typedef uint64_t FrameID;
-
-// The ID for a movie frame
-typedef uint64_t MovieFrameID;
-
 
 
 } // namespace priv

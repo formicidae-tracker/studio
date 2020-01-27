@@ -123,7 +123,7 @@ fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
 }
 
 Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
-                                              uint32_t tagValue,
+                                              fort::myrmidon::priv::TagID tagValue,
                                               const fm::Time::ConstPtr & start,
                                               const fm::Time::ConstPtr & end) {
 	try {
