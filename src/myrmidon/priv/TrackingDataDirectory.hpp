@@ -33,19 +33,20 @@ namespace priv {
 class TrackingDataDirectory : public TimeValid {
 public:
 	typedef int32_t UID;
-
+	typedef SegmentIndexer<std::string>  TrackingIndexer;
+	typedef SegmentIndexer<MovieSegment> MovieIndexer;
 
 	class const_iterator {
 	public:
 		const_iterator(const fs::path & parentPath,
-		               const SegmentIndexer::ConstPtr & segments,
+		               const TrackingIndexer::ConstPtr & segments,
 		               uint64_t start,
 		               uint64_t end,
 		               uint64_t current,
 		               UID uid);
 
 		const_iterator(const fs::path & parentPath,
-		               const SegmentIndexer::ConstPtr & segments,
+		               const TrackingIndexer::ConstPtr & segments,
 		               uint64_t start,
 		               uint64_t end,
 		               const RawFrameConstPtr & rawFrame,
@@ -70,8 +71,8 @@ public:
 		void OpenAt(uint64_t frameID);
 
 
-		const fs::path           d_parentPath;
-		SegmentIndexer::ConstPtr d_segments;
+		const fs::path                        d_parentPath;
+		SegmentIndexer<std::string>::ConstPtr d_segments;
 		uint64_t                 d_start,d_end,d_current;
 		UID                      d_uid;
 
@@ -95,7 +96,7 @@ public:
 	                      uint64_t endFrame,
 	                      const Time & start,
 	                      const Time & end,
-	                      const SegmentIndexer::Ptr & segments,
+	                      const TrackingIndexer::Ptr & segments,
 	                      const MovieSegment::List & movies);
 
 
@@ -145,7 +146,7 @@ public:
 	// obtain infoirmation on the first and last frame.
 	static TrackingDataDirectory Open(const fs::path & path, const fs::path & experimentRoot);
 
-	const SegmentIndexer & TrackingIndex() const;
+	const TrackingIndexer & TrackingIndex() const;
 
 	const MovieSegment::List & MovieSegments() const;
 
@@ -153,7 +154,7 @@ private:
 	fs::path       d_experimentRoot, d_path;
 	uint64_t       d_startFrame,d_endFrame;
 
-	SegmentIndexer::Ptr d_segments;
+	TrackingIndexer::Ptr d_segments;
 	MovieSegment::List  d_movies;
 
 	UID            d_uid;

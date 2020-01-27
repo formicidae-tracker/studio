@@ -59,7 +59,7 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 
 
 TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
-	SegmentIndexer si,res;
+	SegmentIndexer<std::string> si,res;
 	google::protobuf::RepeatedPtrField<pb::TrackingSegment> expected,pbRes;
 	for(size_t i = 0; i < 20; ++i) {
 		uint64_t fid = 100 * i;

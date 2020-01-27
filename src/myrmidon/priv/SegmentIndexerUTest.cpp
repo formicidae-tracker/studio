@@ -24,7 +24,7 @@ void SegmentIndexerUTest::SetUp() {
 TEST_F(SegmentIndexerUTest,CanStoreAnIndex) {
 
 
-	std::vector<SegmentIndexer::Segment> res;
+	std::vector<SegmentIndexer<std::string>::Segment> res;
 	EXPECT_NO_THROW({
 			res = d_si.Segments();
 		});
@@ -78,7 +78,7 @@ TEST_F(SegmentIndexerUTest,CanFindSegment) {
 
 
 TEST_F(SegmentIndexerUTest,EnforceIncreasingInvariant) {
-	SegmentIndexer si;
+	SegmentIndexer<std::string> si;
 	EXPECT_NO_THROW(si.Insert(1,fm::Time::FromTimeT(1),"0"));
 	EXPECT_NO_THROW(si.Insert(11,fm::Time::FromTimeT(11),"1"));
 	EXPECT_THROW({si.Insert(21,fm::Time::FromTimeT(6),"2");},std::invalid_argument);

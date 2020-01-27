@@ -157,7 +157,7 @@ void ProtobufReadWriter::SaveTime(pb::Time & pb,const Time & t) {
 	}
 }
 
-void ProtobufReadWriter::LoadSegmentIndexer(SegmentIndexer & si,
+void ProtobufReadWriter::LoadSegmentIndexer(SegmentIndexer<std::string> & si,
                                             const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
                                             Time::MonoclockID mID) {
 	for(const auto & s : pb) {
@@ -166,7 +166,7 @@ void ProtobufReadWriter::LoadSegmentIndexer(SegmentIndexer & si,
 }
 
 void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
-                                            const SegmentIndexer & si) {
+                                            const SegmentIndexer<std::string> & si) {
 	for(const auto & s: si.Segments()) {
 		auto spb = pb->Add();
 		spb->set_frameid(std::get<0>(s));
@@ -208,7 +208,7 @@ void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
 TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
 	TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
 
-	auto si = std::make_shared<SegmentIndexer>();
+	auto si = std::make_shared<SegmentIndexer<std::string> >();
 	LoadSegmentIndexer(*si,pb.tracking(),uid);
 	auto start = LoadTime(pb.startdate(),uid);
 	auto end = LoadTime(pb.enddate(),uid);

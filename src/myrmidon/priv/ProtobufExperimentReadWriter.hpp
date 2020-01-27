@@ -46,12 +46,12 @@ public:
 	static Time LoadTime(const fort::myrmidon::pb::Time & pb, Time::MonoclockID mID);
 	static void SaveTime(fort::myrmidon::pb::Time & pb, const Time & t);
 
-	static void LoadSegmentIndexer(SegmentIndexer & si,
+	static void LoadSegmentIndexer(SegmentIndexer<std::string> & si,
 	                               const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
 	                               Time::MonoclockID mID);
 
 	static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
-	                               const SegmentIndexer & si);
+	                               const SegmentIndexer<std::string> & si);
 
 
 	static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,

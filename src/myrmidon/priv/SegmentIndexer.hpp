@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Time.hpp"
+#include "Types.hpp"
 
 namespace fort {
 
@@ -19,20 +20,21 @@ namespace priv {
 //
 // <Find> can be used to retrieve a segment from any frame number or
 // <Time>
+template <typename T>
 class SegmentIndexer {
 public:
 	typedef std::shared_ptr<SegmentIndexer> Ptr;
 	typedef std::shared_ptr<const SegmentIndexer> ConstPtr;
-	typedef std::tuple<uint64_t,Time,std::string> Segment;
+	typedef std::tuple<uint64_t,Time,T> Segment;
 
-	void Insert(uint64_t frameID, const Time & t, const std::string & value);
+	void Insert(FrameID FID, const Time & t, const T & value);
 
 
 	std::vector<Segment> Segments() const;
 
-	const std::string & Find(uint64_t frameID) const;
+	const T & Find(FrameID FID) const;
 
-	const std::string & Find(const Time & t) const;
+	const T & Find(const Time & t) const;
 
 private:
 	class FrameComparator {
@@ -58,3 +60,5 @@ private:
 } //namespace myrmidon
 
 } //namespace fort
+
+#include "SegmentIndexer.impl.hpp"

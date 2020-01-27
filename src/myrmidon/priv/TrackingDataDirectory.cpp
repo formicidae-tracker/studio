@@ -25,7 +25,7 @@ TrackingDataDirectory::TrackingDataDirectory()
 	: d_startFrame(0)
 	, d_endFrame(0)
 	, d_uid(0)
-	, d_endIterator("",SegmentIndexer::Ptr(),0,0,1,0) {
+	, d_endIterator("",TrackingIndexer::Ptr(),0,0,1,0) {
 }
 
 TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
@@ -34,7 +34,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              uint64_t endFrame,
                                              const Time & startdate,
                                              const Time & enddate,
-                                             const SegmentIndexer::Ptr & si,
+                                             const TrackingIndexer::Ptr & si,
                                              const MovieSegment::List & movies)
 	: d_experimentRoot(fs::weakly_canonical(experimentRoot))
 	, d_path(fs::relative(path,d_experimentRoot))
@@ -156,7 +156,7 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 	std::sort(hermesFiles.begin(),hermesFiles.end());
 
 	fort::hermes::FrameReadout ro;
-	auto si = std::make_shared<SegmentIndexer>();
+	auto si = std::make_shared<SegmentIndexer<std::string> >();
 	bool first = true;
 	std::shared_ptr<fort::hermes::FileContext> fc;
 
@@ -208,13 +208,14 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 }
 
 
-const SegmentIndexer & TrackingDataDirectory::TrackingIndex() const {
+const TrackingDataDirectory::TrackingIndexer &
+TrackingDataDirectory::TrackingIndex() const {
 	return *d_segments;
 }
 
 
 TrackingDataDirectory::const_iterator::const_iterator(const fs::path & parentPath,
-                                                      const SegmentIndexer::ConstPtr & segments,
+                                                      const TrackingDataDirectory::TrackingIndexer::ConstPtr & segments,
                                                       uint64_t start,
                                                       uint64_t end,
                                                       uint64_t current,

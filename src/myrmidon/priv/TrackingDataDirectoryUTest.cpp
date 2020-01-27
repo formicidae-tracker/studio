@@ -31,7 +31,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
 		EXPECT_TRUE(TimeEqual(tdd.EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
 
-		std::vector<SegmentIndexer::Segment> segments;
+		std::vector<SegmentIndexer<std::string>::Segment> segments;
 
 		for(size_t i = 0; i < 10; ++i ) {
 			std::ostringstream os;
@@ -139,7 +139,7 @@ TEST_F(TrackingDataDirectoryUTest,HaveCOnstructorChecks) {
 	uint64_t endFrame = 20;
 	auto startTime = Time::Parse("2019-11-02T22:02:24.674+01:00");
 	auto endTime = Time::Parse("2019-11-02T22:02:25.783+01:00");
-	auto segments = std::make_shared<SegmentIndexer>();
+	auto segments = std::make_shared<SegmentIndexer<std::string> >();
 	MovieSegment::List movies;
 	EXPECT_NO_THROW({
 			TrackingDataDirectory("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies);
