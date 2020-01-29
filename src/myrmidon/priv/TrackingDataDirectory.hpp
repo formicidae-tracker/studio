@@ -33,8 +33,8 @@ namespace priv {
 class TrackingDataDirectory : public TimeValid {
 public:
 	typedef int32_t UID;
-	typedef SegmentIndexer<std::string>  TrackingIndexer;
-	typedef SegmentIndexer<MovieSegment> MovieIndexer;
+	typedef SegmentIndexer<std::string >  TrackingIndexer;
+	typedef SegmentIndexer<MovieSegment::Ptr> MovieIndexer;
 
 	class const_iterator {
 	public:
@@ -71,10 +71,10 @@ public:
 		void OpenAt(uint64_t frameID);
 
 
-		const fs::path                        d_parentPath;
-		SegmentIndexer<std::string>::ConstPtr d_segments;
-		uint64_t                 d_start,d_end,d_current;
-		UID                      d_uid;
+		const fs::path            d_parentPath;
+		TrackingIndexer::ConstPtr d_segments;
+		uint64_t                  d_start,d_end,d_current;
+		UID                       d_uid;
 
 		std::unique_ptr<fort::hermes::FileContext> d_file;
 		fort::hermes::FrameReadout                 d_message;
@@ -151,6 +151,8 @@ public:
 	const MovieSegment::List & MovieSegments() const;
 
 private:
+	typedef std::pair<FrameID,Time> TimedFrame;
+
 	fs::path       d_experimentRoot, d_path;
 	uint64_t       d_startFrame,d_endFrame;
 
@@ -159,6 +161,25 @@ private:
 
 	UID            d_uid;
 	const_iterator d_endIterator;
+
+	static void CheckPaths(const fs::path & path,
+	                       const fs::path & experimentRoot);
+
+	static void LookUpFiles(const fs::path & filepath,
+	                        std::vector<fs::path> & hermesFile,
+	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
+
+	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+	                              MovieSegment::List & movies);
+
+
+	static std::pair<TimedFrame,TimedFrame>
+	BuildIndexes(const fs::path & path,
+	             const std::vector<fs::path> & hermesFile,
+	             const std::vector<FrameID> & neededTimes,
+	             const TrackingIndexer::Ptr & trackingIndexer,
+	             std::map<FrameID,TimedFrame > & frameTime);
+
 
 };
 

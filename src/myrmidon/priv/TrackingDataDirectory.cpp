@@ -102,17 +102,20 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 }
 
 
-TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
+void TrackingDataDirectory::CheckPaths(const fs::path & path,
+                                       const fs::path & experimentRoot) {
 	if ( fs::is_directory(experimentRoot) == false ) {
 		throw std::invalid_argument("experiment root path " + experimentRoot.string() +  " is not a directory");
 	}
 	if ( fs::is_directory(path) == false ) {
 		throw std::invalid_argument( path.string() + " is not a directory");
 	}
+}
 
 
-	std::vector<fs::path> hermesFiles;
-	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
+void TrackingDataDirectory::LookUpFiles(const fs::path & path,
+                                        std::vector<fs::path> & hermesFiles,
+                                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths) {
 	auto extractID =
 		[](const fs::path & p) -> uint32_t {
 			std::istringstream iss(p.stem().extension().string());
@@ -143,22 +146,39 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		}
 	}
 
-	if ( hermesFiles.empty() ) {
-		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
+	std::sort(hermesFiles.begin(),hermesFiles.end());
+
+}
+
+void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+                                              MovieSegment::List & movies ){
+	for ( const auto & [id,paths] : moviesPaths ) {
+		movies.push_back(MovieSegment::Open(paths.first,paths.second));
 	}
 
-	Time::MonoclockID monoID = TrackingDataDirectory::GetUID(path);
+	std::sort(movies.begin(),movies.end(),[](const MovieSegment::Ptr & a,
+	                                         const MovieSegment::Ptr & b) {
+		                                      return a->StartFrame() < b->StartFrame();
+	                                      });
+}
 
+
+std::pair<TrackingDataDirectory::TimedFrame,TrackingDataDirectory::TimedFrame>
+TrackingDataDirectory::BuildIndexes(const fs::path & path,
+                                    const std::vector<fs::path> & hermesFiles,
+                                    const std::vector<FrameID> & neededTimes,
+                                    const TrackingIndexer::Ptr & trackingIndexer,
+                                    std::map<FrameID,TimedFrame > & frameTime) {
+
+	Time::MonoclockID monoID = TrackingDataDirectory::GetUID(path);
 
 	uint64_t start,end;
 	Time startDate,endDate;
 
-	std::sort(hermesFiles.begin(),hermesFiles.end());
-
-	fort::hermes::FrameReadout ro;
-	auto si = std::make_shared<SegmentIndexer<std::string> >();
+	fort::hermes::FrameReadout ro,lastRo;
 	bool first = true;
-	std::shared_ptr<fort::hermes::FileContext> fc;
+	std::shared_ptr<fort::hermes::FileContext> fc,prevFc;
+	auto fidIter = neededTimes.cbegin();
 
 	for (const auto & f : hermesFiles ) {
 		try {
@@ -171,7 +191,35 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 				startDate = startTime;
 				first = false;
 			}
-			si->Insert(ro.frameid(),startTime,fs::relative(f,path).generic_string());
+
+			FrameID curFID = ro.frameid();
+
+			trackingIndexer->Insert(curFID,
+			                        startTime,
+			                        fs::relative(f,path).generic_string());
+
+			if (!prevFc) {
+				prevFc = fc;
+				lastRo = ro;
+				continue;
+			}
+
+			bool ok = true;
+			for(; ok == true && fidIter != neededTimes.end() && *fidIter < curFID; ++fidIter ) {
+				while (lastRo.frameid() < *fidIter) {
+					try {
+						prevFc->Read(&lastRo);
+					} catch ( const std::exception & e ) {
+						ok = false;
+					}
+				}
+				frameTime[*fidIter] = std::make_pair(lastRo.frameid(),
+				                                     Time::FromTimestampAndMonotonic(lastRo.time(),lastRo.timestamp()*1000,monoID));
+			}
+
+			prevFc = fc;
+			lastRo = ro;
+
 		} catch ( const std::exception & e) {
 			throw std::runtime_error("Could not extract frame from " +  f.string() + ": " + e.what());
 		}
@@ -192,18 +240,55 @@ TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const f
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
 
+	return std::make_pair(std::make_pair(start,startDate),
+	                      std::make_pair(end,endDate));
+
+
+}
+
+TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
+
+	CheckPaths(path,experimentRoot);
+
+	std::vector<fs::path> hermesFiles;
+	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
 	MovieSegment::List movies;
-	for ( const auto & [id,paths] : moviesPaths ) {
-		movies.push_back(MovieSegment::Open(paths.first,paths.second));
+	auto ti = std::make_shared<TrackingIndexer >();
+	auto mi = std::make_shared<MovieIndexer >();
+	std::vector<FrameID> neededTimes;
+	std::map<FrameID,TimedFrame> times;
+
+	LookUpFiles(path,hermesFiles,moviesPaths);
+
+	if ( hermesFiles.empty() ) {
+		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
 	}
+
+	LoadMovieSegments(moviesPaths,movies);
+	for(const auto & m : movies) {
+		neededTimes.push_back(m->StartFrame());
+	}
+
+
+	auto bounds = BuildIndexes(path,
+	                           hermesFiles,
+	                           neededTimes,
+	                           ti,
+	                           times);
+
+	for(const auto & m : movies) {
+		auto & actualFIDAndTime = times[m->StartFrame()];
+		mi->Insert(actualFIDAndTime.first,actualFIDAndTime.second,m);
+	}
+
 
 	return TrackingDataDirectory(path,
 	                             experimentRoot,
-	                             start,
-	                             end,
-	                             startDate,
-	                             endDate,
-	                             si,
+	                             bounds.first.first,
+	                             bounds.second.first,
+	                             bounds.first.second,
+	                             bounds.second.second,
+	                             ti,
 	                             movies);
 }
 

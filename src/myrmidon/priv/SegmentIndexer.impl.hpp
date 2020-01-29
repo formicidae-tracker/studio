@@ -45,7 +45,6 @@ inline void SegmentIndexer<T>::Insert(uint64_t frameID, const Time & t, const T 
 		os << "} is inconsistent with internal data";
 		throw std::invalid_argument(os.str());
 	}
-
 	auto valueptr = std::make_shared<T>(value);
 
 	d_byID.insert(std::make_pair(frameID,valueptr));
