@@ -49,16 +49,16 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.URI().generic_string()) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd.URI().string() + "' is already present");
+void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & toAdd) {
+	if (d_dataDirs.count(toAdd->URI().generic_string()) != 0 ) {
+		throw std::invalid_argument("directory '" + toAdd->URI().string() + "' is already present");
 	}
 
-	std::vector<const TrackingDataDirectory*> sortedInTime;
+	std::vector<TrackingDataDirectory::ConstPtr> sortedInTime;
 	for(const auto & el : d_dataDirs ) {
-		sortedInTime.push_back(&(el.second));
+		sortedInTime.push_back(el.second);
 	}
-	sortedInTime.push_back(&toAdd);
+	sortedInTime.push_back(toAdd);
 	auto fi = TimeValid::SortAndCheckOverlap(sortedInTime.begin(),sortedInTime.end());
 	if ( fi.first != fi.second ) {
 		std::ostringstream os;
@@ -66,7 +66,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::invalid_argument(os.str());
 	}
 
-	d_dataDirs.insert(std::make_pair(toAdd.URI().generic_string(),toAdd));
+	d_dataDirs.insert(std::make_pair(toAdd->URI().generic_string(),toAdd));
 }
 
 bool Experiment::ContainsFramePointer()  const  {

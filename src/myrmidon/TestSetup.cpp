@@ -161,16 +161,8 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
+	e.add_trackingdatadirectories("foo.0000");
 
-	fm::pb::TrackingDataDirectory tdd;
-	tdd.set_path("foo.0000");
-	tdd.set_startframe(0);
-	tdd.set_endframe(99);
-	saveStartTime.ToTimestamp(*tdd.mutable_startdate()->mutable_timestamp());
-	tdd.mutable_startdate()->set_monotonic(saveStartTime.MonotonicValue());
-	auto endTime = saveStartTime.Add(99*100*Duration::Millisecond);
-	endTime.ToTimestamp(*tdd.mutable_enddate()->mutable_timestamp());
-	tdd.mutable_enddate()->set_monotonic(endTime.MonotonicValue());
 
 	fm::pb::FileHeader header;
 
@@ -206,12 +198,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		}
 		l.release_antdata();
 	}
-
-	l.set_allocated_trackingdatadirectory(&tdd);
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-		throw std::runtime_error("could not write tracking directory data");
-	}
-	l.release_trackingdatadirectory();
 
 
 }

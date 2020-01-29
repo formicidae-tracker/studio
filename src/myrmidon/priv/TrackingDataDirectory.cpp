@@ -8,7 +8,7 @@
 #include <fort-hermes/FileContext.h>
 
 #include "../utils/NotYetImplemented.hpp"
-
+#include "SnapshotCache.hpp"
 
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
@@ -21,29 +21,48 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TrackingDataDirectory::TrackingDataDirectory()
-	: d_startFrame(0)
-	, d_endFrame(0)
-	, d_uid(0)
-	, d_endIterator("",TrackingIndexer::Ptr(),0,0,1,0) {
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const fs::path & uri,
+                                                              const fs::path & absoluteFilePath,
+                                                              uint64_t startFrame,
+                                                              uint64_t endFrame,
+                                                              const Time & startdate,
+                                                              const Time & enddate,
+                                                              const TrackingIndex::Ptr & si,
+                                                              const MovieIndex::Ptr & movies,
+                                                              const FrameReferenceCache & referenceCache) {
+	std::shared_ptr<TrackingDataDirectory> res(new TrackingDataDirectory(uri,
+	                                                                     absoluteFilePath,
+	                                                                     startFrame,
+	                                                                     endFrame,
+	                                                                     startdate,
+	                                                                     enddate,
+	                                                                     si,
+	                                                                     movies,
+	                                                                     referenceCache));
+	res->d_itself = res;
+	res->d_endIterator.d_parent = res;
+	return res;
 }
 
-TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
-                                             const fs::path & experimentRoot,
+
+TrackingDataDirectory::TrackingDataDirectory(const fs::path & uri,
+                                             const fs::path & absoluteFilePath,
                                              uint64_t startFrame,
                                              uint64_t endFrame,
                                              const Time & startdate,
                                              const Time & enddate,
-                                             const TrackingIndexer::Ptr & si,
-                                             const MovieSegment::List & movies)
-	: d_absoluteFilePath(fs::weakly_canonical(path))
-	, d_URI(fs::relative(d_absoluteFilePath,fs::weakly_canonical(experimentRoot)))
+                                             const TrackingIndex::Ptr & si,
+                                             const MovieIndex::Ptr & movies,
+                                             const FrameReferenceCache & referenceCache)
+	: d_absoluteFilePath(absoluteFilePath)
+	, d_URI(uri)
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
+	, d_uid(GetUID(d_absoluteFilePath))
+	, d_endIterator(ConstPtr(),endFrame)
 	, d_segments(si)
 	, d_movies(movies)
-	, d_uid(GetUID(d_absoluteFilePath))
-	, d_endIterator(d_absoluteFilePath,si,startFrame,endFrame,endFrame+1,d_uid) {
+	, d_referencesByFID(referenceCache) {
 
 	d_start = std::make_shared<const Time>(startdate);
 	d_end = std::make_shared<const Time>(enddate);
@@ -91,7 +110,7 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 	static UID last = 0;
 	static std::map<fs::path,UID> d_UIDs;
 	std::lock_guard<std::mutex> lock(mutex);
-	fs::path fpath = fs::weakly_canonical(filepath);
+	fs::path fpath = fs::weakly_canonical(fs::absolute(filepath));
 	auto fi = d_UIDs.find(fpath);
 	if ( fi == d_UIDs.end() ) {
 		d_UIDs.insert(std::make_pair(fpath,++last));
@@ -112,7 +131,7 @@ void TrackingDataDirectory::CheckPaths(const fs::path & path,
 }
 
 
-void TrackingDataDirectory::LookUpFiles(const fs::path & path,
+void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
                                         std::vector<fs::path> & hermesFiles,
                                         std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths) {
 	auto extractID =
@@ -126,7 +145,7 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & path,
 			}
 			return res;
 		};
-	for( auto const & f : fs::directory_iterator(path) ) {
+	for( auto const & f : fs::directory_iterator(absoluteFilePath) ) {
 		if ( ! MYRMIDON_FILE_IS_REGULAR(f.status()) ) {
 			continue;
 		}
@@ -163,13 +182,11 @@ void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<
 
 
 std::pair<TrackingDataDirectory::TimedFrame,TrackingDataDirectory::TimedFrame>
-TrackingDataDirectory::BuildIndexes(const fs::path & path,
+TrackingDataDirectory::BuildIndexes(const fs::path & URI,
+                                    Time::MonoclockID monoID,
                                     const std::vector<fs::path> & hermesFiles,
-                                    const std::vector<FrameID> & neededTimes,
-                                    const TrackingIndexer::Ptr & trackingIndexer,
-                                    std::map<FrameID,TimedFrame > & frameTime) {
-
-	Time::MonoclockID monoID = TrackingDataDirectory::GetUID(path);
+                                    const TrackingIndex::Ptr & trackingIndexer,
+                                    FrameReferenceCache & cache) {
 
 	uint64_t start,end;
 	Time startDate,endDate;
@@ -177,7 +194,7 @@ TrackingDataDirectory::BuildIndexes(const fs::path & path,
 	fort::hermes::FrameReadout ro,lastRo;
 	bool first = true;
 	std::shared_ptr<fort::hermes::FileContext> fc,prevFc;
-	auto fidIter = neededTimes.cbegin();
+	auto cacheIter = cache.begin();
 
 	for (const auto & f : hermesFiles ) {
 		try {
@@ -193,10 +210,8 @@ TrackingDataDirectory::BuildIndexes(const fs::path & path,
 
 			FrameID curFID = ro.frameid();
 
-			trackingIndexer->Insert(curFID,
-			                        startTime,
-			                        fs::relative(f,path).generic_string());
-
+			trackingIndexer->Insert(FrameReference(URI,curFID,startTime),
+			                        f.filename());
 			if (!prevFc) {
 				prevFc = fc;
 				lastRo = ro;
@@ -204,16 +219,21 @@ TrackingDataDirectory::BuildIndexes(const fs::path & path,
 			}
 
 			bool ok = true;
-			for(; ok == true && fidIter != neededTimes.end() && *fidIter < curFID; ++fidIter ) {
-				while (lastRo.frameid() < *fidIter) {
+			for(; ok == true && cacheIter != cache.end() && cacheIter->first < curFID; ++cacheIter ) {
+				while (lastRo.frameid() < cacheIter->first) {
 					try {
 						prevFc->Read(&lastRo);
 					} catch ( const std::exception & e ) {
 						ok = false;
 					}
 				}
-				frameTime[*fidIter] = std::make_pair(lastRo.frameid(),
-				                                     Time::FromTimestampAndMonotonic(lastRo.time(),lastRo.timestamp()*1000,monoID));
+
+				Time curTime = Time::FromTimestampAndMonotonic(lastRo.time(),
+				                                               lastRo.timestamp()*1000,
+				                                               monoID);
+				cacheIter->second = FrameReference(URI,
+				                                   lastRo.frameid(),
+				                                   curTime);
 			}
 
 			prevFc = fc;
@@ -242,94 +262,106 @@ TrackingDataDirectory::BuildIndexes(const fs::path & path,
 	return std::make_pair(std::make_pair(start,startDate),
 	                      std::make_pair(end,endDate));
 
-
 }
 
-TrackingDataDirectory TrackingDataDirectory::Open(const fs::path & path, const fs::path & experimentRoot) {
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
 
-	CheckPaths(path,experimentRoot);
+	CheckPaths(filepath,experimentRoot);
+
+	try {
+		return Load(filepath,experimentRoot);
+	} catch (const std::exception & e ) {
+	};
+
+	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
+	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
 
 	std::vector<fs::path> hermesFiles;
 	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
 	MovieSegment::List movies;
-	auto ti = std::make_shared<TrackingIndexer >();
-	auto mi = std::make_shared<MovieIndexer >();
-	std::vector<FrameID> neededTimes;
-	std::map<FrameID,TimedFrame> times;
+	auto ti = std::make_shared<TrackingIndex>();
+	auto mi = std::make_shared<MovieIndex>();
+	FrameReferenceCache referenceCache;
 
-	LookUpFiles(path,hermesFiles,moviesPaths);
+	LookUpFiles(absoluteFilePath,hermesFiles,moviesPaths);
 
 	if ( hermesFiles.empty() ) {
-		throw std::invalid_argument(path.string() + " does not contains any .hermes file");
+		throw std::invalid_argument(filepath.string() + " does not contains any .hermes file");
 	}
 
 	LoadMovieSegments(moviesPaths,movies);
 	for(const auto & m : movies) {
-		neededTimes.push_back(m->StartFrame());
+		referenceCache.insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
 	}
 
+	auto snapshots = SnapshotIndex::ListSnapshotFiles(absoluteFilePath / "ants");
+	for(const auto & [FID,s] : snapshots) {
+		referenceCache.insert(std::make_pair(FID,FrameReference(URI,0,Time())));
+	}
 
-	auto bounds = BuildIndexes(path,
+	Time::MonoclockID monoID = GetUID(absoluteFilePath);
+
+	auto bounds = BuildIndexes(absoluteFilePath,
+	                           monoID,
 	                           hermesFiles,
-	                           neededTimes,
 	                           ti,
-	                           times);
+	                           referenceCache);
 
 	for(const auto & m : movies) {
-		auto & actualFIDAndTime = times[m->StartFrame()];
-		mi->Insert(actualFIDAndTime.first,actualFIDAndTime.second,m);
+		auto fi = referenceCache.find(m->StartFrame());
+		if (fi == referenceCache.end() ) {
+			throw std::logic_error("Could not find frame");
+		}
+		mi->Insert(fi->second,m);
 	}
 
+	auto res = TrackingDataDirectory::Create(URI,
+	                                         absoluteFilePath,
+	                                         bounds.first.first,
+	                                         bounds.second.first,
+	                                         bounds.first.second,
+	                                         bounds.second.second,
+	                                         ti,
+	                                         mi,
+	                                         referenceCache);
+	try {
+		res->Save();
+	} catch(const std::exception & e) {
+	}
 
-	return TrackingDataDirectory(path,
-	                             experimentRoot,
-	                             bounds.first.first,
-	                             bounds.second.first,
-	                             bounds.first.second,
-	                             bounds.second.second,
-	                             ti,
-	                             movies);
+	return res;
 }
 
 
-const TrackingDataDirectory::TrackingIndexer &
-TrackingDataDirectory::TrackingIndex() const {
+const TrackingDataDirectory::TrackingIndex &
+TrackingDataDirectory::TrackingSegments() const {
 	return *d_segments;
 }
 
 
-TrackingDataDirectory::const_iterator::const_iterator(const fs::path & parentPath,
-                                                      const TrackingDataDirectory::TrackingIndexer::ConstPtr & segments,
-                                                      uint64_t start,
-                                                      uint64_t end,
-                                                      uint64_t current,
-                                                      TrackingDataDirectory::UID uid)
-	: d_parentPath(parentPath)
-	, d_segments(segments)
-	, d_start(start)
-	, d_end(end)
-	, d_current(current)
-	, d_uid(uid) {
+TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirectory::ConstPtr & parent,
+                                                      uint64_t current)
+	: d_parent(parent)
+	, d_current(current) {
 }
 
 TrackingDataDirectory::const_iterator::const_iterator(const const_iterator & other)
-	: d_parentPath(other.d_parentPath)
-	, d_segments(other.d_segments)
-	, d_start(other.d_start)
-	, d_end(other.d_end)
-	, d_current(other.d_current)
-	, d_uid(other.d_uid) {
+	: d_parent(other.d_parent)
+	, d_current(other.d_current) {
 }
 
 TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {
-	if ( d_current <= d_end ) {
+	auto parent = LockParent();
+	if ( d_current <= parent->d_endFrame ) {
 		++d_current;
 	}
 	return *this;
 }
 
 bool TrackingDataDirectory::const_iterator::operator==(const const_iterator & other) const {
-	return (d_uid == other.d_uid) && (d_current == other.d_current);
+	auto parent = LockParent();
+	auto otherParent = other.LockParent();
+	return (parent->GetUID() == otherParent->GetUID()) && (d_current == other.d_current);
 }
 
 bool TrackingDataDirectory::const_iterator::operator!=(const const_iterator & other) const {
@@ -339,22 +371,23 @@ bool TrackingDataDirectory::const_iterator::operator!=(const const_iterator & ot
 const RawFrameConstPtr TrackingDataDirectory::const_iterator::NULLPTR;
 
 const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
-	if ( d_current > d_end ) {
+	auto parent = LockParent();
+	if ( d_current > parent->d_endFrame ) {
 		return NULLPTR;
 	}
 	while ( !d_frame || d_frame->ID() < d_current) {
 		if ( !d_file ) {
-			auto p = d_parentPath / d_segments->Find(d_current);
+			auto p = parent->d_absoluteFilePath / parent->d_segments->Find(d_current);
 			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
 			d_message.Clear();
 		}
 
 		try {
 			d_file->Read(&d_message);
-			d_frame = RawFrame::Create(d_parentPath.generic_string(),d_message,d_uid);
+			d_frame = RawFrame::Create(parent->d_URI,d_message,parent->d_uid);
 
 		} catch( const fort::hermes::EndOfFile & ) {
-			d_current = d_end + 1;
+			d_current = parent->d_endFrame + 1;
 			d_frame.reset();
 			return NULLPTR;
 		}
@@ -365,8 +398,17 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	return d_frame;
 }
 
+
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::const_iterator::LockParent() const {
+	if ( auto locked = d_parent.lock() ) {
+		return locked;
+	}
+	throw DeletedReference<TrackingDataDirectory>();
+}
+
+
 TrackingDataDirectory::const_iterator TrackingDataDirectory::begin() const {
-	return const_iterator(d_absoluteFilePath,d_segments,d_startFrame,d_endFrame,d_startFrame,GetUID());
+	return const_iterator(Itself(),d_startFrame);
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t frameID) const {
@@ -375,7 +417,7 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t fr
 		os << "Could not find frame " << frameID << " in [" << d_startFrame << ";" << d_endFrame << "]";
 		throw std::out_of_range(os.str());
 	}
-	return const_iterator(d_absoluteFilePath,d_segments,d_startFrame,d_endFrame,frameID,GetUID());
+	return const_iterator(Itself(),frameID);
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {
@@ -383,11 +425,24 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Tim
 }
 
 
-const MovieSegment::List & TrackingDataDirectory::MovieSegments() const {
-	return d_movies;
+const TrackingDataDirectory::MovieIndex & TrackingDataDirectory::MovieSegments() const {
+	return *d_movies;
 }
 
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::Itself() const  {
+	if ( auto locked = d_itself.lock() ) {
+		return locked;
+	}
+	throw DeletedReference<TrackingDataDirectory>();
+}
 
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::Load(const fs::path &,const fs::path &) {
+	throw std::runtime_error("foo");
+}
+
+void TrackingDataDirectory::Save() const {
+	throw std::runtime_error("foo");
+}
 
 }
 }

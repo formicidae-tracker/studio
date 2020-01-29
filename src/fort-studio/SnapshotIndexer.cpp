@@ -23,7 +23,7 @@
 
 #include "SnapshotCache.pb.h"
 
-SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
+SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory::ConstPtr & tdd,
                                  const fs::path & basedir,
                                  fort::tags::Family family,
                                  uint8_t threshold,
@@ -118,7 +118,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 }
 
 size_t SnapshotIndexer::start() {
-	for ( const auto & de : fs::directory_iterator(d_tdd.AbsoluteFilePath() / "ants" ) ) {
+	for ( const auto & de : fs::directory_iterator(d_tdd->AbsoluteFilePath() / "ants" ) ) {
 		auto ext = de.path().extension().string();
 		std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return std::tolower(c);});
 		if ( ext != ".png" ) {
@@ -126,7 +126,7 @@ size_t SnapshotIndexer::start() {
 		}
 		ImageToProcess toProcess;
 		toProcess.Basedir = d_basedir;
-		toProcess.RelativeImagePath = fs::relative(de.path(),d_tdd.AbsoluteFilePath());
+		toProcess.RelativeImagePath = fs::relative(de.path(),d_tdd->AbsoluteFilePath());
 		toProcess.Filter = NULL;
 
 		std::regex filtered("ant_([0-9]+)_frame_([0-9]+).png");
@@ -140,7 +140,7 @@ size_t SnapshotIndexer::start() {
 			toProcess.Filter = new fort::myrmidon::priv::TagID(0);
 			IDS >> *(toProcess.Filter);
 			FrameS >> frameNumber;
-			toProcess.Frame = *d_tdd.FrameAt(frameNumber);
+			toProcess.Frame = *d_tdd->FrameAt(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}
@@ -148,7 +148,7 @@ size_t SnapshotIndexer::start() {
 		if(std::regex_search(filename,ID,filtered) && ID.size() > 1) {
 			std::istringstream FrameS(ID.str(1));
 			FrameS >> frameNumber;
-			toProcess.Frame = *d_tdd.FrameAt(frameNumber);
+			toProcess.Frame = *d_tdd->FrameAt(frameNumber);
 			d_toProcess.push_back(toProcess);
 			continue;
 		}
@@ -197,7 +197,7 @@ Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snaps
 	if (pb.corners_size() != 4 ) {
 		throw std::runtime_error("Not enough corner");
 	}
-	auto res = std::make_shared<Snapshot>(*d_tdd.FrameAt(pb.frame()),pb.tagvalue());
+	auto res = std::make_shared<Snapshot>(*d_tdd->FrameAt(pb.frame()),pb.tagvalue());
 	res->d_position <<
 		pb.tagposition().x(),
 		pb.tagposition().y(),
@@ -232,7 +232,7 @@ void SnapshotIndexer::LoadCache() {
 	                                                      fort::myrmidon::pb::Snapshot>
 		ReadWriter;
 	try {
-		ReadWriter::Read(d_tdd.AbsoluteFilePath() / "ants" / "snapshot.cache",
+		ReadWriter::Read(d_tdd->AbsoluteFilePath() / "ants" / "snapshot.cache",
 		                 [this](const fort::myrmidon::pb::SnapshotCacheHeader & h) {
 			                 if ( h.threshold() != d_detector->qtp.min_white_black_diff ) {
 				                 std::ostringstream os;
@@ -279,7 +279,7 @@ void SnapshotIndexer::SaveCache() {
 	}
 
 	try {
-		ReadWriter::Write(d_tdd.AbsoluteFilePath() / "ants" / "snapshot.cache",h,lines);
+		ReadWriter::Write(d_tdd->AbsoluteFilePath() / "ants" / "snapshot.cache",h,lines);
 	} catch ( const std::exception & e) {
 		std::cerr << "Could not save cache : " << e.what() << std::endl;
 	}

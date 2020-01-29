@@ -1,9 +1,10 @@
 #pragma once
 
-#include <functionnal>
+#include <map>
 
-#include "Experiment.hpp"
+#include <myrmidon/utils/FileSystem.hpp>
 
+#include "Types.hpp"
 
 namespace fort {
 
@@ -16,9 +17,7 @@ namespace priv {
 
 class SnapshotIndex {
 public:
-	SnapshotCache()
-
-
+	static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListSnapshotFiles(const fs::path & path);
 private:
 
 

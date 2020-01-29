@@ -35,13 +35,6 @@ Experiment::Ptr ProtobufReadWriter::DoOpen(const fs::path & filename) {
 		                 if (line.has_antdata() == true ) {
 			                 LoadAnt(*res, line.antdata());
 		                 }
-
-		                 if (line.has_trackingdatadirectory() ) {
-			                 auto tdd = LoadTrackingDataDirectory(line.trackingdatadirectory(),
-			                                                      filename.parent_path());
-			                 res->AddTrackingDataDirectory(tdd);
-		                 }
-
 	                 });
 	return res;
 }
@@ -74,12 +67,6 @@ void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & 
 		                });
 	}
 
-	for (const auto & [p,tdd] : experiment.TrackingDataDirectories() ) {
-		lines.push_back([tdd](pb::FileLine & line) {
-			                SaveTrackingDataDirectory(*line.mutable_trackingdatadirectory(),tdd);
-		                });
-	}
-
 	ReadWriter::Write(filepath,h,lines);
 }
 
@@ -109,6 +96,10 @@ void ProtobufReadWriter::LoadExperiment(Experiment & e,const pb::Experiment & pb
 	e.SetFamily(fi->second);
 	e.SetThreshold(pb.threshold());
 
+	for ( const auto tddRelPath : pb.trackingdatadirectories() ) {
+		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+		e.AddTrackingDataDirectory(tdd);
+	}
 }
 
 
@@ -138,111 +129,116 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 		throw std::runtime_error("invalid Experiment::TagFamily enum value");
 	}
 	pb.set_tagfamily(fi->second);
-}
 
-
-Time ProtobufReadWriter::LoadTime(const pb::Time & pb, Time::MonoclockID mID) {
-	if (pb.monotonic() != 0 ) {
-		return Time::FromTimestampAndMonotonic(pb.timestamp(),pb.monotonic(),mID);
-	} else {
-		return Time::FromTimestamp(pb.timestamp());
-	}
-
-}
-
-void ProtobufReadWriter::SaveTime(pb::Time & pb,const Time & t) {
-	t.ToTimestamp(*pb.mutable_timestamp());
-	if ( t.HasMono() ) {
-		pb.set_monotonic(t.MonotonicValue());
+	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
+		pb.add_trackingdatadirectories(tdd->URI());
 	}
 }
 
-void ProtobufReadWriter::LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
-                                            const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
-                                            Time::MonoclockID mID) {
-	for(const auto & s : pb) {
-		si.Insert(s.frameid(),LoadTime(s.time(),mID),s.data());
-	}
-}
 
-void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
-                                            const TrackingDataDirectory::TrackingIndexer & si) {
-	for(const auto & s: si.Segments()) {
-		auto spb = pb->Add();
-		spb->set_frameid(std::get<0>(s));
-		SaveTime(*spb->mutable_time(),std::get<1>(s));
-		spb->set_data(std::get<2>(s));
-	}
-}
+// Time ProtobufReadWriter::LoadTime(const pb::Time & pb, Time::MonoclockID mID) {
+// 	if (pb.monotonic() != 0 ) {
+// 		return Time::FromTimestampAndMonotonic(pb.timestamp(),pb.monotonic(),mID);
+// 	} else {
+// 		return Time::FromTimestamp(pb.timestamp());
+// 	}
 
-MovieSegment::Ptr ProtobufReadWriter::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
-                                                       const fs::path & base) {
-	MovieSegment::ListOfOffset offsets;
-	for ( const auto & o : ms.offsets() ) {
-		offsets.push_back(std::make_pair(o.movieframeid(),o.offset()));
-	}
+// }
 
-	return std::make_shared<MovieSegment>(base / ms.path(),
-	                                      ms.trackingstart(),
-	                                      ms.trackingend(),
-	                                      ms.moviestart(),
-	                                      ms.movieend(),
-	                                      offsets);
-}
+// void ProtobufReadWriter::SaveTime(pb::Time & pb,const Time & t) {
+// 	t.ToTimestamp(*pb.mutable_timestamp());
+// 	if ( t.HasMono() ) {
+// 		pb.set_monotonic(t.MonotonicValue());
+// 	}
+// }
 
-void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
-                                          const MovieSegment::Ptr & ms,
-                                          const fs::path & base) {
-	pb->set_path(fs::relative(ms->MovieFilepath(),base).generic_string());
-	pb->set_trackingstart(ms->StartFrame());
-	pb->set_trackingend(ms->EndFrame());
-	pb->set_moviestart(ms->StartMovieFrame());
-	pb->set_movieend(ms->EndMovieFrame());
-	for ( const auto & o : ms->Offsets() ) {
-		auto pbo = pb->add_offsets();
-		pbo->set_movieframeid(o.first);
-		pbo->set_offset(o.second);
-	}
-}
+// void ProtobufReadWriter::LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
+//                                             const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
+//                                             Time::MonoclockID mID) {
+// 	for(const auto & s : pb) {
+// 		//		si.Insert(s.frameid(),LoadTime(s.time(),mID),s.data());
+// 	}
+// }
 
-TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
-	TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
+// void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
+//                                             const TrackingDataDirectory::TrackingIndexer & si) {
+// 	for(const auto & s: si.Segments()) {
+// 		auto spb = pb->Add();
+// 		spb->set_frameid(std::get<0>(s));
+// 		SaveTime(*spb->mutable_time(),std::get<1>(s));
+// 		//		spb->set_data(std::get<2>(s));
+// 	}
+// }
 
-	auto si = std::make_shared<TrackingDataDirectory::TrackingIndexer>();
-	LoadSegmentIndexer(*si,pb.tracking(),uid);
-	auto start = LoadTime(pb.startdate(),uid);
-	auto end = LoadTime(pb.enddate(),uid);
+// MovieSegment::Ptr ProtobufReadWriter::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+//                                                        const fs::path & base) {
+// 	MovieSegment::ListOfOffset offsets;
+// 	for ( const auto & o : ms.offsets() ) {
+// 		offsets.push_back(std::make_pair(o.movieframeid(),o.offset()));
+// 	}
 
-	MovieSegment::List movies;
-	movies.reserve(pb.movies_size());
-	for ( const auto & pbMS : pb.movies() ) {
-		movies.push_back(LoadMovieSegment(pbMS,base/pb.path()));
-	}
-	return TrackingDataDirectory(base / pb.path(),
-	                             base,
-	                             pb.startframe(),
-	                             pb.endframe(),
-	                             start,
-	                             end,
-	                             si,
-	                             movies);
-}
+// 	return std::make_shared<MovieSegment>(base / ms.path(),
+// 	                                      ms.trackingstart(),
+// 	                                      ms.trackingend(),
+// 	                                      ms.moviestart(),
+// 	                                      ms.movieend(),
+// 	                                      offsets);
+// }
 
-void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
-                                                   const TrackingDataDirectory & tdd) {
-	pb.Clear();
-	pb.set_path(tdd.URI().generic_string());
-	pb.set_startframe(tdd.StartFrame());
-	pb.set_endframe(tdd.EndFrame());
-	SaveTime(*pb.mutable_startdate(),tdd.StartDate());
-	SaveTime(*pb.mutable_enddate(),tdd.EndDate());
-	SaveSegmentIndexer(pb.mutable_tracking(),tdd.TrackingIndex());
+// void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
+//                                           const MovieSegment::Ptr & ms,
+//                                           const fs::path & base) {
+// 	pb->set_path(fs::relative(ms->MovieFilepath(),base).generic_string());
+// 	pb->set_trackingstart(ms->StartFrame());
+// 	pb->set_trackingend(ms->EndFrame());
+// 	pb->set_moviestart(ms->StartMovieFrame());
+// 	pb->set_movieend(ms->EndMovieFrame());
+// 	for ( const auto & o : ms->Offsets() ) {
+// 		auto pbo = pb->add_offsets();
+// 		pbo->set_movieframeid(o.first);
+// 		pbo->set_offset(o.second);
+// 	}
+// }
 
-	for ( const auto & ms : tdd.MovieSegments() ) {
-		SaveMovieSegment(pb.add_movies(),ms,tdd.AbsoluteFilePath());
-	}
+// TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
+// 	// TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
 
-}
+// 	// auto si = std::make_shared<TrackingDataDirectory::TrackingIndexer>();
+// 	// LoadSegmentIndexer(*si,pb.tracking(),uid);
+// 	// auto start = LoadTime(pb.startdate(),uid);
+// 	// auto end = LoadTime(pb.enddate(),uid);
+
+// 	// MovieSegment::List movies;
+// 	// movies.reserve(pb.movies_size());
+// 	// for ( const auto & pbMS : pb.movies() ) {
+// 	// 	movies.push_back(LoadMovieSegment(pbMS,base/pb.path()));
+// 	// }
+// 	// return TrackingDataDirectory(base / pb.path(),
+// 	//                              base,
+// 	//                              pb.startframe(),
+// 	//                              pb.endframe(),
+// 	//                              start,
+// 	//                              end,
+// 	//                              si,
+// 	//                              movies);
+// 	throw std::runtime_error("foo");
+// }
+
+// void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
+//                                                    const TrackingDataDirectory & tdd) {
+// 	pb.Clear();
+// 	// pb.set_path(tdd.URI().generic_string());
+// 	// pb.set_startframe(tdd.StartFrame());
+// 	// pb.set_endframe(tdd.EndFrame());
+// 	// SaveTime(*pb.mutable_startdate(),tdd.StartDate());
+// 	// SaveTime(*pb.mutable_enddate(),tdd.EndDate());
+// 	// SaveSegmentIndexer(pb.mutable_tracking(),tdd.TrackingIndex());
+
+// 	// for ( const auto & ms : tdd.MovieSegments() ) {
+// 	// 	SaveMovieSegment(pb.add_movies(),ms,tdd.AbsoluteFilePath());
+// 	// }
+
+// }
 
 
 void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {

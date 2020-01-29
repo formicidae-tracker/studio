@@ -194,7 +194,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 				                 try {
 					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
 					                                                            pb::Point2dToEigen(pb.tail()),
-					                                                            *tdd.FrameAt(pb.frame()),
+					                                                            *tdd->FrameAt(pb.frame()),
 					                                                            pb.tag());
 					                 d_estimates[e->Path()] = e;
 				                 } catch ( const std::exception & e )  {

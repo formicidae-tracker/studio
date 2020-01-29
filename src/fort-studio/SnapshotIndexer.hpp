@@ -20,7 +20,7 @@ class Snapshot;
 class SnapshotIndexer : public QObject {
 	Q_OBJECT
 public:
-	SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
+	SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory::ConstPtr & tdd,
 	                const fs::path & basedir,
 	                fort::tags::Family family,
 	                uint8_t threshold,
@@ -50,7 +50,7 @@ private:
 	void SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snapshot::ConstPtr & s);
 
 
-	fort::myrmidon::priv::TrackingDataDirectory d_tdd;
+	fort::myrmidon::priv::TrackingDataDirectory::ConstPtr d_tdd;
 	fs::path                                    d_basedir;
 
 	fort::tags::Family d_familyValue;

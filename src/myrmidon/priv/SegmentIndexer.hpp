@@ -2,6 +2,7 @@
 
 #include "../Time.hpp"
 #include "Types.hpp"
+#include "FrameReference.hpp"
 
 namespace fort {
 
@@ -25,10 +26,9 @@ class SegmentIndexer {
 public:
 	typedef std::shared_ptr<SegmentIndexer> Ptr;
 	typedef std::shared_ptr<const SegmentIndexer> ConstPtr;
-	typedef std::tuple<uint64_t,Time,T> Segment;
+	typedef std::pair<FrameReference,T> Segment;
 
-	void Insert(FrameID FID, const Time & t, const T & value);
-
+	void Insert(const FrameReference & ref, const T & value);
 
 	std::vector<Segment> Segments() const;
 
@@ -37,6 +37,7 @@ public:
 	const T & Find(const Time & t) const;
 
 private:
+	typedef std::shared_ptr<Segment> SegmentPtr;
 	class FrameComparator {
 	public:
 		bool operator() (const uint64_t & a, const uint64_t & b) const;
@@ -49,8 +50,8 @@ private:
 	};
 
 
-	std::map<uint64_t,T,FrameComparator> d_byID;
-	std::map<Time,T,TimeComparator> d_byTime;
+	std::map<FrameID,SegmentPtr,FrameComparator> d_byID;
+	std::map<Time,SegmentPtr,TimeComparator> d_byTime;
 
 };
 

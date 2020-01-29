@@ -11,7 +11,7 @@ public:
 	virtual ~TagExtractor();
 
 public slots:
-	void start(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
+	void start(const fort::myrmidon::priv::TrackingDataDirectory::ConstPtr & tdd,
 	           const fs::path & basedir);
 	void cancel();
 signals:

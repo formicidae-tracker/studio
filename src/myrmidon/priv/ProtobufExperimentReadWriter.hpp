@@ -43,35 +43,35 @@ public:
 	static void SaveExperiment(fort::myrmidon::pb::Experiment & pb, const Experiment & e);
 
 
-	static Time LoadTime(const fort::myrmidon::pb::Time & pb, Time::MonoclockID mID);
-	static void SaveTime(fort::myrmidon::pb::Time & pb, const Time & t);
+	// static Time LoadTime(const fort::myrmidon::pb::Time & pb, Time::MonoclockID mID);
+	// static void SaveTime(fort::myrmidon::pb::Time & pb, const Time & t);
 
-	static void LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
-	                               const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
-	                               Time::MonoclockID mID);
+	// static void LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
+	//                                const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
+	//                                Time::MonoclockID mID);
 
-	static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
-	                               const TrackingDataDirectory::TrackingIndexer & si);
-
-
-	static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
-	                                          const fs::path & base);
-
-	static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb, const MovieSegment::Ptr & ms,
-	                             const fs::path & base);
+	// static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
+	//                                const TrackingDataDirectory::TrackingIndexer & si);
 
 
-	// Unmarshals a TrackingDataDirectory from a protobuf message
-	// @pb the protobuf message to read from
-	// @return <TrackingDataDirectory> contained in the message
-	static TrackingDataDirectory LoadTrackingDataDirectory(const fort::myrmidon::pb::TrackingDataDirectory & pb,
-	                                                       const fs::path & base);
+	// static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+	//                                           const fs::path & base);
 
-	// Saves a TrackingDataDirectory to a protobuf message
-	// @pb the protobuf message to save to
-	// @tdd the <TrackingDataDirectory> to save
-	static void SaveTrackingDataDirectory(fort::myrmidon::pb::TrackingDataDirectory & pb,
-	                                      const TrackingDataDirectory & tdd);
+	// static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb, const MovieSegment::Ptr & ms,
+	//                              const fs::path & base);
+
+
+	// // Unmarshals a TrackingDataDirectory from a protobuf message
+	// // @pb the protobuf message to read from
+	// // @return <TrackingDataDirectory> contained in the message
+	// static TrackingDataDirectory LoadTrackingDataDirectory(const fort::myrmidon::pb::TrackingDataDirectory & pb,
+	//                                                        const fs::path & base);
+
+	// // Saves a TrackingDataDirectory to a protobuf message
+	// // @pb the protobuf message to save to
+	// // @tdd the <TrackingDataDirectory> to save
+	// static void SaveTrackingDataDirectory(fort::myrmidon::pb::TrackingDataDirectory & pb,
+	//                                       const TrackingDataDirectory & tdd);
 
 	// Loads an Ant from a protobuf message
 	// @e the <priv::Experiment> that will own the Ant

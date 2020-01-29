@@ -45,7 +45,7 @@ public :
 	// The AprilTag families supported by the FORT project.
 	//
 	// Maps <TrackingDataDirectory> by their path
-	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
+	typedef std::unordered_map<std::string,TrackingDataDirectory::ConstPtr> TrackingDataDirectoryByPath;
 
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
@@ -109,7 +109,7 @@ public :
 	// TODO: how to treat the case of multiple box experiment? In that
 	// case the frame will overlap. But its the same colony. But we
 	// have now two reference systems.
-	void AddTrackingDataDirectory(const TrackingDataDirectory & tdd);
+	void AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd);
 
 
 	// Removes a TrackingDataDirectory

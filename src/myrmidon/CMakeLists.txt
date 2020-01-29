@@ -60,6 +60,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Shape.hpp
                       priv/FrameReference.hpp
                       priv/TagInFrameReference.hpp
+                      priv/SnapshotCache.hpp
                       )
 
 
@@ -87,6 +88,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Shape.cpp
                       priv/FrameReference.cpp
                       priv/TagInFrameReference.cpp
+                      priv/SnapshotCache.cpp
                       )
 
 set(SRC_FILES Frame.cpp

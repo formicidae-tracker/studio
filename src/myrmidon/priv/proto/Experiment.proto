@@ -18,10 +18,18 @@ enum TagFamily {
 	STANDARD52H13 = 10;
 };
 
+
+message Zone {
+	string          name = 1;
+	repeated string trackingdatadirectories = 2;
+};
+
 message Experiment {
-	string    Name      = 2;
-	string    Author    = 3;
-	string    Comment   = 4;
-	TagFamily TagFamily = 5;
-	uint32    Threshold = 6;
+	string    name      = 2;
+	string    author    = 3;
+	string    comment   = 4;
+	TagFamily tagfamily = 5;
+	uint32    threshold = 6;
+
+	repeated string trackingdatadirectories = 7;
 };

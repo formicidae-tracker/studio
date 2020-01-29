@@ -22,21 +22,21 @@ inline bool  SegmentIndexer<T>::TimeComparator::operator() (const Time & a, cons
 
 
 template <typename T>
-inline void SegmentIndexer<T>::Insert(uint64_t frameID, const Time & t, const T & value) {
+inline void SegmentIndexer<T>::Insert(const FrameReference & ref, const T & value) {
 	//makes some test to respect invariant
-	auto ffi = d_byID.lower_bound(frameID);
-	auto tfi = d_byTime.lower_bound(t);
+	auto ffi = d_byID.lower_bound(ref.ID());
+	auto tfi = d_byTime.lower_bound(ref.Time());
 	if ( (ffi != d_byID.end() && tfi == d_byTime.end() ) ||
 	     (ffi == d_byID.end() && tfi != d_byTime.end() ) ||
 	     (ffi != d_byID.end() && tfi != d_byTime.end() && ffi->second != tfi->second ) ) {
 		std::ostringstream os;
-		os << "Wanted segment timing {Frame: " << frameID;
+		os << "Wanted segment timing {Frame: " << ref.ID();
 		if ( ffi != d_byID.end() ) {
 			os << "(previous: " << ffi->first << ") ";
 		} else {
 			os << "(no previous frame) ";
 		}
-		os << "Time: " << t;
+		os << "Time: " << ref.Time();
 		if ( tfi != d_byTime.end() ) {
 			os << "(previous: " << tfi->first << ")";
 		} else {
@@ -46,31 +46,28 @@ inline void SegmentIndexer<T>::Insert(uint64_t frameID, const Time & t, const T 
 		throw std::invalid_argument(os.str());
 	}
 
-	d_byID.insert(std::make_pair(frameID,value));
-	d_byTime.insert(std::make_pair(t,value));
+	auto toInsert = std::make_shared<SegmentIndexer<T>::Segment>(ref,value);
+
+	d_byID.insert(std::make_pair(ref.ID(),toInsert));
+	d_byTime.insert(std::make_pair(ref.Time(),toInsert));
 }
 
 template <typename T>
 inline std::vector<typename SegmentIndexer<T>::Segment> SegmentIndexer<T>::Segments() const {
-	std::vector<Segment> res(d_byTime.size());
-	std::vector<T> resPtr(d_byTime.size());
+	std::vector<Segment> res(d_byTime.size(),Segment(FrameReference("",0,Time()),T()));
+	std::vector<SegmentPtr> resPtr(d_byTime.size());
 	size_t i = res.size();
 	for ( const auto & [t,value] : d_byTime ) {
 		--i;
-		std::get<1>(res[i]) = t;
+		res[i] = *value;
 		resPtr[i] = value;
 	}
 	i = res.size();
 	for (const auto & [id,value] : d_byID ) {
 		--i;
-		if ( resPtr[i] != value  ) {
+		if ( resPtr[i].get() != value.get()  ) {
 			throw std::logic_error("Keys where not ordered appropriately");
 		}
-		std::get<0>(res[i]) = id;
-	}
-
-	for ( i = 0; i < resPtr.size(); ++i ) {
-		std::get<2>(res[i]) = resPtr[i];
 	}
 
 	return res;
@@ -84,7 +81,7 @@ inline const T & SegmentIndexer<T>::Find(uint64_t frameID) const {
 		os << frameID << " is too small";
 		throw std::out_of_range(os.str());
 	}
-	return fi->second;
+	return fi->second->second;
 }
 
 template <typename T>
@@ -96,7 +93,7 @@ inline const T & SegmentIndexer<T>::Find(const Time & t) const {
 		throw std::out_of_range(os.str());
 	}
 
-	return fi->second;
+	return fi->second->second;
 }
 
 

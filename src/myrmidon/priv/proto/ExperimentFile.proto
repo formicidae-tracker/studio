@@ -16,5 +16,4 @@ message FileHeader {
 message FileLine {
 	Experiment            Experiment = 1;
 	AntMetadata           AntData    = 2;
-	TrackingDataDirectory TrackingDataDirectory = 3;
 };

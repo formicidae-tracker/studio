@@ -25,32 +25,35 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		auto tdd = TrackingDataDirectory::Open(tddPath,TestSetup::Basedir());
 		auto endOpen = Time::Now();
 		std::cerr << "Opening " <<  tddPath << " took " << endOpen.Sub(startOpen) << std::endl;
-		EXPECT_EQ(tdd.URI(),"foo.0001");
-		EXPECT_EQ(tdd.StartFrame(),0);
-		EXPECT_EQ(tdd.EndFrame(),999);
-		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
-		EXPECT_TRUE(TimeEqual(tdd.EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
+		EXPECT_EQ(tdd->URI(),"foo.0001");
+		EXPECT_EQ(tdd->StartFrame(),0);
+		EXPECT_EQ(tdd->EndFrame(),999);
+		EXPECT_TRUE(TimeEqual(tdd->StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
+		EXPECT_TRUE(TimeEqual(tdd->EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
 
 		std::vector<SegmentIndexer<std::string>::Segment> segments;
 
 		for(size_t i = 0; i < 10; ++i ) {
 			std::ostringstream os;
 			os << "tracking." << std::setw(4) << std::setfill('0') << i << ".hermes";
-			segments.push_back(std::make_tuple(100*i,TestSetup::StartTime("foo.0001/" + os.str()),os.str()));
+			segments.push_back(std::make_pair(FrameReference("foo.0001",
+			                                                 100*i,
+			                                                 TestSetup::StartTime("foo.0001/" + os.str())),
+			                                  os.str()));
 		}
-		ASSERT_EQ(segments.size(),tdd.TrackingIndex().Segments().size());
+		ASSERT_EQ(segments.size(),tdd->TrackingSegments().Segments().size());
 		for(size_t i = 0;  i < segments.size(); ++i) {
-			EXPECT_EQ(std::get<0>(segments[i]),std::get<0>(tdd.TrackingIndex().Segments()[i]));
-			EXPECT_TRUE(TimeEqual(std::get<1>(segments[i]),std::get<1>(tdd.TrackingIndex().Segments()[i])));
-			EXPECT_EQ(std::get<2>(segments[i]),std::get<2>(tdd.TrackingIndex().Segments()[i]));
+			EXPECT_EQ(segments[i].first.ID(),tdd->TrackingSegments().Segments()[i].first.ID());
+			EXPECT_TRUE(TimeEqual(segments[i].first.Time(),tdd->TrackingSegments().Segments()[i].first.Time()));
+			EXPECT_EQ(segments[i].second,tdd->TrackingSegments().Segments()[i].second);
 		}
 
 
 
-		uint64_t i  = tdd.StartFrame();
+		uint64_t i  = tdd->StartFrame();
 		auto iterStart = Time::Now();
 
-		for ( auto it = tdd.begin(); it != tdd.end() ; ++it) {
+		for ( auto it = tdd->begin(); it != tdd->end() ; ++it) {
 			auto f = *it;
 			EXPECT_EQ(f->ID(),i);
 			ASSERT_EQ(f->Tags().size(),1);
@@ -59,8 +62,8 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		}
 		auto iterEnd = Time::Now();
 		std::cerr << "Iterating over all frames from " <<  tddPath << " took " << iterEnd.Sub(iterStart) << std::endl;
-		i = tdd.EndFrame()-3;
-		for( auto it = tdd.FrameAt(tdd.EndFrame()-3); it != tdd.end(); ++it ) {
+		i = tdd->EndFrame()-3;
+		for( auto it = tdd->FrameAt(tdd->EndFrame()-3); it != tdd->end(); ++it ) {
 			EXPECT_EQ((*it)->ID(),i);
 			ASSERT_EQ((*it)->Tags().size(),1);
 			EXPECT_EQ((*it)->Tags().Get(0).id(),123);
@@ -134,23 +137,24 @@ TEST_F(TrackingDataDirectoryUTest,HasUIDBasedOnPath) {
 }
 
 
-TEST_F(TrackingDataDirectoryUTest,HaveCOnstructorChecks) {
+TEST_F(TrackingDataDirectoryUTest,HaveConstructorChecks) {
 	uint64_t startFrame = 10;
 	uint64_t endFrame = 20;
 	auto startTime = Time::Parse("2019-11-02T22:02:24.674+01:00");
 	auto endTime = Time::Parse("2019-11-02T22:02:25.783+01:00");
-	auto segments = std::make_shared<SegmentIndexer<std::string> >();
-	MovieSegment::List movies;
+	auto segments = std::make_shared<TrackingDataDirectory::TrackingIndex>();
+	auto movies = std::make_shared<TrackingDataDirectory::MovieIndex>();
+	TrackingDataDirectory::FrameReferenceCache cache;
 	EXPECT_NO_THROW({
-			TrackingDataDirectory("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies);
+			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies,cache);
 		});
 
 	EXPECT_THROW({
-			TrackingDataDirectory("foo","bar",endFrame,startFrame,startTime,endTime,segments,movies);
+			TrackingDataDirectory::Create("foo","bar",endFrame,startFrame,startTime,endTime,segments,movies,cache);
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			TrackingDataDirectory("foo","bar",startFrame,endFrame,endTime,startTime,segments,movies);
+			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,endTime,startTime,segments,movies,cache);
 		},std::invalid_argument);
 
 
