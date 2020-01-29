@@ -25,9 +25,9 @@ fort::myrmidon::priv::TagID TagInFramePointer::TagValue() const {
 fs::path TagInFramePointer::Path() const {
 	std::ostringstream os;
 	os << d_tagValue;
-	return d_frame->Path() / os.str();
+	return d_frame->URI() / os.str();
 }
 
 const fs::path & TagInFramePointer::ParentPath() const {
-	return d_frame->ParentPath();
+	return d_frame->ParentURI();
 }

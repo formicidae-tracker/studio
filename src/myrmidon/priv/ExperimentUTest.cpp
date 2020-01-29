@@ -54,7 +54,7 @@ TEST_F(ExperimentUTest,IOTest) {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		auto tdd = e->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
-		ASSERT_EQ(tdd["foo.0000"].Path(),"foo.0000");
+		ASSERT_EQ(tdd["foo.0000"].URI(),"foo.0000");
 		ASSERT_EQ(tdd["foo.0000"].AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
 		ASSERT_EQ(e->ConstIdentifier().Ants().size(),3);
 		EXPECT_EQ(e->ConstIdentifier().Ants().find(1)->second->ID(),1);

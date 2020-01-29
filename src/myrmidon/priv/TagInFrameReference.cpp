@@ -8,7 +8,7 @@ namespace priv {
 TagInFrameReference::TagInFrameReference(const FrameReference & reference,
                                          TagID tagID)
 	: d_reference(reference)
-	, d_path(d_reference.Path() / std::to_string(tagID))
+	, d_URI(d_reference.URI() / "tags" / std::to_string(tagID))
 	, d_tagID(tagID) {
 }
 
@@ -22,8 +22,8 @@ TagID TagInFrameReference::TagValue() const {
 	return d_tagID;
 }
 
-const fs::path & TagInFrameReference::Path() const {
-	return d_path;
+const fs::path & TagInFrameReference::URI() const {
+	return d_URI;
 }
 
 
@@ -33,5 +33,5 @@ const fs::path & TagInFrameReference::Path() const {
 
 std::ostream& operator<<(std::ostream & out,
                          const fort::myrmidon::priv::TagInFrameReference & p) {
-	return out << p.Frame() << "/" << p.TagValue();
+	return out << p.Frame() << "/tags/" << p.TagValue();
 }

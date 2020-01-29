@@ -89,7 +89,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 	}
 
 
-	auto path = tp.Basedir / tp.Frame->ParentPath() / tp.RelativeImagePath;
+	auto path = tp.Basedir / tp.Frame->ParentURI() / tp.RelativeImagePath;
 	QImage image(path.c_str());
 	if ( image.format() != QImage::Format_Grayscale8 ) {
 		image = image.convertToFormat(QImage::Format_Grayscale8);

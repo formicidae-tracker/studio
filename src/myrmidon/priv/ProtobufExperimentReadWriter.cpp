@@ -231,7 +231,7 @@ TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::Tr
 void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
                                                    const TrackingDataDirectory & tdd) {
 	pb.Clear();
-	pb.set_path(tdd.Path().generic_string());
+	pb.set_path(tdd.URI().generic_string());
 	pb.set_startframe(tdd.StartFrame());
 	pb.set_endframe(tdd.EndFrame());
 	SaveTime(*pb.mutable_startdate(),tdd.StartDate());

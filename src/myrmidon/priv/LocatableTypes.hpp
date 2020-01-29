@@ -23,18 +23,17 @@ public:
 };
 
 
-// A ressource referencable to an Experiment
+// A ressource identifiable by its URI
 //
-// <RelativelyReferencable> designs a ressource relatively to an
-// ExperimentRoot. It is not necessarly a file on the filesystem.
-class RelativelyReferencable {
+// <Identifiable> designs a ressource identifiable by <URI>.
+class Identifiable {
 public:
-	virtual ~RelativelyReferencable() {};
+	virtual ~Identifiable() {};
 
 	// The relative path of the ressource
 	//
 	// @return a relative path designating the ressource.
-	virtual const fs::path & Path() const = 0;
+	virtual const fs::path & URI() const = 0;
 };
 
 } //namespace priv

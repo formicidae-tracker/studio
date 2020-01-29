@@ -34,7 +34,7 @@ void AntIdentificationWidget::on_startFrame_framePointerUpdated(const fort::myrm
 		qDebug() << "start:  no frame";
 		return;
 	}
-	qDebug() << "start: " << frame->Path().c_str();
+	qDebug() << "start: " << frame->URI().c_str();
 }
 
 void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrame::ConstPtr & frame) {
@@ -42,6 +42,6 @@ void AntIdentificationWidget::on_endFrame_framePointerUpdated(const fort::myrmid
 		qDebug() << "end:  no frame";
 		return;
 	}
-	qDebug() << "end: " << frame->Path().c_str();
+	qDebug() << "end: " << frame->URI().c_str();
 
 }

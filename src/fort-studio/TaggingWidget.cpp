@@ -455,7 +455,7 @@ void TaggingWidget::on_newAntButton_clicked() {
 	Time::ConstPtr start;
 	Time::ConstPtr end;
 	if ( d_controller->experiment().ConstIdentifier().FreeRangeContaining(start,end,e->TagValue(),e->Frame()->Time()) == false ) {
-		qCritical() << e->Frame()->Path().generic_string().c_str() << " already identifies an ant";
+		qCritical() << e->Frame()->URI().generic_string().c_str() << " already identifies an ant";
 		return;
 	}
 

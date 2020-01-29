@@ -37,7 +37,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              const TrackingIndexer::Ptr & si,
                                              const MovieSegment::List & movies)
 	: d_absoluteFilePath(fs::weakly_canonical(path))
-	, d_path(fs::relative(d_absoluteFilePath,fs::weakly_canonical(experimentRoot)))
+	, d_URI(fs::relative(d_absoluteFilePath,fs::weakly_canonical(experimentRoot)))
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_segments(si)
@@ -62,8 +62,8 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 }
 
 
-const fs::path &  TrackingDataDirectory::Path() const {
-	return d_path;
+const fs::path &  TrackingDataDirectory::URI() const {
+	return d_URI;
 }
 
 const fs::path & TrackingDataDirectory::AbsoluteFilePath() const {

@@ -31,7 +31,7 @@ namespace priv {
 // contains the tracking data.
 //
 // Each directory has a start and end time and a start and end frame
-class TrackingDataDirectory : public TimeValid, public FileSystemLocatable, public RelativelyReferencable {
+class TrackingDataDirectory : public TimeValid, public FileSystemLocatable, public Identifiable {
 public:
 	typedef int32_t UID;
 	typedef SegmentIndexer<std::string >  TrackingIndexer;
@@ -104,7 +104,7 @@ public:
 	//
 	// Gets the path designating the TrackingDataDirectory
 	// @return a path relative to the experiment <Experiment>
-	const fs::path & Path() const override;
+	const fs::path & URI() const override;
 
 	// The directory absolute path
 	//
@@ -159,7 +159,7 @@ public:
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
 
-	fs::path       d_absoluteFilePath, d_path;
+	fs::path       d_absoluteFilePath, d_URI;
 	uint64_t       d_startFrame,d_endFrame;
 
 	TrackingIndexer::Ptr d_segments;

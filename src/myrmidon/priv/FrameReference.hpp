@@ -11,31 +11,37 @@ namespace myrmidon {
 
 namespace priv {
 
-class FrameReference : public RelativelyReferencable {
+class FrameReference : public Identifiable {
 public:
 	typedef std::shared_ptr<FrameReference> Ptr;
 	typedef std::shared_ptr<const FrameReference> ConstPtr;
 
-	FrameReference(const std::string & path,
+	FrameReference(const std::string & parentURI,
 	               FrameID frameID,
 	               const fort::myrmidon::Time & Time);
 
 	virtual ~FrameReference();
 
-	const fs::path & ParentPath() const;
+	const fs::path & ParentURI() const;
 
-	// Returns the <Time> of the Frame
+	// The Time of the Frame
+	//
+	// @return the <Time> of the designated frame
 	const fort::myrmidon::Time & Time() const;
 
-	// Returns the <FrameID> of the frame
+	// The FrameID of the frame
+	//
+	// @return the <FrameID> of the designated frame
 	FrameID ID() const;
 
 	// A Path uniquely defining the FramePointer
+	//
 	// @return a fs::path uniquely identifying the Frame
-	const fs::path & Path() const override;
+	const fs::path & URI() const override;
 
 private:
-	fs::path             d_parentPath,d_path;
+	fs::path             d_parentURI;
+	fs::path             d_URI;
 	FrameID              d_id;
 	fort::myrmidon::Time d_time;
 };

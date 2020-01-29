@@ -50,8 +50,8 @@ void Experiment::Save(const fs::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.Path().generic_string()) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd.Path().string() + "' is already present");
+	if (d_dataDirs.count(toAdd.URI().generic_string()) != 0 ) {
+		throw std::invalid_argument("directory '" + toAdd.URI().string() + "' is already present");
 	}
 
 	std::vector<const TrackingDataDirectory*> sortedInTime;
@@ -66,7 +66,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::invalid_argument(os.str());
 	}
 
-	d_dataDirs.insert(std::make_pair(toAdd.Path().generic_string(),toAdd));
+	d_dataDirs.insert(std::make_pair(toAdd.URI().generic_string(),toAdd));
 }
 
 bool Experiment::ContainsFramePointer()  const  {

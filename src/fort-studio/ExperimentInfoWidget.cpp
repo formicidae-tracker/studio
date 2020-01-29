@@ -87,7 +87,7 @@ void ExperimentInfoWidget::on_removeButton_clicked() {
 void ExperimentInfoWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
 	d_ui->listWidget->clear();
 	for(auto const & tdd : tdds ) {
-		auto item = new QListWidgetItem(tdd.second.Path().c_str(),d_ui->listWidget);
+		auto item = new QListWidgetItem(tdd.second.URI().c_str(),d_ui->listWidget);
 		item->setIcon(QIcon::fromTheme("folder"));
 		d_ui->listWidget->addItem(item);
 	}

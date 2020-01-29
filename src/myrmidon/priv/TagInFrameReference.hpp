@@ -9,7 +9,7 @@ namespace myrmidon {
 namespace priv {
 
 
-class TagInFrameReference : RelativelyReferencable {
+class TagInFrameReference : Identifiable {
 public:
 	TagInFrameReference(const FrameReference & frame,
 	                    fort::myrmidon::priv::TagID tagID);
@@ -18,11 +18,11 @@ public:
 	const FrameReference & Frame() const;
 	TagID TagValue() const;
 
-	const fs::path & Path() const override;
+	const fs::path & URI() const override;
 
 private:
 	FrameReference d_reference;
-	fs::path       d_path;
+	fs::path       d_URI;
 	TagID          d_tagID;
 };
 
