@@ -100,22 +100,27 @@ public:
 	                      const TrackingIndexer::Ptr & segments,
 	                      const MovieSegment::List & movies);
 
-
+	// The directory path designator
+	//
 	// Gets the path designating the TrackingDataDirectory
 	// @return a path relative to the experiment <Experiment>
 	const fs::path & Path() const override;
 
-	// Gets the actual path on the filesystem of teh TrackingDataDirectory
+	// The directory absolute path
+	//
+	// Gets the actual path on the filesystem of the TrackingDataDirectory
 	// @return the actual path on the filesystem
 	const fs::path & AbsoluteFilePath() const override;
 
-	// Gets the first frame number
-	// @return the first frame number in this directory
-	uint64_t StartFrame() const;
+	// Gets the first frame number.
+	//
+	// @return the first <FrameID> in this directory
+	FrameID StartFrame() const;
 
 	// Gets the last frame number
-	// @return the last frame number in this directory
-	uint64_t EndFrame() const;
+	//
+	// @return the last <FrameID> in this directory
+	FrameID EndFrame() const;
 
 	// Gets the time of the first frame in this directory
 	// @return the time of the first frame in this directory

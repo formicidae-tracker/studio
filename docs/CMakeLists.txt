@@ -25,6 +25,8 @@ add_custom_target(docs-private
 	        -I/usr/include/eigen3
 	        -I${PROJECT_BINARY_DIR}/src/
 	        -I${PROJECT_SOURCE_DIR}/src/
+	        -I${fort-tags_SOURCE_DIR}/include
+	        -I${APRILTAG_INCLUDE_DIRS}
 	        --
 	        --report
 	        --output
