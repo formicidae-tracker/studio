@@ -3,8 +3,7 @@
 #include "../Time.hpp"
 
 #include "Types.hpp"
-
-#include <myrmidon/utils/FileSystem.hpp>
+#include "LocatableTypes.hpp"
 
 namespace fort {
 
@@ -12,16 +11,18 @@ namespace myrmidon {
 
 namespace priv {
 
-class FrameReference {
+class FrameReference : public RelativelyReferencable {
 public:
+	typedef std::shared_ptr<FrameReference> Ptr;
+	typedef std::shared_ptr<const FrameReference> ConstPtr;
+
 	FrameReference(const std::string & path,
 	               FrameID frameID,
 	               const fort::myrmidon::Time & Time);
 
 	virtual ~FrameReference();
 
-	// Returns the basepath to the corresponding frame
-	const std::string & Basepath() const;
+	const fs::path & ParentPath() const;
 
 	// Returns the <Time> of the Frame
 	const fort::myrmidon::Time & Time() const;
@@ -31,10 +32,10 @@ public:
 
 	// A Path uniquely defining the FramePointer
 	// @return a fs::path uniquely identifying the Frame
-	fs::path Path() const;
+	const fs::path & Path() const override;
 
 private:
-	std::string          d_path;
+	fs::path             d_parentPath,d_path;
 	FrameID              d_id;
 	fort::myrmidon::Time d_time;
 };

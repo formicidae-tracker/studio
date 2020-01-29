@@ -8,6 +8,7 @@ namespace priv {
 TagInFrameReference::TagInFrameReference(const FrameReference & reference,
                                          TagID tagID)
 	: d_reference(reference)
+	, d_path(d_reference.Path() / std::to_string(tagID))
 	, d_tagID(tagID) {
 }
 
@@ -21,8 +22,8 @@ TagID TagInFrameReference::TagValue() const {
 	return d_tagID;
 }
 
-fs::path TagInFrameReference::Path() const {
-	return d_reference.Path() / std::to_string(d_tagID);
+const fs::path & TagInFrameReference::Path() const {
+	return d_path;
 }
 
 

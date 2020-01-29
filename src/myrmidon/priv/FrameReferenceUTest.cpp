@@ -32,7 +32,7 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 		std::ostringstream os;
 		os << a;
 		EXPECT_EQ(os.str(),d.Expected);
-		EXPECT_EQ(a.Basepath(),d.Path);
+		EXPECT_EQ(a.ParentPath(),d.Path);
 		EXPECT_EQ(a.Path(),d.Path / std::to_string(d.FID));
 	}
 

@@ -25,7 +25,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		auto tdd = TrackingDataDirectory::Open(tddPath,TestSetup::Basedir());
 		auto endOpen = Time::Now();
 		std::cerr << "Opening " <<  tddPath << " took " << endOpen.Sub(startOpen) << std::endl;
-		EXPECT_EQ(tdd.LocalPath(),"foo.0001");
+		EXPECT_EQ(tdd.Path(),"foo.0001");
 		EXPECT_EQ(tdd.StartFrame(),0);
 		EXPECT_EQ(tdd.EndFrame(),999);
 		EXPECT_TRUE(TimeEqual(tdd.StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));

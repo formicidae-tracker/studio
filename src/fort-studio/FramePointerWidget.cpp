@@ -69,8 +69,8 @@ void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment
 	size_t i = 0;
 	bool set = false;
 	for ( const auto & tdd : sorted ) {
-		d_ui->comboBox->insertItem(i,tdd->LocalPath().generic_string().c_str(),tdd->LocalPath().generic_string().c_str());
-		if ( tdd->LocalPath() == selected ) {
+		d_ui->comboBox->insertItem(i,tdd->Path().generic_string().c_str(),tdd->Path().generic_string().c_str());
+		if ( tdd->Path() == selected ) {
 			d_ui->comboBox->setCurrentIndex(i);
 			set = true;
 		}

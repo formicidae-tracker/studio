@@ -3,7 +3,6 @@
 
 #include <cstdint>
 
-
 namespace fort {
 
 namespace myrmidon {
@@ -17,7 +16,6 @@ typedef uint64_t FrameID;
 typedef uint64_t MovieFrameID;
 
 typedef uint32_t TagID;
-
 
 
 

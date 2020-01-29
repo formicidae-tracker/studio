@@ -17,7 +17,7 @@ public:
 
 	fs::path Path() const;
 
-	fs::path Base() const;
+	const fs::path & ParentPath() const;
 
 
 private:

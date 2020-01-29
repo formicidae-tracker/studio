@@ -89,7 +89,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 	}
 
 
-	auto path = tp.Basedir / tp.Frame->Basepath() / tp.RelativeImagePath;
+	auto path = tp.Basedir / tp.Frame->ParentPath() / tp.RelativeImagePath;
 	QImage image(path.c_str());
 	if ( image.format() != QImage::Format_Grayscale8 ) {
 		image = image.convertToFormat(QImage::Format_Grayscale8);
@@ -118,7 +118,7 @@ void SnapshotIndexer::Process(ImageToProcess & tp) {
 }
 
 size_t SnapshotIndexer::start() {
-	for ( const auto & de : fs::directory_iterator(d_tdd.FilePath() / "ants" ) ) {
+	for ( const auto & de : fs::directory_iterator(d_tdd.AbsoluteFilePath() / "ants" ) ) {
 		auto ext = de.path().extension().string();
 		std::transform(ext.begin(),ext.end(),ext.begin(),[](unsigned char c){return std::tolower(c);});
 		if ( ext != ".png" ) {
@@ -126,7 +126,7 @@ size_t SnapshotIndexer::start() {
 		}
 		ImageToProcess toProcess;
 		toProcess.Basedir = d_basedir;
-		toProcess.RelativeImagePath = fs::relative(de.path(),d_tdd.FilePath());
+		toProcess.RelativeImagePath = fs::relative(de.path(),d_tdd.AbsoluteFilePath());
 		toProcess.Filter = NULL;
 
 		std::regex filtered("ant_([0-9]+)_frame_([0-9]+).png");
@@ -232,7 +232,7 @@ void SnapshotIndexer::LoadCache() {
 	                                                      fort::myrmidon::pb::Snapshot>
 		ReadWriter;
 	try {
-		ReadWriter::Read(d_tdd.FilePath() / "ants" / "snapshot.cache",
+		ReadWriter::Read(d_tdd.AbsoluteFilePath() / "ants" / "snapshot.cache",
 		                 [this](const fort::myrmidon::pb::SnapshotCacheHeader & h) {
 			                 if ( h.threshold() != d_detector->qtp.min_white_black_diff ) {
 				                 std::ostringstream os;
@@ -279,7 +279,7 @@ void SnapshotIndexer::SaveCache() {
 	}
 
 	try {
-		ReadWriter::Write(d_tdd.FilePath() / "ants" / "snapshot.cache",h,lines);
+		ReadWriter::Write(d_tdd.AbsoluteFilePath() / "ants" / "snapshot.cache",h,lines);
 	} catch ( const std::exception & e) {
 		std::cerr << "Could not save cache : " << e.what() << std::endl;
 	}

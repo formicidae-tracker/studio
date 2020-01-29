@@ -12,7 +12,7 @@
 #include "Identifier.hpp"
 
 #include "ForwardDeclaration.hpp"
-
+#include "LocatableTypes.hpp"
 namespace fort {
 namespace myrmidon {
 
@@ -40,7 +40,7 @@ using namespace fort::myrmidon;
 // <myrmidon::Ant::ID> when they originate from the same
 // <Identifier>. Anyway dataset are very large and we should not try
 // to anlayse several of them in the same program.
-class Experiment {
+class Experiment : public FileSystemLocatable {
 public :
 	// The AprilTag families supported by the FORT project.
 	//
@@ -87,7 +87,7 @@ public :
 	// The absolute path of the Experiment
 	// @return the absolute fs::path of the <priv::Experiment> on the
 	//         filesysten
-	const fs::path & AbsolutePath() const;
+	const fs::path & AbsoluteFilePath() const override;
 
 	// The parent dir of the Experiment
 	//

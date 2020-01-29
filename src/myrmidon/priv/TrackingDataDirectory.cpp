@@ -36,14 +36,14 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
                                              const Time & enddate,
                                              const TrackingIndexer::Ptr & si,
                                              const MovieSegment::List & movies)
-	: d_experimentRoot(fs::weakly_canonical(experimentRoot))
-	, d_path(fs::relative(path,d_experimentRoot))
+	: d_absoluteFilePath(fs::weakly_canonical(path))
+	, d_path(fs::relative(d_absoluteFilePath,fs::weakly_canonical(experimentRoot)))
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_segments(si)
 	, d_movies(movies)
-	, d_uid(GetUID(d_experimentRoot/d_path))
-	, d_endIterator(d_experimentRoot/d_path,si,startFrame,endFrame,endFrame+1,d_uid) {
+	, d_uid(GetUID(d_absoluteFilePath))
+	, d_endIterator(d_absoluteFilePath,si,startFrame,endFrame,endFrame+1,d_uid) {
 
 	d_start = std::make_shared<const Time>(startdate);
 	d_end = std::make_shared<const Time>(enddate);
@@ -62,14 +62,13 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & path,
 }
 
 
-const fs::path &  TrackingDataDirectory::LocalPath() const {
+const fs::path &  TrackingDataDirectory::Path() const {
 	return d_path;
 }
 
-fs::path  TrackingDataDirectory::FilePath() const {
-	return d_experimentRoot / d_path;
+const fs::path & TrackingDataDirectory::AbsoluteFilePath() const {
+	return d_absoluteFilePath;
 }
-
 
 uint64_t TrackingDataDirectory::StartFrame() const {
 	return d_startFrame;
@@ -367,7 +366,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::begin() const {
-	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,d_startFrame,GetUID());
+	return const_iterator(d_absoluteFilePath,d_segments,d_startFrame,d_endFrame,d_startFrame,GetUID());
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t frameID) const {
@@ -376,7 +375,7 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t fr
 		os << "Could not find frame " << frameID << " in [" << d_startFrame << ";" << d_endFrame << "]";
 		throw std::out_of_range(os.str());
 	}
-	return const_iterator(d_experimentRoot / d_path,d_segments,d_startFrame,d_endFrame,frameID,GetUID());
+	return const_iterator(d_absoluteFilePath,d_segments,d_startFrame,d_endFrame,frameID,GetUID());
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {

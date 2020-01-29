@@ -6,7 +6,6 @@
 
 #include "../Ant.hpp"
 
-
 namespace fort {
 
 namespace myrmidon {

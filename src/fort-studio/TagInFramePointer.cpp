@@ -28,6 +28,6 @@ fs::path TagInFramePointer::Path() const {
 	return d_frame->Path() / os.str();
 }
 
-fs::path TagInFramePointer::Base() const {
-	return d_frame->Basepath();
+const fs::path & TagInFramePointer::ParentPath() const {
+	return d_frame->ParentPath();
 }

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "RawFrame.hpp"
-#include "Types.hpp"
+#include "FrameReference.hpp"
 
 namespace fort {
 
@@ -10,7 +9,7 @@ namespace myrmidon {
 namespace priv {
 
 
-class TagInFrameReference {
+class TagInFrameReference : RelativelyReferencable {
 public:
 	TagInFrameReference(const FrameReference & frame,
 	                    fort::myrmidon::priv::TagID tagID);
@@ -19,10 +18,11 @@ public:
 	const FrameReference & Frame() const;
 	TagID TagValue() const;
 
-	fs::path Path() const;
+	const fs::path & Path() const override;
 
 private:
 	FrameReference d_reference;
+	fs::path       d_path;
 	TagID          d_tagID;
 };
 

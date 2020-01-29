@@ -93,7 +93,7 @@ void MainWindow::on_actionOpen_triggered() {
 	}
 
 	QString dir = "";
-	if ( d_controller != NULL && !d_controller->experiment().AbsolutePath().empty()) {
+	if ( d_controller != NULL && !d_controller->experiment().AbsoluteFilePath().empty()) {
 		dir = d_controller->experiment().Basedir().c_str();
 	}
 
@@ -123,12 +123,12 @@ void MainWindow::on_actionSave_triggered() {
 	if ( d_controller == NULL ) {
 		return;
 	}
-	Error err = saveAll(d_controller->experiment().AbsolutePath().c_str());
+	Error err = saveAll(d_controller->experiment().AbsoluteFilePath().c_str());
 	if ( err.OK() == false ) {
 		qCritical() << err.what();
 		return;
 	}
-	qInfo() << tr("Saved '%1'").arg(d_controller->experiment().AbsolutePath().c_str());
+	qInfo() << tr("Saved '%1'").arg(d_controller->experiment().AbsoluteFilePath().c_str());
 }
 
 void MainWindow::on_actionSaveAs_triggered() {
@@ -192,7 +192,7 @@ Error MainWindow::maybeSave() {
 
 	switch(res) {
 	case QMessageBox::Save:
-		return saveAll(d_controller->experiment().AbsolutePath().c_str());
+		return saveAll(d_controller->experiment().AbsoluteFilePath().c_str());
 	case QMessageBox::Cancel:
 		return UserDiscard;
 	default:
@@ -241,7 +241,7 @@ void MainWindow::pushRecent() {
 	if ( d_controller == NULL ) {
 		return;
 	}
-	QString newPath = d_controller->experiment().AbsolutePath().c_str();
+	QString newPath = d_controller->experiment().AbsoluteFilePath().c_str();
 
 	//if already in the vector, just move it to the top
 	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {

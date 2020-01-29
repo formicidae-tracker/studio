@@ -8,6 +8,7 @@
 
 #include <fort-hermes/FileContext.h>
 
+#include "LocatableTypes.hpp"
 #include "TimeValid.hpp"
 #include "SegmentIndexer.hpp"
 
@@ -30,7 +31,7 @@ namespace priv {
 // contains the tracking data.
 //
 // Each directory has a start and end time and a start and end frame
-class TrackingDataDirectory : public TimeValid {
+class TrackingDataDirectory : public TimeValid, public FileSystemLocatable, public RelativelyReferencable {
 public:
 	typedef int32_t UID;
 	typedef SegmentIndexer<std::string >  TrackingIndexer;
@@ -90,7 +91,7 @@ public:
 
 	TrackingDataDirectory();
 
-	TrackingDataDirectory(const fs::path & path,
+	TrackingDataDirectory(const fs::path & filepath,
 	                      const fs::path & experimentRoot,
 	                      uint64_t startFrame,
 	                      uint64_t endFrame,
@@ -102,11 +103,11 @@ public:
 
 	// Gets the path designating the TrackingDataDirectory
 	// @return a path relative to the experiment <Experiment>
-	const fs::path & LocalPath() const;
+	const fs::path & Path() const override;
 
 	// Gets the actual path on the filesystem of teh TrackingDataDirectory
 	// @return the actual path on the filesystem
-	fs::path FilePath() const;
+	const fs::path & AbsoluteFilePath() const override;
 
 	// Gets the first frame number
 	// @return the first frame number in this directory
@@ -153,7 +154,7 @@ public:
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
 
-	fs::path       d_experimentRoot, d_path;
+	fs::path       d_absoluteFilePath, d_path;
 	uint64_t       d_startFrame,d_endFrame;
 
 	TrackingIndexer::Ptr d_segments;

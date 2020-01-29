@@ -338,7 +338,7 @@ Error TaggingWidget::save() {
 
 	std::map<fs::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
 	for(const auto & [p,e] : d_estimates ) {
-		sortedEstimate[e->Base()].push_back(e);
+		sortedEstimate[e->ParentPath()].push_back(e);
 	}
 
 	pb::EstimateHeader h;

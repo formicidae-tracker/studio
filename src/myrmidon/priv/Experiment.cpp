@@ -50,8 +50,8 @@ void Experiment::Save(const fs::path & filepath) const {
 }
 
 void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.LocalPath().generic_string()) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd.LocalPath().string() + "' is already present");
+	if (d_dataDirs.count(toAdd.Path().generic_string()) != 0 ) {
+		throw std::invalid_argument("directory '" + toAdd.Path().string() + "' is already present");
 	}
 
 	std::vector<const TrackingDataDirectory*> sortedInTime;
@@ -66,7 +66,7 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
 		throw std::invalid_argument(os.str());
 	}
 
-	d_dataDirs.insert(std::make_pair(toAdd.LocalPath().generic_string(),toAdd));
+	d_dataDirs.insert(std::make_pair(toAdd.Path().generic_string(),toAdd));
 }
 
 bool Experiment::ContainsFramePointer()  const  {
@@ -144,7 +144,7 @@ void Experiment::SetThreshold(uint8_t th) {
 	d_threshold = th;
 }
 
-const fs::path & Experiment::AbsolutePath() const {
+const fs::path & Experiment::AbsoluteFilePath() const {
 	return d_absoluteFilepath;
 }
 

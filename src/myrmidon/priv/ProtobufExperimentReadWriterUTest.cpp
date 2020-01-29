@@ -151,7 +151,7 @@ TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
 
 	auto tdd = ProtobufReadWriter::LoadTrackingDataDirectory(pbTdd,"foo");
 
-	ASSERT_EQ(tdd.LocalPath(),"foo.0001");
+	ASSERT_EQ(tdd.Path(),"foo.0001");
 	ASSERT_EQ(tdd.StartFrame(),5);
 	ASSERT_EQ(tdd.EndFrame(),8);
 	ASSERT_EQ(tdd.StartDate().ToTimestamp(),pbTdd.startdate().timestamp());
