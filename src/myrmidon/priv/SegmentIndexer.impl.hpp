@@ -28,7 +28,7 @@ inline void SegmentIndexer<T>::Insert(uint64_t frameID, const Time & t, const T 
 	auto tfi = d_byTime.lower_bound(t);
 	if ( (ffi != d_byID.end() && tfi == d_byTime.end() ) ||
 	     (ffi == d_byID.end() && tfi != d_byTime.end() ) ||
-	     (ffi != d_byID.end() && tfi != d_byTime.end() && ffi->second.get() != tfi->second.get() ) ) {
+	     (ffi != d_byID.end() && tfi != d_byTime.end() && ffi->second != tfi->second ) ) {
 		std::ostringstream os;
 		os << "Wanted segment timing {Frame: " << frameID;
 		if ( ffi != d_byID.end() ) {
@@ -45,16 +45,15 @@ inline void SegmentIndexer<T>::Insert(uint64_t frameID, const Time & t, const T 
 		os << "} is inconsistent with internal data";
 		throw std::invalid_argument(os.str());
 	}
-	auto valueptr = std::make_shared<T>(value);
 
-	d_byID.insert(std::make_pair(frameID,valueptr));
-	d_byTime.insert(std::make_pair(t,valueptr));
+	d_byID.insert(std::make_pair(frameID,value));
+	d_byTime.insert(std::make_pair(t,value));
 }
 
 template <typename T>
 inline std::vector<typename SegmentIndexer<T>::Segment> SegmentIndexer<T>::Segments() const {
 	std::vector<Segment> res(d_byTime.size());
-	std::vector<std::shared_ptr<std::string> > resPtr(d_byTime.size());
+	std::vector<T> resPtr(d_byTime.size());
 	size_t i = res.size();
 	for ( const auto & [t,value] : d_byTime ) {
 		--i;
@@ -64,16 +63,15 @@ inline std::vector<typename SegmentIndexer<T>::Segment> SegmentIndexer<T>::Segme
 	i = res.size();
 	for (const auto & [id,value] : d_byID ) {
 		--i;
-		if ( resPtr[i].get() != value.get()  ) {
+		if ( resPtr[i] != value  ) {
 			throw std::logic_error("Keys where not ordered appropriately");
 		}
 		std::get<0>(res[i]) = id;
 	}
 
 	for ( i = 0; i < resPtr.size(); ++i ) {
-		std::get<2>(res[i]) = *resPtr[i];
+		std::get<2>(res[i]) = resPtr[i];
 	}
-
 
 	return res;
 }
@@ -86,7 +84,7 @@ inline const T & SegmentIndexer<T>::Find(uint64_t frameID) const {
 		os << frameID << " is too small";
 		throw std::out_of_range(os.str());
 	}
-	return *fi->second;
+	return fi->second;
 }
 
 template <typename T>
@@ -98,7 +96,7 @@ inline const T & SegmentIndexer<T>::Find(const Time & t) const {
 		throw std::out_of_range(os.str());
 	}
 
-	return *fi->second;
+	return fi->second;
 }
 
 

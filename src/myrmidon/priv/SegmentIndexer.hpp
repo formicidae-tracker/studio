@@ -49,8 +49,8 @@ private:
 	};
 
 
-	std::map<uint64_t,std::shared_ptr<T>,FrameComparator> d_byID;
-	std::map<Time,std::shared_ptr<T>,TimeComparator> d_byTime;
+	std::map<uint64_t,T,FrameComparator> d_byID;
+	std::map<Time,T,TimeComparator> d_byTime;
 
 };
 
