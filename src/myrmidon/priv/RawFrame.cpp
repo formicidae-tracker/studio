@@ -27,14 +27,14 @@ const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & RawFrame::Tags
 }
 
 
-RawFrame::ConstPtr RawFrame::Create(const std::string & path,
+RawFrame::ConstPtr RawFrame::Create(const fs::path & path,
                                     fort::hermes::FrameReadout & pb,
                                     Time::MonoclockID clockID) {
 	return std::shared_ptr<const RawFrame>(new RawFrame(path,pb,clockID));
 }
 
 
-RawFrame::RawFrame(const std::string & path,
+RawFrame::RawFrame(const fs::path & path,
                    fort::hermes::FrameReadout & pb,
                    Time::MonoclockID clockID)
 	: FrameReference(path,pb.frameid(),Time::FromTimestampAndMonotonic(pb.time(), pb.timestamp() * 1000, clockID))

@@ -45,13 +45,13 @@ public:
 	const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & Tags() const;
 
 
-	static RawFrame::ConstPtr Create(const std::string & path,
+	static RawFrame::ConstPtr Create(const fs::path & path,
 	                                 fort::hermes::FrameReadout & pb,
 	                                 Time::MonoclockID clockID);
 
 private:
 
-	RawFrame(const std::string & path,
+	RawFrame(const fs::path & path,
 	         fort::hermes::FrameReadout & pb,
 	         Time::MonoclockID clockID);
 

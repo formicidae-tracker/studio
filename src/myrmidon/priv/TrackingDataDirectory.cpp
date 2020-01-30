@@ -211,7 +211,7 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 			FrameID curFID = ro.frameid();
 
 			trackingIndexer->Insert(FrameReference(URI,curFID,startTime),
-			                        f.filename());
+			                        f.filename().generic_string());
 			if (!prevFc) {
 				prevFc = fc;
 				lastRo = ro;

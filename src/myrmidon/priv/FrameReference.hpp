@@ -16,7 +16,7 @@ public:
 	typedef std::shared_ptr<FrameReference> Ptr;
 	typedef std::shared_ptr<const FrameReference> ConstPtr;
 
-	FrameReference(const std::string & parentURI,
+	FrameReference(const fs::path & parentURI,
 	               FrameID frameID,
 	               const fort::myrmidon::Time & Time);
 

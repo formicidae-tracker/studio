@@ -131,7 +131,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 	pb.set_tagfamily(fi->second);
 
 	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
-		pb.add_trackingdatadirectories(tdd->URI());
+		pb.add_trackingdatadirectories(tdd->URI().generic_string());
 	}
 }
 

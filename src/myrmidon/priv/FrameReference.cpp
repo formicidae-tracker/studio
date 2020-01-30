@@ -4,7 +4,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-FrameReference::FrameReference(const std::string & parentURI,
+
+FrameReference::FrameReference(const fs::path & parentURI,
                                FrameID frameID,
                                const fort::myrmidon::Time & time)
 	: d_parentURI(parentURI.empty() ? "/" : parentURI)
