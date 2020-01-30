@@ -217,8 +217,6 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 			trackingIndexer->Insert(curReference,
 			                        f.filename().generic_string());
 
-
-
 			if (!prevFc) {
 				prevFc = fc;
 				lastRo = ro;
@@ -324,17 +322,32 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	                           hermesFiles,
 	                           ti,
 	                           referenceCache);
+	Time emptyTime;
 
 	for(const auto & m : movies) {
 		auto fi = referenceCache.find(m->StartFrame());
 		if (fi == referenceCache.end() ||
-		    ( fi->second.ID() == 0 && fi->second.Time().Equals(Time()) ) ) {
+		    ( fi->second.ID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
 			std::ostringstream oss;
 			oss << "Could not find FrameReference for FrameID " << m->StartFrame();
 			throw std::logic_error(oss.str());
 		}
 		mi->Insert(fi->second,m);
 	}
+
+	std::vector<FrameID> toErase;
+	toErase.reserve(referenceCache.size());
+	for ( const auto & [FID,ref] : referenceCache ) {
+		if (ref.ID() == 0 && ref.Time().Equals(emptyTime) ) {
+			toErase.push_back(FID);
+		}
+	}
+
+	for( auto FID : toErase ) {
+		std::cerr << "Could not find FrameReference for FrameID " << FID << std::endl;
+		referenceCache.erase(FID);
+	}
+
 
 	auto res = TrackingDataDirectory::Create(URI,
 	                                         absoluteFilePath,

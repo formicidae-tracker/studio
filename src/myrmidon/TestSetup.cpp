@@ -156,9 +156,43 @@ void CreateMovieFiles(std::vector<uint64_t> bounds,
 void CreateSnapshotFiles(std::vector<uint64_t> bounds,
                          const fs::path & basedir) {
 
-	AddBoundsJittering(bounds,4);
+	AddBoundsJittering(bounds,6);
 	bounds.pop_back();
 
+	std::random_device r;
+	std::default_random_engine e1(r());
+	std::uniform_int_distribution<int> dist(0, 517);
+
+	std::set<int> IDset;
+	for ( size_t i = 0; i < 100; ++i) {
+		int toAdd;
+		do {
+			toAdd = dist(e1);
+		} while ( IDset.count(toAdd) != 0 );
+		IDset.insert(toAdd);
+	}
+
+	for ( const auto & b : bounds ) {
+		std::vector<int> IDs;
+		IDs.reserve(IDset.size());
+		for(const auto & ID : IDset) {
+			IDs.push_back(ID);
+		}
+		std::shuffle(IDs.begin(),IDs.end(),e1);
+
+		while(!IDs.empty()) {
+			for( int i = 0; i < 9 && !IDs.empty() ; ++i) {
+				auto FID = b + i;
+				auto TID = IDs.back();
+				IDs.resize(IDs.size()-1);
+				std::ostringstream single,multi;
+				single << "ant_" << TID << "_frame_" << FID << ".png";
+				multi << "frame_" << FID << ".png";
+				std::ofstream singleTouch( (basedir / single.str()).c_str());
+				std::ofstream multiTouch( (basedir / multi.str()).c_str());
+			}
+		}
+	}
 }
 
 
