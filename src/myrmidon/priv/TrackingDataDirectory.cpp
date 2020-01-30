@@ -211,9 +211,12 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 			}
 
 			FrameID curFID = ro.frameid();
-
-			trackingIndexer->Insert(FrameReference(URI,curFID,startTime),
+			FrameReference curReference(URI,curFID,startTime);
+			trackingIndexer->Insert(curReference,
 			                        f.filename().generic_string());
+
+
+
 			if (!prevFc) {
 				prevFc = fc;
 				lastRo = ro;
@@ -238,6 +241,11 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 				                                   curTime);
 			}
 
+			if ( cacheIter != cache.end() && cacheIter->first == curFID ) {
+				cacheIter->second = curReference;
+				++cacheIter;
+			}
+
 			prevFc = fc;
 			lastRo = ro;
 
@@ -249,11 +257,18 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 		for (;;) {
 			fc->Read(&ro);
 			end = ro.frameid();
+			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID);
+
+			if ( cacheIter != cache.end() && cacheIter->first == end ) {
+				cacheIter->second = FrameReference(URI,end,endDate);
+				++cacheIter;
+			}
+
 			//we add 1 nanosecond to transform the valid range from
 			//[start;end[ to [start;end] by making it
 			//[start;end+1ns[. There are no time existing between end
 			//and end+1ns;
-			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID).Add(1);
+			endDate = endDate.Add(1);
 		}
 	} catch ( const fort::hermes::EndOfFile &) {
 		//DO nothing, we just reached EOF
@@ -311,8 +326,11 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	for(const auto & m : movies) {
 		auto fi = referenceCache.find(m->StartFrame());
-		if (fi == referenceCache.end() ) {
-			throw std::logic_error("Could not find frame");
+		if (fi == referenceCache.end() ||
+		    ( fi->second.ID() == 0 && fi->second.Time().Equals(Time()) ) ) {
+			std::ostringstream oss;
+			oss << "Could not find FrameReference for FrameID " << m->StartFrame();
+			throw std::logic_error(oss.str());
 		}
 		mi->Insert(fi->second,m);
 	}
