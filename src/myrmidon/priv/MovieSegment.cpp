@@ -14,6 +14,10 @@ namespace priv {
 MovieSegment::Ptr MovieSegment::Open(const fs::path & moviePath,
                                      const fs::path & frameMatchingPath) {
 
+	if ( fs::is_regular_file(frameMatchingPath) == false ) {
+		throw std::invalid_argument("'" + frameMatchingPath.string() + "' is not a regular file");
+	}
+
 	ListOfOffset offsets;
 	FrameID start(1),end(0);
 	MovieFrameID movieStart,movieEnd;

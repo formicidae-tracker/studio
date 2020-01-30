@@ -119,5 +119,8 @@ TEST_F(MovieSegmentUTest,CanBeParsed) {
 			MovieSegment::Open("foo",badMatchFile);
 		},std::runtime_error);
 
+	EXPECT_THROW({
+			MovieSegment::Open("foo",TestSetup::Basedir() / "does-not-exist.txt");
+		},std::invalid_argument);
 
 }

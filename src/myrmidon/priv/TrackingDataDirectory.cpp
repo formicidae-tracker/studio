@@ -171,7 +171,9 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
 void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
                                               MovieSegment::List & movies ){
 	for ( const auto & [id,paths] : moviesPaths ) {
-		movies.push_back(MovieSegment::Open(paths.first,paths.second));
+		if ( !paths.first.empty() && !paths.second.empty() ) {
+			movies.push_back(MovieSegment::Open(paths.first,paths.second));
+		}
 	}
 
 	std::sort(movies.begin(),movies.end(),[](const MovieSegment::Ptr & a,
