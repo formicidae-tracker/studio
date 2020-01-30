@@ -20,7 +20,7 @@
 		if (b.HasMono() == true ) {
 			return ::testing::AssertionFailure() << "a: " << a.DebugString()
 			                                     << "b: " << b.DebugString()
-			                                     << " a has no monotonic time but b has";
+			                                     << " a has no monotonic time but b has one";
 		} else {
 			return ::testing::AssertionSuccess();
 		}

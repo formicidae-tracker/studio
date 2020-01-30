@@ -10,6 +10,8 @@
 #include "../utils/NotYetImplemented.hpp"
 #include "SnapshotCache.hpp"
 
+#include "TimeUtils.hpp"
+
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
 #else
@@ -202,7 +204,7 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 		try {
 			fc = std::make_shared<fort::hermes::FileContext>(f.string());
 			fc->Read(&ro);
-			Time startTime = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID);
+			Time startTime = TimeFromFrameReadout(ro,monoID);
 
 			if ( first == true) {
 				start = ro.frameid();
@@ -233,9 +235,8 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 					}
 				}
 
-				Time curTime = Time::FromTimestampAndMonotonic(lastRo.time(),
-				                                               lastRo.timestamp()*1000,
-				                                               monoID);
+				Time curTime = TimeFromFrameReadout(lastRo,monoID);
+
 				cacheIter->second = FrameReference(URI,
 				                                   lastRo.frameid(),
 				                                   curTime);
@@ -257,7 +258,7 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 		for (;;) {
 			fc->Read(&ro);
 			end = ro.frameid();
-			endDate = Time::FromTimestampAndMonotonic(ro.time(),ro.timestamp()*1000,monoID);
+			endDate = TimeFromFrameReadout(ro,monoID);
 
 			if ( cacheIter != cache.end() && cacheIter->first == end ) {
 				cacheIter->second = FrameReference(URI,end,endDate);

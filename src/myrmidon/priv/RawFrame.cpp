@@ -4,6 +4,8 @@
 
 #include "../utils/NotYetImplemented.hpp"
 
+#include "TimeUtils.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -37,7 +39,7 @@ RawFrame::ConstPtr RawFrame::Create(const fs::path & path,
 RawFrame::RawFrame(const fs::path & path,
                    fort::hermes::FrameReadout & pb,
                    Time::MonoclockID clockID)
-	: FrameReference(path,pb.frameid(),Time::FromTimestampAndMonotonic(pb.time(), pb.timestamp() * 1000, clockID))
+	: FrameReference(path,pb.frameid(),TimeFromFrameReadout(pb, clockID))
 	, d_error(pb.error())
 	, d_width(pb.width())
 	, d_height(pb.height()) {
