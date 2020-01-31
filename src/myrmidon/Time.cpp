@@ -206,14 +206,14 @@ Time Time::FromTimestamp(const google::protobuf::Timestamp & timestamp) {
 
 google::protobuf::Timestamp Time::ToTimestamp() const {
 	google::protobuf::Timestamp pb;
-	ToTimestamp(pb);
+	ToTimestamp(&pb);
 	return pb;
 }
 
 
-void Time::ToTimestamp(google::protobuf::Timestamp & timestamp) const {
-	timestamp.set_seconds(d_wallSec);
-	timestamp.set_nanos(d_wallNsec);
+void Time::ToTimestamp(google::protobuf::Timestamp * timestamp) const {
+	timestamp->set_seconds(d_wallSec);
+	timestamp->set_nanos(d_wallNsec);
 }
 
 Time Time::FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,

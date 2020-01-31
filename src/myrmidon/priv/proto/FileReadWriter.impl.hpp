@@ -1,8 +1,8 @@
-#include "ProtobufFileReadWriter.hpp"
+#include "FileReadWriter.hpp"
 
 #include <fcntl.h>
 
-#include "../utils/PosixCall.h"
+#include <myrmidon/utils/PosixCall.h>
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/io/gzip_stream.h>
@@ -13,17 +13,16 @@
 
 
 namespace fort {
-
 namespace myrmidon {
-
-namespace utils {
+namespace priv {
+namespace proto {
 
 
 template<typename Header,typename Line>
 inline void
-ProtobufFileReadWriter<Header,Line>::Read(const fs::path & filename,
-                                          std::function<void (const Header & h)> onHeader,
-                                          std::function<void (const Line & l)> onLine) {
+FileReadWriter<Header,Line>::Read(const fs::path & filename,
+                                  std::function<void (const Header & h)> onHeader,
+                                  std::function<void (const Line & l)> onLine) {
 	int fd =  open(filename.c_str(),O_RDONLY | O_BINARY);
 	if ( fd  < 0 ) {
 		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filename.string() + "',O_RDONLY | O_BINARY)");
@@ -52,11 +51,12 @@ ProtobufFileReadWriter<Header,Line>::Read(const fs::path & filename,
 		onLine(line);
 	}
 }
+
 template<typename Header,typename Line>
 inline void
-ProtobufFileReadWriter<Header,Line>::Write(const fs::path & filepath,
-                                           const Header & header,
-                                           const std::vector< std::function<void (Line & l)> > & lines) {
+FileReadWriter<Header,Line>::Write(const fs::path & filepath,
+                                   const Header & header,
+                                   const std::vector< std::function<void (Line & l)> > & lines) {
 	int fd =  open(filepath.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644);
 	if ( fd  < 0 ) {
 		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + filepath.string() + "',O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644)");
@@ -81,8 +81,7 @@ ProtobufFileReadWriter<Header,Line>::Write(const fs::path & filepath,
 }
 
 
-}
-
-}
-
-}
+} // namespace proto
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

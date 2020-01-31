@@ -3,15 +3,16 @@
 #include <myrmidon/utils/FileSystem.hpp>
 #include <functional>
 #include <vector>
+
+
 namespace fort {
-
 namespace myrmidon {
-
-namespace utils {
+namespace priv {
+namespace proto {
 
 
 template<typename Header,typename Line>
-class ProtobufFileReadWriter {
+class FileReadWriter {
 public:
 	static void Read(const fs::path & path,
 	                 std::function<void (const Header & h)> onHeader,
@@ -21,10 +22,10 @@ public:
 	                  const std::vector< std::function<void (Line & l)> > & lines);
 };
 
-}
+} // namespace proto
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort
 
-}
 
-}
-
-#include "ProtobufFileReadWriter.impl.hpp"
+#include "FileReadWriter.impl.hpp"

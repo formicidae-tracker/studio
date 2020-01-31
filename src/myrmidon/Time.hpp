@@ -267,7 +267,7 @@ public:
 
 	// In-place conversion to a protobuf Timestamp
 	// @timestamp the timestamp to modify to represent the <Time>
-	void ToTimestamp(google::protobuf::Timestamp & timestamp) const;
+	void ToTimestamp(google::protobuf::Timestamp * timestamp) const;
 
 	// Zero time constructor
 	Time();

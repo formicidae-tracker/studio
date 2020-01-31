@@ -19,7 +19,7 @@
 #include <QImage>
 
 #include <myrmidon/priv/RawFrame.hpp>
-#include <myrmidon/utils/ProtobufFileReadWriter.hpp>
+#include <myrmidon/priv/proto/FileReadWriter.hpp>
 
 #include "SnapshotCache.pb.h"
 
@@ -228,8 +228,8 @@ void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snap
 
 
 void SnapshotIndexer::LoadCache() {
-	typedef fort::myrmidon::utils::ProtobufFileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
-	                                                      fort::myrmidon::pb::Snapshot>
+	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
+	                                                    fort::myrmidon::pb::Snapshot>
 		ReadWriter;
 	try {
 		ReadWriter::Read(d_tdd->AbsoluteFilePath() / "ants" / "snapshot.cache",
@@ -260,8 +260,8 @@ void SnapshotIndexer::LoadCache() {
 }
 
 void SnapshotIndexer::SaveCache() {
-	typedef fort::myrmidon::utils::ProtobufFileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
-	                                                      fort::myrmidon::pb::Snapshot>
+	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
+	                                                    fort::myrmidon::pb::Snapshot>
 		ReadWriter;
 
 

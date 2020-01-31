@@ -6,7 +6,7 @@
 #include <QSettings>
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
-#include <myrmidon/utils/ProtobufFileReadWriter.hpp>
+#include <myrmidon/priv/proto/FileReadWriter.hpp>
 
 #include <myrmidon/priv/Identification.hpp>
 #include <myrmidon/priv/Ant.hpp>
@@ -137,7 +137,7 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 
 void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
 	using namespace fort::myrmidon;
-	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
 	if ( d_controller == NULL ) {
 		return;
@@ -334,7 +334,7 @@ void TaggingWidget::on_roiBox_valueChanged(int value) {
 
 Error TaggingWidget::save() {
 	using namespace fort::myrmidon;
-	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
 	std::map<fs::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
 	for(const auto & [p,e] : d_estimates ) {

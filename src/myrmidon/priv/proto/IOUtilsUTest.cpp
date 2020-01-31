@@ -1,21 +1,22 @@
-#include "ProtobufExperimentReadWriterUTest.hpp"
+#include "IOUtilsUTest.hpp"
 
+#include "IOUtils.hpp"
+
+#include <google/protobuf/util/time_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include <myrmidon/Experiment.pb.h>
+#include <myrmidon/UtilsUTest.hpp>
 
-#include "ProtobufExperimentReadWriter.hpp"
-
-#include "TrackingDataDirectory.hpp"
-
-#include "../UtilsUTest.hpp"
-
+#include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/TestSetup.hpp>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
+namespace proto {
 
-TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
+TEST_F(IOUtilsUTest,TimeIO) {
 	google::protobuf::Timestamp pbt;
 	google::protobuf::util::TimeUtil::FromString("2019-01-T10:12:34.567+01:00",&pbt);
 
@@ -49,11 +50,97 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 		expected.mutable_timestamp()->set_seconds(d.Seconds);
 		expected.mutable_timestamp()->set_nanos(d.Nanos);
 		expected.set_monotonic(d.Mono);
-		//		ProtobufReadWriter::SaveTime(t, d.T);
-		//		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(t,expected));
-		//		auto res = ProtobufReadWriter::LoadTime(t, 42);
-		//		EXPECT_TRUE(TimeEqual(res,d.T));
+		IOUtils::SaveTime(&t, d.T);
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(t,expected));
+		auto res = IOUtils::LoadTime(t, 42);
+		EXPECT_TRUE(TimeEqual(res,d.T));
 	}
+
+}
+
+
+TEST_F(IOUtilsUTest,IdentificationIO) {
+	struct TestData {
+		Time::ConstPtr Start,End;
+		double         X,Y,Angle;
+		TagID          Value;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {
+		    Time::ConstPtr(),Time::ConstPtr(),
+		    2.0,-1.0,M_PI/2,
+		    123
+		   },
+		   {
+		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
+		    0.0,-4.0,3*M_PI/4,
+		    23
+		   },
+		   {
+		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
+		    10.0,-1.0,0.0,
+		    34
+		   },
+	};
+
+	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
+	auto a = e->Identifier().CreateAnt();
+	for ( const auto & d : data ) {
+		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
+		ident->SetTagPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
+
+		pb::Identification identPb;
+		pb::Identification expected;
+		if ( d.Start ) {
+			d.Start->ToTimestamp(expected.mutable_start());
+		}
+		if ( d.End ) {
+			d.End->ToTimestamp(expected.mutable_end());
+		}
+		expected.set_x(d.X);
+		expected.set_y(d.Y);
+		expected.set_theta(d.Angle);
+		expected.set_id(d.Value);
+
+		IOUtils::SaveIdentification(&identPb, ident);
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(identPb,expected))
+			<< "Messages are different saved: "
+			<< identPb.DebugString() << std::endl
+			<< "expected: "
+			<< expected.DebugString();
+
+		e->Identifier().DeleteIdentification(ident);
+		ASSERT_TRUE(a->Identifications().empty());
+		IOUtils::LoadIdentification(*e,a,identPb);
+
+		EXPECT_EQ(a->Identifications().size(),1);
+
+		if ( a->Identifications().empty() ) {
+			continue;
+		}
+		auto finalIdent = a->Identifications()[0];
+		EXPECT_EQ(finalIdent->TagValue(),d.Value);
+		EXPECT_EQ(!finalIdent->Start(),!d.Start);
+		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
+		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
+		EXPECT_FLOAT_EQ(finalIdent->TagPosition().x(),d.X);
+		EXPECT_FLOAT_EQ(finalIdent->TagPosition().y(),d.Y);
+		EXPECT_FLOAT_EQ(finalIdent->TagAngle(),d.Angle);
+		EXPECT_NO_THROW({
+				EXPECT_EQ(finalIdent->Target().get(),a.get());
+			});
+		e->Identifier().DeleteIdentification(finalIdent);
+	}
+
+
+
+
+}
+
+TEST_F(IOUtilsUTest,AntsIO) {
+
 
 }
 
@@ -162,6 +249,8 @@ TEST_F(ProtobufExperimentReadWriterUTest,TimeIO) {
 
 // }
 
-}
-}
-}
+
+} //namespace proto
+} //namespace priv
+} //namespace myrmidon
+} //namespace fort

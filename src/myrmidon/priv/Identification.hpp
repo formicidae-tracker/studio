@@ -46,6 +46,8 @@ public:
 
 	// A Pointer to an Identification
 	typedef std::shared_ptr<Identification> Ptr;
+	// A Pointer to a const Identification
+	typedef std::shared_ptr<const Identification> ConstPtr;
 	// A List of Identification
 	typedef std::vector<Ptr> List;
 

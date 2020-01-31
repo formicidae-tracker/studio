@@ -373,7 +373,7 @@ TEST_F(TimeUTest,TimeConversion) {
 	pb.set_nanos(3);
 
 	resC = Time::FromTimestamp(pb).ToTimestamp();
-	Time::FromTimestamp(pb).ToTimestamp(resInPlace);
+	Time::FromTimestamp(pb).ToTimestamp(&resInPlace);
 
 	EXPECT_EQ(resC,pb);
 	EXPECT_EQ(resInPlace,pb);

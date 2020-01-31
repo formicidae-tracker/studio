@@ -1,77 +1,65 @@
-#include "ProtobufExperimentReadWriter.hpp"
+#include "IOUtils.hpp"
 
-#include "Experiment.hpp"
-#include "Ant.hpp"
-
-#include <myrmidon/Experiment.pb.h>
-
-#include "../utils/ProtobufFileReadWriter.hpp"
+#include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Ant.hpp>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
+namespace proto {
 
-ProtobufReadWriter::ProtobufReadWriter() {}
-ProtobufReadWriter::~ProtobufReadWriter() {}
 
-Experiment::Ptr ProtobufReadWriter::DoOpen(const fs::path & filename) {
-	typedef utils::ProtobufFileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
-	auto res = Experiment::Create(filename);
-	ReadWriter::Read(filename,
-	                 [filename](const pb::FileHeader & h) {
-		                 if (h.majorversion() != 0 || h.minorversion() != 1 ) {
-			                 std::ostringstream os;
-			                 os << "unexpected version " << h.majorversion() << "." << h.minorversion()
-			                    << " in " << filename
-			                    << " can only works with 0.1";
-			                 throw std::runtime_error(os.str());
-		                 }
-	                 },
-	                 [&res,filename](const pb::FileLine & line) {
-		                 if (line.has_experiment() == true ) {
-			                 LoadExperiment(*res, line.experiment());
-		                 }
+Time IOUtils::LoadTime(const pb::Time & pb, Time::MonoclockID mID) {
+	if (pb.monotonic() != 0 ) {
+		return Time::FromTimestampAndMonotonic(pb.timestamp(),pb.monotonic(),mID);
+	} else {
+		return Time::FromTimestamp(pb.timestamp());
+	}
 
-		                 if (line.has_antdata() == true ) {
-			                 LoadAnt(*res, line.antdata());
-		                 }
-	                 });
-	return res;
+}
+
+void IOUtils::SaveTime(pb::Time * pb,const Time & t) {
+	t.ToTimestamp(pb->mutable_timestamp());
+	if ( t.HasMono() ) {
+		pb->set_monotonic(t.MonotonicValue());
+	}
 }
 
 
-void ProtobufReadWriter::DoSave(const Experiment & experiment, const fs::path & filepath) {
-	typedef utils::ProtobufFileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
-	pb::FileHeader h;
-	h.set_majorversion(0);
-	h.set_minorversion(1);
 
-	std::vector<std::function < void ( pb::FileLine &) > > lines;
-
-	lines.push_back([&experiment](pb::FileLine & line) {
-		                SaveExperiment(*(line.mutable_experiment()),experiment);
-	                });
-
-	std::vector<fort::myrmidon::Ant::ID> antIDs;
-	for (const auto & [ID,a] : experiment.ConstIdentifier().Ants() ) {
-		antIDs.push_back(ID);
+void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
+                                 const fort::myrmidon::pb::Identification & pb) {
+	Time::ConstPtr start,end;
+	if ( pb.has_start() ) {
+		start = std::make_shared<Time>(Time::FromTimestamp(pb.start()));
 	}
-	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
-	                                         fort::myrmidon::Ant::ID b) -> bool {
-		                                      return a < b;
-	                                      });
-
-	for (const auto & ID : antIDs) {
-		lines.push_back([&experiment,ID](pb::FileLine & line) {
-			                SaveAnt(*(line.mutable_antdata()),*(experiment.ConstIdentifier().Ants().find(ID)->second));
-		                });
+	if ( pb.has_end() ) {
+		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
 	}
 
-	ReadWriter::Write(filepath,h,lines);
+	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
+
+	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
+}
+
+void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
+                                 const Identification::ConstPtr & ident) {
+	pb->Clear();
+	if ( ident->Start() ) {
+		ident->Start()->ToTimestamp(pb->mutable_start());
+	}
+	if ( ident->End() ) {
+		ident->End()->ToTimestamp(pb->mutable_end());
+	}
+	pb->set_x(ident->TagPosition().x());
+	pb->set_y(ident->TagPosition().y());
+	pb->set_theta(ident->TagAngle());
+	pb->set_id(ident->TagValue());
 }
 
 
-void ProtobufReadWriter::LoadExperiment(Experiment & e,const pb::Experiment & pb) {
+void IOUtils::LoadExperiment(Experiment & e,
+                             const pb::Experiment & pb) {
 	e.SetAuthor(pb.author());
 	e.SetName(pb.name());
 	e.SetComment(pb.comment());
@@ -103,12 +91,12 @@ void ProtobufReadWriter::LoadExperiment(Experiment & e,const pb::Experiment & pb
 }
 
 
-void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, const Experiment & e) {
-	pb.Clear();
-	pb.set_name(e.Name());
-	pb.set_author(e.Author());
-	pb.set_comment(e.Comment());
-	pb.set_threshold(e.Threshold());
+void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experiment & e) {
+	pb->Clear();
+	pb->set_name(e.Name());
+	pb->set_author(e.Author());
+	pb->set_comment(e.Comment());
+	pb->set_threshold(e.Threshold());
 
 	static std::map<fort::tags::Family,pb::TagFamily>
 		mapping = {
@@ -128,31 +116,15 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 	if ( fi == mapping.end() ) {
 		throw std::runtime_error("invalid Experiment::TagFamily enum value");
 	}
-	pb.set_tagfamily(fi->second);
+	pb->set_tagfamily(fi->second);
 
 	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
-		pb.add_trackingdatadirectories(tdd->URI().generic_string());
+		pb->add_trackingdatadirectories(tdd->URI().generic_string());
 	}
 }
 
 
-// Time ProtobufReadWriter::LoadTime(const pb::Time & pb, Time::MonoclockID mID) {
-// 	if (pb.monotonic() != 0 ) {
-// 		return Time::FromTimestampAndMonotonic(pb.timestamp(),pb.monotonic(),mID);
-// 	} else {
-// 		return Time::FromTimestamp(pb.timestamp());
-// 	}
-
-// }
-
-// void ProtobufReadWriter::SaveTime(pb::Time & pb,const Time & t) {
-// 	t.ToTimestamp(*pb.mutable_timestamp());
-// 	if ( t.HasMono() ) {
-// 		pb.set_monotonic(t.MonotonicValue());
-// 	}
-// }
-
-// void ProtobufReadWriter::LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
+// void IOUtils::LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
 //                                             const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
 //                                             Time::MonoclockID mID) {
 // 	for(const auto & s : pb) {
@@ -160,7 +132,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // 	}
 // }
 
-// void ProtobufReadWriter::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
+// void IOUtils::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
 //                                             const TrackingDataDirectory::TrackingIndexer & si) {
 // 	for(const auto & s: si.Segments()) {
 // 		auto spb = pb->Add();
@@ -170,7 +142,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // 	}
 // }
 
-// MovieSegment::Ptr ProtobufReadWriter::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+// MovieSegment::Ptr IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
 //                                                        const fs::path & base) {
 // 	MovieSegment::ListOfOffset offsets;
 // 	for ( const auto & o : ms.offsets() ) {
@@ -185,7 +157,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // 	                                      offsets);
 // }
 
-// void ProtobufReadWriter::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
+// void IOUtils::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
 //                                           const MovieSegment::Ptr & ms,
 //                                           const fs::path & base) {
 // 	pb->set_path(fs::relative(ms->MovieFilepath(),base).generic_string());
@@ -200,7 +172,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // 	}
 // }
 
-// TrackingDataDirectory ProtobufReadWriter::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
+// TrackingDataDirectory IOUtils::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
 // 	// TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
 
 // 	// auto si = std::make_shared<TrackingDataDirectory::TrackingIndexer>();
@@ -224,7 +196,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // 	throw std::runtime_error("foo");
 // }
 
-// void ProtobufReadWriter::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
+// void IOUtils::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
 //                                                    const TrackingDataDirectory & tdd) {
 // 	pb.Clear();
 // 	// pb.set_path(tdd.URI().generic_string());
@@ -241,7 +213,7 @@ void ProtobufReadWriter::SaveExperiment(fort::myrmidon::pb::Experiment & pb, con
 // }
 
 
-void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
+void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
 	auto ant = e.Identifier().CreateAnt(pb.id());
 
 	for ( const auto & ident : pb.marker() ) {
@@ -261,22 +233,22 @@ void ProtobufReadWriter::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMe
 
 }
 
-void ProtobufReadWriter::SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant & ant) {
-	pb.Clear();
-	pb.set_id(ant.ID());
+void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
+	pb->Clear();
+	pb->set_id(ant->ID());
 
-	for ( const auto & ident : ant.Identifications() ) {
-		SaveIdentification(*(pb.add_marker()),*ident);
+	for ( const auto & ident : ant->Identifications() ) {
+		SaveIdentification(pb->add_marker(),ident);
 	}
 
-	for ( const auto & m : ant.Measurements() ) {
-		auto mpb = pb.add_measurements();
+	for ( const auto & m : ant->Measurements() ) {
+		auto mpb = pb->add_measurements();
 		mpb->set_name(m.first);
 		mpb->set_length(m.second);
 	}
 
-	for ( const auto & c : ant.Shape() ) {
-		auto cpb = pb.mutable_shape()->add_capsules();
+	for ( const auto & c : ant->Shape() ) {
+		auto cpb = pb->mutable_shape()->add_capsules();
 		cpb->set_a_x(c->A().x());
 		cpb->set_a_y(c->A().y());
 		cpb->set_a_radius(c->RadiusA());
@@ -287,37 +259,10 @@ void ProtobufReadWriter::SaveAnt(fort::myrmidon::pb::AntMetadata & pb, const Ant
 
 }
 
-void ProtobufReadWriter::LoadIdentification(Experiment & e, const AntPtr & target,
-                                            const fort::myrmidon::pb::Identification & pb) {
-	Time::ConstPtr start,end;
-	if ( pb.has_start() ) {
-		start = std::make_shared<Time>(Time::FromTimestamp(pb.start()));
-	}
-	if ( pb.has_end() ) {
-		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
-	}
-
-	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
-
-	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
-}
-
-void ProtobufReadWriter::SaveIdentification(fort::myrmidon::pb::Identification & pb,
-                                            const Identification & ident) {
-	pb.Clear();
-	if ( ident.Start() ) {
-		ident.Start()->ToTimestamp(*(pb.mutable_start()));
-	}
-	if ( ident.End() ) {
-		ident.End()->ToTimestamp(*(pb.mutable_end()));
-	}
-	pb.set_x(ident.TagPosition().x());
-	pb.set_y(ident.TagPosition().y());
-	pb.set_theta(ident.TagAngle());
-	pb.set_id(ident.TagValue());
-}
 
 
-}
-}
-}
+
+} //namespace proto
+} //namespace priv
+} //namespace myrmidon
+} //namespace fort

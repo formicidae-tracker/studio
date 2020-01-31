@@ -52,7 +52,6 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/RawFrame.hpp
                       priv/DeletedReference.hpp
                       priv/ExperimentReadWriter.hpp
-                      priv/ProtobufExperimentReadWriter.hpp
                       utils/NotYetImplemented.hpp
                       priv/Isometry2D.hpp
                       priv/TimeValid.hpp
@@ -62,6 +61,9 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/FrameReference.hpp
                       priv/TagInFrameReference.hpp
                       priv/SnapshotCache.hpp
+                      priv/proto/FileReadWriter.hpp
+                      priv/proto/ExperimentReadWriter.hpp
+                      priv/proto/IOUtils.hpp
                       )
 
 
@@ -83,14 +85,15 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/RawFrame.cpp
                       priv/DeletedReference.cpp
                       priv/ExperimentReadWriter.cpp
-                      priv/ProtobufExperimentReadWriter.cpp
-                      utils/ProtobufFileReadWriter.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
                       priv/Shape.cpp
                       priv/FrameReference.cpp
                       priv/TagInFrameReference.cpp
                       priv/SnapshotCache.cpp
+                      priv/proto/FileReadWriter.cpp
+                      priv/proto/ExperimentReadWriter.cpp
+                      priv/proto/IOUtils.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -101,6 +104,9 @@ set(SRC_FILES Frame.cpp
 
 set(SRC_UTEST_FILES main-check.cpp
                     TestSetup.cpp
+                    UtilsUTest.cpp
+                    TimeUTest.cpp
+                    utils/NotYetImplementedUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
@@ -108,38 +114,39 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/IdentifierUTest.cpp
                     priv/IdentificationUTest.cpp
                     priv/RawFrameUTest.cpp
-                    priv/ProtobufExperimentReadWriterUTest.cpp
                     priv/Isometry2DUTest.cpp
-                    TimeUTest.cpp
                     priv/SegmentIndexerUTest.cpp
                     priv/TimeValidUTest.cpp
-                    UtilsUTest.cpp
-                    utils/NotYetImplementedUTest.cpp
                     priv/MovieSegmentUTest.cpp
                     priv/FrameReferenceUTest.cpp
                     priv/TagInFrameReferenceUTest.cpp
+                    priv/proto/IOUtilsUTest.cpp
+                    priv/proto/FileReadWriterUTest.cpp
+                    priv/proto/ExperimentReadWriterUTest.cpp
                     )
 
 
 
 set(HDR_UTEST_FILES TestSetup.hpp
+                    UtilsUTest.hpp
+                    TimeUTest.hpp
+                    utils/NotYetImplementedUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp
                     priv/AntUTest.hpp
-                    priv/Identifier.hpp
-                    priv/Identification.hpp
+                    priv/IdentifierUTest.hpp
+                    priv/IdentificationUTest.hpp
                     priv/RawFrameUTest.hpp
-                    priv/ProtobufExperimentReadWriterUTest.hpp
                     priv/Isometry2DUTest.hpp
-                    TimeUTest.hpp
                     priv/SegmentIndexerUTest.hpp
                     priv/TimeValidUTest.hpp
-                    UtilsUTest.hpp
-                    utils/NotYetImplementedUTest.hpp
                     priv/MovieSegmentUTest.hpp
                     priv/FrameReferenceUTest.hpp
                     priv/TagInFrameReferenceUTest.hpp
+                    priv/proto/IOUtilsUTest.hpp
+                    priv/proto/FileReadWriterUTest.hpp
+                    priv/proto/ExperimentReadWriterUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

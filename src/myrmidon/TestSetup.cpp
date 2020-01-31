@@ -72,7 +72,7 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 		fTime = startTime.Add((i-start)* 100 * fort::myrmidon::Duration::Millisecond);
 		auto ro = lineRO.mutable_readout();
 		ro->Clear();
-		fTime.ToTimestamp(*ro->mutable_time());
+		fTime.ToTimestamp(ro->mutable_time());
 		ro->set_frameid(i);
 		ro->set_timestamp(fTime.MonotonicValue()/1000);
 		auto a = ro->add_tags();
