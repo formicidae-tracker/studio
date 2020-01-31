@@ -14,6 +14,7 @@ namespace priv {
 class Capsule {
 public:
 	typedef std::shared_ptr<Capsule> Ptr;
+	typedef std::shared_ptr<const Capsule> ConstPtr;
 
 	Capsule();
 	Capsule(const Eigen::Vector2d & a,

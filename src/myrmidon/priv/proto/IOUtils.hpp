@@ -8,6 +8,8 @@
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
 
+#include <Eigen/Core>
+#include <myrmidon/Point2d.pb.h>
 
 namespace fort {
 namespace myrmidon {
@@ -20,6 +22,15 @@ public:
 	static Time LoadTime(const pb::Time & pb, Time::MonoclockID mID);
 
 	static void SaveTime(pb::Time * pb, const Time & t);
+
+	static inline void LoadVector(Eigen::Vector2d & v, const pb::Point2d & pb) {
+		v << pb.x(),pb.y();
+	}
+
+	static inline void SaveVector(pb::Point2d * pb, const Eigen::Vector2d & v) {
+		pb->set_x(v.x());
+		pb->set_y(v.y());
+	}
 
 	// Loads an Identification from protobuf message
 	//
@@ -38,8 +49,9 @@ public:
 	                               const IdentificationConstPtr & ident);
 
 
-	static CapsulePtr LoadShape(const pb::Capsule & pb);
-	static void SaveShape(pb::Capsule * pb,const CapsulePtr & capsule);
+	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+
+	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
 
 
 	// Loads an Ant from a protobuf message

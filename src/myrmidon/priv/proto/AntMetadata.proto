@@ -4,33 +4,32 @@ package fort.myrmidon.pb;
 
 import "google/protobuf/timestamp.proto";
 
-message Identification {
-	double x     = 1;
-	double y     = 2;
-	double theta = 3;
-    int32  ID    = 4;
+import "Point2d.proto";
 
-	google.protobuf.Timestamp Start = 6;
-	google.protobuf.Timestamp End   = 7;
+message Identification {
+	Point2d position = 1;
+	double  theta    = 2;
+    int32   ID       = 3;
+
+	google.protobuf.Timestamp Start = 4;
+	google.protobuf.Timestamp End   = 5;
 };
 
 message Metadata {
 	string JSONData        = 1;
 	uint64 StartValidFrame = 2;
-}
+};
 
 message Capsule {
-	double a_x      = 1;
-	double a_y      = 2;
-	double a_radius = 3;
-	double b_x      = 4;
-	double b_y      = 5;
-	double b_radius = 6;
-}
+	Point2d a        = 1;
+	double  a_radius = 2;
+	Point2d b        = 3;
+	double  b_radius = 4;
+};
 
 message Shape {
 	repeated Capsule capsules = 1;
-}
+};
 
 message Measurement {
 	string name  = 1;

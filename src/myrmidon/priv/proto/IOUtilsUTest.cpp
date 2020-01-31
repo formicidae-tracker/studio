@@ -99,8 +99,8 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		if ( d.End ) {
 			d.End->ToTimestamp(expected.mutable_end());
 		}
-		expected.set_x(d.X);
-		expected.set_y(d.Y);
+		expected.mutable_position()->set_x(d.X);
+		expected.mutable_position()->set_y(d.Y);
 		expected.set_theta(d.Angle);
 		expected.set_id(d.Value);
 
@@ -134,15 +134,68 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		e->Identifier().DeleteIdentification(finalIdent);
 	}
 
+}
 
+TEST_F(IOUtilsUTest,VectorIO) {
+	struct TestData {
+		double X,Y;
+	};
 
+	std::vector<TestData> testdata
+		= {
+		   {0.0,0.0},
+		   {1.23,4.67},
+	};
+
+	for(const auto & d: testdata) {
+		Eigen::Vector2d dV(d.X,d.Y),res;
+		pb::Point2d v,expected;
+		expected.set_x(dV.x());
+		expected.set_y(dV.y());
+
+		IOUtils::SaveVector(&v,dV);
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(v,expected));
+
+		IOUtils::LoadVector(res,v);
+		ExpectAlmostEqualVector(res,dV);
+	}
+}
+
+TEST_F(IOUtilsUTest,CapsuleIO) {
+	struct TestData {
+		double AX,AY,AR;
+		double BX,BY,BR;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    0.0,0.0,1.0,
+		    1.0,1.0,0.5
+		   },
+	};
+
+	for(const auto & d: testdata) {
+		Eigen::Vector2d dA(d.AX,d.AY),dB(d.BX,d.BY);
+		auto dC = std::make_shared<Capsule>(dA,dB,d.AR,d.BR);
+		pb::Capsule c,expected;
+		IOUtils::SaveVector(expected.mutable_a(),dA);
+		IOUtils::SaveVector(expected.mutable_b(),dB);
+		expected.set_a_radius(d.AR);
+		expected.set_b_radius(d.BR);
+
+		IOUtils::SaveCapsule(&c,dC);
+		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(c,expected));
+
+		auto res = IOUtils::LoadCapsule(c);
+		ExpectAlmostEqualVector(res->A(),dC->A());
+		ExpectAlmostEqualVector(res->B(),dC->B());
+		EXPECT_DOUBLE_EQ(res->RadiusA(),dC->RadiusA());
+		EXPECT_DOUBLE_EQ(res->RadiusB(),dC->RadiusB());
+	}
 
 }
 
-TEST_F(IOUtilsUTest,AntsIO) {
-
-
-}
 
 
 // TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {

@@ -58,3 +58,10 @@
 	}
 	return TimeEqual(*a,*b);
 }
+
+
+void ExpectAlmostEqualVector(const Eigen::Vector2d & a,
+                             const Eigen::Vector2d & b) {
+	EXPECT_DOUBLE_EQ(a.x(),b.x());
+	EXPECT_DOUBLE_EQ(a.y(),b.y());
+}

@@ -2,6 +2,7 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Shape.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -38,8 +39,9 @@ void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
 	}
 
 	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
-
-	res->SetTagPosition(Eigen::Vector2d(pb.x(),pb.y()),pb.theta());
+	Eigen::Vector2d pos;
+	LoadVector(pos,pb.position());
+	res->SetTagPosition(pos,pb.theta());
 }
 
 void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
@@ -51,11 +53,66 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 	if ( ident->End() ) {
 		ident->End()->ToTimestamp(pb->mutable_end());
 	}
-	pb->set_x(ident->TagPosition().x());
-	pb->set_y(ident->TagPosition().y());
+	SaveVector(pb->mutable_position(),ident->TagPosition());
 	pb->set_theta(ident->TagAngle());
 	pb->set_id(ident->TagValue());
 }
+
+
+Capsule::Ptr IOUtils::LoadCapsule(const pb::Capsule & pb) {
+	Eigen::Vector2d a,b;
+	LoadVector(a,pb.a());
+	LoadVector(b,pb.b());
+	return std::make_shared<Capsule>(a,b,
+	                                 pb.a_radius(),
+	                                 pb.b_radius());
+}
+
+void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule::ConstPtr & capsule) {
+	SaveVector(pb->mutable_a(),capsule->A());
+	SaveVector(pb->mutable_b(),capsule->B());
+	pb->set_a_radius(capsule->RadiusA());
+	pb->set_b_radius(capsule->RadiusB());
+}
+
+
+void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
+	auto ant = e.Identifier().CreateAnt(pb.id());
+
+	for ( const auto & ident : pb.marker() ) {
+		LoadIdentification(e,ant,ident);
+	}
+
+	for ( const auto & mpb : pb.measurements() ) {
+		ant->SetMeasurement(mpb.name(),mpb.length());
+	}
+
+	for ( const auto & mc : pb.shape().capsules() ) {
+		ant->AddCapsule(LoadCapsule(mc));
+	}
+
+}
+
+void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
+	pb->Clear();
+	pb->set_id(ant->ID());
+
+	for ( const auto & ident : ant->Identifications() ) {
+		SaveIdentification(pb->add_marker(),ident);
+	}
+
+	for ( const auto & m : ant->Measurements() ) {
+		auto mpb = pb->add_measurements();
+		mpb->set_name(m.first);
+		mpb->set_length(m.second);
+	}
+
+	for ( const auto & c : ant->Shape() ) {
+		SaveCapsule(pb->mutable_shape()->add_capsules(),c);
+	}
+
+}
+
 
 
 void IOUtils::LoadExperiment(Experiment & e,
@@ -213,51 +270,6 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 // }
 
 
-void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
-	auto ant = e.Identifier().CreateAnt(pb.id());
-
-	for ( const auto & ident : pb.marker() ) {
-		LoadIdentification(e,ant,ident);
-	}
-
-	for ( const auto & mpb : pb.measurements() ) {
-		ant->SetMeasurement(mpb.name(),mpb.length());
-	}
-
-	for ( const auto & mc : pb.shape().capsules() ) {
-		ant->AddCapsule(std::make_shared<Capsule>(Eigen::Vector2d(mc.a_x(),mc.a_y()),
-		                                          Eigen::Vector2d(mc.b_x(),mc.b_y()),
-		                                          mc.a_radius(),
-		                                          mc.b_radius()));
-	}
-
-}
-
-void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
-	pb->Clear();
-	pb->set_id(ant->ID());
-
-	for ( const auto & ident : ant->Identifications() ) {
-		SaveIdentification(pb->add_marker(),ident);
-	}
-
-	for ( const auto & m : ant->Measurements() ) {
-		auto mpb = pb->add_measurements();
-		mpb->set_name(m.first);
-		mpb->set_length(m.second);
-	}
-
-	for ( const auto & c : ant->Shape() ) {
-		auto cpb = pb->mutable_shape()->add_capsules();
-		cpb->set_a_x(c->A().x());
-		cpb->set_a_y(c->A().y());
-		cpb->set_a_radius(c->RadiusA());
-		cpb->set_b_x(c->B().x());
-		cpb->set_b_y(c->B().y());
-		cpb->set_b_radius(c->RadiusB());
-	}
-
-}
 
 
 
