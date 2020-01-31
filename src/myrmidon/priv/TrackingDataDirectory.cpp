@@ -171,10 +171,11 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
 }
 
 void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+                                              const fs::path & parentURI,
                                               MovieSegment::List & movies ){
 	for ( const auto & [id,paths] : moviesPaths ) {
 		if ( !paths.first.empty() && !paths.second.empty() ) {
-			movies.push_back(MovieSegment::Open(paths.first,paths.second));
+			movies.push_back(MovieSegment::Open(id,paths.first,paths.second,parentURI));
 		}
 	}
 
@@ -305,7 +306,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		throw std::invalid_argument(filepath.string() + " does not contains any .hermes file");
 	}
 
-	LoadMovieSegments(moviesPaths,movies);
+	LoadMovieSegments(moviesPaths,URI,movies);
 	for(const auto & m : movies) {
 		referenceCache.insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
 	}

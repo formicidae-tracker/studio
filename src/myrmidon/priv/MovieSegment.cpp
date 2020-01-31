@@ -11,12 +11,19 @@ namespace myrmidon {
 namespace priv {
 
 
-MovieSegment::Ptr MovieSegment::Open(const fs::path & moviePath,
-                                     const fs::path & frameMatchingPath) {
+MovieSegment::Ptr MovieSegment::Open(MovieSegment::MovieID id,
+                                     const fs::path & moviePath,
+                                     const fs::path & frameMatchingPath,
+                                     const fs::path & parentURI) {
 
 	if ( fs::is_regular_file(frameMatchingPath) == false ) {
 		throw std::invalid_argument("'" + frameMatchingPath.string() + "' is not a regular file");
 	}
+
+	if ( fs::is_regular_file(moviePath) == false ) {
+		throw std::invalid_argument("'" + moviePath.string() + "' is not a regular file");
+	}
+
 
 	ListOfOffset offsets;
 	FrameID start(1),end(0);
@@ -54,7 +61,9 @@ MovieSegment::Ptr MovieSegment::Open(const fs::path & moviePath,
 		movieEnd = movieID;
 	}
 
-	return std::make_shared<MovieSegment>(moviePath,
+	return std::make_shared<MovieSegment>(id,
+	                                      fs::absolute(fs::weakly_canonical(moviePath)),
+	                                      parentURI,
 	                                      start,end,
 	                                      movieStart,movieEnd,
 	                                      offsets);
@@ -94,13 +103,17 @@ uint64_t MovieSegment::ToMovieFrameID(uint64_t trackingFrameID) const {
 }
 
 
-MovieSegment::MovieSegment(const fs::path & path,
+MovieSegment::MovieSegment(MovieID ID,
+                           const fs::path & path,
+                           const fs::path & parentURI,
                            FrameID start,
                            FrameID end,
                            MovieFrameID startMovieID,
                            MovieFrameID endMovieID,
                            const ListOfOffset & offsets)
-	: d_moviePath(path)
+	: d_ID(ID)
+	, d_absoluteMovieFilePath(fs::absolute(fs::weakly_canonical(path)))
+	, d_URI(parentURI / "movies"/ std::to_string(d_ID))
 	, d_trackingStart(start)
 	, d_trackingEnd(end)
 	, d_movieStart(startMovieID)
@@ -140,9 +153,19 @@ MovieSegment::ListOfOffset MovieSegment::Offsets() const {
 	return offsets;
 }
 
-const fs::path & MovieSegment::MovieFilepath() const {
-	return d_moviePath;
+const fs::path & MovieSegment::AbsoluteFilePath() const {
+	return d_absoluteMovieFilePath;
 }
+
+const fs::path & MovieSegment::URI() const {
+	return d_URI;
+}
+
+
+MovieSegment::MovieID MovieSegment::ID() const {
+	return d_ID;
+}
+
 
 } // namespace fort
 } // namespace myrmidon

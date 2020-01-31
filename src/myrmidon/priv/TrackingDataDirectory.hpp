@@ -177,6 +177,7 @@ private:
 	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
 
 	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+	                              const fs::path & URI,
 	                              MovieSegment::List & movies);
 
 	static TrackingDataDirectory::ConstPtr Load(const fs::path & path, const fs::path & experimentRoot);

@@ -17,13 +17,15 @@ TEST_F(MovieSegmentUTest,CanResolveFrameMatching) {
 
 	MovieSegment::Ptr ms;
 	EXPECT_THROW({
-			ms = std::make_shared<MovieSegment>("foo",1234,1234+100+2,1,101,offsets);
+			ms = std::make_shared<MovieSegment>(0,"foo.0000.mp4","bar",1234,1234+100+2,1,101,offsets);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
-			ms = std::make_shared<MovieSegment>("foo",1234,1234+100+2,0,100,offsets);
+			ms = std::make_shared<MovieSegment>(0,"foo.0000.mp4","bar",1234,1234+100+2,0,100,offsets);
 		});
 
-	EXPECT_EQ(ms->MovieFilepath(),"foo");
+	EXPECT_EQ(ms->AbsoluteFilePath().filename(),"foo.0000.mp4");
+	EXPECT_EQ(ms->URI(),"bar/movies/0");
+	EXPECT_EQ(ms->ID(),0);
 
 	EXPECT_EQ(ms->StartFrame(),1234);
 	EXPECT_EQ(ms->EndFrame(),1234 + 100 + 2);
@@ -80,6 +82,10 @@ TEST_F(MovieSegmentUTest,CanBeParsed) {
 
 	std::sort(offsets.begin(),offsets.end());
 
+	fs::path movieFile = TestSetup::Basedir() / "stream.mp4";
+	do {
+		std::ofstream movie(movieFile.c_str());
+	} while(0);
 	fs::path matchFile = TestSetup::Basedir() / "frame-matching.txt";
 	std::ofstream f(matchFile.c_str());
 	MovieSegment::ListOfOffset::const_iterator it = offsets.begin();
@@ -95,7 +101,7 @@ TEST_F(MovieSegmentUTest,CanBeParsed) {
 
 	MovieSegment::Ptr ms;
 	EXPECT_NO_THROW({
-			ms = MovieSegment::Open("foo",matchFile);
+			ms = MovieSegment::Open(0,movieFile,matchFile,"bar");
 		});
 
 	std::reverse(offsets.begin(),offsets.end());
@@ -108,7 +114,7 @@ TEST_F(MovieSegmentUTest,CanBeParsed) {
 			fs::path badMatchFile = TestSetup::Basedir() / "frame-matching-bad.txt";
 			std::ofstream f(badMatchFile.c_str());
 			f << "a 1234" << std::endl;
-			MovieSegment::Open("foo",badMatchFile);
+			MovieSegment::Open(0,movieFile,badMatchFile,"bar");
 		},std::runtime_error);
 
 
@@ -116,11 +122,15 @@ TEST_F(MovieSegmentUTest,CanBeParsed) {
 			fs::path badMatchFile = TestSetup::Basedir() / "frame-matching-bad.txt";
 			std::ofstream f(badMatchFile.c_str());
 			f << "23 b" << std::endl;
-			MovieSegment::Open("foo",badMatchFile);
+			MovieSegment::Open(0,movieFile,badMatchFile,"bar");
 		},std::runtime_error);
 
 	EXPECT_THROW({
-			MovieSegment::Open("foo",TestSetup::Basedir() / "does-not-exist.txt");
+			MovieSegment::Open(0,movieFile,TestSetup::Basedir() / "does-not-exist.txt","bar");
+		},std::invalid_argument);
+
+	EXPECT_THROW({
+			MovieSegment::Open(0,TestSetup::Basedir() / "does-not-exist.mp4",matchFile,"bar");
 		},std::invalid_argument);
 
 }
