@@ -38,6 +38,10 @@ typedef std::shared_ptr<const RawFrame>   RawFrameConstPtr;
 // Forward declaration for a <priv::Capsule>
 FORT_MYRMIDON_FDECLARE_CLASS(Capsule)
 
+// Forward declaration for a <priv::MovieSegment>
+FORT_MYRMIDON_FDECLARE_CLASS(MovieSegment)
+
+
 // A Map of <Ant> identified by their <Ant::ID>
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 

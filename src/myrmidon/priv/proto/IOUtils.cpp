@@ -192,18 +192,18 @@ void IOUtils::SaveFrameReference(pb::TimedFrame * pb,
 		SaveTime(pb->mutable_time(),ref.Time());
 }
 
-void IOUtils::LoadTrackingIndex(TrackingDataDirectory::TrackingIndex & si,
+void IOUtils::LoadTrackingIndex(TrackingDataDirectory::TrackingIndex::Ptr & si,
                                 const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
                                 const fs::path & parentURI,
                                 Time::MonoclockID monoID) {
 	for(const auto & s : pb) {
-		si.Insert(LoadFrameReference(s.frame(),parentURI,monoID),s.filename());
+		si->Insert(LoadFrameReference(s.frame(),parentURI,monoID),s.filename());
 	}
 }
 
 void IOUtils::SaveTrackingIndex(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
-                                const TrackingDataDirectory::TrackingIndex & si) {
-	for(const auto & s: si.Segments()) {
+                                const TrackingDataDirectory::TrackingIndex::ConstPtr & si) {
+	for(const auto & s: si->Segments()) {
 		auto spb = pb->Add();
 		SaveFrameReference(spb->mutable_frame(),s.first);
 		spb->set_filename(s.second);

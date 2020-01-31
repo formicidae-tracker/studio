@@ -133,7 +133,7 @@ public:
 	// @pb the protobuf message field to load from
 	// @parentURI the URI of the parent <TrackingDataDirectory>
 	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
-	static void LoadTrackingIndex(TrackingDataDirectory::TrackingIndex & si,
+	static void LoadTrackingIndex(TrackingDataDirectory::TrackingIndex::Ptr & si,
 	                              const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
 	                              const fs::path & parentURI,
 	                              Time::MonoclockID monoID);
@@ -143,14 +143,14 @@ public:
 	// @pb the protobuf message field to save to
 	// @si a <TrackingDataDirectory::TrackingIndex> to save
 	static void SaveTrackingIndex(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
-	                              const TrackingDataDirectory::TrackingIndex & si);
+	                              const TrackingDataDirectory::TrackingIndex::ConstPtr & si);
 
 
-	// static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
-	//                                           const fs::path & base);
+	static MovieSegmentPtr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
+	                                        const fs::path & parentAbsoluteFilePath);
 
-	// static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb, const MovieSegment::Ptr & ms,
-	//                              const fs::path & base);
+	static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
+	                             const MovieSegmentConstPtr & ms);
 
 
 	// // Unmarshals a TrackingDataDirectory from a protobuf message

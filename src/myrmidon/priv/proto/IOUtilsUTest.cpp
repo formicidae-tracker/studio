@@ -412,7 +412,8 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 TEST_F(IOUtilsUTest,TrackingIndexIO) {
 	fs::path parentURI("foo");
 	Time::MonoclockID monoID(42);
-	TrackingDataDirectory::TrackingIndex si,res;
+	auto si = std::make_shared<TrackingDataDirectory::TrackingIndex>();
+	auto res = std::make_shared<TrackingDataDirectory::TrackingIndex>();
 	google::protobuf::RepeatedPtrField<pb::TrackingSegment> expected,pbRes;
 	for(size_t i = 0; i < 20; ++i) {
 		uint64_t fid = 100 * i;
@@ -422,13 +423,13 @@ TEST_F(IOUtilsUTest,TrackingIndexIO) {
 		std::ostringstream os;
 		os << i;
 		FrameReference ref(parentURI,fid,t);
-		si.Insert(ref,os.str());
+		si->Insert(ref,os.str());
 
 		auto pb = expected.Add();
 		IOUtils::SaveFrameReference(pb->mutable_frame(),ref);
 		pb->set_filename(os.str());
 	}
-	ASSERT_EQ(si.Segments().size(),20);
+	ASSERT_EQ(si->Segments().size(),20);
 
 	IOUtils::SaveTrackingIndex(&pbRes, si);
 	ASSERT_EQ(pbRes.size(),expected.size());
@@ -436,8 +437,8 @@ TEST_F(IOUtilsUTest,TrackingIndexIO) {
 		ExpectMessageEquals(pbRes.Get(i),expected.Get(i));
 	}
 	IOUtils::LoadTrackingIndex(res, pbRes, parentURI,monoID);
-	auto ress = res.Segments();
-	auto expecteds = si.Segments();
+	auto ress = res->Segments();
+	auto expecteds = si->Segments();
 
 	ASSERT_EQ(ress.size(),expecteds.size());
 	for(size_t i = 0; i < ress.size(); ++i) {
