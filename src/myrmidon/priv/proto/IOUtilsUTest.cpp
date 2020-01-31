@@ -350,6 +350,66 @@ TEST_F(IOUtilsUTest,AntIO) {
 }
 
 
+TEST_F(IOUtilsUTest,ExperimentIO) {
+	auto e = Experiment::Create(TestSetup::Basedir() / "experiment-io.myrmidon");
+	auto res = Experiment::Create(TestSetup::Basedir() / "experiment-io-res.myrmidon");
+	e->SetFamily(tags::Family(1234));
+	pb::Experiment ePb,expected;
+	EXPECT_THROW({
+			IOUtils::SaveExperiment(&ePb,*e);
+		},std::runtime_error);
+
+	ePb.set_tagfamily(pb::TagFamily(1234));
+	EXPECT_THROW({
+			IOUtils::LoadExperiment(*e, ePb);
+		},std::runtime_error);
+
+	TrackingDataDirectory::ConstPtr tdd;
+
+	EXPECT_NO_THROW({
+			e->SetAuthor("Someone");
+			expected.set_author("Someone");
+			e->SetName("Some experiment");
+			expected.set_name("Some experiment");
+			e->SetComment("Some comment");
+			expected.set_comment("Some comment");
+			e->SetFamily(tags::Family::Tag36h11);
+			expected.set_tagfamily(pb::TAG36H11);
+			e->SetThreshold(45);
+			expected.set_threshold(45);
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
+			e->AddTrackingDataDirectory(tdd);
+			expected.add_trackingdatadirectories(tdd->URI().generic_string());
+		});
+
+
+	ePb.Clear();
+
+	IOUtils::SaveExperiment(&ePb,*e);
+	ExpectMessageEquals(ePb,expected);
+
+	IOUtils::LoadExperiment(*res,ePb);
+	EXPECT_EQ(res->Author(),e->Author());
+	EXPECT_EQ(res->Name(),e->Name());
+	EXPECT_EQ(res->Comment(),e->Comment());
+	EXPECT_EQ(res->Family(),e->Family());
+	EXPECT_EQ(res->Threshold(),e->Threshold());
+	EXPECT_EQ(res->TrackingDataDirectories().size(),
+	          e->TrackingDataDirectories().size());
+	for ( const auto & [URI,tdd] : e->TrackingDataDirectories() ) {
+		auto fi = res->TrackingDataDirectories().find(URI);
+		if ( fi == res->TrackingDataDirectories().cend() ) {
+			ADD_FAILURE() << "Could not find TrackingDataDirectory:" << URI;
+			continue;
+		}
+		EXPECT_EQ(fi->second->URI(),tdd->URI());
+		EXPECT_EQ(fi->second->AbsoluteFilePath(),tdd->AbsoluteFilePath());
+
+	}
+
+}
+
+
 
 // TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
 // 	SegmentIndexer<std::string> si,res;
