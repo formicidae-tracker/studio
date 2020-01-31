@@ -79,12 +79,12 @@ void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule::ConstPtr & capsule) {
 void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
 	auto ant = e.Identifier().CreateAnt(pb.id());
 
-	for ( const auto & ident : pb.marker() ) {
+	for ( const auto & ident : pb.identifications() ) {
 		LoadIdentification(e,ant,ident);
 	}
 
 	for ( const auto & mpb : pb.measurements() ) {
-		ant->SetMeasurement(mpb.name(),mpb.length());
+		ant->SetMeasurement(mpb.name(),mpb.lengthmm());
 	}
 
 	for ( const auto & mc : pb.shape().capsules() ) {
@@ -98,13 +98,13 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 	pb->set_id(ant->ID());
 
 	for ( const auto & ident : ant->Identifications() ) {
-		SaveIdentification(pb->add_marker(),ident);
+		SaveIdentification(pb->add_identifications(),ident);
 	}
 
 	for ( const auto & m : ant->Measurements() ) {
 		auto mpb = pb->add_measurements();
 		mpb->set_name(m.first);
-		mpb->set_length(m.second);
+		mpb->set_lengthmm(m.second);
 	}
 
 	for ( const auto & c : ant->Shape() ) {

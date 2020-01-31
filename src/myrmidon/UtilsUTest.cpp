@@ -65,3 +65,14 @@ void ExpectAlmostEqualVector(const Eigen::Vector2d & a,
 	EXPECT_DOUBLE_EQ(a.x(),b.x());
 	EXPECT_DOUBLE_EQ(a.y(),b.y());
 }
+
+
+void ExpectMessageEquals(const google::protobuf::Message &a,
+                         const google::protobuf::Message &b) {
+	std::string differences;
+
+	google::protobuf::util::MessageDifferencer diff;
+	diff.set_float_comparison(google::protobuf::util::MessageDifferencer::APPROXIMATE);
+	diff.ReportDifferencesToString(&differences);
+	EXPECT_TRUE(diff.Compare(a,b)) << differences;
+}

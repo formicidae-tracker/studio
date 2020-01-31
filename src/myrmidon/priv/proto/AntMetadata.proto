@@ -15,10 +15,10 @@ message Identification {
 	google.protobuf.Timestamp End   = 5;
 };
 
-message Metadata {
-	string JSONData        = 1;
-	uint64 StartValidFrame = 2;
-};
+// message Metadata {
+// 	string JSONData        = 1;
+// 	uint64 StartValidFrame = 2;
+// };
 
 message Capsule {
 	Vector2d a        = 1;
@@ -32,16 +32,15 @@ message Shape {
 };
 
 message Measurement {
-	string name  = 1;
-	double length = 2;
+	string name     = 1;
+	double lengthMM = 2;
 };
 
 
 message AntMetadata {
-	int32                   ID       = 1;
-	Shape                   shape    = 2;
-	repeated Identification marker   = 3;
-	repeated Metadata       metadata = 4;
-
-	repeated Measurement measurements = 5;
+	int32                   ID              = 1;
+	Shape                   shape           = 2;
+	repeated Identification identifications = 3;
+//	repeated Metadata       metadata        = 4;
+	repeated Measurement    measurements    = 5;
 };

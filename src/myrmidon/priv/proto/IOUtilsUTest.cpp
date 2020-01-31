@@ -51,8 +51,11 @@ TEST_F(IOUtilsUTest,TimeIO) {
 		expected.mutable_timestamp()->set_nanos(d.Nanos);
 		expected.set_monotonic(d.Mono);
 		IOUtils::SaveTime(&t, d.T);
-		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(t,expected));
+
+		ExpectMessageEquals(t,expected);
+
 		auto res = IOUtils::LoadTime(t, 42);
+
 		EXPECT_TRUE(TimeEqual(res,d.T));
 	}
 
@@ -70,17 +73,17 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		= {
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
-		    2.0,-1.0,M_PI/2,
+		    1.0,-1.0,M_PI/2,
 		    123
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
-		    0.0,-4.0,3*M_PI/4,
+		    1.45,-4.0,3*M_PI/4,
 		    23
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
-		    10.0,-1.0,0.0,
+		    1.0,-1.0,0.0,
 		    34
 		   },
 	};
@@ -105,11 +108,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		expected.set_id(d.Value);
 
 		IOUtils::SaveIdentification(&identPb, ident);
-		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(identPb,expected))
-			<< "Messages are different saved: "
-			<< identPb.DebugString() << std::endl
-			<< "expected: "
-			<< expected.DebugString();
+		ExpectMessageEquals(identPb,expected);
 
 		e->Identifier().DeleteIdentification(ident);
 		ASSERT_TRUE(a->Identifications().empty());
@@ -154,7 +153,7 @@ TEST_F(IOUtilsUTest,VectorIO) {
 		expected.set_y(dV.y());
 
 		IOUtils::SaveVector(&v,dV);
-		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(v,expected));
+		ExpectMessageEquals(v,expected);
 
 		IOUtils::LoadVector(res,v);
 		ExpectAlmostEqualVector(res,dV);
@@ -185,13 +184,167 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		expected.set_b_radius(d.BR);
 
 		IOUtils::SaveCapsule(&c,dC);
-		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(c,expected));
+		ExpectMessageEquals(c,expected);
 
 		auto res = IOUtils::LoadCapsule(c);
 		ExpectAlmostEqualVector(res->A(),dC->A());
 		ExpectAlmostEqualVector(res->B(),dC->B());
 		EXPECT_DOUBLE_EQ(res->RadiusA(),dC->RadiusA());
 		EXPECT_DOUBLE_EQ(res->RadiusB(),dC->RadiusB());
+	}
+
+}
+
+
+TEST_F(IOUtilsUTest,AntIO) {
+	struct IdentificationData {
+		Time::ConstPtr Start,End;
+		double X,Y,Angle;
+		TagID Value;
+	};
+
+	struct MeasurementData {
+		std::string Name;
+		double Value;
+	};
+
+	struct TestData {
+		std::vector<IdentificationData> IData;
+		std::vector<CapsulePtr>         Capsules;
+		std::vector<MeasurementData>    Measurements;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    {
+		     {
+		      Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(1)),
+		      2.0,3.0,M_PI,
+		      1,
+		     },
+		     {
+		      std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
+		      2.0,3.0,M_PI,
+		      2,
+		     },
+		    },
+		    {
+		     std::make_shared<Capsule>(Eigen::Vector2d(2.0,-4.0),
+		                               Eigen::Vector2d(23.1,-7.3),
+		                               1.0,2.0),
+		     std::make_shared<Capsule>(Eigen::Vector2d(13.0,23.0),
+		                               Eigen::Vector2d(6.1,8.9),
+		                               5.0,-3.0)
+		    },
+		    {
+		     {"length", 3.6},
+		     {"antennas",0.47}
+		    }
+		   }
+	};
+
+	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
+
+	for(auto & d: testdata) {
+		std::sort(d.Measurements.begin(),
+		          d.Measurements.end(),
+		          [](const MeasurementData & a,
+		             const MeasurementData & b) {
+			          return a.Name < b.Name;
+		          });
+		auto dA = e->Identifier().CreateAnt();
+		std::vector<Identification::Ptr> dIdents;
+
+		pb::AntMetadata a,expected;
+		expected.set_id(dA->ID());
+		for(const auto & identData : d.IData ) {
+			auto ident  =e->Identifier().AddIdentification(dA->ID(),
+			                                               identData.Value,
+			                                               identData.Start,
+			                                               identData.End);
+			ident->SetTagPosition(Eigen::Vector2d(identData.X,identData.Y),
+			                      identData.Angle);
+			dIdents.push_back(ident);
+			IOUtils::SaveIdentification(expected.add_identifications(), ident);
+		}
+
+		for ( const auto & c : d.Capsules ) {
+			dA->AddCapsule(c);
+			IOUtils::SaveCapsule(expected.mutable_shape()->add_capsules(),
+			                     c);
+		}
+
+		for (const auto & m : d.Measurements ) {
+			dA->SetMeasurement(m.Name,m.Value);
+			auto mpb = expected.add_measurements();
+			mpb->set_name(m.Name);
+			mpb->set_lengthmm(m.Value);
+		}
+
+		IOUtils::SaveAnt(&a,dA);
+		std::string differences;
+
+		ExpectMessageEquals(a,expected);
+
+		EXPECT_THROW({
+				IOUtils::LoadAnt(*e,a);
+			},std::exception);
+
+		EXPECT_NO_THROW({
+				for( auto & i : dIdents ) {
+					e->Identifier().DeleteIdentification(i);
+				}
+				e->Identifier().DeleteAnt(dA->ID());
+			});
+
+		IOUtils::LoadAnt(*e,a);
+		auto fi = e->Identifier().Ants().find(expected.id());
+		EXPECT_TRUE(fi != e->Identifier().Ants().cend());
+		if ( fi == e->Identifier().Ants().cend() ) {
+			continue;
+		}
+		auto res = fi->second;
+		EXPECT_EQ(res->ID(),expected.id());
+		EXPECT_EQ(res->Identifications().size(),dIdents.size());
+		for(size_t i = 0 ;
+		    i < std::min(res->Identifications().size(),dIdents.size());
+		    ++i) {
+			auto ii = res->Identifications()[i];
+			auto ie = dIdents[i];
+			EXPECT_EQ(ii->TagValue(),ie->TagValue());
+			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
+			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
+			ExpectAlmostEqualVector(ii->TagPosition(),ie->TagPosition());
+			EXPECT_DOUBLE_EQ(ii->TagAngle(),ie->TagAngle());
+			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
+
+		}
+
+		EXPECT_EQ(res->Measurements().size(),
+		          d.Measurements.size());
+		for (const auto & m : d.Measurements ) {
+			auto ffi = res->Measurements().find(m.Name);
+			if ( ffi == res->Measurements().cend() ) {
+				ADD_FAILURE() << "Could not retrieve measurement '" << m.Name << "'";
+				continue;
+			}
+			EXPECT_DOUBLE_EQ(ffi->second,m.Value);
+		}
+
+		EXPECT_EQ(res->Shape().size(),
+		          d.Capsules.size());
+		for(size_t i = 0;
+		    i < std::min(d.Capsules.size(),res->Shape().size());
+		    ++i) {
+			auto c = res->Shape()[i];
+			auto ce = d.Capsules[i];
+			ExpectAlmostEqualVector(c->A(),ce->A());
+			ExpectAlmostEqualVector(c->B(),ce->B());
+			EXPECT_DOUBLE_EQ(c->RadiusA(),ce->RadiusA());
+			EXPECT_DOUBLE_EQ(c->RadiusB(),ce->RadiusB());
+		}
+
 	}
 
 }

@@ -5,6 +5,8 @@
 #include "Time.hpp"
 #include <Eigen/Core>
 
+#include <google/protobuf/message.h>
+
 ::testing::AssertionResult TimeEqual(const fort::myrmidon::Time & a,
                                      const fort::myrmidon::Time & b);
 
@@ -13,3 +15,6 @@
 
 void ExpectAlmostEqualVector(const Eigen::Vector2d & a,
                              const Eigen::Vector2d & b);
+
+void ExpectMessageEquals(const google::protobuf::Message &a,
+                         const google::protobuf::Message &b);
