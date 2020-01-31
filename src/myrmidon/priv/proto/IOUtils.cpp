@@ -180,24 +180,35 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	}
 }
 
+FrameReference IOUtils::LoadFrameReference(const pb::TimedFrame & pb,
+                                           const fs::path & parentURI,
+                                           Time::MonoclockID monoID) {
+	return FrameReference(parentURI,pb.frameid(),LoadTime(pb.time(),monoID));
+}
 
-// void IOUtils::LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
-//                                             const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
-//                                             Time::MonoclockID mID) {
-// 	for(const auto & s : pb) {
-// 		//		si.Insert(s.frameid(),LoadTime(s.time(),mID),s.data());
-// 	}
-// }
+void IOUtils::SaveFrameReference(pb::TimedFrame * pb,
+                                 const FrameReference & ref) {
+		pb->set_frameid(ref.ID());
+		SaveTime(pb->mutable_time(),ref.Time());
+}
 
-// void IOUtils::SaveSegmentIndexer(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
-//                                             const TrackingDataDirectory::TrackingIndexer & si) {
-// 	for(const auto & s: si.Segments()) {
-// 		auto spb = pb->Add();
-// 		spb->set_frameid(std::get<0>(s));
-// 		SaveTime(*spb->mutable_time(),std::get<1>(s));
-// 		//		spb->set_data(std::get<2>(s));
-// 	}
-// }
+void IOUtils::LoadTrackingIndex(TrackingDataDirectory::TrackingIndex & si,
+                                const google::protobuf::RepeatedPtrField<pb::TrackingSegment> & pb,
+                                const fs::path & parentURI,
+                                Time::MonoclockID monoID) {
+	for(const auto & s : pb) {
+		si.Insert(LoadFrameReference(s.frame(),parentURI,monoID),s.filename());
+	}
+}
+
+void IOUtils::SaveTrackingIndex(google::protobuf::RepeatedPtrField<pb::TrackingSegment> * pb,
+                                const TrackingDataDirectory::TrackingIndex & si) {
+	for(const auto & s: si.Segments()) {
+		auto spb = pb->Add();
+		SaveFrameReference(spb->mutable_frame(),s.first);
+		spb->set_filename(s.second);
+	}
+}
 
 // MovieSegment::Ptr IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
 //                                                        const fs::path & base) {

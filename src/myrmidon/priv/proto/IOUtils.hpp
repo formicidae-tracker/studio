@@ -3,10 +3,12 @@
 #include <myrmidon/Time.pb.h>
 #include <myrmidon/AntMetadata.pb.h>
 #include <myrmidon/Experiment.pb.h>
+#include <myrmidon/TrackingDataDirectory.pb.h>
 
 #include <myrmidon/Time.hpp>
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 #include <Eigen/Core>
 #include <myrmidon/Vector2d.pb.h>
@@ -108,17 +110,40 @@ public:
 	static void SaveExperiment(pb::Experiment * pb, const priv::Experiment & e);
 
 
+	// Loads a FrameReference from a message
+	//
+	// @pb the message to read from
+	// @parentURI the URI of the parent <TrackingDataDirectory>
+	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
+	// @return a <FrameReference> contained in the message
+	static FrameReference LoadFrameReference(const pb::TimedFrame & pb,
+	                                         const fs::path & parentURI,
+	                                         Time::MonoclockID monoID);
 
+	// Save a FrameReference to a message
+	//
+	// @pb the message to save to
+	// @ref teh <priv::FrameReference> to save
+	static void SaveFrameReference(pb::TimedFrame * pb,
+	                               const FrameReference & ref);
 
+	// Loads a TrackingIndex from a message
+	//
+	// @si a <TrackingDataDirectory::TrackingIndex> to load
+	// @pb the protobuf message field to load from
+	// @parentURI the URI of the parent <TrackingDataDirectory>
+	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
+	static void LoadTrackingIndex(TrackingDataDirectory::TrackingIndex & si,
+	                              const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
+	                              const fs::path & parentURI,
+	                              Time::MonoclockID monoID);
 
-
-
-	// static void LoadSegmentIndexer(TrackingDataDirectory::TrackingIndexer & si,
-	//                                const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
-	//                                Time::MonoclockID mID);
-
-	// static void SaveSegmentIndexer(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
-	//                                const TrackingDataDirectory::TrackingIndexer & si);
+	// Saves a TrackingIndex to a message
+	//
+	// @pb the protobuf message field to save to
+	// @si a <TrackingDataDirectory::TrackingIndex> to save
+	static void SaveTrackingIndex(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
+	                              const TrackingDataDirectory::TrackingIndex & si);
 
 
 	// static MovieSegment::Ptr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,

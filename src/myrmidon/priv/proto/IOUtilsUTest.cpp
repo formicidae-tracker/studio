@@ -409,41 +409,47 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 
 }
 
+TEST_F(IOUtilsUTest,TrackingIndexIO) {
+	fs::path parentURI("foo");
+	Time::MonoclockID monoID(42);
+	TrackingDataDirectory::TrackingIndex si,res;
+	google::protobuf::RepeatedPtrField<pb::TrackingSegment> expected,pbRes;
+	for(size_t i = 0; i < 20; ++i) {
+		uint64_t fid = 100 * i;
+		Time t = Time::FromTimestampAndMonotonic(Time::FromTimeT(i).ToTimestamp(),
+		                                         1000000001ULL*uint64_t(i) + 10,
+		                                         monoID);
+		std::ostringstream os;
+		os << i;
+		FrameReference ref(parentURI,fid,t);
+		si.Insert(ref,os.str());
 
+		auto pb = expected.Add();
+		IOUtils::SaveFrameReference(pb->mutable_frame(),ref);
+		pb->set_filename(os.str());
+	}
+	ASSERT_EQ(si.Segments().size(),20);
 
-// TEST_F(ProtobufExperimentReadWriterUTest,SegmentIndexerIO) {
-// 	SegmentIndexer<std::string> si,res;
-// 	google::protobuf::RepeatedPtrField<pb::TrackingSegment> expected,pbRes;
-// 	for(size_t i = 0; i < 20; ++i) {
-// 		uint64_t fid = 100 * i;
-// 		Time t = Time::FromTimeT(100*i);
-// 		std::ostringstream os;
-// 		os << i;
-// 		//		si.Insert(fid,t,os.str());
+	IOUtils::SaveTrackingIndex(&pbRes, si);
+	ASSERT_EQ(pbRes.size(),expected.size());
+	for(size_t i = 0; i < pbRes.size(); ++i) {
+		ExpectMessageEquals(pbRes.Get(i),expected.Get(i));
+	}
+	IOUtils::LoadTrackingIndex(res, pbRes, parentURI,monoID);
+	auto ress = res.Segments();
+	auto expecteds = si.Segments();
 
-// 		auto pb = expected.Add();
-// 		pb->set_frameid(fid);
-// 		t.ToTimestamp(*pb->mutable_time()->mutable_timestamp());
-// 		pb->set_path(os.str());
-// 	}
+	ASSERT_EQ(ress.size(),expecteds.size());
+	for(size_t i = 0; i < ress.size(); ++i) {
+		auto & iref = ress[i].first;
+		auto & ifilename = ress[i].second;
 
-// 	ProtobufReadWriter::SaveSegmentIndexer(&pbRes, si);
-// 	ASSERT_EQ(pbRes.size(),expected.size());
-// 	for(size_t i = 0; i < pbRes.size(); ++i) {
-// 		EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(pbRes.Get(i),expected.Get(i)));
-// 	}
-// 	ProtobufReadWriter::LoadSegmentIndexer(res, pbRes, 42);
-// 	auto ress = res.Segments();
-// 	auto expecteds = si.Segments();
+		EXPECT_EQ(iref.ParentURI(),parentURI);
+		EXPECT_TRUE(TimeEqual(iref.Time(),expecteds[i].first.Time()));
+		EXPECT_EQ(ifilename,expecteds[i].second);
+	}
 
-// 	ASSERT_EQ(ress.size(),expecteds.size());
-// 	for(size_t i = 0; i < ress.size(); ++i) {
-// 		EXPECT_EQ(std::get<0>(ress[i]),std::get<0>(expecteds[i]));
-// 		EXPECT_TRUE(TimeEqual(std::get<1>(ress[i]),std::get<1>(expecteds[i])));
-// 		EXPECT_EQ(std::get<2>(ress[i]),std::get<2>(expecteds[i]));
-// 	}
-
-// }
+}
 
 
 // TEST_F(ProtobufExperimentReadWriterUTest,MovieSegmentIO) {
