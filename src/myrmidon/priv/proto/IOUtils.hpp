@@ -19,14 +19,34 @@ namespace proto {
 class IOUtils {
 public:
 
+	// Loads a Time from protobuf message
+	//
+	// @pb the message to read from
+	// @mID the<Time::MonoclockID> to use if the message cotains a monotonic value
+	// @return a <Time> oject, that may contain a monotonic value
 	static Time LoadTime(const pb::Time & pb, Time::MonoclockID mID);
 
+	// Saves a Time to a protobuf message
+	//
+	// @pb the message to save to
+	// @t the <Time> to save
 	static void SaveTime(pb::Time * pb, const Time & t);
 
+	// Loads a Eigen::Vector2d from a message
+	//
+	// Loads a Eigen::Vector2d from a message. Note that we pass the
+	// return value by reference to avoid memory alignement issues
+	// with Eigen primitives.
+	// @v the Eigen::Vector2d to load
+	// @pb the protobuf message to load from
 	static inline void LoadVector(Eigen::Vector2d & v, const pb::Vector2d & pb) {
 		v << pb.x(),pb.y();
 	}
 
+	// Saves a Eigen::Vector2d to a message
+	//
+	// @pb the message to save to
+	// @v the Eigen::Vector2d message to save
 	static inline void SaveVector(pb::Vector2d * pb, const Eigen::Vector2d & v) {
 		pb->set_x(v.x());
 		pb->set_y(v.y());
@@ -49,8 +69,16 @@ public:
 	                               const IdentificationConstPtr & ident);
 
 
+	// Loads a Capsule from a message
+	//
+	// @pb the protobuf message to read from
+	// @return a <Capsule::Ptr> initialized with the message data
 	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
 
+	// Saves a Capsule to a message
+	//
+	// @pb the protobuf message to save to
+	// @capsule the <Capsule> to save to
 	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
 
 
@@ -65,11 +93,6 @@ public:
 	// @pb the message to save to
 	// @a the <priv::Ant> to save
 	static void SaveAnt(pb::AntMetadata * pb, const AntConstPtr & a);
-
-
-
-
-
 
 	// Loads an Experiment from a protobuf message
 	//
