@@ -4,10 +4,10 @@ package fort.myrmidon.pb;
 
 import "google/protobuf/timestamp.proto";
 
-import "Point2d.proto";
+import "Vector2d.proto";
 
 message Identification {
-	Point2d position = 1;
+	Vector2d position = 1;
 	double  theta    = 2;
     int32   ID       = 3;
 
@@ -21,9 +21,9 @@ message Metadata {
 };
 
 message Capsule {
-	Point2d a        = 1;
+	Vector2d a        = 1;
 	double  a_radius = 2;
-	Point2d b        = 3;
+	Vector2d b        = 3;
 	double  b_radius = 4;
 };
 

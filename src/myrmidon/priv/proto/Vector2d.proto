@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fort.myrmidon.pb;
 
-message Point2d {
+message Vector2d {
 	double X = 1;
 	double Y = 2;
 }

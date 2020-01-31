@@ -149,7 +149,7 @@ TEST_F(IOUtilsUTest,VectorIO) {
 
 	for(const auto & d: testdata) {
 		Eigen::Vector2d dV(d.X,d.Y),res;
-		pb::Point2d v,expected;
+		pb::Vector2d v,expected;
 		expected.set_x(dV.x());
 		expected.set_y(dV.y());
 

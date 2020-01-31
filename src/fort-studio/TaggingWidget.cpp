@@ -11,7 +11,7 @@
 #include <myrmidon/priv/Identification.hpp>
 #include <myrmidon/priv/Ant.hpp>
 
-#include "Estimate.pb.h"
+#include <myrmidon/EstimateFile.pb.h>
 
 #include "utils.hpp"
 
@@ -192,8 +192,8 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 			                 },
 			                 [this,tdd](const pb::Estimate & pb) {
 				                 try {
-					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
-					                                                            pb::Point2dToEigen(pb.tail()),
+					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.start()),
+					                                                            pb::Point2dToEigen(pb.end()),
 					                                                            *tdd->FrameAt(pb.frame()),
 					                                                            pb.tag());
 					                 d_estimates[e->Path()] = e;
@@ -352,8 +352,8 @@ Error TaggingWidget::save() {
 			lines.push_back([&e](pb::Estimate & pb) {
 				                pb.set_frame(e->Frame()->ID());
 				                pb.set_tag(e->TagValue());
-				                pb::EigenToPoint2d(pb.mutable_head(),e->Head());
-				                pb::EigenToPoint2d(pb.mutable_tail(),e->Tail());
+				                pb::EigenToPoint2d(pb.mutable_start(),e->Head());
+				                pb::EigenToPoint2d(pb.mutable_end(),e->Tail());
 			                });
 		}
 

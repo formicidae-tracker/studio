@@ -19,7 +19,7 @@ configure_file(config.h.in myrmidon-config.h)
 
 set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/AntMetadata.proto
-                priv/proto/Point2d.proto
+                priv/proto/Vector2d.proto
                 priv/proto/Time.proto
                 priv/proto/TrackingDataDirectory.proto
                 priv/proto/ExperimentFile.proto
