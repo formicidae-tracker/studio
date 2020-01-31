@@ -145,12 +145,29 @@ public:
 	static void SaveTrackingIndex(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
 	                              const TrackingDataDirectory::TrackingIndex::ConstPtr & si);
 
+	// Loads a MovieSegment from a message
+	//
+	// @pb the message to read from
+	// @parentAbsoluteFilePath the absolute path to the parent directory
+	// @parentURI the URI of the parent
+	// @monoID the <Time::MonoclockID> associated with the parent
+	// @return a pair containing the <MovieSegment> and its starting frame time.
+	static std::pair<MovieSegmentPtr,Time>
+	LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
+	                 const fs::path & parentAbsoluteFilePath,
+	                 const fs::path & parentURI,
+	                 Time::MonoclockID monoID);
 
-	static MovieSegmentPtr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
-	                                        const fs::path & parentAbsoluteFilePath);
-
+	// Saves a MovieSegment to a message
+	//
+	// @pb the destination message
+	// @ms the <MovieSegment> to save
+	// @startTime the starting time of the <MovieSegment::StartFrame>
+	// @parentAbsoluteFilePath the absolute path to the parent TrackingDataDirectory
 	static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
-	                             const MovieSegmentConstPtr & ms);
+	                             const MovieSegmentConstPtr & ms,
+	                             const Time & startTime,
+	                             const fs::path & parentAbsoluteFilePath);
 
 
 	// // Unmarshals a TrackingDataDirectory from a protobuf message

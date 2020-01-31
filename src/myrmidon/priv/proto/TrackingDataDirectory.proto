@@ -21,13 +21,18 @@ message MovieOffset {
 }
 
 message MovieSegment {
-	string path          = 1;
-	uint64 trackingStart = 2;
-	uint64 trackingEnd   = 3;
-	uint64 movieStart    = 4;
-	uint64 movieEnd      = 5;
+	uint32 id            = 1;
+	string path          = 2;
+	uint64 trackingStart = 3;
+	uint64 trackingEnd   = 4;
+	uint64 movieStart    = 5;
+	uint64 movieEnd      = 6;
 
-	repeated MovieOffset offsets = 6;
+	Time trackingStartTime = 7;
+
+	repeated MovieOffset offsets = 8;
+
+
 }
 
 message TrackingDataDirectory {

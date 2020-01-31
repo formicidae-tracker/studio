@@ -453,52 +453,71 @@ TEST_F(IOUtilsUTest,TrackingIndexIO) {
 }
 
 
-// TEST_F(ProtobufExperimentReadWriterUTest,MovieSegmentIO) {
-// 	MovieSegment::Ptr ms,res;
-// 	fort::myrmidon::pb::MovieSegment expected,pbRes;
-// 	MovieSegment::ListOfOffset offsets;
-// 	offsets.push_back(std::make_pair(0,1234));
-// 	offsets.push_back(std::make_pair(42,1236));
-// 	offsets.push_back(std::make_pair(12,1235));
-
-// 	std::sort(offsets.begin(),offsets.end());
-// 	std::reverse(offsets.begin(),offsets.end());
-
-// 	ms = std::make_shared<MovieSegment>("bar/foo",1234,1234+100+2,0,100,offsets);
-
-// 	expected.set_path("foo");
-// 	expected.set_trackingstart(1234);
-// 	expected.set_trackingend(1234+100+2);
-// 	expected.set_moviestart(0);
-// 	expected.set_movieend(100);
-// 	for ( const auto & o : offsets ) {
-// 		auto pbo = expected.add_offsets();
-// 		pbo->set_movieframeid(o.first);
-// 		pbo->set_offset(o.second);
-// 	}
+TEST_F(IOUtilsUTest,MovieSegmentIO) {
+	MovieSegment::Ptr ms,res;
+	Time::MonoclockID monoID(42);
+	Time startTime = Time::FromTimestampAndMonotonic(Time::FromTimeT(1).ToTimestamp(),
+	                                                 123456789,
+	                                                 monoID);
 
 
+	fort::myrmidon::pb::MovieSegment expected,pbRes;
+	MovieSegment::ListOfOffset offsets;
+	offsets.push_back(std::make_pair(0,1234));
+	offsets.push_back(std::make_pair(42,1236));
+	offsets.push_back(std::make_pair(12,1235));
 
-// 	ProtobufReadWriter::SaveMovieSegment(&pbRes,ms,"bar");
-// 	EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(pbRes,expected)) <<
-// 		"Got " << pbRes.ShortDebugString() << " but expected: " << expected.ShortDebugString();
+	std::sort(offsets.begin(),offsets.end());
+	std::reverse(offsets.begin(),offsets.end());
 
-// 	res = ProtobufReadWriter::LoadMovieSegment(pbRes, "bar");
-// 	EXPECT_EQ(res->MovieFilepath(), ms->MovieFilepath());
-// 	EXPECT_EQ(res->StartFrame(),ms->StartFrame());
-// 	EXPECT_EQ(res->EndFrame(),ms->EndFrame());
+	ms = std::make_shared<MovieSegment>(0,
+	                                    TestSetup::Basedir() / "foo.0000" / "stream.0000.mp4",
+	                                    "foo.0000",
+	                                    1234,
+	                                    1234+100+2,
+	                                    0,
+	                                    100,
+	                                    offsets);
 
-// 	EXPECT_EQ(res->StartMovieFrame(),ms->StartMovieFrame());
-// 	EXPECT_EQ(res->EndMovieFrame(),ms->EndMovieFrame());
+	expected.set_path("stream.0000.mp4");
+	expected.set_trackingstart(1234);
+	expected.set_trackingend(1234+100+2);
+	expected.set_moviestart(0);
+	expected.set_movieend(100);
+	IOUtils::SaveTime(expected.mutable_trackingstarttime(),startTime);
+	for ( const auto & o : offsets ) {
+		auto pbo = expected.add_offsets();
+		pbo->set_movieframeid(o.first);
+		pbo->set_offset(o.second);
+	}
 
-// 	ASSERT_EQ(res->Offsets().size(),ms->Offsets().size());
+	IOUtils::SaveMovieSegment(&pbRes,ms,startTime,TestSetup::Basedir() / "foo.0000");
+	ExpectMessageEquals(pbRes,expected);
 
-// 	for (size_t i = 0; i < ms->Offsets().size(); ++i) {
-// 		EXPECT_EQ(res->Offsets()[i],ms->Offsets()[i]);
-// 	}
+	auto resPair = IOUtils::LoadMovieSegment(pbRes, TestSetup::Basedir() / "foo.0000" , "foo.0000",monoID);
+	res = resPair.first;
+	EXPECT_TRUE(TimeEqual(resPair.second,startTime));
+	EXPECT_EQ(res->AbsoluteFilePath().string(), ms->AbsoluteFilePath().string());
+	EXPECT_EQ(res->StartFrame(),ms->StartFrame());
+	EXPECT_EQ(res->EndFrame(),ms->EndFrame());
 
+	EXPECT_EQ(res->StartMovieFrame(),ms->StartMovieFrame());
+	EXPECT_EQ(res->EndMovieFrame(),ms->EndMovieFrame());
 
-// }
+	ASSERT_EQ(res->Offsets().size(),ms->Offsets().size());
+
+	for (size_t i = 0; i < ms->Offsets().size(); ++i) {
+		EXPECT_EQ(res->Offsets()[i],ms->Offsets()[i]);
+	}
+
+	//not using an absolute path as arguments
+	EXPECT_THROW({
+			IOUtils::SaveMovieSegment(&pbRes,ms,startTime, "foo.0000");
+		},std::invalid_argument);
+	EXPECT_THROW({
+			IOUtils::LoadMovieSegment(pbRes, "foo.0000","foo.0000",monoID);
+		},std::invalid_argument);
+}
 
 
 // TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {

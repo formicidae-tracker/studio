@@ -210,35 +210,61 @@ void IOUtils::SaveTrackingIndex(google::protobuf::RepeatedPtrField<pb::TrackingS
 	}
 }
 
-// MovieSegment::Ptr IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & ms,
-//                                                        const fs::path & base) {
-// 	MovieSegment::ListOfOffset offsets;
-// 	for ( const auto & o : ms.offsets() ) {
-// 		offsets.push_back(std::make_pair(o.movieframeid(),o.offset()));
-// 	}
 
-// 	return std::make_shared<MovieSegment>(base / ms.path(),
-// 	                                      ms.trackingstart(),
-// 	                                      ms.trackingend(),
-// 	                                      ms.moviestart(),
-// 	                                      ms.movieend(),
-// 	                                      offsets);
-// }
+std::pair<MovieSegment::Ptr,Time>
+IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
+                          const fs::path & parentAbsoluteFilePath,
+                          const fs::path & parentURI,
+                          Time::MonoclockID monoID) {
 
-// void IOUtils::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
-//                                           const MovieSegment::Ptr & ms,
-//                                           const fs::path & base) {
-// 	pb->set_path(fs::relative(ms->MovieFilepath(),base).generic_string());
-// 	pb->set_trackingstart(ms->StartFrame());
-// 	pb->set_trackingend(ms->EndFrame());
-// 	pb->set_moviestart(ms->StartMovieFrame());
-// 	pb->set_movieend(ms->EndMovieFrame());
-// 	for ( const auto & o : ms->Offsets() ) {
-// 		auto pbo = pb->add_offsets();
-// 		pbo->set_movieframeid(o.first);
-// 		pbo->set_offset(o.second);
-// 	}
-// }
+	if (parentAbsoluteFilePath.is_absolute() == false ) {
+		throw std::invalid_argument("parentAbsoluteFilePath:'"
+		                            + parentAbsoluteFilePath.generic_string()
+		                            + "' is not an absolute path");
+	}
+
+	MovieSegment::ListOfOffset offsets;
+	for ( const auto & o : pb.offsets() ) {
+		offsets.push_back(std::make_pair(o.movieframeid(),o.offset()));
+	}
+
+	auto resMS = std::make_shared<MovieSegment>(pb.id(),
+	                                            parentAbsoluteFilePath / pb.path(),
+	                                            parentURI,
+	                                            pb.trackingstart(),
+	                                            pb.trackingend(),
+	                                            pb.moviestart(),
+	                                            pb.movieend(),
+	                                            offsets);
+	return std::make_pair(resMS,
+	                      LoadTime(pb.trackingstarttime(),monoID));
+}
+
+void IOUtils::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
+                               const MovieSegment::ConstPtr & ms,
+                               const Time & startTime,
+                               const fs::path & parentAbsoluteFilePath) {
+
+	if (parentAbsoluteFilePath.is_absolute() == false ) {
+		throw std::invalid_argument("parentAbsoluteFilePath:'"
+		                            + parentAbsoluteFilePath.string()
+		                            + "' is not an absolute path");
+	}
+	pb->Clear();
+
+	pb->set_id(ms->ID());
+	pb->set_path(fs::relative(ms->AbsoluteFilePath(),parentAbsoluteFilePath).generic_string());
+	pb->set_trackingstart(ms->StartFrame());
+	pb->set_trackingend(ms->EndFrame());
+	pb->set_moviestart(ms->StartMovieFrame());
+	pb->set_movieend(ms->EndMovieFrame());
+	SaveTime(pb->mutable_trackingstarttime(),startTime);
+	for ( const auto & o : ms->Offsets() ) {
+		auto pbo = pb->add_offsets();
+		pbo->set_movieframeid(o.first);
+		pbo->set_offset(o.second);
+	}
+}
 
 // TrackingDataDirectory IOUtils::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
 // 	// TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());

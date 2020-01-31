@@ -14,9 +14,10 @@ namespace priv {
 
 class MovieSegment : public Identifiable, public FileSystemLocatable {
 public:
-	typedef uint32_t MovieID;
-	typedef std::shared_ptr<MovieSegment> Ptr;
-	typedef std::vector<Ptr>              List;
+	typedef uint32_t                            MovieID;
+	typedef std::shared_ptr<MovieSegment>       Ptr;
+	typedef std::shared_ptr<const MovieSegment> ConstPtr;
+	typedef std::vector<Ptr>                    List;
 
 	typedef std::vector<std::pair<MovieFrameID,FrameID> > ListOfOffset;
 
