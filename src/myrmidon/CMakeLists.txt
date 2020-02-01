@@ -63,6 +63,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/SnapshotCache.hpp
                       priv/proto/FileReadWriter.hpp
                       priv/proto/ExperimentReadWriter.hpp
+                      priv/proto/TDDCache.hpp
                       priv/proto/IOUtils.hpp
                       )
 
@@ -93,6 +94,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/SnapshotCache.cpp
                       priv/proto/FileReadWriter.cpp
                       priv/proto/ExperimentReadWriter.cpp
+                      priv/proto/TDDCache.cpp
                       priv/proto/IOUtils.cpp
                       )
 
@@ -123,6 +125,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/IOUtilsUTest.cpp
                     priv/proto/FileReadWriterUTest.cpp
                     priv/proto/ExperimentReadWriterUTest.cpp
+                    priv/proto/TDDCacheUTest.cpp
                     )
 
 
@@ -147,6 +150,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/proto/IOUtilsUTest.hpp
                     priv/proto/FileReadWriterUTest.hpp
                     priv/proto/ExperimentReadWriterUTest.hpp
+                    priv/proto/TDDCacheUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

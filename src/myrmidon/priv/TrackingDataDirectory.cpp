@@ -31,7 +31,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const fs::path & u
                                                               const Time & enddate,
                                                               const TrackingIndex::Ptr & si,
                                                               const MovieIndex::Ptr & movies,
-                                                              const FrameReferenceCache & referenceCache) {
+                                                              const FrameReferenceCacheConstPtr & referenceCache) {
 	std::shared_ptr<TrackingDataDirectory> res(new TrackingDataDirectory(uri,
 	                                                                     absoluteFilePath,
 	                                                                     startFrame,
@@ -55,7 +55,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & uri,
                                              const Time & enddate,
                                              const TrackingIndex::Ptr & si,
                                              const MovieIndex::Ptr & movies,
-                                             const FrameReferenceCache & referenceCache)
+                                             const FrameReferenceCacheConstPtr & referenceCache)
 	: d_absoluteFilePath(absoluteFilePath)
 	, d_URI(uri)
 	, d_startFrame(startFrame)
@@ -298,7 +298,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	MovieSegment::List movies;
 	auto ti = std::make_shared<TrackingIndex>();
 	auto mi = std::make_shared<MovieIndex>();
-	FrameReferenceCache referenceCache;
+	auto referenceCache = std::make_shared<FrameReferenceCache>();
 
 	LookUpFiles(absoluteFilePath,hermesFiles,moviesPaths);
 
@@ -308,12 +308,12 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	LoadMovieSegments(moviesPaths,URI,movies);
 	for(const auto & m : movies) {
-		referenceCache.insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
+		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
 	}
 
 	auto snapshots = SnapshotIndex::ListSnapshotFiles(absoluteFilePath / "ants");
 	for(const auto & [FID,s] : snapshots) {
-		referenceCache.insert(std::make_pair(FID,FrameReference(URI,0,Time())));
+		referenceCache->insert(std::make_pair(FID,FrameReference(URI,0,Time())));
 	}
 
 	Time::MonoclockID monoID = GetUID(absoluteFilePath);
@@ -322,12 +322,12 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	                           monoID,
 	                           hermesFiles,
 	                           ti,
-	                           referenceCache);
+	                           *referenceCache);
 	Time emptyTime;
 
 	for(const auto & m : movies) {
-		auto fi = referenceCache.find(m->StartFrame());
-		if (fi == referenceCache.end() ||
+		auto fi = referenceCache->find(m->StartFrame());
+		if (fi == referenceCache->cend() ||
 		    ( fi->second.ID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
 			std::ostringstream oss;
 			oss << "Could not find FrameReference for FrameID " << m->StartFrame();
@@ -337,8 +337,8 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	}
 
 	std::vector<FrameID> toErase;
-	toErase.reserve(referenceCache.size());
-	for ( const auto & [FID,ref] : referenceCache ) {
+	toErase.reserve(referenceCache->size());
+	for ( const auto & [FID,ref] : *referenceCache ) {
 		if (ref.ID() == 0 && ref.Time().Equals(emptyTime) ) {
 			toErase.push_back(FID);
 		}
@@ -346,7 +346,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	for( auto FID : toErase ) {
 		std::cerr << "Could not find FrameReference for FrameID " << FID << std::endl;
-		referenceCache.erase(FID);
+		referenceCache->erase(FID);
 	}
 
 
@@ -460,6 +460,19 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Tim
 }
 
 
+FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID FID) const {
+	auto fi = d_referencesByFID->find(FID);
+	if ( fi != d_referencesByFID->cend() ) {
+		return fi->second;
+	}
+	return **FrameAt(FID);
+}
+
+FrameReference TrackingDataDirectory::FrameReferenceNear(const Time & t) const {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+
 const TrackingDataDirectory::MovieIndex & TrackingDataDirectory::MovieSegments() const {
 	return *d_movies;
 }
@@ -470,6 +483,12 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Itself() const  {
 	}
 	throw DeletedReference<TrackingDataDirectory>();
 }
+
+const TrackingDataDirectory::FrameReferenceCache &
+TrackingDataDirectory::ReferenceCache() const {
+	return *d_referencesByFID;
+}
+
 
 TrackingDataDirectory::ConstPtr TrackingDataDirectory::Load(const fs::path &,const fs::path &) {
 	throw std::runtime_error("foo");

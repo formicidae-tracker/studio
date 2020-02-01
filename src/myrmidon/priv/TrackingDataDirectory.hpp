@@ -35,10 +35,11 @@ public:
 	typedef std::shared_ptr<const TrackingDataDirectory> ConstPtr;
 
 
-	typedef int32_t UID;
-	typedef SegmentIndexer<std::string>          TrackingIndex;
-	typedef SegmentIndexer<MovieSegment::Ptr>    MovieIndex;
-	typedef std::map<FrameID,FrameReference>     FrameReferenceCache;
+	typedef int32_t                                    UID;
+	typedef SegmentIndexer<std::string>                TrackingIndex;
+	typedef SegmentIndexer<MovieSegment::Ptr>          MovieIndex;
+	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
+	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
 	class const_iterator {
 	public:
@@ -146,12 +147,14 @@ public:
 	                                              const Time & end,
 	                                              const TrackingIndex::Ptr & segments,
 	                                              const MovieIndex::Ptr & movies,
-	                                              const FrameReferenceCache & referenceCache);
+	                                              const FrameReferenceCacheConstPtr & referenceCache);
 
 
 	const TrackingIndex & TrackingSegments() const;
 
 	const MovieIndex & MovieSegments() const;
+
+	const FrameReferenceCache & ReferenceCache() const;
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
@@ -165,9 +168,9 @@ private:
 
 
 
-	TrackingIndex::Ptr d_segments;
-	MovieIndex::Ptr    d_movies;
-	FrameReferenceCache d_referencesByFID;
+	TrackingIndex::Ptr          d_segments;
+	MovieIndex::Ptr             d_movies;
+	FrameReferenceCacheConstPtr d_referencesByFID;
 
 	static void CheckPaths(const fs::path & path,
 	                       const fs::path & experimentRoot);
@@ -198,7 +201,7 @@ private:
 	                      const Time & end,
 	                      const TrackingIndex::Ptr & segments,
 	                      const MovieIndex::Ptr & movies,
-	                      const FrameReferenceCache & referenceCache);
+	                      const FrameReferenceCacheConstPtr & referenceCache);
 
 	void Save() const;
 

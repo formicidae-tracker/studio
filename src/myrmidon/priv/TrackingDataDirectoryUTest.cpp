@@ -144,7 +144,7 @@ TEST_F(TrackingDataDirectoryUTest,HaveConstructorChecks) {
 	auto endTime = Time::Parse("2019-11-02T22:02:25.783+01:00");
 	auto segments = std::make_shared<TrackingDataDirectory::TrackingIndex>();
 	auto movies = std::make_shared<TrackingDataDirectory::MovieIndex>();
-	TrackingDataDirectory::FrameReferenceCache cache;
+	auto cache = std::make_shared<TrackingDataDirectory::FrameReferenceCache>();
 	EXPECT_NO_THROW({
 			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies,cache);
 		});
