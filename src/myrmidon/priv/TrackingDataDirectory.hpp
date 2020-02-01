@@ -183,7 +183,8 @@ private:
 	                              const fs::path & URI,
 	                              MovieSegment::List & movies);
 
-	static TrackingDataDirectory::ConstPtr Load(const fs::path & path, const fs::path & experimentRoot);
+	static TrackingDataDirectory::ConstPtr LoadFromCache(const fs::path & absoluteFilePath,
+	                                                     const fs::path & URI);
 
 	static std::pair<TimedFrame,TimedFrame>
 	BuildIndexes(const fs::path & URI,
@@ -203,7 +204,7 @@ private:
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
 
-	void Save() const;
+	void SaveToCache() const;
 
 	ConstPtr Itself() const;
 

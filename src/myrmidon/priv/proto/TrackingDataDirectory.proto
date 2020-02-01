@@ -28,8 +28,6 @@ message MovieSegment {
 	uint64 movieStart    = 5;
 	uint64 movieEnd      = 6;
 
-	Time trackingStartTime = 7;
-
 	repeated MovieOffset offsets = 8;
 
 
@@ -41,8 +39,8 @@ message TrackingDataDirectory {
 }
 
 message TrackingDataDirectoryFileLine {
-	TrackingDataDirectory tdd        = 1;
-	MovieSegment          movie      = 2;
-	TrackingSegment       segment    = 3;
-	TimedFrame            timedframe = 4;
+	MovieSegment          movie          = 1;
+	TrackingSegment       segment        = 2;
+	TimedFrame            cachedFrame    = 3;
+	Time                  movieStartTime = 4;
 }

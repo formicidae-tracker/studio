@@ -65,6 +65,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/proto/ExperimentReadWriter.hpp
                       priv/proto/TDDCache.hpp
                       priv/proto/IOUtils.hpp
+                      utils/Checker.hpp
                       )
 
 
@@ -96,6 +97,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/proto/ExperimentReadWriter.cpp
                       priv/proto/TDDCache.cpp
                       priv/proto/IOUtils.cpp
+                      utils/Checker.cpp
                       )
 
 set(SRC_FILES Frame.cpp

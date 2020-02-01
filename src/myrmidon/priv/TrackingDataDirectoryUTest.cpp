@@ -145,16 +145,21 @@ TEST_F(TrackingDataDirectoryUTest,HaveConstructorChecks) {
 	auto segments = std::make_shared<TrackingDataDirectory::TrackingIndex>();
 	auto movies = std::make_shared<TrackingDataDirectory::MovieIndex>();
 	auto cache = std::make_shared<TrackingDataDirectory::FrameReferenceCache>();
+	auto absolutePath = TestSetup::Basedir() / "bar";
 	EXPECT_NO_THROW({
-			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies,cache);
+			TrackingDataDirectory::Create("foo",absolutePath,startFrame,endFrame,startTime,endTime,segments,movies,cache);
 		});
 
 	EXPECT_THROW({
-			TrackingDataDirectory::Create("foo","bar",endFrame,startFrame,startTime,endTime,segments,movies,cache);
+			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,startTime,endTime,segments,movies,cache);
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			TrackingDataDirectory::Create("foo","bar",startFrame,endFrame,endTime,startTime,segments,movies,cache);
+			TrackingDataDirectory::Create("foo",absolutePath,endFrame,startFrame,startTime,endTime,segments,movies,cache);
+		},std::invalid_argument);
+
+	EXPECT_THROW({
+			TrackingDataDirectory::Create("foo",absolutePath,startFrame,endFrame,endTime,startTime,segments,movies,cache);
 		},std::invalid_argument);
 
 

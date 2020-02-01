@@ -5,6 +5,12 @@ namespace myrmidon {
 namespace priv {
 
 
+FrameReference::FrameReference()
+	: d_parentURI("/")
+	, d_URI("/frames/0")
+	,  d_id(0) {
+}
+
 FrameReference::FrameReference(const fs::path & parentURI,
                                FrameID frameID,
                                const fort::myrmidon::Time & time)

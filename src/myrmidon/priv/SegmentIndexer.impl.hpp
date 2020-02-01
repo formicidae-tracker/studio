@@ -20,6 +20,11 @@ inline bool  SegmentIndexer<T>::TimeComparator::operator() (const Time & a, cons
 	return a.After(b);
 }
 
+template <typename T>
+inline void SegmentIndexer<T>::Insert(const Segment & s) {
+	Insert(s.first,s.second);
+}
+
 
 template <typename T>
 inline void SegmentIndexer<T>::Insert(const FrameReference & ref, const T & value) {

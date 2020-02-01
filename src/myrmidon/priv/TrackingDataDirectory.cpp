@@ -7,10 +7,13 @@
 #include <fort-hermes/Error.h>
 #include <fort-hermes/FileContext.h>
 
-#include "../utils/NotYetImplemented.hpp"
+#include <myrmidon/utils/NotYetImplemented.hpp>
+#include <myrmidon/utils/Checker.hpp>
 #include "SnapshotCache.hpp"
 
 #include "TimeUtils.hpp"
+
+#include <myrmidon/priv/proto/TDDCache.hpp>
 
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
@@ -32,6 +35,9 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const fs::path & u
                                                               const TrackingIndex::Ptr & si,
                                                               const MovieIndex::Ptr & movies,
                                                               const FrameReferenceCacheConstPtr & referenceCache) {
+
+	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteFilePath);
+
 	std::shared_ptr<TrackingDataDirectory> res(new TrackingDataDirectory(uri,
 	                                                                     absoluteFilePath,
 	                                                                     startFrame,
@@ -271,6 +277,8 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 			endDate = endDate.Add(1);
 		}
 	} catch ( const fort::hermes::EndOfFile &) {
+		// we add the last frame to the cache
+		cache.insert(std::make_pair(end,FrameReference(URI,end,endDate.Add(-1))));
 		//DO nothing, we just reached EOF
 	} catch ( const std::exception & e) {
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
@@ -285,13 +293,15 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	CheckPaths(filepath,experimentRoot);
 
+	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
+	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
+
+
 	try {
-		return Load(filepath,experimentRoot);
+		return LoadFromCache(absoluteFilePath,URI);
 	} catch (const std::exception & e ) {
 	};
 
-	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
-	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
 
 	std::vector<fs::path> hermesFiles;
 	std::map<uint32_t,std::pair<fs::path,fs::path> > moviesPaths;
@@ -360,7 +370,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	                                         mi,
 	                                         referenceCache);
 	try {
-		res->Save();
+		res->SaveToCache();
 	} catch(const std::exception & e) {
 	}
 
@@ -490,12 +500,14 @@ TrackingDataDirectory::ReferenceCache() const {
 }
 
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Load(const fs::path &,const fs::path &) {
-	throw std::runtime_error("foo");
+TrackingDataDirectory::ConstPtr
+TrackingDataDirectory::LoadFromCache(const fs::path & absoluteFilePath,
+                                     const fs::path & URI) {
+	return proto::TDDCache::Load(absoluteFilePath,URI);
 }
 
-void TrackingDataDirectory::Save() const {
-	throw std::runtime_error("foo");
+void TrackingDataDirectory::SaveToCache() const {
+	proto::TDDCache::Save(Itself());
 }
 
 }

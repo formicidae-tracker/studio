@@ -30,6 +30,8 @@ public:
 
 	void Insert(const FrameReference & ref, const T & value);
 
+	void Insert(const Segment & s);
+
 	std::vector<Segment> Segments() const;
 
 	const T & Find(FrameID FID) const;

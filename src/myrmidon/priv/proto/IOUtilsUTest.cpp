@@ -431,12 +431,19 @@ TEST_F(IOUtilsUTest,TrackingIndexIO) {
 	}
 	ASSERT_EQ(si->Segments().size(),20);
 
-	IOUtils::SaveTrackingIndex(&pbRes, si);
+	for( const auto & s : si->Segments() ) {
+		auto pb = pbRes.Add();
+		IOUtils::SaveTrackingIndexSegment(pb, s);
+	}
+
 	ASSERT_EQ(pbRes.size(),expected.size());
 	for(size_t i = 0; i < pbRes.size(); ++i) {
 		ExpectMessageEquals(pbRes.Get(i),expected.Get(i));
 	}
-	IOUtils::LoadTrackingIndex(res, pbRes, parentURI,monoID);
+	for (const auto & pb : pbRes ) {
+		auto s = IOUtils::LoadTrackingIndexSegment(pb, parentURI,monoID);
+		res->Insert(s.first,s.second);
+	}
 	auto ress = res->Segments();
 	auto expecteds = si->Segments();
 
@@ -484,19 +491,17 @@ TEST_F(IOUtilsUTest,MovieSegmentIO) {
 	expected.set_trackingend(1234+100+2);
 	expected.set_moviestart(0);
 	expected.set_movieend(100);
-	IOUtils::SaveTime(expected.mutable_trackingstarttime(),startTime);
 	for ( const auto & o : offsets ) {
 		auto pbo = expected.add_offsets();
 		pbo->set_movieframeid(o.first);
 		pbo->set_offset(o.second);
 	}
 
-	IOUtils::SaveMovieSegment(&pbRes,ms,startTime,TestSetup::Basedir() / "foo.0000");
+	IOUtils::SaveMovieSegment(&pbRes,ms,TestSetup::Basedir() / "foo.0000");
 	ExpectMessageEquals(pbRes,expected);
 
-	auto resPair = IOUtils::LoadMovieSegment(pbRes, TestSetup::Basedir() / "foo.0000" , "foo.0000",monoID);
-	res = resPair.first;
-	EXPECT_TRUE(TimeEqual(resPair.second,startTime));
+	res = IOUtils::LoadMovieSegment(pbRes, TestSetup::Basedir() / "foo.0000" , "foo.0000");
+
 	EXPECT_EQ(res->AbsoluteFilePath().string(), ms->AbsoluteFilePath().string());
 	EXPECT_EQ(res->StartFrame(),ms->StartFrame());
 	EXPECT_EQ(res->EndFrame(),ms->EndFrame());
@@ -512,10 +517,10 @@ TEST_F(IOUtilsUTest,MovieSegmentIO) {
 
 	//not using an absolute path as arguments
 	EXPECT_THROW({
-			IOUtils::SaveMovieSegment(&pbRes,ms,startTime, "foo.0000");
+			IOUtils::SaveMovieSegment(&pbRes,ms, "foo.0000");
 		},std::invalid_argument);
 	EXPECT_THROW({
-			IOUtils::LoadMovieSegment(pbRes, "foo.0000","foo.0000",monoID);
+			IOUtils::LoadMovieSegment(pbRes, "foo.0000","foo.0000");
 		},std::invalid_argument);
 }
 

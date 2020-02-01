@@ -5,13 +5,12 @@
 #include "Ant.hpp"
 #include "Identifier.hpp"
 
-#include "../utils/NotYetImplemented.hpp"
 
 namespace fm = fort::myrmidon;
 using namespace fm::priv;
 
 Experiment::Experiment(const fs::path & filepath )
-	: d_absoluteFilepath(fs::weakly_canonical(filepath))
+	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
 	, d_threshold(40)

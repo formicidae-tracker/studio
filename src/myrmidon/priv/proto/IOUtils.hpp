@@ -127,23 +127,23 @@ public:
 	static void SaveFrameReference(pb::TimedFrame * pb,
 	                               const FrameReference & ref);
 
-	// Loads a TrackingIndex from a message
+	// Loads a TrackingIndex::Segment from a message
 	//
-	// @si a <TrackingDataDirectory::TrackingIndex> to load
 	// @pb the protobuf message field to load from
 	// @parentURI the URI of the parent <TrackingDataDirectory>
 	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
-	static void LoadTrackingIndex(TrackingDataDirectory::TrackingIndex::Ptr & si,
-	                              const google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> & pb,
-	                              const fs::path & parentURI,
-	                              Time::MonoclockID monoID);
+	// @return the segment in the message
+	static  TrackingDataDirectory::TrackingIndex::Segment
+	LoadTrackingIndexSegment(const pb::TrackingSegment & pb,
+	                         const fs::path & parentURI,
+	                         Time::MonoclockID monoID);
 
 	// Saves a TrackingIndex to a message
 	//
 	// @pb the protobuf message field to save to
-	// @si a <TrackingDataDirectory::TrackingIndex> to save
-	static void SaveTrackingIndex(google::protobuf::RepeatedPtrField<fort::myrmidon::pb::TrackingSegment> * pb,
-	                              const TrackingDataDirectory::TrackingIndex::ConstPtr & si);
+	// @si a <TrackingDataDirectory::TrackingIndex::Segment> to save
+	static void SaveTrackingIndexSegment(pb::TrackingSegment * pb,
+	                                     const TrackingDataDirectory::TrackingIndex::Segment & si);
 
 	// Loads a MovieSegment from a message
 	//
@@ -151,22 +151,18 @@ public:
 	// @parentAbsoluteFilePath the absolute path to the parent directory
 	// @parentURI the URI of the parent
 	// @monoID the <Time::MonoclockID> associated with the parent
-	// @return a pair containing the <MovieSegment> and its starting frame time.
-	static std::pair<MovieSegmentPtr,Time>
-	LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
-	                 const fs::path & parentAbsoluteFilePath,
-	                 const fs::path & parentURI,
-	                 Time::MonoclockID monoID);
+	// @return the <MovieSegment> in the message
+	static MovieSegmentPtr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
+	                                        const fs::path & parentAbsoluteFilePath,
+	                                        const fs::path & parentURI);
 
 	// Saves a MovieSegment to a message
 	//
 	// @pb the destination message
 	// @ms the <MovieSegment> to save
-	// @startTime the starting time of the <MovieSegment::StartFrame>
 	// @parentAbsoluteFilePath the absolute path to the parent TrackingDataDirectory
 	static void SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
 	                             const MovieSegmentConstPtr & ms,
-	                             const Time & startTime,
 	                             const fs::path & parentAbsoluteFilePath);
 
 
