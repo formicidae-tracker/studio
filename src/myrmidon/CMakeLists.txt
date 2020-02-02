@@ -24,7 +24,7 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/TrackingDataDirectory.proto
                 priv/proto/ExperimentFile.proto
                 priv/proto/EstimateFile.proto
-                priv/proto/SnapshotCache.proto
+                priv/proto/TagCloseUpCache.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})

@@ -3,6 +3,10 @@
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/priv/Shape.hpp>
+#include <myrmidon/priv/TagCloseUp.hpp>
+
+#include <myrmidon/utils/Checker.hpp>
+
 
 namespace fort {
 namespace myrmidon {
@@ -211,12 +215,7 @@ MovieSegment::Ptr
 IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
                           const fs::path & parentAbsoluteFilePath,
                           const fs::path & parentURI) {
-
-	if (parentAbsoluteFilePath.is_absolute() == false ) {
-		throw std::invalid_argument("parentAbsoluteFilePath:'"
-		                            + parentAbsoluteFilePath.generic_string()
-		                            + "' is not an absolute path");
-	}
+	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(parentAbsoluteFilePath);
 
 	MovieSegment::ListOfOffset offsets;
 	for ( const auto & o : pb.offsets() ) {
@@ -256,6 +255,49 @@ void IOUtils::SaveMovieSegment(fort::myrmidon::pb::MovieSegment * pb,
 		pbo->set_offset(o.second);
 	}
 }
+
+TagCloseUp::ConstPtr IOUtils::LoadTagCloseUp(const pb::TagCloseUp & pb,
+                                             const fs::path & absoluteBasedir,
+                                             std::function<FrameReference (FrameID)> resolver) {
+	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteBasedir);
+
+	TagCloseUp::Vector2dList corners;
+	if ( pb.corners_size() != 4 ) {
+		throw std::invalid_argument("protobuf message does not contains 4 corners");
+	}
+	corners.resize(4);
+	for(size_t i = 0; i < 4; ++i ) {
+		LoadVector(corners[i],pb.corners(i));
+	}
+	Eigen::Vector2d position;
+	LoadVector(position,pb.position());
+
+	return std::make_shared<TagCloseUp>(absoluteBasedir / pb.imagepath(),
+	                                    resolver(pb.frameid()),
+	                                    pb.value(),
+	                                    position,
+	                                    pb.angle(),
+	                                    corners);
+}
+
+void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
+                             const TagCloseUp::ConstPtr & tcu,
+                             const fs::path & absoluteBasedir) {
+	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteBasedir);
+
+	pb->Clear();
+
+	pb->set_frameid(tcu->Frame().ID());
+	pb->set_imagepath(fs::relative(tcu->AbsoluteFilePath(),absoluteBasedir).generic_string());
+	SaveVector(pb->mutable_position(),tcu->TagPosition());
+	pb->set_angle(tcu->TagAngle());
+	pb->set_value(tcu->TagValue());
+	for (const auto & c : tcu->Corners()) {
+		SaveVector(pb->add_corners(),c);
+	}
+
+}
+
 
 // TrackingDataDirectory IOUtils::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
 // 	// TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());

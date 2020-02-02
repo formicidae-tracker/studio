@@ -6,12 +6,10 @@
 #include "FrameReference.hpp"
 
 
-struct apriltag_detection_t;
+typedef struct apriltag_detection apriltag_detection_t;
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 
@@ -58,9 +56,7 @@ private:
 
 
 } // namespace priv
-
 } // namespace myrmidon
-
 } // namespace fort
 
 // Formats a TagInFrameReference

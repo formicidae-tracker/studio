@@ -41,6 +41,9 @@ FORT_MYRMIDON_FDECLARE_CLASS(Capsule)
 // Forward declaration for a <priv::MovieSegment>
 FORT_MYRMIDON_FDECLARE_CLASS(MovieSegment)
 
+// Forward declaration for a <priv::TagCloseUp>
+FORT_MYRMIDON_FDECLARE_CLASS(TagCloseUp)
+
 
 // A Map of <Ant> identified by their <Ant::ID>
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;

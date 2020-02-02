@@ -21,7 +21,7 @@
 #include <myrmidon/priv/RawFrame.hpp>
 #include <myrmidon/priv/proto/FileReadWriter.hpp>
 
-#include "SnapshotCache.pb.h"
+#include "TagCloseUpCache.pb.h"
 
 SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirectory::ConstPtr & tdd,
                                  const fs::path & basedir,

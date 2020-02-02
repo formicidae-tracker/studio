@@ -4,6 +4,7 @@
 #include <myrmidon/AntMetadata.pb.h>
 #include <myrmidon/Experiment.pb.h>
 #include <myrmidon/TrackingDataDirectory.pb.h>
+#include <myrmidon/TagCloseUpCache.pb.h>
 
 #include <myrmidon/Time.hpp>
 
@@ -166,17 +167,13 @@ public:
 	                             const fs::path & parentAbsoluteFilePath);
 
 
-	// // Unmarshals a TrackingDataDirectory from a protobuf message
-	// // @pb the protobuf message to read from
-	// // @return <TrackingDataDirectory> contained in the message
-	// static TrackingDataDirectory LoadTrackingDataDirectory(const fort::myrmidon::pb::TrackingDataDirectory & pb,
-	//                                                        const fs::path & base);
+	static TagCloseUpConstPtr LoadTagCloseUp(const pb::TagCloseUp & pb,
+	                                         const fs::path & absoluteBasedir,
+	                                         std::function<FrameReference (FrameID)> resolver);
 
-	// // Saves a TrackingDataDirectory to a protobuf message
-	// // @pb the protobuf message to save to
-	// // @tdd the <TrackingDataDirectory> to save
-	// static void SaveTrackingDataDirectory(fort::myrmidon::pb::TrackingDataDirectory & pb,
-	//                                       const TrackingDataDirectory & tdd);
+	static void SaveTagCloseUp(pb::TagCloseUp * pb,
+	                           const TagCloseUpConstPtr & tcu,
+	                           const fs::path & absoluteBasedir);
 
 
 };
