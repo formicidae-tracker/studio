@@ -5,18 +5,18 @@ package fort.myrmidon.pb;
 
 import "Vector2d.proto";
 
-message SnapshotCacheHeader {
-	uint32 Threshold  = 1;
-	string FamilyName = 2;
+message TagCloseUpCacheHeader {
+	uint32 threshold  = 1;
+	string family     = 2;
 };
 
-message Snapshot {
-	Vector2d TagPosition = 1;
-	double  TagAngle    = 2;
-	uint32  TagValue    = 3;
+message TagCloseUp {
+	Vector2d position = 1;
+	double   angle    = 2;
+	uint32   value    = 3;
 
-	repeated Vector2d Corners = 4;
+	repeated Vector2d corners = 4;
 
-	uint64 Frame             = 5;
-	string RelativeImagePath = 6;
+	uint64 frameid             = 5;
+	string imagepath          = 6;
 };

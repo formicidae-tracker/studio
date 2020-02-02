@@ -59,7 +59,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Types.hpp
                       priv/Shape.hpp
                       priv/FrameReference.hpp
-                      priv/TagInFrameReference.hpp
+                      priv/TagCloseUp.hpp
                       priv/SnapshotCache.hpp
                       priv/proto/FileReadWriter.hpp
                       priv/proto/ExperimentReadWriter.hpp
@@ -91,7 +91,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/MovieSegment.cpp
                       priv/Shape.cpp
                       priv/FrameReference.cpp
-                      priv/TagInFrameReference.cpp
+                      priv/TagCloseUp.cpp
                       priv/SnapshotCache.cpp
                       priv/proto/FileReadWriter.cpp
                       priv/proto/ExperimentReadWriter.cpp
@@ -123,7 +123,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/TimeValidUTest.cpp
                     priv/MovieSegmentUTest.cpp
                     priv/FrameReferenceUTest.cpp
-                    priv/TagInFrameReferenceUTest.cpp
+                    priv/TagCloseUpUTest.cpp
                     priv/proto/IOUtilsUTest.cpp
                     priv/proto/FileReadWriterUTest.cpp
                     priv/proto/ExperimentReadWriterUTest.cpp
@@ -148,7 +148,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/TimeValidUTest.hpp
                     priv/MovieSegmentUTest.hpp
                     priv/FrameReferenceUTest.hpp
-                    priv/TagInFrameReferenceUTest.hpp
+                    priv/TagCloseUpUTest.hpp
                     priv/proto/IOUtilsUTest.hpp
                     priv/proto/FileReadWriterUTest.hpp
                     priv/proto/ExperimentReadWriterUTest.hpp

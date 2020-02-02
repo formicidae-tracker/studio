@@ -193,47 +193,47 @@ void SnapshotIndexer::cancel() {
 	d_future.waitForFinished();
 }
 
-Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::Snapshot & pb) {
+Snapshot::ConstPtr SnapshotIndexer::LoadSnapshot(const fort::myrmidon::pb::TagCloseUp & pb) {
 	if (pb.corners_size() != 4 ) {
 		throw std::runtime_error("Not enough corner");
 	}
-	auto res = std::make_shared<Snapshot>(*d_tdd->FrameAt(pb.frame()),pb.tagvalue());
+	auto res = std::make_shared<Snapshot>(*d_tdd->FrameAt(pb.frameid()),pb.value());
 	res->d_position <<
-		pb.tagposition().x(),
-		pb.tagposition().y(),
-		pb.tagangle();
+		pb.position().x(),
+		pb.position().y(),
+		pb.angle();
 	for( size_t i = 0; i < 4; ++i ) {
 		res->d_corners.push_back(Eigen::Vector2d(pb.corners(i).x(),pb.corners(i).y()));
 	}
-	res->d_relativeImagePath = fs::path(pb.relativeimagepath());
+	res->d_relativeImagePath = fs::path(pb.imagepath());
 	return res;
 }
 
-void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snapshot::ConstPtr & s) {
-	auto tagPos = pb.mutable_tagposition();
+void SnapshotIndexer::SaveSnapshot(fort::myrmidon::pb::TagCloseUp & pb, const Snapshot::ConstPtr & s) {
+	auto tagPos = pb.mutable_position();
 	tagPos->set_x(s->TagPosition().x());
 	tagPos->set_y(s->TagPosition().y());
-	pb.set_tagangle(s->TagAngle());
-	pb.set_tagvalue(s->TagValue());
+	pb.set_angle(s->TagAngle());
+	pb.set_value(s->TagValue());
 
 	for(const auto & c: s->Corners()) {
 		auto cPb = pb.add_corners();
 		cPb->set_x(c.x());
 		cPb->set_y(c.y());
 	}
-	pb.set_frame(s->Frame()->ID());
-	pb.set_relativeimagepath(s->d_relativeImagePath.generic_string());
+	pb.set_frameid(s->Frame()->ID());
+	pb.set_imagepath(s->d_relativeImagePath.generic_string());
 }
 
 
 
 void SnapshotIndexer::LoadCache() {
-	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
-	                                                    fort::myrmidon::pb::Snapshot>
+	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::TagCloseUpCacheHeader,
+	                                                    fort::myrmidon::pb::TagCloseUp>
 		ReadWriter;
 	try {
 		ReadWriter::Read(d_tdd->AbsoluteFilePath() / "ants" / "snapshot.cache",
-		                 [this](const fort::myrmidon::pb::SnapshotCacheHeader & h) {
+		                 [this](const fort::myrmidon::pb::TagCloseUpCacheHeader & h) {
 			                 if ( h.threshold() != d_detector->qtp.min_white_black_diff ) {
 				                 std::ostringstream os;
 				                 os << "Threshold cache value (" << h.threshold()
@@ -241,16 +241,16 @@ void SnapshotIndexer::LoadCache() {
 				                 throw std::runtime_error(os.str());
 			                 }
 
-			                 if ( h.familyname() != std::string(d_family->name) ){
+			                 if ( h.family() != std::string(d_family->name) ){
 				                 std::ostringstream os;
-				                 os << "Family cache value (" << h.familyname()
+				                 os << "Family cache value (" << h.family()
 				                    << " is different from expected: " << d_family->name;
 				                 throw std::runtime_error(os.str());
 			                 }
 		                 },
-		                 [this](const fort::myrmidon::pb::Snapshot & s) {
+		                 [this](const fort::myrmidon::pb::TagCloseUp & s) {
 			                 try {
-				                 d_cache[s.relativeimagepath()].push_back(LoadSnapshot(s));
+				                 d_cache[s.imagepath()].push_back(LoadSnapshot(s));
 			                 } catch ( const std::runtime_error & ) {
 			                 }
 		                 });
@@ -260,19 +260,19 @@ void SnapshotIndexer::LoadCache() {
 }
 
 void SnapshotIndexer::SaveCache() {
-	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::SnapshotCacheHeader,
-	                                                    fort::myrmidon::pb::Snapshot>
+	typedef fort::myrmidon::priv::proto::FileReadWriter<fort::myrmidon::pb::TagCloseUpCacheHeader,
+	                                                    fort::myrmidon::pb::TagCloseUp>
 		ReadWriter;
 
 
-	fort::myrmidon::pb::SnapshotCacheHeader h;
+	fort::myrmidon::pb::TagCloseUpCacheHeader h;
 	h.set_threshold(d_detector->qtp.min_white_black_diff);
-	h.set_familyname(d_family->name);
+	h.set_family(d_family->name);
 
-	std::vector<std::function <void( fort::myrmidon::pb::Snapshot & s ) > >lines;
+	std::vector<std::function <void( fort::myrmidon::pb::TagCloseUp & s ) > >lines;
 	for(const auto & img : d_toProcess ) {
 		for ( const auto & s : img.Results ) {
-			lines.push_back([&s,this](fort::myrmidon::pb::Snapshot & pb) {
+			lines.push_back([&s,this](fort::myrmidon::pb::TagCloseUp & pb) {
 				                SaveSnapshot(pb,s);
 			                });
 		}

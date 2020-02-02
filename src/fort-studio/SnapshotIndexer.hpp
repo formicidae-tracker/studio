@@ -12,7 +12,7 @@
 namespace fort{
 namespace myrmidon{
 namespace pb{
-class Snapshot;
+class TagCloseUp;
 }
 }
 }
@@ -46,8 +46,8 @@ private:
 
 	void LoadCache();
 	void SaveCache();
-	Snapshot::ConstPtr LoadSnapshot(const fort::myrmidon::pb::Snapshot & pb);
-	void SaveSnapshot(fort::myrmidon::pb::Snapshot & pb, const Snapshot::ConstPtr & s);
+	Snapshot::ConstPtr LoadSnapshot(const fort::myrmidon::pb::TagCloseUp & pb);
+	void SaveSnapshot(fort::myrmidon::pb::TagCloseUp & pb, const Snapshot::ConstPtr & s);
 
 
 	fort::myrmidon::priv::TrackingDataDirectory::ConstPtr d_tdd;
