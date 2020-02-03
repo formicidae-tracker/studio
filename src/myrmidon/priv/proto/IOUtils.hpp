@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fort-tags/fort-tags.h>
+
 #include <myrmidon/Time.pb.h>
 #include <myrmidon/AntMetadata.pb.h>
 #include <myrmidon/Experiment.pb.h>
@@ -96,6 +98,10 @@ public:
 	// @pb the message to save to
 	// @a the <priv::Ant> to save
 	static void SaveAnt(pb::AntMetadata * pb, const AntConstPtr & a);
+
+	static tags::Family LoadFamily(const pb::TagFamily & pb);
+
+	static pb::TagFamily SaveFamily(const tags::Family f);
 
 	// Loads an Experiment from a protobuf message
 	//

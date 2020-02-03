@@ -4,10 +4,11 @@ syntax = "proto3";
 package fort.myrmidon.pb;
 
 import "Vector2d.proto";
+import "TagFamily.proto";
 
 message TagCloseUpCacheHeader {
-	uint32 threshold  = 1;
-	string family     = 2;
+	uint32    threshold  = 1;
+	TagFamily family     = 2;
 };
 
 message TagCloseUp {

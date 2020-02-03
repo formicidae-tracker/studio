@@ -25,6 +25,7 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/ExperimentFile.proto
                 priv/proto/EstimateFile.proto
                 priv/proto/TagCloseUpCache.proto
+                priv/proto/TagFamily.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
@@ -66,6 +67,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/proto/TDDCache.hpp
                       priv/proto/IOUtils.hpp
                       utils/Checker.hpp
+                      utils/Defer.hpp
                       )
 
 
@@ -98,6 +100,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/proto/TDDCache.cpp
                       priv/proto/IOUtils.cpp
                       utils/Checker.cpp
+                      utils/Defer.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -164,7 +167,8 @@ add_library(myrmidon SHARED ${SRC_FILES}
 
 target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
                                fort-hermes-cpp
-                               ${CXXFS_LIBRARY})
+                               ${CXXFS_LIBRARY}
+                               fort-tags)
 
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}

@@ -32,13 +32,14 @@ SnapshotIndexer::SnapshotIndexer(const fort::myrmidon::priv::TrackingDataDirecto
 	, d_tdd(tdd)
 	, d_basedir(basedir)
 	, d_familyValue(family) {
+	using namespace fort::myrmidon::priv;
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
 		typedef void (*Destructor) (apriltag_family_t *);
 		Constructor c;
 		Destructor  d;
 	};
-	using namespace fort::myrmidon::priv;
+
 	static std::unordered_map<fort::tags::Family,FamilyInterface>  familyFactory = {
 		 {fort::tags::Family::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
 		 {fort::tags::Family::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
@@ -241,12 +242,6 @@ void SnapshotIndexer::LoadCache() {
 				                 throw std::runtime_error(os.str());
 			                 }
 
-			                 if ( h.family() != std::string(d_family->name) ){
-				                 std::ostringstream os;
-				                 os << "Family cache value (" << h.family()
-				                    << " is different from expected: " << d_family->name;
-				                 throw std::runtime_error(os.str());
-			                 }
 		                 },
 		                 [this](const fort::myrmidon::pb::TagCloseUp & s) {
 			                 try {
@@ -267,7 +262,6 @@ void SnapshotIndexer::SaveCache() {
 
 	fort::myrmidon::pb::TagCloseUpCacheHeader h;
 	h.set_threshold(d_detector->qtp.min_white_black_diff);
-	h.set_family(d_family->name);
 
 	std::vector<std::function <void( fort::myrmidon::pb::TagCloseUp & s ) > >lines;
 	for(const auto & img : d_toProcess ) {

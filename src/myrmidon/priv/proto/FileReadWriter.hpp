@@ -14,6 +14,10 @@ namespace proto {
 template<typename Header,typename Line>
 class FileReadWriter {
 public:
+	typedef std::function<void (const Header &)> HeaderReader;
+	typedef std::function<void (const Line &)>   LineReader;
+	typedef std::function<void (Line &)>         LineWriter;
+
 	static void Read(const fs::path & path,
 	                 std::function<void (const Header & h)> onHeader,
 	                 std::function<void (const Line & l)> onLine);

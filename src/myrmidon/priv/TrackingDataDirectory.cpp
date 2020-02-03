@@ -321,7 +321,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
 	}
 
-	auto snapshots = TagCloseUp::ListFiles(absoluteFilePath / "ants");
+	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
 	for(const auto & [FID,s] : snapshots) {
 		referenceCache->insert(std::make_pair(FID,FrameReference(URI,0,Time())));
 	}

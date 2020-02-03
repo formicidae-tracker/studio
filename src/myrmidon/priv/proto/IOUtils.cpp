@@ -118,12 +118,7 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 }
 
 
-
-void IOUtils::LoadExperiment(Experiment & e,
-                             const pb::Experiment & pb) {
-	e.SetAuthor(pb.author());
-	e.SetName(pb.name());
-	e.SetComment(pb.comment());
+tags::Family IOUtils::LoadFamily(const pb::TagFamily & pb) {
 	static std::map<pb::TagFamily,fort::tags::Family>
 		mapping = {
 		           {pb::UNSET,fort::tags::Family::Undefined},
@@ -138,27 +133,14 @@ void IOUtils::LoadExperiment(Experiment & e,
 		           {pb::STANDARD41H12,fort::tags::Family::Standard41h12},
 		           {pb::STANDARD52H13,fort::tags::Family::Standard52h13},
 	};
-	auto fi = mapping.find(pb.tagfamily());
+	auto fi = mapping.find(pb);
 	if ( fi == mapping.end() ) {
 		throw std::runtime_error("invalid protobuf enum value");
 	}
-	e.SetFamily(fi->second);
-	e.SetThreshold(pb.threshold());
-
-	for ( const auto tddRelPath : pb.trackingdatadirectories() ) {
-		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
-		e.AddTrackingDataDirectory(tdd);
-	}
+	return fi->second;
 }
 
-
-void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experiment & e) {
-	pb->Clear();
-	pb->set_name(e.Name());
-	pb->set_author(e.Author());
-	pb->set_comment(e.Comment());
-	pb->set_threshold(e.Threshold());
-
+pb::TagFamily IOUtils::SaveFamily(const tags::Family f) {
 	static std::map<fort::tags::Family,pb::TagFamily>
 		mapping = {
 		           {fort::tags::Family::Undefined,pb::UNSET},
@@ -173,11 +155,40 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 		           {fort::tags::Family::Standard41h12,pb::STANDARD41H12},
 		           {fort::tags::Family::Standard52h13,pb::STANDARD52H13},
 	};
-	auto fi = mapping.find(e.Family());
+	auto fi = mapping.find(f);
 	if ( fi == mapping.end() ) {
 		throw std::runtime_error("invalid Experiment::TagFamily enum value");
 	}
-	pb->set_tagfamily(fi->second);
+	return fi->second;
+}
+
+
+
+void IOUtils::LoadExperiment(Experiment & e,
+                             const pb::Experiment & pb) {
+	e.SetAuthor(pb.author());
+	e.SetName(pb.name());
+	e.SetComment(pb.comment());
+	e.SetFamily(LoadFamily(pb.tagfamily()));
+	e.SetThreshold(pb.threshold());
+
+	for ( const auto tddRelPath : pb.trackingdatadirectories() ) {
+		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+		e.AddTrackingDataDirectory(tdd);
+	}
+}
+
+
+
+
+
+void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experiment & e) {
+	pb->Clear();
+	pb->set_name(e.Name());
+	pb->set_author(e.Author());
+	pb->set_comment(e.Comment());
+	pb->set_threshold(e.Threshold());
+	pb->set_tagfamily(SaveFamily(e.Family()));
 
 	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
 		pb->add_trackingdatadirectories(tdd->URI().generic_string());

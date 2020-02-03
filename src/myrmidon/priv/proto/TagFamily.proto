@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+
+enum TagFamily {
+	UNSET         = 0;
+	TAG16H5       = 1;
+	TAG25H9       = 2;
+	TAG36ARTAG    = 3;
+	TAG36H10      = 4;
+	TAG36H11      = 5;
+	CIRCLE21H7    = 6;
+	CIRCLE49H12   = 7;
+	CUSTOM48H12   = 8;
+	STANDARD41H12 = 9;
+	STANDARD52H13 = 10;
+};

@@ -16,7 +16,7 @@ public:
 	static TrackingDataDirectory::ConstPtr Load(const fs::path & absoluteFilePath ,
 	                                            const fs::path & URI);
 
-	static TrackingDataDirectory::ConstPtr Save(const TrackingDataDirectory::ConstPtr & tdd);
+	static void Save(const TrackingDataDirectory::ConstPtr & tdd);
 
 	const static std::string CACHE_FILENAME;
 };

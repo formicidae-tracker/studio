@@ -6,6 +6,7 @@
 
 #include "FrameReference.hpp"
 
+#include <mutex>
 
 typedef struct apriltag_detection apriltag_detection_t;
 
@@ -18,21 +19,54 @@ class TagCloseUp : public Identifiable , public FileSystemLocatable {
 public:
 	typedef std::shared_ptr<TagCloseUp>       Ptr;
 	typedef std::shared_ptr<const TagCloseUp> ConstPtr;
+	typedef std::vector<ConstPtr>             List;
 
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
 
-	typedef std::function<ConstPtr()> Loader;
-	typedef std::map<fs::path,ConstPtr> TagCloseUpByURI;
 
-	static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
+	class Lister {
+	public :
+		typedef std::function<FrameReference (FrameID) > FrameReferenceResolver;
+		typedef std::function<List()> Loader;
 
-	static std::vector<Loader> PrepareLoading(const fs::path & absoluteFilePath,
-	                                          fort::tags::Family f,
-	                                          uint8_t threshold);
+		Lister(const fs::path & absoluteBaseDir,
+		       tags::Family f,
+		       uint8_t threshold,
+		       FrameReferenceResolver resolver);
 
-	static TagCloseUpByURI Load(const fs::path & absoluteFilePath,
-	                            fort::tags::Family f,
-	                            uint8_t threshold);
+		static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
+
+		std::vector<Loader> PrepareLoaders();
+
+	private:
+		typedef std::map<fs::path,List> ByLocalFile;
+		typedef std::shared_ptr<apriltag_family_t> ATFamilyPtr;
+		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
+
+		static fs::path CacheFilePath(const fs::path & filepath);
+		static ATFamilyPtr LoadFamily(tags::Family family);
+
+
+		void UnsafeSaveCache();
+		void LoadCache();
+
+		ATDetectorPtr CreateDetector();
+
+		fs::path               d_absoluteBaseDir;
+		tags::Family           d_family;
+		uint8_t                d_threshold;
+		FrameReferenceResolver d_resolver;
+		ByLocalFile            d_cache;
+		std::mutex             d_mutex;
+		ATFamilyPtr            d_atfamily;
+		bool                   d_cacheModified;
+		size_t                 d_parsed;
+	};
+
+	static double ComputeAngleFromCorners(const Eigen::Vector2d & c0,
+	                                      const Eigen::Vector2d & c1,
+	                                      const Eigen::Vector2d & c2,
+	                                      const Eigen::Vector2d & c3);
 
 	TagCloseUp(const fs::path & absoluteFilePath,
 	           const FrameReference & reference,
@@ -40,6 +74,11 @@ public:
 	           const Eigen::Vector2d & position,
 	           double angle,
 	           const Vector2dList & corners);
+
+	TagCloseUp(const fs::path & absoluteFilePath,
+	           const FrameReference & reference,
+	           const apriltag_detection_t * d);
+
 
 	virtual ~TagCloseUp();
 

@@ -67,7 +67,7 @@ TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath
 	                                     cache);
 }
 
-TrackingDataDirectory::ConstPtr TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
+void TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
 	auto cachePath = tdd->AbsoluteFilePath() / CACHE_FILENAME;
 
 	pb::TrackingDataDirectory h;
