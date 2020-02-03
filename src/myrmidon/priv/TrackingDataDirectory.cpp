@@ -9,7 +9,7 @@
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
 #include <myrmidon/utils/Checker.hpp>
-#include "SnapshotCache.hpp"
+#include "TagCloseUp.hpp"
 
 #include "TimeUtils.hpp"
 
@@ -321,7 +321,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
 	}
 
-	auto snapshots = SnapshotIndex::ListSnapshotFiles(absoluteFilePath / "ants");
+	auto snapshots = TagCloseUp::ListFiles(absoluteFilePath / "ants");
 	for(const auto & [FID,s] : snapshots) {
 		referenceCache->insert(std::make_pair(FID,FrameReference(URI,0,Time())));
 	}

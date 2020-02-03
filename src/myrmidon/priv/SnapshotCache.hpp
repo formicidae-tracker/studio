@@ -17,7 +17,6 @@ namespace priv {
 
 class SnapshotIndex {
 public:
-	static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListSnapshotFiles(const fs::path & path);
 private:
 
 

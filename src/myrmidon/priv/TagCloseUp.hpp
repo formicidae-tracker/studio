@@ -2,6 +2,7 @@
 
 #include <Eigen/Core>
 
+#include <fort-tags/fort-tags.h>
 
 #include "FrameReference.hpp"
 
@@ -19,6 +20,19 @@ public:
 	typedef std::shared_ptr<const TagCloseUp> ConstPtr;
 
 	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
+
+	typedef std::function<ConstPtr()> Loader;
+	typedef std::map<fs::path,ConstPtr> TagCloseUpByURI;
+
+	static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
+
+	static std::vector<Loader> PrepareLoading(const fs::path & absoluteFilePath,
+	                                          fort::tags::Family f,
+	                                          uint8_t threshold);
+
+	static TagCloseUpByURI Load(const fs::path & absoluteFilePath,
+	                            fort::tags::Family f,
+	                            uint8_t threshold);
 
 	TagCloseUp(const fs::path & absoluteFilePath,
 	           const FrameReference & reference,
@@ -41,6 +55,8 @@ public:
 	const Eigen::Vector2d & TagPosition() const;
 	double TagAngle() const;
 	const Vector2dList & Corners() const;
+
+
 
 
 private:
