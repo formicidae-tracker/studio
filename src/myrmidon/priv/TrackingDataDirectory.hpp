@@ -13,6 +13,7 @@
 #include "SegmentIndexer.hpp"
 #include "MovieSegment.hpp"
 #include "FrameReference.hpp"
+#include "TagCloseUp.hpp"
 
 namespace fort {
 
@@ -155,6 +156,9 @@ public:
 	const MovieIndex & MovieSegments() const;
 
 	const FrameReferenceCache & ReferenceCache() const;
+
+	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
+	                                               uint8_t threshold) const;
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;

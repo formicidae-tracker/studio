@@ -26,8 +26,9 @@ public:
 
 	class Lister {
 	public :
+		typedef std::shared_ptr<Lister>                  Ptr;
 		typedef std::function<FrameReference (FrameID) > FrameReferenceResolver;
-		typedef std::function<List()> Loader;
+		typedef std::function<List()>                    Loader;
 
 		Lister(const fs::path & absoluteBaseDir,
 		       tags::Family f,
