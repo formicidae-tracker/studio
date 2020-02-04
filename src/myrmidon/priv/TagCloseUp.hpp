@@ -28,9 +28,12 @@ public:
 
 	class Lister {
 	public :
+
 		typedef std::shared_ptr<Lister>                  Ptr;
 		typedef std::function<FrameReference (FrameID) > FrameReferenceResolver;
 		typedef std::function<List()>                    Loader;
+
+		typedef std::shared_ptr<apriltag_family_t> ATFamilyPtr;
 
 		Lister(const fs::path & absoluteBaseDir,
 		       tags::Family f,
@@ -38,16 +41,15 @@ public:
 		       FrameReferenceResolver resolver);
 
 		static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
+		static ATFamilyPtr LoadFamily(tags::Family family);
 
 		std::vector<Loader> PrepareLoaders();
 
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;
-		typedef std::shared_ptr<apriltag_family_t> ATFamilyPtr;
 		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
 
 		static fs::path CacheFilePath(const fs::path & filepath);
-		static ATFamilyPtr LoadFamily(tags::Family family);
 
 
 		void UnsafeSaveCache();
@@ -100,8 +102,15 @@ public:
 
 	Isometry2Dd ImageToTag() const;
 
+	double TagSizePx() const;
+
+	double Squareness() const;
+
+
+
 
 private:
+
 	FrameReference  d_reference;
 	fs::path        d_URI;
 	fs::path        d_absoluteFilePath;
@@ -109,6 +118,7 @@ private:
 	Eigen::Vector2d d_tagPosition;
 	double          d_tagAngle;
 	Vector2dList    d_corners;
+	double          d_tagWidthPx,d_squareness;
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 

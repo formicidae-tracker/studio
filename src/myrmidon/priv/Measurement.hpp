@@ -12,7 +12,6 @@ namespace priv {
 
 class Measurement : public Identifiable {
 public:
-
 	class Type {
 	public:
 		typedef uint32_t ID;
@@ -35,7 +34,8 @@ public:
 	Measurement(const fs::path & parentURI,
 	            Type::ID TID,
 	            const Eigen::Vector2d & startFromTag,
-	            const Eigen::Vector2d & endFromTag);
+	            const Eigen::Vector2d & endFromTag,
+	            double tagSizePx);
 
 	const fs::path & URI() const override;
 
@@ -51,10 +51,13 @@ public:
 	const Eigen::Vector2d & StartFromTag() const;
 	const Eigen::Vector2d & EndFromTag() const;
 
+	double TagSizePx() const;
+
 private:
 	Eigen::Vector2d d_start,d_end;
 	Type::ID        d_TID;
 	fs::path        d_URI;
+	double          d_tagSizePx;
 
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

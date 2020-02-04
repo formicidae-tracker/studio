@@ -181,7 +181,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	auto ref = fi->second->FrameReferenceAt(FID);
 
 	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
-	d_measurementByReference[ref][m->Type()] = m;
+	d_measurements[m->Type()][TID][tddPath][ref.Time()] = m;
 
 	if (m->Type() != Measurement::HEAD_TAIL_MEASUREMENT) {
 		return;
@@ -222,6 +222,71 @@ double Experiment::DefaultTagSize() const {
 void Experiment::SetDefaultTagSize(double defaultTagSize) {
 	d_defaultTagSize = defaultTagSize;
 }
+
+
+double Experiment::CornerWidthRatio(tags::Family f) {
+	if ( f == tags::Family::Tag36ARTag ) {
+		return 1.0;
+	}
+
+	static std::map<tags::Family,double> cache;
+	auto fi = cache.find(f);
+	if ( fi != cache.end() ) {
+		return fi->second;
+	}
+	auto fDef = TagCloseUp::Lister::LoadFamily(f);
+	auto res = double(fDef->width_at_border) / double(fDef->total_width);
+	cache[f] = res;
+	return res;
+}
+
+void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+                                           myrmidon::Ant::ID AID,
+                                           Measurement::Type::ID type) const {
+	auto afi = d_identifier->Ants().find(AID);
+	if ( afi == d_identifier->Ants().cend() ) {
+		throw Identifier::UnmanagedAnt(AID);
+	}
+
+	double cornerWidthRatio = CornerWidthRatio(d_family);
+
+	result.clear();
+
+	for ( const auto & ident : afi->second->Identifications() ) {
+		double tagSizeMM = d_defaultTagSize;
+		if (ident->UseDefaultTagSize() == false ) {
+			tagSizeMM = ident->TagSize();
+		}
+		tagSizeMM *= cornerWidthRatio;
+
+		auto mm1 = d_measurements.find(type);
+		if (mm1 == d_measurements.cend() ) {
+			continue;
+		}
+
+		auto measurementsByTDD = mm1->second.find(ident->TagValue());
+		if ( measurementsByTDD == mm1->second.cend() ) {
+			continue;
+		}
+
+		for(const auto & measurements : measurementsByTDD->second ) {
+			auto start = measurements.second.cbegin();
+			if ( ident->Start() ) {
+				start = measurements.second.lower_bound(*ident->Start());
+			}
+			auto end = measurements.second.cend();
+			if ( ident->End() ) {
+				end = measurements.second.upper_bound(*ident->End());
+			}
+			for ( ; start != end; ++start ) {
+				double distance = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
+				distance *= tagSizeMM /start->second->TagSizePx();
+				result.push_back({start->first,distance});
+			}
+		}
+	}
+}
+
 
 } //namespace priv
 } //namespace myrmidon

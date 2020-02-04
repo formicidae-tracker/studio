@@ -346,6 +346,12 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
+	class Comparator {
+	public:
+		bool operator()(const Time & a, const Time & b) const {
+			return a.Before(b);
+		}
+	};
 
 private:
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);

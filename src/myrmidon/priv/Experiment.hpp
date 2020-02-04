@@ -158,13 +158,25 @@ public :
 
 	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
 
+	struct ComputedMeasurement {
+		Time   MTime;
+		double LengthMM;
+	};
+
+	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+	                               myrmidon::Ant::ID AID,
+	                               MeasurementTypeID type) const;
+
+	static double CornerWidthRatio(fort::tags::Family);
 
 private:
 	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
 	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
-	typedef std::map<FrameReference,
-	                 MeasurementByType,
-	                 Identifiable::Comparator>         MeasurementByFrameReference;
+	typedef std::map<uint32_t,
+	                 std::map<TagID,
+	                          std::map<fs::path,
+	                                   std::map<Time,
+	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
 
 	Experiment & operator=(const Experiment&) = delete;
@@ -186,8 +198,8 @@ private:
 	double             d_defaultTagSize;
 	uint8_t            d_threshold;
 
-	MeasurementByTagCloseUp     d_measurementByURI;
-	MeasurementByFrameReference d_measurementByReference;
+	MeasurementByTagCloseUp d_measurementByURI;
+	SortedMeasurement       d_measurements;
 };
 
 } //namespace priv

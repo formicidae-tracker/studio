@@ -169,7 +169,8 @@ Measurement::ConstPtr IOUtils::LoadMeasurement(const pb::Measurement & pb) {
 	LoadVector(end,pb.end());
 	return std::make_shared<Measurement>(pb.tagcloseupuri(),
 	                                     pb.type(),
-	                                     start,end);
+	                                     start,end,
+	                                     pb.tagsizepx());
 }
 
 void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr & m) {
@@ -178,6 +179,7 @@ void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr 
 	pb->set_type(m->Type());
 	SaveVector(pb->mutable_start(),m->StartFromTag());
 	SaveVector(pb->mutable_end(),m->EndFromTag());
+	pb->set_tagsizepx(m->TagSizePx());
 }
 
 
@@ -328,46 +330,6 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 
 }
 
-
-// TrackingDataDirectory IOUtils::LoadTrackingDataDirectory(const pb::TrackingDataDirectory & pb, const fs::path  & base) {
-// 	// TrackingDataDirectory::UID uid = TrackingDataDirectory::GetUID(pb.path());
-
-// 	// auto si = std::make_shared<TrackingDataDirectory::TrackingIndexer>();
-// 	// LoadSegmentIndexer(*si,pb.tracking(),uid);
-// 	// auto start = LoadTime(pb.startdate(),uid);
-// 	// auto end = LoadTime(pb.enddate(),uid);
-
-// 	// MovieSegment::List movies;
-// 	// movies.reserve(pb.movies_size());
-// 	// for ( const auto & pbMS : pb.movies() ) {
-// 	// 	movies.push_back(LoadMovieSegment(pbMS,base/pb.path()));
-// 	// }
-// 	// return TrackingDataDirectory(base / pb.path(),
-// 	//                              base,
-// 	//                              pb.startframe(),
-// 	//                              pb.endframe(),
-// 	//                              start,
-// 	//                              end,
-// 	//                              si,
-// 	//                              movies);
-// 	throw std::runtime_error("foo");
-// }
-
-// void IOUtils::SaveTrackingDataDirectory(pb::TrackingDataDirectory & pb,
-//                                                    const TrackingDataDirectory & tdd) {
-// 	pb.Clear();
-// 	// pb.set_path(tdd.URI().generic_string());
-// 	// pb.set_startframe(tdd.StartFrame());
-// 	// pb.set_endframe(tdd.EndFrame());
-// 	// SaveTime(*pb.mutable_startdate(),tdd.StartDate());
-// 	// SaveTime(*pb.mutable_enddate(),tdd.EndDate());
-// 	// SaveSegmentIndexer(pb.mutable_tracking(),tdd.TrackingIndex());
-
-// 	// for ( const auto & ms : tdd.MovieSegments() ) {
-// 	// 	SaveMovieSegment(pb.add_movies(),ms,tdd.AbsoluteFilePath());
-// 	// }
-
-// }
 
 
 

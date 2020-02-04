@@ -23,11 +23,13 @@ Measurement::Type::ID Measurement::Type::TID() const {
 Measurement::Measurement(const fs::path & parentURI,
                          Type::ID TID,
                          const Eigen::Vector2d & startFromTag,
-                         const Eigen::Vector2d & endFromTag)
+                         const Eigen::Vector2d & endFromTag,
+                         double tagSizePx)
 	: d_start(startFromTag)
 	, d_end(endFromTag)
 	, d_TID(TID)
-	, d_URI( parentURI / "measurements" / std::to_string(TID) ) {
+	, d_URI( parentURI / "measurements" / std::to_string(TID) )
+	, d_tagSizePx(tagSizePx) {
 }
 
 const fs::path & Measurement::URI() const{
@@ -61,6 +63,9 @@ void Measurement::DecomposeURI(fs::path & tddURI,
 	tddURI = uri.remove_filename().remove_filename();
 }
 
+double Measurement::TagSizePx() const {
+	return d_tagSizePx;
+}
 
 } // namespace priv
 } // namespace myrmidon

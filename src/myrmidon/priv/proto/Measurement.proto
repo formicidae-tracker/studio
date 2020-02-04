@@ -14,4 +14,5 @@ message Measurement {
 	uint32   type          = 2;
 	Vector2d start         = 3;
 	Vector2d end           = 4;
+	double   tagSizePx     = 5;
 };

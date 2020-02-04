@@ -57,7 +57,6 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
 	                                     d_corners[1],
 	                                     d_corners[2],
 	                                     d_corners[3]);
-
 }
 
 
@@ -257,6 +256,7 @@ TagCloseUp::Lister::CreateDetector() {
 	detector->qtp.critical_rad = 10.0 * M_PI / 180.0;
 	detector->qtp.max_line_fit_mse = 10.0;
 	detector->qtp.deglitch = 0;
+
 	return detector;
 }
 
@@ -325,11 +325,31 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 
 	}
 	return res;
-
 }
 
 Isometry2Dd TagCloseUp::ImageToTag() const {
 	return Isometry2Dd(d_tagAngle,d_tagPosition).inverse();
+}
+
+double TagCloseUp::TagSizePx() const {
+	double res = (d_corners[0] - d_corners[1]).norm()
+		+ (d_corners[1] - d_corners[2]).norm()
+		+ (d_corners[2] - d_corners[3]).norm()
+		+ (d_corners[3] - d_corners[4]).norm();
+
+	return res / 4.0;
+}
+
+double TagCloseUp::Squareness() const {
+	double maxAngleDistanceToPI_2 = 0.0;
+	for(size_t i = 0 ; i < 4; ++i ) {
+		Eigen::Vector2d a = d_corners[(i-1)%4] - d_corners[i];
+		Eigen::Vector2d b = d_corners[(i+1)%4] - d_corners[i];
+		double angle = std::acos(a.dot(b));
+		maxAngleDistanceToPI_2 = std::max(maxAngleDistanceToPI_2,
+		                                  std::abs(angle - (M_PI / 2.0)));
+	}
+	return 1.0 - maxAngleDistanceToPI_2 / M_PI * 2.0;
 }
 
 } // namespace priv
