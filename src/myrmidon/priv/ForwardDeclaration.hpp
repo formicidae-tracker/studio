@@ -31,6 +31,10 @@ FORT_MYRMIDON_FDECLARE_CLASS(Identification)
 // Forward decalation for an <priv::Identifier>
 FORT_MYRMIDON_FDECLARE_CLASS(Identifier)
 
+class TrackingDataDirectory;
+// Forward decalation for an <priv::TrackingDataDirectory::ConstPtr>
+typedef std::shared_ptr<const TrackingDataDirectory>   TrackingDataDirectoryConstPtr;
+
 class RawFrame;
 // Forward decalation for an <priv::RawFrame::ConstPtr>
 typedef std::shared_ptr<const RawFrame>   RawFrameConstPtr;
@@ -46,6 +50,9 @@ FORT_MYRMIDON_FDECLARE_CLASS(TagCloseUp)
 
 //Forward declaration for a <priv::AntPoseEstimate>
 FORT_MYRMIDON_FDECLARE_CLASS(AntPoseEstimate)
+
+//Forward declaration for a <priv::AntPoseEstimate>
+FORT_MYRMIDON_FDECLARE_CLASS(Measurement)
 
 // A Map of <Ant> identified by their <Ant::ID>
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;

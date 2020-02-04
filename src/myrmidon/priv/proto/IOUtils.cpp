@@ -4,8 +4,11 @@
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/priv/Shape.hpp>
 #include <myrmidon/priv/TagCloseUp.hpp>
+#include <myrmidon/priv/Identifier.hpp>
+#include <myrmidon/priv/Measurement.hpp>
 
 #include <myrmidon/utils/Checker.hpp>
+
 
 
 namespace fort {
@@ -87,10 +90,6 @@ void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb
 		LoadIdentification(e,ant,ident);
 	}
 
-	for ( const auto & mpb : pb.measurements() ) {
-		ant->SetMeasurement(mpb.name(),mpb.lengthmm());
-	}
-
 	for ( const auto & mc : pb.shape().capsules() ) {
 		ant->AddCapsule(LoadCapsule(mc));
 	}
@@ -103,12 +102,6 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 
 	for ( const auto & ident : ant->Identifications() ) {
 		SaveIdentification(pb->add_identifications(),ident);
-	}
-
-	for ( const auto & m : ant->Measurements() ) {
-		auto mpb = pb->add_measurements();
-		mpb->set_name(m.first);
-		mpb->set_lengthmm(m.second);
 	}
 
 	for ( const auto & c : ant->Shape() ) {
@@ -162,6 +155,22 @@ pb::TagFamily IOUtils::SaveFamily(const tags::Family f) {
 	return fi->second;
 }
 
+Measurement::ConstPtr IOUtils::LoadMeasurement(const pb::Measurement & pb) {
+	Eigen::Vector2d start,end;
+	LoadVector(start,pb.start());
+	LoadVector(end,pb.end());
+	return std::make_shared<Measurement>(pb.tagcloseupuri(),
+	                                     pb.type(),
+	                                     start,end);
+}
+
+void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr & m) {
+	pb->Clear();
+	pb->set_tagcloseupuri(m->TagCloseUpURI().generic_string());
+	pb->set_type(m->Type());
+	SaveVector(pb->mutable_start(),m->StartFromTag());
+	SaveVector(pb->mutable_end(),m->EndFromTag());
+}
 
 
 void IOUtils::LoadExperiment(Experiment & e,

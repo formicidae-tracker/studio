@@ -4,10 +4,15 @@
 
 #include "Ant.hpp"
 #include "Identifier.hpp"
+#include "Measurement.hpp"
+#include "TrackingDataDirectory.hpp"
+#include "Identifier.hpp"
+#include "AntPoseEstimate.hpp"
 
 
-namespace fm = fort::myrmidon;
-using namespace fm::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
@@ -83,22 +88,20 @@ bool Experiment::ContainsFramePointer()  const  {
 	return false;
 }
 
-void Experiment::RemoveTrackingDataDirectory(fs::path path) {
+void Experiment::RemoveTrackingDataDirectory(const fs::path & URI) {
+	throw std::runtime_error("Not yet implemented");
 
-	if ( path.is_absolute() ) {
-		fs::path root = d_absoluteFilepath;
-		path = fs::relative(path,root.remove_filename());
+	if ( d_dataDirs.count(URI.generic_string()) == 0 ) {
+		throw std::invalid_argument("Could not find data path '" + URI.string() + "'");
 	}
 
-	if ( d_dataDirs.count(path.generic_string()) == 0 ) {
-		throw std::invalid_argument("Could not find data path '" + path.string() + "'");
-	}
+	//TODO ensure any measurement is still owned.
 
 	if ( ContainsFramePointer() ) {
 		throw std::runtime_error("This Experiment contains FramePointer, and therefore removing a TrackingDataDirectory may breaks everything, and is therefore disabled");
 	}
 
-	d_dataDirs.erase(path.generic_string());
+	d_dataDirs.erase(URI.generic_string());
 }
 
 const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirectories() const {
@@ -159,3 +162,58 @@ fort::tags::Family Experiment::Family() const {
 void Experiment::SetFamily(fort::tags::Family tf) {
 	d_family = tf;
 }
+
+
+void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
+	fs::path tddPath;
+	FrameID FID;
+	TagID TID;
+	m->DecomposeURI(tddPath,FID,TID);
+	auto fi = d_dataDirs.find(tddPath.generic_string());
+	if ( fi == d_dataDirs.end() ) {
+		std::ostringstream oss;
+		oss << "Unknow data directory " << tddPath;
+		throw std::invalid_argument(oss.str());
+	}
+
+	auto ref = fi->second->FrameReferenceAt(FID);
+
+	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
+	d_measurementByReference[ref][m->Type()] = m;
+
+	if (m->Type() != Measurement::HEAD_TAIL_MEASUREMENT) {
+		return;
+	}
+
+	d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
+	                                                                   TID,
+	                                                                   m->EndFromTag(),
+	                                                                   m->StartFromTag()));
+}
+
+void Experiment::DeleteMeasurement(const fs::path & URI) {
+	throw std::runtime_error("Not yet implemented");
+}
+
+void Experiment::ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const {
+	list.clear();
+
+	size_t s = 0;
+	for (const auto & [p,ms] : d_measurementByURI ) {
+		for (const auto & [t,m] : ms ) {
+			++s;
+		}
+	}
+	list.reserve(s);
+
+	for (const auto & [p,ms] : d_measurementByURI ) {
+		for (const auto & [t,m] : ms ) {
+			list.push_back(m);
+		}
+	}
+}
+
+
+} //namespace priv
+} //namespace myrmidon
+} //namespace fort

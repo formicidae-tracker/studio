@@ -103,6 +103,10 @@ public:
 
 	static pb::TagFamily SaveFamily(const tags::Family f);
 
+	static MeasurementConstPtr LoadMeasurement(const pb::Measurement & pb);
+	static void SaveMeasurement(pb::Measurement * pb, const MeasurementConstPtr & m);
+
+
 	// Loads an Experiment from a protobuf message
 	//
 	// @e the empty <priv::Experiment> to load data to

@@ -9,6 +9,7 @@
 #include <myrmidon/priv/proto/FileReadWriter.hpp>
 
 #include <myrmidon/priv/Identification.hpp>
+#include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
 
 #include <myrmidon/EstimateFile.pb.h>

@@ -70,10 +70,6 @@ private:
 	fs::path       d_URI;
 };
 
-
-
-
-
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

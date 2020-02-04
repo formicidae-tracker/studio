@@ -4,6 +4,7 @@ package fort.myrmidon.pb;
 
 import "google/protobuf/timestamp.proto";
 import "TagFamily.proto";
+import "Measurement.proto";
 
 message Zone {
 	string          name = 1;
@@ -17,5 +18,7 @@ message Experiment {
 	TagFamily tagfamily = 5;
 	uint32    threshold = 6;
 
-	repeated string trackingdatadirectories = 7;
+
+	repeated string          trackingdatadirectories = 7;
+	repeated MeasurementType customMeasurementTypes  = 8;
 };

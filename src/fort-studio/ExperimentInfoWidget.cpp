@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QListWidget>
 
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 ExperimentInfoWidget::ExperimentInfoWidget(QWidget *parent)
 	: QWidget(parent)

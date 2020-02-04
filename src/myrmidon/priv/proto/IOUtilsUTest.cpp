@@ -8,6 +8,7 @@
 #include <myrmidon/UtilsUTest.hpp>
 
 #include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/TestSetup.hpp>
 
@@ -275,13 +276,6 @@ TEST_F(IOUtilsUTest,AntIO) {
 			                     c);
 		}
 
-		for (const auto & m : d.Measurements ) {
-			dA->SetMeasurement(m.Name,m.Value);
-			auto mpb = expected.add_measurements();
-			mpb->set_name(m.Name);
-			mpb->set_lengthmm(m.Value);
-		}
-
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
 
@@ -319,17 +313,6 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_DOUBLE_EQ(ii->AntAngle(),ie->AntAngle());
 			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
 
-		}
-
-		EXPECT_EQ(res->Measurements().size(),
-		          d.Measurements.size());
-		for (const auto & m : d.Measurements ) {
-			auto ffi = res->Measurements().find(m.Name);
-			if ( ffi == res->Measurements().cend() ) {
-				ADD_FAILURE() << "Could not retrieve measurement '" << m.Name << "'";
-				continue;
-			}
-			EXPECT_DOUBLE_EQ(ffi->second,m.Value);
 		}
 
 		EXPECT_EQ(res->Shape().size(),

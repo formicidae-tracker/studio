@@ -2,6 +2,8 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Identifier.hpp>
+#include <myrmidon/priv/Measurement.hpp>
 
 #include <myrmidon/ExperimentFile.pb.h>
 
@@ -19,6 +21,7 @@ ExperimentReadWriter::~ExperimentReadWriter() {}
 Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 	typedef FileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
 	auto res = Experiment::Create(filename);
+	std::vector<Measurement::ConstPtr> measurements;
 	ReadWriter::Read(filename,
 	                 [filename](const pb::FileHeader & h) {
 		                 if (h.majorversion() != 0 || h.minorversion() != 1 ) {
@@ -29,7 +32,7 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 			                 throw std::runtime_error(os.str());
 		                 }
 	                 },
-	                 [&res,filename](const pb::FileLine & line) {
+	                 [&measurements,&res,filename](const pb::FileLine & line) {
 		                 if (line.has_experiment() == true ) {
 			                 IOUtils::LoadExperiment(*res, line.experiment());
 		                 }
@@ -37,7 +40,15 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 		                 if (line.has_antdata() == true ) {
 			                 IOUtils::LoadAnt(*res, line.antdata());
 		                 }
+
+		                 if (line.has_measurement() == true ) {
+			                 measurements.push_back(IOUtils::LoadMeasurement(line.measurement()));
+		                 }
 	                 });
+	for ( const auto & m : measurements ) {
+		res->SetMeasurement(m);
+	}
+
 	return res;
 }
 
@@ -70,6 +81,13 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 		                });
 	}
 
+	std::vector<Measurement::ConstPtr> measurements;
+	experiment.ListAllMeasurements(measurements);
+	for ( const auto & m : measurements ) {
+		lines.push_back([m](pb::FileLine & line) {
+			                IOUtils::SaveMeasurement(line.mutable_measurement(),m);
+		                });
+	}
 	ReadWriter::Write(filepath,h,lines);
 }
 

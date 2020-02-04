@@ -2,6 +2,7 @@
 #include "ui_AntListWidget.h"
 
 #include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Identifier.hpp>
 
 #include <QtDebug>
 

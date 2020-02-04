@@ -66,7 +66,6 @@ TagID  AntPoseEstimate::TargetTagID() const {
 	return d_tid;
 }
 
-
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

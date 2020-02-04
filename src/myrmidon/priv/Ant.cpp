@@ -31,15 +31,6 @@ const Identification::List & Ant::Identifications() const {
 	return d_identifications;
 }
 
-
-const Ant::ListOfMeasurements & Ant::Measurements() const {
-	return d_measurements;
-}
-
-void Ant::SetMeasurement(const std::string & name, double value) {
-	d_measurements[name] = value;
-}
-
 const Ant::Shapes & Ant::Shape() const {
 	return d_shape;
 }

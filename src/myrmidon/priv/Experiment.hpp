@@ -4,12 +4,11 @@
 
 #include <fort-tags/fort-tags.h>
 
-#include "../Ant.hpp"
-#include "../Time.hpp"
+#include <myrmidon/Ant.hpp>
+#include <myrmidon/Time.hpp>
 #include <myrmidon/utils/FileSystem.hpp>
 
-#include "TrackingDataDirectory.hpp"
-#include "Identifier.hpp"
+#include "FrameReference.hpp"
 
 #include "ForwardDeclaration.hpp"
 #include "LocatableTypes.hpp"
@@ -45,7 +44,7 @@ public :
 	// The AprilTag families supported by the FORT project.
 	//
 	// Maps <TrackingDataDirectory> by their path
-	typedef std::unordered_map<std::string,TrackingDataDirectory::ConstPtr> TrackingDataDirectoryByPath;
+	typedef std::unordered_map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByPath;
 
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
@@ -109,12 +108,12 @@ public :
 	// TODO: how to treat the case of multiple box experiment? In that
 	// case the frame will overlap. But its the same colony. But we
 	// have now two reference systems.
-	void AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd);
+	void AddTrackingDataDirectory(const TrackingDataDirectoryConstPtr & tdd);
 
 
 	// Removes a TrackingDataDirectory
 	// @path relative path to the directory
-	void RemoveTrackingDataDirectory(fs::path path);
+	void RemoveTrackingDataDirectory(const fs::path & URI);
 
 	// Gets the TrackingDataDirectory related to this Experiment
 	// @return a map of all <TrackingDataDirectory> related to this
@@ -150,7 +149,21 @@ public :
 	void SetThreshold(uint8_t th);
 
 
+	void SetMeasurement(const MeasurementConstPtr & m);
+
+	void DeleteMeasurement(const fs::path & URI);
+
+	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
+
+
+
 private:
+	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
+	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
+	typedef std::map<FrameReference,
+	                 MeasurementByType,
+	                 Identifiable::Comparator>         MeasurementByFrameReference;
+
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
@@ -162,7 +175,7 @@ private:
 	fs::path                    d_absoluteFilepath;
 	fs::path                    d_basedir;
 	TrackingDataDirectoryByPath d_dataDirs;
-	Identifier::Ptr             d_identifier;
+	IdentifierPtr               d_identifier;
 
 	std::string        d_name;
 	std::string        d_author;
@@ -171,12 +184,12 @@ private:
 	uint8_t            d_threshold;
 
 
+	MeasurementByTagCloseUp     d_measurementByURI;
+	MeasurementByFrameReference d_measurementByReference;
 };
 
 } //namespace priv
-
 } //namespace myrmidon
-
 } //namespace fort
 
 inline std::ostream & operator<<( std::ostream & out,

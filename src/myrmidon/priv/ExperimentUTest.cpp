@@ -2,7 +2,9 @@
 
 #include "Experiment.hpp"
 #include "Ant.hpp"
-#include "../TestSetup.hpp"
+#include <myrmidon/TestSetup.hpp>
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <myrmidon/priv/Identifier.hpp>
 
 #include <fstream>
 

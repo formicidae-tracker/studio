@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include <myrmidon/priv/RawFrame.hpp>
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 using namespace fort::myrmidon::priv;
 

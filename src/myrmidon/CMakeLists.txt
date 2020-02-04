@@ -26,6 +26,7 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/EstimateFile.proto
                 priv/proto/TagCloseUpCache.proto
                 priv/proto/TagFamily.proto
+                priv/proto/Measurement.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
@@ -69,6 +70,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Checker.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
+                      priv/Measurement.hpp
                       )
 
 
@@ -103,6 +105,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Checker.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
+                      priv/Measurement.cpp
                       )
 
 set(SRC_FILES Frame.cpp

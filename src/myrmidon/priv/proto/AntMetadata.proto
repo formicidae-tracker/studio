@@ -31,16 +31,9 @@ message Shape {
 	repeated Capsule capsules = 1;
 };
 
-message Measurement {
-	string name     = 1;
-	double lengthMM = 2;
-};
-
-
 message AntMetadata {
 	int32                   ID              = 1;
 	Shape                   shape           = 2;
 	repeated Identification identifications = 3;
 //	repeated Metadata       metadata        = 4;
-	repeated Measurement    measurements    = 5;
 };

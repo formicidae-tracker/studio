@@ -33,9 +33,6 @@ public:
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant> Ptr;
 
-	// A List of Measurement;
-	typedef std::map<std::string,double> ListOfMeasurements;
-
 	// A List of shape
 	typedef std::vector<Capsule::Ptr> Shapes;
 
@@ -76,13 +73,6 @@ public:
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
 
 
-	// Gets its measurement
-	//
-	// @return indexed values of measurement.
-	const ListOfMeasurements & Measurements() const;
-
-	void SetMeasurement(const std::string & name, double value);
-
 	const Shapes & Shape() const;
 
 	void AddCapsule(const Capsule::Ptr & capsule);
@@ -108,7 +98,6 @@ private:
 	std::string             d_IDStr;
 	Identification::List    d_identifications;
 	Shapes                  d_shape;
-	ListOfMeasurements      d_measurements;
 };
 
 } //namespace priv

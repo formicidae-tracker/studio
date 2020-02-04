@@ -8,6 +8,10 @@
 #include <fort-hermes/FileContext.h>
 #include <fort-hermes/Error.h>
 
+
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <myrmidon/priv/Identifier.hpp>
+
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
