@@ -7,12 +7,16 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+const double Identification::DEFAULT_TAG_SIZE = 0.0;
+
 Identification::Identification(TagID tagValue,
                                const IdentifierPtr & identifier,
                                const AntPtr & target)
-	: d_tagValue(tagValue)
+	: d_antToTag(0.0,Eigen::Vector2d::Zero())
+	, d_tagValue(tagValue)
 	, d_target(target)
-	, d_identifier(identifier) {
+	, d_identifier(identifier)
+	, d_tagSize(DEFAULT_TAG_SIZE) {
 }
 
 Time::ConstPtr Identification::Start() const {
@@ -114,6 +118,18 @@ void Identification::SetEnd(const Time::ConstPtr & end) {
 	SetBound(d_start,end);
 }
 
+
+void Identification::SetTagSize(double size) {
+	d_tagSize = size;
+}
+
+double Identification::TagSize() const {
+	return d_tagSize;
+}
+
+bool Identification::UseDefaultTagSize() const {
+	return d_tagSize == DEFAULT_TAG_SIZE;
+}
 
 } // namespace priv
 } // namespace myrmidon

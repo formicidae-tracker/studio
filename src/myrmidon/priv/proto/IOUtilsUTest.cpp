@@ -360,6 +360,8 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			expected.set_tagfamily(pb::TAG36H11);
 			e->SetThreshold(45);
 			expected.set_threshold(45);
+			e->SetDefaultTagSize(1.6);
+			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			e->AddTrackingDataDirectory(tdd);
 			expected.add_trackingdatadirectories(tdd->URI().generic_string());

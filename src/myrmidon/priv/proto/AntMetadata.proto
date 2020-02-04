@@ -13,6 +13,8 @@ message Identification {
 
 	google.protobuf.Timestamp Start = 4;
 	google.protobuf.Timestamp End   = 5;
+
+	double                    tagSize = 6;
 };
 
 // message Metadata {

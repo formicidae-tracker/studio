@@ -19,7 +19,9 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
 	, d_threshold(40)
-	, d_family(fort::tags::Family::Undefined) {
+	, d_family(fort::tags::Family::Undefined)
+	, d_defaultTagSize(1.0) {
+
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -213,6 +215,13 @@ void Experiment::ListAllMeasurements(std::vector<MeasurementConstPtr> & list) co
 	}
 }
 
+double Experiment::DefaultTagSize() const {
+	return d_defaultTagSize;
+}
+
+void Experiment::SetDefaultTagSize(double defaultTagSize) {
+	d_defaultTagSize = defaultTagSize;
+}
 
 } //namespace priv
 } //namespace myrmidon

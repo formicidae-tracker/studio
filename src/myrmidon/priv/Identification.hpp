@@ -52,6 +52,8 @@ public:
 	typedef std::vector<Ptr> List;
 
 
+	const static double DEFAULT_TAG_SIZE;
+
 	// Gets the TagID of this Identification
 	// @return <TagID> this <priv::Identification> refers to.
 	TagID TagValue() const;
@@ -97,6 +99,13 @@ public:
 	// Gets the tag rotation
 	// @return the angle in radian between the <priv::Ant> reference and the tag.
 	double AntAngle() const;
+
+	void SetTagSize(double size);
+
+	double TagSize() const;
+
+	bool UseDefaultTagSize() const;
+
 
 	// Gets the transformation from the Ant reference to the Tag reference
 	// @return an <Isometry2D> that performs the transformation from
@@ -161,6 +170,7 @@ private:
 	Isometry2Dd               d_antToTag;
 
 	int32_t                   d_tagValue;
+	double                    d_tagSize;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
 

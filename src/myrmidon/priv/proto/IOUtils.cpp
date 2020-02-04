@@ -49,6 +49,11 @@ void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
 	Eigen::Vector2d pos;
 	LoadVector(pos,pb.antposition());
 	res->SetAntPosition(pos,pb.antangle());
+	if ( pb.tagsize() != 0.0 ) {
+		res->SetTagSize(pb.tagsize());
+	} else {
+		res->SetTagSize(Identification::DEFAULT_TAG_SIZE);
+	}
 }
 
 void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
@@ -63,6 +68,9 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 	SaveVector(pb->mutable_antposition(),ident->AntPosition());
 	pb->set_antangle(ident->AntAngle());
 	pb->set_id(ident->TagValue());
+	if ( ident->UseDefaultTagSize() == false ) {
+		pb->set_tagsize(ident->TagSize());
+	}
 }
 
 
@@ -180,6 +188,7 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetComment(pb.comment());
 	e.SetFamily(LoadFamily(pb.tagfamily()));
 	e.SetThreshold(pb.threshold());
+	e.SetDefaultTagSize(pb.tagsize());
 
 	for ( const auto tddRelPath : pb.trackingdatadirectories() ) {
 		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
@@ -198,6 +207,7 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_comment(e.Comment());
 	pb->set_threshold(e.Threshold());
 	pb->set_tagfamily(SaveFamily(e.Family()));
+	pb->set_tagsize(e.DefaultTagSize());
 
 	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
 		pb->add_trackingdatadirectories(tdd->URI().generic_string());

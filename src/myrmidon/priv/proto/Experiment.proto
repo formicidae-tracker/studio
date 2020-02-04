@@ -17,8 +17,8 @@ message Experiment {
 	string    comment   = 4;
 	TagFamily tagfamily = 5;
 	uint32    threshold = 6;
+	double    tagsize   = 7;
 
-
-	repeated string          trackingdatadirectories = 7;
-	repeated MeasurementType customMeasurementTypes  = 8;
+	repeated string          trackingdatadirectories = 11;
+	repeated MeasurementType customMeasurementTypes  = 12;
 };

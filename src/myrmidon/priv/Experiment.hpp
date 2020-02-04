@@ -145,6 +145,9 @@ public :
 	fort::tags::Family Family() const;
 	void SetFamily(fort::tags::Family tf);
 
+	double DefaultTagSize() const;
+	void   SetDefaultTagSize(double defaultTagSize);
+
 	uint8_t Threshold() const;
 	void SetThreshold(uint8_t th);
 
@@ -154,7 +157,6 @@ public :
 	void DeleteMeasurement(const fs::path & URI);
 
 	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
-
 
 
 private:
@@ -181,8 +183,8 @@ private:
 	std::string        d_author;
 	std::string        d_comment;
 	fort::tags::Family d_family;
+	double             d_defaultTagSize;
 	uint8_t            d_threshold;
-
 
 	MeasurementByTagCloseUp     d_measurementByURI;
 	MeasurementByFrameReference d_measurementByReference;
