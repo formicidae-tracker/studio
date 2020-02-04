@@ -126,7 +126,7 @@ void SnapshotViewer::displaySnapshot(const Snapshot::ConstPtr & s) {
 	}
 
 	setImageBackground();
-	setAntPoseEstimate(AntPoseEstimate::Ptr());
+	setAntPoseEstimate(::AntPoseEstimate::Ptr());
 	displayIdentification(Identification::Ptr());
 }
 
@@ -366,7 +366,7 @@ void SnapshotViewer::PositionMarker::mouseMoveEvent(QGraphicsSceneMouseEvent * e
 }
 
 
-void SnapshotViewer::setAntPoseEstimate(const AntPoseEstimate::Ptr & estimate) {
+void SnapshotViewer::setAntPoseEstimate(const ::AntPoseEstimate::Ptr & estimate) {
 	if ( !estimate ) {
 		d_poseEstimate.reset();
 		d_head->setVisible(false);
@@ -398,7 +398,7 @@ void SnapshotViewer::emitNewPoseEstimate() {
 	Eigen::Vector2d tail(ToEigen(d_tail->pos()+d_roi.topLeft()));
 
 	if (!d_poseEstimate) {
-		d_poseEstimate = std::make_shared<AntPoseEstimate>(head,
+		d_poseEstimate = std::make_shared<::AntPoseEstimate>(head,
 		                                                   tail,
 		                                                   d_snapshot->Frame(),
 		                                                   d_snapshot->TagValue());

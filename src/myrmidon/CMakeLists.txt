@@ -68,6 +68,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/proto/IOUtils.hpp
                       utils/Checker.hpp
                       utils/Defer.hpp
+                      priv/AntPoseEstimate.hpp
                       )
 
 
@@ -101,6 +102,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/proto/IOUtils.cpp
                       utils/Checker.cpp
                       utils/Defer.cpp
+                      priv/AntPoseEstimate.cpp
                       )
 
 set(SRC_FILES Frame.cpp

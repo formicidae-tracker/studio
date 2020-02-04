@@ -192,7 +192,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 			                 },
 			                 [this,tdd](const pb::Estimate & pb) {
 				                 try {
-					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.start()),
+					                 auto e = std::make_shared<::AntPoseEstimate>(pb::Point2dToEigen(pb.start()),
 					                                                            pb::Point2dToEigen(pb.end()),
 					                                                            *tdd->FrameAt(pb.frame()),
 					                                                            pb.tag());
@@ -336,7 +336,7 @@ Error TaggingWidget::save() {
 	using namespace fort::myrmidon;
 	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
-	std::map<fs::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
+	std::map<fs::path,std::vector<::AntPoseEstimate::Ptr> > sortedEstimate;
 	for(const auto & [p,e] : d_estimates ) {
 		sortedEstimate[e->ParentPath()].push_back(e);
 	}
@@ -370,7 +370,7 @@ Error TaggingWidget::save() {
 }
 
 
-void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e) {
+void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const ::AntPoseEstimate::Ptr & e) {
 	using namespace fort::myrmidon::priv;
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
@@ -400,7 +400,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 		return ident;
 	}
 
-	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
+	std::vector<std::pair<::AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
 	for(const auto & [p,ee] : d_estimates ) {
 		if (ee->TagValue() != tagValue || !ident->IsValid(ee->Frame()->Time()) ) {
 			continue;
@@ -413,7 +413,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 	}
 
 	if ( matched.size() == 0 ) {
-		ident->SetTagPosition(Eigen::Vector2d::Zero(),0);
+		ident->SetAntPosition(Eigen::Vector2d::Zero(),0);
 		return ident;
 	}
 
@@ -423,9 +423,9 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 		Isometry2Dd tagToAntTransform;
 
 
-		Identification::ComputeTagToAntTransform(tagToAntTransform,
-		                                         m.second->TagPosition(),m.second->TagAngle(),
-		                                         m.first->Head(),m.first->Tail());
+		// Identification::ComputeTagToAntTransform(tagToAntTransform,
+		//                                          m.second->TagPosition(),m.second->TagAngle(),
+		//                                          m.first->Head(),m.first->Tail());
 		pos += tagToAntTransform.translation();
 		double a = tagToAntTransform.angle();
 		sinAngle += std::sin(a);
@@ -435,7 +435,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 	sinAngle /= matched.size();
 	cosAngle /= matched.size();
 
-	ident->SetTagPosition(pos,std::atan2(sinAngle,cosAngle));
+	ident->SetAntPosition(pos,std::atan2(sinAngle,cosAngle));
 	d_controller->setModified(true);
 	return ident;
 }
@@ -484,7 +484,7 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 
 
 	d_estimates.erase(fi);
-	d_ui->snapshotViewer->setAntPoseEstimate(AntPoseEstimate::Ptr());
+	d_ui->snapshotViewer->setAntPoseEstimate(::AntPoseEstimate::Ptr());
 	d_controller->setModified(true);
 	updateButtonState();
 	updateIdentificationForCurrentFrame();

@@ -86,17 +86,17 @@ public:
 	// @return the time after which this identification is unvalid.
 	Time::ConstPtr End() const;
 
-	// Sets the Tag Position relative to the Ant
-	// @position the translation from the <priv::Ant> origin to the Tag center.
+	// Sets the Target Position relative to the tag
+	// @position the translation from the tag  origin to the Tag center.
 	// @angle the angle between the <priv::Ant> and the tag.
-	void SetTagPosition(const Eigen::Vector2d & position, double angle);
+	void SetAntPosition(const Eigen::Vector2d & position, double angle);
 
 	// Gets the tag position in the Ant reference frame
 	// @return a vector from the <priv::Ant> origin to the tag center
-	Eigen::Vector2d TagPosition() const;
+	Eigen::Vector2d AntPosition() const;
 	// Gets the tag rotation
 	// @return the angle in radian between the <priv::Ant> reference and the tag.
-	double TagAngle() const;
+	double AntAngle() const;
 
 	// Gets the transformation from the Ant reference to the Tag reference
 	// @return an <Isometry2D> that performs the transformation from
@@ -126,19 +126,6 @@ public:
 	// <DeletedReference> if by any bug the referenced object has been
 	// destroyed.
 	IdentifierPtr ParentIdentifier() const;
-
-	// Computes the TagToAntTransform
-	// @result the result transform
-	// @tagPosition the position to the tag in image space
-	// @tagAngle the orientation of the tag in image space
-	// @head the head of the <priv::Ant> in image space
-	// @tail the tail of the <priv::Ant> in image space
-	//
-	// Helper function to compute <TagPosition> and <TagAngle>
-	static void ComputeTagToAntTransform(Isometry2Dd & result,
-	                                     const Eigen::Vector2d & tagPosition, double tagAngle,
-	                                     const Eigen::Vector2d & head,
-	                                     const Eigen::Vector2d & tail);
 
 
 	class Accessor {

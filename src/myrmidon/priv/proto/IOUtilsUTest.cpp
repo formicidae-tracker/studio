@@ -92,7 +92,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	auto a = e->Identifier().CreateAnt();
 	for ( const auto & d : data ) {
 		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
-		ident->SetTagPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
+		ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 
 		pb::Identification identPb;
 		pb::Identification expected;
@@ -102,9 +102,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		if ( d.End ) {
 			d.End->ToTimestamp(expected.mutable_end());
 		}
-		expected.mutable_position()->set_x(d.X);
-		expected.mutable_position()->set_y(d.Y);
-		expected.set_theta(d.Angle);
+		expected.mutable_antposition()->set_x(d.X);
+		expected.mutable_antposition()->set_y(d.Y);
+		expected.set_antangle(d.Angle);
 		expected.set_id(d.Value);
 
 		IOUtils::SaveIdentification(&identPb, ident);
@@ -124,9 +124,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_EQ(!finalIdent->Start(),!d.Start);
 		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
 		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
-		EXPECT_FLOAT_EQ(finalIdent->TagPosition().x(),d.X);
-		EXPECT_FLOAT_EQ(finalIdent->TagPosition().y(),d.Y);
-		EXPECT_FLOAT_EQ(finalIdent->TagAngle(),d.Angle);
+		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),d.X);
+		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),d.Y);
+		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),d.Angle);
 		EXPECT_NO_THROW({
 				EXPECT_EQ(finalIdent->Target().get(),a.get());
 			});
@@ -263,7 +263,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			                                               identData.Value,
 			                                               identData.Start,
 			                                               identData.End);
-			ident->SetTagPosition(Eigen::Vector2d(identData.X,identData.Y),
+			ident->SetAntPosition(Eigen::Vector2d(identData.X,identData.Y),
 			                      identData.Angle);
 			dIdents.push_back(ident);
 			IOUtils::SaveIdentification(expected.add_identifications(), ident);
@@ -315,8 +315,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_EQ(ii->TagValue(),ie->TagValue());
 			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
 			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
-			ExpectAlmostEqualVector(ii->TagPosition(),ie->TagPosition());
-			EXPECT_DOUBLE_EQ(ii->TagAngle(),ie->TagAngle());
+			ExpectAlmostEqualVector(ii->AntPosition(),ie->AntPosition());
+			EXPECT_DOUBLE_EQ(ii->AntAngle(),ie->AntAngle());
 			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
 
 		}

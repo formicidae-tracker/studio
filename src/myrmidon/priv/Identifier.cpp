@@ -2,7 +2,7 @@
 
 #include "Ant.hpp"
 #include "DeletedReference.hpp"
-
+#include "AntPoseEstimate.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -251,6 +251,10 @@ size_t Identifier::UseCount(TagID tag) const {
 	return fi->second.size();
 }
 
+bool Identifier::AntPoseTimeComparator::operator() (const AntPoseEstimateConstPtr & a,
+                                                    const AntPoseEstimateConstPtr & b) {
+	return a->Reference().Time().Before(b->Reference().Time());
+}
 
 bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
                                      Time::ConstPtr & end,
@@ -265,6 +269,37 @@ bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
 		start.reset();
 		return false;
 	}
+}
+
+void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
+	auto & APEs = d_tagPoseEstimates[ape->TargetTagID()];
+	APEs.erase(ape);
+	APEs.insert(ape);
+
+	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	if (!identification) {
+		return;
+	}
+	UpdateIdentification(*identification);
+}
+
+void Identifier::UpdateIdentification(Identification & identification) {
+	std::vector<AntPoseEstimateConstPtr> matched;
+	auto & APEs = d_tagPoseEstimates[identification.TagValue()];
+	matched.reserve(APEs.size());
+	for (const auto & ape : APEs ) {
+		if ( ape->TargetTagID() != identification.TagValue() ) {
+			throw std::logic_error("Unexpected TagID");
+		}
+		if ( identification.IsValid(ape->Reference().Time()) == false ) {
+			continue;
+		}
+		matched.push_back(ape);
+	}
+	Eigen::Vector2d newPosition;
+	double newAngle;
+	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
+	identification.SetAntPosition(newPosition,newAngle);
 }
 
 

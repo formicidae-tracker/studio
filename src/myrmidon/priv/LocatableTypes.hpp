@@ -34,6 +34,9 @@ public:
 	//
 	// @return a relative path designating the ressource.
 	virtual const fs::path & URI() const = 0;
+
+	// Allows Identifiable objects to be comparable
+	bool operator<(const Identifiable & other);
 };
 
 } //namespace priv

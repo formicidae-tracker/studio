@@ -328,6 +328,9 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 
 }
 
+Isometry2Dd TagCloseUp::ImageToTag() const {
+	return Isometry2Dd(d_tagAngle,d_tagPosition).inverse();
+}
 
 } // namespace priv
 } // namespace myrmidon

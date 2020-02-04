@@ -4,7 +4,9 @@
 
 #include <fort-tags/fort-tags.h>
 
+
 #include "FrameReference.hpp"
+#include "Isometry2D.hpp"
 
 #include <mutex>
 
@@ -96,7 +98,7 @@ public:
 	double TagAngle() const;
 	const Vector2dList & Corners() const;
 
-
+	Isometry2Dd ImageToTag() const;
 
 
 private:

@@ -167,10 +167,24 @@ public:
 	                         TagID tag, const Time & t) const;
 
 
+	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & tpe);
+
 private:
-	typedef std::set<fort::myrmidon::Ant::ID> SetOfID;
+	class AntPoseTimeComparator {
+	public:
+		bool operator() (const AntPoseEstimateConstPtr & a,
+		                 const AntPoseEstimateConstPtr & b);
+
+	};
+
+	void UpdateIdentification(Identification & identification);
+
+	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
 
+	typedef std::set<AntPoseEstimateConstPtr,
+	                 AntPoseTimeComparator>     AntPoseEstimateList;
+	typedef std::map<TagID,AntPoseEstimateList> AntPoseEstimateByTagID;
 
 	Identifier();
 	Identifier(const Identifier&) = delete;
@@ -185,7 +199,8 @@ private:
 	SetOfID d_antIDs;
 	bool    d_continuous;
 
-	IdentificationByTagID d_identifications;
+	IdentificationByTagID  d_identifications;
+	AntPoseEstimateByTagID d_tagPoseEstimates;
 
 };
 

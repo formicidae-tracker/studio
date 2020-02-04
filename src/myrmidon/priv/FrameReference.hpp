@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Time.hpp"
+#include <myrmidon/Time.hpp>
 
 #include "Types.hpp"
 #include "LocatableTypes.hpp"

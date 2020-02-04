@@ -23,12 +23,12 @@ Time::ConstPtr Identification::End() const {
 	return d_end;
 }
 
-Eigen::Vector2d Identification::TagPosition() const {
-	return d_antToTag.inverse().translation();
+Eigen::Vector2d Identification::AntPosition() const {
+	return d_antToTag.translation();
 }
 
-double Identification::TagAngle() const {
-	return -d_antToTag.angle();
+double Identification::AntAngle() const {
+	return d_antToTag.angle();
 }
 
 TagID Identification::TagValue() const {
@@ -83,8 +83,8 @@ void Identification::Accessor::SetEnd(Identification & identification,
 }
 
 
-void Identification::SetTagPosition(const Eigen::Vector2d & position, double angle) {
-	d_antToTag = Isometry2Dd(angle,position).inverse();
+void Identification::SetAntPosition(const Eigen::Vector2d & position, double angle) {
+	d_antToTag = Isometry2Dd(angle,position);
 }
 
 
@@ -114,16 +114,6 @@ void Identification::SetEnd(const Time::ConstPtr & end) {
 	SetBound(d_start,end);
 }
 
-
-void Identification::ComputeTagToAntTransform(Isometry2Dd & result,
-                                              const Eigen::Vector2d & tagPosition, double tagAngle,
-                                              const Eigen::Vector2d & head,
-                                              const Eigen::Vector2d & tail) {
-	Eigen::Vector2d dir = head - tail;
-	dir.normalize();
-
-	result = Isometry2Dd(std::atan2(dir.y(),dir.x()),(head+tail)/2).inverse() * Isometry2Dd(tagAngle,tagPosition);
-}
 
 } // namespace priv
 } // namespace myrmidon
