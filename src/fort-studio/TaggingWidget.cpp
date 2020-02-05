@@ -136,7 +136,7 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
 
-void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds) {
 	using namespace fort::myrmidon;
 	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 

@@ -232,13 +232,11 @@ private:
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
 
-	bool ContainsFramePointer() const;
-
 	Experiment(const fs::path & filepath);
 
 	fs::path                    d_absoluteFilepath;
 	fs::path                    d_basedir;
-	TrackingDataDirectoryByPath d_dataDirs;
+	TrackingDataDirectoryByURI  d_dataDirs;
 	IdentifierPtr               d_identifier;
 
 	std::string        d_name;

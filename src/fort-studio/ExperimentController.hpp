@@ -25,7 +25,7 @@ public:
 
 signals:
 	void modified(bool);
-	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
+	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & );
 
 	void antCreated(const fort::myrmidon::priv::AntPtr & );
 	void antModified(const fort::myrmidon::priv::AntPtr & );

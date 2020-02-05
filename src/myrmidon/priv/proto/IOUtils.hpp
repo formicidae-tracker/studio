@@ -21,6 +21,16 @@ namespace myrmidon {
 namespace priv {
 namespace proto {
 
+// Class to perform IO from/to protobuf
+//
+// This class only conatins static methods to convert private objects
+// to and from protobuf messages.
+//
+// Methods reads from protobuf, uses const reference to corresponding
+// protobuf messages.
+//
+// Methods that saves to protobuf, uses pointers to the coreesponding
+// protobuf messages.
 class IOUtils {
 public:
 
@@ -99,13 +109,29 @@ public:
 	// @a the <priv::Ant> to save
 	static void SaveAnt(pb::AntMetadata * pb, const AntConstPtr & a);
 
+	// Converts a Family from a protobuf enum
+	//
+	// @pb the protobuf enum value
+	// @return a <fort::tags::Family> enum value
 	static tags::Family LoadFamily(const pb::TagFamily & pb);
 
+	// Converts a Family to a protobuf enum
+	//
+	// @f the <fort::tags::Family> enum value
+	// @return a corresponding pbValue
 	static pb::TagFamily SaveFamily(const tags::Family f);
 
+	// Loads a Measurement from a message
+	//
+	// @pb the message to read from
+	// @return a <Measurement> from the message
 	static MeasurementConstPtr LoadMeasurement(const pb::Measurement & pb);
-	static void SaveMeasurement(pb::Measurement * pb, const MeasurementConstPtr & m);
 
+	// Saves a Measurement to a message
+	//
+	// @pb the message to save to
+	// @m the <Measurement> to save
+	static void SaveMeasurement(pb::Measurement * pb, const MeasurementConstPtr & m);
 
 	// Loads an Experiment from a protobuf message
 	//
@@ -177,10 +203,22 @@ public:
 	                             const fs::path & parentAbsoluteFilePath);
 
 
+	// Loads a TagCloseUp from a message
+	//
+	// @pb the message to read from
+	// @absoluteBasedir the actual directory containing the close-ups images
+	// @resolver a function that resolves <FrameID> to actual
+	//           <FrameReference> for the collection of close-up
+	//           contained in absoluteBaseDir.
 	static TagCloseUpConstPtr LoadTagCloseUp(const pb::TagCloseUp & pb,
 	                                         const fs::path & absoluteBasedir,
 	                                         std::function<FrameReference (FrameID)> resolver);
 
+	// Saves a TagCloseUp from a message
+	//
+	// @pb the message to save to
+	// @tcu the TagCloseUp to save
+	// @absoluteBasedir the actual directory containing the close-ups images
 	static void SaveTagCloseUp(pb::TagCloseUp * pb,
 	                           const TagCloseUpConstPtr & tcu,
 	                           const fs::path & absoluteBasedir);

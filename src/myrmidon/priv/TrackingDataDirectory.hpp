@@ -138,7 +138,7 @@ public:
 	// populate its data form its actual content. This function will
 	// look for tracking data file open the first and last segment to
 	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory::ConstPtr Open(const fs::path & path, const fs::path & experimentRoot);
+	static TrackingDataDirectory::ConstPtr Open(const fs::path & TDpath, const fs::path & experimentRoot);
 
 	static TrackingDataDirectory::ConstPtr Create(const fs::path & uri,
 	                                              const fs::path & absoluteFilePath,

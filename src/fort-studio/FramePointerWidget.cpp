@@ -29,9 +29,9 @@ void FramePointerWidget::onNewController(ExperimentController * controller ) {
 
 	if ( d_controller != NULL ) {
 		disconnect(d_controller,
-		           SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )),
+		           SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )),
 		           this,
-		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )));
+		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )));
 	}
 
 
@@ -43,16 +43,16 @@ void FramePointerWidget::onNewController(ExperimentController * controller ) {
 	setEnabled(true);
 
 	connect(d_controller,
-	        SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )),
+	        SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )),
 	        this,
-	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )));
+	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )));
 
 
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
 
 
-void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds) {
 	d_inhibit = true;
 	fs::path selected;
 	if ( d_ui->comboBox->currentIndex() >= 0 ) {

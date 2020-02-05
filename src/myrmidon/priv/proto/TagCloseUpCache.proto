@@ -18,6 +18,6 @@ message TagCloseUp {
 
 	repeated Vector2d corners = 4;
 
-	uint64 frameid             = 5;
+	uint64 frameid            = 5;
 	string imagepath          = 6;
 };

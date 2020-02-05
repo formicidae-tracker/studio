@@ -13,8 +13,8 @@
 ::testing::AssertionResult TimePtrEqual(const fort::myrmidon::Time::ConstPtr & a,
                                         const fort::myrmidon::Time::ConstPtr & b);
 
-void ExpectAlmostEqualVector(const Eigen::Vector2d & a,
-                             const Eigen::Vector2d & b);
+::testing::AssertionResult VectorAlmostEqual(const Eigen::Vector2d & a,
+                                             const Eigen::Vector2d & b);
 
-void ExpectMessageEquals(const google::protobuf::Message &a,
-                         const google::protobuf::Message &b);
+::testing::AssertionResult MessageEqual(const google::protobuf::Message &a,
+                                        const google::protobuf::Message &b);

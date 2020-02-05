@@ -207,7 +207,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	auto tmppath = fs::temp_directory_path() / os.str();
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
-	auto foodirs = {"foo.0000","foo.0001","foo.0002"};
+	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000"};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;

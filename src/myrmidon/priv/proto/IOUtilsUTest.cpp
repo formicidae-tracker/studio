@@ -10,6 +10,7 @@
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Measurement.hpp>
 #include <myrmidon/TestSetup.hpp>
 
 namespace fort {
@@ -53,7 +54,7 @@ TEST_F(IOUtilsUTest,TimeIO) {
 		expected.set_monotonic(d.Mono);
 		IOUtils::SaveTime(&t, d.T);
 
-		ExpectMessageEquals(t,expected);
+		EXPECT_TRUE(MessageEqual(t,expected));
 
 		auto res = IOUtils::LoadTime(t, 42);
 
@@ -66,7 +67,7 @@ TEST_F(IOUtilsUTest,TimeIO) {
 TEST_F(IOUtilsUTest,IdentificationIO) {
 	struct TestData {
 		Time::ConstPtr Start,End;
-		double         X,Y,Angle;
+		double         X,Y,Angle,TagSize;
 		TagID          Value;
 	};
 
@@ -74,17 +75,17 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		= {
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
-		    1.0,-1.0,M_PI/2,
+		    1.0,-1.0,M_PI/2,0.0,
 		    123
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
-		    1.45,-4.0,3*M_PI/4,
+		    1.45,-4.0,3*M_PI/4,2.3,
 		    23
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
-		    1.0,-1.0,0.0,
+		    1.0,-1.0,0.0,0.0,
 		    34
 		   },
 	};
@@ -94,7 +95,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	for ( const auto & d : data ) {
 		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
 		ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
-
+		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
 		pb::Identification expected;
 		if ( d.Start ) {
@@ -107,9 +108,10 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		expected.mutable_antposition()->set_y(d.Y);
 		expected.set_antangle(d.Angle);
 		expected.set_id(d.Value);
+		expected.set_tagsize(d.TagSize);
 
 		IOUtils::SaveIdentification(&identPb, ident);
-		ExpectMessageEquals(identPb,expected);
+		EXPECT_TRUE(MessageEqual(identPb,expected));
 
 		e->Identifier().DeleteIdentification(ident);
 		ASSERT_TRUE(a->Identifications().empty());
@@ -128,6 +130,11 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),d.X);
 		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),d.Y);
 		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),d.Angle);
+		if ( d.TagSize == 0.0 ) {
+			EXPECT_TRUE(finalIdent->UseDefaultTagSize());
+		} else {
+			EXPECT_DOUBLE_EQ(finalIdent->TagSize(),d.TagSize);
+		}
 		EXPECT_NO_THROW({
 				EXPECT_EQ(finalIdent->Target().get(),a.get());
 			});
@@ -154,10 +161,10 @@ TEST_F(IOUtilsUTest,VectorIO) {
 		expected.set_y(dV.y());
 
 		IOUtils::SaveVector(&v,dV);
-		ExpectMessageEquals(v,expected);
+		EXPECT_TRUE(MessageEqual(v,expected));
 
 		IOUtils::LoadVector(res,v);
-		ExpectAlmostEqualVector(res,dV);
+		EXPECT_TRUE(VectorAlmostEqual(res,dV));
 	}
 }
 
@@ -185,11 +192,11 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		expected.set_b_radius(d.BR);
 
 		IOUtils::SaveCapsule(&c,dC);
-		ExpectMessageEquals(c,expected);
+		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCapsule(c);
-		ExpectAlmostEqualVector(res->A(),dC->A());
-		ExpectAlmostEqualVector(res->B(),dC->B());
+		EXPECT_TRUE(VectorAlmostEqual(res->A(),dC->A()));
+		EXPECT_TRUE(VectorAlmostEqual(res->B(),dC->B()));
 		EXPECT_DOUBLE_EQ(res->RadiusA(),dC->RadiusA());
 		EXPECT_DOUBLE_EQ(res->RadiusB(),dC->RadiusB());
 	}
@@ -204,15 +211,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		TagID Value;
 	};
 
-	struct MeasurementData {
-		std::string Name;
-		double Value;
-	};
 
 	struct TestData {
 		std::vector<IdentificationData> IData;
 		std::vector<CapsulePtr>         Capsules;
-		std::vector<MeasurementData>    Measurements;
 	};
 
 	std::vector<TestData> testdata
@@ -238,22 +240,12 @@ TEST_F(IOUtilsUTest,AntIO) {
 		                               Eigen::Vector2d(6.1,8.9),
 		                               5.0,-3.0)
 		    },
-		    {
-		     {"length", 3.6},
-		     {"antennas",0.47}
-		    }
-		   }
+		   },
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
 
 	for(auto & d: testdata) {
-		std::sort(d.Measurements.begin(),
-		          d.Measurements.end(),
-		          [](const MeasurementData & a,
-		             const MeasurementData & b) {
-			          return a.Name < b.Name;
-		          });
 		auto dA = e->Identifier().CreateAnt();
 		std::vector<Identification::Ptr> dIdents;
 
@@ -279,7 +271,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
 
-		ExpectMessageEquals(a,expected);
+		EXPECT_TRUE(MessageEqual(a,expected));
 
 		EXPECT_THROW({
 				IOUtils::LoadAnt(*e,a);
@@ -309,7 +301,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_EQ(ii->TagValue(),ie->TagValue());
 			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
 			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
-			ExpectAlmostEqualVector(ii->AntPosition(),ie->AntPosition());
+			EXPECT_TRUE(VectorAlmostEqual(ii->AntPosition(),ie->AntPosition()));
 			EXPECT_DOUBLE_EQ(ii->AntAngle(),ie->AntAngle());
 			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
 
@@ -322,8 +314,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 		    ++i) {
 			auto c = res->Shape()[i];
 			auto ce = d.Capsules[i];
-			ExpectAlmostEqualVector(c->A(),ce->A());
-			ExpectAlmostEqualVector(c->B(),ce->B());
+			EXPECT_TRUE(VectorAlmostEqual(c->A(),ce->A()));
+			EXPECT_TRUE(VectorAlmostEqual(c->B(),ce->B()));
 			EXPECT_DOUBLE_EQ(c->RadiusA(),ce->RadiusA());
 			EXPECT_DOUBLE_EQ(c->RadiusB(),ce->RadiusB());
 		}
@@ -332,6 +324,55 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 }
 
+TEST_F(IOUtilsUTest,MeasurementIO) {
+	struct TestData {
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		Eigen::Vector2d       Start,End;
+		fs::path              ParentURI;
+		Measurement::Type::ID TID;
+		double                TagSizePx;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    Eigen::Vector2d(12.356,-23.0),Eigen::Vector2d(42.8,0.00024),
+		    "foo/bar/frames/1234/closeups/342",
+		    1,
+		    34.256
+		   },
+	};
+
+	for(const auto & d: testdata) {
+		auto dM = std::make_shared<Measurement>(d.ParentURI,
+		                                        d.TID,
+		                                        d.Start,
+		                                        d.End,
+		                                        d.TagSizePx);
+		pb::Measurement expected,pbRes;
+		expected.set_tagcloseupuri(d.ParentURI.generic_string());
+		expected.set_type(d.TID);
+		IOUtils::SaveVector(expected.mutable_start(),d.Start);
+		IOUtils::SaveVector(expected.mutable_end(),d.End);
+		expected.set_tagsizepx(d.TagSizePx);
+
+		IOUtils::SaveMeasurement(&pbRes,dM);
+		EXPECT_TRUE(MessageEqual(pbRes,expected));
+
+		auto res = IOUtils::LoadMeasurement(pbRes);
+		EXPECT_EQ(res->URI().generic_string(),
+		          dM->URI().generic_string());
+
+		EXPECT_EQ(res->TagCloseUpURI().generic_string(),
+		          dM->TagCloseUpURI().generic_string());
+
+		EXPECT_EQ(res->Type(),dM->Type());
+		EXPECT_TRUE(VectorAlmostEqual(res->StartFromTag(),dM->StartFromTag()));
+		EXPECT_TRUE(VectorAlmostEqual(res->EndFromTag(),dM->EndFromTag()));
+		EXPECT_DOUBLE_EQ(res->TagSizePx(),dM->TagSizePx());
+
+	}
+}
 
 TEST_F(IOUtilsUTest,ExperimentIO) {
 	auto e = Experiment::Create(TestSetup::Basedir() / "experiment-io.myrmidon");
@@ -371,7 +412,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	ePb.Clear();
 
 	IOUtils::SaveExperiment(&ePb,*e);
-	ExpectMessageEquals(ePb,expected);
+	EXPECT_TRUE(MessageEqual(ePb,expected));
 
 	IOUtils::LoadExperiment(*res,ePb);
 	EXPECT_EQ(res->Author(),e->Author());
@@ -423,7 +464,7 @@ TEST_F(IOUtilsUTest,TrackingIndexIO) {
 
 	ASSERT_EQ(pbRes.size(),expected.size());
 	for(size_t i = 0; i < pbRes.size(); ++i) {
-		ExpectMessageEquals(pbRes.Get(i),expected.Get(i));
+		EXPECT_TRUE(MessageEqual(pbRes.Get(i),expected.Get(i)));
 	}
 	for (const auto & pb : pbRes ) {
 		auto s = IOUtils::LoadTrackingIndexSegment(pb, parentURI,monoID);
@@ -483,7 +524,7 @@ TEST_F(IOUtilsUTest,MovieSegmentIO) {
 	}
 
 	IOUtils::SaveMovieSegment(&pbRes,ms,TestSetup::Basedir() / "foo.0000");
-	ExpectMessageEquals(pbRes,expected);
+	EXPECT_TRUE(MessageEqual(pbRes,expected));
 
 	res = IOUtils::LoadMovieSegment(pbRes, TestSetup::Basedir() / "foo.0000" , "foo.0000");
 
@@ -509,28 +550,111 @@ TEST_F(IOUtilsUTest,MovieSegmentIO) {
 		},std::invalid_argument);
 }
 
+TEST_F(IOUtilsUTest,FamilyIO) {
+	struct TestData {
+		tags::Family  Family;
+		pb::TagFamily Pb;
+	};
 
-// TEST_F(ProtobufExperimentReadWriterUTest,TrackingDataDirectoryIO) {
-// 	fort::myrmidon::pb::TrackingDataDirectory pbTdd,encoded;
-// 	//pbTdd.set_path("foo.0001");
-// 	pbTdd.set_startframe(5);
-// 	pbTdd.set_endframe(8);
-// 	ASSERT_TRUE(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:20.021-05:00",pbTdd.mutable_startdate()->mutable_timestamp()));
-// 	ASSERT_TRUE(google::protobuf::util::TimeUtil::FromString("1972-01-01T10:00:21.271-05:00",pbTdd.mutable_enddate()->mutable_timestamp()));
+	std::vector<TestData> testdata =
+		{
+		 {tags::Family::Tag36h11,pb::TAG36H11},
+		 {tags::Family::Tag36h10,pb::TAG36H10},
+		 {tags::Family::Tag36ARTag,pb::TAG36ARTAG},
+		 {tags::Family::Tag16h5,pb::TAG16H5},
+		 {tags::Family::Tag25h9,pb::TAG25H9},
+		 {tags::Family::Circle21h7,pb::CIRCLE21H7},
+		 {tags::Family::Circle49h12,pb::CIRCLE49H12},
+		 {tags::Family::Custom48h12,pb::CUSTOM48H12},
+		 {tags::Family::Standard41h12,pb::STANDARD41H12},
+		 {tags::Family::Standard52h13,pb::STANDARD52H13},
+		};
 
-// 	auto tdd = ProtobufReadWriter::LoadTrackingDataDirectory(pbTdd,"foo");
+	for( const auto & d: testdata ) {
+		EXPECT_EQ(d.Family,IOUtils::LoadFamily(d.Pb));
+		EXPECT_EQ(d.Pb,IOUtils::SaveFamily(d.Family));
+	}
+}
 
-// 	ASSERT_EQ(tdd.URI(),"foo.0001");
-// 	ASSERT_EQ(tdd.StartFrame(),5);
-// 	ASSERT_EQ(tdd.EndFrame(),8);
-// 	ASSERT_EQ(tdd.StartDate().ToTimestamp(),pbTdd.startdate().timestamp());
-// 	ASSERT_EQ(tdd.EndDate().ToTimestamp(),pbTdd.enddate().timestamp());
+TEST_F(IOUtilsUTest,TagCloseUpIO) {
+	auto basedir = TestSetup::Basedir() / "foo.0000" / "ants";
+	struct TestData {
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		Eigen::Vector2d          Position;
+		fs::path                 Filepath;
+		FrameReference           Reference;
+		TagID                    TID;
+		double                   Angle;
+		TagCloseUp::Vector2dList Corners;
+	};
 
-// 	EXPECT_NO_THROW({ProtobufReadWriter::SaveTrackingDataDirectory(encoded,tdd);});
-// 	ASSERT_EQ(google::protobuf::util::MessageDifferencer::Equals(encoded,pbTdd),true);
+	std::vector<TestData> testdata =
+		{
+		 {
+		  Eigen::Vector2d(23.0,-3.0),
+		  "ant_123_frame_21.png",
+		  FrameReference("foo.0000",21,Time::FromTimeT(2)),
+		  123,
+		  -M_PI/ 5.0,
+		  {
+		   Eigen::Vector2d(43,17.0),
+		   Eigen::Vector2d(43,-23.0),
+		   Eigen::Vector2d(3,-23.0),
+		   Eigen::Vector2d(3,17.0),
+		  },
+		 }
+		};
 
-// }
 
+	for ( const auto & d : testdata ) {
+		auto dTCU = std::make_shared<TagCloseUp>(basedir / d.Filepath,
+		                                         d.Reference,
+		                                         d.TID,
+		                                         d.Position,
+		                                         d.Angle,
+		                                         d.Corners);
+
+		auto resolver = [&d](FrameID FID) {
+			                return FrameReference(d.Reference.ParentURI(),
+			                                      FID,
+			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.ID())) * Duration::Second));
+		                };
+
+
+
+		pb::TagCloseUp expected,pbRes;
+		IOUtils::SaveVector(expected.mutable_position(),d.Position);
+		expected.set_angle(d.Angle);
+		expected.set_value(d.TID);
+		for (const auto & c : d.Corners ) {
+			IOUtils::SaveVector(expected.add_corners(),c);
+		}
+		expected.set_frameid(d.Reference.ID());
+		expected.set_imagepath(d.Filepath.generic_string());
+
+		IOUtils::SaveTagCloseUp(&pbRes,dTCU,basedir);
+		EXPECT_TRUE(MessageEqual(pbRes,expected));
+		auto res = IOUtils::LoadTagCloseUp(pbRes,basedir,resolver);
+
+		EXPECT_EQ(res->Frame().URI().generic_string(),dTCU->Frame().URI().generic_string());
+		EXPECT_TRUE(TimeEqual(res->Frame().Time(),dTCU->Frame().Time()));
+		EXPECT_EQ(res->URI().generic_string(),dTCU->URI().generic_string());
+		EXPECT_EQ(res->AbsoluteFilePath().generic_string(),dTCU->AbsoluteFilePath().generic_string());
+		EXPECT_TRUE(VectorAlmostEqual(res->TagPosition(),dTCU->TagPosition()));
+		EXPECT_DOUBLE_EQ(res->TagAngle(),dTCU->TagAngle());
+		ASSERT_EQ(4,res->Corners().size());
+		for(size_t i = 0; i < 4 ; ++i ) {
+			EXPECT_TRUE(VectorAlmostEqual(res->Corners()[i],dTCU->Corners()[i]));
+		}
+
+		EXPECT_THROW({
+				// Needs 4 corners
+				expected.clear_corners();
+				IOUtils::LoadTagCloseUp(expected,basedir,resolver);
+			},std::invalid_argument);
+	}
+
+}
 
 } //namespace proto
 } //namespace priv

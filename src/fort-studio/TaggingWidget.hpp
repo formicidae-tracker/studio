@@ -27,7 +27,7 @@ public slots:
 	Error save();
 
 	void onNewController(ExperimentController * controller);
-	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath &);
+	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI &);
 	void on_familySelector_activated(int);
 	void on_thresholdBox_editingFinished();
 	void on_tagList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem*);

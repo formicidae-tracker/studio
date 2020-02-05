@@ -75,38 +75,34 @@ void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr 
 	d_dataDirs.insert(std::make_pair(toAdd->URI().generic_string(),toAdd));
 }
 
-bool Experiment::ContainsFramePointer()  const  {
-	//check if Identification contains any frame
-	for(const auto & [ID,a] :  d_identifier->Ants() ) {
-		for (const auto & ident : a->Identifications() ) {
-			if ( ident->Start() || ident->End() ) {
-				return true;
-			}
-		}
-	}
-
-	// TODO check if other things containing FramePointer contains any..
-
-	return false;
-}
 
 void Experiment::RemoveTrackingDataDirectory(const fs::path & URI) {
 	throw std::runtime_error("Not yet implemented");
 
 	if ( d_dataDirs.count(URI.generic_string()) == 0 ) {
-		throw std::invalid_argument("Could not find data path '" + URI.string() + "'");
+		throw std::invalid_argument("Could not find tracking data directory'" + URI.generic_string() + "'");
 	}
 
-	//TODO ensure any measurement is still owned.
+	auto fi = std::find_if(d_measurementByURI.begin(),
+	                       d_measurementByURI.end(),
+	                       [URI](const std::pair<fs::path,MeasurementByType> & elem) -> bool {
+		                       if ( elem.first.lexically_relative(URI).empty() == true ) {
+			                       return false;
+		                       }
+		                       return elem.second.empty() == false;
+	                       });
+	if ( fi != d_measurementByURI.end() ) {
 
-	if ( ContainsFramePointer() ) {
-		throw std::runtime_error("This Experiment contains FramePointer, and therefore removing a TrackingDataDirectory may breaks everything, and is therefore disabled");
+		throw std::runtime_error("Could not remove TrackingDataDirectory '" + URI.generic_string()
+		                         + "': it contains measurement '"
+		                         + fi->first.generic_string()
+		                         + "'");
 	}
 
 	d_dataDirs.erase(URI.generic_string());
 }
 
-const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirectories() const {
+const Experiment::TrackingDataDirectoryByURI & Experiment::TrackingDataDirectories() const {
 	return d_dataDirs;
 }
 
