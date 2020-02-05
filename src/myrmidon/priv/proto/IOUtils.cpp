@@ -6,6 +6,7 @@
 #include <myrmidon/priv/TagCloseUp.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Measurement.hpp>
+#include <myrmidon/priv/Zone.hpp>
 
 #include <myrmidon/utils/Checker.hpp>
 
@@ -192,9 +193,12 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetThreshold(pb.threshold());
 	e.SetDefaultTagSize(pb.tagsize());
 
-	for ( const auto tddRelPath : pb.trackingdatadirectories() ) {
-		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
-		e.AddTrackingDataDirectory(tdd);
+	for ( const auto & zPb : pb.zones() ) {
+		auto z = e.CreateZone(zPb.name());
+		for ( const auto & tddRelPath : zPb.trackingdatadirectories() ) {
+			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+			z->AddTrackingDataDirectory(tdd);
+		}
 	}
 }
 
@@ -210,9 +214,13 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_threshold(e.Threshold());
 	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
-
-	for ( const auto & [p,tdd] : e.TrackingDataDirectories() ) {
-		pb->add_trackingdatadirectories(tdd->URI().generic_string());
+	auto zones = e.Zones();
+	for ( const auto & z : zones ) {
+		auto zPb = pb->add_zones();
+		zPb->set_name(z->URI().generic_string());
+		for ( const auto & tdd : z->TrackingDataDirectories() ) {
+			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
+		}
 	}
 }
 

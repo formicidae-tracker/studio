@@ -47,6 +47,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
+                      priv/Zone.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
@@ -73,7 +74,6 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
                       priv/Measurement.hpp
-                      priv/Zone.hpp
                       )
 
 
@@ -86,6 +86,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
+                      priv/Zone.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp
                       priv/Ant.cpp
@@ -109,7 +110,6 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
-                      priv/Zone.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -123,6 +123,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     UtilsUTest.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
+                    priv/ZoneUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
@@ -142,7 +143,6 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
-                    priv/ZoneUTest.cpp
                     )
 
 
@@ -151,6 +151,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     UtilsUTest.hpp
                     TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
+                    priv/ZoneUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp
@@ -170,7 +171,6 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
-                    priv/ZoneUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

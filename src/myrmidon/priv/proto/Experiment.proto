@@ -19,6 +19,7 @@ message Experiment {
 	uint32    threshold = 6;
 	double    tagsize   = 7;
 
-	repeated string          trackingdatadirectories = 11;
-	repeated MeasurementType customMeasurementTypes  = 12;
+	repeated Zone zones = 11;
+
+	repeated MeasurementType customMeasurementTypes  = 21;
 };

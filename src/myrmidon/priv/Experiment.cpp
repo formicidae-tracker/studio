@@ -19,6 +19,7 @@ Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
+	, d_zoneManager(std::make_shared<Zone::Manager>())
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0) {
@@ -55,34 +56,24 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & toAdd) {
-	if (d_dataDirs.count(toAdd->URI().generic_string()) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd->URI().string() + "' is already present");
-	}
-
-	std::vector<TrackingDataDirectory::ConstPtr> sortedInTime;
-	for(const auto & el : d_dataDirs ) {
-		sortedInTime.push_back(el.second);
-	}
-	sortedInTime.push_back(toAdd);
-	auto fi = TimeValid::SortAndCheckOverlap(sortedInTime.begin(),sortedInTime.end());
-	if ( fi.first != fi.second ) {
-		std::ostringstream os;
-		os << *fi.first << " and " << *fi.second << " overlaps in time";
-		throw std::invalid_argument(os.str());
-	}
-
-	d_dataDirs.insert(std::make_pair(toAdd->URI().generic_string(),toAdd));
+Zone::Ptr Experiment::CreateZone(const std::string & name) {
+	return Zone::Manager::Create(d_zoneManager,name);
 }
 
+void Experiment::DeleteZone(const fs::path & zoneURI) {
+	d_zoneManager->DeleteZone(zoneURI);
+}
 
-void Experiment::RemoveTrackingDataDirectory(const fs::path & URI) {
-	throw std::runtime_error("Not yet implemented");
+const std::vector<Zone::Ptr> & Experiment::Zones() const {
+	return d_zoneManager->Zones();
+}
 
-	if ( d_dataDirs.count(URI.generic_string()) == 0 ) {
-		throw std::invalid_argument("Could not find tracking data directory'" + URI.generic_string() + "'");
-	}
+const std::map<fs::path,TrackingDataDirectoryConstPtr> &
+Experiment::TrackingDataDirectories() const {
+	return d_zoneManager->TrackingDataDirectories();
+}
 
+void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
 	auto fi = std::find_if(d_measurementByURI.begin(),
 	                       d_measurementByURI.end(),
 	                       [URI](const std::pair<fs::path,MeasurementByType> & elem) -> bool {
@@ -92,19 +83,17 @@ void Experiment::RemoveTrackingDataDirectory(const fs::path & URI) {
 		                       return elem.second.empty() == false;
 	                       });
 	if ( fi != d_measurementByURI.end() ) {
-
 		throw std::runtime_error("Could not remove TrackingDataDirectory '" + URI.generic_string()
 		                         + "': it contains measurement '"
 		                         + fi->first.generic_string()
 		                         + "'");
+
 	}
 
-	d_dataDirs.erase(URI.generic_string());
+	d_zoneManager->DeleteTrackingDataDirectory(URI);
+
 }
 
-const Experiment::TrackingDataDirectoryByURI & Experiment::TrackingDataDirectories() const {
-	return d_dataDirs;
-}
 
 const std::string & Experiment::Name() const {
 	return d_name;
@@ -167,8 +156,8 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	FrameID FID;
 	TagID TID;
 	m->DecomposeURI(tddPath,FID,TID);
-	auto fi = d_dataDirs.find(tddPath.generic_string());
-	if ( fi == d_dataDirs.end() ) {
+	auto fi = d_zoneManager->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( fi == d_zoneManager->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
 		oss << "Unknow data directory " << tddPath;
 		throw std::invalid_argument(oss.str());

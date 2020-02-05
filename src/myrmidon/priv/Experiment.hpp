@@ -8,6 +8,8 @@
 #include <myrmidon/Time.hpp>
 #include <myrmidon/utils/FileSystem.hpp>
 
+
+#include "Zone.hpp"
 #include "FrameReference.hpp"
 
 #include "ForwardDeclaration.hpp"
@@ -95,29 +97,15 @@ public :
 	const fs::path & Basedir() const;
 
 
-	// Adds a new TrackingDataDirectory
-	// @tdd the new <TrackingDataDirectory> to add
-	//
-	// This methods adds the <TrackingDataDirectory> only if none of
-	// its Frame overlaps in time with the <TrackingDataDirectory>
-	// already referenced by this <priv::Experiment>.
-	//
-	// TODO: how to treat the case of multiple box experiment? In that
-	// case the frame will overlap. But its the same colony. But we
-	// have now two reference systems.
-	void AddTrackingDataDirectory(const TrackingDataDirectoryConstPtr & tdd);
+	Zone::Ptr CreateZone(const std::string & name);
 
+	void DeleteZone(const fs::path & zoneURI);
 
-	// Removes a TrackingDataDirectory
-	//
-	// @URI the URI of the directory
-	void RemoveTrackingDataDirectory(const fs::path & URI);
+	const std::vector<Zone::Ptr> & Zones() const;
 
-	// Gets the TrackingDataDirectory related to this Experiment
-	//
-	// @return a map of all <priv::TrackingDataDirectory> related to this
-	//         <priv::Experiment>, designated by their URI.
-	const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
+	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
+
+	void DeleteTrackingDataDirectory(const fs::path & URI);
 
 	// Accessor to the underlying Identifier
 	//
@@ -234,10 +222,10 @@ private:
 
 	Experiment(const fs::path & filepath);
 
-	fs::path                    d_absoluteFilepath;
-	fs::path                    d_basedir;
-	TrackingDataDirectoryByURI  d_dataDirs;
-	IdentifierPtr               d_identifier;
+	fs::path           d_absoluteFilepath;
+	fs::path           d_basedir;
+	Zone::Manager::Ptr d_zoneManager;
+	IdentifierPtr      d_identifier;
 
 	std::string        d_name;
 	std::string        d_author;

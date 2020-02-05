@@ -340,7 +340,9 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
-	e.add_trackingdatadirectories("foo.0000");
+	auto z = e.add_zones();
+	z->set_name("box");
+	z->add_trackingdatadirectories("foo.0000");
 
 
 	fm::pb::FileHeader header;

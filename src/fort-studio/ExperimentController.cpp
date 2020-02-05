@@ -33,7 +33,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 		                                                             d_experiment->Basedir());
 
 
-		d_experiment->AddTrackingDataDirectory(tdd);
+		// d_experiment->AddTrackingDataDirectory(tdd);
 		setModified(true);
 		emit dataDirUpdated(d_experiment->TrackingDataDirectories());
 		return Error::NONE;
@@ -45,7 +45,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 
 Error ExperimentController::removeDataDirectory(const QString & path) {
 	try {
-		d_experiment->RemoveTrackingDataDirectory(path.toUtf8().constData());
+		// d_experiment->RemoveTrackingDataDirectory(path.toUtf8().constData());
 		setModified(true);
 		emit dataDirUpdated(d_experiment->TrackingDataDirectories());
 		return Error::NONE;

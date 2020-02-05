@@ -11,6 +11,7 @@
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/priv/Measurement.hpp>
+#include <myrmidon/priv/Zone.hpp>
 #include <myrmidon/TestSetup.hpp>
 
 namespace fort {
@@ -404,8 +405,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			e->SetDefaultTagSize(1.6);
 			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
-			e->AddTrackingDataDirectory(tdd);
-			expected.add_trackingdatadirectories(tdd->URI().generic_string());
+			auto z = e->CreateZone("box");
+			z->AddTrackingDataDirectory(tdd);
+			auto zPb = expected.add_zones();
+			zPb->set_name("box");
+			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
 		});
 
 
@@ -420,8 +424,8 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
-	EXPECT_EQ(res->TrackingDataDirectories().size(),
-	          e->TrackingDataDirectories().size());
+	ASSERT_EQ(res->Zones().size(),
+	          e->Zones().size());
 	for ( const auto & [URI,tdd] : e->TrackingDataDirectories() ) {
 		auto fi = res->TrackingDataDirectories().find(URI);
 		if ( fi == res->TrackingDataDirectories().cend() ) {

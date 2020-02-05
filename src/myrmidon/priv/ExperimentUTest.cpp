@@ -5,6 +5,7 @@
 #include <myrmidon/TestSetup.hpp>
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 #include <myrmidon/priv/Identifier.hpp>
+#include <myrmidon/priv/Zone.hpp>
 
 #include <fstream>
 
@@ -24,13 +25,15 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
-		e->AddTrackingDataDirectory(tdd);
+		ASSERT_FALSE(e->Zones().empty());
+		e->Zones()[0]->AddTrackingDataDirectory(tdd);
 
-		ASSERT_EQ(e->TrackingDataDirectories().size(),2);
+		ASSERT_EQ(e->Zones()[0]->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
 		auto ee = Experiment::Open(TestSetup::Basedir() / "test3.myrmidon");
 
-		ASSERT_EQ(ee->TrackingDataDirectories().size(),2);
+		ASSERT_FALSE(ee->Zones().empty());
+		ASSERT_EQ(ee->Zones()[0]->TrackingDataDirectories().size(),2);
 
 
 	} catch (const std::exception & e) {
@@ -41,10 +44,11 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 TEST_F(ExperimentUTest,IOTest) {
 	try{
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
-		auto tdd = e->TrackingDataDirectories();
+		ASSERT_FALSE(e->Zones().empty());
+		auto tdd = e->Zones()[0]->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
-		ASSERT_EQ(tdd["foo.0000"]->URI(),"foo.0000");
-		ASSERT_EQ(tdd["foo.0000"]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
+		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
+		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
 		ASSERT_EQ(e->ConstIdentifier().Ants().size(),3);
 		EXPECT_EQ(e->ConstIdentifier().Ants().find(1)->second->ID(),1);
 		EXPECT_EQ(e->ConstIdentifier().Ants().find(2)->second->ID(),2);
@@ -82,7 +86,8 @@ TEST_F(ExperimentUTest,IOTest) {
 TEST_F(ExperimentUTest,TestNewTrackingDataDirectories) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		e->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0001",TestSetup::Basedir()));
+		ASSERT_FALSE(e->Zones().empty());
+		e->Zones()[0]->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0001",TestSetup::Basedir()));
 	} catch( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}

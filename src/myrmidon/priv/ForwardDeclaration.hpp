@@ -51,8 +51,11 @@ FORT_MYRMIDON_FDECLARE_CLASS(TagCloseUp)
 //Forward declaration for a <priv::AntPoseEstimate>
 FORT_MYRMIDON_FDECLARE_CLASS(AntPoseEstimate)
 
-//Forward declaration for a <priv::AntPoseEstimate>
+//Forward declaration for a <priv::Measurement>
 FORT_MYRMIDON_FDECLARE_CLASS(Measurement)
+
+//Forward declaration for a <priv::Zone>
+FORT_MYRMIDON_FDECLARE_CLASS(Zone)
 
 typedef uint32_t MeasurementTypeID;
 
