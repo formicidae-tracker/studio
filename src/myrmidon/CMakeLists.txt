@@ -73,6 +73,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
                       priv/Measurement.hpp
+                      priv/Zone.hpp
                       )
 
 
@@ -108,6 +109,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
+                      priv/Zone.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -140,6 +142,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
+                    priv/ZoneUTest.cpp
                     )
 
 
@@ -167,6 +170,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
+                    priv/ZoneUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
