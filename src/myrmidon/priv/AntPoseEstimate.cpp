@@ -38,7 +38,8 @@ AntPoseEstimate::AntPoseEstimate(const FrameReference & reference,
 	Eigen::Vector2d diff = (headFromTag - tailFromTag);
 	Eigen::Vector2d center = (headFromTag + tailFromTag) / 2.0;
 	if ( diff.norm() < 1.0 ) {
-		throw std::runtime_error("Too small difference between head and tail position");
+		throw std::invalid_argument("Too small difference between head and tail position ("
+		                            + std::to_string(diff.norm()) + " pixels)");
 	}
 
 	d_angle = std::atan2(diff.y(),diff.x());

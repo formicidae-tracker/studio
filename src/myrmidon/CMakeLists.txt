@@ -138,6 +138,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/FileReadWriterUTest.cpp
                     priv/proto/ExperimentReadWriterUTest.cpp
                     priv/proto/TDDCacheUTest.cpp
+                    priv/AntPoseEstimateUTest.cpp
                     )
 
 
@@ -163,6 +164,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/proto/FileReadWriterUTest.hpp
                     priv/proto/ExperimentReadWriterUTest.hpp
                     priv/proto/TDDCacheUTest.hpp
+                    priv/AntPoseEstimateUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

@@ -108,7 +108,7 @@ TEST_F(TagCloseUpUTest,CanComputeGeometricValues) {
 
 }
 
-TEST_F(TagCloseUpUTest,CanLoadFiles) {
+TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	auto files = TagCloseUp::Lister::ListFiles(TestSetup::Basedir() / "foo.0000/ants");
 	auto expectedFiles = TestSetup::CloseUpFilesForPath(TestSetup::Basedir() / "foo.0000");
 	ASSERT_EQ(files.size(),expectedFiles.size());
@@ -198,11 +198,44 @@ TEST_F(TagCloseUpUTest,CanLoadFiles) {
 		                              cached->Corners()[i]));
 	}
 
+}
 
 
+TEST_F(TagCloseUpUTest,ClassInvariants) {
 
+	EXPECT_THROW({
+			// not an absolute path
+	              TagCloseUp("foo",
+	                         FrameReference(),
+	                         0,
+	                         Eigen::Vector2d(),
+	                         0.0,
+	                         {
+	                          Eigen::Vector2d(),
+	                          Eigen::Vector2d(),
+	                          Eigen::Vector2d(),
+	                          Eigen::Vector2d(),
+	                         });
+
+		}, std::invalid_argument);
+
+		EXPECT_THROW({
+				// Not having 4 corners
+				TagCloseUp(TestSetup::Basedir() / "foo",
+	                         FrameReference(),
+	                         0,
+	                         Eigen::Vector2d(),
+	                         0.0,
+	                         {
+	                          Eigen::Vector2d(),
+	                          Eigen::Vector2d(),
+	                          Eigen::Vector2d(),
+	                         });
+
+		}, std::invalid_argument);
 
 }
+
 
 } // namespace priv
 } // namespace myrmidon
