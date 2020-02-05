@@ -21,6 +21,10 @@
 #include <fstream>
 #include <random>
 
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <apriltag/apriltag.h>
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -34,6 +38,7 @@ std::string HermesFileName(size_t i) {
 }
 
 std::map<fs::path,std::pair<Time,Time>> TestSetup::s_times;
+std::map<fs::path,std::map<fs::path,std::shared_ptr<uint32_t> > > TestSetup::s_closeUpFiles;
 
 std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, size_t * next,
                                      const Time & startTime,
@@ -153,8 +158,70 @@ void CreateMovieFiles(std::vector<uint64_t> bounds,
 
 }
 
-void CreateSnapshotFiles(std::vector<uint64_t> bounds,
-                         const fs::path & basedir) {
+void WriteTagFile(const fs::path & path ) {
+
+	apriltag_family_t * f = tag36h11_create();
+
+	size_t pxSize = 5;
+	size_t tagWidth = pxSize * f->total_width;
+
+	cv::Mat img(4*tagWidth,4*tagWidth,CV_8UC1);
+	img = 127;
+
+
+	uint8_t border(255);
+	uint8_t inside(0);
+	if ( f->reversed_border == true ) {
+		border = 0;
+		inside = 255;
+	}
+
+	auto setPixel = [tagWidth,pxSize,&img](size_t x, size_t y, uint8_t value) {
+		                for (size_t px = 0; px < pxSize; ++px) {
+			                for (size_t py = 0; py < pxSize; ++py) {
+				                size_t xx = x*pxSize + px + tagWidth;
+				                size_t yy = y*pxSize + py + tagWidth;
+				                img.at<uint8_t>(yy,xx) = value;
+			                }
+		                }
+	                };
+
+	size_t borderSize = f->total_width - f->width_at_border;
+	borderSize /=  2;
+	for ( size_t tx = 0; tx < f->total_width; ++tx) {
+		for ( size_t ty = 0; ty < f->total_width; ++ty) {
+			uint8_t color = inside;
+			if ( tx < borderSize || tx >= borderSize + f->width_at_border
+			     || ty < borderSize || ty >= borderSize + f->width_at_border ) {
+				color = border;
+			}
+			setPixel(tx,ty,color);
+		}
+	}
+
+	uint64_t code = f->codes[0];
+	for ( size_t i = 0; i < f->nbits; ++i) {
+		uint8_t color = (code & 1) ?  255 : 0 ;
+		code = code >> 1;
+		size_t ii = f->nbits - i - 1;
+		setPixel(f->bit_x[ii]+borderSize,f->bit_y[ii]+borderSize,color);
+	}
+
+
+	auto center = cv::Point(img.cols / 2,img.rows / 2);
+	auto rotMat = cv::getRotationMatrix2D(center,29.0,1.0);
+
+	cv::Mat rotated;
+	cv::warpAffine(img,rotated,rotMat,img.size(),cv::INTER_LINEAR,cv::BORDER_CONSTANT,127);
+
+	cv::imwrite(path.string(),rotated);
+	tag36h11_destroy(f);
+}
+
+void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
+                                    const fs::path & basedir) {
+
+	auto parentPath = basedir.parent_path();
 
 	AddBoundsJittering(bounds,6);
 	bounds.pop_back();
@@ -188,11 +255,16 @@ void CreateSnapshotFiles(std::vector<uint64_t> bounds,
 				std::ostringstream single,multi;
 				single << "ant_" << TID << "_frame_" << FID << ".png";
 				multi << "frame_" << FID << ".png";
-				std::ofstream singleTouch( (basedir / single.str()).c_str());
-				std::ofstream multiTouch( (basedir / multi.str()).c_str());
+				auto singleTouchPath = basedir / single.str();
+				auto multiTouchPath = basedir / multi.str();
+				std::ofstream singleTouch(singleTouchPath.c_str());
+				std::ofstream multiTouch(multiTouchPath.c_str());
+				s_closeUpFiles[parentPath].insert(std::make_pair(singleTouchPath,std::make_shared<uint32_t>(TID)));
+				s_closeUpFiles[parentPath].insert(std::make_pair(multiTouchPath,std::shared_ptr<uint32_t>()));
 			}
 		}
 	}
+	std::ofstream txtTouch( (basedir / "foo.txt").c_str() );
 }
 
 
@@ -254,7 +326,8 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {
-		fs::create_directories(Basedir() / d);
+		fs::create_directories(Basedir() / d / "ants");
+		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 	}
 
 

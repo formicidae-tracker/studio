@@ -7,7 +7,6 @@
 
 #include "FrameReference.hpp"
 #include "Isometry2D.hpp"
-
 #include <mutex>
 
 typedef struct apriltag_detection apriltag_detection_t;
@@ -38,18 +37,20 @@ public:
 		Lister(const fs::path & absoluteBaseDir,
 		       tags::Family f,
 		       uint8_t threshold,
-		       FrameReferenceResolver resolver);
+		       FrameReferenceResolver resolver,
+		       bool forceCache = false);
 
 		static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
 		static ATFamilyPtr LoadFamily(tags::Family family);
 
 		std::vector<Loader> PrepareLoaders();
 
+		static fs::path CacheFilePath(const fs::path & filepath);
+
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;
 		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
 
-		static fs::path CacheFilePath(const fs::path & filepath);
 
 
 		void UnsafeSaveCache();

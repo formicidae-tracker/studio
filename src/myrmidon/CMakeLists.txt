@@ -1,3 +1,5 @@
+include_directories(${OPENCV_INCLUDE_DIRS})
+
 include(CheckCXXSourceRuns)
 
 Check_CXX_Source_Runs(
@@ -173,7 +175,9 @@ add_library(myrmidon SHARED ${SRC_FILES}
 target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
                                fort-hermes-cpp
                                ${CXXFS_LIBRARY}
-                               fort-tags)
+                               fort-tags
+                               ${OpenCV_LIBS}
+                               )
 
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}

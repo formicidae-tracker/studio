@@ -9,6 +9,9 @@
 
 #include <myrmidon/utils/Defer.hpp>
 
+#include <opencv2/imgcodecs.hpp>
+
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -37,6 +40,9 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
 	, d_tagAngle(angle)
 	, d_corners(corners) {
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteFilePath);
+	if (corners.size() != 4 ) {
+		throw std::invalid_argument("A tag needs 4 corners, only got " + std::to_string(corners.size()));
+	}
 }
 
 TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
@@ -93,16 +99,20 @@ const TagCloseUp::Vector2dList & TagCloseUp::Corners() const {
 TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
                            tags::Family f,
                            uint8_t threshold,
-                           FrameReferenceResolver resolver)
+                           FrameReferenceResolver resolver,
+                           bool forceCache)
 	: d_absoluteBaseDir(absoluteBaseDir)
 	, d_family(f)
 	, d_threshold(threshold)
 	, d_resolver(resolver)
-	, d_atfamily(LoadFamily(f)){
+	, d_atfamily(LoadFamily(f))
+	, d_parsed(0) {
 	try {
 		LoadCache();
 	} catch (const std::exception & e) {
-		//LOG(INFO) << "Cannot load cache for " << absoluteBaseDir << ": " << e.what();
+		if ( forceCache == true ) {
+			throw std::runtime_error(std::string("Could not list from cache: ") + e.what());
+		}
 	}
 }
 
@@ -292,11 +302,15 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 			              std::vector<ConstPtr> tags;
 			              auto detector = CreateDetector();
 
-			              //TODO open image
+			              auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
 
-			              image_u8_t img {
-
-			              };
+			              image_u8_t img =
+				              {
+				               .width = imgCv.cols,
+				               .height = imgCv.rows,
+				               .stride = imgCv.cols,
+				               .buf = imgCv.data
+				              };
 			              zarray_t * detections
 				              = apriltag_detector_detect(detector.get(),&img);
 
@@ -335,7 +349,7 @@ double TagCloseUp::TagSizePx() const {
 	double res = (d_corners[0] - d_corners[1]).norm()
 		+ (d_corners[1] - d_corners[2]).norm()
 		+ (d_corners[2] - d_corners[3]).norm()
-		+ (d_corners[3] - d_corners[4]).norm();
+		+ (d_corners[3] - d_corners[0]).norm();
 
 	return res / 4.0;
 }
