@@ -56,11 +56,11 @@ const Eigen::Vector2d & Measurement::EndFromTag() const {
 void Measurement::DecomposeURI(fs::path & tddURI,
                                FrameID & FID,
                                TagID & TID) const {
-	TID = std::stoul(d_URI.filename().string());
-	fs::path uri = d_URI;
-	uri.remove_filename().remove_filename();
-	FID = std::stoull(uri.filename().string());
-	tddURI = uri.remove_filename().remove_filename();
+	fs::path parentURI = TagCloseUpURI();
+	TID = std::stoul(parentURI.filename().string());
+	parentURI.remove_filename().remove_filename();
+	FID = std::stoull(parentURI.filename().string());
+	tddURI = parentURI.remove_filename().remove_filename();
 }
 
 double Measurement::TagSizePx() const {
