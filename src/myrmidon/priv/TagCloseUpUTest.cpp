@@ -129,9 +129,11 @@ TEST_F(TagCloseUpUTest,CanLoadFiles) {
 	                };
 
 	auto barAntDir = TestSetup::Basedir() / "bar.0000/ants";
-	TagCloseUp::Lister lister(barAntDir,
-	                          tags::Family::Tag36h11,80,resolver);
-	auto loaders = lister.PrepareLoaders();
+	auto lister = TagCloseUp::Lister::Create(barAntDir,
+	                                         tags::Family::Tag36h11,
+	                                         80,
+	                                         resolver);
+	auto loaders = lister->PrepareLoaders();
 	ASSERT_EQ(loaders.size(),1);
 	TagCloseUp::ConstPtr computed;
 	auto res = loaders[0]();
@@ -145,33 +147,34 @@ TEST_F(TagCloseUpUTest,CanLoadFiles) {
 
 
 	EXPECT_THROW({
-			TagCloseUp::Lister wrongFamily(barAntDir,
-			                               tags::Family::Tag36ARTag,
-			                               80,
-			                               resolver,
-			                               true);
+			// wrong family, won't load from cache
+			TagCloseUp::Lister::Create(barAntDir,
+			                           tags::Family::Tag36ARTag,
+			                           80,
+			                           resolver,
+			                           true);
 		},std::runtime_error);
 
 	EXPECT_THROW({
-			TagCloseUp::Lister wrongThreshold(barAntDir,
-			                               tags::Family::Tag36h11,
-			                               90,
-			                               resolver,
-			                               true);
+			// wrong threshold, won't load from cache
+			TagCloseUp::Lister::Create(barAntDir,
+			                           tags::Family::Tag36h11,
+			                           90,
+			                           resolver,
+			                           true);
 		},std::runtime_error);
 
-	std::vector<TagCloseUp::ConstPtr> cachedList;
 	ASSERT_NO_THROW({
-			TagCloseUp::Lister fromCache(barAntDir,
-			                             tags::Family::Tag36h11,
-			                             80,
-			                             resolver,
-			                             true);
-			auto cachedLoaders = fromCache.PrepareLoaders();
-			ASSERT_EQ(cachedLoaders.size(),1);
-			cachedList = cachedLoaders[0]();
+			auto fromCache = TagCloseUp::Lister::Create(barAntDir,
+			                                            tags::Family::Tag36h11,
+			                                            80,
+			                                            resolver,
+			                                            true);
+			loaders = fromCache->PrepareLoaders();
 
 		});
+	ASSERT_EQ(loaders.size(),1);
+	auto cachedList = loaders[0]();
 	ASSERT_EQ(cachedList.size(),1);
 	auto cached = cachedList[0];
 

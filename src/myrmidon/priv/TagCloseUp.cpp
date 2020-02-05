@@ -96,6 +96,22 @@ const TagCloseUp::Vector2dList & TagCloseUp::Corners() const {
 	return d_corners;
 }
 
+TagCloseUp::Lister::Ptr
+TagCloseUp::Lister::Create(const fs::path & absoluteBaseDir,
+                           tags::Family f,
+                           uint8_t threshold,
+                           FrameReferenceResolver resolver,
+                           bool forceCache) {
+	Ptr res(new Lister(absoluteBaseDir,
+	                   f,
+	                   threshold,
+	                   resolver,
+	                   forceCache));
+	res->d_itself = res;
+	return res;
+}
+
+
 TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
                            tags::Family f,
                            uint8_t threshold,
@@ -270,74 +286,85 @@ TagCloseUp::Lister::CreateDetector() {
 	return detector;
 }
 
+TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
+                                              FrameID FID,
+                                              size_t nbFiles) {
+	Defer cleanup([this,nbFiles]() {
+		              std::lock_guard<std::mutex> lock(d_mutex);
+		              ++d_parsed;
+		              if ( d_cacheModified && d_parsed == nbFiles ) {
+			              UnsafeSaveCache();
+			              d_cacheModified = false;
+		              }
+	              });
+
+	auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
+	{
+		std::lock_guard<std::mutex> lock(d_mutex);
+		auto fi = d_cache.find(relativePath);
+		if ( fi != d_cache.cend() ) {
+			return fi->second;
+		}
+	}
+
+	auto ref = d_resolver(FID);
+
+	std::vector<ConstPtr> tags;
+	auto detector = CreateDetector();
+
+	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
+
+	image_u8_t img =
+		{
+		 .width = imgCv.cols,
+		 .height = imgCv.rows,
+		 .stride = imgCv.cols,
+		 .buf = imgCv.data
+		};
+	zarray_t * detections
+		= apriltag_detector_detect(detector.get(),&img);
+
+	apriltag_detection * d;
+
+	for(size_t i = 0; i < zarray_size(detections); ++i ) {
+		zarray_get(detections,i,&d);
+		if (f.second && d->id != *(f.second)) {
+			continue;
+		}
+		tags.push_back(std::make_shared<TagCloseUp>(f.first,
+		                                            ref,
+		                                            d));
+	}
+
+	apriltag_detections_destroy(detections);
+	{
+		std::lock_guard<std::mutex> lock(d_mutex);
+		d_cache.insert(std::make_pair(relativePath,tags));
+		d_cacheModified = true;
+	}
+
+	return tags;
+}
+
+
 
 std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
+	auto itself = d_itself.lock();
+	if (!itself) {
+		throw DeletedReference<Lister>();
+	}
+
 	auto files = ListFiles(d_absoluteBaseDir);
 	auto nbFiles = files.size();
 	std::vector<Loader> res;
 	res.reserve(files.size());
 
 	for( const auto & [FID,f] : files ) {
-		res.push_back([this,f,FID,nbFiles]() {
-			              Defer cleanup([this,nbFiles]() {
-				                            std::lock_guard<std::mutex> lock(d_mutex);
-				                            ++d_parsed;
-				                            if ( d_cacheModified && d_parsed == nbFiles ) {
-					                            UnsafeSaveCache();
-					                            d_cacheModified = false;
-				                            }
-			                            });
-
-			              auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
-			              {
-				              std::lock_guard<std::mutex> lock(d_mutex);
-				              auto fi = d_cache.find(relativePath);
-				              if ( fi != d_cache.cend() ) {
-					              return fi->second;
-				              }
-			              }
-
-			              auto ref = d_resolver(FID);
-
-			              std::vector<ConstPtr> tags;
-			              auto detector = CreateDetector();
-
-			              auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
-
-			              image_u8_t img =
-				              {
-				               .width = imgCv.cols,
-				               .height = imgCv.rows,
-				               .stride = imgCv.cols,
-				               .buf = imgCv.data
-				              };
-			              zarray_t * detections
-				              = apriltag_detector_detect(detector.get(),&img);
-
-			              apriltag_detection * d;
-
-			              for(size_t i = 0; i < zarray_size(detections); ++i ) {
-				              zarray_get(detections,i,&d);
-				              if (f.second && d->id != *(f.second)) {
-					              continue;
-				              }
-				              tags.push_back(std::make_shared<TagCloseUp>(f.first,
-				                                                          ref,
-				                                                          d));
-			              }
-
-			              apriltag_detections_destroy(detections);
-			              {
-				              std::lock_guard<std::mutex> lock(d_mutex);
-				              d_cache.insert(std::make_pair(relativePath,tags));
-				              d_cacheModified = true;
-			              }
-
-			              return tags;
-
+		res.push_back([itself,f,FID,nbFiles]() {
+			              return itself->LoadFile(f,FID,nbFiles);
 		              });
-
 	}
+
 	return res;
 }
 

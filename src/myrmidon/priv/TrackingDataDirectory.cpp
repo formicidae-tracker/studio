@@ -514,12 +514,12 @@ const TagCloseUp::Lister::Ptr
 TrackingDataDirectory::TagCloseUpLister(tags::Family f,
                                         uint8_t threshold) const {
 	auto locked = Itself();
-	return std::make_shared<TagCloseUp::Lister>(d_absoluteFilePath / "ants",
-	                                            f,
-	                                            threshold,
-	                                            [locked](FrameID fid) {
-		                                            return locked->FrameReferenceAt(fid);
-	                                            });
+	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
+	                                  f,
+	                                  threshold,
+	                                  [locked](FrameID fid) {
+		                                  return locked->FrameReferenceAt(fid);
+	                                  });
 }
 
 }

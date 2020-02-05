@@ -28,11 +28,31 @@ public:
 	class Lister {
 	public :
 
-		typedef std::shared_ptr<Lister>                  Ptr;
-		typedef std::function<FrameReference (FrameID) > FrameReferenceResolver;
-		typedef std::function<List()>                    Loader;
+		typedef std::shared_ptr<Lister>                    Ptr;
+		typedef std::function<FrameReference (FrameID) >   FrameReferenceResolver;
+		typedef std::function<List()>                      Loader;
+		typedef std::shared_ptr<apriltag_family_t>         ATFamilyPtr;
+		typedef std::pair<fs::path,std::shared_ptr<TagID>> FileAndFilter;
+		typedef std::multimap<FrameID,FileAndFilter>       Listing;
 
-		typedef std::shared_ptr<apriltag_family_t> ATFamilyPtr;
+		static Listing ListFiles(const fs::path & absoluteFilePath);
+		static ATFamilyPtr LoadFamily(tags::Family family);
+
+		static fs::path CacheFilePath(const fs::path & filepath);
+
+		static Ptr Create(const fs::path & absoluteBaseDir,
+		                  tags::Family f,
+		                  uint8_t threshold,
+		                  FrameReferenceResolver resolver,
+		                  bool forceCache = false);
+
+
+		std::vector<Loader> PrepareLoaders();
+
+
+	private:
+		typedef std::map<fs::path,List> ByLocalFile;
+		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
 
 		Lister(const fs::path & absoluteBaseDir,
 		       tags::Family f,
@@ -40,17 +60,9 @@ public:
 		       FrameReferenceResolver resolver,
 		       bool forceCache = false);
 
-		static std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> ListFiles(const fs::path & absoluteFilePath);
-		static ATFamilyPtr LoadFamily(tags::Family family);
-
-		std::vector<Loader> PrepareLoaders();
-
-		static fs::path CacheFilePath(const fs::path & filepath);
-
-	private:
-		typedef std::map<fs::path,List> ByLocalFile;
-		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
-
+		List LoadFile(const FileAndFilter & f,
+		              FrameID FID,
+		              size_t nbFiles);
 
 
 		void UnsafeSaveCache();
@@ -58,6 +70,7 @@ public:
 
 		ATDetectorPtr CreateDetector();
 
+		std::weak_ptr<Lister>  d_itself;
 		fs::path               d_absoluteBaseDir;
 		tags::Family           d_family;
 		uint8_t                d_threshold;
