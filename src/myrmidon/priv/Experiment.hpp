@@ -12,13 +12,10 @@
 
 #include "ForwardDeclaration.hpp"
 #include "LocatableTypes.hpp"
+
 namespace fort {
 namespace myrmidon {
 
-namespace pb {
-class Experiment;
-class TrackingDataDirectory;
-}
 
 namespace priv {
 
@@ -44,7 +41,7 @@ public :
 	// The AprilTag families supported by the FORT project.
 	//
 	// Maps <TrackingDataDirectory> by their path
-	typedef std::unordered_map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByPath;
+	typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
@@ -112,48 +109,101 @@ public :
 
 
 	// Removes a TrackingDataDirectory
-	// @path relative path to the directory
+	//
+	// @URI the URI of the directory
 	void RemoveTrackingDataDirectory(const fs::path & URI);
 
 	// Gets the TrackingDataDirectory related to this Experiment
-	// @return a map of all <TrackingDataDirectory> related to this
-	//         <Experiment>.
-	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
+	//
+	// @return a map of all <priv::TrackingDataDirectory> related to this
+	//         <priv::Experiment>, designated by their URI.
+	const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
 	// Accessor to the underlying Identifier
+	//
 	// @return a reference to the underlying <Identifier>
 	inline fort::myrmidon::priv::Identifier &  Identifier() {
 		return *d_identifier;
 	}
 
 	// ConstAccessor to the underlying Identifier
+	//
 	// @return a reference to the underlying <Identifier>
 	const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
 		return *d_identifier;
 	}
 
+
+	// The name of the Experiment.
+	//
+	// @return a reference to the experiment name
 	const std::string & Name() const;
+	// Sets the Experiment's name.
+	//
+	// @name the new <priv::Experiment> name
 	void SetName(const std::string & name);
 
+	// The author of the Experiment
+	//
+	// @return a reference to the author name
 	const std::string & Author() const;
+	// Sets the experiment's author
+	//
+	// @author the new value for the experiement author
 	void SetAuthor(const std::string & author);
 
-
+	// Comments about the experiment
+	//
+	// @return a reference to the <priv::Experiment> comment
 	const std::string & Comment() const;
+	// Sets the comment of the Experiment
+	//
+	// @comment the new experiment comment
 	void SetComment(const std::string & comment);
 
+	// The kind of tag used in the experiment
+	//
+	// @return the family of tag used in the experiment
 	fort::tags::Family Family() const;
+	// Sets the kind of tag used in the experiment
+	//
+	// @tf the tag that are used in the experiment
 	void SetFamily(fort::tags::Family tf);
 
+	// The default physical tag size
+	//
+	// Usually an Ant colony are tagged with a majority of tag of a
+	// given size. This is this size. Some individuals (like Queens)
+	// may often use a bigger tag size that should be set in their
+	// Identification. This value is use for <Measurement>.
+	//
+	// @return the default tag size for the experiment in mm
 	double DefaultTagSize() const;
+	// Sets the default tag siye in mm
+	//
+	// @defaultTagSize the tag size in mm for the ma
 	void   SetDefaultTagSize(double defaultTagSize);
 
+	// The threshold used for tag detection
+	//
+	// @return the threshold used for detection
 	uint8_t Threshold() const;
+
+	// Sets the detection threshold
+	//
+	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
-
+	// Adds or modifies a Measurement
+	//
+	// Adds a <Measurement> to the <priv::Experiment>.  Could also be
+	// used to modifies an existing measurement.
+	// @m the <Measurement> to add.
 	void SetMeasurement(const MeasurementConstPtr & m);
 
+	// Removes a Measurement
+	//
+	// @URI the URI of the measurement to remove
 	void DeleteMeasurement(const fs::path & URI);
 
 	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
