@@ -292,6 +292,29 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		EXPECT_EQ(24.0,m.LengthMM);
 	}
 
+	EXPECT_THROW({
+			e->ComputeMeasurementsForAnt(measurements,
+			                             antAfter->ID() + 100,
+			                             0);
+		},Identifier::UnmanagedAnt);
+
+
+	auto antLast = e->Identifier().CreateAnt();
+	e->Identifier().AddIdentification(antLast->ID(),
+	                                  22,
+	                                  Time::ConstPtr(),
+	                                  Time::ConstPtr());
+
+	e->ComputeMeasurementsForAnt(measurements,
+	                             antAfter->ID(),
+	                             4);
+	EXPECT_EQ(measurements.size(),0);
+
+	e->ComputeMeasurementsForAnt(measurements,
+	                             antLast->ID(),
+	                             0);
+	EXPECT_EQ(measurements.size(),0);
+
 
 	for ( const auto & uri : paths ) {
 		e->DeleteMeasurement(uri);
@@ -356,6 +379,44 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_NO_THROW({
 			e->DeleteZone(z->URI());
 		});
+
+
+
+}
+
+TEST_F(ExperimentUTest,CornerWidthRatioForFamilies) {
+	struct TestData {
+		tags::Family F;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {tags::Family::Tag36h11},
+		 {tags::Family::Tag36h10},
+		 {tags::Family::Tag16h5},
+		 {tags::Family::Tag25h9},
+		 {tags::Family::Circle21h7},
+		 {tags::Family::Circle49h12},
+		 {tags::Family::Custom48h12},
+		 {tags::Family::Standard41h12},
+		 {tags::Family::Standard52h13},
+		};
+
+	for (const auto & d : testdata) {
+		EXPECT_NO_THROW({
+				double ratio = Experiment::CornerWidthRatio(d.F);
+				EXPECT_TRUE( ratio < 1.0 && ratio > 0.0);
+				//test internal caching of the value
+				EXPECT_EQ(ratio,Experiment::CornerWidthRatio(d.F));
+			});
+	}
+
+	EXPECT_EQ(Experiment::CornerWidthRatio(tags::Family::Tag36ARTag),1.0);
+
+
+	EXPECT_THROW({
+			Experiment::CornerWidthRatio(tags::Family::Undefined);
+		},std::invalid_argument);
 
 
 

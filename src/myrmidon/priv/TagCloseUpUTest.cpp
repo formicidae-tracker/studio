@@ -236,6 +236,35 @@ TEST_F(TagCloseUpUTest,ClassInvariants) {
 
 }
 
+TEST_F(TagCloseUpUTest,CanOpenApriltagFamily) {
+	struct TestData {
+		tags::Family F;
+		std::string  Name;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {tags::Family::Tag36h11,"tag36h11"},
+		 {tags::Family::Tag36h10,"tag36h10"},
+		 {tags::Family::Tag36ARTag,"tag36ARTag"},
+		 {tags::Family::Tag16h5,"tag16h5"},
+		 {tags::Family::Tag25h9,"tag25h9"},
+		 {tags::Family::Circle21h7,"tagCircle21h7"},
+		 {tags::Family::Circle49h12,"tagCircle49h12"},
+		 {tags::Family::Custom48h12,"tagCustom48h12"},
+		 {tags::Family::Standard41h12,"tagStandard41h12"},
+		 {tags::Family::Standard52h13,"tagStandard52h13"},
+		};
+
+	for (const auto & d : testdata) {
+		EXPECT_NO_THROW({
+				auto f = TagCloseUp::Lister::LoadFamily(d.F);
+				EXPECT_EQ(std::string(f->name),d.Name);
+			});
+	}
+
+}
+
 
 } // namespace priv
 } // namespace myrmidon
