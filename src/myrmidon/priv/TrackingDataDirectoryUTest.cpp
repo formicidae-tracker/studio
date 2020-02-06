@@ -6,9 +6,10 @@
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "../TestSetup.hpp"
+#include <myrmidon/TestSetup.hpp>
 
-#include "../UtilsUTest.hpp"
+#include <myrmidon/UtilsUTest.hpp>
+#include <myrmidon/utils/NotYetImplemented.hpp>
 
 #include "RawFrame.hpp"
 
@@ -162,9 +163,44 @@ TEST_F(TrackingDataDirectoryUTest,HaveConstructorChecks) {
 			TrackingDataDirectory::Create("foo",absolutePath,startFrame,endFrame,endTime,startTime,segments,movies,cache);
 		},std::invalid_argument);
 
+}
 
+TEST_F(TrackingDataDirectoryUTest,AlmostRandomAccess) {
+	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
+	EXPECT_NO_THROW({
+			FrameID middle = (tdd->StartFrame() + tdd->EndFrame()) / 2;
+
+			tdd->FrameReferenceAt(middle);
+	});
+
+	EXPECT_THROW({
+			tdd->FrameReferenceAt(tdd->EndFrame()+1);
+		},std::out_of_range);
+
+	EXPECT_THROW({
+			//Not yet implemented
+			tdd->FrameNear(Time());
+		},NotYetImplemented);
+
+	EXPECT_THROW({
+			//Not yet implemented
+			tdd->FrameReferenceNear(Time());
+		},NotYetImplemented);
 
 }
+
+TEST_F(TrackingDataDirectoryUTest,CanBeFormatted) {
+	TrackingDataDirectory::ConstPtr foo;
+	EXPECT_NO_THROW({
+			foo = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0000",TestSetup::Basedir()/"bar.0000");
+		});
+	std::ostringstream oss;
+	oss << *foo;
+	EXPECT_EQ(oss.str(),
+	          "TDD{URI:../foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z}");
+
+}
+
 
 } // namespace fort
 } // namespace myrmidon

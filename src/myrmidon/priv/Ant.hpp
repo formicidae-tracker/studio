@@ -3,15 +3,13 @@
 #include <memory>
 #include <myrmidon/utils/FileSystem.hpp>
 
-#include "../Ant.hpp"
+#include <myrmidon/Ant.hpp>
 
 #include "Identification.hpp"
 #include "Shape.hpp"
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 // The Object of Interest of any Experiment
@@ -101,7 +99,5 @@ private:
 };
 
 } //namespace priv
-
 } // namespace myrmidon
-
 } // namespace fort

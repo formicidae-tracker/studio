@@ -6,6 +6,12 @@
 #include "Identification.hpp"
 #include "Ant.hpp"
 
+
+namespace fort {
+namespace myrmidon {
+namespace priv {
+
+
 class IdentificationUTest : public ::testing::Test {
 protected:
 
@@ -16,3 +22,8 @@ protected:
 	fort::myrmidon::priv::Identification::List d_list;
 
 };
+
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

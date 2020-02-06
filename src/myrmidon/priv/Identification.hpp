@@ -16,9 +16,7 @@
 class IdentificationUTest;
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 // An Identification relates TagID to an Ant
@@ -149,7 +147,7 @@ public:
 
 	public:
 		friend class Identifier;
-		friend class ::IdentificationUTest;
+		friend class IdentificationUTest;
 	};
 
 
@@ -165,7 +163,7 @@ private:
 	              const Time::ConstPtr & end);
 	friend class Ant;
 	friend class Identifier;
-	friend class ::IdentificationUTest;
+	friend class IdentificationUTest;
 
 	Isometry2Dd               d_antToTag;
 
@@ -194,9 +192,7 @@ private:
 
 
 } // namespace priv
-
 } // namespace myrmidon
-
 } // namespace fort
 
 

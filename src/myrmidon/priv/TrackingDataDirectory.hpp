@@ -16,7 +16,6 @@
 #include "TagCloseUp.hpp"
 
 namespace fort {
-
 namespace myrmidon {
 
 namespace pb {
@@ -216,9 +215,7 @@ private:
 };
 
 } //namespace priv
-
 } //namespace myrmidon
-
 } //namespace fort
 
 

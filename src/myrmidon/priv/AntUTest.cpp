@@ -2,7 +2,11 @@
 
 #include "Ant.hpp"
 
-using namespace fort::myrmidon;
+
+namespace fort {
+namespace myrmidon {
+namespace priv {
+
 
 TEST_F(AntUTest,IdentificationChecking) {
 	// priv::Ant a(1);
@@ -27,3 +31,7 @@ TEST_F(AntUTest,IdentificationChecking) {
 
 	// EXPECT_NO_THROW({a.SortAndCheckIdentifications();});
 }
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

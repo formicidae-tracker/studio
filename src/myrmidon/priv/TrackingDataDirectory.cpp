@@ -525,3 +525,12 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 }
 }
 }
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::TrackingDataDirectory & a) {
+	return out << "TDD{URI:" << a.URI().generic_string()
+	           << ", start:" << a.StartDate()
+	           << ", end:" << a.EndDate()
+	           << "}";
+}

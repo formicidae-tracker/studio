@@ -1,16 +1,16 @@
 #include "SegmentIndexerUTest.hpp"
 
 
-
-namespace fm = fort::myrmidon;
-using namespace fm::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 
 void SegmentIndexerUTest::SetUp() {
 	for(size_t i = 0; i < 10; ++i) {
 		std::ostringstream os;
 		os << i;
-		d_testdata.push_back(std::make_pair(FrameReference("",10*i+1,fm::Time::FromTimeT(10*i+1)),os.str()));
+		d_testdata.push_back(std::make_pair(FrameReference("",10*i+1,Time::FromTimeT(10*i+1)),os.str()));
 	}
 
 	EXPECT_NO_THROW({
@@ -57,7 +57,7 @@ TEST_F(SegmentIndexerUTest,CanFindSegment) {
 	for(const auto & d : data) {
 		std::string res;
 		EXPECT_NO_THROW({
-				res = d_si.Find(fm::Time::FromTimeT(d.F));
+				res = d_si.Find(Time::FromTimeT(d.F));
 			});
 		EXPECT_EQ(res,d.Expected);
 		EXPECT_NO_THROW({
@@ -71,7 +71,7 @@ TEST_F(SegmentIndexerUTest,CanFindSegment) {
 		},std::out_of_range);
 
 	EXPECT_THROW({
-			auto res = d_si.Find(fm::Time::FromTimeT(0));
+			auto res = d_si.Find(Time::FromTimeT(0));
 		},std::out_of_range);
 
 }
@@ -79,11 +79,15 @@ TEST_F(SegmentIndexerUTest,CanFindSegment) {
 
 TEST_F(SegmentIndexerUTest,EnforceIncreasingInvariant) {
 	SegmentIndexer<std::string> si;
-	EXPECT_NO_THROW(si.Insert(FrameReference("",1,fm::Time::FromTimeT(1)),"0"));
-	EXPECT_NO_THROW(si.Insert(FrameReference("",11,fm::Time::FromTimeT(11)),"1"));
-	EXPECT_THROW({si.Insert(FrameReference("",21,fm::Time::FromTimeT(6)),"2");},std::invalid_argument);
-	EXPECT_THROW({si.Insert(FrameReference("",6,fm::Time::FromTimeT(21)),"2");},std::invalid_argument);
+	EXPECT_NO_THROW(si.Insert(FrameReference("",1,Time::FromTimeT(1)),"0"));
+	EXPECT_NO_THROW(si.Insert(FrameReference("",11,Time::FromTimeT(11)),"1"));
+	EXPECT_THROW({si.Insert(FrameReference("",21,Time::FromTimeT(6)),"2");},std::invalid_argument);
+	EXPECT_THROW({si.Insert(FrameReference("",6,Time::FromTimeT(21)),"2");},std::invalid_argument);
 	// It is permitted to make two segment have the same end value
-	EXPECT_NO_THROW(si.Insert(FrameReference("",21,fm::Time::FromTimeT(21)),"0"));
+	EXPECT_NO_THROW(si.Insert(FrameReference("",21,Time::FromTimeT(21)),"0"));
 
 }
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

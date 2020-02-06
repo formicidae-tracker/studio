@@ -25,45 +25,70 @@ std::string Zone::TDDOverlap::BuildWhat(const TrackingDataDirectory::ConstPtr & 
                                         const TrackingDataDirectory::ConstPtr & b) noexcept {
 	std::ostringstream oss;
 
-	oss << "Path{URI:" << a->URI()
-	    << ", start:" << a->StartDate()
-	    << ", end:" << a->EndDate()
-	    << "} and Path{URI:" << b->URI()
-	    << ", start:" << b->StartDate()
-	    << ", end:" << b->EndDate()
-	    << "} overlaps in time";
+	oss << *a << " and " << *b << " overlaps in time";
 
 	return oss.str();
 }
 
 Zone::UnmanagedTrackingDataDirectory::UnmanagedTrackingDataDirectory(const fs::path & URI) noexcept
-	: std::runtime_error("'" + URI.generic_string() + "' is not managed by this zone") {
+	: std::runtime_error("TDD:'" + URI.generic_string() + "' is not managed by this Zone or Zone::Group") {
 }
 
-Zone::Manager::Manager() {}
+Zone::UnmanagedZone::UnmanagedZone(const fs::path & URI) noexcept
+	: std::runtime_error("Zone:'" + URI.generic_string() + "' is not managed by this Zone::Group") {
+}
 
-Zone::Ptr Zone::Manager::Create(const Ptr & itself, const std::string & name) {
+Zone::InvalidName::InvalidName(const std::string & name,
+                             const std::string & reason) noexcept
+	: std::runtime_error("Invalid Zone name '" + name + "': " + reason) {
+}
+
+Zone::ZoneNotEmpty::ZoneNotEmpty(const Zone & z)
+	: std::runtime_error(BuildReason(z)) {
+}
+
+std::string Zone::ZoneNotEmpty::BuildReason(const Zone & z) {
+	std::ostringstream oss;
+	oss << "Zone:'" << z.URI().generic_string()
+	    << "' is not empty (contains:";
+	std::string sep = "{";
+	for ( const auto & tdd : z.d_tdds ) {
+		oss << sep << tdd->URI().generic_string();
+		sep = ",";
+	}
+	oss << "})";
+	return oss.str();
+}
+
+Zone::TDDAlreadyInUse::TDDAlreadyInUse(const fs::path & tddURI, const fs::path & zoneURI)
+	: std::runtime_error("TDD:'"
+	                     + tddURI.generic_string()
+	                     + "' is in use in Zone:'"
+	                     + zoneURI.generic_string() + "'") {
+}
+
+Zone::Ptr Zone::Group::Create(const Ptr & itself, const std::string & name) {
 	std::shared_ptr<Zone> res(new Zone(name,itself));
 	itself->d_zonesByURI.insert(std::make_pair(res->URI(),res));
 	itself->d_zones.push_back(res);
 	return res;
 }
 
-void Zone::Manager::DeleteZone(const fs::path & URI) {
+void Zone::Group::DeleteZone(const fs::path & URI) {
 	auto fi = d_zonesByURI.find(URI);
 	if ( fi == d_zonesByURI.end() ) {
 		//TODO custom exception ?
-		throw std::invalid_argument("'" + URI.generic_string() + "' is not managed");
+		throw UnmanagedZone(URI);
 	}
 
 	if ( fi->second->d_tdds.empty() == false ) {
-		throw std::runtime_error("'" + URI.generic_string() + "' contains tracking data directories");
+		throw ZoneNotEmpty(*fi->second);
 	}
 
 	d_zonesByURI.erase(fi);
 }
 
-void Zone::Manager::DeleteTrackingDataDirectory(const fs::path & URI) {
+void Zone::Group::DeleteTrackingDataDirectory(const fs::path & URI) {
 	for ( const auto & z : d_zones ) {
 		try {
 			z->DeleteTrackingDataDirectory(URI);
@@ -74,17 +99,17 @@ void Zone::Manager::DeleteTrackingDataDirectory(const fs::path & URI) {
 	throw UnmanagedTrackingDataDirectory(URI);
 }
 
-const std::vector<Zone::Ptr> & Zone::Manager::Zones() const {
+const std::vector<Zone::Ptr> & Zone::Group::Zones() const {
 	return d_zones;
 }
 
-Zone::Zone(const std::string & name, const Manager::Ptr & manager)
-	: d_manager(manager) {
+Zone::Zone(const std::string & name, const Group::Ptr & group)
+	: d_group(group) {
 	SetName(name);
 }
 
-const Zone::Manager::TrackingDataDirectoryByURI &
-Zone::Manager::TrackingDataDirectories() const {
+const Zone::Group::TrackingDataDirectoryByURI &
+Zone::Group::TrackingDataDirectories() const {
 	return d_tddsByURI;
 }
 
@@ -97,13 +122,27 @@ void Zone::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd)
 		throw TDDOverlap(*fi.first,*fi.second);
 	}
 
-	auto manager = LockManager();
-	if ( manager->d_tddsByURI.count(tdd->URI()) != 0 ) {
-		throw std::runtime_error("'" + tdd->URI().generic_string() + "' is use in another zone");
+	auto group = LockGroup();
+	if ( group->d_tddsByURI.count(tdd->URI()) != 0 ) {
+		auto zi = std::find_if(group->d_zones.begin(),
+		                       group->d_zones.end(),
+		                       [&tdd](const Zone::Ptr & z) {
+			                       auto ti = std::find_if(z->d_tdds.begin(),
+			                                              z->d_tdds.end(),
+			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tdd) {
+				                                              return tdd->URI() == tdd->URI();
+			                                              });
+			                       return ti != z->d_tdds.end();
+		                       });
+		if ( zi == group->d_zones.end()){
+			throw std::logic_error("Internal data error");
+		}
+
+		throw TDDAlreadyInUse(tdd->URI(),(*zi)->URI());
 	}
 
 	d_tdds = newList;
-	manager->d_tddsByURI.insert(std::make_pair(tdd->URI(),tdd));
+	group->d_tddsByURI.insert(std::make_pair(tdd->URI(),tdd));
 }
 
 void Zone::DeleteTrackingDataDirectory(const fs::path & URI) {
@@ -115,8 +154,8 @@ void Zone::DeleteTrackingDataDirectory(const fs::path & URI) {
 	if ( fi == d_tdds.end() ) {
 		throw UnmanagedTrackingDataDirectory(URI);
 	}
-	auto manager = LockManager();
-	manager->d_tddsByURI.erase(URI);
+	auto group = LockGroup();
+	group->d_tddsByURI.erase(URI);
 
 	d_tdds.erase(fi);
 }
@@ -128,20 +167,23 @@ const fs::path & Zone::URI() const {
 void Zone::SetName(const std::string & name) {
 	fs::path URI(name);
 
-	if (name.empty() || URI.filename() != URI ) {
-		throw std::invalid_argument( "Invalid name '" + name + "'");
+	if (name.empty()) {
+		throw InvalidName(name,"it is empty");
+	}
+	if (URI.filename() != URI) {
+		throw InvalidName(name,"invalid character in path");
 	}
 
-	auto manager = LockManager();
+	auto group = LockGroup();
 
-	if ( manager->d_zonesByURI.count(URI) != 0 ) {
-		throw std::invalid_argument("'" +  name + "' is already used");
+	if ( group->d_zonesByURI.count(URI) != 0 ) {
+		throw InvalidName(name,"is already used by another zo");
 	}
 
-	auto fi = manager->d_zonesByURI.find(d_URI);
-	if ( fi != manager->d_zonesByURI.end() ) {
-		manager->d_zonesByURI.insert(std::make_pair(URI,fi->second));
-		manager->d_zonesByURI.erase(fi);
+	auto fi = group->d_zonesByURI.find(d_URI);
+	if ( fi != group->d_zonesByURI.end() ) {
+		group->d_zonesByURI.insert(std::make_pair(URI,fi->second));
+		group->d_zonesByURI.erase(fi);
 	}
 
 	d_URI = URI;
@@ -151,10 +193,10 @@ const std::vector<TrackingDataDirectory::ConstPtr> & Zone::TrackingDataDirectori
 	return d_tdds;
 }
 
-Zone::Manager::Ptr Zone::LockManager() const {
-	auto locked = d_manager.lock();
+Zone::Group::Ptr Zone::LockGroup() const {
+	auto locked = d_group.lock();
 	if ( !locked ) {
-		throw DeletedReference<Zone::Manager>();
+		throw DeletedReference<Zone::Group>();
 	}
 	return locked;
 }

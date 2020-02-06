@@ -17,8 +17,6 @@
 
 namespace fort {
 namespace myrmidon {
-
-
 namespace priv {
 
 
@@ -222,10 +220,10 @@ private:
 
 	Experiment(const fs::path & filepath);
 
-	fs::path           d_absoluteFilepath;
-	fs::path           d_basedir;
-	Zone::Manager::Ptr d_zoneManager;
-	IdentifierPtr      d_identifier;
+	fs::path         d_absoluteFilepath;
+	fs::path         d_basedir;
+	Zone::Group::Ptr d_zoneGroup;
+	IdentifierPtr    d_identifier;
 
 	std::string        d_name;
 	std::string        d_author;

@@ -2,61 +2,62 @@
 
 #include "Identification.hpp"
 
-namespace fm = fort::myrmidon;
-using namespace fm::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 void IdentificationUTest::SetUp() {
 	d_identifier = Identifier::Create();
 	d_ant = d_identifier->CreateAnt();
 	d_list.clear();
 
-	fm::Time t;
+	Time t;
 	//0
 	d_list.push_back(Identification::Accessor::Create(0,d_identifier,d_ant));
 	//1
 	d_list.push_back(Identification::Accessor::Create(1,d_identifier,d_ant));
 	//2
 	d_list.push_back(Identification::Accessor::Create(2,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(11);
-	d_list.back()->d_end = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(11);
+	d_list.back()->d_end = std::make_shared<Time>(t);
 
 	//3
 	d_list.push_back(Identification::Accessor::Create(3,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(11);
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(11);
+	d_list.back()->d_start = std::make_shared<Time>(t);
 	//4
 	d_list.push_back(Identification::Accessor::Create(4,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(14);
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(14);
+	d_list.back()->d_start = std::make_shared<Time>(t);
 	//5
 	d_list.push_back(Identification::Accessor::Create(5,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(11);
-	d_list.back()->d_end = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(11);
+	d_list.back()->d_end = std::make_shared<Time>(t);
 	//6
 	d_list.push_back(Identification::Accessor::Create(6,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(11);
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
-	t = fm::Time::FromTimeT(14);
-	d_list.back()->d_end = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(11);
+	d_list.back()->d_start = std::make_shared<Time>(t);
+	t = Time::FromTimeT(14);
+	d_list.back()->d_end = std::make_shared<Time>(t);
 	//7
 	d_list.push_back(Identification::Accessor::Create(7,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(14);
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(14);
+	d_list.back()->d_start = std::make_shared<Time>(t);
 	//8
-	t = fm::Time::FromTimeT(14);
+	t = Time::FromTimeT(14);
 	d_list.push_back(Identification::Accessor::Create(8,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<fm::Time>(t);
+	d_list.back()->d_end = std::make_shared<Time>(t);
 	//9
-	t = fm::Time::FromTimeT(15);
+	t = Time::FromTimeT(15);
 	d_list.push_back(Identification::Accessor::Create(9,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
-	t = fm::Time::FromTimeT(17);
-	d_list.back()->d_end = std::make_shared<fm::Time>(t);
+	d_list.back()->d_start = std::make_shared<Time>(t);
+	t = Time::FromTimeT(17);
+	d_list.back()->d_end = std::make_shared<Time>(t);
 
 	//10
 	d_list.push_back(Identification::Accessor::Create(10,d_identifier,d_ant));
-	t = fm::Time::FromTimeT(16);
-	d_list.back()->d_start = std::make_shared<fm::Time>(t);
+	t = Time::FromTimeT(16);
+	d_list.back()->d_start = std::make_shared<Time>(t);
 }
 
 
@@ -133,7 +134,7 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	ASSERT_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
 	ASSERT_NO_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),1,NULL,NULL);});
 	// we can always reduce the validity of ID1
-	auto swapTime = std::make_shared<fm::Time>(fm::Time::FromTimeT(0));
+	auto swapTime = std::make_shared<Time>(Time::FromTimeT(0));
 
 	ASSERT_NO_THROW({
 			ant1ID1->SetEnd(swapTime);
@@ -142,15 +143,15 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	ASSERT_THROW({
 			ant1ID2 = identifier->AddIdentification(ant1->ID(),
 			                                        0,
-			                                        fm::Time::ConstPtr(),
-			                                        fm::Time::ConstPtr());
+			                                        Time::ConstPtr(),
+			                                        Time::ConstPtr());
 		},OverlappingIdentification);
 	// overlaps with ant2ID1
 	ASSERT_THROW({
 			ant1ID2 = identifier->AddIdentification(ant1->ID(),
 			                                        1,
 			                                        swapTime,
-			                                        fm::Time::ConstPtr());
+			                                        Time::ConstPtr());
 		},OverlappingIdentification);
 	ASSERT_NO_THROW({
 			ant2ID1->SetEnd(swapTime);
@@ -161,14 +162,19 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 			ant1ID2 = identifier->AddIdentification(ant1->ID(),
 			                                        1,
 			                                        swapTime,
-			                                        fm::Time::ConstPtr());
+			                                        Time::ConstPtr());
 		});
 	ASSERT_NO_THROW({
 			ant2ID2 = identifier->AddIdentification(ant2->ID(),
 			                                        0,
 			                                        swapTime,
-			                                        fm::Time::ConstPtr());
+			                                        Time::ConstPtr());
 		});
 
 
 }
+
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort
