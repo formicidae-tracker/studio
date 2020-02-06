@@ -59,14 +59,51 @@ const Eigen::Vector2d & Measurement::EndFromTag() const {
 	return d_end;
 }
 
-void Measurement::DecomposeURI(fs::path & tddURI,
+void Measurement::DecomposeURI(const fs::path & measurementURI,
+                               fs::path & tddURI,
                                FrameID & FID,
-                               TagID & TID) const {
-	fs::path parentURI = TagCloseUpURI();
-	TID = std::stoul(parentURI.filename().string());
-	parentURI.remove_filename().remove_filename();
-	FID = std::stoull(parentURI.filename().string());
-	tddURI = parentURI.remove_filename().remove_filename();
+                               TagID & TID,
+                               MeasurementType::ID & MTID) {
+	fs::path URI = measurementURI;
+	try {
+		try {
+			MTID = std::stoul(URI.filename().string());
+		} catch( const std::exception & e) {
+			throw std::runtime_error("cannot parse MeasurementType::ID");
+		}
+		URI.remove_filename();
+		if ( URI.filename() != "measurements" ) {
+			throw std::runtime_error("no 'measurements' in URI");
+		}
+		URI.remove_filename();
+		try {
+			TID = std::stoul(URI.filename().string());
+		} catch( const std::exception & e) {
+			throw std::runtime_error("cannot parse TagID");
+		}
+		URI.remove_filename();
+		if ( URI.filename() != "closeups" ) {
+			throw std::runtime_error("no 'closeups' in URI");
+		}
+		URI.remove_filename();
+		try {
+			FID = std::stoull(URI.filename().string());
+		} catch( const std::exception & e) {
+			throw std::runtime_error("cannot parse FrameID");
+		}
+		URI.remove_filename();
+		if ( URI.filename() != "frames" ) {
+			throw std::runtime_error("no 'frames' in URI");
+		}
+		tddURI = URI.remove_filename();
+		if (tddURI.empty() || tddURI == "/" ) {
+			throw std::runtime_error("no URI for TrackingDataDirectory");
+		}
+	} catch ( const std::exception & e) {
+		throw std::runtime_error("Invalid URI '"
+		                         + measurementURI.generic_string()
+		                         + "':" + e.what());
+	}
 }
 
 double Measurement::TagSizePx() const {

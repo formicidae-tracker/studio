@@ -187,7 +187,7 @@ public :
 	MeasurementTypePtr CreateMeasurementType(MeasurementTypeID MTID,
 	                                         const std::string & name);
 
-	void DeletedMeasurementType(MeasurementTypeID MTID);
+	void DeleteMeasurementType(MeasurementTypeID MTID);
 
 	const MeasurementTypeByID & MeasurementTypes() const;
 

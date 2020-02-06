@@ -48,9 +48,11 @@ public:
 
 	fs::path TagCloseUpURI() const;
 
-	void DecomposeURI(fs::path & tddURI,
-	                  FrameID & FID,
-	                  TagID & TID) const;
+	static void DecomposeURI(const fs::path & URI,
+	                         fs::path & tddURI,
+	                         FrameID & FID,
+	                         TagID & TID,
+	                         MeasurementType::ID & MTID);
 
 
 	MeasurementType::ID Type() const;

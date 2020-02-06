@@ -161,7 +161,8 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	fs::path tddPath;
 	FrameID FID;
 	TagID TID;
-	m->DecomposeURI(tddPath,FID,TID);
+	MeasurementType::ID MTID;
+	Measurement::DecomposeURI(m->URI(),tddPath,FID,TID,MTID);
 	auto fi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
 	if ( fi == d_zoneGroup->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
@@ -185,7 +186,67 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 }
 
 void Experiment::DeleteMeasurement(const fs::path & URI) {
-	throw std::runtime_error("Not yet implemented");
+	fs::path tddPath;
+	FrameID FID;
+	TagID TID;
+	MeasurementType::ID MTID;
+	Measurement::DecomposeURI(URI,tddPath,FID,TID,MTID);
+
+	auto tfi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( tfi == d_zoneGroup->TrackingDataDirectories().end() ) {
+		std::ostringstream oss;
+		throw std::invalid_argument(oss.str());
+	}
+	auto ref = tfi->second->FrameReferenceAt(FID);
+
+
+	auto tagCloseUpURI = tddPath / "frames" / std::to_string(FID) / "closeups" / std::to_string(TID);
+	auto fi = d_measurementByURI.find(tagCloseUpURI);
+	if ( fi == d_measurementByURI.end() ){
+		throw std::runtime_error("Unknown measurement '"
+		                         + URI.generic_string()
+		                         + "'");
+	}
+	auto ffi = fi->second.find(MTID);
+	if ( ffi == fi->second.end() ) {
+		throw std::runtime_error("Unknown measurement '"
+		                         + URI.generic_string()
+		                         + "'");
+	}
+	fi->second.erase(ffi);
+	if ( fi->second.empty() ) {
+		d_measurementByURI.erase(fi);
+	}
+	auto sfi = d_measurements.find(MTID);
+	if ( sfi == d_measurements.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sffi = sfi->second.find(TID);
+	if (sffi == sfi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sfffi =  sffi->second.find(tddPath);
+	if ( sfffi == sffi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sffffi = sfffi->second.find(ref.Time());
+	if ( sffffi == sfffi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+
+	sfffi->second.erase(sffffi);
+	if (sfffi->second.empty() == false) {
+		return;
+	}
+	sffi->second.erase(sfffi);
+	if ( sffi->second.empty() == false ) {
+		return;
+	}
+	sfi->second.erase(sffi);
+	if ( sfi->second.empty() == false ) {
+		return;
+	}
+	d_measurements.erase(sfi);
 }
 
 void Experiment::ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const {
@@ -301,7 +362,7 @@ MeasurementType::Ptr Experiment::CreateMeasurementType(MeasurementType::ID MTID,
 	return res;
 }
 
-void Experiment::DeletedMeasurementType(MeasurementType::ID MTID) {
+void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
 	auto fi = d_measurementTypeByID.find(MTID);
 	if ( fi == d_measurementTypeByID.end()  ) {
 		throw std::runtime_error("Could not find MeasurementType::ID " + std::to_string(MTID));
