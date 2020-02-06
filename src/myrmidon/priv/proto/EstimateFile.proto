@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 
-import "Point2d.proto";
+import "Vector2d.proto";
 
 package fort.myrmidon.pb;
 
@@ -15,6 +15,9 @@ message EstimateHeader {
 message Estimate {
 	uint64 Frame = 1;
 	uint32 Tag   = 2;
-	Point2d Head = 3;
-	Point2d Tail = 4;
+
+	double TagPhysicalSize = 3;
+
+	Vector2d Start = 4;
+	Vector2d End   = 5;
 };

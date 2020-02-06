@@ -4,18 +4,27 @@
 
 #include "Ant.hpp"
 #include "Identifier.hpp"
+#include "Measurement.hpp"
+#include "TrackingDataDirectory.hpp"
+#include "Identifier.hpp"
+#include "AntPoseEstimate.hpp"
 
-#include "../utils/NotYetImplemented.hpp"
+#include <myrmidon/utils/Checker.hpp>
 
-namespace fm = fort::myrmidon;
-using namespace fm::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 Experiment::Experiment(const fs::path & filepath )
-	: d_absoluteFilepath(fs::weakly_canonical(filepath))
+	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
+	, d_zoneGroup(std::make_shared<Zone::Group>())
 	, d_threshold(40)
-	, d_family(TagFamily::Unset) {
+	, d_family(fort::tags::Family::Undefined)
+	, d_defaultTagSize(1.0) {
+	CreateMeasurementType(Measurement::HEAD_TAIL_TYPE,
+	                      "head-tail");
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -23,7 +32,7 @@ Experiment::Ptr Experiment::Create(const fs::path & filename) {
 }
 
 Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
-	auto absolutePath = fs::weakly_canonical(filepath);
+	auto absolutePath = fs::absolute(fs::weakly_canonical(filepath));
 	auto base = absolutePath;
 	base.remove_filename();
 	auto res = Create(absolutePath);
@@ -49,62 +58,44 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-void Experiment::AddTrackingDataDirectory(const TrackingDataDirectory & toAdd) {
-	if (d_dataDirs.count(toAdd.LocalPath().generic_string()) != 0 ) {
-		throw std::invalid_argument("directory '" + toAdd.LocalPath().string() + "' is already present");
-	}
-
-	std::vector<const TrackingDataDirectory*> sortedInTime;
-	for(const auto & el : d_dataDirs ) {
-		sortedInTime.push_back(&(el.second));
-	}
-	sortedInTime.push_back(&toAdd);
-	auto fi = TimeValid::SortAndCheckOverlap(sortedInTime.begin(),sortedInTime.end());
-	if ( fi.first != fi.second ) {
-		std::ostringstream os;
-		os << *fi.first << " and " << *fi.second << " overlaps in time";
-		throw std::invalid_argument(os.str());
-	}
-
-	d_dataDirs.insert(std::make_pair(toAdd.LocalPath().generic_string(),toAdd));
+Zone::Ptr Experiment::CreateZone(const std::string & name) {
+	return Zone::Group::Create(d_zoneGroup,name);
 }
 
-bool Experiment::ContainsFramePointer()  const  {
-	//check if Identification contains any frame
-	for(const auto & [ID,a] :  d_identifier->Ants() ) {
-		for (const auto & ident : a->Identifications() ) {
-			if ( ident->Start() || ident->End() ) {
-				return true;
-			}
-		}
-	}
-
-	// TODO check if other things containing FramePointer contains any..
-
-	return false;
+void Experiment::DeleteZone(const fs::path & zoneURI) {
+	d_zoneGroup->DeleteZone(zoneURI);
 }
 
-void Experiment::RemoveTrackingDataDirectory(fs::path path) {
-
-	if ( path.is_absolute() ) {
-		fs::path root = d_absoluteFilepath;
-		path = fs::relative(path,root.remove_filename());
-	}
-
-	if ( d_dataDirs.count(path.generic_string()) == 0 ) {
-		throw std::invalid_argument("Could not find data path '" + path.string() + "'");
-	}
-
-	if ( ContainsFramePointer() ) {
-		throw std::runtime_error("This Experiment contains FramePointer, and therefore removing a TrackingDataDirectory may breaks everything, and is therefore disabled");
-	}
-
-	d_dataDirs.erase(path.generic_string());
+const std::vector<Zone::Ptr> & Experiment::Zones() const {
+	return d_zoneGroup->Zones();
 }
 
-const Experiment::TrackingDataDirectoryByPath & Experiment::TrackingDataDirectories() const {
-	return d_dataDirs;
+const std::map<fs::path,TrackingDataDirectoryConstPtr> &
+Experiment::TrackingDataDirectories() const {
+	return d_zoneGroup->TrackingDataDirectories();
 }
+
+void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
+	auto fi = std::find_if(d_measurementByURI.begin(),
+	                       d_measurementByURI.end(),
+	                       [URI](const std::pair<fs::path,MeasurementByType> & elem) -> bool {
+		                       if ( elem.first.lexically_relative(URI).empty() == true ) {
+			                       return false;
+		                       }
+		                       return elem.second.empty() == false;
+	                       });
+	if ( fi != d_measurementByURI.end() ) {
+		throw std::runtime_error("Could not remove TrackingDataDirectory '" + URI.generic_string()
+		                         + "': it contains measurement '"
+		                         + fi->first.generic_string()
+		                         + "'");
+
+	}
+
+	d_zoneGroup->DeleteTrackingDataDirectory(URI);
+
+}
+
 
 const std::string & Experiment::Name() const {
 	return d_name;
@@ -144,7 +135,7 @@ void Experiment::SetThreshold(uint8_t th) {
 	d_threshold = th;
 }
 
-const fs::path & Experiment::AbsolutePath() const {
+const fs::path & Experiment::AbsoluteFilePath() const {
 	return d_absoluteFilepath;
 }
 
@@ -153,10 +144,249 @@ const fs::path & Experiment::Basedir() const {
 }
 
 
-Experiment::TagFamily Experiment::Family() const {
+fort::tags::Family Experiment::Family() const {
 	return d_family;
 }
 
-void Experiment::SetFamily(TagFamily tf) {
+void Experiment::SetFamily(fort::tags::Family tf) {
 	d_family = tf;
 }
+
+
+void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
+	if ( d_measurementTypeByID.count(m->Type()) == 0 ) {
+		throw std::runtime_error("Unknown MeasurementType::ID " + std::to_string(m->Type()));
+	}
+
+	fs::path tddPath;
+	FrameID FID;
+	TagID TID;
+	MeasurementType::ID MTID;
+	Measurement::DecomposeURI(m->URI(),tddPath,FID,TID,MTID);
+	auto fi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( fi == d_zoneGroup->TrackingDataDirectories().end() ) {
+		std::ostringstream oss;
+		oss << "Unknow data directory " << tddPath;
+		throw std::invalid_argument(oss.str());
+	}
+
+	auto ref = fi->second->FrameReferenceAt(FID);
+
+	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
+	d_measurements[m->Type()][TID][tddPath][ref.Time()] = m;
+
+	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
+		return;
+	}
+
+	d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
+	                                                                   TID,
+	                                                                   m->EndFromTag(),
+	                                                                   m->StartFromTag()));
+}
+
+void Experiment::DeleteMeasurement(const fs::path & URI) {
+	fs::path tddPath;
+	FrameID FID;
+	TagID TID;
+	MeasurementType::ID MTID;
+	Measurement::DecomposeURI(URI,tddPath,FID,TID,MTID);
+
+	auto tfi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( tfi == d_zoneGroup->TrackingDataDirectories().end() ) {
+		std::ostringstream oss;
+		throw std::invalid_argument(oss.str());
+	}
+	auto ref = tfi->second->FrameReferenceAt(FID);
+
+
+	auto tagCloseUpURI = tddPath / "frames" / std::to_string(FID) / "closeups" / std::to_string(TID);
+	auto fi = d_measurementByURI.find(tagCloseUpURI);
+	if ( fi == d_measurementByURI.end() ){
+		throw std::runtime_error("Unknown measurement '"
+		                         + URI.generic_string()
+		                         + "'");
+	}
+	auto ffi = fi->second.find(MTID);
+	if ( ffi == fi->second.end() ) {
+		throw std::runtime_error("Unknown measurement '"
+		                         + URI.generic_string()
+		                         + "'");
+	}
+	fi->second.erase(ffi);
+	if ( fi->second.empty() ) {
+		d_measurementByURI.erase(fi);
+	}
+	auto sfi = d_measurements.find(MTID);
+	if ( sfi == d_measurements.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sffi = sfi->second.find(TID);
+	if (sffi == sfi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sfffi =  sffi->second.find(tddPath);
+	if ( sfffi == sffi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+	auto sffffi = sfffi->second.find(ref.Time());
+	if ( sffffi == sfffi->second.end() ) {
+		throw std::logic_error("Sorting error");
+	}
+
+	sfffi->second.erase(sffffi);
+	if (sfffi->second.empty() == false) {
+		return;
+	}
+	sffi->second.erase(sfffi);
+	if ( sffi->second.empty() == false ) {
+		return;
+	}
+	sfi->second.erase(sffi);
+	if ( sfi->second.empty() == false ) {
+		return;
+	}
+	d_measurements.erase(sfi);
+}
+
+void Experiment::ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const {
+	list.clear();
+
+	size_t s = 0;
+	for (const auto & [p,ms] : d_measurementByURI ) {
+		for (const auto & [t,m] : ms ) {
+			++s;
+		}
+	}
+	list.reserve(s);
+
+	for (const auto & [p,ms] : d_measurementByURI ) {
+		for (const auto & [t,m] : ms ) {
+			list.push_back(m);
+		}
+	}
+}
+
+double Experiment::DefaultTagSize() const {
+	return d_defaultTagSize;
+}
+
+void Experiment::SetDefaultTagSize(double defaultTagSize) {
+	d_defaultTagSize = defaultTagSize;
+}
+
+
+double Experiment::CornerWidthRatio(tags::Family f) {
+	if ( f == tags::Family::Tag36ARTag ) {
+		return 1.0;
+	}
+
+	static std::map<tags::Family,double> cache;
+	auto fi = cache.find(f);
+	if ( fi != cache.end() ) {
+		return fi->second;
+	}
+	auto fDef = TagCloseUp::Lister::LoadFamily(f);
+	auto res = double(fDef->width_at_border) / double(fDef->total_width);
+	cache[f] = res;
+	return res;
+}
+
+void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+                                           myrmidon::Ant::ID AID,
+                                           MeasurementType::ID type) const {
+	auto afi = d_identifier->Ants().find(AID);
+	if ( afi == d_identifier->Ants().cend() ) {
+		throw Identifier::UnmanagedAnt(AID);
+	}
+
+	double cornerWidthRatio = CornerWidthRatio(d_family);
+
+	result.clear();
+
+	auto typedMeasurement = d_measurements.find(type);
+	if (typedMeasurement == d_measurements.cend() ) {
+		return;
+	}
+
+
+	for ( const auto & ident : afi->second->Identifications() ) {
+		double tagSizeMM = d_defaultTagSize;
+		if (ident->UseDefaultTagSize() == false ) {
+			tagSizeMM = ident->TagSize();
+		}
+		tagSizeMM *= cornerWidthRatio;
+
+		auto measurementsByTDD = typedMeasurement->second.find(ident->TagValue());
+		if ( measurementsByTDD == typedMeasurement->second.cend() ) {
+			continue;
+		}
+
+		for(const auto & measurements : measurementsByTDD->second ) {
+			auto start = measurements.second.cbegin();
+			if ( ident->Start() ) {
+				start = measurements.second.lower_bound(*ident->Start());
+			}
+
+			auto end = measurements.second.cend();
+			if ( ident->End() ) {
+				end = measurements.second.upper_bound(*ident->End());
+			}
+			for ( ; start != end; ++start ) {
+
+				double distance = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
+				distance *= tagSizeMM /start->second->TagSizePx();
+				result.push_back({start->first,distance});
+			}
+		}
+	}
+}
+
+MeasurementType::ID Experiment::NextAvailableMeasurementTypeID() const {
+	MeasurementType::ID newType = Measurement::HEAD_TAIL_TYPE + 1;
+	// eager approach, but I won't see user makes 10 000 different
+	// measurement type for each 1000 ants in a colony.
+	while( d_measurementTypeByID.count(newType) != 0 ) {
+		++newType;
+	}
+	return newType;
+}
+
+
+MeasurementType::Ptr Experiment::CreateMeasurementType(MeasurementType::ID MTID,
+                                                       const std::string & name) {
+	if ( d_measurementTypeByID.count(MTID) != 0 ) {
+		throw std::runtime_error("MeasurementType::ID "
+		                         + std::to_string(MTID)
+		                         + " is already used");
+	}
+	auto res = std::make_shared<MeasurementType>(MTID,name);
+	d_measurementTypeByID.insert(std::make_pair(MTID,res));
+	return res;
+}
+
+void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
+	auto fi = d_measurementTypeByID.find(MTID);
+	if ( fi == d_measurementTypeByID.end()  ) {
+		throw std::runtime_error("Could not find MeasurementType::ID " + std::to_string(MTID));
+	}
+
+	if ( d_measurements.count(MTID) != 0 ) {
+		throw std::runtime_error("Could not remove MeasurementType '" + fi->second->Name() + "' has experiment still contains measurement");
+	}
+
+	if (MTID == Measurement::HEAD_TAIL_TYPE ) {
+		throw std::invalid_argument("Could not remove default measurement type 'head-tail'");
+	}
+
+	d_measurementTypeByID.erase(fi);
+}
+
+const Experiment::MeasurementTypeByID & Experiment::MeasurementTypes() const {
+	return d_measurementTypeByID;
+}
+
+
+} //namespace priv
+} //namespace myrmidon
+} //namespace fort

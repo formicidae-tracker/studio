@@ -20,45 +20,6 @@ google::protobuf::Timestamp fromEpoch(uint64_t sec) {
 
 
 
-TEST_F(RawFrameUTest,CanBeFormatted) {
-
-	struct TestData {
-		fs::path Path;
-		uint64_t FID;
-		std::string Expected;
-	};
-
-	std::vector<TestData> data
-		= {
-		   {"",0,"/0"},
-		   {"",2134,"/2134"},
-		   {"foo",42,"foo/42"},
-		   {"foo/bar/baz",42,"foo/bar/baz/42"},
-	};
-
-
-
-
-	if (fs::path::preferred_separator == '\\') {
-		data.push_back({"foo\bar\baz",42,"foo/bar/baz/42"});
-	}
-
-
-	for(const auto & d : data ) {
-		fort::hermes::FrameReadout pb;
-		pb.set_frameid(d.FID);
-		auto a = RawFrame::Create(d.Path.generic_string(),pb,0);
-
-		std::ostringstream os;
-		os << *a;
-		EXPECT_EQ(os.str(),d.Expected);
-		EXPECT_EQ(a->Basepath(),d.Path);
-		EXPECT_EQ(a->Path(),d.Path / std::to_string(d.FID));
-	}
-
-}
-
-
 TEST_F(RawFrameUTest,ExtractsDataFromHermes) {
 	uint64_t frameID = 1234;
 	google::protobuf::Timestamp frameTime;
@@ -83,7 +44,7 @@ TEST_F(RawFrameUTest,ExtractsDataFromHermes) {
 	}
 	withError.set_frameid(1234);
 	withError.mutable_time()->CheckTypeAndMergeFrom(frameTime);
-	withError.set_timestamp(timestampUS);
+	withError.set_timestamp(0);
 	withError.set_width(width);
 	withError.set_height(height);
 	withError.set_error(fort::hermes::FrameReadout_Error_PROCESS_OVERFLOW);
@@ -92,8 +53,13 @@ TEST_F(RawFrameUTest,ExtractsDataFromHermes) {
 
 	for (auto  m : {&withData,&withError}) {
 		auto res = RawFrame::Create("foo",*m,mID);
-		EXPECT_EQ(res->FrameID(),frameID);
-		EXPECT_TRUE(TimeEqual(res->Time(),time));
+		EXPECT_EQ(res->ID(),frameID);
+		auto expectedTime = time;
+		if ( m->error() != fort::hermes::FrameReadout_Error_NO_ERROR ) {
+			// strip monotonic values on errored frame, has timestamp is always null
+			expectedTime = Time::FromTimestamp(time.ToTimestamp());
+		}
+		EXPECT_TRUE(TimeEqual(res->Time(),expectedTime));
 		EXPECT_EQ(res->Width(),width);
 		EXPECT_EQ(res->Height(),height);
 		results.push_back(res);

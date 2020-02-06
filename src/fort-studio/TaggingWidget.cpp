@@ -6,12 +6,13 @@
 #include <QSettings>
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
-#include <myrmidon/utils/ProtobufFileReadWriter.hpp>
+#include <myrmidon/priv/proto/FileReadWriter.hpp>
 
 #include <myrmidon/priv/Identification.hpp>
+#include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
 
-#include "Estimate.pb.h"
+#include <myrmidon/EstimateFile.pb.h>
 
 #include "utils.hpp"
 
@@ -28,20 +29,20 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->setupUi(this);
 
     qRegisterMetaType<QVector<Snapshot::ConstPtr>>("QVector<Snapshot::ConstPtr>");
-    qRegisterMetaType<std::vector<uint32_t>>("std::vector<uint32_t>");
+    qRegisterMetaType<std::vector<fort::myrmidon::priv::TagID>>("std::vector<fort::myrmidon::priv::TagID>");
     qRegisterMetaType<size_t>("size_t");
 
     using namespace fort::myrmidon::priv;
-    d_ui->familySelector->insertItem(0,"36h11",(int)Experiment::TagFamily::Tag36h11);
-    d_ui->familySelector->insertItem(1,"36ARTag",(int)Experiment::TagFamily::Tag36ARTag);
-    d_ui->familySelector->insertItem(2,"36h10",(int)Experiment::TagFamily::Tag36h10);
-    d_ui->familySelector->insertItem(3,"Standard41h12",(int)Experiment::TagFamily::Standard41h12);
-    d_ui->familySelector->insertItem(4,"16h5",(int)Experiment::TagFamily::Tag16h5);
-    d_ui->familySelector->insertItem(5,"25h9",(int)Experiment::TagFamily::Tag25h9);
-    d_ui->familySelector->insertItem(6,"Circle21h7",(int)Experiment::TagFamily::Circle21h7);
-    d_ui->familySelector->insertItem(7,"Circle49h12",(int)Experiment::TagFamily::Circle49h12);
-    d_ui->familySelector->insertItem(8,"Custom48h12",(int)Experiment::TagFamily::Custom48h12);
-    d_ui->familySelector->insertItem(9,"Standard52h13",(int)Experiment::TagFamily::Standard52h13);
+    d_ui->familySelector->insertItem(0,"36h11",(int)fort::tags::Family::Tag36h11);
+    d_ui->familySelector->insertItem(1,"36ARTag",(int)fort::tags::Family::Tag36ARTag);
+    d_ui->familySelector->insertItem(2,"36h10",(int)fort::tags::Family::Tag36h10);
+    d_ui->familySelector->insertItem(3,"Standard41h12",(int)fort::tags::Family::Standard41h12);
+    d_ui->familySelector->insertItem(4,"16h5",(int)fort::tags::Family::Tag16h5);
+    d_ui->familySelector->insertItem(5,"25h9",(int)fort::tags::Family::Tag25h9);
+    d_ui->familySelector->insertItem(6,"Circle21h7",(int)fort::tags::Family::Circle21h7);
+    d_ui->familySelector->insertItem(7,"Circle49h12",(int)fort::tags::Family::Circle49h12);
+    d_ui->familySelector->insertItem(8,"Custom48h12",(int)fort::tags::Family::Custom48h12);
+    d_ui->familySelector->insertItem(9,"Standard52h13",(int)fort::tags::Family::Standard52h13);
     d_ui->familySelector->setCurrentIndex(-1);
     onNewController(NULL);
 
@@ -135,9 +136,9 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
 
-void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds) {
 	using namespace fort::myrmidon;
-	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
 	if ( d_controller == NULL ) {
 		return;
@@ -148,7 +149,7 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 		return;
 	}
 
-	auto tf = (fort::myrmidon::priv::Experiment::TagFamily)(d_ui->familySelector->currentData().toInt());
+	auto tf = (fort::tags::Family)(d_ui->familySelector->currentData().toInt());
 
 	for(const auto & [p,tdd] :  tdds ) {
 		if (d_indexers.count(p) != 0 ) {
@@ -165,8 +166,8 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 
 
 		auto extractor = std::make_shared<TagExtractor>();
-		connect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
-		        this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )),
+		connect(extractor.get(),SIGNAL(resultReady(const std::vector<fort::myrmidon::TagID> &)),
+		        this,SLOT(onNewTrackedTags(const std::vector<fort::myrmidon::TagID> & )),
 		        Qt::QueuedConnection);
 		d_extractors[p] = extractor;
 		extractor->start(tdd,d_controller->experiment().Basedir());
@@ -192,9 +193,9 @@ void TaggingWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::Tra
 			                 },
 			                 [this,tdd](const pb::Estimate & pb) {
 				                 try {
-					                 auto e = std::make_shared<AntPoseEstimate>(pb::Point2dToEigen(pb.head()),
-					                                                            pb::Point2dToEigen(pb.tail()),
-					                                                            *tdd.FrameAt(pb.frame()),
+					                 auto e = std::make_shared<::AntPoseEstimate>(pb::Point2dToEigen(pb.start()),
+					                                                            pb::Point2dToEigen(pb.end()),
+					                                                            *tdd->FrameAt(pb.frame()),
 					                                                            pb.tag());
 					                 d_estimates[e->Path()] = e;
 				                 } catch ( const std::exception & e )  {
@@ -221,8 +222,8 @@ void TaggingWidget::clearIndexers() {
 	d_indexers.clear();
 
 	for(auto & [p,extractor] :  d_extractors ) {
-		disconnect(extractor.get(),SIGNAL(resultReady(const std::vector<uint32_t> &)),
-		           this,SLOT(onNewTrackedTags(const std::vector<uint32_t> & )));
+		disconnect(extractor.get(),SIGNAL(resultReady(const std::vector<fort::myrmidon::TagID> &)),
+		           this,SLOT(onNewTrackedTags(const std::vector<fort::myrmidon::TagID> & )));
 	}
 	d_extractors.clear();
 
@@ -241,7 +242,7 @@ void TaggingWidget::on_familySelector_activated(int row) {
 	if ( row < 0 ) {
 		return;
 	}
-	auto tf = (fort::myrmidon::priv::Experiment::TagFamily)(d_ui->familySelector->itemData(row).toInt());
+	auto tf = (fort::tags::Family)(d_ui->familySelector->itemData(row).toInt());
 	if ( tf == d_controller->experiment().Family() ) {
 		return;
 	}
@@ -334,11 +335,11 @@ void TaggingWidget::on_roiBox_valueChanged(int value) {
 
 Error TaggingWidget::save() {
 	using namespace fort::myrmidon;
-	typedef utils::ProtobufFileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
+	typedef priv::proto::FileReadWriter<pb::EstimateHeader,pb::Estimate> ReadWriter;
 
-	std::map<fs::path,std::vector<AntPoseEstimate::Ptr> > sortedEstimate;
+	std::map<fs::path,std::vector<::AntPoseEstimate::Ptr> > sortedEstimate;
 	for(const auto & [p,e] : d_estimates ) {
-		sortedEstimate[e->Base()].push_back(e);
+		sortedEstimate[e->ParentPath()].push_back(e);
 	}
 
 	pb::EstimateHeader h;
@@ -350,10 +351,10 @@ Error TaggingWidget::save() {
 		std::vector<std::function<void (pb::Estimate & )> > lines;
 		for (const auto & e : estimates ) {
 			lines.push_back([&e](pb::Estimate & pb) {
-				                pb.set_frame(e->Frame()->FrameID());
+				                pb.set_frame(e->Frame()->ID());
 				                pb.set_tag(e->TagValue());
-				                pb::EigenToPoint2d(pb.mutable_head(),e->Head());
-				                pb::EigenToPoint2d(pb.mutable_tail(),e->Tail());
+				                pb::EigenToPoint2d(pb.mutable_start(),e->Head());
+				                pb::EigenToPoint2d(pb.mutable_end(),e->Tail());
 			                });
 		}
 
@@ -370,7 +371,7 @@ Error TaggingWidget::save() {
 }
 
 
-void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const AntPoseEstimate::Ptr & e) {
+void TaggingWidget::on_snapshotViewer_antPoseEstimateUpdated(const ::AntPoseEstimate::Ptr & e) {
 	using namespace fort::myrmidon::priv;
 	d_estimates[e->Path()] = e;
 	d_controller->setModified(true);
@@ -391,7 +392,7 @@ void TaggingWidget::updateIdentificationForCurrentFrame() {
 }
 
 
-Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValue,
+Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::priv::TagID tagValue,
                                                                 const RawFrame & f) {
 
 	Identification::Ptr ident = d_controller->experiment().ConstIdentifier().Identify(tagValue,f.Time());
@@ -400,7 +401,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 		return ident;
 	}
 
-	std::vector<std::pair<AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
+	std::vector<std::pair<::AntPoseEstimate::Ptr,Snapshot::ConstPtr> > matched;
 	for(const auto & [p,ee] : d_estimates ) {
 		if (ee->TagValue() != tagValue || !ident->IsValid(ee->Frame()->Time()) ) {
 			continue;
@@ -413,7 +414,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 	}
 
 	if ( matched.size() == 0 ) {
-		ident->SetTagPosition(Eigen::Vector2d::Zero(),0);
+		//ident->SetAntPosition(Eigen::Vector2d::Zero(),0);
 		return ident;
 	}
 
@@ -423,9 +424,9 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 		Isometry2Dd tagToAntTransform;
 
 
-		Identification::ComputeTagToAntTransform(tagToAntTransform,
-		                                         m.second->TagPosition(),m.second->TagAngle(),
-		                                         m.first->Head(),m.first->Tail());
+		// Identification::ComputeTagToAntTransform(tagToAntTransform,
+		//                                          m.second->TagPosition(),m.second->TagAngle(),
+		//                                          m.first->Head(),m.first->Tail());
 		pos += tagToAntTransform.translation();
 		double a = tagToAntTransform.angle();
 		sinAngle += std::sin(a);
@@ -435,7 +436,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(uint32_t tagValu
 	sinAngle /= matched.size();
 	cosAngle /= matched.size();
 
-	ident->SetTagPosition(pos,std::atan2(sinAngle,cosAngle));
+	//	ident->SetAntPosition(pos,std::atan2(sinAngle,cosAngle));
 	d_controller->setModified(true);
 	return ident;
 }
@@ -455,7 +456,7 @@ void TaggingWidget::on_newAntButton_clicked() {
 	Time::ConstPtr start;
 	Time::ConstPtr end;
 	if ( d_controller->experiment().ConstIdentifier().FreeRangeContaining(start,end,e->TagValue(),e->Frame()->Time()) == false ) {
-		qCritical() << e->Frame()->Path().generic_string().c_str() << " already identifies an ant";
+		qCritical() << e->Frame()->URI().generic_string().c_str() << " already identifies an ant";
 		return;
 	}
 
@@ -484,7 +485,7 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 
 
 	d_estimates.erase(fi);
-	d_ui->snapshotViewer->setAntPoseEstimate(AntPoseEstimate::Ptr());
+	d_ui->snapshotViewer->setAntPoseEstimate(::AntPoseEstimate::Ptr());
 	d_controller->setModified(true);
 	updateButtonState();
 	updateIdentificationForCurrentFrame();
@@ -606,7 +607,7 @@ void TaggingWidget::updateUnusedCount() {
 
 
 
-void TaggingWidget::onNewTrackedTags(const std::vector<uint32_t> & tags) {
+void TaggingWidget::onNewTrackedTags(const std::vector<fort::myrmidon::priv::TagID> & tags) {
 	std::ostringstream os;
 	for(auto t : tags){
 		os << " " << t;

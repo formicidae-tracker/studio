@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include <myrmidon/priv/RawFrame.hpp>
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 using namespace fort::myrmidon::priv;
 
@@ -28,9 +29,9 @@ void FramePointerWidget::onNewController(ExperimentController * controller ) {
 
 	if ( d_controller != NULL ) {
 		disconnect(d_controller,
-		           SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )),
+		           SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )),
 		           this,
-		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )));
+		           SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )));
 	}
 
 
@@ -42,16 +43,16 @@ void FramePointerWidget::onNewController(ExperimentController * controller ) {
 	setEnabled(true);
 
 	connect(d_controller,
-	        SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )),
+	        SIGNAL(dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )),
 	        this,
-	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & )));
+	        SLOT(onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & )));
 
 
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
 
 
-void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds) {
 	d_inhibit = true;
 	fs::path selected;
 	if ( d_ui->comboBox->currentIndex() >= 0 ) {
@@ -59,18 +60,18 @@ void FramePointerWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment
 	}
 
 	d_ui->comboBox->clear();
-	std::vector<const TrackingDataDirectory*> sorted;
+	std::vector<TrackingDataDirectory::ConstPtr> sorted;
 	sorted.reserve(tdds.size());
 	for ( const auto & el : tdds ) {
-		sorted.push_back(&el.second);
+		sorted.push_back(el.second);
 	}
 
 	priv::TimeValid::SortAndCheckOverlap(sorted.begin(),sorted.end());
 	size_t i = 0;
 	bool set = false;
 	for ( const auto & tdd : sorted ) {
-		d_ui->comboBox->insertItem(i,tdd->LocalPath().generic_string().c_str(),tdd->LocalPath().generic_string().c_str());
-		if ( tdd->LocalPath() == selected ) {
+		d_ui->comboBox->insertItem(i,tdd->URI().generic_string().c_str(),tdd->URI().generic_string().c_str());
+		if ( tdd->URI() == selected ) {
 			d_ui->comboBox->setCurrentIndex(i);
 			set = true;
 		}
@@ -98,9 +99,9 @@ void FramePointerWidget::on_comboBox_currentIndexChanged(int i) {
 	fs::path path = d_ui->comboBox->currentData().toString().toUtf8().constData();
 	auto & tdd = d_controller->experiment().TrackingDataDirectories().find(path.generic_string())->second;
 
-	d_ui->spinBox->setMinimum(tdd.StartFrame() == 0 ? 0 : tdd.StartFrame()-1);
-	d_ui->spinBox->setMaximum(tdd.EndFrame() + 1);
-	d_ui->spinBox->setToolTip(tr("Frame ∈ [%1;%2]").arg(tdd.StartFrame()).arg(tdd.EndFrame()));
+	d_ui->spinBox->setMinimum(tdd->StartFrame() == 0 ? 0 : tdd->StartFrame()-1);
+	d_ui->spinBox->setMaximum(tdd->EndFrame() + 1);
+	d_ui->spinBox->setToolTip(tr("Frame ∈ [%1;%2]").arg(tdd->StartFrame()).arg(tdd->EndFrame()));
 	d_inhibit = false;
 }
 
@@ -123,7 +124,7 @@ void FramePointerWidget::on_spinBox_valueChanged(uint64_t value) {
 		return;
 	}
 	try {
-		emit framePointerUpdated(*fi->second.FrameAt(value));
+		emit framePointerUpdated(*fi->second->FrameAt(value));
 	} catch ( const std::exception & ) {
 
 	}

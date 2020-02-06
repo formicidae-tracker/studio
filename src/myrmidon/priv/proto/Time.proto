@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "google/protobuf/timestamp.proto";
+
+message Time {
+	google.protobuf.Timestamp timestamp = 1;
+	uint64                    monotonic = 2;
+}

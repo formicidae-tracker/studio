@@ -8,11 +8,14 @@
 
 #include <fort-hermes/FileContext.h>
 
+#include "LocatableTypes.hpp"
 #include "TimeValid.hpp"
 #include "SegmentIndexer.hpp"
+#include "MovieSegment.hpp"
+#include "FrameReference.hpp"
+#include "TagCloseUp.hpp"
 
 namespace fort {
-
 namespace myrmidon {
 
 namespace pb {
@@ -27,19 +30,23 @@ namespace priv {
 // contains the tracking data.
 //
 // Each directory has a start and end time and a start and end frame
-class TrackingDataDirectory : public TimeValid {
+class TrackingDataDirectory : public TimeValid, public FileSystemLocatable, public Identifiable {
 public:
-	typedef int32_t UID;
+	typedef std::shared_ptr<const TrackingDataDirectory> ConstPtr;
 
+
+	typedef int32_t                                    UID;
+	typedef SegmentIndexer<std::string>                TrackingIndex;
+	typedef SegmentIndexer<MovieSegment::Ptr>          MovieIndex;
+	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
+	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
 	class const_iterator {
 	public:
-		const_iterator(const fs::path & parentPath,
-		               const SegmentIndexer::ConstPtr & segments,
-		               uint64_t start,
-		               uint64_t end,
-		               uint64_t current,
-		               UID uid);
+		const_iterator(const ConstPtr & tdd,uint64_t current);
+
+		//		const_iterator(const ConstPtr & tdd,const RawFrameConstPtr & rawFrame);
+
 		const_iterator & operator=(const const_iterator & other) = delete;
 		const_iterator(const const_iterator & other);
 
@@ -54,15 +61,15 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 	private:
+		friend class TrackingDataDirectory;
 		const static RawFrameConstPtr NULLPTR;
 
 		void OpenAt(uint64_t frameID);
 
+		ConstPtr LockParent() const;
 
-		const fs::path           d_parentPath;
-		SegmentIndexer::ConstPtr d_segments;
-		uint64_t                 d_start,d_end,d_current;
-		UID                      d_uid;
+		std::weak_ptr<const TrackingDataDirectory> d_parent;
+		FrameID d_current;
 
 		std::unique_ptr<fort::hermes::FileContext> d_file;
 		fort::hermes::FrameReadout                 d_message;
@@ -70,38 +77,34 @@ public:
 	};
 
 
-	static UID GetUID(const fs::path & path);
+	static UID GetUID(const fs::path & absoluteFilePath);
 
 	inline UID GetUID() const {
 		return d_uid;
 	}
 
-	TrackingDataDirectory();
-
-	TrackingDataDirectory(const fs::path & path,
-	                      const fs::path & experimentRoot,
-	                      uint64_t startFrame,
-	                      uint64_t endFrame,
-	                      const Time & start,
-	                      const Time & end,
-	                      const SegmentIndexer::Ptr & segments);
-
-
+	// The directory path designator
+	//
 	// Gets the path designating the TrackingDataDirectory
 	// @return a path relative to the experiment <Experiment>
-	const fs::path & LocalPath() const;
+	const fs::path & URI() const override;
 
-	// Gets the actual path on the filesystem of teh TrackingDataDirectory
+
+	// The directory absolute path
+	//
+	// Gets the actual path on the filesystem of the TrackingDataDirectory
 	// @return the actual path on the filesystem
-	fs::path FilePath() const;
+	const fs::path & AbsoluteFilePath() const override;
 
-	// Gets the first frame number
-	// @return the first frame number in this directory
-	uint64_t StartFrame() const;
+	// Gets the first frame number.
+	//
+	// @return the first <FrameID> in this directory
+	FrameID StartFrame() const;
 
 	// Gets the last frame number
-	// @return the last frame number in this directory
-	uint64_t EndFrame() const;
+	//
+	// @return the last <FrameID> in this directory
+	FrameID EndFrame() const;
 
 	// Gets the time of the first frame in this directory
 	// @return the time of the first frame in this directory
@@ -118,9 +121,13 @@ public:
 		return d_endIterator;
 	}
 
-	const_iterator FrameAt(uint64_t frameID) const;
+	const_iterator FrameAt(FrameID FID) const;
 
 	const_iterator FrameNear(const Time & t) const;
+
+	FrameReference FrameReferenceAt(FrameID FID) const;
+
+	FrameReference FrameReferenceNear(const Time & t) const;
 
 	// Opens an actual TrackingDataDirectory on the filesystem
 	// @path path to the tracking data directory.
@@ -131,26 +138,84 @@ public:
 	// populate its data form its actual content. This function will
 	// look for tracking data file open the first and last segment to
 	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory Open(const fs::path & path, const fs::path & experimentRoot);
+	static TrackingDataDirectory::ConstPtr Open(const fs::path & TDpath, const fs::path & experimentRoot);
 
-	const SegmentIndexer & TrackingIndex() const;
+	static TrackingDataDirectory::ConstPtr Create(const fs::path & uri,
+	                                              const fs::path & absoluteFilePath,
+	                                              uint64_t startFrame,
+	                                              uint64_t endFrame,
+	                                              const Time & start,
+	                                              const Time & end,
+	                                              const TrackingIndex::Ptr & segments,
+	                                              const MovieIndex::Ptr & movies,
+	                                              const FrameReferenceCacheConstPtr & referenceCache);
 
+
+	const TrackingIndex & TrackingSegments() const;
+
+	const MovieIndex & MovieSegments() const;
+
+	const FrameReferenceCache & ReferenceCache() const;
+
+	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
+	                                               uint8_t threshold) const;
 
 private:
-	fs::path       d_experimentRoot, d_path;
-	uint64_t       d_startFrame,d_endFrame;
+	typedef std::pair<FrameID,Time> TimedFrame;
 
-	SegmentIndexer::Ptr d_segments;
 
+	std::weak_ptr<const TrackingDataDirectory> d_itself;
+	fs::path       d_absoluteFilePath, d_URI;
+	FrameID        d_startFrame,d_endFrame;
 	UID            d_uid;
 	const_iterator d_endIterator;
+
+
+
+	TrackingIndex::Ptr          d_segments;
+	MovieIndex::Ptr             d_movies;
+	FrameReferenceCacheConstPtr d_referencesByFID;
+
+	static void CheckPaths(const fs::path & path,
+	                       const fs::path & experimentRoot);
+
+	static void LookUpFiles(const fs::path & absoluteFilePath,
+	                        std::vector<fs::path> & hermesFile,
+	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
+
+	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+	                              const fs::path & URI,
+	                              MovieSegment::List & movies);
+
+	static TrackingDataDirectory::ConstPtr LoadFromCache(const fs::path & absoluteFilePath,
+	                                                     const fs::path & URI);
+
+	static std::pair<TimedFrame,TimedFrame>
+	BuildIndexes(const fs::path & URI,
+	             Time::MonoclockID monoID,
+	             const std::vector<fs::path> & hermesFile,
+	             const TrackingIndex::Ptr & trackingIndexer,
+	             FrameReferenceCache & cache);
+
+
+	TrackingDataDirectory(const fs::path & uri,
+	                      const fs::path & absoluteFilePath,
+	                      uint64_t startFrame,
+	                      uint64_t endFrame,
+	                      const Time & start,
+	                      const Time & end,
+	                      const TrackingIndex::Ptr & segments,
+	                      const MovieIndex::Ptr & movies,
+	                      const FrameReferenceCacheConstPtr & referenceCache);
+
+	void SaveToCache() const;
+
+	ConstPtr Itself() const;
 
 };
 
 } //namespace priv
-
 } //namespace myrmidon
-
 } //namespace fort
 
 

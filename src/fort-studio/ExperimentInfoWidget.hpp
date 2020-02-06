@@ -23,7 +23,7 @@ signals:
 public slots:
 	void onNewController(ExperimentController * controller);
 
-	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
+	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & );
 
 	void on_addButton_clicked();
 	void on_removeButton_clicked();

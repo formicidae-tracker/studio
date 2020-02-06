@@ -25,7 +25,7 @@ public:
 
 signals:
 	void modified(bool);
-	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & );
+	void dataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & );
 
 	void antCreated(const fort::myrmidon::priv::AntPtr & );
 	void antModified(const fort::myrmidon::priv::AntPtr & );
@@ -46,7 +46,7 @@ public slots:
 	Error removeAnt(fort::myrmidon::Ant::ID ID);
 
 	Error addIdentification(fort::myrmidon::Ant::ID ID,
-	                        uint32_t tagValue,
+	                        fort::myrmidon::priv::TagID tagValue,
 	                        const fort::myrmidon::Time::ConstPtr & start,
 	                        const fort::myrmidon::Time::ConstPtr & end);
 
@@ -55,7 +55,7 @@ public slots:
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
 	void setComment(const QString & comment);
-	void setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf);
+	void setTagFamily(fort::tags::Family tf);
 	void setThreshold(uint8_t th);
 private:
 	fort::myrmidon::priv::Experiment::Ptr d_experiment;

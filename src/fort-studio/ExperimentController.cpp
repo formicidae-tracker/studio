@@ -8,6 +8,10 @@
 #include <fort-hermes/FileContext.h>
 #include <fort-hermes/Error.h>
 
+
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <myrmidon/priv/Identifier.hpp>
+
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
@@ -29,7 +33,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 		                                                             d_experiment->Basedir());
 
 
-		d_experiment->AddTrackingDataDirectory(tdd);
+		// d_experiment->AddTrackingDataDirectory(tdd);
 		setModified(true);
 		emit dataDirUpdated(d_experiment->TrackingDataDirectories());
 		return Error::NONE;
@@ -41,7 +45,7 @@ Error ExperimentController::addDataDirectory(const QString & path) {
 
 Error ExperimentController::removeDataDirectory(const QString & path) {
 	try {
-		d_experiment->RemoveTrackingDataDirectory(path.toUtf8().constData());
+		// d_experiment->RemoveTrackingDataDirectory(path.toUtf8().constData());
 		setModified(true);
 		emit dataDirUpdated(d_experiment->TrackingDataDirectories());
 		return Error::NONE;
@@ -123,7 +127,7 @@ fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
 }
 
 Error ExperimentController::addIdentification(fort::myrmidon::Ant::ID ID,
-                                              uint32_t tagValue,
+                                              fort::myrmidon::priv::TagID tagValue,
                                               const fm::Time::ConstPtr & start,
                                               const fm::Time::ConstPtr & end) {
 	try {
@@ -176,7 +180,7 @@ Error ExperimentController::deleteIdentification(const fort::myrmidon::priv::Ide
 }
 
 
-void ExperimentController::setTagFamily(fort::myrmidon::priv::Experiment::TagFamily tf) {
+void ExperimentController::setTagFamily(fort::tags::Family tf) {
 	if ( tf == d_experiment->Family() ) {
 		return;
 	}

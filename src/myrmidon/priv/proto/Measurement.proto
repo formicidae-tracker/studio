@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "Vector2d.proto";
+
+message MeasurementType {
+	uint32 ID   = 1;
+	string name = 2;
+}
+
+message Measurement {
+	string   tagCloseUpURI = 1;
+	uint32   type          = 2;
+	Vector2d start         = 3;
+	Vector2d end           = 4;
+	double   tagSizePx     = 5;
+};

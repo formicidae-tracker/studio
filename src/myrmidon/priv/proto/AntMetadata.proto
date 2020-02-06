@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "google/protobuf/timestamp.proto";
+
+import "Vector2d.proto";
+
+message Identification {
+    int32                     ID      = 1;
+	google.protobuf.Timestamp Start   = 2;
+	google.protobuf.Timestamp End     = 3;
+	double                    TagSize = 4;
+};
+
+// message Metadata {
+// 	string JSONData        = 1;
+// 	uint64 StartValidFrame = 2;
+// };
+
+message Capsule {
+	Vector2d a        = 1;
+	double  a_radius = 2;
+	Vector2d b        = 3;
+	double  b_radius = 4;
+};
+
+message Shape {
+	repeated Capsule capsules = 1;
+};
+
+message AntMetadata {
+	int32                   ID              = 1;
+	Shape                   shape           = 2;
+	repeated Identification identifications = 3;
+//	repeated Metadata       metadata        = 4;
+};

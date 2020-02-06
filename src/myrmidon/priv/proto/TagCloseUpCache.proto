@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+
+package fort.myrmidon.pb;
+
+import "Vector2d.proto";
+import "TagFamily.proto";
+
+message TagCloseUpCacheHeader {
+	uint32    threshold  = 1;
+	TagFamily family     = 2;
+};
+
+message TagCloseUp {
+	Vector2d position = 1;
+	double   angle    = 2;
+	uint32   value    = 3;
+
+	repeated Vector2d corners = 4;
+
+	uint64 frameid            = 5;
+	string imagepath          = 6;
+};

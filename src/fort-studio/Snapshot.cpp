@@ -15,7 +15,7 @@ const Snapshot::Vector2dList & Snapshot::Corners() const {
 }
 
 fs::path Snapshot::ImagePath() const {
-	return Base() / d_relativeImagePath;
+	return ParentPath() / d_relativeImagePath;
 }
 
 double ComputeAngleFromCorner(const apriltag_detection_t *q) {
@@ -49,7 +49,7 @@ Snapshot::ConstPtr Snapshot::FromApriltag(const apriltag_detection_t * d,
 
 
 Snapshot::Snapshot(const fort::myrmidon::priv::RawFrame::ConstPtr& frame,
-                   uint32_t tagValue)
+                   fort::myrmidon::priv::TagID tagValue)
 	: TagInFramePointer(frame,tagValue) {
 
 }

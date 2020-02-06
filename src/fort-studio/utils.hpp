@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Point2d.pb.h"
+#include <myrmidon/Vector2d.pb.h>
 
 #include <Eigen/Core>
 
@@ -10,11 +10,11 @@ namespace myrmidon {
 
 namespace pb {
 
-inline Eigen::Vector2d Point2dToEigen(const fort::myrmidon::pb::Point2d & p) {
+inline Eigen::Vector2d Point2dToEigen(const fort::myrmidon::pb::Vector2d & p) {
 	return Eigen::Vector2d(p.x(),p.y());
 }
 
-inline void EigenToPoint2d(fort::myrmidon::pb::Point2d * pb, const Eigen::Vector2d & v) {
+inline void EigenToPoint2d(fort::myrmidon::pb::Vector2d * pb, const Eigen::Vector2d & v) {
 	pb->set_x(v.x());
 	pb->set_y(v.y());
 }

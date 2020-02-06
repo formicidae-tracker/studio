@@ -19,6 +19,11 @@ public:
 	inline static const fort::myrmidon::Time EndTime(const fs::path & fs) {
 		return s_times[fs].second;
 	}
+
+	inline static const std::map<fs::path,std::shared_ptr<uint32_t> > CloseUpFilesForPath(const fs::path & p ) {
+		return s_closeUpFiles[p];
+	}
+
 private:
 
 	void OnTestProgramStart(const ::testing::UnitTest& /* unit_test */) override;
@@ -33,7 +38,10 @@ private:
 	// Called after a test ends.
 	void OnTestEnd(const ::testing::TestInfo& test_info) override;
 
+	static void CreateSnapshotFiles(std::vector<uint64_t> bounds,
+	                                const fs::path & basedir);
 
 	static fs::path s_testdir;
 	static std::map<fs::path,std::pair<fort::myrmidon::Time,fort::myrmidon::Time> > s_times;
+	static std::map<fs::path,std::map<fs::path,std::shared_ptr<uint32_t> > > s_closeUpFiles;
 };  // class TestSetup

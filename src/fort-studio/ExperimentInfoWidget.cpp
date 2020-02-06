@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QListWidget>
 
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 ExperimentInfoWidget::ExperimentInfoWidget(QWidget *parent)
 	: QWidget(parent)
@@ -59,7 +60,7 @@ void ExperimentInfoWidget::onNewController(ExperimentController * controller) {
 
 void ExperimentInfoWidget::on_addButton_clicked() {
 	QString dataDir  = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
-	                                                     QFileInfo(d_controller->experiment().AbsolutePath().c_str()).absolutePath(),
+	                                                     QFileInfo(d_controller->experiment().AbsoluteFilePath().c_str()).absolutePath(),
 	                                                     QFileDialog::ShowDirsOnly);
 	if ( dataDir.isEmpty() ) {
 		return;
@@ -84,10 +85,10 @@ void ExperimentInfoWidget::on_removeButton_clicked() {
 }
 
 
-void ExperimentInfoWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds) {
+void ExperimentInfoWidget::onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds) {
 	d_ui->listWidget->clear();
 	for(auto const & tdd : tdds ) {
-		auto item = new QListWidgetItem(tdd.second.LocalPath().c_str(),d_ui->listWidget);
+		auto item = new QListWidgetItem(tdd.second->URI().c_str(),d_ui->listWidget);
 		item->setIcon(QIcon::fromTheme("folder"));
 		d_ui->listWidget->addItem(item);
 	}

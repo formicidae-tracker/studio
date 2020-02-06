@@ -5,6 +5,8 @@
 
 #include <Eigen/Core>
 
+#include "Types.hpp"
+
 #include "Isometry2D.hpp"
 
 #include "ForwardDeclaration.hpp"
@@ -14,9 +16,7 @@
 class IdentificationUTest;
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 // An Identification relates TagID to an Ant
@@ -44,13 +44,17 @@ public:
 
 	// A Pointer to an Identification
 	typedef std::shared_ptr<Identification> Ptr;
+	// A Pointer to a const Identification
+	typedef std::shared_ptr<const Identification> ConstPtr;
 	// A List of Identification
 	typedef std::vector<Ptr> List;
 
 
+	const static double DEFAULT_TAG_SIZE;
+
 	// Gets the TagID of this Identification
 	// @return <TagID> this <priv::Identification> refers to.
-	uint32_t TagValue() const;
+	TagID TagValue() const;
 
 	// Sets the starting validity time for this Identification
 	// @start the starting <Time> could be an empty pointer to remove
@@ -82,17 +86,19 @@ public:
 	// @return the time after which this identification is unvalid.
 	Time::ConstPtr End() const;
 
-	// Sets the Tag Position relative to the Ant
-	// @position the translation from the <priv::Ant> origin to the Tag center.
-	// @angle the angle between the <priv::Ant> and the tag.
-	void SetTagPosition(const Eigen::Vector2d & position, double angle);
-
 	// Gets the tag position in the Ant reference frame
 	// @return a vector from the <priv::Ant> origin to the tag center
-	Eigen::Vector2d TagPosition() const;
+	Eigen::Vector2d AntPosition() const;
 	// Gets the tag rotation
 	// @return the angle in radian between the <priv::Ant> reference and the tag.
-	double TagAngle() const;
+	double AntAngle() const;
+
+	void SetTagSize(double size);
+
+	double TagSize() const;
+
+	bool UseDefaultTagSize() const;
+
 
 	// Gets the transformation from the Ant reference to the Tag reference
 	// @return an <Isometry2D> that performs the transformation from
@@ -123,23 +129,10 @@ public:
 	// destroyed.
 	IdentifierPtr ParentIdentifier() const;
 
-	// Computes the TagToAntTransform
-	// @result the result transform
-	// @tagPosition the position to the tag in image space
-	// @tagAngle the orientation of the tag in image space
-	// @head the head of the <priv::Ant> in image space
-	// @tail the tail of the <priv::Ant> in image space
-	//
-	// Helper function to compute <TagPosition> and <TagAngle>
-	static void ComputeTagToAntTransform(Isometry2Dd & result,
-	                                     const Eigen::Vector2d & tagPosition, double tagAngle,
-	                                     const Eigen::Vector2d & head,
-	                                     const Eigen::Vector2d & tail);
-
 
 	class Accessor {
 	private:
-		static Ptr Create(uint32_t tagValue,
+		static Ptr Create(TagID tagValue,
 		                  const IdentifierPtr & identifier,
 		                  const AntPtr & ant);
 		static void SetStart(Identification & identification,
@@ -149,7 +142,7 @@ public:
 
 	public:
 		friend class Identifier;
-		friend class ::IdentificationUTest;
+		friend class IdentificationUTest;
 	};
 
 
@@ -157,19 +150,27 @@ private:
 	Identification & operator=(const Identification&) = delete;
 	Identification(const Identification&)  = delete;
 
-	Identification(uint32_t tagValue,
+	Identification(TagID tagValue,
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
+
+	// Sets the Target Position relative to the tag
+	//
+	// @position the translation from the tag  origin to the Tag center.
+	// @angle the angle between the <priv::Ant> and the tag.
+	void SetAntPosition(const Eigen::Vector2d & position,
+	                    double angle);
 
 	void SetBound(const Time::ConstPtr & start,
 	              const Time::ConstPtr & end);
 	friend class Ant;
 	friend class Identifier;
-	friend class ::IdentificationUTest;
+	friend class IdentificationUTest;
 
 	Isometry2Dd               d_antToTag;
 
 	int32_t                   d_tagValue;
+	double                    d_tagSize;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
 
@@ -193,9 +194,7 @@ private:
 
 
 } // namespace priv
-
 } // namespace myrmidon
-
 } // namespace fort
 
 

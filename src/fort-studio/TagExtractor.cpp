@@ -13,13 +13,13 @@ TagExtractor::~TagExtractor() {
 	cancel();
 }
 
-void TagExtractor::start(const fort::myrmidon::priv::TrackingDataDirectory & tdd,
+void TagExtractor::start(const fort::myrmidon::priv::TrackingDataDirectory::ConstPtr & tdd,
                          const fs::path & basedir) {
 	{
 		std::lock_guard<std::mutex> lock(d_mutex);
 		d_quit = false;
 	}
-	auto path = tdd.FilePath() / "tracking.0000.hermes";
+	auto path = tdd->AbsoluteFilePath() / "tracking.0000.hermes";
 
 	d_future = QtConcurrent::run(QThreadPool::globalInstance(),
 	                             [this,path]() {

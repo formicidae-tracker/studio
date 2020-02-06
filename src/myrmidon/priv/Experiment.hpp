@@ -2,23 +2,21 @@
 
 #include <memory>
 
-#include "../Ant.hpp"
-#include "../Time.hpp"
+#include <fort-tags/fort-tags.h>
+
+#include <myrmidon/Ant.hpp>
+#include <myrmidon/Time.hpp>
 #include <myrmidon/utils/FileSystem.hpp>
 
-#include "TrackingDataDirectory.hpp"
-#include "Identifier.hpp"
+
+#include "Zone.hpp"
+#include "FrameReference.hpp"
 
 #include "ForwardDeclaration.hpp"
+#include "LocatableTypes.hpp"
 
 namespace fort {
 namespace myrmidon {
-
-namespace pb {
-class Experiment;
-class TrackingDataDirectory;
-}
-
 namespace priv {
 
 
@@ -38,16 +36,14 @@ using namespace fort::myrmidon;
 // <myrmidon::Ant::ID> when they originate from the same
 // <Identifier>. Anyway dataset are very large and we should not try
 // to anlayse several of them in the same program.
-class Experiment {
+class Experiment : public FileSystemLocatable {
 public :
-	// The AprilTag families supported by the FORT project.
-	//
-	// The AprilTag families supported by the FORT project.
-	// TODO: should it move to fort hermes ?
-	enum class TagFamily {Tag36h11=0,Tag36h10,Tag36ARTag,Tag16h5,Tag25h9,Circle21h7,Circle49h12,Custom48h12,Standard41h12,Standard52h13,Unset};
 
 	// Maps <TrackingDataDirectory> by their path
-	typedef std::unordered_map<std::string,TrackingDataDirectory> TrackingDataDirectoryByPath;
+	typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
+
+	// Maps the <MeasurementType> by their <MeasurementType::ID>
+	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
@@ -89,7 +85,7 @@ public :
 	// The absolute path of the Experiment
 	// @return the absolute fs::path of the <priv::Experiment> on the
 	//         filesysten
-	const fs::path & AbsolutePath() const;
+	const fs::path & AbsoluteFilePath() const override;
 
 	// The parent dir of the Experiment
 	//
@@ -101,89 +97,188 @@ public :
 	const fs::path & Basedir() const;
 
 
-	// Adds a new TrackingDataDirectory
-	// @tdd the new <TrackingDataDirectory> to add
-	//
-	// This methods adds the <TrackingDataDirectory> only if none of
-	// its Frame overlaps in time with the <TrackingDataDirectory>
-	// already referenced by this <priv::Experiment>.
-	//
-	// TODO: how to treat the case of multiple box experiment? In that
-	// case the frame will overlap. But its the same colony. But we
-	// have now two reference systems.
-	void AddTrackingDataDirectory(const TrackingDataDirectory & tdd);
+	Zone::Ptr CreateZone(const std::string & name);
 
+	void DeleteZone(const fs::path & zoneURI);
 
-	// Removes a TrackingDataDirectory
-	// @path relative path to the directory
-	void RemoveTrackingDataDirectory(fs::path path);
+	const std::vector<Zone::Ptr> & Zones() const;
 
-	// Gets the TrackingDataDirectory related to this Experiment
-	// @return a map of all <TrackingDataDirectory> related to this
-	//         <Experiment>.
-	const TrackingDataDirectoryByPath & TrackingDataDirectories() const;
+	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
+
+	void DeleteTrackingDataDirectory(const fs::path & URI);
 
 	// Accessor to the underlying Identifier
+	//
 	// @return a reference to the underlying <Identifier>
 	inline fort::myrmidon::priv::Identifier &  Identifier() {
 		return *d_identifier;
 	}
 
 	// ConstAccessor to the underlying Identifier
+	//
 	// @return a reference to the underlying <Identifier>
 	const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
 		return *d_identifier;
 	}
 
+
+	// The name of the Experiment.
+	//
+	// @return a reference to the experiment name
 	const std::string & Name() const;
+	// Sets the Experiment's name.
+	//
+	// @name the new <priv::Experiment> name
 	void SetName(const std::string & name);
 
+	// The author of the Experiment
+	//
+	// @return a reference to the author name
 	const std::string & Author() const;
+	// Sets the experiment's author
+	//
+	// @author the new value for the experiement author
 	void SetAuthor(const std::string & author);
 
-
+	// Comments about the experiment
+	//
+	// @return a reference to the <priv::Experiment> comment
 	const std::string & Comment() const;
+	// Sets the comment of the Experiment
+	//
+	// @comment the new experiment comment
 	void SetComment(const std::string & comment);
 
-	TagFamily Family() const;
-	void SetFamily(TagFamily tf);
+	// The kind of tag used in the experiment
+	//
+	// @return the family of tag used in the experiment
+	fort::tags::Family Family() const;
+	// Sets the kind of tag used in the experiment
+	//
+	// @tf the tag that are used in the experiment
+	void SetFamily(fort::tags::Family tf);
 
+	// The default physical tag size
+	//
+	// Usually an Ant colony are tagged with a majority of tag of a
+	// given size. This is this size. Some individuals (like Queens)
+	// may often use a bigger tag size that should be set in their
+	// Identification. This value is use for <Measurement>.
+	//
+	// @return the default tag size for the experiment in mm
+	double DefaultTagSize() const;
+	// Sets the default tag siye in mm
+	//
+	// @defaultTagSize the tag size in mm for the ma
+	void   SetDefaultTagSize(double defaultTagSize);
+
+	// The threshold used for tag detection
+	//
+	// @return the threshold used for detection
 	uint8_t Threshold() const;
+
+	// Sets the detection threshold
+	//
+	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
+	MeasurementTypeID NextAvailableMeasurementTypeID() const;
+
+	MeasurementTypePtr CreateMeasurementType(MeasurementTypeID MTID,
+	                                         const std::string & name);
+
+	void DeleteMeasurementType(MeasurementTypeID MTID);
+
+	const MeasurementTypeByID & MeasurementTypes() const;
+
+	// Adds or modifies a Measurement
+	//
+	// Adds a <Measurement> to the <priv::Experiment>.  Could also be
+	// used to modifies an existing measurement.
+	// @m the <Measurement> to add.
+	void SetMeasurement(const MeasurementConstPtr & m);
+
+	// Removes a Measurement
+	//
+	// @URI the URI of the measurement to remove
+	void DeleteMeasurement(const fs::path & URI);
+
+	// Lists all Measurement of the experiment.
+	//
+	// @list a vector that will be filled with all measurements in the
+	// experiment.
+	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
+
+	// Represents a Measurement in mm at a given Time.
+	struct ComputedMeasurement {
+		Time   MTime;
+		double LengthMM;
+	};
+
+	// Computes all Measurement of a type for an Ant
+	//
+	// @result a vector that will be filled with the corresponding
+	//         <ComputedMeasurement>
+	// @AID the desired <Ant> designated by its <Ant::ID>
+	// @type the type of measurement we are looking for.
+	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+	                               myrmidon::Ant::ID AID,
+	                               MeasurementTypeID type) const;
+
+	// Computes the conventional ratio beween corner size and
+	// nominated tag file.
+	//
+	// Due to different convention in tag size denomination (ARTag tag
+	// size is the black border distance, Apriltag is the overall tag
+	// size). We need this function to find the right ratio. Otherwise
+	// we may make 10 to 20% error when measuring Ant.
+	//
+	// For ARTag, this ratio should be one. For Apriltag, depending on
+	// the family cracteristics, it is a number < 1.0 (0.8 for
+	// 36h11/36h10, 7.0/9.0 for Standard41h12).
+	// @f the considered family
+	// @return the right ratio
+	static double CornerWidthRatio(fort::tags::Family f);
 
 private:
+	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
+	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
+	typedef std::map<MeasurementTypeID,
+	                 std::map<TagID,
+	                          std::map<fs::path,
+	                                   std::map<Time,
+	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
+
+
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
 
-	bool ContainsFramePointer() const;
-
 	Experiment(const fs::path & filepath);
 
-	fs::path                    d_absoluteFilepath;
-	fs::path                    d_basedir;
-	TrackingDataDirectoryByPath d_dataDirs;
-	Identifier::Ptr             d_identifier;
+	fs::path         d_absoluteFilepath;
+	fs::path         d_basedir;
+	Zone::Group::Ptr d_zoneGroup;
+	IdentifierPtr    d_identifier;
 
-	std::string d_name;
-	std::string d_author;
-	std::string d_comment;
-	TagFamily   d_family;
-	uint8_t     d_threshold;
+	std::string        d_name;
+	std::string        d_author;
+	std::string        d_comment;
+	fort::tags::Family d_family;
+	double             d_defaultTagSize;
+	uint8_t            d_threshold;
 
-
+	MeasurementByTagCloseUp d_measurementByURI;
+	SortedMeasurement       d_measurements;
+	MeasurementTypeByID     d_measurementTypeByID;
 };
 
 } //namespace priv
-
 } //namespace myrmidon
-
 } //namespace fort
 
-
 inline std::ostream & operator<<( std::ostream & out,
-                                  fort::myrmidon::priv::Experiment::TagFamily t) {
+                                  fort::tags::Family t) {
 	static std::vector<std::string> names = {
 		 "Tag36h11",
 		 "Tag36h10",

@@ -19,6 +19,9 @@ addons:
       - libboost-date-time-dev
       - libboost-filesystem-dev
       - gcovr
+      - libopencv-imgcodecs-dev
+      - libopencv-imgproc-dev
+      - libopencv-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf

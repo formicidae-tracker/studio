@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package fort.myrmidon.pb;
+
+import "google/protobuf/timestamp.proto";
+import "TagFamily.proto";
+import "Measurement.proto";
+
+message Zone {
+	string          name = 1;
+	repeated string trackingdatadirectories = 2;
+};
+
+message Experiment {
+	string    name      = 2;
+	string    author    = 3;
+	string    comment   = 4;
+	TagFamily tagfamily = 5;
+	uint32    threshold = 6;
+	double    tagsize   = 7;
+
+	repeated Zone zones = 11;
+
+	repeated MeasurementType customMeasurementTypes  = 21;
+};

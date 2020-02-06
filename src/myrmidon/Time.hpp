@@ -267,7 +267,7 @@ public:
 
 	// In-place conversion to a protobuf Timestamp
 	// @timestamp the timestamp to modify to represent the <Time>
-	void ToTimestamp(google::protobuf::Timestamp & timestamp) const;
+	void ToTimestamp(google::protobuf::Timestamp * timestamp) const;
 
 	// Zero time constructor
 	Time();
@@ -346,6 +346,12 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
+	class Comparator {
+	public:
+		bool operator()(const Time & a, const Time & b) const {
+			return a.Before(b);
+		}
+	};
 
 private:
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);

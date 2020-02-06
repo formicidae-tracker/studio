@@ -4,7 +4,9 @@
 #include <iomanip>
 
 
-using namespace fort::myrmidon::priv;
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 	std::ostringstream os;
@@ -13,7 +15,7 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 	return os.str();
 }
 
-Ant::Ant(uint32_t ID)
+Ant::Ant(fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
 	, d_IDStr(FormatID(ID)) {
 }
@@ -28,3 +30,20 @@ Identification::List & Ant::Accessor::Identifications(Ant & a){
 const Identification::List & Ant::Identifications() const {
 	return d_identifications;
 }
+
+const Ant::Shapes & Ant::Shape() const {
+	return d_shape;
+}
+
+void Ant::AddCapsule(const Capsule::Ptr & capsule) {
+	if (!capsule) {
+		throw std::invalid_argument("No capsule");
+	}
+	d_shape.push_back(capsule);
+}
+
+
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

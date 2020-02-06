@@ -11,17 +11,19 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
+find_package(OpenCV REQUIRED core imgcodecs imgproc)
+
 find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
 
 include(FetchContent)
 FetchContent_Declare(googletest
                      GIT_REPOSITORY https://github.com/google/googletest.git
-                     GIT_TAG        release-1.8.1
+                     GIT_TAG        release-1.10.0
                      )
 
 FetchContent_Declare(fort-tags
                      GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.0.2)
+                     GIT_TAG        v1.1.0)
 
 FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git

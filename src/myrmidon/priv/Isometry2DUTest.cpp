@@ -2,8 +2,10 @@
 
 #include "Isometry2D.hpp"
 
-using namespace fort::myrmidon::priv;
 
+namespace fort {
+namespace myrmidon {
+namespace priv {
 
 TEST_F(Isometry2DUTest,TestInverse) {
 	struct TestData {
@@ -88,3 +90,7 @@ TEST_F(Isometry2DUTest,CanBeUsedToTransformPoint) {
 
 
 }
+
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

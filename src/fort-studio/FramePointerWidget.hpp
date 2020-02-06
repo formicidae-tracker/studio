@@ -25,7 +25,7 @@ signals:
 
 public slots:
 	void onNewController(ExperimentController * controller);
-	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByPath & tdds);
+	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI & tdds);
 
 	void on_comboBox_currentIndexChanged(int );
 	void on_groupBox_toggled(bool);

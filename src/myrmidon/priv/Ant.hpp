@@ -3,14 +3,13 @@
 #include <memory>
 #include <myrmidon/utils/FileSystem.hpp>
 
-#include "../Ant.hpp"
+#include <myrmidon/Ant.hpp>
 
 #include "Identification.hpp"
+#include "Shape.hpp"
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 // The Object of Interest of any Experiment
@@ -32,8 +31,11 @@ public:
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant> Ptr;
 
+	// A List of shape
+	typedef std::vector<Capsule::Ptr> Shapes;
+
 	// The Constructor for an Ant
-	Ant(uint32_t ID);
+	Ant(fort::myrmidon::Ant::ID ID);
 
 	// Its destructor
 	~Ant();
@@ -68,6 +70,11 @@ public:
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
 
+
+	const Shapes & Shape() const;
+
+	void AddCapsule(const Capsule::Ptr & capsule);
+
 	// C++ shenanigans
 	//
 	// C++ shenanigan class to give restricted unlimited access to the
@@ -85,13 +92,12 @@ private:
 	Ant(const Ant&)  = delete;
 
 
-	uint32_t    d_ID;
-	std::string d_IDStr;
-	Identification::List d_identifications;
+	fort::myrmidon::Ant::ID d_ID;
+	std::string             d_IDStr;
+	Identification::List    d_identifications;
+	Shapes                  d_shape;
 };
 
 } //namespace priv
-
 } // namespace myrmidon
-
 } // namespace fort

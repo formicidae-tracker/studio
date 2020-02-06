@@ -6,9 +6,7 @@
 #include "ForwardDeclaration.hpp"
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 // A IO Abstraction to Read and Write an Experiment on the filesystem
@@ -80,7 +78,5 @@ public:
 };
 
 } //namespace priv;
-
 } //namespace myrmidon
-
 } //namespace fort

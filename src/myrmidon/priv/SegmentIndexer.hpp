@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Time.hpp"
+#include "Types.hpp"
+#include "FrameReference.hpp"
 
 namespace fort {
 
@@ -19,22 +21,25 @@ namespace priv {
 //
 // <Find> can be used to retrieve a segment from any frame number or
 // <Time>
+template <typename T>
 class SegmentIndexer {
 public:
 	typedef std::shared_ptr<SegmentIndexer> Ptr;
 	typedef std::shared_ptr<const SegmentIndexer> ConstPtr;
-	typedef std::tuple<uint64_t,Time,std::string> Segment;
+	typedef std::pair<FrameReference,T> Segment;
 
-	void Insert(uint64_t frameID, const Time & t, const std::string & value);
+	void Insert(const FrameReference & ref, const T & value);
 
+	void Insert(const Segment & s);
 
 	std::vector<Segment> Segments() const;
 
-	const std::string & Find(uint64_t frameID) const;
+	const T & Find(FrameID FID) const;
 
-	const std::string & Find(const Time & t) const;
+	const T & Find(const Time & t) const;
 
 private:
+	typedef std::shared_ptr<Segment> SegmentPtr;
 	class FrameComparator {
 	public:
 		bool operator() (const uint64_t & a, const uint64_t & b) const;
@@ -47,8 +52,8 @@ private:
 	};
 
 
-	std::map<uint64_t,std::shared_ptr<std::string>,FrameComparator> d_byID;
-	std::map<Time,std::shared_ptr<std::string>,TimeComparator> d_byTime;
+	std::map<FrameID,SegmentPtr,FrameComparator> d_byID;
+	std::map<Time,SegmentPtr,TimeComparator> d_byTime;
 
 };
 
@@ -58,3 +63,5 @@ private:
 } //namespace myrmidon
 
 } //namespace fort
+
+#include "SegmentIndexer.impl.hpp"

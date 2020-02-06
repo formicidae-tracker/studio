@@ -1,6 +1,6 @@
 #include "TestSetup.hpp"
 
-#include <myrmidon/Experiment.pb.h>
+#include <myrmidon/ExperimentFile.pb.h>
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>
@@ -19,7 +19,11 @@
 
 #include <cmath>
 #include <fstream>
+#include <random>
 
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <apriltag/apriltag.h>
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -34,10 +38,12 @@ std::string HermesFileName(size_t i) {
 }
 
 std::map<fs::path,std::pair<Time,Time>> TestSetup::s_times;
+std::map<fs::path,std::map<fs::path,std::shared_ptr<uint32_t> > > TestSetup::s_closeUpFiles;
 
 std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, size_t * next,
                                      const Time & startTime,
                                      uint64_t start, uint64_t end) {
+
 	fort::hermes::Header hHeader;
 	auto v = hHeader.mutable_version();
 	v->set_vmajor(0);
@@ -71,7 +77,7 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 		fTime = startTime.Add((i-start)* 100 * fort::myrmidon::Duration::Millisecond);
 		auto ro = lineRO.mutable_readout();
 		ro->Clear();
-		fTime.ToTimestamp(*ro->mutable_time());
+		fTime.ToTimestamp(ro->mutable_time());
 		ro->set_frameid(i);
 		ro->set_timestamp(fTime.MonotonicValue()/1000);
 		auto a = ro->add_tags();
@@ -101,6 +107,166 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 	return std::make_pair(resStart,fTime);
 }
 
+void AddBoundsJittering(std::vector<uint64_t> & bounds, int jitter) {
+	uint64_t last = bounds.back();
+
+	std::random_device r;
+	std::default_random_engine e1(r());
+	std::uniform_int_distribution<int> uniform_dist(-4, 4);
+
+	for ( auto & b : bounds ) {
+		b += uniform_dist(e1);
+	}
+	bounds.front() = 0;
+	bounds.back() = last;
+}
+
+void CreateMovieFiles(std::vector<uint64_t> bounds,
+                      const fs::path & basedir) {
+	auto lastBoundaryStart = *(bounds.end() - 2);
+	AddBoundsJittering(bounds,4);
+	static int ii = -2;
+	*(bounds.end() - 2) = lastBoundaryStart + 1 + (++ii);
+	int i = -1;
+
+	std::random_device r;
+
+    // Choose a random mean between 1 and 6
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> dist(0, 1);
+
+	for(auto iter = bounds.cbegin(); (iter+1) != bounds.cend(); ++iter) {
+		std::ostringstream oss;
+		oss << std::setw(4) << std::setfill('0') << ++i;
+
+		std::ofstream emptyMovie( (basedir/ ("stream." + oss.str() + ".mp4")).c_str() );
+
+		std::ofstream frameMatching ( (basedir / ("stream.frame-matching." + oss.str() + ".txt")).c_str());
+
+		uint64_t movieID = 0;
+		for(uint64_t trackingID = *iter; trackingID < *(iter+1); ++trackingID) {
+			// randomly drop 5% of frames
+			// if (dist(e1) < 0.05 ) {
+			// 	continue;
+			// }
+
+			frameMatching << movieID << " " << trackingID << std::endl;
+			++movieID;
+		}
+
+	}
+
+}
+
+void WriteTagFile(const fs::path & path ) {
+
+	apriltag_family_t * f = tag36h11_create();
+
+	size_t pxSize = 5;
+	size_t tagWidth = pxSize * f->total_width;
+
+	cv::Mat img(4*tagWidth,4*tagWidth,CV_8UC1);
+	img = 127;
+
+
+	uint8_t border(255);
+	uint8_t inside(0);
+	if ( f->reversed_border == true ) {
+		border = 0;
+		inside = 255;
+	}
+
+	auto setPixel = [tagWidth,pxSize,&img](size_t x, size_t y, uint8_t value) {
+		                for (size_t px = 0; px < pxSize; ++px) {
+			                for (size_t py = 0; py < pxSize; ++py) {
+				                size_t xx = x*pxSize + px + tagWidth;
+				                size_t yy = y*pxSize + py + tagWidth;
+				                img.at<uint8_t>(yy,xx) = value;
+			                }
+		                }
+	                };
+
+	size_t borderSize = f->total_width - f->width_at_border;
+	borderSize /=  2;
+	for ( size_t tx = 0; tx < f->total_width; ++tx) {
+		for ( size_t ty = 0; ty < f->total_width; ++ty) {
+			uint8_t color = inside;
+			if ( tx < borderSize || tx >= borderSize + f->width_at_border
+			     || ty < borderSize || ty >= borderSize + f->width_at_border ) {
+				color = border;
+			}
+			setPixel(tx,ty,color);
+		}
+	}
+
+	uint64_t code = f->codes[0];
+	for ( size_t i = 0; i < f->nbits; ++i) {
+		uint8_t color = (code & 1) ?  255 : 0 ;
+		code = code >> 1;
+		size_t ii = f->nbits - i - 1;
+		setPixel(f->bit_x[ii]+borderSize,f->bit_y[ii]+borderSize,color);
+	}
+
+
+	auto center = cv::Point(img.cols / 2,img.rows / 2);
+	auto rotMat = cv::getRotationMatrix2D(center,29.0,1.0);
+
+	cv::Mat rotated;
+	cv::warpAffine(img,rotated,rotMat,img.size(),cv::INTER_LINEAR,cv::BORDER_CONSTANT,127);
+
+	cv::imwrite(path.string(),rotated);
+	tag36h11_destroy(f);
+}
+
+void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
+                                    const fs::path & basedir) {
+
+	auto parentPath = basedir.parent_path();
+
+	AddBoundsJittering(bounds,6);
+	bounds.pop_back();
+
+	std::random_device r;
+	std::default_random_engine e1(r());
+	std::uniform_int_distribution<int> dist(0, 517);
+
+	std::set<int> IDset;
+	for ( size_t i = 0; i < 100; ++i) {
+		int toAdd;
+		do {
+			toAdd = dist(e1);
+		} while ( IDset.count(toAdd) != 0 );
+		IDset.insert(toAdd);
+	}
+
+	for ( const auto & b : bounds ) {
+		std::vector<int> IDs;
+		IDs.reserve(IDset.size());
+		for(const auto & ID : IDset) {
+			IDs.push_back(ID);
+		}
+		std::shuffle(IDs.begin(),IDs.end(),e1);
+
+		while(!IDs.empty()) {
+			for( int i = 0; i < 9 && !IDs.empty() ; ++i) {
+				auto FID = b + i;
+				auto TID = IDs.back();
+				IDs.resize(IDs.size()-1);
+				std::ostringstream single,multi;
+				single << "ant_" << TID << "_frame_" << FID << ".png";
+				multi << "frame_" << FID << ".png";
+				auto singleTouchPath = basedir / single.str();
+				auto multiTouchPath = basedir / multi.str();
+				std::ofstream singleTouch(singleTouchPath.c_str());
+				std::ofstream multiTouch(multiTouchPath.c_str());
+				s_closeUpFiles[parentPath].insert(std::make_pair(singleTouchPath,std::make_shared<uint32_t>(TID)));
+				s_closeUpFiles[parentPath].insert(std::make_pair(multiTouchPath,std::shared_ptr<uint32_t>()));
+			}
+		}
+	}
+	std::ofstream txtTouch( (basedir / "foo.txt").c_str() );
+}
+
 
 namespace fm=fort::myrmidon;
 
@@ -113,7 +279,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	auto tmppath = fs::temp_directory_path() / os.str();
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
-	auto foodirs = {"foo.0000","foo.0001","foo.0002"};
+	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000"};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;
@@ -123,32 +289,45 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	                                                 priv::TrackingDataDirectory::GetUID(s_testdir /"foo.0001"));
 	auto saveStartTime = startTime;
 
+
+
 	for(auto const & d : foodirs) {
 		fs::create_directories(Basedir() / d);
 		startTime = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
 		                                            startTime.MonotonicValue(),
 		                                            priv::TrackingDataDirectory::GetUID(s_testdir/ d));
 		const static size_t NB_FILES = 10;
+		std::vector<uint64_t> bounds = {0};
 		for(size_t i = 0; i < NB_FILES; ++i) {
 			auto next = std::make_shared<size_t>(i+1);
 			if (i == (NB_FILES-1)) {
 				next.reset();
 			}
-
+			uint64_t last = (i+1)* 100 - 1;
 			s_times[fs::path(d) / HermesFileName(i) ] = WriteHermesFile(s_testdir / d,i,next.get(),
-			                             startTime,i*100,(i+1)* 100 - 1);
+			                             startTime,i*100,last);
+			bounds.push_back(last);
 			startTime = startTime.Add(10 * Duration::Second
 			                          + 103 * Duration::Millisecond
 			                          + 14 * Duration::Microsecond);
 		}
 		startTime = startTime.Add(13 * Duration::Second);
 
-		fs::create_directories(Basedir() / d / "ants");
+		auto antdir = Basedir() / d / "ants";
+		fs::create_directories(antdir);
 		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
+
+
+		CreateMovieFiles(bounds, Basedir() / d );
+		CreateSnapshotFiles(bounds,antdir);
+
 	}
+
+
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {
-		fs::create_directories(Basedir() / d);
+		fs::create_directories(Basedir() / d / "ants");
+		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 	}
 
 
@@ -161,16 +340,13 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
+	auto z = e.add_zones();
+	z->set_name("box");
+	z->add_trackingdatadirectories("foo.0000");
 
-	fm::pb::TrackingDataDirectory tdd;
-	tdd.set_path("foo.0000");
-	tdd.set_startframe(0);
-	tdd.set_endframe(99);
-	saveStartTime.ToTimestamp(*tdd.mutable_startdate()->mutable_timestamp());
-	tdd.mutable_startdate()->set_monotonic(saveStartTime.MonotonicValue());
-	auto endTime = saveStartTime.Add(99*100*Duration::Millisecond);
-	endTime.ToTimestamp(*tdd.mutable_enddate()->mutable_timestamp());
-	tdd.mutable_enddate()->set_monotonic(endTime.MonotonicValue());
+	auto mt = e.add_custommeasurementtypes();
+	mt->set_id(0);
+	mt->set_name("head-tail");
 
 	fm::pb::FileHeader header;
 
@@ -206,12 +382,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		}
 		l.release_antdata();
 	}
-
-	l.set_allocated_trackingdatadirectory(&tdd);
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-		throw std::runtime_error("could not write tracking directory data");
-	}
-	l.release_trackingdatadirectory();
 
 
 }
