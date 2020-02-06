@@ -40,6 +40,7 @@ signals:
 
 private:
 	void setupList();
+	void updateNumber();
 
     Ui::AntListWidget *d_ui;
 

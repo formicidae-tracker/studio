@@ -28,7 +28,9 @@ public slots:
 
 	void onNewController(ExperimentController * controller);
 	void onDataDirUpdated(const fort::myrmidon::priv::Experiment::TrackingDataDirectoryByURI &);
-	void on_familySelector_activated(int);
+	void onTagFamilyChanged(fort::tags::Family f);
+
+	void on_familySelector_currentIndexChanged(int);
 	void on_thresholdBox_editingFinished();
 	void on_tagList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem*);
 	void on_roiBox_valueChanged(int);

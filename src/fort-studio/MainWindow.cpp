@@ -14,33 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_controller(NULL){
     d_ui->setupUi(this);
     static MainWindow * myself = this;
-    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) -> void{
-	                           QByteArray localMsg = msg.toLocal8Bit();
-	                           switch (type) {
-	                           case QtDebugMsg:
-		                           myself->d_ui->console->appendHtml("<font color=\"black\">"+msg+"</font></br>");
-		                           break;
-	                           case QtInfoMsg:
-		                           myself->d_ui->console->appendHtml("<font color=\"blue\">"+msg+"</font></br>");
-		                           break;
-	                           case QtWarningMsg:
-		                           myself->d_ui->console->appendHtml("<font color=\"orange\"><b>"+msg+"</b></font></br>");
-		                           break;
-	                           case QtCriticalMsg:
-		                           myself->d_ui->console->appendHtml("<font color=\"red\">"+msg+"</font></br>");
-		                           break;
-	                           case QtFatalMsg:
-		                           myself->d_ui->console->appendHtml("<font color=\"red\"><b>"+msg+"</b></font></br>");
-		                           break;
-	                           }
-                           });
 
     onNewController(NULL);
     loadSettings();
     connect(this,SIGNAL(newController(ExperimentController *)),
             d_ui->antList,SLOT(onNewController(ExperimentController *)));
     connect(this,SIGNAL(newController(ExperimentController *)),
-            d_ui->experimentInfo,SLOT(onNewController(ExperimentController *)));
+            d_ui->experimentEditor,SLOT(onNewController(ExperimentController *)));
     connect(this,SIGNAL(newController(ExperimentController *)),
             d_ui->taggingWidget,SLOT(onNewController(ExperimentController *)));
 
@@ -165,7 +145,7 @@ QString MainWindow::promptPath() {
 }
 
 void MainWindow::on_actionAddTrackingDataDir_triggered() {
-	d_ui->experimentInfo->on_addButton_clicked();
+
 }
 
 

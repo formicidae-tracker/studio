@@ -78,6 +78,11 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 		           SIGNAL(identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)),
 		           this,
 		           SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
+
+		disconnect(d_controller,
+		           SIGNAL(tagFamilyChanged(fort::tags::Family)),
+		           this,
+		           SLOT(onTagFamilyChanged(fort::tags::Family)));
 	}
 
 	// will cancel all pending parsing
@@ -87,6 +92,7 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	d_controller = controller;
 	if ( d_controller == NULL ) {
 		d_ui->familySelector->setEnabled(false);
+		d_ui->familySelector->setCurrentIndex(-1);
 		d_ui->thresholdBox->setEnabled(false);
 		d_ui->snapshotProgress->setValue(0);
 		d_ui->unusedTagDisplay->setText(tr("N.A."));
@@ -108,17 +114,14 @@ void TaggingWidget::onNewController(ExperimentController * controller) {
 	        this,
 	        SLOT(onIdentificationDeleted(const fort::myrmidon::priv::IdentificationPtr &)));
 
+	connect(d_controller,
+	        SIGNAL(tagFamilyChanged(fort::tags::Family)),
+	        this,
+	        SLOT(onTagFamilyChanged(fort::tags::Family)));
+
 	d_estimates.clear();
 
-	auto tf = d_controller->experiment().Family();
-	int idx = -1;
-	for ( size_t i = 0 ; i < d_ui->familySelector->count(); ++i ) {
-		if ( d_ui->familySelector->itemData(i).toInt() == (int)tf ) {
-			idx = i;
-			break;
-		}
-	}
-	d_ui->familySelector->setCurrentIndex(idx);
+	onTagFamilyChanged(d_controller->tagFamily());
 	d_ui->familySelector->setEnabled(true);
 	d_ui->thresholdBox->setValue(d_controller->experiment().Threshold());
 	d_ui->thresholdBox->setEnabled(true);
@@ -235,21 +238,38 @@ void TaggingWidget::clearIndexers() {
 }
 
 
-void TaggingWidget::on_familySelector_activated(int row) {
-	if ( d_controller == NULL ) {
-		return;
-	}
-	if ( row < 0 ) {
+void TaggingWidget::on_familySelector_currentIndexChanged(int row) {
+	if ( d_controller == NULL || row < 0 ) {
 		return;
 	}
 	auto tf = (fort::tags::Family)(d_ui->familySelector->itemData(row).toInt());
 	if ( tf == d_controller->experiment().Family() ) {
 		return;
 	}
+	if ( row < 1) {
+		return;
+	}
 	d_controller->setTagFamily(tf);
 	clearIndexers();
 	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
 }
+
+void TaggingWidget::onTagFamilyChanged(fort::tags::Family tf) {
+	if ( d_controller == NULL ) {
+		return;
+	}
+	int index = d_ui->familySelector->findData(int(tf));
+
+	d_ui->familySelector->setCurrentIndex(index);
+
+	if ( index < 0 ) {
+		return;
+	}
+
+	clearIndexers();
+	onDataDirUpdated(d_controller->experiment().TrackingDataDirectories());
+}
+
 
 
 void TaggingWidget::on_thresholdBox_editingFinished() {

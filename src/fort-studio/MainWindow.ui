@@ -15,34 +15,12 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="AntListWidget" name="antList" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>280</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>280</width>
-        <height>16777215</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="ExperimentInfoWidget" name="experimentInfo">
+      <widget class="ExperimentEditorWidget" name="experimentEditor">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -62,28 +40,6 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QPlainTextEdit" name="console">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="undoRedoEnabled">
-       <bool>false</bool>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -92,7 +48,7 @@
      <x>0</x>
      <y>0</y>
      <width>1099</width>
-     <height>40</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -115,8 +71,6 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="actionAddTrackingDataDir"/>
-    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -136,6 +90,49 @@
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>223</width>
+     <height>53</height>
+    </size>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Ant Selector</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="AntListWidget" name="antList" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>204</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -324,9 +321,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ExperimentInfoWidget</class>
+   <class>ExperimentEditorWidget</class>
    <extends>QWidget</extends>
-   <header location="global">fort-studio/ExperimentInfoWidget.hpp</header>
+   <header location="global">fort-studio/ExperimentEditorWidget.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>

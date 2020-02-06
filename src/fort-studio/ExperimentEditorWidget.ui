@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExperimentEditorWidget</class>
+ <widget class="QWidget" name="ExperimentEditorWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>827</width>
+    <height>555</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="infoBox">
+     <property name="title">
+      <string>Infos</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="3" column="0">
+       <widget class="QLabel" name="authorLabel">
+        <property name="text">
+         <string>Author:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QDoubleSpinBox" name="tagSizeEdit">
+        <property name="minimum">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.620000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="tagSizeLabel">
+        <property name="text">
+         <string>Tag Size (mm):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="familyLabel">
+        <property name="text">
+         <string>Family:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="4">
+       <widget class="QLineEdit" name="authorEdit"/>
+      </item>
+      <item row="2" column="1" colspan="4">
+       <widget class="QLineEdit" name="nameEdit"/>
+      </item>
+      <item row="5" column="0" colspan="5">
+       <widget class="QPlainTextEdit" name="commentEdit"/>
+      </item>
+      <item row="4" column="0" colspan="5">
+       <widget class="QLabel" name="commentLabel">
+        <property name="text">
+         <string>Comments:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QComboBox" name="familySelector"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="dirBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Zones and Data Directories</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="measureBox">
+     <property name="title">
+      <string>GroupBox</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

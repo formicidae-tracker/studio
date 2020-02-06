@@ -3,7 +3,7 @@ set(SRC_FILES main.cpp
               Error.cpp
               ExperimentController.cpp
               AntListWidget.cpp
-              ExperimentInfoWidget.cpp
+              ExperimentEditorWidget.cpp
               TaggingWidget.cpp
               Snapshot.cpp
               SnapshotIndexer.cpp
@@ -19,7 +19,7 @@ set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
               Error.hpp
               AntListWidget.hpp
-              ExperimentInfoWidget.hpp
+              ExperimentEditorWidget.hpp
               TaggingWidget.hpp
               Snapshot.hpp
               SnapshotIndexer.hpp
@@ -34,7 +34,7 @@ set(HDR_FILES MainWindow.hpp
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui
-             ExperimentInfoWidget.ui
+             ExperimentEditorWidget.ui
 			 FramePointerWidget.ui
 			 AntIdentificationWidget.ui
 			 TaggingWidget.ui)

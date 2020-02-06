@@ -105,19 +105,6 @@ ExperimentController * ExperimentController::create(const QString & path, QObjec
 }
 
 
-#define implement_setter(Setter) void ExperimentController::set ## Setter( const QString & Setter ## In ) { \
-		std::string Setter ## Str = Setter ## In.toUtf8().constData(); \
-		if ( Setter ## Str == d_experiment->Setter() ) { \
-			return; \
-		} \
-		d_experiment->Set ## Setter( Setter ## Str ); \
-		setModified(true); \
-	}
-
-implement_setter(Name)
-implement_setter(Author)
-implement_setter(Comment)
-
 
 fort::myrmidon::priv::Ant::Ptr ExperimentController::createAnt() {
 	auto a = d_experiment->Identifier().CreateAnt();
@@ -180,22 +167,85 @@ Error ExperimentController::deleteIdentification(const fort::myrmidon::priv::Ide
 }
 
 
-void ExperimentController::setTagFamily(fort::tags::Family tf) {
-	if ( tf == d_experiment->Family() ) {
+
+void ExperimentController::setName(const QString & name) {
+	if ( this->name() == name ) {
 		return;
 	}
-	try {
-		d_experiment->SetFamily(tf);
-		setModified(true);
-	} catch ( const std::exception & e) {
-		qCritical() << e.what();
+
+	d_experiment->SetName(name.toUtf8().data());
+	setModified(true);
+	emit nameChanged(this->name());
+}
+
+QString ExperimentController::name() const {
+	return d_experiment->Name().c_str();
+}
+
+void ExperimentController::setAuthor(const QString & author) {
+	if ( this->author() == author ) {
+		return;
 	}
+	d_experiment->SetAuthor(author.toUtf8().data());
+	setModified(true);
+	emit authorChanged(this->author());
+}
+
+QString ExperimentController::author() const {
+	return d_experiment->Author().c_str();
+}
+
+void ExperimentController::setComment(const QString & comment) {
+	if( this->comment() == comment ) {
+		return;
+	}
+	d_experiment->SetComment(comment.toUtf8().data());
+	setModified(true);
+	emit commentChanged(this->comment());
+}
+
+QString ExperimentController::comment() const {
+	return d_experiment->Comment().c_str();
+}
+
+void ExperimentController::setTagFamily(fort::tags::Family tf) {
+	if ( d_experiment->Family() == tf ) {
+		return;
+	}
+
+	d_experiment->SetFamily(tf);
+	setModified(true);
+	emit tagFamilyChanged(tf);
+}
+
+fort::tags::Family ExperimentController::tagFamily() const {
+	return d_experiment->Family();
 }
 
 void ExperimentController::setThreshold(uint8_t th) {
-	if ( th == d_experiment->Threshold() ) {
+	if ( d_experiment->Threshold() == th ) {
 		return;
 	}
+
 	d_experiment->SetThreshold(th);
 	setModified(true);
+	emit thresholdChanged(this->threshold());
+}
+
+uint8_t ExperimentController::threshold() const {
+	return d_experiment->Threshold();
+}
+
+double ExperimentController::tagSize() const {
+	return d_experiment->DefaultTagSize();
+}
+
+void ExperimentController::setTagSize(double tagSize) {
+	if ( d_experiment->DefaultTagSize() == tagSize ) {
+		return;
+	}
+
+	d_experiment->SetDefaultTagSize(tagSize);
+	setModified(true);
+	emit tagSizeChanged(tagSize);
 }

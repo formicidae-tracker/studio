@@ -34,7 +34,13 @@ signals:
 	void identificationDeleted(const fort::myrmidon::priv::IdentificationPtr &);
 
 
-
+	void nameChanged(QString name);
+	void authorChanged(QString author);
+	void commentChanged(QString comment);
+	void tagFamilyChanged(fort::tags::Family f);
+	void thresholdChanged(uint8_t value);
+	void tagSizeChanged(double value);
+	void measurementTypeChanged();
 public slots:
 
 	Error addDataDirectory(const QString & path);
@@ -53,10 +59,20 @@ public slots:
 	Error deleteIdentification(const fort::myrmidon::priv::Identification::Ptr & );
 
 	void setName(const QString & name);
+	QString name() const;
 	void setAuthor(const QString & author);
+	QString author() const;
 	void setComment(const QString & comment);
+	QString comment() const;
 	void setTagFamily(fort::tags::Family tf);
+	fort::tags::Family tagFamily() const;
 	void setThreshold(uint8_t th);
+	uint8_t threshold() const;
+	void setTagSize(double tagSize);
+	double tagSize() const;
+
+
+
 private:
 	fort::myrmidon::priv::Experiment::Ptr d_experiment;
 	bool d_modified;
