@@ -54,10 +54,16 @@ FORT_MYRMIDON_FDECLARE_CLASS(AntPoseEstimate)
 //Forward declaration for a <priv::Measurement>
 FORT_MYRMIDON_FDECLARE_CLASS(Measurement)
 
+// Forward declaration of <priv::MeasurementType::ID>
+typedef uint32_t MeasurementTypeID;
+
+//Forward declaration for a <priv::MeasurementType>
+FORT_MYRMIDON_FDECLARE_CLASS(MeasurementType)
+
 //Forward declaration for a <priv::Zone>
 FORT_MYRMIDON_FDECLARE_CLASS(Zone)
 
-typedef uint32_t MeasurementTypeID;
+
 
 // A Map of <Ant> identified by their <Ant::ID>
 typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;

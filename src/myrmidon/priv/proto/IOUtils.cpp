@@ -193,11 +193,23 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetThreshold(pb.threshold());
 	e.SetDefaultTagSize(pb.tagsize());
 
-	for ( const auto & zPb : pb.zones() ) {
+	for (const auto & zPb : pb.zones()) {
 		auto z = e.CreateZone(zPb.name());
 		for ( const auto & tddRelPath : zPb.trackingdatadirectories() ) {
 			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
 			z->AddTrackingDataDirectory(tdd);
+		}
+	}
+
+	for (const auto & ct : pb.custommeasurementtypes()) {
+		if ( ct.id() == Measurement::HEAD_TAIL_TYPE ) {
+			auto fi = e.MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
+			if ( fi == e.MeasurementTypes().cend() ) {
+				throw std::logic_error("Experiment missing default MeasurementType::ID Measurement::HEAD_TAIL_TYPE");
+			}
+			fi->second->SetName(ct.name());
+		} else {
+			e.CreateMeasurementType(ct.id(),ct.name());
 		}
 	}
 }
@@ -215,12 +227,17 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
 	auto zones = e.Zones();
-	for ( const auto & z : zones ) {
+	for (const auto & z : zones) {
 		auto zPb = pb->add_zones();
 		zPb->set_name(z->URI().generic_string());
 		for ( const auto & tdd : z->TrackingDataDirectories() ) {
 			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
 		}
+	}
+	for (const auto & [mt,t] : e.MeasurementTypes() ) {
+		auto mtPb = pb->add_custommeasurementtypes();
+		mtPb->set_id(t->MTID());
+		mtPb->set_name(t->Name());
 	}
 }
 

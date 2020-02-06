@@ -23,6 +23,8 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0) {
+	CreateMeasurementType(Measurement::HEAD_TAIL_TYPE,
+	                      "head-tail");
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -152,6 +154,10 @@ void Experiment::SetFamily(fort::tags::Family tf) {
 
 
 void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
+	if ( d_measurementTypeByID.count(m->Type()) == 0 ) {
+		throw std::runtime_error("Unknown MeasurementType::ID " + std::to_string(m->Type()));
+	}
+
 	fs::path tddPath;
 	FrameID FID;
 	TagID TID;
@@ -168,7 +174,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
 	d_measurements[m->Type()][TID][tddPath][ref.Time()] = m;
 
-	if (m->Type() != Measurement::HEAD_TAIL_MEASUREMENT) {
+	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
 		return;
 	}
 
@@ -227,7 +233,7 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 
 void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
                                            myrmidon::Ant::ID AID,
-                                           Measurement::Type::ID type) const {
+                                           MeasurementType::ID type) const {
 	auto afi = d_identifier->Ants().find(AID);
 	if ( afi == d_identifier->Ants().cend() ) {
 		throw Identifier::UnmanagedAnt(AID);
@@ -270,6 +276,50 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 			}
 		}
 	}
+}
+
+MeasurementType::ID Experiment::NextAvailableMeasurementTypeID() const {
+	MeasurementType::ID newType = Measurement::HEAD_TAIL_TYPE + 1;
+	// eager approach, but I won't see user makes 10 000 different
+	// measurement type for each 1000 ants in a colony.
+	while( d_measurementTypeByID.count(newType) != 0 ) {
+		++newType;
+	}
+	return newType;
+}
+
+
+MeasurementType::Ptr Experiment::CreateMeasurementType(MeasurementType::ID MTID,
+                                                       const std::string & name) {
+	if ( d_measurementTypeByID.count(MTID) != 0 ) {
+		throw std::runtime_error("MeasurementType::ID "
+		                         + std::to_string(MTID)
+		                         + " is already used");
+	}
+	auto res = std::make_shared<MeasurementType>(MTID,name);
+	d_measurementTypeByID.insert(std::make_pair(MTID,res));
+	return res;
+}
+
+void Experiment::DeletedMeasurementType(MeasurementType::ID MTID) {
+	auto fi = d_measurementTypeByID.find(MTID);
+	if ( fi == d_measurementTypeByID.end()  ) {
+		throw std::runtime_error("Could not find MeasurementType::ID " + std::to_string(MTID));
+	}
+
+	if ( d_measurements.count(MTID) != 0 ) {
+		throw std::runtime_error("Could not remove MeasurementType '" + fi->second->Name() + "' has experiment still contains measurement");
+	}
+
+	if (MTID == Measurement::HEAD_TAIL_TYPE ) {
+		throw std::invalid_argument("Could not remove default measurement type 'head-tail'");
+	}
+
+	d_measurementTypeByID.erase(fi);
+}
+
+const Experiment::MeasurementTypeByID & Experiment::MeasurementTypes() const {
+	return d_measurementTypeByID;
 }
 
 

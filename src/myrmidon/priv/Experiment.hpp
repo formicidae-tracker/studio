@@ -38,10 +38,12 @@ using namespace fort::myrmidon;
 // to anlayse several of them in the same program.
 class Experiment : public FileSystemLocatable {
 public :
-	// The AprilTag families supported by the FORT project.
-	//
+
 	// Maps <TrackingDataDirectory> by their path
 	typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
+
+	// Maps the <MeasurementType> by their <MeasurementType::ID>
+	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
@@ -180,6 +182,15 @@ public :
 	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
+	MeasurementTypeID NextAvailableMeasurementTypeID() const;
+
+	MeasurementTypePtr CreateMeasurementType(MeasurementTypeID MTID,
+	                                         const std::string & name);
+
+	void DeletedMeasurementType(MeasurementTypeID MTID);
+
+	const MeasurementTypeByID & MeasurementTypes() const;
+
 	// Adds or modifies a Measurement
 	//
 	// Adds a <Measurement> to the <priv::Experiment>.  Could also be
@@ -192,27 +203,52 @@ public :
 	// @URI the URI of the measurement to remove
 	void DeleteMeasurement(const fs::path & URI);
 
+	// Lists all Measurement of the experiment.
+	//
+	// @list a vector that will be filled with all measurements in the
+	// experiment.
 	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
 
+	// Represents a Measurement in mm at a given Time.
 	struct ComputedMeasurement {
 		Time   MTime;
 		double LengthMM;
 	};
 
+	// Computes all Measurement of a type for an Ant
+	//
+	// @result a vector that will be filled with the corresponding
+	//         <ComputedMeasurement>
+	// @AID the desired <Ant> designated by its <Ant::ID>
+	// @type the type of measurement we are looking for.
 	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
 	                               myrmidon::Ant::ID AID,
 	                               MeasurementTypeID type) const;
 
-	static double CornerWidthRatio(fort::tags::Family);
+	// Computes the conventional ratio beween corner size and
+	// nominated tag file.
+	//
+	// Due to different convention in tag size denomination (ARTag tag
+	// size is the black border distance, Apriltag is the overall tag
+	// size). We need this function to find the right ratio. Otherwise
+	// we may make 10 to 20% error when measuring Ant.
+	//
+	// For ARTag, this ratio should be one. For Apriltag, depending on
+	// the family cracteristics, it is a number < 1.0 (0.8 for
+	// 36h11/36h10, 7.0/9.0 for Standard41h12).
+	// @f the considered family
+	// @return the right ratio
+	static double CornerWidthRatio(fort::tags::Family f);
 
 private:
 	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
 	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
-	typedef std::map<uint32_t,
+	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
 	                          std::map<fs::path,
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
+
 
 
 	Experiment & operator=(const Experiment&) = delete;
@@ -234,6 +270,7 @@ private:
 
 	MeasurementByTagCloseUp d_measurementByURI;
 	SortedMeasurement       d_measurements;
+	MeasurementTypeByID     d_measurementTypeByID;
 };
 
 } //namespace priv

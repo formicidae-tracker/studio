@@ -330,7 +330,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		Eigen::Vector2d       Start,End;
 		fs::path              ParentURI;
-		Measurement::Type::ID TID;
+		MeasurementType::ID   TID;
 		double                TagSizePx;
 	};
 
@@ -410,6 +410,17 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			auto zPb = expected.add_zones();
 			zPb->set_name("box");
 			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
+
+			e->MeasurementTypes().find(0)->second->SetName("my-head-tail");
+			auto mt = expected.add_custommeasurementtypes();
+			mt->set_id(0);
+			mt->set_name("my-head-tail");
+
+			e->CreateMeasurementType(1,"antennas");
+			mt = expected.add_custommeasurementtypes();
+			mt->set_id(1);
+			mt->set_name("antennas");
+
 		});
 
 

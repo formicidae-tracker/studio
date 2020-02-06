@@ -147,7 +147,6 @@ TEST_F(ZoneUTest,CanHoldTDD) {
 }
 
 TEST_F(ZoneUTest,ExceptionFormatting) {
-
 	struct TestData {
 		std::runtime_error E;
 		std::string What;

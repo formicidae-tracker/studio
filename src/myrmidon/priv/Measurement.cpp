@@ -6,22 +6,28 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Measurement::Type::Type(ID TID,const std::string & name)
+MeasurementType::MeasurementType(ID TID,const std::string & name)
 	: d_TID(TID)
 	, d_name(name) {
 }
 
 
-const std::string & Measurement::Type::Name() const {
+const std::string & MeasurementType::Name() const {
 	return d_name;
 }
 
-Measurement::Type::ID Measurement::Type::TID() const {
+void MeasurementType::SetName(const std::string & name) {
+	d_name = name;
+}
+
+MeasurementType::ID MeasurementType::MTID() const {
 	return d_TID;
 }
 
+const MeasurementType::ID Measurement::HEAD_TAIL_TYPE = 0;
+
 Measurement::Measurement(const fs::path & parentURI,
-                         Type::ID TID,
+                         MeasurementType::ID TID,
                          const Eigen::Vector2d & startFromTag,
                          const Eigen::Vector2d & endFromTag,
                          double tagSizePx)
@@ -41,7 +47,7 @@ fs::path Measurement::TagCloseUpURI() const {
 }
 
 
-Measurement::Type::ID Measurement::Type() const {
+MeasurementType::ID Measurement::Type() const {
 	return d_TID;
 }
 
