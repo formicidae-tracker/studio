@@ -141,7 +141,7 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		                                                 d.Poses.end()));
 
 		EXPECT_TRUE(VectorAlmostEqual(res,d.ExpectedPosition));
-		EXPECT_DOUBLE_EQ(angle,d.ExpectedAngle);
+		EXPECT_NEAR(angle,d.ExpectedAngle,1.0e-8);
 	}
 }
 

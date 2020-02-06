@@ -103,7 +103,24 @@
      <property name="title">
       <string>Zones and Data Directories</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2"/>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QTreeView" name="zoneView">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="autoExpandDelay">
+         <number>-1</number>
+        </property>
+        <property name="itemsExpandable">
+         <bool>true</bool>
+        </property>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

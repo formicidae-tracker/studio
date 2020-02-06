@@ -7,11 +7,23 @@
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
+#include "ZoneModel.hpp"
+
 ExperimentEditorWidget::ExperimentEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::ExperimentEditorWidget)
-	, d_controller(NULL) {
+	, d_controller(NULL)
+	, d_zones(new ZoneModel(this)) {
 	d_ui->setupUi(this);
+
+	d_ui->zoneView->setModel(d_zones);
+	d_ui->zoneView->expandAll();
+	d_ui->zoneView->resizeColumnToContents(0);
+	d_ui->zoneView->resizeColumnToContents(1);
+	d_ui->zoneView->resizeColumnToContents(2);
+	d_ui->zoneView->resizeColumnToContents(3);
+	d_ui->zoneView->resizeColumnToContents(4);
+	d_ui->zoneView->resizeColumnToContents(5);
 
 	d_ui->familySelector->insertItem(0,"36h11",(int)fort::tags::Family::Tag36h11);
     d_ui->familySelector->insertItem(1,"36ARTag",(int)fort::tags::Family::Tag36ARTag);

@@ -114,8 +114,7 @@ public:
 	private:
 		friend class Zone;
 
-		std::map<fs::path,Zone::Ptr> d_zonesByURI;
-		std::vector<Zone::Ptr>       d_zones;
+		std::vector<Zone::Ptr> d_zones;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
