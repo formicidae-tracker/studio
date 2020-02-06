@@ -47,9 +47,6 @@ void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
 	}
 
 	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
-	Eigen::Vector2d pos;
-	LoadVector(pos,pb.antposition());
-	res->SetAntPosition(pos,pb.antangle());
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
@@ -66,8 +63,6 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 	if ( ident->End() ) {
 		ident->End()->ToTimestamp(pb->mutable_end());
 	}
-	SaveVector(pb->mutable_antposition(),ident->AntPosition());
-	pb->set_antangle(ident->AntAngle());
 	pb->set_id(ident->TagValue());
 	if ( ident->UseDefaultTagSize() == false ) {
 		pb->set_tagsize(ident->TagSize());

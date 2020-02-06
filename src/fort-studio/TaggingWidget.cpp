@@ -414,7 +414,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 	}
 
 	if ( matched.size() == 0 ) {
-		ident->SetAntPosition(Eigen::Vector2d::Zero(),0);
+		//ident->SetAntPosition(Eigen::Vector2d::Zero(),0);
 		return ident;
 	}
 
@@ -436,7 +436,7 @@ Identification::Ptr TaggingWidget::updateIdentificationForFrame(fort::myrmidon::
 	sinAngle /= matched.size();
 	cosAngle /= matched.size();
 
-	ident->SetAntPosition(pos,std::atan2(sinAngle,cosAngle));
+	//	ident->SetAntPosition(pos,std::atan2(sinAngle,cosAngle));
 	d_controller->setModified(true);
 	return ident;
 }

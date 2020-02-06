@@ -126,6 +126,7 @@ public:
 	class Accessor {
 	private:
 		static IdentificationList & IdentificationsForTag(Identifier & identifier,TagID tagID);
+		static void UpdateIdentificationAntPosition(Identifier & identifier,Identification & identification);
 	public:
 		friend class Identification;
 	};
@@ -177,7 +178,7 @@ private:
 
 	};
 
-	void UpdateIdentification(Identification & identification);
+	void UpdateIdentificationAntPosition(Identification & identification);
 
 	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;

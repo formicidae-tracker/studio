@@ -304,6 +304,12 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 
 	result.clear();
 
+	auto typedMeasurement = d_measurements.find(type);
+	if (typedMeasurement == d_measurements.cend() ) {
+		return;
+	}
+
+
 	for ( const auto & ident : afi->second->Identifications() ) {
 		double tagSizeMM = d_defaultTagSize;
 		if (ident->UseDefaultTagSize() == false ) {
@@ -311,13 +317,8 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 		}
 		tagSizeMM *= cornerWidthRatio;
 
-		auto mm1 = d_measurements.find(type);
-		if (mm1 == d_measurements.cend() ) {
-			continue;
-		}
-
-		auto measurementsByTDD = mm1->second.find(ident->TagValue());
-		if ( measurementsByTDD == mm1->second.cend() ) {
+		auto measurementsByTDD = typedMeasurement->second.find(ident->TagValue());
+		if ( measurementsByTDD == typedMeasurement->second.cend() ) {
 			continue;
 		}
 
@@ -326,11 +327,13 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 			if ( ident->Start() ) {
 				start = measurements.second.lower_bound(*ident->Start());
 			}
+
 			auto end = measurements.second.cend();
 			if ( ident->End() ) {
 				end = measurements.second.upper_bound(*ident->End());
 			}
 			for ( ; start != end; ++start ) {
+
 				double distance = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
 				distance *= tagSizeMM /start->second->TagSizePx();
 				result.push_back({start->first,distance});

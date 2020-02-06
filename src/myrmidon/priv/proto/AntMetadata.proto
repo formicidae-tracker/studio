@@ -7,14 +7,10 @@ import "google/protobuf/timestamp.proto";
 import "Vector2d.proto";
 
 message Identification {
-	Vector2d antposition = 1;
-	double   antangle    = 2;
-    int32   ID           = 3;
-
-	google.protobuf.Timestamp Start = 4;
-	google.protobuf.Timestamp End   = 5;
-
-	double                    tagSize = 6;
+    int32                     ID      = 1;
+	google.protobuf.Timestamp Start   = 2;
+	google.protobuf.Timestamp End     = 3;
+	double                    TagSize = 4;
 };
 
 // message Metadata {

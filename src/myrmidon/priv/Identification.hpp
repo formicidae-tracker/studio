@@ -86,11 +86,6 @@ public:
 	// @return the time after which this identification is unvalid.
 	Time::ConstPtr End() const;
 
-	// Sets the Target Position relative to the tag
-	// @position the translation from the tag  origin to the Tag center.
-	// @angle the angle between the <priv::Ant> and the tag.
-	void SetAntPosition(const Eigen::Vector2d & position, double angle);
-
 	// Gets the tag position in the Ant reference frame
 	// @return a vector from the <priv::Ant> origin to the tag center
 	Eigen::Vector2d AntPosition() const;
@@ -158,6 +153,13 @@ private:
 	Identification(TagID tagValue,
 	               const IdentifierPtr & identifier,
 	               const AntPtr & ant);
+
+	// Sets the Target Position relative to the tag
+	//
+	// @position the translation from the tag  origin to the Tag center.
+	// @angle the angle between the <priv::Ant> and the tag.
+	void SetAntPosition(const Eigen::Vector2d & position,
+	                    double angle);
 
 	void SetBound(const Time::ConstPtr & start,
 	              const Time::ConstPtr & end);

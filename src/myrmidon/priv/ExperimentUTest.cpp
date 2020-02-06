@@ -7,7 +7,7 @@
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Zone.hpp>
 #include <myrmidon/priv/Measurement.hpp>
-
+#include <myrmidon/UtilsUTest.hpp>
 #include <fstream>
 
 namespace fort {
@@ -82,7 +82,7 @@ TEST_F(ExperimentUTest,IOTest) {
 
 }
 
-TEST_F(ExperimentUTest,MeasurementManagement) {
+TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	ExperimentPtr e;
 	TrackingDataDirectory::ConstPtr foo0,foo1;
 	Zone::Ptr z;
@@ -193,6 +193,19 @@ TEST_F(ExperimentUTest,MeasurementManagement) {
 	EXPECT_TRUE(listContains(goodDefault));
 	EXPECT_FALSE(listContains(defaultWithBadPath));
 
+	auto antBefore = e->Identifier().CreateAnt(0);
+	auto identBefore1 = e->Identifier().AddIdentification(antBefore->ID(),
+	                                                      1,
+	                                                      Time::ConstPtr(),
+	                                                      std::make_shared<Time>(foo0->EndDate()));
+	identBefore1->SetTagSize(2.0);
+
+	auto identBefore2 = e->Identifier().AddIdentification(antBefore->ID(),
+	                                                      0,
+	                                                      std::make_shared<Time>(foo1->StartDate()),
+	                                                      Time::ConstPtr());
+	identBefore2->SetTagSize(2.0);
+
 
 	struct MData {
 		TrackingDataDirectory::ConstPtr TDD;
@@ -222,6 +235,8 @@ TEST_F(ExperimentUTest,MeasurementManagement) {
 	std::vector<fs::path> paths;
 	paths.reserve(mData.size());
 
+
+
 	for ( const auto & md : mData ) {
 		auto tcuPath = md.TDD->URI()
 			/ "frames"
@@ -237,6 +252,46 @@ TEST_F(ExperimentUTest,MeasurementManagement) {
 		paths.push_back(m->URI());
 		e->SetMeasurement(m);
 	}
+
+	//Now we add a super Ant
+	auto antAfter = e->Identifier().CreateAnt(0);
+	auto identAfter1 = e->Identifier().AddIdentification(antAfter->ID(),
+	                                                     0,
+	                                                     Time::ConstPtr(),
+	                                                     std::make_shared<Time>(foo0->EndDate()));
+
+	auto identAfter2 = e->Identifier().AddIdentification(antAfter->ID(),
+	                                                     1,
+	                                                     std::make_shared<Time>(foo1->StartDate()),
+	                                                     Time::ConstPtr());
+	e->SetFamily(tags::Family::Tag36ARTag);
+	e->SetDefaultTagSize(1.0);
+	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
+	                              Eigen::Vector2d(6.0,0.0)));
+
+	std::vector<Experiment::ComputedMeasurement> measurements;
+	e->ComputeMeasurementsForAnt(measurements,
+	                             antAfter->ID(),
+	                             0);
+
+	EXPECT_EQ(measurements.size(), 4);
+	for(const auto & m : measurements) {
+		EXPECT_EQ(12.0,m.LengthMM);
+	}
+
+	EXPECT_TRUE(VectorAlmostEqual(identBefore1->AntPosition(),
+	                              Eigen::Vector2d(6.0,0.0)));
+
+
+	e->ComputeMeasurementsForAnt(measurements,
+	                             antBefore->ID(),
+	                             0);
+
+	EXPECT_EQ(measurements.size(), 4);
+	for(const auto & m : measurements) {
+		EXPECT_EQ(24.0,m.LengthMM);
+	}
+
 
 	for ( const auto & uri : paths ) {
 		e->DeleteMeasurement(uri);

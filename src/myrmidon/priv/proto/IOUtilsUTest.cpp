@@ -68,7 +68,7 @@ TEST_F(IOUtilsUTest,TimeIO) {
 TEST_F(IOUtilsUTest,IdentificationIO) {
 	struct TestData {
 		Time::ConstPtr Start,End;
-		double         X,Y,Angle,TagSize;
+		double         TagSize;
 		TagID          Value;
 	};
 
@@ -76,17 +76,17 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		= {
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
-		    1.0,-1.0,M_PI/2,0.0,
+		    0.0,
 		    123
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
-		    1.45,-4.0,3*M_PI/4,2.3,
+		    2.3,
 		    23
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
-		    1.0,-1.0,0.0,0.0,
+		    0.0,
 		    34
 		   },
 	};
@@ -95,7 +95,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	auto a = e->Identifier().CreateAnt();
 	for ( const auto & d : data ) {
 		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
-		ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
+		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
 		pb::Identification expected;
@@ -105,9 +105,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		if ( d.End ) {
 			d.End->ToTimestamp(expected.mutable_end());
 		}
-		expected.mutable_antposition()->set_x(d.X);
-		expected.mutable_antposition()->set_y(d.Y);
-		expected.set_antangle(d.Angle);
 		expected.set_id(d.Value);
 		expected.set_tagsize(d.TagSize);
 
@@ -128,9 +125,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_EQ(!finalIdent->Start(),!d.Start);
 		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
 		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),d.X);
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),d.Y);
-		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),d.Angle);
+		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
+		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
+		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
 		if ( d.TagSize == 0.0 ) {
 			EXPECT_TRUE(finalIdent->UseDefaultTagSize());
 		} else {
@@ -257,8 +254,6 @@ TEST_F(IOUtilsUTest,AntIO) {
 			                                               identData.Value,
 			                                               identData.Start,
 			                                               identData.End);
-			ident->SetAntPosition(Eigen::Vector2d(identData.X,identData.Y),
-			                      identData.Angle);
 			dIdents.push_back(ident);
 			IOUtils::SaveIdentification(expected.add_identifications(), ident);
 		}
@@ -303,7 +298,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
 			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
 			EXPECT_TRUE(VectorAlmostEqual(ii->AntPosition(),ie->AntPosition()));
-			EXPECT_DOUBLE_EQ(ii->AntAngle(),ie->AntAngle());
+			EXPECT_NEAR(ii->AntAngle(),ie->AntAngle(),M_PI/100000.0);
 			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
 
 		}

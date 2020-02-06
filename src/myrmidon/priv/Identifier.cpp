@@ -141,6 +141,9 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
 
 	d_identifications[tagValue] = current;
 	Ant::Accessor::Identifications(*ant) = antIdents;
+
+	UpdateIdentificationAntPosition(*res);
+
 	return res;
 }
 
@@ -194,6 +197,12 @@ Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & 
 	}
 	return fi->second;
 }
+
+void Identifier::Accessor::UpdateIdentificationAntPosition(Identifier & identifier,
+                                                           Identification & identification) {
+	identifier.UpdateIdentificationAntPosition(identification);
+}
+
 
 void Identifier::SortAndCheck(IdentificationList & tagSiblings,
                               IdentificationList & antSiblings) {
@@ -280,10 +289,10 @@ void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
 	if (!identification) {
 		return;
 	}
-	UpdateIdentification(*identification);
+	UpdateIdentificationAntPosition(*identification);
 }
 
-void Identifier::UpdateIdentification(Identification & identification) {
+void Identifier::UpdateIdentificationAntPosition(Identification & identification) {
 	std::vector<AntPoseEstimateConstPtr> matched;
 	auto & APEs = d_tagPoseEstimates[identification.TagValue()];
 	matched.reserve(APEs.size());
