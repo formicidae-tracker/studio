@@ -9,7 +9,7 @@ namespace Ui {
 class ExperimentEditorWidget;
 }
 
-class ZoneModel;
+class ZoneAndTDDBridge;
 
 class ExperimentEditorWidget : public QWidget {
 	Q_OBJECT
@@ -37,5 +37,5 @@ public slots:
 private:
 	Ui::ExperimentEditorWidget * d_ui;
 	ExperimentController       * d_controller;
-	ZoneModel                  * d_zones;
+	ZoneAndTDDBridge           * d_zones;
 };

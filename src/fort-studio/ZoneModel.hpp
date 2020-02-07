@@ -3,20 +3,46 @@
 #include <QObject>
 #include <QStandardItemModel>
 
-#include <myrmidon/priv/Zone.hpp>
+
+#include "Error.hpp"
+#include <myrmidon/priv/Experiment.hpp>
+
+
+namespace fmp = fort::myrmidon::priv;
 
 class QAbstractItemModel;
 
-class ZoneModel : public QObject {
+class ZoneAndTDDBridge : public QObject {
 	Q_OBJECT
+
 public:
-	ZoneModel(QObject * parent);
+	ZoneAndTDDBridge(QObject * parent);
 
 	QAbstractItemModel * model();
+	void SetExperiment(fmp::Experiment * experiment);
+
+	const std::vector<fmp::Zone::Ptr> Zones() const;
+
+	const fmp::Zone::Group::TrackingDataDirectoryByURI &
+	TrackingDataDirectories() const;
+
+public slots:
+	Error addZone(const QString & zoneName);
+	Error addTrackingDataDirectoryToZone(const QString & zoneURI,
+	                                    const fmp::TrackingDataDirectoryConstPtr & tdd);
+	Error deleteTrackingDataDirectory(const QString & URI);
+
+signals:
+	void zoneDeleted(const QString & zoneName);
+	void zoneAdded(const fmp::Zone::Ptr & zone);
+	void zoneChanged(const fmp::Zone::Ptr & zone);
+
+
+	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
+	void trackingDataDirectoryDeleted(const QString & URI);
 
 protected slots:
 	void on_model_itemChanged(QStandardItem * item);
-
 
 private:
 	enum ObjectType {
@@ -24,12 +50,15 @@ private:
 	                 TDD_TYPE  = 1,
 	};
 
-	QList<QStandardItem*> BuildTDD(const fort::myrmidon::priv::TrackingDataDirectoryConstPtr & tdd);
-	QList<QStandardItem*> BuildZone(const fort::myrmidon::priv::Zone::Ptr & z);
+	QStandardItem * LocateZone(const QString & URI);
+	void RebuildZoneChildren(QStandardItem * item, const fmp::Zone::Ptr & z);
 
-	void BuildAll(const std::vector<fort::myrmidon::priv::Zone::Ptr> & zones);
+	QList<QStandardItem*> BuildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
+	QList<QStandardItem*> BuildZone(const fmp::Zone::Ptr & z);
 
-	fort::myrmidon::priv::Zone::Group::Ptr    d_group;
-	QStandardItemModel                      * d_model;
+	void BuildAll(const std::vector<fmp::Zone::Ptr> & zones);
 
+
+	QStandardItemModel   * d_model;
+	fmp::Experiment      * d_experiment;
 };

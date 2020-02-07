@@ -111,6 +111,13 @@ public:
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
+		std::pair<Zone::Ptr,TrackingDataDirectoryConstPtr>
+		LocateTrackingDataDirectory(const fs::path & tddURI) const;
+
+		Zone::Ptr LocateZone(const fs::path & zoneURI) const;
+
+
+
 	private:
 		friend class Zone;
 

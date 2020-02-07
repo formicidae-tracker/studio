@@ -386,6 +386,14 @@ const Experiment::MeasurementTypeByID & Experiment::MeasurementTypes() const {
 	return d_measurementTypeByID;
 }
 
+std::pair<Zone::Ptr,TrackingDataDirectoryConstPtr>
+Experiment::LocateTrackingDataDirectory(const fs::path & tddURI) const {
+	return d_zoneGroup->LocateTrackingDataDirectory(tddURI);
+}
+
+Zone::Ptr Experiment::LocateZone(const fs::path & zoneURI) const {
+	return d_zoneGroup->LocateZone(zoneURI);
+}
 
 } //namespace priv
 } //namespace myrmidon

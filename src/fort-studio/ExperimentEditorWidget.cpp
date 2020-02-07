@@ -13,7 +13,7 @@ ExperimentEditorWidget::ExperimentEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::ExperimentEditorWidget)
 	, d_controller(NULL)
-	, d_zones(new ZoneModel(this)) {
+	, d_zones(new ZoneAndTDDBridge(this)) {
 	d_ui->setupUi(this);
 
 	d_ui->zoneView->setModel(d_zones->model());

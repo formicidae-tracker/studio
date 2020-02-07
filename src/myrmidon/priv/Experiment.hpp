@@ -107,6 +107,11 @@ public :
 
 	void DeleteTrackingDataDirectory(const fs::path & URI);
 
+	std::pair<Zone::Ptr,TrackingDataDirectoryConstPtr>
+	LocateTrackingDataDirectory(const fs::path & tddURI) const;
+
+	Zone::Ptr LocateZone(const fs::path & zoneURI) const;
+
 	// Accessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>

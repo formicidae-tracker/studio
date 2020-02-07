@@ -220,6 +220,43 @@ Zone::Group::Ptr Zone::LockGroup() const {
 	return locked;
 }
 
+std::pair<Zone::Ptr,TrackingDataDirectory::ConstPtr>
+Zone::Group::LocateTrackingDataDirectory(const fs::path & tddURI) const {
+	auto tddi = d_tddsByURI.find(tddURI) ;
+	if ( tddi == d_tddsByURI.end() ) {
+		return std::make_pair(Zone::Ptr(),TrackingDataDirectory::ConstPtr());
+	}
+
+	auto zi = std::find_if(d_zones.begin(),
+	                       d_zones.end(),
+	                       [&tddURI]( const Zone::Ptr & z) {
+		                       auto ti = std::find_if(z->d_tdds.begin(),
+		                                              z->d_tdds.end(),
+		                                              [&tddURI]( const TrackingDataDirectory::ConstPtr & tdd) {
+			                                              return tdd->URI() == tddURI;
+		                                              });
+		                       return ti != z->d_tdds.end();
+	                       });
+	if ( zi ==  d_zones.end()) {
+		return std::make_pair(Zone::Ptr(),TrackingDataDirectory::ConstPtr());
+	}
+
+	return std::make_pair(*zi,tddi->second);
+}
+
+Zone::Ptr Zone::Group::LocateZone(const fs::path & zoneURI) const {
+	auto zi = std::find_if(d_zones.begin(),
+	                       d_zones.end(),
+	                       [&zoneURI] ( const Zone::Ptr & z) {
+		                       return z->URI() == zoneURI;
+	                       });
+	if ( zi == d_zones.end()) {
+		return Zone::Ptr();
+	}
+	return *zi;
+}
+
+
 
 } //namespace priv
 } //namespace myrmidon
