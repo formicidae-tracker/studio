@@ -260,9 +260,9 @@ size_t Identifier::UseCount(TagID tag) const {
 	return fi->second.size();
 }
 
-bool Identifier::AntPoseTimeComparator::operator() (const AntPoseEstimateConstPtr & a,
-                                                    const AntPoseEstimateConstPtr & b) {
-	return a->Reference().Time().Before(b->Reference().Time());
+bool Identifier::AntPoseEstimateComparator::operator() (const AntPoseEstimateConstPtr & a,
+                                                        const AntPoseEstimateConstPtr & b) const {
+	return a->URI() < b->URI();
 }
 
 bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
@@ -281,9 +281,11 @@ bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
 }
 
 void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
-	auto & APEs = d_tagPoseEstimates[ape->TargetTagID()];
-	APEs.erase(ape);
-	APEs.insert(ape);
+	// create or get existing AntPoseEstimateList
+	auto fi = d_tagPoseEstimates.insert(std::make_pair(ape->TargetTagID(),
+	                                                   AntPoseEstimateList())).first;
+	fi->second.erase(ape);
+	fi->second.insert(ape);
 
 	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
 	if (!identification) {

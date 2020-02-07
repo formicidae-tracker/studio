@@ -37,7 +37,9 @@ public:
 
 	class Comparator {
 	public:
-		bool operator()(const Identifiable & a , const Identifiable & b);
+		bool operator()(const Identifiable & a , const Identifiable & b) const;
+		bool operator()(const std::shared_ptr<Identifiable> & a ,
+		                const std::shared_ptr<Identifiable> & b) const;
 	};
 };
 

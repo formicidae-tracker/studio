@@ -8,6 +8,7 @@
 #include "../Time.hpp"
 
 #include "Types.hpp"
+#include "LocatableTypes.hpp"
 
 #include "ForwardDeclaration.hpp"
 
@@ -171,10 +172,10 @@ public:
 	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & tpe);
 
 private:
-	class AntPoseTimeComparator {
+	class AntPoseEstimateComparator {
 	public:
 		bool operator() (const AntPoseEstimateConstPtr & a,
-		                 const AntPoseEstimateConstPtr & b);
+		                 const AntPoseEstimateConstPtr & b) const;
 
 	};
 
@@ -183,8 +184,7 @@ private:
 	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
 
-	typedef std::set<AntPoseEstimateConstPtr,
-	                 AntPoseTimeComparator>     AntPoseEstimateList;
+	typedef std::set<AntPoseEstimateConstPtr,AntPoseEstimateComparator>     AntPoseEstimateList;
 	typedef std::map<TagID,AntPoseEstimateList> AntPoseEstimateByTagID;
 
 	Identifier();

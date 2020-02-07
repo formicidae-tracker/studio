@@ -71,31 +71,31 @@ void Measurement::DecomposeURI(const fs::path & measurementURI,
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse MeasurementType::ID");
 		}
-		URI.remove_filename();
+		URI = URI.parent_path();
 		if ( URI.filename() != "measurements" ) {
 			throw std::runtime_error("no 'measurements' in URI");
 		}
-		URI.remove_filename();
+		URI = URI.parent_path();
 		try {
 			TID = std::stoul(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse TagID");
 		}
-		URI.remove_filename();
+		URI = URI.parent_path();
 		if ( URI.filename() != "closeups" ) {
 			throw std::runtime_error("no 'closeups' in URI");
 		}
-		URI.remove_filename();
+		URI = URI.parent_path();
 		try {
 			FID = std::stoull(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse FrameID");
 		}
-		URI.remove_filename();
+		URI = URI.parent_path();
 		if ( URI.filename() != "frames" ) {
 			throw std::runtime_error("no 'frames' in URI");
 		}
-		tddURI = URI.remove_filename();
+		tddURI = URI = URI.parent_path();
 		if (tddURI.empty() || tddURI == "/" ) {
 			throw std::runtime_error("no URI for TrackingDataDirectory");
 		}
