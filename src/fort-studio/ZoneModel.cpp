@@ -2,13 +2,22 @@
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
+#include <QStandardItemModel>
 #include <QDebug>
 
 using namespace fort::myrmidon;
 
+Q_DECLARE_METATYPE(priv::TrackingDataDirectoryConstPtr);
+Q_DECLARE_METATYPE(priv::Zone::Ptr);
 
 ZoneModel::ZoneModel( QObject * parent)
-	: QAbstractItemModel(parent) {
+	: QObject(parent)
+	, d_model(new QStandardItemModel(this) ) {
+
+	connect(d_model,
+	        SIGNAL(itemChanged(QStandardItem * )),
+	        this,
+	        SLOT(on_model_itemChanged(QStandardItem *)));
 
 	d_group = std::make_shared<priv::Zone::Group>();
 
@@ -47,199 +56,87 @@ ZoneModel::ZoneModel( QObject * parent)
 	                                         std::make_shared<TDD::TrackingIndex>(),
 	                                         std::make_shared<TDD::MovieIndex>(),
 	                                         std::make_shared<TDD::FrameReferenceCache>()));
+
+	BuildAll(d_group->Zones());
 }
 
-std::vector<priv::Zone::Ptr>::const_iterator findURIInZone(const std::vector<priv::Zone::Ptr> & zones,
-                                                     const fs::path & URI) {
-	return std::find_if(zones.cbegin(),
-	                    zones.cend(),
-	                    [&URI](const priv::Zone::Ptr & z) {
-		                    return z->URI() == URI;
-	                    });
+
+
+QAbstractItemModel * ZoneModel::model() {
+	return d_model;
 }
 
-QModelIndex ZoneModel::index(int row, int column,
-                             const QModelIndex & parent) const {
-	if ( hasIndex(row, column, parent) == false ){
-		return QModelIndex();
+void ZoneModel::on_model_itemChanged(QStandardItem * item) {
+	if ( item->data(Qt::UserRole+1).toInt() != ZONE_TYPE || item->column() != 0 ) {
+		qDebug() << "Invalid item changed";
+		return;
 	}
 
-	if ( parent.isValid() == false ) {
-		//looking up in zones
-		if ( row >= d_group->Zones().size() ) {
-			return QModelIndex();
-		}
-		auto z = d_group->Zones()[row];
-		return createIndex(row,column,z.get());
-	} else {
-		//looking up in a zone
-
-		auto ptr = static_cast<priv::Identifiable*>(parent.internalPointer());
-
-		auto fi = findURIInZone(d_group->Zones(),ptr->URI());
-		if ( fi == d_group->Zones().cend() ) {
-			return QModelIndex();
-		}
-
-		if ( row >= (*fi)->TrackingDataDirectories().size() ) {
-			return QModelIndex();
-		}
-
-		const priv::Identifiable * tdd = (*fi)->TrackingDataDirectories()[row].get();
-		return createIndex(row,column,const_cast<priv::Identifiable*>(tdd));
-	}
-}
-
-QModelIndex ZoneModel::parent(const QModelIndex &index) const {
-	if ( index.isValid() == false ) {
-		return QModelIndex();
+	auto z = item->data(Qt::UserRole+2).value<priv::Zone::Ptr>();
+	if (item->text() == z->URI().c_str()) {
+		return;
 	}
 
-	auto path = static_cast<const priv::Identifiable*>(index.internalPointer())->URI();
-
-	auto fi = findURIInZone(d_group->Zones(),path);
-	if ( fi != d_group->Zones().cend() ) {
-		return QModelIndex();
-	}
-
-	size_t row = 0;
-	for (const auto & z : d_group->Zones()) {
-		for ( const auto & tdd : z->TrackingDataDirectories() ) {
-			if ( tdd->URI() == path ) {
-				return createIndex(row, 0, z.get());
-			}
-		}
-		++row;
-	}
-	return QModelIndex();
-}
-
-int ZoneModel::rowCount(const QModelIndex & parent) const {
-	if ( parent.column() > 0 ) {
-		return 0;
-	}
-
-	if ( parent.isValid() == false ) {
-		return d_group->Zones().size();
-	}
-
-	auto path  = static_cast<const priv::Identifiable*>(parent.internalPointer())->URI();
-
-	auto fi = findURIInZone(d_group->Zones(),path);
-	if ( fi != d_group->Zones().cend() ) {
-		return (*fi)->TrackingDataDirectories().size();
-	}
-
-	return 0;
-}
-
-int ZoneModel::columnCount(const QModelIndex &parent) const {
-	return 6;
-}
-
-Qt::ItemFlags ZoneModel::flags(const QModelIndex & index) const {
-	if (index.parent().isValid() ) {
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemNeverHasChildren;
-	} else if ( index.column() == 0 ) {
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-	} else {
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable ;
-	}
-
-	return QAbstractItemModel::flags(index);
-}
-
-bool ZoneModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-	if (index.isValid() == false || index.parent().isValid() == true || role != Qt::EditRole) {
-		return false;
-	}
-
-	if ( index.column() != 0 || value.toString().isEmpty() ) {
-		return false;
-	}
-
-	auto path = static_cast<const priv::Identifiable*>(index.internalPointer())->URI();
-	auto fi = findURIInZone(d_group->Zones(),path);
-	if ( fi == d_group->Zones().cend() ) {
-		return false;
-	}
 	try {
-		(*fi)->SetName(value.toString().toUtf8().data());
-		emit dataChanged(index,index);
-	} catch ( const std::exception & e) {
-		return false;
+		z->SetName(item->text().toUtf8().data());
+	} catch (const std::exception & e) {
+		qDebug() << "Could not change name: " << e.what();
+		item->setText(z->URI().c_str());
 	}
-
-	return true;
-}
-
-QVariant ZoneModel::headerData(int section,
-                               Qt::Orientation orientation,
-                               int role) const {
-	if ( role != Qt::DisplayRole || orientation != Qt::Horizontal ) {
-		return QVariant();
-	}
-
-	switch(section) {
-	case 0:
-		return tr("URI");
-	case 1:
-		return tr("Filepath");
-	case 2:
-		return tr("Start FrameID");
-	case 3:
-		return tr("End FrameID");
-	case 4:
-		return tr("Start Date");
-	case 5:
-		return tr("End Date");
-	}
-
-	return QVariant();
-
 }
 
 
-QVariant ZoneModel::data(const QModelIndex &index, int role) const {
-	if ( index.isValid() == false || role != Qt::DisplayRole ) {
-		return QVariant();
+QList<QStandardItem*> ZoneModel::BuildTDD(const priv::TrackingDataDirectoryConstPtr & tdd) {
+	auto formatFrameID = [](priv::FrameID FID) -> QString {
+		                     return std::to_string(FID).c_str();
+	                     };
+	auto formatTime = [](const Time & t) -> QString {
+		                  std::ostringstream oss;
+		                  oss << t;
+		                  return oss.str().c_str();
+	                  };
+	auto uri = new QStandardItem(tdd->URI().c_str());
+	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
+	auto start = new QStandardItem(formatFrameID(tdd->StartFrame()));
+	auto end = new QStandardItem(formatFrameID(tdd->EndFrame()));
+	auto startDate = new QStandardItem(formatTime(tdd->StartDate()));
+	auto endDate = new QStandardItem(formatTime(tdd->EndDate()));
+
+	QList<QStandardItem*> res = {uri,path,start,end,startDate,endDate};
+	for(const auto i : res) {
+		i->setEditable(false);
+		i->setData(TDD_TYPE,Qt::UserRole+1);
+		i->setData(QVariant::fromValue(tdd),Qt::UserRole+2);
 	}
-	auto path = static_cast<const priv::Identifiable*>(index.internalPointer())->URI();
+	return res;
+}
 
-	auto zi = findURIInZone(d_group->Zones(),path);
-	if ( zi != d_group->Zones().end() ) {
-		switch (index.column()) {
-		case 0:
-			return (*zi)->URI().c_str();
-		default:
-			return QVariant();
-		}
+QList<QStandardItem*> ZoneModel::BuildZone(const priv::Zone::Ptr & z) {
+	auto zoneItem = new QStandardItem(z->URI().c_str());
+	zoneItem->setEditable(true);
+	zoneItem->setData(ZONE_TYPE,Qt::UserRole+1);
+	zoneItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
+	for ( const auto & tdd : z->TrackingDataDirectories() ) {
+		auto tddItem = BuildTDD(tdd);
+		zoneItem->appendRow(tddItem);
 	}
-
-	auto tddi = d_group->TrackingDataDirectories().find(path);
-	if ( tddi == d_group->TrackingDataDirectories().end() ) {
-		return QVariant();
+	QList<QStandardItem*> res = {zoneItem};
+	for(size_t i = 0 ; i < 5; ++i) {
+		auto dummyItem = new QStandardItem("");
+		dummyItem->setEditable(false);
+		dummyItem->setData(ZONE_TYPE,Qt::UserRole+1);
+		dummyItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
+		res.push_back(dummyItem);
 	}
-	auto tdd = tddi->second;
+	return res;
+}
 
-	std::ostringstream oss;
-	switch( index.column() ) {
-	case 0:
-		return tdd->URI().c_str();
-	case 1:
-		return tdd->AbsoluteFilePath().c_str();
-	case 2:
-		return qulonglong(tdd->StartFrame());
-	case 3:
-		return qulonglong(tdd->EndFrame());
-	case 4:
-		oss << tdd->StartDate();
-		return oss.str().c_str();
-	case 5:
-		oss << tdd->EndDate();
-		return oss.str().c_str();
+void ZoneModel::BuildAll(const std::vector<priv::Zone::Ptr> & zones) {
+	d_model->clear();
+	d_model->setColumnCount(6);
+	auto labels = {tr("URI"),tr("Filepath"),tr("Start Frame"),tr("End Frame"),tr("Start Date"),tr("End Date")};
+	d_model->setHorizontalHeaderLabels(labels);
+	for (const auto & z : zones) {
+		d_model->invisibleRootItem()->appendRow(BuildZone(z));
 	}
-
-
-	return QVariant();
 }

@@ -16,7 +16,7 @@ ExperimentEditorWidget::ExperimentEditorWidget(QWidget *parent)
 	, d_zones(new ZoneModel(this)) {
 	d_ui->setupUi(this);
 
-	d_ui->zoneView->setModel(d_zones);
+	d_ui->zoneView->setModel(d_zones->model());
 	d_ui->zoneView->expandAll();
 	d_ui->zoneView->resizeColumnToContents(0);
 	d_ui->zoneView->resizeColumnToContents(1);
