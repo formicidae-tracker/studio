@@ -47,7 +47,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
-                      priv/Zone.hpp
+                      priv/Space.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
@@ -86,7 +86,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
-                      priv/Zone.cpp
+                      priv/Space.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp
                       priv/Ant.cpp
@@ -123,7 +123,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     UtilsUTest.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
-                    priv/ZoneUTest.cpp
+                    priv/SpaceUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
@@ -151,7 +151,7 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     UtilsUTest.hpp
                     TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
-                    priv/ZoneUTest.hpp
+                    priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp

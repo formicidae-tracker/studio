@@ -19,7 +19,7 @@ Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(Identifier::Create())
-	, d_zoneGroup(std::make_shared<Zone::Group>())
+	, d_universe(std::make_shared<Space::Universe>())
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0) {
@@ -58,21 +58,21 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-Zone::Ptr Experiment::CreateZone(const std::string & name) {
-	return Zone::Group::Create(d_zoneGroup,name);
+Space::Ptr Experiment::CreateSpace(const std::string & name) {
+	return Space::Universe::Create(d_universe,name);
 }
 
-void Experiment::DeleteZone(const fs::path & zoneURI) {
-	d_zoneGroup->DeleteZone(zoneURI);
+void Experiment::DeleteSpace(const fs::path & zoneURI) {
+	d_universe->DeleteSpace(zoneURI);
 }
 
-const std::vector<Zone::Ptr> & Experiment::Zones() const {
-	return d_zoneGroup->Zones();
+const std::vector<Space::Ptr> & Experiment::Spaces() const {
+	return d_universe->Spaces();
 }
 
 const std::map<fs::path,TrackingDataDirectoryConstPtr> &
 Experiment::TrackingDataDirectories() const {
-	return d_zoneGroup->TrackingDataDirectories();
+	return d_universe->TrackingDataDirectories();
 }
 
 void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
@@ -92,7 +92,7 @@ void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
 
 	}
 
-	d_zoneGroup->DeleteTrackingDataDirectory(URI);
+	d_universe->DeleteTrackingDataDirectory(URI);
 
 }
 
@@ -163,8 +163,8 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	TagID TID;
 	MeasurementType::ID MTID;
 	Measurement::DecomposeURI(m->URI(),tddPath,FID,TID,MTID);
-	auto fi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
-	if ( fi == d_zoneGroup->TrackingDataDirectories().end() ) {
+	auto fi = d_universe->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( fi == d_universe->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
 		oss << "Unknow data directory " << tddPath;
 		throw std::invalid_argument(oss.str());
@@ -192,8 +192,8 @@ void Experiment::DeleteMeasurement(const fs::path & URI) {
 	MeasurementType::ID MTID;
 	Measurement::DecomposeURI(URI,tddPath,FID,TID,MTID);
 
-	auto tfi = d_zoneGroup->TrackingDataDirectories().find(tddPath.generic_string());
-	if ( tfi == d_zoneGroup->TrackingDataDirectories().end() ) {
+	auto tfi = d_universe->TrackingDataDirectories().find(tddPath.generic_string());
+	if ( tfi == d_universe->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
 		throw std::invalid_argument(oss.str());
 	}
