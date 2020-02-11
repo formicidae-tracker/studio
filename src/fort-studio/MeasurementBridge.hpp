@@ -5,10 +5,12 @@
 
 #include <myrmidon/priv/TagCloseUp.hpp>
 #include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Measurement.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 
 Q_DECLARE_METATYPE(fmp::TagCloseUp::ConstPtr)
+Q_DECLARE_METATYPE(fmp::MeasurementType::ID)
 
 
 class TagCloseUpLoader : public QObject {
@@ -57,12 +59,24 @@ public:
 signals:
 	void progressChanged(size_t done, size_t toDo);
 
+	void measurementModified(const fmp::MeasurementConstPtr);
+	void measurementDeleted(fs::path);
+
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);
 
 	void onFamilyChanged(fort::tags::Family f);
 	void onThresholdChanged(uint8_t threshold);
+
+
+	void setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
+	                    fmp::MeasurementType::ID MTID,
+	                    QPointF start,
+	                    QPointF end);
+
+	void deleteMeasurement(const fs::path & mURI);
+
 
 private slots:
 
@@ -76,7 +90,7 @@ private:
 	typedef std::map<fs::path,fmp::TagCloseUp::ConstPtr> CloseUpByPath;
 	typedef std::map<fs::path,CloseUpByPath>             CloseUpByTddURI;
 	typedef std::map<fs::path,TagCloseUpLoader*>         LoaderByTddURI;
-
+	typedef std::map<fs::path,QStandardItem*>            CountByTcuURI;
 
 	void startAll();
 	void startOne(const fmp::TrackingDataDirectoryConstPtr & tdd);
@@ -91,9 +105,12 @@ private:
 	QList<QStandardItem*> BuildTag(fmp::TagID TID);
 	QList<QStandardItem*> BuildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
 
+	size_t countMeasurementsForTCU(const fs::path & tcuPath);
 
 	QStandardItemModel * d_model;
 	fmp::Experiment    * d_experiment;
+	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
 	LoaderByTddURI       d_loaders;
+
 };

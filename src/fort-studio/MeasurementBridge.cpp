@@ -188,15 +188,12 @@ QList<QStandardItem*> MeasurementBridge::BuildTCU(const fmp::TagCloseUp::ConstPt
 	tcuItem->setEditable(false);
 	tcuItem->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
 
-	size_t mCount = 0;
-	auto fi = d_experiment->Measurements().find(tcu->URI());
-	if ( fi != d_experiment->Measurements().end() ) {
-		mCount = fi->second.size();
-	}
+	size_t mCount = countMeasurementsForTCU(tcu->URI());
 
 	auto measurementCounts = new QStandardItem(QString("%1").arg(mCount));
 	measurementCounts->setEditable(false);
 	measurementCounts->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
+	d_counts.insert(std::make_pair(tcu->URI(),measurementCounts));
 	return {tcuItem,measurementCounts};
 }
 
@@ -234,6 +231,7 @@ void MeasurementBridge::clearTddTCUs(const fs::path & tddURI) {
 			auto index = item->index();
 			d_model->removeRows(index.row(),1,index.parent());
 		}
+		d_counts.erase(uri);
 	}
 	d_closeups.erase(fi);
 }
@@ -241,4 +239,78 @@ void MeasurementBridge::clearTddTCUs(const fs::path & tddURI) {
 void MeasurementBridge::clearAllTCUs() {
 	d_model->clear();
 	d_closeups.clear();
+	d_counts.clear();
+}
+
+
+void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
+                                       fmp::MeasurementType::ID MTID,
+                                       QPointF start,
+                                       QPointF end) {
+	if ( d_experiment == NULL ) {
+		return;
+	}
+
+	auto tddURI = tcu->Frame().ParentURI();
+	auto fi = d_closeups.find(tddURI);
+	auto ci = d_counts.find(tcu->URI());
+	if ( ci == d_counts.end()
+	     || fi == d_closeups.end()
+	     || fi->second.count(tcu->URI()) == 0 ) {
+		qWarning() << "Not setting measurement: unknwon '" << tcu->URI().c_str() << "'";
+		return;
+	}
+
+	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
+	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
+
+	auto m = std::make_shared<fmp::Measurement>(tcu->URI(),
+	                                            MTID,
+	                                            startFromTag,
+	                                            endFromTag,
+	                                            tcu->TagSizePx());
+
+	try {
+		d_experiment->SetMeasurement(m);
+	} catch (const std::exception & e ) {
+		qWarning() << "Could not set measurement: " << e.what();
+		return;
+	}
+
+	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcu->URI())));
+
+	emit measurementModified(m);
+}
+
+void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
+	if ( d_experiment == NULL ) {
+		return;
+	}
+	auto tcuPath = mURI.parent_path().parent_path();
+	auto ci = d_counts.find(tcuPath);
+	if ( ci == d_counts.end() ) {
+		return;
+	}
+
+	try {
+		d_experiment->DeleteMeasurement(mURI);
+	} catch (const std::exception & e) {
+		qWarning() << "Could not delete measurement '" << mURI.c_str()
+		           << "':" << e.what();
+		return;
+	}
+	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuPath)));
+	emit measurementDeleted(mURI);
+}
+
+
+size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) {
+	if (d_experiment == NULL){
+		return 0;
+	}
+	auto mi = d_experiment->Measurements().find(tcuPath);
+	if ( mi == d_experiment->Measurements().end() ) {
+		return 0;
+	}
+	return mi->second.size();
 }
