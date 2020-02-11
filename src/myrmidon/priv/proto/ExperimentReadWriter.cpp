@@ -81,12 +81,12 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 		                });
 	}
 
-	std::vector<Measurement::ConstPtr> measurements;
-	experiment.ListAllMeasurements(measurements);
-	for ( const auto & m : measurements ) {
-		lines.push_back([m](pb::FileLine & line) {
-			                IOUtils::SaveMeasurement(line.mutable_measurement(),m);
-		                });
+	for ( const auto & [uri,measurementByType] : experiment.Measurements() ) {
+		for (const auto & [type,m] : measurementByType) {
+			lines.push_back([m](pb::FileLine & line) {
+				                IOUtils::SaveMeasurement(line.mutable_measurement(),m);
+			                });
+		}
 	}
 	ReadWriter::Write(filepath,h,lines);
 }

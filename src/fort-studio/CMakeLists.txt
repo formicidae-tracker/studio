@@ -14,7 +14,8 @@ set(SRC_FILES main.cpp
 			  AntIdentificationWidget.cpp
 			  QLongSpinBox.cpp
 			  TagExtractor.cpp
-			  ZoneModel.cpp)
+			  ZoneModel.cpp
+			  MeasurementBridge.cpp)
 
 set(HDR_FILES MainWindow.hpp
               ExperimentController.hpp
@@ -32,7 +33,9 @@ set(HDR_FILES MainWindow.hpp
 			  QLongSpinBox.hpp
 			  utils.hpp
 			  TagExtractor.hpp
-			  ZoneModel.hpp)
+			  ZoneModel.hpp
+			  MeasurementBridge.hpp
+			  )
 
 set(UI_FILES MainWindow.ui
              AntListWidget.ui

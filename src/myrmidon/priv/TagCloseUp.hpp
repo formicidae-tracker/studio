@@ -49,6 +49,9 @@ public:
 
 		std::vector<Loader> PrepareLoaders();
 
+		tags::Family Family() const;
+
+		uint8_t Threshold() const;
 
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;

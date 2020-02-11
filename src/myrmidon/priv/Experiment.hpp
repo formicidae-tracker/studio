@@ -45,6 +45,12 @@ public :
 	// Maps the <MeasurementType> by their <MeasurementType::ID>
 	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
+
+	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
+
+	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
+
+
 	// A Pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
 
@@ -212,7 +218,7 @@ public :
 	//
 	// @list a vector that will be filled with all measurements in the
 	// experiment.
-	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
+	const MeasurementByTagCloseUp & Measurements() const;
 
 	// Represents a Measurement in mm at a given Time.
 	struct ComputedMeasurement {
@@ -246,8 +252,6 @@ public :
 	static double CornerWidthRatio(fort::tags::Family f);
 
 private:
-	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
-	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
 	                          std::map<fs::path,

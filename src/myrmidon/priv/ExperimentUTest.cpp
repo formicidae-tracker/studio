@@ -82,6 +82,22 @@ TEST_F(ExperimentUTest,IOTest) {
 
 }
 
+
+void ListAllMeasurements(const Experiment::MeasurementByTagCloseUp & measurements,
+                         std::vector<Measurement::ConstPtr> & result) {
+	size_t size = 0;
+	for (const auto & [uri,measurementsByType] : measurements) {
+		size += measurementsByType.size();
+	}
+	result.clear();
+	result.reserve(size);
+	for (const auto & [uri,measurementsByType] : measurements) {
+		for (const auto & [type,m] : measurementsByType ) {
+			result.push_back(m);
+		}
+	}
+}
+
 TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	ExperimentPtr e;
 	TrackingDataDirectory::ConstPtr foo0,foo1;
@@ -180,7 +196,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		},std::invalid_argument);
 
 	std::vector<Measurement::ConstPtr> list = {goodCustom, goodDefault, defaultWithBadPath} ;
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),2);
 	auto listContains = [&list](const Measurement::ConstPtr & m) {
 		                    auto fi = std::find_if(list.cbegin(),list.cend(),
@@ -359,7 +375,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e->DeleteMeasurementType(Measurement::HEAD_TAIL_TYPE+1);
 		});
 
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),1);
 	EXPECT_TRUE(listContains(goodDefault));
 
@@ -368,7 +384,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e->DeleteMeasurement(goodDefault->URI());
 		});
 
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),0);
 
 	EXPECT_NO_THROW({

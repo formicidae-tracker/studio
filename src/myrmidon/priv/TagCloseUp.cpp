@@ -368,6 +368,15 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	return res;
 }
 
+tags::Family TagCloseUp::Lister::Family() const {
+	return d_family;
+}
+
+uint8_t TagCloseUp::Lister::Threshold() const {
+	return d_threshold;
+}
+
+
 Isometry2Dd TagCloseUp::ImageToTag() const {
 	return Isometry2Dd(d_tagAngle,d_tagPosition).inverse();
 }

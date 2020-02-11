@@ -249,22 +249,9 @@ void Experiment::DeleteMeasurement(const fs::path & URI) {
 	d_measurements.erase(sfi);
 }
 
-void Experiment::ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const {
-	list.clear();
-
-	size_t s = 0;
-	for (const auto & [p,ms] : d_measurementByURI ) {
-		for (const auto & [t,m] : ms ) {
-			++s;
-		}
-	}
-	list.reserve(s);
-
-	for (const auto & [p,ms] : d_measurementByURI ) {
-		for (const auto & [t,m] : ms ) {
-			list.push_back(m);
-		}
-	}
+const Experiment::MeasurementByTagCloseUp &
+Experiment::Measurements() const {
+	return d_measurementByURI;
 }
 
 double Experiment::DefaultTagSize() const {
