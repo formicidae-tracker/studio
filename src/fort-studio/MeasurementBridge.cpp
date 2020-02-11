@@ -49,18 +49,33 @@ void TagCloseUpLoader::onResultReady(int index) {
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
 	: QObject(parent)
-	, d_model( new QStandardItemModel (this) )
+	, d_tcuModel( new QStandardItemModel (this) )
+	, d_typeModel( new QStandardItemModel (this) )
 	, d_experiment(NULL) {
+
+	connect(d_typeModel,
+	        SIGNAL(itemChanged(QStandardItem*)),
+	        this,
+	        SLOT(onItemChanged(QStandardItem*)));
 }
 
 QAbstractItemModel * MeasurementBridge::model() const {
-	return d_model;
+	return d_tcuModel;
 }
 
 void MeasurementBridge::SetExperiment(fmp::Experiment * experiment) {
 	cancelAll();
+	d_typeModel->clear();
 	d_experiment = experiment;
-	if ( d_experiment == NULL || d_experiment->Family() == fort::tags::Family::Undefined ) {
+	if ( d_experiment == NULL ) {
+		return;
+	}
+
+	for (const auto & [MTID,type] : d_experiment->MeasurementTypes()) {
+		d_typeModel->appendRow(buildType(type));
+	}
+
+	if ( d_experiment->Family() == fort::tags::Family::Undefined ) {
 		return;
 	}
 	startAll();
@@ -169,7 +184,7 @@ void MeasurementBridge::cancelOne(const fs::path & tddURI) {
 	d_loaders.erase(fi);
 }
 
-QList<QStandardItem*> MeasurementBridge::BuildTag(fmp::TagID TID) {
+QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
 	auto tagItem = new QStandardItem(QString("tags/%1").arg(TID));
 	tagItem->setEditable(false);
 	tagItem->setData(TID,Qt::UserRole+1);
@@ -179,7 +194,7 @@ QList<QStandardItem*> MeasurementBridge::BuildTag(fmp::TagID TID) {
 	return {tagItem,dummyItem,dummyItem};
 }
 
-QList<QStandardItem*> MeasurementBridge::BuildTCU(const fmp::TagCloseUp::ConstPtr & tcu) {
+QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPtr & tcu) {
 	if ( d_experiment == NULL ) {
 		return {};
 	}
@@ -204,17 +219,17 @@ void MeasurementBridge::addOneTCU(const fs::path & tddURI, const fmp::TagCloseUp
 	QString tagPath = QString("tags/%1");
 	tagPath = tagPath.arg(target);
 
-	auto items = d_model->findItems(tagPath);
+	auto items = d_tcuModel->findItems(tagPath);
 	QStandardItem * tagItem = NULL;
 	if ( items.size() == 0 ) {
-		auto tagItems = BuildTag(target);
+		auto tagItems = buildTag(target);
 		tagItem = tagItems[0];
-		d_model->invisibleRootItem()->appendRow(tagItems);
+		d_tcuModel->invisibleRootItem()->appendRow(tagItems);
 	} else {
 		tagItem = items[0];
 	}
 
-	tagItem->appendRow(BuildTCU(tcu));
+	tagItem->appendRow(buildTCU(tcu));
 
 	auto fi = d_closeups.insert(std::make_pair(tddURI,CloseUpByPath()));
 	fi.first->second.insert(std::make_pair(tcu->URI(),tcu));
@@ -226,10 +241,10 @@ void MeasurementBridge::clearTddTCUs(const fs::path & tddURI) {
 		return;
 	}
 	for ( const auto & [uri,tcu] : fi->second ){
-		auto items = d_model->findItems(uri.c_str());
+		auto items = d_tcuModel->findItems(uri.c_str());
 		for(const auto item : items) {
 			auto index = item->index();
-			d_model->removeRows(index.row(),1,index.parent());
+			d_tcuModel->removeRows(index.row(),1,index.parent());
 		}
 		d_counts.erase(uri);
 	}
@@ -237,7 +252,7 @@ void MeasurementBridge::clearTddTCUs(const fs::path & tddURI) {
 }
 
 void MeasurementBridge::clearAllTCUs() {
-	d_model->clear();
+	d_tcuModel->clear();
 	d_closeups.clear();
 	d_counts.clear();
 }
@@ -304,7 +319,7 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 }
 
 
-size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) {
+size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) const {
 	if (d_experiment == NULL){
 		return 0;
 	}
@@ -313,4 +328,83 @@ size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) {
 		return 0;
 	}
 	return mi->second.size();
+}
+
+
+void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
+	if ( d_experiment == NULL ) {
+		return;
+	}
+	try {
+		auto fi = d_experiment->MeasurementTypes().find(MTID);
+		if ( fi == d_experiment->MeasurementTypes().end() ) {
+			MTID = d_experiment->NextAvailableMeasurementTypeID();
+			auto type = d_experiment->CreateMeasurementType(MTID,name.toUtf8().data());
+			d_typeModel->appendRow(buildType(type));
+		} else {
+			auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);
+			if ( items.size() != 1 ) {
+				throw std::logic_error("Internal type model error");
+			}
+			fi->second->SetName(name.toUtf8().data());
+			d_typeModel->item(items[0]->row(),1)->setText(name);
+		}
+	} catch ( const std::exception & e) {
+		qWarning() << "Could not set MeasurementType " << MTID << " to '" << name << "': " << e.what();
+	}
+
+	emit measurementTypeModified(MTID,name);
+}
+
+void MeasurementBridge::deleteMeasurementType(int MTID) {
+	if ( d_experiment == NULL ) {
+		return;
+	}
+
+	try {
+		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);
+		if ( items.size() != 1 ) {
+			throw std::logic_error("Internal type model error");
+		}
+		d_experiment->DeleteMeasurementType(MTID);
+		d_typeModel->removeRows(items[0]->row(),1);
+	} catch (const std::exception & e) {
+		qWarning() << "Could not delete MeasurementType " << MTID << ": " << e.what();
+	}
+
+	emit measurementTypeDeleted(MTID);
+}
+
+QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::Ptr & type) const {
+	auto mtid =new QStandardItem(QString::number(type->MTID()));
+	mtid->setEditable(false);
+	mtid->setData(QVariant::fromValue(type));
+	auto name = new QStandardItem(type->Name().c_str());
+	mtid->setData(QVariant::fromValue(type));
+	mtid->setEditable(true);
+}
+
+void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
+	if (item->column() != 1) {
+		return;
+	}
+
+	auto type = item->data().value<fmp::MeasurementType::Ptr>();
+	std::string newName = item->text().toUtf8().data();
+	if ( newName == type->Name() ) {
+		return;
+	}
+
+	try {
+		type->SetName(newName);
+	} catch( const std::exception & e) {
+		qWarning() << "Could not change measurement type " << type->MTID()
+		           << ":'" << type->Name().c_str()
+		           <<"' to '" << item->text()
+		           << "': " << e.what();
+		item->setText(type->Name().c_str());
+		return;
+	}
+
+	emit measurementTypeModified(type->MTID(),type->Name().c_str());
 }

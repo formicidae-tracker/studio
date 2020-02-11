@@ -11,6 +11,7 @@ namespace fmp = fort::myrmidon::priv;
 
 Q_DECLARE_METATYPE(fmp::TagCloseUp::ConstPtr)
 Q_DECLARE_METATYPE(fmp::MeasurementType::ID)
+Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
 
 
 class TagCloseUpLoader : public QObject {
@@ -25,11 +26,18 @@ public:
 
 	static fmp::TagCloseUp::List Load(const fmp::TagCloseUp::Lister::Loader & l);
 
+	QAbstractItemModel * TagCloseUpModel() const;
+	QAbstractItemModel * MeasurementTypeModel() const;
+
 signals:
 	void newTagCloseUp(fs::path tddURI,
 	                   fort::tags::Family family,
 	                   uint8_t threshold,
 	                   fmp::TagCloseUp::ConstPtr tcu);
+
+
+	void measurementTypeModified(int,QString);
+	void measurementTypeDeleted(int);
 
 public slots:
 	void cancel();
@@ -62,6 +70,9 @@ signals:
 	void measurementModified(const fmp::MeasurementConstPtr);
 	void measurementDeleted(fs::path);
 
+	void measurementTypeModified(int,QString);
+	void measurementTypeDeleted(int);
+
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);
@@ -77,6 +88,12 @@ public slots:
 
 	void deleteMeasurement(const fs::path & mURI);
 
+
+	void setMeasurementType(int MTID, const QString & name);
+
+	void deleteMeasurementType(int MTID);
+
+	void onTypeItemChanged(QStandardItem * item);
 
 private slots:
 
@@ -102,12 +119,14 @@ private:
 	void clearAllTCUs();
 
 
-	QList<QStandardItem*> BuildTag(fmp::TagID TID);
-	QList<QStandardItem*> BuildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
+	QList<QStandardItem*> buildTag(fmp::TagID TID) const;
+	QList<QStandardItem*> buildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
+	QList<QStandardItem*> buildType(const fmp::MeasurementType::Ptr & type) const;
 
-	size_t countMeasurementsForTCU(const fs::path & tcuPath);
+	size_t countMeasurementsForTCU(const fs::path & tcuPath) const;
 
-	QStandardItemModel * d_model;
+	QStandardItemModel * d_tcuModel;
+	QStandardItemModel * d_typeModel;
 	fmp::Experiment    * d_experiment;
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
