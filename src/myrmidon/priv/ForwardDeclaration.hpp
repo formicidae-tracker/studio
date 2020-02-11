@@ -22,7 +22,7 @@ namespace priv {
 
 class Experiment;
 // Forward decalation for an <priv::Experiment::Ptr>
-typedef std::unique_ptr<Experiment>     ExperimentPtr;
+FORT_MYRMIDON_FDECLARE_CLASS(Experiment)
 
 // Forward decalation for an <priv::Ant>
 FORT_MYRMIDON_FDECLARE_CLASS(Ant)
@@ -60,8 +60,8 @@ typedef uint32_t MeasurementTypeID;
 //Forward declaration for a <priv::MeasurementType>
 FORT_MYRMIDON_FDECLARE_CLASS(MeasurementType)
 
-//Forward declaration for a <priv::Zone>
-FORT_MYRMIDON_FDECLARE_CLASS(Zone)
+//Forward declaration for a <priv::Space>
+FORT_MYRMIDON_FDECLARE_CLASS(Space)
 
 
 
