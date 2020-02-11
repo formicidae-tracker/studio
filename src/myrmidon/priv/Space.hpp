@@ -9,20 +9,20 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class ZoneUTest;
+class SpaceUTest;
 
-// A Zone manages TrackingDataDirectory
+// A Space manages TrackingDataDirectory
 //
-// A Zone manages <TrackingDataDirectory>, in order to manages the
-// invariant, that in a given Zone, no two <TrackingDataDirectory> are
+// A Space manages <TrackingDataDirectory>, in order to manages the
+// invariant, that in a given Space, no two <TrackingDataDirectory> are
 // allowed to overlap in time. It also means that a given
-// <TrackingDataDirectory> can only be assigned once in a Zone.
-class Zone : public Identifiable {
+// <TrackingDataDirectory> can only be assigned once in a Space.
+class Space : public Identifiable {
 public:
-	// A pointer to a Zone
-	typedef std::shared_ptr<Zone>       Ptr;
-	// A cpnst pointer to a Zone
-	typedef std::shared_ptr<const Zone> ConstPtr;
+	// A pointer to a Space
+	typedef std::shared_ptr<Space>       Ptr;
+	// A cpnst pointer to a Space
+	typedef std::shared_ptr<const Space> ConstPtr;
 
 	// Exception sent when two TrackingDataDirectory overlaps in time.
 	class TDDOverlap : public std::runtime_error {
@@ -53,11 +53,11 @@ public:
 		UnmanagedTrackingDataDirectory(const fs::path & URI) noexcept;
 	};
 
-	// Exception sent when the desired Zone is unknown
-	class UnmanagedZone : public std::runtime_error {
+	// Exception sent when the desired Space is unknown
+	class UnmanagedSpace : public std::runtime_error {
 	public:
 		// Constructor
-		UnmanagedZone(const fs::path & URI) noexcept;
+		UnmanagedSpace(const fs::path & URI) noexcept;
 	};
 
 	// Exception sent when the chosen name is invalid
@@ -68,54 +68,54 @@ public:
 		            const std::string & reason) noexcept;
 	};
 
-	// Exception sent when the Zone is not empty
-	class ZoneNotEmpty : public std::runtime_error {
+	// Exception sent when the Space is not empty
+	class SpaceNotEmpty : public std::runtime_error {
 	public :
-		ZoneNotEmpty(const Zone & z);
+		SpaceNotEmpty(const Space & z);
 
 	private:
-		static std::string BuildReason(const Zone & z);
+		static std::string BuildReason(const Space & z);
 	};
 
 	// Exception sent when the TrackingDataDirectory is used in
-	// another zone
+	// another space
 	class TDDAlreadyInUse : public std::runtime_error {
 	public:
-		TDDAlreadyInUse(const fs::path & tddURI, const fs::path & zoneURI);
+		TDDAlreadyInUse(const fs::path & tddURI, const fs::path & spaceURI);
 	};
 
 
-	// Group manages several Zone to insure <priv::Experiment>
+	// Universe manages several Space to insure <priv::Experiment>
 	// invariant.
 	//
-	// A Grouo manages several Zone all together to ensure the
+	// A Grouo manages several Space all together to ensure the
 	// following invariants:
-	//   * No two <Zone> can have the same name
-	//   * A given <TrackingDataDirectory> can only be assigned to a single zone
+	//   * No two <Space> can have the same name
+	//   * A given <TrackingDataDirectory> can only be assigned to a single space
 	//
-	// The <Zone> are managing the invariant that no two
-	// <TrackingDataDirectory> can overlap in time in this Zone.
-	class Group {
+	// The <Space> are managing the invariant that no two
+	// <TrackingDataDirectory> can overlap in time in this Space.
+	class Universe {
 	public:
-		typedef std::shared_ptr<Group> Ptr;
+		typedef std::shared_ptr<Universe> Ptr;
 
 		typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
-		static Zone::Ptr Create(const Ptr & itself, const std::string & name);
+		static Space::Ptr Create(const Ptr & itself, const std::string & name);
 
-		void DeleteZone(const fs::path & URI);
+		void DeleteSpace(const fs::path & URI);
 
 		void DeleteTrackingDataDirectory(const fs::path & URI);
 
-		const std::vector<Zone::Ptr> & Zones() const;
+		const std::vector<Space::Ptr> & Spaces() const;
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
 	private:
-		friend class Zone;
+		friend class Space;
 
-		std::map<fs::path,Zone::Ptr> d_zonesByURI;
-		std::vector<Zone::Ptr>       d_zones;
+		std::map<fs::path,Space::Ptr> d_spacesByURI;
+		std::vector<Space::Ptr>       d_spaces;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
@@ -129,16 +129,16 @@ public:
 	const std::vector<TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
 
 private :
-	Zone(const std::string & name, const Group::Ptr & group);
+	Space(const std::string & name, const Universe::Ptr & universe);
 
 	void DeleteTrackingDataDirectory(const fs::path & URI);
 
 
-	Group::Ptr LockGroup() const;
+	Universe::Ptr LockUniverse() const;
 
 
-	fs::path             d_URI;
-	std::weak_ptr<Group> d_group;
+	fs::path                d_URI;
+	std::weak_ptr<Universe> d_universe;
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
 };

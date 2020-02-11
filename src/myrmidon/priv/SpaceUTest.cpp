@@ -1,6 +1,6 @@
-#include "ZoneUTest.hpp"
+#include "SpaceUTest.hpp"
 
-#include "Zone.hpp"
+#include "Space.hpp"
 
 #include <myrmidon/TestSetup.hpp>
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
@@ -9,9 +9,9 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TrackingDataDirectory::ConstPtr ZoneUTest::s_foo[3];
+TrackingDataDirectory::ConstPtr SpaceUTest::s_foo[3];
 
-void ZoneUTest::SetUpTestSuite() {
+void SpaceUTest::SetUpTestSuite() {
 	s_foo[0] = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",
 	                                       TestSetup::Basedir());
 	s_foo[1] = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",
@@ -20,14 +20,14 @@ void ZoneUTest::SetUpTestSuite() {
 	                                       TestSetup::Basedir());
 }
 
-void ZoneUTest::TearDownTestSuite() {
+void SpaceUTest::TearDownTestSuite() {
 	for (auto & tdd : s_foo) {
 		tdd.reset();
 	}
 }
 
 
-TEST_F(ZoneUTest,NameCheck) {
+TEST_F(SpaceUTest,NameCheck) {
 	struct TestData {
 		std::string Name;
 		bool Throws;
@@ -42,17 +42,17 @@ TEST_F(ZoneUTest,NameCheck) {
 		 {"/foo", true},
 		 {"foo/", true},
 		};
-	auto group = std::make_shared<Zone::Group>();
+	auto universe = std::make_shared<Space::Universe>();
 
-	auto good = Zone::Group::Create(group,"good");
+	auto good = Space::Universe::Create(universe,"good");
 	for (const auto & d : testdata) {
 		if (d.Throws == true) {
 			EXPECT_THROW({
-					Zone::Group::Create(group,d.Name);
-					;},Zone::InvalidName) << "Testing " << d.Name;
+					Space::Universe::Create(universe,d.Name);
+					;},Space::InvalidName) << "Testing " << d.Name;
 			EXPECT_THROW({
 					good->SetName(d.Name);
-				},Zone::InvalidName) << "Testing " << d.Name;
+				},Space::InvalidName) << "Testing " << d.Name;
 		} else {
 			EXPECT_NO_THROW({
 					good->SetName(d.Name);
@@ -62,7 +62,7 @@ TEST_F(ZoneUTest,NameCheck) {
 				}) << "Testing " << d.Name;
 
 			EXPECT_NO_THROW({
-					auto res = Zone::Group::Create(group,d.Name);
+					auto res = Space::Universe::Create(universe,d.Name);
 					EXPECT_EQ(res->URI().generic_string(),
 					          d.Name);
 				}) << "Testing " << d.Name;
@@ -70,20 +70,20 @@ TEST_F(ZoneUTest,NameCheck) {
 	}
 
 	EXPECT_THROW({
-			Zone::Group::Create(group,"good");
-		}, Zone::InvalidName);
+			Space::Universe::Create(universe,"good");
+		}, Space::InvalidName);
 
-	group.reset();
+	universe.reset();
 	EXPECT_THROW({
 			good->SetName("willcrash");
-		},DeletedReference<Zone::Group>);
+		},DeletedReference<Space::Universe>);
 }
 
 
-TEST_F(ZoneUTest,CanHoldTDD) {
+TEST_F(SpaceUTest,CanHoldTDD) {
 
-	auto group = std::make_shared<Zone::Group>();
-	auto z = Zone::Group::Create(group,"foo");
+	auto universe = std::make_shared<Space::Universe>();
+	auto z = Space::Universe::Create(universe,"foo");
 	EXPECT_NO_THROW({
 			z->AddTrackingDataDirectory(s_foo[2]);
 			z->AddTrackingDataDirectory(s_foo[1]);
@@ -98,8 +98,8 @@ TEST_F(ZoneUTest,CanHoldTDD) {
 
 	try {
 		z->AddTrackingDataDirectory(s_foo[0]);
-		ADD_FAILURE() << "Should have thrown Zone::TDDOverlap but nothing is thrown";
-	} catch (const Zone::TDDOverlap & e) {
+		ADD_FAILURE() << "Should have thrown Space::TDDOverlap but nothing is thrown";
+	} catch (const Space::TDDOverlap & e) {
 		EXPECT_EQ(e.A(),s_foo[0]);
 		EXPECT_EQ(e.B(),s_foo[0]);
 	} catch (...) {
@@ -107,23 +107,23 @@ TEST_F(ZoneUTest,CanHoldTDD) {
 	}
 
 	EXPECT_NO_THROW({
-			group->DeleteTrackingDataDirectory(s_foo[0]->URI());
+			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
 		});
 
 	EXPECT_THROW({
-			group->DeleteTrackingDataDirectory(s_foo[0]->URI());
-		},Zone::UnmanagedTrackingDataDirectory);
+			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
+		},Space::UnmanagedTrackingDataDirectory);
 
 	EXPECT_THROW({
 			// Still having some data
-			group->DeleteZone("foo");
-		},Zone::ZoneNotEmpty);
+			universe->DeleteSpace("foo");
+		},Space::SpaceNotEmpty);
 
 	EXPECT_THROW({
-			group->DeleteZone("bar");
-		},Zone::UnmanagedZone);
+			universe->DeleteSpace("bar");
+		},Space::UnmanagedSpace);
 
-	auto z2 = Zone::Group::Create(group,"bar");
+	auto z2 = Space::Universe::Create(universe,"bar");
 
 	EXPECT_NO_THROW({
 			//not used by any other zone
@@ -134,30 +134,30 @@ TEST_F(ZoneUTest,CanHoldTDD) {
 	EXPECT_THROW({
 			//used by z
 			z2->AddTrackingDataDirectory(s_foo[2]);
-		},Zone::TDDAlreadyInUse);
+		},Space::TDDAlreadyInUse);
 
 
 	EXPECT_NO_THROW({
 			// removes data that is associated with foo
-			group->DeleteTrackingDataDirectory(s_foo[0]->URI());
+			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
 			// removes the zone is OK now
-			group->DeleteZone("bar");
+			universe->DeleteSpace("bar");
 		});
 
 }
 
-TEST_F(ZoneUTest,ExceptionFormatting) {
+TEST_F(SpaceUTest,ExceptionFormatting) {
 	struct TestData {
 		std::runtime_error E;
 		std::string What;
 	};
 
-	Zone::Group::Ptr group;
-	Zone::Ptr z;
+	Space::Universe::Ptr universe;
+	Space::Ptr z;
 
 	ASSERT_NO_THROW({
-			group = std::make_shared<Zone::Group>();
-			z = Zone::Group::Create(group,"z");
+			universe = std::make_shared<Space::Universe>();
+			z = Space::Universe::Create(universe,"z");
 			z->AddTrackingDataDirectory(s_foo[1]);
 			z->AddTrackingDataDirectory(s_foo[0]);
 		});
@@ -165,28 +165,28 @@ TEST_F(ZoneUTest,ExceptionFormatting) {
 	std::vector<TestData> testdata =
 		{
 		 {
-		  Zone::TDDOverlap(s_foo[0],s_foo[0]),
+		  Space::TDDOverlap(s_foo[0],s_foo[0]),
 		  "TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
 		 },
 		 {
-		  Zone::UnmanagedTrackingDataDirectory("doo"),
-		  "TDD:'doo' is not managed by this Zone or Zone::Group",
+		  Space::UnmanagedTrackingDataDirectory("doo"),
+		  "TDD:'doo' is not managed by this Space or Universe",
 		 },
 		 {
-		  Zone::UnmanagedZone("doo"),
-		  "Zone:'doo' is not managed by this Zone::Group",
+		  Space::UnmanagedSpace("doo"),
+		  "Space:'doo' is not managed by this Universe",
 		 },
 		 {
-		  Zone::InvalidName("doh","it is 'doh'! Doh!"),
-		  "Invalid Zone name 'doh': it is 'doh'! Doh!",
+		  Space::InvalidName("doh","it is 'doh'! Doh!"),
+		  "Invalid Space name 'doh': it is 'doh'! Doh!",
 		 },
 		 {
-		  Zone::ZoneNotEmpty(*z),
-		  "Zone:'z' is not empty (contains:{foo.0000,foo.0001})",
+		  Space::SpaceNotEmpty(*z),
+		  "Space:'z' is not empty (contains:{foo.0000,foo.0001})",
 		 },
 		 {
-		  Zone::TDDAlreadyInUse("foo.0000","z"),
-		  "TDD:'foo.0000' is in use in Zone:'z'",
+		  Space::TDDAlreadyInUse("foo.0000","z"),
+		  "TDD:'foo.0000' is in use in Space:'z'",
 		 },
 		};
 	for (const auto & d: testdata) {

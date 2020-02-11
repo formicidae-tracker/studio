@@ -6,7 +6,7 @@
 #include <myrmidon/priv/TagCloseUp.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Measurement.hpp>
-#include <myrmidon/priv/Zone.hpp>
+#include <myrmidon/priv/Space.hpp>
 
 #include <myrmidon/utils/Checker.hpp>
 
@@ -189,7 +189,7 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetDefaultTagSize(pb.tagsize());
 
 	for (const auto & zPb : pb.zones()) {
-		auto z = e.CreateZone(zPb.name());
+		auto z = e.CreateSpace(zPb.name());
 		for ( const auto & tddRelPath : zPb.trackingdatadirectories() ) {
 			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
 			z->AddTrackingDataDirectory(tdd);
@@ -221,7 +221,7 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_threshold(e.Threshold());
 	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
-	auto zones = e.Zones();
+	auto zones = e.Spaces();
 	for (const auto & z : zones) {
 		auto zPb = pb->add_zones();
 		zPb->set_name(z->URI().generic_string());
