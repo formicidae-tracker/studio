@@ -14,7 +14,7 @@ set(SRC_FILES main.cpp
 			  AntIdentificationWidget.cpp
 			  QLongSpinBox.cpp
 			  TagExtractor.cpp
-			  ZoneModel.cpp
+			  UniverseBridge.cpp
 			  MeasurementBridge.cpp)
 
 set(HDR_FILES MainWindow.hpp
@@ -33,7 +33,7 @@ set(HDR_FILES MainWindow.hpp
 			  QLongSpinBox.hpp
 			  utils.hpp
 			  TagExtractor.hpp
-			  ZoneModel.hpp
+			  UniverseBridge.hpp
 			  MeasurementBridge.hpp
 			  )
 

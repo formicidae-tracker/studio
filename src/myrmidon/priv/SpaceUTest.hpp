@@ -8,7 +8,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class ZoneUTest : public ::testing::Test {
+class SpaceUTest : public ::testing::Test {
 protected:
 
 	static void SetUpTestSuite();

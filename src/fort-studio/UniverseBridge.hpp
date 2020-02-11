@@ -12,30 +12,30 @@ namespace fmp = fort::myrmidon::priv;
 
 class QAbstractItemModel;
 
-class ZoneAndTDDBridge : public QObject {
+class UniverseBridge : public QObject {
 	Q_OBJECT
 
 public:
-	ZoneAndTDDBridge(QObject * parent);
+	UniverseBridge(QObject * parent);
 
 	QAbstractItemModel * model();
 	void SetExperiment(fmp::Experiment * experiment);
 
-	const std::vector<fmp::Zone::Ptr> Zones() const;
+	const std::vector<fmp::Space::Ptr> Spaces() const;
 
-	const fmp::Zone::Group::TrackingDataDirectoryByURI &
+	const fmp::Space::Universe::TrackingDataDirectoryByURI &
 	TrackingDataDirectories() const;
 
 public slots:
-	Error addZone(const QString & zoneName);
-	Error addTrackingDataDirectoryToZone(const QString & zoneURI,
+	Error addSpace(const QString & spaceName);
+	Error addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	                                    const fmp::TrackingDataDirectoryConstPtr & tdd);
 	Error deleteTrackingDataDirectory(const QString & URI);
 
 signals:
-	void zoneDeleted(const QString & zoneName);
-	void zoneAdded(const fmp::Zone::Ptr & zone);
-	void zoneChanged(const fmp::Zone::Ptr & zone);
+	void spaceDeleted(const QString & spaceName);
+	void spaceAdded(const fmp::Space::Ptr & space);
+	void spaceChanged(const fmp::Space::Ptr & space);
 
 
 	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
@@ -46,17 +46,17 @@ protected slots:
 
 private:
 	enum ObjectType {
-	                 ZONE_TYPE = 0,
+	                 SPACE_TYPE = 0,
 	                 TDD_TYPE  = 1,
 	};
 
-	QStandardItem * LocateZone(const QString & URI);
-	void RebuildZoneChildren(QStandardItem * item, const fmp::Zone::Ptr & z);
+	QStandardItem * LocateSpace(const QString & URI);
+	void RebuildSpaceChildren(QStandardItem * item, const fmp::Space::Ptr & z);
 
 	QList<QStandardItem*> BuildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
-	QList<QStandardItem*> BuildZone(const fmp::Zone::Ptr & z);
+	QList<QStandardItem*> BuildSpace(const fmp::Space::Ptr & z);
 
-	void BuildAll(const std::vector<fmp::Zone::Ptr> & zones);
+	void BuildAll(const std::vector<fmp::Space::Ptr> & spaces);
 
 
 	QStandardItemModel   * d_model;

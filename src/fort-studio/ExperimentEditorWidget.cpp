@@ -7,13 +7,13 @@
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
-#include "ZoneModel.hpp"
+#include "UniverseBridge.hpp"
 
 ExperimentEditorWidget::ExperimentEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::ExperimentEditorWidget)
 	, d_controller(NULL)
-	, d_zones(new ZoneAndTDDBridge(this)) {
+	, d_zones(new UniverseBridge(this)) {
 	d_ui->setupUi(this);
 
 	d_ui->zoneView->setModel(d_zones->model());

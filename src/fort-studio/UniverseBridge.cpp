@@ -1,4 +1,4 @@
-#include "ZoneModel.hpp"
+#include "UniverseBridge.hpp"
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
@@ -8,9 +8,9 @@
 using namespace fort::myrmidon;
 
 Q_DECLARE_METATYPE(priv::TrackingDataDirectoryConstPtr);
-Q_DECLARE_METATYPE(priv::Zone::Ptr);
+Q_DECLARE_METATYPE(priv::Space::Ptr);
 
-ZoneAndTDDBridge::ZoneAndTDDBridge( QObject * parent)
+UniverseBridge::UniverseBridge( QObject * parent)
 	: QObject(parent)
 	, d_model(new QStandardItemModel(this) ) {
 
@@ -23,17 +23,17 @@ ZoneAndTDDBridge::ZoneAndTDDBridge( QObject * parent)
 }
 
 
-QAbstractItemModel * ZoneAndTDDBridge::model() {
+QAbstractItemModel * UniverseBridge::model() {
 	return d_model;
 }
 
-void ZoneAndTDDBridge::on_model_itemChanged(QStandardItem * item) {
-	if ( item->data(Qt::UserRole+1).toInt() != ZONE_TYPE || item->column() != 0 ) {
+void UniverseBridge::on_model_itemChanged(QStandardItem * item) {
+	if ( item->data(Qt::UserRole+1).toInt() != SPACE_TYPE || item->column() != 0 ) {
 		qDebug() << "Invalid item changed";
 		return;
 	}
 
-	auto z = item->data(Qt::UserRole+2).value<priv::Zone::Ptr>();
+	auto z = item->data(Qt::UserRole+2).value<priv::Space::Ptr>();
 	if (item->text() == z->URI().c_str()) {
 		return;
 	}
@@ -44,11 +44,11 @@ void ZoneAndTDDBridge::on_model_itemChanged(QStandardItem * item) {
 		qDebug() << "Could not change name: " << e.what();
 		item->setText(z->URI().c_str());
 	}
-	emit zoneChanged(z);
+	emit spaceChanged(z);
 }
 
 
-QList<QStandardItem*> ZoneAndTDDBridge::BuildTDD(const priv::TrackingDataDirectoryConstPtr & tdd) {
+QList<QStandardItem*> UniverseBridge::BuildTDD(const priv::TrackingDataDirectoryConstPtr & tdd) {
 	auto formatFrameID = [](priv::FrameID FID) -> QString {
 		                     return std::to_string(FID).c_str();
 	                     };
@@ -73,62 +73,62 @@ QList<QStandardItem*> ZoneAndTDDBridge::BuildTDD(const priv::TrackingDataDirecto
 	return res;
 }
 
-QList<QStandardItem*> ZoneAndTDDBridge::BuildZone(const priv::Zone::Ptr & z) {
-	auto zoneItem = new QStandardItem(z->URI().c_str());
-	zoneItem->setEditable(true);
-	zoneItem->setData(ZONE_TYPE,Qt::UserRole+1);
-	zoneItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
-	RebuildZoneChildren(zoneItem,z);
-	QList<QStandardItem*> res = {zoneItem};
+QList<QStandardItem*> UniverseBridge::BuildSpace(const priv::Space::Ptr & z) {
+	auto spaceItem = new QStandardItem(z->URI().c_str());
+	spaceItem->setEditable(true);
+	spaceItem->setData(SPACE_TYPE,Qt::UserRole+1);
+	spaceItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
+	RebuildSpaceChildren(spaceItem,z);
+	QList<QStandardItem*> res = {spaceItem};
 	for(size_t i = 0 ; i < 5; ++i) {
 		auto dummyItem = new QStandardItem("");
 		dummyItem->setEditable(false);
-		dummyItem->setData(ZONE_TYPE,Qt::UserRole+1);
+		dummyItem->setData(SPACE_TYPE,Qt::UserRole+1);
 		dummyItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
 		res.push_back(dummyItem);
 	}
 	return res;
 }
 
-void ZoneAndTDDBridge::BuildAll(const std::vector<priv::Zone::Ptr> & zones) {
+void UniverseBridge::BuildAll(const std::vector<priv::Space::Ptr> & spaces) {
 	d_model->clear();
 	d_model->setColumnCount(6);
 	auto labels = {tr("URI"),tr("Filepath"),tr("Start Frame"),tr("End Frame"),tr("Start Date"),tr("End Date")};
 	d_model->setHorizontalHeaderLabels(labels);
-	for (const auto & z : zones) {
-		d_model->invisibleRootItem()->appendRow(BuildZone(z));
+	for (const auto & z : spaces) {
+		d_model->invisibleRootItem()->appendRow(BuildSpace(z));
 	}
 }
 
 
-const std::vector<priv::Zone::Ptr> ZoneAndTDDBridge::Zones() const {
-	return d_experiment->Zones();
+const std::vector<priv::Space::Ptr> UniverseBridge::Spaces() const {
+	return d_experiment->Spaces();
 }
 
-const priv::Zone::Group::TrackingDataDirectoryByURI &
-ZoneAndTDDBridge::TrackingDataDirectories() const {
+const priv::Space::Universe::TrackingDataDirectoryByURI &
+UniverseBridge::TrackingDataDirectories() const {
 	return d_experiment->TrackingDataDirectories();
 }
 
-Error ZoneAndTDDBridge::addZone(const QString & zoneName) {
-	priv::Zone::Ptr newZone;
+Error UniverseBridge::addSpace(const QString & spaceName) {
+	priv::Space::Ptr newSpace;
 	try {
-		newZone = d_experiment->CreateZone(zoneName.toUtf8().data());
+		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
 	} catch (const std::exception & e) {
-		return Error("Could not create zone '" + zoneName + "'" + e.what());
+		return Error("Could not create space '" + spaceName + "'" + e.what());
 	}
 
-	d_model->appendRow(BuildZone(newZone));
-	emit zoneAdded(newZone);
+	d_model->appendRow(BuildSpace(newSpace));
+	emit spaceAdded(newSpace);
 	return Error::NONE;
 }
 
-Error ZoneAndTDDBridge::addTrackingDataDirectoryToZone(const QString & zoneURI,
+Error UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
                                                       const fmp::TrackingDataDirectoryConstPtr & tdd) {
-	auto z = d_experiment->LocateZone(zoneURI.toUtf8().data());
-	auto item = LocateZone(zoneURI);
+	auto z = d_experiment->LocateSpace(spaceURI.toUtf8().data());
+	auto item = LocateSpace(spaceURI);
 	if ( !z || item == NULL) {
-		return Error("No zone '" + zoneURI + "'");
+		return Error("No space '" + spaceURI + "'");
 	}
 
 
@@ -136,24 +136,24 @@ Error ZoneAndTDDBridge::addTrackingDataDirectoryToZone(const QString & zoneURI,
 		z->AddTrackingDataDirectory(tdd);
 	} catch (const std::exception & e) {
 		return Error("Could not add '" + QString(tdd->URI().c_str())
-		             + "' to '" + zoneURI + "':" + e.what());
+		             + "' to '" + spaceURI + "':" + e.what());
 	}
 
-	RebuildZoneChildren(item,z);
+	RebuildSpaceChildren(item,z);
 
 	emit trackingDataDirectoryAdded(tdd);
-	emit zoneChanged(z);
+	emit spaceChanged(z);
 	return Error::NONE;
 }
 
-Error ZoneAndTDDBridge::deleteTrackingDataDirectory(const QString & URI) {
+Error UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 
 	auto fi  = d_experiment->LocateTrackingDataDirectory(URI.toUtf8().data());
 	if (!fi.first || !fi.second) {
 		return Error("Could not found TDD '" + URI + "'");
 	}
 
-	auto item = LocateZone(fi.first->URI().c_str());
+	auto item = LocateSpace(fi.first->URI().c_str());
 
 	try {
 		d_experiment->DeleteTrackingDataDirectory(URI.toUtf8().data());
@@ -162,15 +162,15 @@ Error ZoneAndTDDBridge::deleteTrackingDataDirectory(const QString & URI) {
 	}
 
 
-	RebuildZoneChildren(item,fi.first);
+	RebuildSpaceChildren(item,fi.first);
 
 	emit trackingDataDirectoryDeleted(URI);
-	emit zoneChanged(fi.first);
+	emit spaceChanged(fi.first);
 	return Error::NONE;
 }
 
 
-QStandardItem * ZoneAndTDDBridge::LocateZone(const QString & URI) {
+QStandardItem * UniverseBridge::LocateSpace(const QString & URI) {
 	auto items = d_model->findItems(URI);
 	if ( items.size() != 1 ) {
 		return NULL;
@@ -178,8 +178,8 @@ QStandardItem * ZoneAndTDDBridge::LocateZone(const QString & URI) {
 	return items[0];
 }
 
-void ZoneAndTDDBridge::RebuildZoneChildren(QStandardItem * item,
-                                           const fmp::Zone::Ptr & z) {
+void UniverseBridge::RebuildSpaceChildren(QStandardItem * item,
+                                           const fmp::Space::Ptr & z) {
 	item->removeRows(0,item->rowCount());
 	for ( const auto & tdd : z->TrackingDataDirectories() ) {
 		auto tddItem = BuildTDD(tdd);
@@ -187,14 +187,15 @@ void ZoneAndTDDBridge::RebuildZoneChildren(QStandardItem * item,
 	}
 }
 
-void ZoneAndTDDBridge::SetExperiment(fmp::Experiment * experiment) {
+void UniverseBridge::SetExperiment(fmp::Experiment * experiment) {
 	d_experiment = experiment;
 	d_model->clear();
 	if (d_experiment == NULL) {
 		return;
 	}
 
-	for (const auto & z : d_experiment->Zones() ) {
-		d_model->appendRow(BuildZone(z));
+	for (const auto & z : d_experiment->Spaces() ) {
+		d_model->appendRow(BuildSpace
+		                   (z));
 	}
 }

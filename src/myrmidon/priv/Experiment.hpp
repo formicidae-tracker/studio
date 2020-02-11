@@ -9,7 +9,7 @@
 #include <myrmidon/utils/FileSystem.hpp>
 
 
-#include "Zone.hpp"
+#include "Space.hpp"
 #include "FrameReference.hpp"
 
 #include "ForwardDeclaration.hpp"
@@ -103,20 +103,20 @@ public :
 	const fs::path & Basedir() const;
 
 
-	Zone::Ptr CreateZone(const std::string & name);
+	Space::Ptr CreateSpace(const std::string & name);
 
-	void DeleteZone(const fs::path & zoneURI);
+	void DeleteSpace(const fs::path & zoneURI);
 
-	const std::vector<Zone::Ptr> & Zones() const;
+	const std::vector<Space::Ptr> & Spaces() const;
 
 	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
 
 	void DeleteTrackingDataDirectory(const fs::path & URI);
 
-	std::pair<Zone::Ptr,TrackingDataDirectoryConstPtr>
+	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
 	LocateTrackingDataDirectory(const fs::path & tddURI) const;
 
-	Zone::Ptr LocateZone(const fs::path & zoneURI) const;
+	Space::Ptr LocateSpace(const fs::path & spaceURI) const;
 
 	// Accessor to the underlying Identifier
 	//
@@ -265,10 +265,10 @@ private:
 
 	Experiment(const fs::path & filepath);
 
-	fs::path         d_absoluteFilepath;
-	fs::path         d_basedir;
-	Zone::Group::Ptr d_zoneGroup;
-	IdentifierPtr    d_identifier;
+	fs::path             d_absoluteFilepath;
+	fs::path             d_basedir;
+	Space::Universe::Ptr d_universe;
+	IdentifierPtr        d_identifier;
 
 	std::string        d_name;
 	std::string        d_author;
