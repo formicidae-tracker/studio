@@ -52,7 +52,8 @@ public :
 
 
 	// A Pointer to an Experiment.
-	typedef std::unique_ptr<Experiment> Ptr;
+	typedef std::shared_ptr<Experiment>       Ptr;
+	typedef std::shared_ptr<const Experiment> ConstPtr;
 
 	// Opens an existing experiment given its fs::path
 	// @filename the fs::path to the ".myrmidon" file
