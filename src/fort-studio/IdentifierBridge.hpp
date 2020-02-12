@@ -32,6 +32,10 @@ signals:
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
+	void antDisplayChanged(fm::Ant::ID,
+	                       fmp::Color,
+	                       fmp::Ant::DisplayState);
+
 	void activeStateChanged(bool);
 public slots:
 	fmp::Ant::Ptr createAnt();

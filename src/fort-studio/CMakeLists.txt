@@ -5,45 +5,45 @@ set(SRC_FILES main.cpp
 			  IdentifierBridge.cpp
 			  SelectedAntBridge.cpp
 			  SelectedIdentificationBridge.cpp
-              MainWindow.cpp
-              Error.cpp
-              ExperimentController.cpp
-              AntListWidget.cpp
-              ExperimentEditorWidget.cpp
-              TaggingWidget.cpp
-              Snapshot.cpp
-              SnapshotIndexer.cpp
-              AntPoseEstimate.cpp
-              TagInFramePointer.cpp
-			  SnapshotViewer.cpp
-			  FramePointerWidget.cpp
-			  AntIdentificationWidget.cpp
-			  QLongSpinBox.cpp
-			  TagExtractor.cpp
+			  ExperimentController.cpp
+              # MainWindow.cpp
+              # Error.cpp
+              # AntListWidget.cpp
+              # ExperimentEditorWidget.cpp
+              # TaggingWidget.cpp
+              # Snapshot.cpp
+              # SnapshotIndexer.cpp
+              # AntPoseEstimate.cpp
+              # TagInFramePointer.cpp
+			  # SnapshotViewer.cpp
+			  # FramePointerWidget.cpp
+			  # AntIdentificationWidget.cpp
+			  # QLongSpinBox.cpp
+			  # TagExtractor.cpp
 			  )
 
-set(HDR_FILES MainWindow.hpp
-			  UniverseBridge.hpp
+set(HDR_FILES UniverseBridge.hpp
 			  MeasurementBridge.hpp
 			  ExperimentBridge.hpp
 			  IdentifierBridge.hpp
 			  SelectedAntBridge.hpp
 			  SelectedIdentificationBridge.hpp
-              ExperimentController.hpp
-              Error.hpp
-              AntListWidget.hpp
-              ExperimentEditorWidget.hpp
-              TaggingWidget.hpp
-              Snapshot.hpp
-              SnapshotIndexer.hpp
-              AntPoseEstimate.hpp
-              TagInFramePointer.hpp
-			  SnapshotViewer.hpp
-			  FramePointerWidget.hpp
-			  AntIdentificationWidget.hpp
-			  QLongSpinBox.hpp
-			  utils.hpp
-			  TagExtractor.hpp
+			  ExperimentController.hpp
+			  # MainWindow.hpp
+              # Error.hpp
+              # AntListWidget.hpp
+              # ExperimentEditorWidget.hpp
+              # TaggingWidget.hpp
+              # Snapshot.hpp
+              # SnapshotIndexer.hpp
+              # AntPoseEstimate.hpp
+              # TagInFramePointer.hpp
+			  # SnapshotViewer.hpp
+			  # FramePointerWidget.hpp
+			  # AntIdentificationWidget.hpp
+			  # QLongSpinBox.hpp
+			  # utils.hpp
+			  # TagExtractor.hpp
 			  )
 
 set(UI_FILES MainWindow.ui

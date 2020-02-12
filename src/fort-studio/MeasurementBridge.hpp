@@ -36,9 +36,6 @@ signals:
 	                   fmp::TagCloseUp::ConstPtr tcu);
 
 
-	void measurementTypeModified(int,QString);
-	void measurementTypeDeleted(int);
-
 public slots:
 	void cancel();
 	void start();

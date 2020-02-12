@@ -107,57 +107,59 @@ UniverseBridge::trackingDataDirectories() const {
 	return d_experiment->TrackingDataDirectories();
 }
 
-Error UniverseBridge::addSpace(const QString & spaceName) {
+void UniverseBridge::addSpace(const QString & spaceName) {
 	if (!d_experiment) {
-		return Error("No Experiment");;
+		return;
 	}
 
 	fmp::Space::Ptr newSpace;
 	try {
 		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
 	} catch (const std::exception & e) {
-		return Error("Could not create space '" + spaceName + "'" + e.what());
+		qWarning() << "Could not create space '" << spaceName
+		           <<"': " << e.what();
+		return;
 	}
 
 	d_model->appendRow(buildSpace(newSpace));
 	emit spaceAdded(newSpace);
-	return Error::NONE;
 }
 
-Error UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
+void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
                                                       const fmp::TrackingDataDirectoryConstPtr & tdd) {
 	if (!d_experiment) {
-		return Error("No Experiment");
+		return;
 	}
 	auto z = d_experiment->LocateSpace(spaceURI.toUtf8().data());
 	auto item = locateSpace(spaceURI);
 	if ( !z || item == NULL) {
-		return Error("No space '" + spaceURI + "'");
+		return;
 	}
 
 
 	try {
 		z->AddTrackingDataDirectory(tdd);
 	} catch (const std::exception & e) {
-		return Error("Could not add '" + QString(tdd->URI().c_str())
-		             + "' to '" + spaceURI + "':" + e.what());
+		qWarning() << "Could not add '" <<tdd->URI().c_str()
+		           << "' to '" << spaceURI
+		           << "': " << e.what();
+		return;
 	}
 
 	rebuildSpaceChildren(item,z);
 
 	emit trackingDataDirectoryAdded(tdd);
 	emit spaceChanged(z);
-	return Error::NONE;
 }
 
-Error UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
+void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 	if ( !d_experiment) {
-		return Error("No Experiment");
+		return ;
 	}
 
 	auto fi  = d_experiment->LocateTrackingDataDirectory(URI.toUtf8().data());
 	if (!fi.first || !fi.second) {
-		return Error("Could not found TDD '" + URI + "'");
+		return;
 	}
 
 	auto item = locateSpace(fi.first->URI().c_str());
@@ -165,7 +167,9 @@ Error UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 	try {
 		d_experiment->DeleteTrackingDataDirectory(URI.toUtf8().data());
 	} catch ( const std::exception & e) {
-		return Error("Could not delete '" + URI + "': " + e.what());
+		qWarning() << "Could not delete '" << URI
+		           <<"': " << e.what();
+		return;
 	}
 
 
@@ -173,7 +177,6 @@ Error UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 
 	emit trackingDataDirectoryDeleted(URI);
 	emit spaceChanged(fi.first);
-	return Error::NONE;
 }
 
 

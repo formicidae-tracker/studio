@@ -4,7 +4,6 @@
 #include <QStandardItemModel>
 
 
-#include "Error.hpp"
 #include <myrmidon/priv/Experiment.hpp>
 
 
@@ -31,10 +30,10 @@ public:
 	trackingDataDirectories() const;
 
 public slots:
-	Error addSpace(const QString & spaceName);
-	Error addTrackingDataDirectoryToSpace(const QString & spaceURI,
+	void addSpace(const QString & spaceName);
+	void addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	                                    const fmp::TrackingDataDirectoryConstPtr & tdd);
-	Error deleteTrackingDataDirectory(const QString & URI);
+	void deleteTrackingDataDirectory(const QString & URI);
 
 signals:
 	void activeStateChanged(bool);

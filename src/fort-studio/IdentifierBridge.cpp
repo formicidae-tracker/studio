@@ -236,15 +236,19 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 		if ( item->checkState() == Qt::Checked ){
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
 			d_model->item(item->row(),3)->setCheckState(Qt::Unchecked);
+			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if (d_model->item(item->row(),3)->checkState() == Qt::Unchecked ) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
 	case 3:
 		if ( item->checkState() == Qt::Checked ) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
 			d_model->item(item->row(),2)->setCheckState(Qt::Unchecked);
+			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if ( d_model->item(item->row(),2)->checkState() == Qt::Unchecked) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
 	}
 
