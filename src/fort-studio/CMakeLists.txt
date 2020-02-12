@@ -3,6 +3,8 @@ set(SRC_FILES main.cpp
 			  MeasurementBridge.cpp
 			  ExperimentBridge.cpp
 			  IdentifierBridge.cpp
+			  SelectedAntBridge.cpp
+			  SelectedIdentificationBridge.cpp
               MainWindow.cpp
               Error.cpp
               ExperimentController.cpp
@@ -25,6 +27,8 @@ set(HDR_FILES MainWindow.hpp
 			  MeasurementBridge.hpp
 			  ExperimentBridge.hpp
 			  IdentifierBridge.hpp
+			  SelectedAntBridge.hpp
+			  SelectedIdentificationBridge.hpp
               ExperimentController.hpp
               Error.hpp
               AntListWidget.hpp
