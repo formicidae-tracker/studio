@@ -15,9 +15,9 @@ UniverseBridge::UniverseBridge( QObject * parent)
 	, d_model(new QStandardItemModel(this) ) {
 
 	connect(d_model,
-	        SIGNAL(itemChanged(QStandardItem * )),
+	        &QStandardItemModel::itemChanged,
 	        this,
-	        SLOT(on_model_itemChanged(QStandardItem *)));
+	        &UniverseBridge::on_model_itemChanged);
 
 
 }

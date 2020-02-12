@@ -15,9 +15,9 @@ TagCloseUpLoader::TagCloseUpLoader(const fmp::TrackingDataDirectoryConstPtr & td
 	, d_futureWatcher(new QFutureWatcher<fmp::TagCloseUp::List>(this))
 	, d_lister(tdd->TagCloseUpLister(f,threshold)) {
 	connect(d_futureWatcher,
-	        SIGNAL(resultReadyAt(int)),
+	        &QFutureWatcher<fmp::TagCloseUp::List>::resultReadyAt,
 	        this,
-	        SLOT(onResultReady(int)));
+	        &TagCloseUpLoader::onResultReady);
 }
 
 

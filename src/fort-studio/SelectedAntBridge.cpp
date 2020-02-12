@@ -1,27 +1,10 @@
 #include "SelectedAntBridge.hpp"
 
 
-SelectedAntBridge::SelectedAntBridge(IdentifierBridge * iBridge,
-                                     SelectedIdentificationBridge * siBridge,
-                                     QObject * parent)
+SelectedAntBridge::SelectedAntBridge(QObject * parent)
 	: QObject(parent)
 	, d_identificationModel(new QStandardItemModel(this))
 	, d_shapeModel(new QStandardItemModel(this)) {
-
-	connect(iBridge,
-	        &IdentifierBridge::identificationCreated,
-	        this,
-	        &SelectedAntBridge::onIdentificationModified);
-
-	connect(iBridge,
-	        &IdentifierBridge::identificationDeleted,
-	        this,
-	        &SelectedAntBridge::onIdentificationModified);
-
-	connect(siBridge,
-	        &SelectedIdentificationBridge::identificationModified,
-	        this,
-	        &SelectedAntBridge::onIdentificationModified);
 
 }
 

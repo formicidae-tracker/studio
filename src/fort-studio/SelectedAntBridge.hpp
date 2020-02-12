@@ -11,7 +11,7 @@
 class SelectedAntBridge : public QObject {
 	Q_OBJECT
 public:
-	SelectedAntBridge(IdentifierBridge * iBridge,SelectedIdentificationBridge * siBridge,QObject * parent);
+	SelectedAntBridge(QObject * parent);
 
 	QAbstractItemModel * identificationModel() const;
 	QAbstractItemModel * shapeModel() const;
@@ -19,7 +19,6 @@ public:
 public slots:
 	void SetAnt(const fmp::Ant::Ptr & ant);
 
-private slots:
 	void onIdentificationModified(const fmp::Identification::ConstPtr &);
 
 private:
