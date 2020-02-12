@@ -36,6 +36,8 @@ public:
 	};
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant> Ptr;
+	// A pointer to an Ant
+	typedef std::shared_ptr<const Ant> ConstPtr;
 
 	// A List of shape
 	typedef std::vector<Capsule::Ptr> Shapes;

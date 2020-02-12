@@ -10,7 +10,9 @@ namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
 Q_DECLARE_METATYPE(fmp::Ant::Ptr)
+Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Identification::Ptr)
+Q_DECLARE_METATYPE(fmp::Identification::ConstPtr)
 
 
 class IdentifierBridge : public QObject {
@@ -23,12 +25,12 @@ public:
 	void SetExperiment(const fmp::Experiment::Ptr & experiment);
 
 signals:
-	void antCreated(fmp::Ant::Ptr);
+	void antCreated(fmp::Ant::ConstPtr);
 	void antDeleted(fm::Ant::ID);
 
-	void identificationCreated(fmp::Identification::Ptr);
-	void identificationAntPositionModified(fmp::Identification::Ptr);
-	void identificationDeleted(fmp::Identification::Ptr);
+	void identificationCreated(fmp::Identification::ConstPtr);
+	void identificationAntPositionModified(fmp::Identification::ConstPtr);
+	void identificationDeleted(fmp::Identification::ConstPtr);
 
 public slots:
 	fmp::Ant::Ptr createAnt();
@@ -40,14 +42,15 @@ public slots:
 	                                           fm::Time::ConstPtr & end);
 
 	void deleteIdentification(const fmp::Identification::Ptr & ident);
+private slots:
 
+	void onItemChanged(QStandardItem *);
 private:
 	static QString formatIdentification(const fmp::Identification::Ptr & ident);
-	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
-	QList<QStandardItem*> buildIdentification(const fmp::Identification::Ptr & ant);
+	static QString formatAntName(const fmp::Ant::Ptr & ant);
 
-	void rebuildIdentifications(QStandardItem * toItem,
-	                            const fmp::Ant::Ptr & ant);
+	static QIcon antDisplayColor(const fmp::Ant::Ptr & ant);
+	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
 	QStandardItem * findAnt(fm::Ant::ID AID) const;
 

@@ -8,6 +8,12 @@
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: QObject(parent)
 	, d_model(new QStandardItemModel(this)) {
+
+	connect(d_model,
+	        &QStandardItemModel::itemChanged,
+	        this,
+	        &IdentifierBridge::onItemChanged);
+
 }
 
 QAbstractItemModel * IdentifierBridge::antModel() const {
@@ -97,14 +103,15 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 		identification = d_experiment->Identifier().AddIdentification(AID,TID,start,end);
 	} catch (const std::exception & e) {
 		qWarning() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
-		           << " <- " << TID
-		           << ", [" << formatTime(start,"-")
+		           << "↤" << TID
+		           << " [" << formatTime(start,"-")
 		           << ";" << formatTime(end,"+")
 		           << "]: " << e.what();
 		return fmp::Identification::Ptr();
 	}
 
-	rebuildIdentifications(item,item->data().value<fmp::Ant::Ptr>());
+	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
+
 	emit identificationCreated(identification);
 
 }
@@ -125,17 +132,68 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 		return;
 	}
 
-	rebuildIdentifications(item,item->data().value<fmp::Ant::Ptr>());
+	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
 	emit identificationDeleted(identification);
 }
 
+QString IdentifierBridge::formatAntName(const fmp::Ant::Ptr & ant) {
+	QString res = fmp::Ant::FormatID(ant->ID()).c_str();
+	if ( ant->Identifications().empty() ) {
+		return res + ", <no-tags>";
+	}
+	std::set<fmp::TagID> tags;
+	for ( const auto & i : ant->Identifications() ) {
+		tags.insert(i->TagValue());
+	}
+	QString prefix = ", tags:";
+	for ( const auto & t : tags ) {
+		res += prefix + QString::number(t);
+		prefix = ",";
+	}
+	return res;
+}
+
 QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
-	auto item = new QStandardItem(fmp::Ant::FormatID(ant->ID()).c_str());
-	item->setEditable(false);
-	item->setData(QVariant::fromValue(ant));
-	rebuildIdentifications(item,ant);
-	return {item};
+	auto data = QVariant::fromValue(ant);
+	auto label = new QStandardItem(formatAntName(ant));
+	label->setEditable(false);
+	label->setData(data);
+
+	auto color = new QStandardItem("");
+	color->setEditable(false);
+	color->setIcon(antDisplayColor(ant));
+	color->setData(data);
+
+	auto hidden = new QStandardItem("");
+	hidden->setCheckable(true);
+	hidden->setData(data);
+
+	auto solo = new QStandardItem("");
+	solo->setCheckable(true);
+	solo->setData(data);
+
+	switch(ant->DisplayStatus()) {
+	case fmp::Ant::DisplayState::VISIBLE:
+		hidden->setCheckState(Qt::Unchecked);
+		solo->setCheckState(Qt::Unchecked);
+	case fmp::Ant::DisplayState::HIDDEN:
+		hidden->setCheckState(Qt::Checked);
+		solo->setCheckState(Qt::Unchecked);
+	case fmp::Ant::DisplayState::SOLO:
+		hidden->setCheckState(Qt::Unchecked);
+		solo->setCheckState(Qt::Checked);
+	}
+
+	return {label,color,hidden,solo};
+}
+
+QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
+	auto c = ant->DisplayColor();
+	QColor color(std::get<0>(c),std::get<1>(c),std::get<2>(c));
+	QPixmap pixmap(20,20);
+	pixmap.fill(color);
+	return pixmap;
 }
 
 QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {
@@ -154,25 +212,37 @@ QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & 
 	return os.str().c_str();
 }
 
-QList<QStandardItem*> IdentifierBridge::buildIdentification(const fmp::Identification::Ptr & ident) {
-	auto item = new QStandardItem(formatIdentification(ident));
-	item->setEditable(false);
-	item->setData(QVariant::fromValue(ident));
-	return {item};
-}
-
-void IdentifierBridge::rebuildIdentifications(QStandardItem * toItem,
-                                              const fmp::Ant::Ptr & ant) {
-	toItem->removeRows(0,toItem->rowCount());
-	for (const auto & identification : ant->Identifications() ) {
-		toItem->appendRow(buildIdentification(identification));
-	}
-}
 
 QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
-	auto items = d_model->findItems(fmp::Ant::FormatID(AID).c_str());
+	auto items = d_model->findItems(fmp::Ant::FormatID(AID).c_str(), Qt::MatchStartsWith);
 	if ( items.size() != 1 ) {
 		return NULL;
 	}
 	return items[0];
+}
+
+
+void IdentifierBridge::onItemChanged(QStandardItem * item) {
+	if ( item->column() < 2 ) {
+		return;
+	}
+
+	auto ant = item->data().value<fmp::Ant::Ptr>();
+	switch ( item->column() ) {
+	case 2:
+		if ( item->checkState() == Qt::Checked ){
+			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
+			d_model->item(item->row(),3)->setCheckState(Qt::Unchecked);
+		} else if (d_model->item(item->row(),3)->checkState() == Qt::Unchecked ) {
+			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+		}
+	case 3:
+		if ( item->checkState() == Qt::Checked ) {
+			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
+			d_model->item(item->row(),2)->setCheckState(Qt::Unchecked);
+		} else if ( d_model->item(item->row(),2)->checkState() == Qt::Unchecked) {
+			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+		}
+	}
+
 }
