@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include <tuple>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {

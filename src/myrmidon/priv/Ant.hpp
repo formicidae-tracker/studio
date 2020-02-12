@@ -7,6 +7,7 @@
 
 #include "Identification.hpp"
 #include "Shape.hpp"
+#include "Color.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -28,6 +29,11 @@ namespace priv {
 // this.
 class Ant {
 public:
+	enum class DisplayState {
+		VISIBLE = 0,
+		HIDDEN  = 1,
+		SOLO    = 2
+	};
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant> Ptr;
 
@@ -75,6 +81,15 @@ public:
 
 	void AddCapsule(const Capsule::Ptr & capsule);
 
+
+	const Color & DisplayColor() const;
+
+	void SetDisplayColor(const Color & color);
+
+	DisplayState DisplayStatus() const;
+
+	void SetDisplayStatus(DisplayState s);
+
 	// C++ shenanigans
 	//
 	// C++ shenanigan class to give restricted unlimited access to the
@@ -96,6 +111,8 @@ private:
 	std::string             d_IDStr;
 	Identification::List    d_identifications;
 	Shapes                  d_shape;
+	Color                   d_displayColor;
+	DisplayState            d_displayState;
 };
 
 } //namespace priv

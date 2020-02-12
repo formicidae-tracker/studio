@@ -17,7 +17,9 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 
 Ant::Ant(fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
-	, d_IDStr(FormatID(ID)) {
+	, d_IDStr(FormatID(ID))
+	, d_displayColor(ColorMap::Default().ColorAt(0) )
+	, d_displayState(DisplayState::VISIBLE) {
 }
 
 Ant::~Ant() {
@@ -40,6 +42,23 @@ void Ant::AddCapsule(const Capsule::Ptr & capsule) {
 		throw std::invalid_argument("No capsule");
 	}
 	d_shape.push_back(capsule);
+}
+
+
+void Ant::SetDisplayColor(const Color & color) {
+	d_displayColor = color;
+}
+
+const Color & Ant::DisplayColor() const {
+	return d_displayColor;
+}
+
+void Ant::SetDisplayStatus(Ant::DisplayState s) {
+	d_displayState = s;
+}
+
+Ant::DisplayState Ant::DisplayStatus() const {
+	return d_displayState;
 }
 
 

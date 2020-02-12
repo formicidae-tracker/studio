@@ -47,6 +47,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
+                      priv/Color.hpp
                       priv/Space.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
@@ -86,6 +87,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
+                      priv/Color.cpp
                       priv/Space.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp

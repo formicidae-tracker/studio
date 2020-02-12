@@ -204,15 +204,17 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 
 TEST_F(IOUtilsUTest,AntIO) {
 	struct IdentificationData {
-		Time::ConstPtr Start,End;
-		double X,Y,Angle;
-		TagID Value;
+		Time::ConstPtr    Start,End;
+		double            X,Y,Angle;
+		TagID             Value;
 	};
 
 
 	struct TestData {
 		std::vector<IdentificationData> IData;
 		std::vector<CapsulePtr>         Capsules;
+		Color                           DisplayColor;
+		Ant::DisplayState               DisplayState;
 	};
 
 	std::vector<TestData> testdata
@@ -238,6 +240,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 		                               Eigen::Vector2d(6.1,8.9),
 		                               5.0,-3.0)
 		    },
+		    {127,56,94},
+		    Ant::DisplayState::SOLO,
 		   },
 	};
 
@@ -263,6 +267,11 @@ TEST_F(IOUtilsUTest,AntIO) {
 			IOUtils::SaveCapsule(expected.mutable_shape()->add_capsules(),
 			                     c);
 		}
+
+		dA->SetDisplayColor(d.DisplayColor);
+		IOUtils::SaveColor(expected.mutable_color(),d.DisplayColor);
+		dA->SetDisplayStatus(d.DisplayState);
+		expected.set_displaystate(IOUtils::SaveAntDisplayState(d.DisplayState));
 
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
@@ -315,6 +324,12 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_DOUBLE_EQ(c->RadiusA(),ce->RadiusA());
 			EXPECT_DOUBLE_EQ(c->RadiusB(),ce->RadiusB());
 		}
+
+		EXPECT_EQ(res->DisplayColor(),
+		          dA->DisplayColor());
+
+		EXPECT_EQ(res->DisplayStatus(),
+		          dA->DisplayStatus());
 
 	}
 

@@ -86,6 +86,53 @@ void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule::ConstPtr & capsule) {
 	pb->set_b_radius(capsule->RadiusB());
 }
 
+template <typename T>
+inline T Clamp(T v, T min, T max) {
+	return std::min(std::max(v,min),max);
+}
+
+Color IOUtils::LoadColor(const pb::Color & pb) {
+	return {
+	        Clamp(uint32_t(pb.r()),uint32_t(0),uint32_t(255)),
+	        Clamp(uint32_t(pb.g()),uint32_t(0),uint32_t(255)),
+	        Clamp(uint32_t(pb.b()),uint32_t(0),uint32_t(255)),
+	};
+}
+
+void  IOUtils::SaveColor(pb::Color * pb, const Color & c) {
+	pb->set_r(std::get<0>(c));
+	pb->set_g(std::get<1>(c));
+	pb->set_b(std::get<2>(c));
+}
+
+Ant::DisplayState IOUtils::LoadAntDisplayState(pb::AntDisplayState pb) {
+	const static std::map<pb::AntDisplayState,Ant::DisplayState> mapping =
+		{
+		 {pb::AntDisplayState::VISIBLE,Ant::DisplayState::VISIBLE},
+		 {pb::AntDisplayState::HIDDEN,Ant::DisplayState::HIDDEN},
+		 {pb::AntDisplayState::SOLO,Ant::DisplayState::SOLO},
+		};
+	auto fi = mapping.find(pb);
+	if ( fi != mapping.end() ) {
+		return fi->second;
+	}
+	return Ant::DisplayState::VISIBLE;
+}
+
+pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
+	const static std::map<Ant::DisplayState,pb::AntDisplayState> mapping =
+		{
+		 {Ant::DisplayState::VISIBLE,pb::AntDisplayState::VISIBLE},
+		 {Ant::DisplayState::HIDDEN,pb::AntDisplayState::HIDDEN},
+		 {Ant::DisplayState::SOLO,pb::AntDisplayState::SOLO},
+		};
+	auto fi = mapping.find(s);
+	if ( fi != mapping.end() ) {
+		return fi->second;
+	}
+	return pb::AntDisplayState::VISIBLE;
+}
+
 
 void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
 	auto ant = e.Identifier().CreateAnt(pb.id());
@@ -98,6 +145,8 @@ void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb
 		ant->AddCapsule(LoadCapsule(mc));
 	}
 
+	ant->SetDisplayColor(LoadColor(pb.color()));
+	ant->SetDisplayStatus(LoadAntDisplayState(pb.displaystate()));
 }
 
 void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
@@ -112,6 +161,8 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 		SaveCapsule(pb->mutable_shape()->add_capsules(),c);
 	}
 
+	SaveColor(pb->mutable_color(),ant->DisplayColor());
+	pb->set_displaystate(SaveAntDisplayState(ant->DisplayStatus()));
 }
 
 

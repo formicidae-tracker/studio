@@ -12,6 +12,8 @@
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <myrmidon/priv/Color.hpp>
+#include <myrmidon/priv/Ant.hpp>
 
 #include <Eigen/Core>
 #include <myrmidon/Vector2d.pb.h>
@@ -95,6 +97,15 @@ public:
 	// @pb the protobuf message to save to
 	// @capsule the <Capsule> to save to
 	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+
+
+	static Color LoadColor(const pb::Color & pb);
+
+	static void  SaveColor(pb::Color * pb, const Color & c);
+
+	static Ant::DisplayState LoadAntDisplayState(pb::AntDisplayState pb);
+
+	static pb::AntDisplayState  SaveAntDisplayState(Ant::DisplayState s);
 
 
 	// Loads an Ant from a protobuf message
