@@ -6,8 +6,9 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 }
 
 
-void ExperimentBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
+void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
+	emit activeStateChanged(d_experiment.get() != NULL);
 }
 
 

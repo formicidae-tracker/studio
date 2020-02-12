@@ -24,10 +24,10 @@ public:
 
 	void waitForFinished();
 
-	static fmp::TagCloseUp::List Load(const fmp::TagCloseUp::Lister::Loader & l);
+	static fmp::TagCloseUp::List load(const fmp::TagCloseUp::Lister::Loader & l);
 
-	QAbstractItemModel * TagCloseUpModel() const;
-	QAbstractItemModel * MeasurementTypeModel() const;
+	QAbstractItemModel * tagCloseUpModel() const;
+	QAbstractItemModel * measurementTypeModel() const;
 
 signals:
 	void newTagCloseUp(fs::path tddURI,
@@ -61,7 +61,7 @@ public:
 
 	QAbstractItemModel * model() const;
 
-	void SetExperiment(const fmp::Experiment::Ptr & experiment);
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 
 signals:
@@ -73,6 +73,8 @@ signals:
 	void measurementTypeModified(int,QString);
 	void measurementTypeDeleted(int);
 
+
+	void activeStateChanged(bool);
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);

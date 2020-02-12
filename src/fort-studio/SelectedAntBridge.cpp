@@ -5,7 +5,6 @@ SelectedAntBridge::SelectedAntBridge(QObject * parent)
 	: QObject(parent)
 	, d_identificationModel(new QStandardItemModel(this))
 	, d_shapeModel(new QStandardItemModel(this)) {
-
 }
 
 QAbstractItemModel * SelectedAntBridge::identificationModel() const {
@@ -16,14 +15,16 @@ QAbstractItemModel * SelectedAntBridge::shapeModel() const {
 	return d_shapeModel;
 }
 
-void SelectedAntBridge::SetAnt(const fmp::Ant::Ptr & ant) {
+void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 	d_identificationModel->clear();
 	d_shapeModel->clear();
 	d_ant = ant;
 	if ( !d_ant ) {
+		emit activeStateChanged(false);
 		return;
 	}
 	rebuildIdentificationModel();
+	emit activeStateChanged(true);
 }
 
 void SelectedAntBridge::onIdentificationModified(const fmp::Identification::ConstPtr & ident) {

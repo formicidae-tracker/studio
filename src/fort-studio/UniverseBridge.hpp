@@ -10,6 +10,10 @@
 
 namespace fmp = fort::myrmidon::priv;
 
+Q_DECLARE_METATYPE(fmp::TrackingDataDirectoryConstPtr);
+Q_DECLARE_METATYPE(fmp::Space::Ptr);
+
+
 class QAbstractItemModel;
 
 class UniverseBridge : public QObject {
@@ -19,12 +23,12 @@ public:
 	UniverseBridge(QObject * parent);
 
 	QAbstractItemModel * model();
-	void SetExperiment(const fmp::Experiment::Ptr & experiment);
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
-	const std::vector<fmp::Space::Ptr> & Spaces() const;
+	const std::vector<fmp::Space::Ptr> & spaces() const;
 
 	const fmp::Space::Universe::TrackingDataDirectoryByURI &
-	TrackingDataDirectories() const;
+	trackingDataDirectories() const;
 
 public slots:
 	Error addSpace(const QString & spaceName);
@@ -33,6 +37,8 @@ public slots:
 	Error deleteTrackingDataDirectory(const QString & URI);
 
 signals:
+	void activeStateChanged(bool);
+
 	void spaceDeleted(const QString & spaceName);
 	void spaceAdded(const fmp::Space::Ptr & space);
 	void spaceChanged(const fmp::Space::Ptr & space);
@@ -41,8 +47,8 @@ signals:
 	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void trackingDataDirectoryDeleted(const QString & URI);
 
-protected slots:
-	void on_model_itemChanged(QStandardItem * item);
+private slots:
+	void onItemChanged(QStandardItem * item);
 
 private:
 	const static std::vector<fmp::Space::Ptr> s_emptySpaces;
@@ -53,14 +59,13 @@ private:
 	                 TDD_TYPE  = 1,
 	};
 
-	QStandardItem * LocateSpace(const QString & URI);
-	void RebuildSpaceChildren(QStandardItem * item, const fmp::Space::Ptr & z);
+	QStandardItem * locateSpace(const QString & URI);
+	void rebuildSpaceChildren(QStandardItem * item, const fmp::Space::Ptr & z);
 
-	QList<QStandardItem*> BuildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
-	QList<QStandardItem*> BuildSpace(const fmp::Space::Ptr & z);
+	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
+	QList<QStandardItem*> buildSpace(const fmp::Space::Ptr & z);
 
-	void BuildAll(const std::vector<fmp::Space::Ptr> & spaces);
-
+	void buildAll(const std::vector<fmp::Space::Ptr> & spaces);
 
 	QStandardItemModel   * d_model;
 	fmp::Experiment::Ptr   d_experiment;

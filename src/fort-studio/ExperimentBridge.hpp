@@ -11,7 +11,7 @@ Q_OBJECT
 public:
 	ExperimentBridge(QObject * parent);
 
-	void SetExperiment(const fmp::Experiment::Ptr & experiment);
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 public:
 	QString name() const;
@@ -21,7 +21,6 @@ public:
 	uint8_t threshold() const;
 	double tagSize() const;
 
-
 signals:
 	void nameChanged(QString name);
 	void authorChanged(QString author);
@@ -30,6 +29,7 @@ signals:
 	void thresholdChanged(uint8_t value);
 	void tagSizeChanged(double value);
 
+	void activeStateChanged(bool);
 public slots:
 
 	void setName(const QString & name);

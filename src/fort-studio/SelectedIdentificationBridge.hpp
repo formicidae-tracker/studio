@@ -28,6 +28,7 @@ signals:
 
 	void identificationModified(const fmp::Identification::ConstPtr & identification);
 
+	void activeStateChanged(bool);
 protected:
 	fmp::Identification::Ptr d_identification;
 };

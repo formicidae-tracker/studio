@@ -22,7 +22,7 @@ public:
 
 	QAbstractItemModel * antModel() const;
 
-	void SetExperiment(const fmp::Experiment::Ptr & experiment);
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -32,6 +32,7 @@ signals:
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
+	void activeStateChanged(bool);
 public slots:
 	fmp::Ant::Ptr createAnt();
 	void removeAnt(fm::Ant::ID AID);

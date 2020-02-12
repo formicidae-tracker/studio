@@ -20,7 +20,7 @@ QAbstractItemModel * IdentifierBridge::antModel() const {
 	return d_model;
 }
 
-void IdentifierBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
+void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_model->clear();
 
 	if ( d_experiment ) {
@@ -31,6 +31,7 @@ void IdentifierBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
 
 	d_experiment = experiment;
 	if ( !d_experiment ) {
+		emit activeStateChanged(false);
 		return;
 	}
 	d_experiment->Identifier()
@@ -41,6 +42,8 @@ void IdentifierBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
 	for ( const auto & [AID,a] : d_experiment->Identifier().Ants() ) {
 		d_model->invisibleRootItem()->appendRow(buildAnt(a));
 	}
+
+	emit activeStateChanged(true);
 }
 
 fmp::Ant::Ptr IdentifierBridge::createAnt() {

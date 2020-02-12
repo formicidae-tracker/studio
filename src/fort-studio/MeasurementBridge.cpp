@@ -25,7 +25,7 @@ void TagCloseUpLoader::waitForFinished() {
 	d_futureWatcher->waitForFinished();
 }
 
-fmp::TagCloseUp::List TagCloseUpLoader::Load(const fmp::TagCloseUp::Lister::Loader & l) {
+fmp::TagCloseUp::List TagCloseUpLoader::load(const fmp::TagCloseUp::Lister::Loader & l) {
 	return l();
 }
 
@@ -36,7 +36,7 @@ void TagCloseUpLoader::cancel() {
 
 void TagCloseUpLoader::start() {
 	auto loaders = d_lister->PrepareLoaders();
-	d_futureWatcher->setFuture(QtConcurrent::mapped(loaders,TagCloseUpLoader::Load));
+	d_futureWatcher->setFuture(QtConcurrent::mapped(loaders,TagCloseUpLoader::load));
 }
 
 void TagCloseUpLoader::onResultReady(int index) {
@@ -53,26 +53,29 @@ MeasurementBridge::MeasurementBridge(QObject * parent)
 	, d_typeModel( new QStandardItemModel (this) ) {
 
 	connect(d_typeModel,
-	        SIGNAL(itemChanged(QStandardItem*)),
+	        &QStandardItemModel::itemChanged,
 	        this,
-	        SLOT(onItemChanged(QStandardItem*)));
+	        &MeasurementBridge::onTypeItemChanged);
 }
 
 QAbstractItemModel * MeasurementBridge::model() const {
 	return d_tcuModel;
 }
 
-void MeasurementBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
+void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	cancelAll();
 	d_typeModel->clear();
 	d_experiment = experiment;
 	if ( !d_experiment ) {
+		emit activeStateChanged(false);
 		return;
 	}
 
 	for (const auto & [MTID,type] : d_experiment->MeasurementTypes()) {
 		d_typeModel->appendRow(buildType(type));
 	}
+
+	emit activeStateChanged(true);
 
 	if ( d_experiment->Family() == fort::tags::Family::Undefined ) {
 		return;
@@ -146,9 +149,9 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 	                                   d_experiment->Threshold(),
 	                                   this);
 	connect(loader,
-	        SIGNAL(newTagCloseUp(fs::path,fort::tags::Family,uint8_t,fmp::TagCloseUp::ConstPtr)),
+	        &TagCloseUpLoader::newTagCloseUp,
 	        this,
-	        SLOT(onNewTagCLoseUp(fs::path,fort::tags::Family,uint8_t,fmp::TagCloseUp::ConstPtr)));
+	        &MeasurementBridge::onNewTagCloseUp);
 
 	d_loaders.insert(std::make_pair(tdd->URI(),loader));
 	loader->start();

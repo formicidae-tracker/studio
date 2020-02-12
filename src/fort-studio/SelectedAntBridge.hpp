@@ -17,9 +17,12 @@ public:
 	QAbstractItemModel * shapeModel() const;
 
 public slots:
-	void SetAnt(const fmp::Ant::Ptr & ant);
+	void setAnt(const fmp::Ant::Ptr & ant);
 
 	void onIdentificationModified(const fmp::Identification::ConstPtr &);
+
+signals:
+	void activeStateChanged(bool);
 
 private:
 	void rebuildIdentificationModel();

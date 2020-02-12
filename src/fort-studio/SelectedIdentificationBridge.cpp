@@ -8,6 +8,7 @@ SelectedIdentificationBridge::SelectedIdentificationBridge(QObject * parent)
 
 void SelectedIdentificationBridge::setIdentification(const fmp::Identification::Ptr & identification) {
 	d_identification = identification;
+	emit activeStateChanged(d_identification.get() != NULL);
 }
 
 fm::Time::ConstPtr SelectedIdentificationBridge::start() const {
