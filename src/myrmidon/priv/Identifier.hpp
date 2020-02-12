@@ -39,6 +39,9 @@ public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
 
+
+	typedef std::function<void(const IdentificationPtr & )> OnPositionUpdateCallback;
+
 	// Creates a new Identifier
 	// @return a pointer to an Identifier
 	//
@@ -127,7 +130,11 @@ public:
 	class Accessor {
 	private:
 		static IdentificationList & IdentificationsForTag(Identifier & identifier,TagID tagID);
-		static void UpdateIdentificationAntPosition(Identifier & identifier,Identification & identification);
+		static void UpdateIdentificationAntPosition(Identifier & identifier,
+		                                            const IdentificationPtr & identification);
+		static void UpdateIdentificationAntPosition(Identifier & identifier,
+		                                            Identification * identificationPtr);
+
 	public:
 		friend class Identification;
 	};
@@ -171,6 +178,8 @@ public:
 
 	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & tpe);
 
+	void SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback);
+
 private:
 	class AntPoseEstimateComparator {
 	public:
@@ -179,7 +188,7 @@ private:
 
 	};
 
-	void UpdateIdentificationAntPosition(Identification & identification);
+	void UpdateIdentificationAntPosition(const IdentificationPtr & identification);
 
 	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
@@ -200,9 +209,9 @@ private:
 	SetOfID d_antIDs;
 	bool    d_continuous;
 
-	IdentificationByTagID  d_identifications;
-	AntPoseEstimateByTagID d_tagPoseEstimates;
-
+	IdentificationByTagID    d_identifications;
+	AntPoseEstimateByTagID   d_tagPoseEstimates;
+	OnPositionUpdateCallback d_callback;
 };
 
 

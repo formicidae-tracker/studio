@@ -1,4 +1,8 @@
 set(SRC_FILES main.cpp
+			  UniverseBridge.cpp
+			  MeasurementBridge.cpp
+			  ExperimentBridge.cpp
+			  IdentifierBridge.cpp
               MainWindow.cpp
               Error.cpp
               ExperimentController.cpp
@@ -14,10 +18,13 @@ set(SRC_FILES main.cpp
 			  AntIdentificationWidget.cpp
 			  QLongSpinBox.cpp
 			  TagExtractor.cpp
-			  UniverseBridge.cpp
-			  MeasurementBridge.cpp)
+			  )
 
 set(HDR_FILES MainWindow.hpp
+			  UniverseBridge.hpp
+			  MeasurementBridge.hpp
+			  ExperimentBridge.hpp
+			  IdentifierBridge.hpp
               ExperimentController.hpp
               Error.hpp
               AntListWidget.hpp
@@ -33,8 +40,6 @@ set(HDR_FILES MainWindow.hpp
 			  QLongSpinBox.hpp
 			  utils.hpp
 			  TagExtractor.hpp
-			  UniverseBridge.hpp
-			  MeasurementBridge.hpp
 			  )
 
 set(UI_FILES MainWindow.ui
@@ -42,7 +47,8 @@ set(UI_FILES MainWindow.ui
              ExperimentEditorWidget.ui
 			 FramePointerWidget.ui
 			 AntIdentificationWidget.ui
-			 TaggingWidget.ui)
+			 TaggingWidget.ui
+			 )
 
 set(RCC_FILES )
 

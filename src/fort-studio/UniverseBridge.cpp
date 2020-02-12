@@ -100,17 +100,31 @@ void UniverseBridge::BuildAll(const std::vector<priv::Space::Ptr> & spaces) {
 	}
 }
 
+const std::vector<fmp::Space::Ptr> UniverseBridge::s_emptySpaces;
+const fmp::Space::Universe::TrackingDataDirectoryByURI UniverseBridge::s_emptyTDDs;
 
-const std::vector<priv::Space::Ptr> UniverseBridge::Spaces() const {
+
+const std::vector<priv::Space::Ptr> & UniverseBridge::Spaces() const {
+	if ( !d_experiment ) {
+		return s_emptySpaces;
+	}
 	return d_experiment->Spaces();
 }
 
 const priv::Space::Universe::TrackingDataDirectoryByURI &
 UniverseBridge::TrackingDataDirectories() const {
+	if ( !d_experiment ) {
+		return s_emptyTDDs;
+	}
+
 	return d_experiment->TrackingDataDirectories();
 }
 
 Error UniverseBridge::addSpace(const QString & spaceName) {
+	if (!d_experiment) {
+		return Error("No Experiment");;
+	}
+
 	priv::Space::Ptr newSpace;
 	try {
 		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
@@ -125,6 +139,9 @@ Error UniverseBridge::addSpace(const QString & spaceName) {
 
 Error UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
                                                       const fmp::TrackingDataDirectoryConstPtr & tdd) {
+	if (!d_experiment) {
+		return Error("No Experiment");
+	}
 	auto z = d_experiment->LocateSpace(spaceURI.toUtf8().data());
 	auto item = LocateSpace(spaceURI);
 	if ( !z || item == NULL) {
@@ -147,6 +164,9 @@ Error UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 }
 
 Error UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
+	if ( !d_experiment) {
+		return Error("No Experiment");
+	}
 
 	auto fi  = d_experiment->LocateTrackingDataDirectory(URI.toUtf8().data());
 	if (!fi.first || !fi.second) {
@@ -187,10 +207,10 @@ void UniverseBridge::RebuildSpaceChildren(QStandardItem * item,
 	}
 }
 
-void UniverseBridge::SetExperiment(fmp::Experiment * experiment) {
+void UniverseBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 	d_model->clear();
-	if (d_experiment == NULL) {
+	if (!d_experiment) {
 		return;
 	}
 

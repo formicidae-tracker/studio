@@ -38,8 +38,8 @@ Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) n
 	                     }()) {}
 
 Identifier::Identifier()
-	: d_continuous(false) {
-
+	: d_continuous(false)
+	, d_callback([](const Identification::Ptr &){}) {
 }
 
 Identifier::Ptr Identifier::Create() {
@@ -142,7 +142,7 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
 	d_identifications[tagValue] = current;
 	Ant::Accessor::Identifications(*ant) = antIdents;
 
-	UpdateIdentificationAntPosition(*res);
+	UpdateIdentificationAntPosition(res);
 
 	return res;
 }
@@ -199,8 +199,25 @@ Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & 
 }
 
 void Identifier::Accessor::UpdateIdentificationAntPosition(Identifier & identifier,
-                                                           Identification & identification) {
+                                                           const IdentificationPtr & identification) {
 	identifier.UpdateIdentificationAntPosition(identification);
+}
+
+void Identifier::Accessor::UpdateIdentificationAntPosition(Identifier & identifier,
+                                                           Identification * identificationPtr) {
+	auto fi = identifier.d_identifications.find(identificationPtr->TagValue());
+	if ( fi == identifier.d_identifications.end() ) {
+		return;
+	}
+	auto ffi = std::find_if(fi->second.begin(),
+	                        fi->second.end(),
+	                        [identificationPtr](const Identification::Ptr & ident) {
+		                        return ident.get() == identificationPtr;
+	                        });
+	if ( ffi == fi->second.end() ) {
+		return;
+	}
+	identifier.UpdateIdentificationAntPosition(*ffi);
 }
 
 
@@ -291,18 +308,20 @@ void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
 	if (!identification) {
 		return;
 	}
-	UpdateIdentificationAntPosition(*identification);
+	UpdateIdentificationAntPosition(identification);
 }
 
-void Identifier::UpdateIdentificationAntPosition(Identification & identification) {
+
+
+void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
 	std::vector<AntPoseEstimateConstPtr> matched;
-	auto & APEs = d_tagPoseEstimates[identification.TagValue()];
+	auto & APEs = d_tagPoseEstimates[identification->TagValue()];
 	matched.reserve(APEs.size());
 	for (const auto & ape : APEs ) {
-		if ( ape->TargetTagID() != identification.TagValue() ) {
+		if ( ape->TargetTagID() != identification->TagValue() ) {
 			throw std::logic_error("Unexpected TagID");
 		}
-		if ( identification.IsValid(ape->Reference().Time()) == false ) {
+		if ( identification->IsValid(ape->Reference().Time()) == false ) {
 			continue;
 		}
 		matched.push_back(ape);
@@ -310,9 +329,15 @@ void Identifier::UpdateIdentificationAntPosition(Identification & identification
 	Eigen::Vector2d newPosition;
 	double newAngle;
 	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
-	identification.SetAntPosition(newPosition,newAngle);
+	if ( newPosition != identification->AntPosition() || newAngle != identification->AntAngle() ) {
+		identification->SetAntPosition(newPosition,newAngle);
+		d_callback(identification);
+	}
 }
 
+void Identifier::SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback) {
+	d_callback =  callback;
+}
 
 
 } // namespace priv

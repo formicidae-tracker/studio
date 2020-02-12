@@ -19,9 +19,9 @@ public:
 	UniverseBridge(QObject * parent);
 
 	QAbstractItemModel * model();
-	void SetExperiment(fmp::Experiment * experiment);
+	void SetExperiment(const fmp::Experiment::Ptr & experiment);
 
-	const std::vector<fmp::Space::Ptr> Spaces() const;
+	const std::vector<fmp::Space::Ptr> & Spaces() const;
 
 	const fmp::Space::Universe::TrackingDataDirectoryByURI &
 	TrackingDataDirectories() const;
@@ -45,6 +45,9 @@ protected slots:
 	void on_model_itemChanged(QStandardItem * item);
 
 private:
+	const static std::vector<fmp::Space::Ptr> s_emptySpaces;
+	const static fmp::Space::Universe::TrackingDataDirectoryByURI s_emptyTDDs;
+
 	enum ObjectType {
 	                 SPACE_TYPE = 0,
 	                 TDD_TYPE  = 1,
@@ -60,5 +63,5 @@ private:
 
 
 	QStandardItemModel   * d_model;
-	fmp::Experiment      * d_experiment;
+	fmp::Experiment::Ptr   d_experiment;
 };

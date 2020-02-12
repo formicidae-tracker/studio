@@ -50,8 +50,7 @@ void TagCloseUpLoader::onResultReady(int index) {
 MeasurementBridge::MeasurementBridge(QObject * parent)
 	: QObject(parent)
 	, d_tcuModel( new QStandardItemModel (this) )
-	, d_typeModel( new QStandardItemModel (this) )
-	, d_experiment(NULL) {
+	, d_typeModel( new QStandardItemModel (this) ) {
 
 	connect(d_typeModel,
 	        SIGNAL(itemChanged(QStandardItem*)),
@@ -63,11 +62,11 @@ QAbstractItemModel * MeasurementBridge::model() const {
 	return d_tcuModel;
 }
 
-void MeasurementBridge::SetExperiment(fmp::Experiment * experiment) {
+void MeasurementBridge::SetExperiment(const fmp::Experiment::Ptr & experiment) {
 	cancelAll();
 	d_typeModel->clear();
 	d_experiment = experiment;
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 
@@ -107,7 +106,7 @@ void MeasurementBridge::onNewTagCloseUp(fs::path tddURI,
                                         fort::tags::Family f,
                                         uint8_t threshold,
                                         fmp::TagCloseUp::ConstPtr tcu) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 
@@ -123,7 +122,7 @@ void MeasurementBridge::onNewTagCloseUp(fs::path tddURI,
 
 
 void MeasurementBridge::startAll() {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 	for(const auto & [uri,tdd] : d_experiment->TrackingDataDirectories() ) {
@@ -133,7 +132,7 @@ void MeasurementBridge::startAll() {
 }
 
 void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd) {
-	if ( d_experiment == NULL) {
+	if ( !d_experiment ) {
 		return;
 	}
 
@@ -195,7 +194,7 @@ QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
 }
 
 QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPtr & tcu) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return {};
 	}
 
@@ -262,7 +261,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
                                        fmp::MeasurementType::ID MTID,
                                        QPointF start,
                                        QPointF end) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 
@@ -298,7 +297,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 }
 
 void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 	auto tcuPath = mURI.parent_path().parent_path();
@@ -320,7 +319,7 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 
 
 size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) const {
-	if (d_experiment == NULL){
+	if ( !d_experiment ){
 		return 0;
 	}
 	auto mi = d_experiment->Measurements().find(tcuPath);
@@ -332,7 +331,7 @@ size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) cons
 
 
 void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 	try {
@@ -357,7 +356,7 @@ void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
 }
 
 void MeasurementBridge::deleteMeasurementType(int MTID) {
-	if ( d_experiment == NULL ) {
+	if ( !d_experiment ) {
 		return;
 	}
 

@@ -61,7 +61,7 @@ public:
 
 	QAbstractItemModel * model() const;
 
-	void SetExperiment(fmp::Experiment * experiment);
+	void SetExperiment(const fmp::Experiment::Ptr & experiment);
 
 
 signals:
@@ -127,7 +127,7 @@ private:
 
 	QStandardItemModel * d_tcuModel;
 	QStandardItemModel * d_typeModel;
-	fmp::Experiment    * d_experiment;
+	fmp::Experiment::Ptr d_experiment;
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
 	LoaderByTddURI       d_loaders;

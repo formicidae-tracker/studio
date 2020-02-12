@@ -100,7 +100,6 @@ void Identification::SetBound(const Time::ConstPtr & start,
 	d_end = end;
 	auto identifier = ParentIdentifier();
 	try {
-
 		List & tagSiblings = Identifier::Accessor::IdentificationsForTag(*identifier,d_tagValue);
 		List & antSiblings = Ant::Accessor::Identifications(*Target());
 		Identifier::SortAndCheck(tagSiblings,antSiblings);
@@ -109,7 +108,7 @@ void Identification::SetBound(const Time::ConstPtr & start,
 		d_end = oldEnd;
 		throw;
 	}
-	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,*this);
+	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,this);
 }
 
 void Identification::SetStart(const Time::ConstPtr & start) {
