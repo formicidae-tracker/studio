@@ -13,13 +13,22 @@ TagCloseUpLoader::TagCloseUpLoader(const fmp::TrackingDataDirectoryConstPtr & td
 	: QObject(parent)
 	, d_tddURI(tdd->URI())
 	, d_futureWatcher(new QFutureWatcher<fmp::TagCloseUp::List>(this))
-	, d_lister(tdd->TagCloseUpLister(f,threshold)) {
+	, d_lister(tdd->TagCloseUpLister(f,threshold))
+	, d_toDo(0)
+	, d_done(0) {
 	connect(d_futureWatcher,
 	        &QFutureWatcher<fmp::TagCloseUp::List>::resultReadyAt,
 	        this,
 	        &TagCloseUpLoader::onResultReady);
 }
 
+size_t TagCloseUpLoader::toDo() const {
+	return d_toDo;
+}
+
+size_t TagCloseUpLoader::done() const {
+	return d_done;
+}
 
 void TagCloseUpLoader::waitForFinished() {
 	d_futureWatcher->waitForFinished();
@@ -36,21 +45,27 @@ void TagCloseUpLoader::cancel() {
 
 void TagCloseUpLoader::start() {
 	auto loaders = d_lister->PrepareLoaders();
+	d_done = 0;
+	d_toDo = loaders.size();
 	d_futureWatcher->setFuture(QtConcurrent::mapped(loaders,TagCloseUpLoader::load));
 }
 
 void TagCloseUpLoader::onResultReady(int index) {
 	auto tags = d_futureWatcher->resultAt(index);
+	d_done += 1;
 	for (auto & t : tags) {
 		emit newTagCloseUp(d_tddURI,d_lister->Family(),d_lister->Threshold(),t);
 	}
+	emit progressChanged(d_done,d_done-1);
 }
 
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
 	: QObject(parent)
 	, d_tcuModel( new QStandardItemModel (this) )
-	, d_typeModel( new QStandardItemModel (this) ) {
+	, d_typeModel( new QStandardItemModel (this) )
+	, d_toDo(0)
+	, d_done(0) {
 
 	connect(d_typeModel,
 	        &QStandardItemModel::itemChanged,
@@ -66,8 +81,11 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	cancelAll();
 	d_typeModel->clear();
 	d_experiment = experiment;
+	d_toDo = 0;
+	d_done = 0;
 	if ( !d_experiment ) {
 		emit activated(false);
+		emit progressChanged(d_done,d_toDo);
 		return;
 	}
 
@@ -78,6 +96,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	emit activated(true);
 
 	if ( d_experiment->Family() == fort::tags::Family::Undefined ) {
+		emit progressChanged(d_done,d_toDo);
 		return;
 	}
 
@@ -130,6 +149,7 @@ void MeasurementBridge::startAll() {
 	if ( !d_experiment ) {
 		return;
 	}
+
 	for(const auto & [uri,tdd] : d_experiment->TrackingDataDirectories() ) {
 		startOne(tdd);
 	}
@@ -155,9 +175,15 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 	        this,
 	        &MeasurementBridge::onNewTagCloseUp);
 
+	connect(loader,
+	        &TagCloseUpLoader::progressChanged,
+	        this,
+	        &MeasurementBridge::onLoaderProgressChanged);
+
 	d_loaders.insert(std::make_pair(tdd->URI(),loader));
 	loader->start();
-
+	d_toDo += loader->toDo();
+	emit progressChanged(d_done,d_toDo);
 }
 
 
@@ -171,7 +197,12 @@ void MeasurementBridge::cancelAll() {
 	for(auto & [uri,l] : d_loaders) {
 		l->waitForFinished();
 	}
+
 	d_loaders.clear();
+	d_toDo = 0;
+	d_done = 0;
+
+	emit progressChanged(d_toDo,d_done);
 }
 
 
@@ -184,8 +215,14 @@ void MeasurementBridge::cancelOne(const fs::path & tddURI) {
 
 	clearTddTCUs(tddURI);
 
+	d_toDo -= fi->second->toDo();
+	d_done -= fi->second->done();
+
 	fi->second->waitForFinished();
+
 	d_loaders.erase(fi);
+
+	emit progressChanged(d_done,d_toDo);
 }
 
 QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
@@ -411,4 +448,9 @@ void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
 	}
 
 	emit measurementTypeModified(type->MTID(),type->Name().c_str());
+}
+
+void MeasurementBridge::onLoaderProgressChanged(size_t done, size_t oldDone) {
+	d_done += done - oldDone;
+	emit progressChanged(d_done,d_toDo);
 }

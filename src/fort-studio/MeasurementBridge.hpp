@@ -29,13 +29,15 @@ public:
 	QAbstractItemModel * tagCloseUpModel() const;
 	QAbstractItemModel * measurementTypeModel() const;
 
+	size_t toDo() const;
+	size_t done() const;
 signals:
 	void newTagCloseUp(fs::path tddURI,
 	                   fort::tags::Family family,
 	                   uint8_t threshold,
 	                   fmp::TagCloseUp::ConstPtr tcu);
 
-
+	void progressChanged(size_t done, size_t oldDone);
 public slots:
 	void cancel();
 	void start();
@@ -48,6 +50,7 @@ private :
 	fs::path                                d_tddURI;
 	QFutureWatcher<fmp::TagCloseUp::List> * d_futureWatcher;
 	fmp::TagCloseUp::Lister::Ptr            d_lister;
+	size_t                                  d_done,d_toDo;
 };
 
 
@@ -69,7 +72,6 @@ signals:
 
 	void measurementTypeModified(int,QString);
 	void measurementTypeDeleted(int);
-
 
 	void activated(bool);
 public slots:
@@ -97,6 +99,8 @@ private slots:
 	                     fort::tags::Family f,
 	                     uint8_t Threshold,
 	                     fmp::TagCloseUp::ConstPtr tcu);
+
+	void onLoaderProgressChanged(size_t done, size_t oldDone);
 
 	void onTypeItemChanged(QStandardItem * item);
 
@@ -129,5 +133,5 @@ private:
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
 	LoaderByTddURI       d_loaders;
-
+	size_t               d_toDo,d_done;
 };
