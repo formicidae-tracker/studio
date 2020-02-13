@@ -6,10 +6,11 @@ set(SRC_FILES main.cpp
 			  SelectedAntBridge.cpp
 			  SelectedIdentificationBridge.cpp
 			  ExperimentController.cpp
+			  TagFamilyComboBox.cpp
+			  # ExperimentEditorWidget.cpp
               # MainWindow.cpp
               # Error.cpp
               # AntListWidget.cpp
-              # ExperimentEditorWidget.cpp
               # TaggingWidget.cpp
               # Snapshot.cpp
               # SnapshotIndexer.cpp
@@ -29,10 +30,11 @@ set(HDR_FILES UniverseBridge.hpp
 			  SelectedAntBridge.hpp
 			  SelectedIdentificationBridge.hpp
 			  ExperimentController.hpp
+			  TagFamilyComboBox.hpp
+			  # ExperimentEditorWidget.hpp
 			  # MainWindow.hpp
               # Error.hpp
               # AntListWidget.hpp
-              # ExperimentEditorWidget.hpp
               # TaggingWidget.hpp
               # Snapshot.hpp
               # SnapshotIndexer.hpp
