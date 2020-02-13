@@ -5,11 +5,13 @@
 
 
 #include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Space.hpp>
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 
 namespace fmp = fort::myrmidon::priv;
 
-Q_DECLARE_METATYPE(fmp::TrackingDataDirectoryConstPtr);
+Q_DECLARE_METATYPE(fmp::TrackingDataDirectory::ConstPtr);
 Q_DECLARE_METATYPE(fmp::Space::Ptr);
 
 
@@ -24,16 +26,17 @@ public:
 	QAbstractItemModel * model();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
-	const std::vector<fmp::Space::Ptr> & spaces() const;
-
-	const fmp::Space::Universe::TrackingDataDirectoryByURI &
-	trackingDataDirectories() const;
+	bool isDeletable(const QModelIndex & ) const;
 
 public slots:
 	void addSpace(const QString & spaceName);
+	void deleteSpace(const QString & spaceName);
 	void addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	                                    const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void deleteTrackingDataDirectory(const QString & URI);
+
+
+	void deleteSelection(const QModelIndexList & selected);
 
 signals:
 	void activated(bool);

@@ -8,6 +8,7 @@ set(SRC_FILES main.cpp
 			  ExperimentController.cpp
 			  TagFamilyComboBox.cpp
 			  ExperimentEditorWidget.cpp
+			  UniverseEditorWidget.cpp
               # MainWindow.cpp
               # Error.cpp
               # AntListWidget.cpp
@@ -32,6 +33,7 @@ set(HDR_FILES UniverseBridge.hpp
 			  ExperimentController.hpp
 			  TagFamilyComboBox.hpp
 			  ExperimentEditorWidget.hpp
+			  UniverseEditorWidget.hpp
 			  # MainWindow.hpp
               # Error.hpp
               # AntListWidget.hpp
@@ -48,9 +50,10 @@ set(HDR_FILES UniverseBridge.hpp
 			  # TagExtractor.hpp
 			  )
 
-set(UI_FILES MainWindow.ui
+set(UI_FILES ExperimentEditorWidget.ui
+             UniverseEditorWidget.ui
              AntListWidget.ui
-             ExperimentEditorWidget.ui
+             MainWindow.ui
 			 FramePointerWidget.ui
 			 AntIdentificationWidget.ui
 			 TaggingWidget.ui

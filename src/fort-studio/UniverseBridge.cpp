@@ -91,22 +91,6 @@ const std::vector<fmp::Space::Ptr> UniverseBridge::s_emptySpaces;
 const fmp::Space::Universe::TrackingDataDirectoryByURI UniverseBridge::s_emptyTDDs;
 
 
-const std::vector<fmp::Space::Ptr> & UniverseBridge::spaces() const {
-	if ( !d_experiment ) {
-		return s_emptySpaces;
-	}
-	return d_experiment->Spaces();
-}
-
-const fmp::Space::Universe::TrackingDataDirectoryByURI &
-UniverseBridge::trackingDataDirectories() const {
-	if ( !d_experiment ) {
-		return s_emptyTDDs;
-	}
-
-	return d_experiment->TrackingDataDirectories();
-}
-
 void UniverseBridge::addSpace(const QString & spaceName) {
 	if (!d_experiment) {
 		return;
@@ -126,7 +110,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 }
 
 void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
-                                                      const fmp::TrackingDataDirectoryConstPtr & tdd) {
+                                                     const fmp::TrackingDataDirectoryConstPtr & tdd) {
 	if (!d_experiment) {
 		return;
 	}
@@ -150,6 +134,23 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 
 	emit trackingDataDirectoryAdded(tdd);
 	emit spaceChanged(s);
+}
+
+void UniverseBridge::deleteSpace(const QString & URI) {
+	auto item = locateSpace(URI);
+
+	if ( !d_experiment || item == NULL )
+	try {
+		d_experiment->DeleteSpace(URI.toUtf8().constData());
+	} catch ( const std::exception & e) {
+		qWarning() << "Could not remove space '" << URI << "': " << e.what();
+		return;
+	}
+
+	d_model->removeRows(item->row(),1);
+
+	emit spaceDeleted(URI);
+
 }
 
 void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
@@ -209,4 +210,52 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		d_model->appendRow(buildSpace(s));
 	}
 	emit activated(true);
+}
+
+
+bool UniverseBridge::isDeletable(const QModelIndex & index) const {
+	auto item = d_model->itemFromIndex(index);
+	if ( item == NULL ) {
+		return false;
+	}
+
+	switch(item->data(Qt::UserRole+1).toInt()) {
+	case SPACE_TYPE:
+		return item->data(Qt::UserRole+1).value<fmp::Space::Ptr>()->TrackingDataDirectories().empty();
+	case TDD_TYPE:
+		return true;
+	}
+
+	return false;
+}
+
+
+
+void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
+	std::vector<fs::path> spaceURIs;
+	std::vector<fs::path> tddURIs;
+	for ( const auto & index : selection ) {
+		if ( index.isValid() == false ) {
+			continue;
+		}
+
+		auto item = d_model->itemFromIndex(index);
+		if ( item == NULL ) {
+			continue;
+		}
+
+		switch(item->data(Qt::UserRole+1).toInt()) {
+		case SPACE_TYPE:
+			spaceURIs.push_back(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->URI());
+		case TDD_TYPE:
+			tddURIs.push_back(item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>()->URI());
+		}
+	}
+
+	for ( const auto & uri : tddURIs ) {
+		deleteTrackingDataDirectory(uri.c_str());
+	}
+	for ( const auto & uri : spaceURIs ) {
+		deleteSpace(uri.c_str());
+	}
 }

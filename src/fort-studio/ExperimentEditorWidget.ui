@@ -6,99 +6,90 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
-    <height>310</height>
+    <width>700</width>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QGroupBox" name="infoBox">
-     <property name="title">
-      <string>Infos</string>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="familyLabel">
+     <property name="text">
+      <string>Family:</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
-       <widget class="QLabel" name="authorLabel">
-        <property name="text">
-         <string>Author:</string>
-        </property>
-        <property name="buddy">
-         <cstring>authorEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="nameLabel">
-        <property name="text">
-         <string>Name:</string>
-        </property>
-        <property name="buddy">
-         <cstring>nameEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QDoubleSpinBox" name="tagSizeEdit">
-        <property name="minimum">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>1.620000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="tagSizeLabel">
-        <property name="text">
-         <string>Tag Size (mm):</string>
-        </property>
-        <property name="buddy">
-         <cstring>tagSizeEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="familyLabel">
-        <property name="text">
-         <string>Family:</string>
-        </property>
-        <property name="buddy">
-         <cstring>familySelector</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="4">
-       <widget class="QLineEdit" name="authorEdit"/>
-      </item>
-      <item row="2" column="1" colspan="4">
-       <widget class="QLineEdit" name="nameEdit"/>
-      </item>
-      <item row="5" column="0" colspan="5">
-       <widget class="QPlainTextEdit" name="commentEdit"/>
-      </item>
-      <item row="4" column="0" colspan="5">
-       <widget class="QLabel" name="commentLabel">
-        <property name="text">
-         <string>Comments:</string>
-        </property>
-        <property name="buddy">
-         <cstring>commentEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="TagFamilyComboBox" name="familySelector"/>
-      </item>
-     </layout>
+     <property name="buddy">
+      <cstring>familySelector</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="TagFamilyComboBox" name="familySelector"/>
+   </item>
+   <item row="0" column="3">
+    <widget class="QDoubleSpinBox" name="tagSizeEdit">
+     <property name="minimum">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.620000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="authorLabel">
+     <property name="text">
+      <string>Author:</string>
+     </property>
+     <property name="buddy">
+      <cstring>authorEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="nameLabel">
+     <property name="text">
+      <string>Name:</string>
+     </property>
+     <property name="buddy">
+      <cstring>nameEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="tagSizeLabel">
+     <property name="text">
+      <string>Tag Size (mm):</string>
+     </property>
+     <property name="buddy">
+      <cstring>tagSizeEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="4">
+    <widget class="QPlainTextEdit" name="commentEdit"/>
+   </item>
+   <item row="3" column="1" colspan="3">
+    <widget class="QLineEdit" name="authorEdit"/>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <widget class="QLineEdit" name="nameEdit"/>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="QLabel" name="commentLabel">
+     <property name="text">
+      <string>Comments:</string>
+     </property>
+     <property name="buddy">
+      <cstring>commentEdit</cstring>
+     </property>
     </widget>
    </item>
   </layout>
