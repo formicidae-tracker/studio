@@ -35,6 +35,10 @@ ExperimentController::ExperimentController(QObject * parent)
 	        d_selectedAnt,
 	        &SelectedAntBridge::onIdentificationModified);
 
+	connect(d_expBridge,
+	        &ExperimentBridge::detectionSettingChanged,
+	        d_measurements,
+	        &MeasurementBridge::onDetectionSettingChanged);
 }
 
 void ExperimentController::save(const QString & path ) {

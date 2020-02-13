@@ -20,11 +20,11 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 	d_shapeModel->clear();
 	d_ant = ant;
 	if ( !d_ant ) {
-		emit activeStateChanged(false);
+		emit activated(false);
 		return;
 	}
 	rebuildIdentificationModel();
-	emit activeStateChanged(true);
+	emit activated(true);
 }
 
 void SelectedAntBridge::onIdentificationModified(const fmp::Identification::ConstPtr & ident) {

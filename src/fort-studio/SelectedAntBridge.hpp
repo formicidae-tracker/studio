@@ -22,7 +22,7 @@ public slots:
 	void onIdentificationModified(const fmp::Identification::ConstPtr &);
 
 signals:
-	void activeStateChanged(bool);
+	void activated(bool);
 
 private:
 	void rebuildIdentificationModel();

@@ -28,18 +28,18 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 		return;
 	}
 
-	auto z = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
-	if (item->text() == z->URI().c_str()) {
+	auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
+	if (item->text() == s->URI().c_str()) {
 		return;
 	}
 
 	try {
-		z->SetName(item->text().toUtf8().data());
+		s->SetName(item->text().toUtf8().data());
 	} catch (const std::exception & e) {
 		qDebug() << "Could not change name: " << e.what();
-		item->setText(z->URI().c_str());
+		item->setText(s->URI().c_str());
 	}
-	emit spaceChanged(z);
+	emit spaceChanged(s);
 }
 
 
@@ -60,18 +60,18 @@ QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectoryC
 	return res;
 }
 
-QList<QStandardItem*> UniverseBridge::buildSpace(const fmp::Space::Ptr & z) {
-	auto spaceItem = new QStandardItem(z->URI().c_str());
+QList<QStandardItem*> UniverseBridge::buildSpace(const fmp::Space::Ptr & s) {
+	auto spaceItem = new QStandardItem(s->URI().c_str());
 	spaceItem->setEditable(true);
 	spaceItem->setData(SPACE_TYPE,Qt::UserRole+1);
-	spaceItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
-	rebuildSpaceChildren(spaceItem,z);
+	spaceItem->setData(QVariant::fromValue(s),Qt::UserRole+2);
+	rebuildSpaceChildren(spaceItem,s);
 	QList<QStandardItem*> res = {spaceItem};
 	for(size_t i = 0 ; i < 5; ++i) {
 		auto dummyItem = new QStandardItem("");
 		dummyItem->setEditable(false);
 		dummyItem->setData(SPACE_TYPE,Qt::UserRole+1);
-		dummyItem->setData(QVariant::fromValue(z),Qt::UserRole+2);
+		dummyItem->setData(QVariant::fromValue(s),Qt::UserRole+2);
 		res.push_back(dummyItem);
 	}
 	return res;
@@ -82,8 +82,8 @@ void UniverseBridge::buildAll(const std::vector<fmp::Space::Ptr> & spaces) {
 	d_model->setColumnCount(6);
 	auto labels = {tr("URI"),tr("Filepath"),tr("Start Frame"),tr("End Frame"),tr("Start Date"),tr("End Date")};
 	d_model->setHorizontalHeaderLabels(labels);
-	for (const auto & z : spaces) {
-		d_model->invisibleRootItem()->appendRow(buildSpace(z));
+	for (const auto & s : spaces) {
+		d_model->invisibleRootItem()->appendRow(buildSpace(s));
 	}
 }
 
@@ -130,15 +130,15 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	if (!d_experiment) {
 		return;
 	}
-	auto z = d_experiment->LocateSpace(spaceURI.toUtf8().data());
+	auto s = d_experiment->LocateSpace(spaceURI.toUtf8().data());
 	auto item = locateSpace(spaceURI);
-	if ( !z || item == NULL) {
+	if ( !s || item == NULL) {
 		return;
 	}
 
 
 	try {
-		z->AddTrackingDataDirectory(tdd);
+		s->AddTrackingDataDirectory(tdd);
 	} catch (const std::exception & e) {
 		qWarning() << "Could not add '" <<tdd->URI().c_str()
 		           << "' to '" << spaceURI
@@ -146,10 +146,10 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 		return;
 	}
 
-	rebuildSpaceChildren(item,z);
+	rebuildSpaceChildren(item,s);
 
 	emit trackingDataDirectoryAdded(tdd);
-	emit spaceChanged(z);
+	emit spaceChanged(s);
 }
 
 void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
@@ -189,9 +189,9 @@ QStandardItem * UniverseBridge::locateSpace(const QString & URI) {
 }
 
 void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
-                                           const fmp::Space::Ptr & z) {
+                                           const fmp::Space::Ptr & s) {
 	item->removeRows(0,item->rowCount());
-	for ( const auto & tdd : z->TrackingDataDirectories() ) {
+	for ( const auto & tdd : s->TrackingDataDirectories() ) {
 		auto tddItem = buildTDD(tdd);
 		item->appendRow(tddItem);
 	}
@@ -201,13 +201,12 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 	d_model->clear();
 	if (!d_experiment) {
-		emit activeStateChanged(false);
+		emit activated(false);
 		return;
 	}
 
-	for (const auto & z : d_experiment->Spaces() ) {
-		d_model->appendRow(buildSpace
-		                   (z));
+	for (const auto & s : d_experiment->Spaces() ) {
+		d_model->appendRow(buildSpace(s));
 	}
-	emit activeStateChanged(true);
+	emit activated(true);
 }

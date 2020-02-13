@@ -67,7 +67,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_typeModel->clear();
 	d_experiment = experiment;
 	if ( !d_experiment ) {
-		emit activeStateChanged(false);
+		emit activated(false);
 		return;
 	}
 
@@ -75,11 +75,12 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		d_typeModel->appendRow(buildType(type));
 	}
 
-	emit activeStateChanged(true);
+	emit activated(true);
 
 	if ( d_experiment->Family() == fort::tags::Family::Undefined ) {
 		return;
 	}
+
 	startAll();
 }
 
@@ -91,19 +92,20 @@ void MeasurementBridge::onTDDDeleted(const QString & tddURI) {
 	cancelOne(tddURI.toUtf8().data());
 }
 
-void MeasurementBridge::onFamilyChanged(fort::tags::Family f) {
+void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family , uint8_t) {
+	if ( d_experiment ) {
+		return;
+	}
+
 	cancelAll();
 
-	if ( f == fort::tags::Family::Undefined) {
+	if ( d_experiment->Family() == fort::tags::Family::Undefined) {
 		return;
 	};
+
 	startAll();
 }
 
-void MeasurementBridge::onThresholdChanged(uint8_t threshold) {
-	cancelAll();
-	startAll();
-}
 
 void MeasurementBridge::onNewTagCloseUp(fs::path tddURI,
                                         fort::tags::Family f,

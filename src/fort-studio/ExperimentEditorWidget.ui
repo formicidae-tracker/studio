@@ -25,12 +25,18 @@
         <property name="text">
          <string>Author:</string>
         </property>
+        <property name="buddy">
+         <cstring>authorEdit</cstring>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="nameLabel">
         <property name="text">
          <string>Name:</string>
+        </property>
+        <property name="buddy">
+         <cstring>nameEdit</cstring>
         </property>
        </widget>
       </item>
@@ -55,12 +61,18 @@
         <property name="text">
          <string>Tag Size (mm):</string>
         </property>
+        <property name="buddy">
+         <cstring>tagSizeEdit</cstring>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="familyLabel">
         <property name="text">
          <string>Family:</string>
+        </property>
+        <property name="buddy">
+         <cstring>familySelector</cstring>
         </property>
        </widget>
       </item>
@@ -78,16 +90,19 @@
         <property name="text">
          <string>Comments:</string>
         </property>
+        <property name="buddy">
+         <cstring>commentEdit</cstring>
+        </property>
        </widget>
       </item>
       <item row="0" column="1" colspan="2">
-       <widget class="QComboBox" name="familySelector"/>
+       <widget class="TagFamilyComboBox" name="familySelector"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="dirBox">
+    <widget class="QGroupBox" name="universeBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -101,11 +116,11 @@
       </size>
      </property>
      <property name="title">
-      <string>Zones and Data Directories</string>
+      <string>Spaces And Data Directories</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QTreeView" name="zoneView">
+       <widget class="QTreeView" name="spacesView">
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
@@ -126,12 +141,19 @@
    <item>
     <widget class="QGroupBox" name="measureBox">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Measurement Types</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TagFamilyComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">fort-studio/TagFamilyComboBox.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

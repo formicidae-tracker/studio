@@ -71,14 +71,12 @@ signals:
 	void measurementTypeDeleted(int);
 
 
-	void activeStateChanged(bool);
+	void activated(bool);
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);
 
-	void onFamilyChanged(fort::tags::Family f);
-	void onThresholdChanged(uint8_t threshold);
-
+	void onDetectionSettingChanged(fort::tags::Family f, uint8_t threshold);
 
 	void setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                    fmp::MeasurementType::ID MTID,
@@ -92,7 +90,6 @@ public slots:
 
 	void deleteMeasurementType(int MTID);
 
-	void onTypeItemChanged(QStandardItem * item);
 
 private slots:
 
@@ -100,6 +97,8 @@ private slots:
 	                     fort::tags::Family f,
 	                     uint8_t Threshold,
 	                     fmp::TagCloseUp::ConstPtr tcu);
+
+	void onTypeItemChanged(QStandardItem * item);
 
 
 private:

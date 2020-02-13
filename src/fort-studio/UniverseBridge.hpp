@@ -36,7 +36,7 @@ public slots:
 	void deleteTrackingDataDirectory(const QString & URI);
 
 signals:
-	void activeStateChanged(bool);
+	void activated(bool);
 
 	void spaceDeleted(const QString & spaceName);
 	void spaceAdded(const fmp::Space::Ptr & space);

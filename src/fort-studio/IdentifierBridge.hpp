@@ -14,7 +14,6 @@ Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Identification::Ptr)
 Q_DECLARE_METATYPE(fmp::Identification::ConstPtr)
 
-
 class IdentifierBridge : public QObject {
 	Q_OBJECT
 public:
@@ -36,7 +35,7 @@ signals:
 	                       fmp::Color,
 	                       fmp::Ant::DisplayState);
 
-	void activeStateChanged(bool);
+	void activated(bool);
 public slots:
 	fmp::Ant::Ptr createAnt();
 	void removeAnt(fm::Ant::ID AID);

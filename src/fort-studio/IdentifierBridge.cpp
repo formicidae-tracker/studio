@@ -31,7 +31,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 
 	d_experiment = experiment;
 	if ( !d_experiment ) {
-		emit activeStateChanged(false);
+		emit activated(false);
 		return;
 	}
 	d_experiment->Identifier()
@@ -43,7 +43,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		d_model->invisibleRootItem()->appendRow(buildAnt(a));
 	}
 
-	emit activeStateChanged(true);
+	emit activated(true);
 }
 
 fmp::Ant::Ptr IdentifierBridge::createAnt() {

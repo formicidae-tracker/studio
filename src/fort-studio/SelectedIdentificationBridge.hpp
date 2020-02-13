@@ -7,8 +7,17 @@
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
+Q_DECLARE_METATYPE(fm::Time::ConstPtr)
+
 class SelectedIdentificationBridge : public QObject {
-Q_OBJECT
+	Q_OBJECT
+	Q_PROPERTY(fm::Time::ConstPtr start
+	           READ start WRITE setStart
+	           NOTIFY startModified);
+	Q_PROPERTY(fm::Time::ConstPtr end
+	           READ end WRITE setEnd
+	           NOTIFY endModified);
+
 public:
 	SelectedIdentificationBridge(QObject * parent);
 
@@ -28,7 +37,7 @@ signals:
 
 	void identificationModified(const fmp::Identification::ConstPtr & identification);
 
-	void activeStateChanged(bool);
+	void activated(bool);
 protected:
 	fmp::Identification::Ptr d_identification;
 };
