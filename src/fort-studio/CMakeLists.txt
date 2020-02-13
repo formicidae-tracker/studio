@@ -7,7 +7,7 @@ set(SRC_FILES main.cpp
 			  SelectedIdentificationBridge.cpp
 			  ExperimentController.cpp
 			  TagFamilyComboBox.cpp
-			  # ExperimentEditorWidget.cpp
+			  ExperimentEditorWidget.cpp
               # MainWindow.cpp
               # Error.cpp
               # AntListWidget.cpp
@@ -31,7 +31,7 @@ set(HDR_FILES UniverseBridge.hpp
 			  SelectedIdentificationBridge.hpp
 			  ExperimentController.hpp
 			  TagFamilyComboBox.hpp
-			  # ExperimentEditorWidget.hpp
+			  ExperimentEditorWidget.hpp
 			  # MainWindow.hpp
               # Error.hpp
               # AntListWidget.hpp

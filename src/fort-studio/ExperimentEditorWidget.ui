@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>827</width>
-    <height>555</height>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,50 +101,6 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="universeBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Spaces And Data Directories</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QTreeView" name="spacesView">
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-        <property name="autoExpandDelay">
-         <number>-1</number>
-        </property>
-        <property name="itemsExpandable">
-         <bool>true</bool>
-        </property>
-        <attribute name="headerStretchLastSection">
-         <bool>true</bool>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="measureBox">
-     <property name="title">
-      <string>Measurement Types</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -154,6 +110,13 @@
    <header location="global">fort-studio/TagFamilyComboBox.hpp</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>familySelector</tabstop>
+  <tabstop>tagSizeEdit</tabstop>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>authorEdit</tabstop>
+  <tabstop>commentEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
