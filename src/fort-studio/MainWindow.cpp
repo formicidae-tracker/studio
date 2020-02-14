@@ -1,7 +1,7 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "ExperimentController.hpp"
+#include "ExperimentBridge.hpp"
 
 #include <QtDebug>
 #include <QFileDialog>
@@ -13,8 +13,8 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
-	, d_controller(new ExperimentController(this)) {
-	d_controller->setObjectName("controller");
+	, d_experiment(new ExperimentBridge(this)) {
+	d_experiment->setObjectName("experiment");
     d_ui->setupUi(this);
     static MainWindow * myself = this;
 
@@ -35,7 +35,7 @@ void MainWindow::on_actionNew_triggered() {
 		return;
 	}
 
-	if ( d_controller->create(path) == false ) {
+	if ( d_experiment->create(path) == false ) {
 		return;
 	}
 
@@ -48,8 +48,8 @@ void MainWindow::on_actionOpen_triggered() {
 	}
 
 	QString dir = "";
-	if ( d_controller->absoluteFilePath().empty() == false ) {
-		dir = d_controller->absoluteFilePath().parent_path().c_str();
+	if ( d_experiment->absoluteFilePath().empty() == false ) {
+		dir = d_experiment->absoluteFilePath().parent_path().c_str();
 	}
 
 	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
@@ -60,7 +60,7 @@ void MainWindow::on_actionOpen_triggered() {
 		return;
 	}
 
-	if ( d_controller->open(filename) == false ) {
+	if ( d_experiment->open(filename) == false ) {
 		return;
 	}
 
@@ -73,19 +73,16 @@ void MainWindow::on_actionQuit_triggered() {
 }
 
 void MainWindow::on_actionSave_triggered() {
-	d_controller->save();
+	d_experiment->save();
 }
 
 void MainWindow::on_actionSaveAs_triggered() {
-	if ( d_controller == NULL) {
-		return;
-	}
 	QString path = promptPath();
 	if ( path.isEmpty() ) {
 		return;
 	}
 
-	if ( d_controller->saveAs(path) ) {
+	if ( d_experiment->saveAs(path) ) {
 		return;
     }
 
@@ -99,8 +96,8 @@ QString MainWindow::promptPath() {
 	dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix(".myrmidon");
-    if ( d_controller->absoluteFilePath().empty() == false ) {
-	    dialog.setDirectory(d_controller->absoluteFilePath().parent_path().c_str());
+    if ( d_experiment->absoluteFilePath().empty() == false ) {
+	    dialog.setDirectory(d_experiment->absoluteFilePath().parent_path().c_str());
     }
     if (dialog.exec() != QDialog::Accepted) {
 	    return  "";
@@ -115,7 +112,7 @@ bool MainWindow::maybeSave(bool * cancelled) {
 		if ( cancelled != NULL ) { *cancelled = value; } \
 	} while(0)
 
-	if ( d_controller->isModified() == false ) {
+	if ( d_experiment->isModified() == false ) {
 		fstudio_set_cancelled(false);
 		return true;
 	}
@@ -129,7 +126,7 @@ bool MainWindow::maybeSave(bool * cancelled) {
 	switch(res) {
 	case QMessageBox::Save:
 		fstudio_set_cancelled(false);
-		return d_controller->save();
+		return d_experiment->save();
 	case QMessageBox::Cancel:
 		fstudio_set_cancelled(true);
 		return false;
@@ -176,10 +173,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void MainWindow::pushRecent() {
-	if ( d_controller == NULL ) {
-		return;
-	}
-	QString newPath = d_controller->absoluteFilePath().c_str();
+	QString newPath = d_experiment->absoluteFilePath().c_str();
 
 	//if already in the vector, just move it to the top
 	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {
@@ -246,7 +240,7 @@ void MainWindow::rebuildRecentsFiles() {
 		if ( i > d_recentPaths.size() ) { \
 			return; \
 		} \
-		d_controller->open(d_recentPaths[i-1]); \
+		d_experiment->open(d_recentPaths[i-1]); \
 	}
 
 IMPLEMENT_RECENT_FILE_SLOT(1);
@@ -256,16 +250,16 @@ IMPLEMENT_RECENT_FILE_SLOT(4);
 IMPLEMENT_RECENT_FILE_SLOT(5);
 
 
-void MainWindow::on_controller_modified(bool modified) {
+void MainWindow::on_experiment_modified(bool modified) {
 	d_ui->actionSave->setEnabled(modified);
 }
 
-void MainWindow::on_controller_activated(bool active) {
+void MainWindow::on_experiment_activated(bool active) {
 	if (active == false) {
 		d_ui->actionSave->setEnabled(false);
 		d_ui->actionSaveAs->setEnabled(false);
 		return;
 	}
-	d_ui->actionSave->setEnabled(d_controller->isModified());
+	d_ui->actionSave->setEnabled(d_experiment->isModified());
 	d_ui->actionSaveAs->setEnabled(true);
 }

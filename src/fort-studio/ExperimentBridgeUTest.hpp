@@ -6,7 +6,7 @@
 
 namespace fmp = fort::myrmidon::priv;
 
-class ExperimentControllerUTest : public ::testing::Test {
+class ExperimentBridgeUTest : public ::testing::Test {
 protected:
 	static void SetUpTestSuite();
 	static void TearDownTestSuite();

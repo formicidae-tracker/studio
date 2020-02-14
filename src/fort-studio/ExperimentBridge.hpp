@@ -1,66 +1,60 @@
 #pragma once
 
 #include "Bridge.hpp"
-
-#include <myrmidon/priv/Experiment.hpp>
+#include "UniverseBridge.hpp"
+#include "MeasurementBridge.hpp"
+#include "GlobalPropertyBridge.hpp"
+#include "IdentifierBridge.hpp"
+#include "SelectedAntBridge.hpp"
+#include "SelectedIdentificationBridge.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 
 class ExperimentBridge : public Bridge {
 	Q_OBJECT
-	Q_PROPERTY(QString name
-	           READ name WRITE setName
-	           NOTIFY nameChanged)
-	Q_PROPERTY(QString author
-	           READ author WRITE setAuthor
-	           NOTIFY authorChanged)
-	Q_PROPERTY(QString comment
-	           READ comment WRITE setComment
-	           NOTIFY commentChanged)
-	Q_PROPERTY(fort::tags::Family tagFamily
-	           READ tagFamily WRITE setTagFamily
-	           NOTIFY tagFamilyChanged)
-	Q_PROPERTY(uint8_t threshold
-	           READ threshold WRITE setThreshold
-	           NOTIFY thresholdChanged)
-	Q_PROPERTY(double tagSize
-	           READ tagSize WRITE setTagSize
-	           NOTIFY tagSizeChanged)
-
 public:
-	ExperimentBridge(QObject * parent);
 
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
+	ExperimentBridge(QObject * parent = NULL);
+
+	const fs::path & absoluteFilePath() const;
 
 	bool isActive() const override;
 
-public:
-	QString name() const;
-	QString author() const;
-	QString comment() const;
-	fort::tags::Family tagFamily() const;
-	uint8_t threshold() const;
-	double tagSize() const;
+	bool open(const QString & path);
 
-signals:
-	void nameChanged(QString name);
-	void authorChanged(QString author);
-	void commentChanged(QString comment);
-	void tagFamilyChanged(fort::tags::Family f);
-	void thresholdChanged(uint8_t value);
-	void tagSizeChanged(double value);
+	bool create(const QString & path);
 
-	void detectionSettingChanged(fort::tags::Family f,
-	                             uint8_t threshold);
+	UniverseBridge * universe() const;
+
+	MeasurementBridge * measurements() const;
+
+	IdentifierBridge * identifier() const;
+
+	GlobalPropertyBridge * globalProperties() const;
+
+	SelectedAntBridge * selectedAnt() const;
+
+	SelectedIdentificationBridge * selectedIdentification() const;
+
+
 public slots:
 
-	void setName(const QString & name);
-	void setAuthor(const QString & author);
-	void setComment(const QString & comment);
-	void setThreshold(uint8_t th);
-	void setTagSize(double tagSize);
-	void setTagFamily(fort::tags::Family tf);
+	bool save();
+	bool saveAs(const QString & path);
 
+private slots:
+	void onChildModified(bool);
 private:
-	fmp::Experiment::Ptr d_experiment;
+
+	void setExperiment(const fmp::Experiment::Ptr & );
+	void connectModifications();
+
+
+	fmp::Experiment::Ptr           d_experiment;
+	UniverseBridge               * d_universe;
+	MeasurementBridge            * d_measurements;
+	IdentifierBridge             * d_identifier;
+	GlobalPropertyBridge         * d_globalProperties;
+	SelectedAntBridge            * d_selectedAnt;
+	SelectedIdentificationBridge * d_selectedIdentification;
 };

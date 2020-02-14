@@ -1,13 +1,13 @@
 set(SRC_FILES Bridge.cpp
               UniverseBridge.cpp
 			  MeasurementBridge.cpp
-			  ExperimentBridge.cpp
+			  GlobalPropertyBridge.cpp
 			  IdentifierBridge.cpp
 			  SelectedAntBridge.cpp
 			  SelectedIdentificationBridge.cpp
-			  ExperimentController.cpp
+			  ExperimentBridge.cpp
 			  TagFamilyComboBox.cpp
-			  ExperimentEditorWidget.cpp
+			  GlobalPropertyWidget.cpp
 			  UniverseEditorWidget.cpp
               # Error.cpp
               # AntListWidget.cpp
@@ -27,13 +27,13 @@ set(SRC_FILES Bridge.cpp
 set(HDR_FILES Bridge.hpp
 			  UniverseBridge.hpp
 			  MeasurementBridge.hpp
-			  ExperimentBridge.hpp
+			  GlobalPropertyBridge.hpp
 			  IdentifierBridge.hpp
 			  SelectedAntBridge.hpp
 			  SelectedIdentificationBridge.hpp
-			  ExperimentController.hpp
+			  ExperimentBridge.hpp
 			  TagFamilyComboBox.hpp
-			  ExperimentEditorWidget.hpp
+			  GlobalPropertyWidget.hpp
 			  UniverseEditorWidget.hpp
               # Error.hpp
               # AntListWidget.hpp
@@ -52,7 +52,7 @@ set(HDR_FILES Bridge.hpp
 			  )
 
 
-set(UI_FILES ExperimentEditorWidget.ui
+set(UI_FILES GlobalPropertyWidget.ui
              UniverseEditorWidget.ui
 	         MainWindow.ui
              # AntListWidget.ui
@@ -65,9 +65,9 @@ set(RCC_FILES )
 
 
 set(SRC_UTEST_FILES main-check.cpp
-                    ExperimentControllerUTest.cpp)
+                    ExperimentBridgeUTest.cpp)
 
-set(HDR_UTEST_FILES ExperimentControllerUTest.hpp)
+set(HDR_UTEST_FILES ExperimentBridgeUTest.hpp)
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 

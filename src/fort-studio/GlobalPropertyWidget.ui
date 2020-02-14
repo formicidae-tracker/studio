@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ExperimentEditorWidget</class>
- <widget class="QWidget" name="ExperimentEditorWidget">
+ <class>GlobalPropertyWidget</class>
+ <widget class="QWidget" name="GlobalPropertyWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

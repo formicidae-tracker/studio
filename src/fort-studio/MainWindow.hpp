@@ -4,7 +4,7 @@
 
 #include <deque>
 
-class ExperimentController;
+class ExperimentBridge;
 
 namespace Ui {
 class MainWindow;
@@ -29,8 +29,8 @@ private slots:
 	void on_recentFile5_triggered();
 
 
-	void on_controller_modified(bool);
-	void on_controller_activated(bool);
+	void on_experiment_modified(bool);
+	void on_experiment_activated(bool);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -48,9 +48,9 @@ private:
 	void rebuildRecentsFiles();
 
 
-    Ui::MainWindow       * d_ui;
-	ExperimentController * d_controller;
-	std::deque<QString>    d_recentPaths;
+    Ui::MainWindow      * d_ui;
+	ExperimentBridge    * d_experiment;
+	std::deque<QString>   d_recentPaths;
 
 
 };

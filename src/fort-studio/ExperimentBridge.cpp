@@ -1,133 +1,179 @@
 #include "ExperimentBridge.hpp"
 
+#include <QFileInfo>
+#include <QDir>
+
+#include <QDebug>
+
+namespace fm=fort::myrmidon;
+namespace fmp=fm::priv;
 
 ExperimentBridge::ExperimentBridge(QObject * parent)
-	: Bridge(parent) {
-}
+	: Bridge(parent)
+	, d_universe(new UniverseBridge(this))
+	, d_measurements(new MeasurementBridge(this))
+	, d_identifier(new IdentifierBridge(this))
+	, d_globalProperties(new GlobalPropertyBridge(this))
+	, d_selectedAnt(new SelectedAntBridge(this))
+	, d_selectedIdentification(new SelectedIdentificationBridge(this)) {
 
+	connectModifications();
 
-void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	setModified(false);
-	if ( experiment == d_experiment ) {
-		return;
-	}
-	d_experiment = experiment;
-	emit nameChanged(name());
-	emit authorChanged(author());
-	emit commentChanged(comment());
-	emit tagFamilyChanged(tagFamily());
-	emit thresholdChanged(threshold());
-	emit tagSizeChanged(tagSize());
-	emit activated(d_experiment.get() != NULL);
+	connect(d_identifier,
+	        &IdentifierBridge::identificationCreated,
+	        d_selectedAnt,
+	        &SelectedAntBridge::onIdentificationModified);
+
+	connect(d_identifier,
+	        &IdentifierBridge::identificationDeleted,
+	        d_selectedAnt,
+	        &SelectedAntBridge::onIdentificationModified);
+
+	connect(d_selectedIdentification,
+	        &SelectedIdentificationBridge::identificationModified,
+	        d_selectedAnt,
+	        &SelectedAntBridge::onIdentificationModified);
+
+	connect(d_globalProperties,
+	        &GlobalPropertyBridge::detectionSettingChanged,
+	        d_measurements,
+	        &MeasurementBridge::onDetectionSettingChanged);
 }
 
 bool ExperimentBridge::isActive() const {
 	return d_experiment.get() != NULL;
 }
 
-QString ExperimentBridge::name() const {
+const fs::path & ExperimentBridge::absoluteFilePath() const {
 	if ( !d_experiment ) {
-		return "";
+		static fs::path empty;
+		return empty;
 	}
-	return d_experiment->Name().c_str();
+	return d_experiment->AbsoluteFilePath();
 }
 
-QString ExperimentBridge::author() const {
+
+bool ExperimentBridge::save() {
 	if ( !d_experiment ) {
-		return "";
+		return false;
 	}
-	return d_experiment->Author().c_str();
+	return saveAs(d_experiment->AbsoluteFilePath().c_str());
 }
 
-QString ExperimentBridge::comment() const {
-	if ( !d_experiment ) {
-		return "";
-	}
 
-	return d_experiment->Comment().c_str();
+bool ExperimentBridge::saveAs(const QString & path ) {
+	try {
+		d_experiment->Save(path.toUtf8().constData());
+		setModified(false);
+	} catch (const std::exception & e ) {
+		qWarning() << "Could not save experiment to '"
+		           << path << "': " << e.what();
+		return false;
+	}
+	return true;
 }
 
-fort::tags::Family ExperimentBridge::tagFamily() const {
-	if ( !d_experiment ) {
-		return fort::tags::Family::Undefined;
-	}
 
-	return d_experiment->Family();
+bool ExperimentBridge::open(const QString & path) {
+	fmp::Experiment::Ptr experiment;
+	try {
+		experiment = fmp::Experiment::Open(path.toUtf8().constData());
+	} catch ( const std::exception & e ) {
+		qWarning() << "Could not open '" << path
+		           << "': " << e.what();
+		return false;
+	}
+	setExperiment(experiment);
+	return true;
 }
 
-uint8_t ExperimentBridge::threshold() const {
-	if ( !d_experiment ) {
-		return 255;
-	}
 
-	return d_experiment->Threshold();
+bool ExperimentBridge::create(const QString & path) {
+	fmp::Experiment::Ptr experiment;
+	try {
+		experiment = fmp::Experiment::NewFile(path.toUtf8().constData());
+	} catch ( const std::exception & e ) {
+		qWarning() << "Could not create file '" << path
+		           << "': " << e.what();
+		return false;
+	}
+	setExperiment(experiment);
+	return true;
 }
 
-double ExperimentBridge::tagSize() const {
-	if ( !d_experiment ) {
-		return 0.0;
-	}
 
-	return d_experiment->DefaultTagSize();
+UniverseBridge * ExperimentBridge::universe() const {
+	return d_universe;
 }
 
-void ExperimentBridge::setName(const QString & name) {
-	if ( !d_experiment || d_experiment->Name().c_str() == name ) {
+MeasurementBridge * ExperimentBridge::measurements() const {
+	return d_measurements;
+}
+
+IdentifierBridge * ExperimentBridge::identifier() const {
+	return d_identifier;
+}
+
+GlobalPropertyBridge * ExperimentBridge::globalProperties() const {
+	return d_globalProperties;
+}
+
+SelectedAntBridge * ExperimentBridge::selectedAnt() const {
+	return d_selectedAnt;
+}
+
+SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const {
+	return d_selectedIdentification;
+}
+
+void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	d_experiment = experiment;
+	d_universe->setExperiment(experiment);
+	d_measurements->setExperiment(experiment);
+	d_identifier->setExperiment(experiment);
+	d_globalProperties->setExperiment(experiment);
+	d_selectedAnt->setAnt(fmp::Ant::Ptr());
+	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
+	setModified(false);
+	emit activated(d_experiment.get() != NULL);
+}
+
+void ExperimentBridge::onChildModified(bool modified) {
+	if ( modified == false ) {
 		return;
 	}
-	d_experiment->SetName(name.toUtf8().data());
 	setModified(true);
-	emit nameChanged(name);
 }
 
-void ExperimentBridge::setAuthor(const QString & author) {
-	if ( !d_experiment || d_experiment->Author().c_str() == author ) {
-		return;
-	}
-	d_experiment->SetAuthor(author.toUtf8().data());
-	setModified(true);
-	emit authorChanged(author);
-}
+void ExperimentBridge::connectModifications() {
+	connect(d_universe,
+	        &UniverseBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-void ExperimentBridge::setComment(const QString & comment) {
-	if ( !d_experiment || d_experiment->Comment().c_str() == comment ) {
-		return;
-	}
+	connect(d_measurements,
+	        &MeasurementBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-	d_experiment->SetComment(comment.toUtf8().data());
-	setModified(true);
-	emit commentChanged(comment);
-}
+	connect(d_identifier,
+	        &IdentifierBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-void ExperimentBridge::setThreshold(uint8_t th) {
-	if ( !d_experiment || d_experiment->Threshold() == th ) {
-		return;
-	}
+	connect(d_globalProperties,
+	        &GlobalPropertyBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-	auto old = d_experiment->Threshold();
-	d_experiment->SetThreshold(th);
-	if ( old != d_experiment->Threshold() ) {
-		setModified(true);
-		emit thresholdChanged(d_experiment->Threshold());
-		emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
-	}
-}
+	connect(d_selectedAnt,
+	        &SelectedAntBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-void ExperimentBridge::setTagSize(double tagSize) {
-	if ( !d_experiment || d_experiment->DefaultTagSize() == tagSize) {
-		return;
-	}
-	d_experiment->SetDefaultTagSize(tagSize);
-	setModified(true);
-	emit tagSizeChanged(tagSize);
-}
+	connect(d_selectedIdentification,
+	        &SelectedIdentificationBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
 
-void ExperimentBridge::setTagFamily(fort::tags::Family tf) {
-	if ( !d_experiment || d_experiment->Family() == tf) {
-		return;
-	}
-	d_experiment->SetFamily(tf);
-	setModified(true);
-	emit tagFamilyChanged(tf);
-	emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
 }

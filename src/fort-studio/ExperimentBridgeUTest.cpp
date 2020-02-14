@@ -1,27 +1,27 @@
-#include "ExperimentControllerUTest.hpp"
+#include "ExperimentBridgeUTest.hpp"
 
 #include <myrmidon/TestSetup.hpp>
-#include "ExperimentController.hpp"
+#include "ExperimentBridge.hpp"
 
 #include <QSignalSpy>
 
-fmp::Experiment::Ptr ExperimentControllerUTest::s_experiment;
+fmp::Experiment::Ptr ExperimentBridgeUTest::s_experiment;
 
-void ExperimentControllerUTest::SetUpTestSuite() {
+void ExperimentBridgeUTest::SetUpTestSuite() {
 	EXPECT_NO_THROW({
-			s_experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "ExperimentController.myrmidon");
+			s_experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "ExperimentBridge.myrmidon");
 			s_experiment->Save(s_experiment->AbsoluteFilePath());
 		});
 }
-void ExperimentControllerUTest::TearDownTestSuite() {
+void ExperimentBridgeUTest::TearDownTestSuite() {
 	s_experiment.reset();
 }
 
 
-TEST_F(ExperimentControllerUTest,OpeningActiveModifiedState) {
-	auto pathExisting = TestSetup::Basedir() / "ExperimentController.myrmidon";
-	auto pathCreated = TestSetup::Basedir() / "ExperimentController.2.myrmidon";
-	auto  controller = new ExperimentController();
+TEST_F(ExperimentBridgeUTest,OpeningActiveModifiedState) {
+	auto pathExisting = TestSetup::Basedir() / "ExperimentBridge.myrmidon";
+	auto pathCreated = TestSetup::Basedir() / "ExperimentBridge.2.myrmidon";
+	auto  controller = new ExperimentBridge();
 	QSignalSpy modifiedSpy(controller,SIGNAL(modified(bool)));
 	QSignalSpy activatedSpy(controller,SIGNAL(activated(bool)));
 
