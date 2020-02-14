@@ -147,13 +147,13 @@ void ExperimentController::setExperiment(const fmp::Experiment::Ptr & experiment
 	d_expBridge->setExperiment(experiment);
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
+	setModified(false);
 	emit activated(d_experiment.get() != NULL);
 }
 
 void ExperimentController::setModifiedTrue() {
 	setModified(true);
 }
-
 
 void ExperimentController::connectModifications() {
 	connect(d_universe,

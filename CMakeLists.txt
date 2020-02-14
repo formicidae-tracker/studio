@@ -13,7 +13,7 @@ find_package(Protobuf 3.3.0 REQUIRED)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc)
 
-find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
 
 include(FetchContent)
 FetchContent_Declare(googletest
@@ -105,8 +105,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 add_subdirectory(src)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(COVERAGE_GCOVR_EXCLUDES ${PROJECT_SOURCE_DIR}/src/fort-studio/*
-	                            ${PROJECT_BINARY_DIR}/src/fort-studio/*
+	set(COVERAGE_GCOVR_EXCLUDES ${PROJECT_BINARY_DIR}/src/fort-studio/*
 	                            ${PROJECT_BINARY_DIR}/src/*
 	                            ${hermes_SOURCE_DIR}/*
 	                            ${hermes_BINARY_DIR}/*

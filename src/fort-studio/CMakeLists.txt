@@ -62,9 +62,10 @@ set(UI_FILES ExperimentEditorWidget.ui
 set(RCC_FILES )
 
 
-set(SRC_UTEST_FILES main-check.cpp)
+set(SRC_UTEST_FILES main-check.cpp
+                    ExperimentControllerUTest.cpp)
 
-set(HDR_UTEST_FILES )
+set(HDR_UTEST_FILES ExperimentControllerUTest.hpp)
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
@@ -107,6 +108,7 @@ add_executable(fort-studio-tests ${SRC_UTEST_FILES}
 
 target_link_libraries(fort-studio-tests fort-studio-common
                                         myrmidon-utest-common
+                                        Qt5::Test
                                         gtest
                                         gmock
                                         )
