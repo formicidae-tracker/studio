@@ -8,11 +8,11 @@ namespace priv {
 
 typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 
-class DefaultColorMap : public ColorMap {
+class DefaultPalette : public Palette {
 	std::vector<Color> d_colors;
 
 public:
-	DefaultColorMap() {
+	DefaultPalette() {
 		// We use the color set from [Wong 2011: Nature methods 8:441],
 		// which is a 7 color bright color map more or less color-blind
 		// friendly.
@@ -27,7 +27,7 @@ public:
 		};
 	}
 
-	const Color & ColorAt(size_t index) const override {
+	const Color & At(size_t index) const override {
 		return d_colors[index % d_colors.size()];
 	}
 
@@ -37,9 +37,9 @@ public:
 
 };
 
-const ColorMap & ColorMap::Default() {
-	static DefaultColorMap defaultMap;
-	return defaultMap;
+const Palette & Palette::Default() {
+	static DefaultPalette defaultPalette;
+	return defaultPalette;
 }
 
 } // namespace priv

@@ -18,7 +18,7 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 Ant::Ant(fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
 	, d_IDStr(FormatID(ID))
-	, d_displayColor(ColorMap::Default().ColorAt(0) )
+	, d_displayColor(Palette::Default().At(0) )
 	, d_displayState(DisplayState::VISIBLE) {
 }
 

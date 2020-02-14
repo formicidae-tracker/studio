@@ -378,7 +378,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	for (size_t i = 1; i <=3; ++i) {
 		fort::myrmidon::pb::AntMetadata a;
 		a.set_id(i);
-		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::ColorMap::Default().ColorAt(0));
+		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::Palette::Default().At(0));
 		l.set_allocated_antdata(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant data 1");
