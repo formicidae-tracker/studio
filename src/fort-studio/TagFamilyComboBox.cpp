@@ -19,9 +19,9 @@ TagFamilyComboBox::TagFamilyComboBox(QWidget * parent)
     setCurrentIndex(-1);
 
     connect(this,
-            SIGNAL(QComboBox::currentIndexChanged(int)),
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
-            SLOT(TagFamilyComboBox::onCurrentIndexChanged(int)));
+            &TagFamilyComboBox::onCurrentIndexChanged);
 }
 
 fort::tags::Family TagFamilyComboBox::family() const {

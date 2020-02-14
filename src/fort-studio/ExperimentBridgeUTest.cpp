@@ -18,7 +18,7 @@ void ExperimentBridgeUTest::TearDownTestSuite() {
 }
 
 
-TEST_F(ExperimentBridgeUTest,OpeningActiveModifiedState) {
+TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	auto pathExisting = TestSetup::Basedir() / "ExperimentBridge.myrmidon";
 	auto pathCreated = TestSetup::Basedir() / "ExperimentBridge.2.myrmidon";
 	auto  controller = new ExperimentBridge();
@@ -68,6 +68,7 @@ TEST_F(ExperimentBridgeUTest,OpeningActiveModifiedState) {
 		};
 	size_t expected = 2;
 	for ( const auto & b : childs ) {
+
 		b->setModified(true);
 
 		++expected;

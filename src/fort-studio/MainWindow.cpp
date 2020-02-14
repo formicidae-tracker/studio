@@ -1,27 +1,58 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "ExperimentBridge.hpp"
-
 #include <QtDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QSettings>
+#include <QAbstractItemModel>
+#include <QPointer>
 
+#include "ExperimentBridge.hpp"
+#include "Logger.hpp"
+
+QPointer<Logger> myLogger;
+
+static void myLog(QtMsgType type, const QMessageLogContext &, const QString & msg) {
+	myLogger->logMessage(type,msg);
+}
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
-	, d_experiment(new ExperimentBridge(this)) {
-	d_experiment->setObjectName("experiment");
-    d_ui->setupUi(this);
-    static MainWindow * myself = this;
+	, d_experiment(new ExperimentBridge(this))
+	, d_logger( new Logger(this) )
+	, d_loggerWidget(NULL) {
+
+	d_ui->setupUi(this);
+
+	myLogger = d_logger;
+
+	d_handler = qInstallMessageHandler(myLog);
+
+	connect(d_experiment,
+	        &ExperimentBridge::modified,
+	        this,
+	        &MainWindow::onExperimentModified);
+
+	connect(d_experiment,
+	        &ExperimentBridge::activated,
+	        this,
+	        &MainWindow::onExperimentActivated);
+
+	connect(d_logger->model(),
+	        &QAbstractItemModel::dataChanged,
+	        [=]() {
+		        std::cerr << "A row was inserted" << std::endl;
+	        });
+
 
     loadSettings();
 }
 
 MainWindow::~MainWindow() {
+	qInstallMessageHandler(d_handler);
     delete d_ui;
 }
 
@@ -250,11 +281,11 @@ IMPLEMENT_RECENT_FILE_SLOT(4);
 IMPLEMENT_RECENT_FILE_SLOT(5);
 
 
-void MainWindow::on_experiment_modified(bool modified) {
+void MainWindow::onExperimentModified(bool modified) {
 	d_ui->actionSave->setEnabled(modified);
 }
 
-void MainWindow::on_experiment_activated(bool active) {
+void MainWindow::onExperimentActivated(bool active) {
 	if (active == false) {
 		d_ui->actionSave->setEnabled(false);
 		d_ui->actionSaveAs->setEnabled(false);
@@ -262,4 +293,22 @@ void MainWindow::on_experiment_activated(bool active) {
 	}
 	d_ui->actionSave->setEnabled(d_experiment->isModified());
 	d_ui->actionSaveAs->setEnabled(true);
+}
+
+void MainWindow::on_actionShowLog_triggered() {
+	if ( d_loggerWidget != NULL ) {
+		return;
+	}
+	d_loggerWidget = new LoggerWidget(d_logger,NULL);
+	d_loggerWidget->setAttribute(Qt::WA_DeleteOnClose);
+	connect(d_loggerWidget,
+	        &QObject::destroyed,
+	        this,
+	        &MainWindow::onLoggerWidgetDestroyed);
+
+	d_loggerWidget->show();
+}
+
+void MainWindow::onLoggerWidgetDestroyed() {
+	d_loggerWidget = NULL;
 }

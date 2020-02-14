@@ -5,6 +5,8 @@
 #include <deque>
 
 class ExperimentBridge;
+class Logger;
+class LoggerWidget;
 
 namespace Ui {
 class MainWindow;
@@ -28,15 +30,16 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
+	void on_actionShowLog_triggered();
 
-	void on_experiment_modified(bool);
-	void on_experiment_activated(bool);
+	void onExperimentModified(bool);
+	void onExperimentActivated(bool);
 
+	void onLoggerWidgetDestroyed();
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
 
@@ -51,6 +54,7 @@ private:
     Ui::MainWindow      * d_ui;
 	ExperimentBridge    * d_experiment;
 	std::deque<QString>   d_recentPaths;
-
-
+	Logger              * d_logger;
+	LoggerWidget        * d_loggerWidget;
+	QtMessageHandler      d_handler;
 };

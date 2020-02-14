@@ -45,6 +45,16 @@
           <property name="title">
            <string>Spaces and Data Directories</string>
           </property>
+          <widget class="QTableView" name="tableView">
+           <property name="geometry">
+            <rect>
+             <x>60</x>
+             <y>20</y>
+             <width>256</width>
+             <height>192</height>
+            </rect>
+           </property>
+          </widget>
          </widget>
         </item>
         <item>

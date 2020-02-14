@@ -7,6 +7,7 @@ set(SRC_FILES Bridge.cpp
 			  SelectedIdentificationBridge.cpp
 			  ExperimentBridge.cpp
 			  TagFamilyComboBox.cpp
+			  Logger.cpp
 			  GlobalPropertyWidget.cpp
 			  UniverseEditorWidget.cpp
               # Error.cpp
@@ -33,6 +34,7 @@ set(HDR_FILES Bridge.hpp
 			  SelectedIdentificationBridge.hpp
 			  ExperimentBridge.hpp
 			  TagFamilyComboBox.hpp
+			  Logger.hpp
 			  GlobalPropertyWidget.hpp
 			  UniverseEditorWidget.hpp
               # Error.hpp
