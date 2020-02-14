@@ -18,9 +18,9 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
-      <widget class="ExperimentEditorWidget" name="experimentEditor">
+      <widget class="QWidget" name="experimentEditor">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -28,7 +28,7 @@
         <string>Infos</string>
        </attribute>
       </widget>
-      <widget class="TaggingWidget" name="taggingWidget">
+      <widget class="QWidget" name="taggingWidget">
        <attribute name="title">
         <string>Tagging</string>
        </attribute>
@@ -110,7 +110,7 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="AntListWidget" name="antList" native="true">
+      <widget class="QWidget" name="antList" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -313,26 +313,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>AntListWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/AntListWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ExperimentEditorWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/ExperimentEditorWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TaggingWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/TaggingWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

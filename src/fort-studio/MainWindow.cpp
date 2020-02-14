@@ -1,6 +1,8 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
+#include "ExperimentController.hpp"
+
 #include <QtDebug>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -11,40 +13,20 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
-	, d_controller(NULL){
+	, d_controller(new ExperimentController(this)) {
+	d_controller->setObjectName("controller");
     d_ui->setupUi(this);
     static MainWindow * myself = this;
 
-    onNewController(NULL);
     loadSettings();
-    connect(this,SIGNAL(newController(ExperimentController *)),
-            d_ui->antList,SLOT(onNewController(ExperimentController *)));
-    connect(this,SIGNAL(newController(ExperimentController *)),
-            d_ui->experimentEditor,SLOT(onNewController(ExperimentController *)));
-    connect(this,SIGNAL(newController(ExperimentController *)),
-            d_ui->taggingWidget,SLOT(onNewController(ExperimentController *)));
-
-
-    connect(this,SIGNAL(newController(ExperimentController *)),
-            this,SLOT(onNewController(ExperimentController *)));
-
-    connect(d_ui->antList,SIGNAL(antSelected(fort::myrmidon::Ant::ID)),
-            d_ui->taggingWidget,SLOT(onAntSelected(fort::myrmidon::Ant::ID)));
 }
 
 MainWindow::~MainWindow() {
     delete d_ui;
 }
 
-
-
 void MainWindow::on_actionNew_triggered() {
-	Error err = maybeSave();
-	if ( err == UserDiscard ) {
-		return;
-	}
-	if (err.OK() == false) {
-		qCritical() << err.what();
+	if ( maybeSave() == false ) {
 		return;
 	}
 
@@ -52,29 +34,22 @@ void MainWindow::on_actionNew_triggered() {
 	if ( path.isEmpty() ) {
 		return;
 	}
-	ExperimentController * newCont = ExperimentController::create(path,this,err);
-	if ( err.OK() == false ) {
-		qCritical() << err.what();\
+
+	if ( d_controller->create(path) == false ) {
 		return;
 	}
-	emit newController(newCont);
-	qInfo() << tr("Created new file '%1'").arg(path);
 
+	pushRecent();
 }
 
 void MainWindow::on_actionOpen_triggered() {
-	Error err = maybeSave();
-	if ( err == UserDiscard ) {
-		return;
-	}
-	if (err.OK() == false) {
-		qCritical() << err.what();
+	if ( maybeSave() == false ) {
 		return;
 	}
 
 	QString dir = "";
-	if ( d_controller != NULL && !d_controller->experiment().AbsoluteFilePath().empty()) {
-		dir = d_controller->experiment().Basedir().c_str();
+	if ( d_controller->absoluteFilePath().empty() == false ) {
+		dir = d_controller->absoluteFilePath().parent_path().c_str();
 	}
 
 	QString filename = QFileDialog::getOpenFileName(this,"Open an experiment",
@@ -85,13 +60,11 @@ void MainWindow::on_actionOpen_triggered() {
 		return;
 	}
 
-	ExperimentController * newCont = ExperimentController::open(filename,this,err);
-	if ( err.OK() == false ) {
-		qCritical() << err.what();
+	if ( d_controller->open(filename) == false ) {
 		return;
 	}
-	emit newController(newCont);
-	qInfo() << tr("Opened '%1'").arg(filename);
+
+	pushRecent();
 }
 
 
@@ -100,15 +73,7 @@ void MainWindow::on_actionQuit_triggered() {
 }
 
 void MainWindow::on_actionSave_triggered() {
-	if ( d_controller == NULL ) {
-		return;
-	}
-	Error err = saveAll(d_controller->experiment().AbsoluteFilePath().c_str());
-	if ( err.OK() == false ) {
-		qCritical() << err.what();
-		return;
-	}
-	qInfo() << tr("Saved '%1'").arg(d_controller->experiment().AbsoluteFilePath().c_str());
+	d_controller->save();
 }
 
 void MainWindow::on_actionSaveAs_triggered() {
@@ -120,12 +85,11 @@ void MainWindow::on_actionSaveAs_triggered() {
 		return;
 	}
 
-	Error err = saveAll(path);
-    if (!err.OK()) {
-	    qCritical() << err.what();
-	    return;
+	if ( d_controller->saveAs(path) ) {
+		return;
     }
-    pushRecent();
+
+	pushRecent();
 }
 
 
@@ -135,8 +99,8 @@ QString MainWindow::promptPath() {
 	dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix(".myrmidon");
-    if ( d_controller != NULL ) {
-	    dialog.setDirectory(d_controller->experiment().Basedir().c_str());
+    if ( d_controller->absoluteFilePath().empty() == false ) {
+	    dialog.setDirectory(d_controller->absoluteFilePath().parent_path().c_str());
     }
     if (dialog.exec() != QDialog::Accepted) {
 	    return  "";
@@ -144,24 +108,16 @@ QString MainWindow::promptPath() {
     return dialog.selectedFiles().first();
 }
 
-void MainWindow::on_actionAddTrackingDataDir_triggered() {
-
-}
 
 
-void MainWindow::onExperimentModified(bool modified) {
-	if ( modified == true ) {
-		d_ui->actionSave->setEnabled(true);
-	} else {
-		d_ui->actionSave->setEnabled(false);
-	}
-}
+bool MainWindow::maybeSave(bool * cancelled) {
+#define fstudio_set_cancelled(value) do { \
+		if ( cancelled != NULL ) { *cancelled = value; } \
+	} while(0)
 
-const Error MainWindow::UserDiscard("User Discarded Action");
-
-Error MainWindow::maybeSave() {
-	if (d_controller == NULL || d_controller->isModified() == false ) {
-		return Error::NONE;
+	if ( d_controller->isModified() == false ) {
+		fstudio_set_cancelled(false);
+		return true;
 	}
 
 	const QMessageBox::StandardButton res
@@ -172,13 +128,17 @@ Error MainWindow::maybeSave() {
 
 	switch(res) {
 	case QMessageBox::Save:
-		return saveAll(d_controller->experiment().AbsoluteFilePath().c_str());
+		fstudio_set_cancelled(false);
+		return d_controller->save();
 	case QMessageBox::Cancel:
-		return UserDiscard;
+		fstudio_set_cancelled(true);
+		return false;
 	default:
 		break;
 	}
-	return Error::NONE;
+
+	fstudio_set_cancelled(false);
+	return true;
 }
 
 
@@ -188,21 +148,20 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	settings.setValue("window/state",saveState());
 
 
-	Error err = maybeSave();
+	bool cancelled = false;
 
-	if ( err.OK() ) {
+	if ( maybeSave(&cancelled) == true ) {
 		e->accept();
 		return;
-	} else if ( err == UserDiscard ) {
+	} else if ( cancelled == true ) {
 		e->ignore();
 		return;
 	}
 
 	const QMessageBox::StandardButton res
 		= QMessageBox::warning(this, tr("Application"),
-                               tr("Could not save file:\n"
-                                  "%1\n"
-                                  "Do you want to quit and discard changes ?").arg(err.what()),
+		                       tr("Could not save file (see logs)\n"
+		                          "Do you want to quit and discard changes ?"),
 		                       QMessageBox::Discard | QMessageBox::Cancel);
 
 	switch(res) {
@@ -214,14 +173,13 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		e->ignore();
 	}
 
-
 }
 
 void MainWindow::pushRecent() {
 	if ( d_controller == NULL ) {
 		return;
 	}
-	QString newPath = d_controller->experiment().AbsoluteFilePath().c_str();
+	QString newPath = d_controller->absoluteFilePath().c_str();
 
 	//if already in the vector, just move it to the top
 	if (!d_recentPaths.empty() && d_recentPaths[0] == newPath ) {
@@ -282,24 +240,13 @@ void MainWindow::rebuildRecentsFiles() {
 
 #define IMPLEMENT_RECENT_FILE_SLOT(i) \
 	void MainWindow::on_recentFile ## i ## _triggered() { \
-		Error err = maybeSave(); \
-		if ( err == UserDiscard ) { \
-			return; \
-		} \
-		if (err.OK() == false) { \
-			qCritical() << err.what(); \
+		if ( maybeSave() == false  ) { \
 			return; \
 		} \
 		if ( i > d_recentPaths.size() ) { \
 			return; \
 		} \
-		ExperimentController * newCont = ExperimentController::open(d_recentPaths[i-1],this,err); \
-		if ( err.OK() == false ) { \
-			qCritical() << err.what(); \
-			return; \
-		} \
-		emit newController(newCont); \
-		qInfo() << tr("Opened '%1'").arg(d_recentPaths[i-1]); \
+		d_controller->open(d_recentPaths[i-1]); \
 	}
 
 IMPLEMENT_RECENT_FILE_SLOT(1);
@@ -309,46 +256,16 @@ IMPLEMENT_RECENT_FILE_SLOT(4);
 IMPLEMENT_RECENT_FILE_SLOT(5);
 
 
-void MainWindow::onNewController(ExperimentController * controller) {
-	if ( d_controller != NULL ) {
-		disconnect(d_controller,
-		           SIGNAL(modified(bool)),
-		           this,
-		           SLOT(onExperimentModified(bool)));
-		delete d_controller;
-	}
-	d_controller = controller;
-	if ( d_controller == NULL ) {
+void MainWindow::on_controller_modified(bool modified) {
+	d_ui->actionSave->setEnabled(modified);
+}
+
+void MainWindow::on_controller_activated(bool active) {
+	if (active == false) {
 		d_ui->actionSave->setEnabled(false);
 		d_ui->actionSaveAs->setEnabled(false);
-		d_ui->actionAddTrackingDataDir->setEnabled(false);
 		return;
 	}
 	d_ui->actionSave->setEnabled(d_controller->isModified());
 	d_ui->actionSaveAs->setEnabled(true);
-	d_ui->actionAddTrackingDataDir->setEnabled(true);
-	connect(d_controller,
-	        SIGNAL(modified(bool)),
-	        this,
-	        SLOT(onExperimentModified(bool)));
-	pushRecent();
-}
-
-void MainWindow::on_antList_antSelected(fort::myrmidon::Ant::ID i) {
-	qInfo() << "Ant " << i <<  " selected";
-}
-
-
-
-Error MainWindow::saveAll(const QString & path) {
-	if ( d_controller == NULL ) {
-		return Error("No experiment loaded: nothing to save");
-	}
-
-	Error error = d_controller->save(path);
-	if ( error.OK() == false ) {
-		return error;
-	}
-
-	return d_ui->taggingWidget->save();
 }

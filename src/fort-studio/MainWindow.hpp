@@ -2,9 +2,9 @@
 
 #include <QMainWindow>
 
-#include "ExperimentController.hpp"
-
 #include <deque>
+
+class ExperimentController;
 
 namespace Ui {
 class MainWindow;
@@ -21,7 +21,6 @@ private slots:
 	void on_actionNew_triggered();
 	void on_actionQuit_triggered();
 	void on_actionSave_triggered();
-	void on_actionAddTrackingDataDir_triggered();
 	void on_actionSaveAs_triggered();
 	void on_recentFile1_triggered();
 	void on_recentFile2_triggered();
@@ -29,34 +28,29 @@ private slots:
 	void on_recentFile4_triggered();
 	void on_recentFile5_triggered();
 
-	void on_antList_antSelected(fort::myrmidon::Ant::ID);
 
-	void onExperimentModified(bool);
-	void onNewController(ExperimentController * controller);
-
-
-signals:
-	void newController(ExperimentController * controller);
+	void on_controller_modified(bool);
+	void on_controller_activated(bool);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
 
-	Error maybeSave();
-	Error saveAll(const QString & path);
-	QString promptPath();
+	bool maybeSave(bool * cancelled = NULL);
+	bool save(const QString & path);
 
+	QString promptPath();
 
 
 	void pushRecent();
 	void loadSettings();
 	void rebuildRecentsFiles();
 
-	const static Error UserDiscard;
 
-    Ui::MainWindow *d_ui;
-
+    Ui::MainWindow       * d_ui;
 	ExperimentController * d_controller;
-	std::deque<QString> d_recentPaths;
+	std::deque<QString>    d_recentPaths;
+
+
 };

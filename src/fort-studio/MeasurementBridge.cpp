@@ -421,8 +421,9 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	mtid->setEditable(false);
 	mtid->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
-	mtid->setData(QVariant::fromValue(type));
-	mtid->setEditable(true);
+	name->setData(QVariant::fromValue(type));
+	name->setEditable(true);
+	return {mtid,name};
 }
 
 void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {

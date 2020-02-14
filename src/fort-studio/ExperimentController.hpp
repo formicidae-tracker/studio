@@ -13,15 +13,25 @@ namespace fmp = fort::myrmidon::priv;
 
 class ExperimentController : public QObject {
 	Q_OBJECT
+	Q_PROPERTY(bool modified
+	           READ isModified
+	           NOTIFY modified)
+	Q_PROPERTY(bool active
+	           READ isActive
+	           NOTIFY activated)
 public:
 
 	ExperimentController(QObject * parent = NULL);
 
 	bool isModified() const;
 
-	void open(const QString & path);
+	bool isActive() const;
 
-	void create(const QString & path);
+	const fs::path & absoluteFilePath() const;
+
+	bool open(const QString & path);
+
+	bool create(const QString & path);
 
 	UniverseBridge * universe();
 
@@ -35,12 +45,16 @@ public:
 
 	SelectedIdentificationBridge * selectedIdentification();
 
+
 signals:
 	void modified(bool);
 
+	void activated(bool);
+
 public slots:
 
-	void save(const QString & path);
+	bool save();
+	bool saveAs(const QString & path);
 	void setModified(bool);
 
 private slots:

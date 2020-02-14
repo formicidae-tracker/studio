@@ -9,7 +9,6 @@ set(SRC_FILES main.cpp
 			  TagFamilyComboBox.cpp
 			  ExperimentEditorWidget.cpp
 			  UniverseEditorWidget.cpp
-              # MainWindow.cpp
               # Error.cpp
               # AntListWidget.cpp
               # TaggingWidget.cpp
@@ -22,6 +21,7 @@ set(SRC_FILES main.cpp
 			  # AntIdentificationWidget.cpp
 			  # QLongSpinBox.cpp
 			  # TagExtractor.cpp
+			  MainWindow.cpp
 			  )
 
 set(HDR_FILES UniverseBridge.hpp
@@ -34,7 +34,6 @@ set(HDR_FILES UniverseBridge.hpp
 			  TagFamilyComboBox.hpp
 			  ExperimentEditorWidget.hpp
 			  UniverseEditorWidget.hpp
-			  # MainWindow.hpp
               # Error.hpp
               # AntListWidget.hpp
               # TaggingWidget.hpp
@@ -48,15 +47,17 @@ set(HDR_FILES UniverseBridge.hpp
 			  # QLongSpinBox.hpp
 			  # utils.hpp
 			  # TagExtractor.hpp
+			  MainWindow.hpp
 			  )
+
 
 set(UI_FILES ExperimentEditorWidget.ui
              UniverseEditorWidget.ui
-             AntListWidget.ui
-             MainWindow.ui
-			 FramePointerWidget.ui
-			 AntIdentificationWidget.ui
-			 TaggingWidget.ui
+	         MainWindow.ui
+             # AntListWidget.ui
+			 # FramePointerWidget.ui
+			 # AntIdentificationWidget.ui
+			 # TaggingWidget.ui
 			 )
 
 set(RCC_FILES )

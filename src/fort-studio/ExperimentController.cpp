@@ -41,14 +41,37 @@ ExperimentController::ExperimentController(QObject * parent)
 	        &MeasurementBridge::onDetectionSettingChanged);
 }
 
-void ExperimentController::save(const QString & path ) {
+bool ExperimentController::isActive() const {
+	return d_experiment.get() != NULL;
+}
+
+const fs::path & ExperimentController::absoluteFilePath() const {
+	if ( !d_experiment ) {
+		static fs::path empty;
+		return empty;
+	}
+	return d_experiment->AbsoluteFilePath();
+}
+
+
+bool ExperimentController::save() {
+	if ( !d_experiment ) {
+		return false;
+	}
+	return saveAs(d_experiment->AbsoluteFilePath().c_str());
+}
+
+
+bool ExperimentController::saveAs(const QString & path ) {
 	try {
 		d_experiment->Save(path.toUtf8().constData());
 		setModified(false);
 	} catch (const std::exception & e ) {
 		qWarning() << "Could not save experiment to '"
 		           << path << "': " << e.what();
+		return false;
 	}
+	return true;
 }
 
 bool ExperimentController::isModified() const {
@@ -64,29 +87,31 @@ void ExperimentController::setModified(bool mod) {
 }
 
 
-void ExperimentController::open(const QString & path) {
+bool ExperimentController::open(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
 		qWarning() << "Could not open '" << path
 		           << "': " << e.what();
-		return;
+		return false;
 	}
 	setExperiment(experiment);
+	return true;
 }
 
 
-void ExperimentController::create(const QString & path) {
+bool ExperimentController::create(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
 		experiment = fmp::Experiment::NewFile(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
 		qWarning() << "Could not create file '" << path
 		           << "': " << e.what();
-		return;
+		return false;
 	}
 	setExperiment(experiment);
+	return true;
 }
 
 
@@ -122,6 +147,7 @@ void ExperimentController::setExperiment(const fmp::Experiment::Ptr & experiment
 	d_expBridge->setExperiment(experiment);
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
+	emit activated(d_experiment.get() != NULL);
 }
 
 void ExperimentController::setModifiedTrue() {
