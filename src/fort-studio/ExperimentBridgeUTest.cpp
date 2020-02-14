@@ -48,4 +48,38 @@ TEST_F(ExperimentBridgeUTest,OpeningActiveModifiedState) {
 	ASSERT_EQ(activatedSpy.count(),2);
 	EXPECT_EQ(activatedSpy.at(1).at(0).toBool(),true);
 
+
+	controller->setModified(true);
+	ASSERT_EQ(modifiedSpy.count(),1);
+	EXPECT_EQ(modifiedSpy.at(0).at(0).toBool(),true);
+	controller->setModified(false);
+	ASSERT_EQ(modifiedSpy.count(),2);
+	EXPECT_EQ(modifiedSpy.at(1).at(0).toBool(),false);
+
+	// test child connections
+	std::vector<Bridge*> childs =
+		{
+		 controller->universe(),
+		 controller->measurements(),
+		 controller->identifier(),
+		 controller->globalProperties(),
+		 controller->selectedAnt(),
+		 controller->selectedIdentification(),
+		};
+	size_t expected = 2;
+	for ( const auto & b : childs ) {
+		b->setModified(true);
+
+		++expected;
+		ASSERT_EQ(modifiedSpy.count(),expected);
+		EXPECT_EQ(modifiedSpy.at(expected-1).at(0).toBool(),true);
+
+		controller->setModified(false);
+
+		++expected;
+		ASSERT_EQ(modifiedSpy.count(),expected);
+		EXPECT_EQ(modifiedSpy.at(expected-1).at(0).toBool(),false);
+
+	}
+
 }
