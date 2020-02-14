@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QObject>
+#include "Bridge.hpp"
 #include <QStandardItemModel>
 
 
@@ -17,7 +17,7 @@ Q_DECLARE_METATYPE(fmp::Space::Ptr);
 
 class QAbstractItemModel;
 
-class UniverseBridge : public QObject {
+class UniverseBridge : public Bridge {
 	Q_OBJECT
 
 public:
@@ -27,6 +27,8 @@ public:
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isDeletable(const QModelIndex & ) const;
+
+	bool isActive() const override;
 
 public slots:
 	void addSpace(const QString & spaceName);
@@ -39,8 +41,6 @@ public slots:
 	void deleteSelection(const QModelIndexList & selected);
 
 signals:
-	void activated(bool);
-
 	void spaceDeleted(const QString & spaceName);
 	void spaceAdded(const fmp::Space::Ptr & space);
 	void spaceChanged(const fmp::Space::Ptr & space);

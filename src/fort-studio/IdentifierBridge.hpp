@@ -1,10 +1,11 @@
 #pragma once
 
-#include <QObject>
 #include <QStandardItemModel>
 
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
+
+#include "Bridge.hpp"
 
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
@@ -14,7 +15,7 @@ Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Identification::Ptr)
 Q_DECLARE_METATYPE(fmp::Identification::ConstPtr)
 
-class IdentifierBridge : public QObject {
+class IdentifierBridge : public Bridge {
 	Q_OBJECT
 public:
 	IdentifierBridge(QObject * parent);
@@ -22,6 +23,8 @@ public:
 	QAbstractItemModel * antModel() const;
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
+
+	bool isActive() const override;
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -35,7 +38,6 @@ signals:
 	                       fmp::Color,
 	                       fmp::Ant::DisplayState);
 
-	void activated(bool);
 public slots:
 	fmp::Ant::Ptr createAnt();
 	void removeAnt(fm::Ant::ID AID);

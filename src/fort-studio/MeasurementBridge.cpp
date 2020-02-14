@@ -38,7 +38,6 @@ fmp::TagCloseUp::List TagCloseUpLoader::load(const fmp::TagCloseUp::Lister::Load
 	return l();
 }
 
-
 void TagCloseUpLoader::cancel() {
 	d_futureWatcher->cancel();
 }
@@ -61,7 +60,7 @@ void TagCloseUpLoader::onResultReady(int index) {
 
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
-	: QObject(parent)
+	: Bridge(parent)
 	, d_tcuModel( new QStandardItemModel (this) )
 	, d_typeModel( new QStandardItemModel (this) )
 	, d_toDo(0)
@@ -73,11 +72,16 @@ MeasurementBridge::MeasurementBridge(QObject * parent)
 	        &MeasurementBridge::onTypeItemChanged);
 }
 
+bool MeasurementBridge::isActive() const {
+	return d_experiment.get() != NULL;
+}
+
 QAbstractItemModel * MeasurementBridge::model() const {
 	return d_tcuModel;
 }
 
 void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	setModified(false);
 	cancelAll();
 	d_typeModel->clear();
 	d_experiment = experiment;
@@ -335,6 +339,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 
 	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcu->URI())));
 
+	setModified(true);
 	emit measurementModified(m);
 }
 
@@ -356,6 +361,8 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 		return;
 	}
 	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuPath)));
+
+	setModified(true);
 	emit measurementDeleted(mURI);
 }
 
@@ -394,6 +401,7 @@ void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
 		qWarning() << "Could not set MeasurementType " << MTID << " to '" << name << "': " << e.what();
 	}
 
+	setModified(true);
 	emit measurementTypeModified(MTID,name);
 }
 
@@ -411,8 +419,10 @@ void MeasurementBridge::deleteMeasurementType(int MTID) {
 		d_typeModel->removeRows(items[0]->row(),1);
 	} catch (const std::exception & e) {
 		qWarning() << "Could not delete MeasurementType " << MTID << ": " << e.what();
+		return;
 	}
 
+	setModified(true);
 	emit measurementTypeDeleted(MTID);
 }
 
@@ -448,6 +458,7 @@ void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
 		return;
 	}
 
+	setModified(true);
 	emit measurementTypeModified(type->MTID(),type->Name().c_str());
 }
 

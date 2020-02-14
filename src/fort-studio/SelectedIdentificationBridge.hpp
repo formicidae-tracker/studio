@@ -1,15 +1,15 @@
 #pragma once
 
-#include <QObject>
-
 #include <myrmidon/priv/Identification.hpp>
+
+#include "Bridge.hpp"
 
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
 Q_DECLARE_METATYPE(fm::Time::ConstPtr)
 
-class SelectedIdentificationBridge : public QObject {
+class SelectedIdentificationBridge : public Bridge  {
 	Q_OBJECT
 	Q_PROPERTY(fm::Time::ConstPtr start
 	           READ start WRITE setStart
@@ -20,6 +20,8 @@ class SelectedIdentificationBridge : public QObject {
 
 public:
 	SelectedIdentificationBridge(QObject * parent);
+
+	bool isActive() const override;
 
 	void setIdentification(const fmp::Identification::Ptr & identification);
 
@@ -37,7 +39,6 @@ signals:
 
 	void identificationModified(const fmp::Identification::ConstPtr & identification);
 
-	void activated(bool);
 protected:
 	fmp::Identification::Ptr d_identification;
 };

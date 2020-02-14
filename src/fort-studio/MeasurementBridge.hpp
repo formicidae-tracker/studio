@@ -7,6 +7,8 @@
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Measurement.hpp>
 
+#include "Bridge.hpp"
+
 namespace fmp = fort::myrmidon::priv;
 
 Q_DECLARE_METATYPE(fmp::TagCloseUp::ConstPtr)
@@ -54,7 +56,7 @@ private :
 };
 
 
-class MeasurementBridge : public QObject {
+class MeasurementBridge : public Bridge {
 	Q_OBJECT
 public:
 	MeasurementBridge(QObject * parent);
@@ -63,6 +65,7 @@ public:
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
+	bool isActive() const override;
 
 signals:
 	void progressChanged(size_t done, size_t toDo);
@@ -73,7 +76,6 @@ signals:
 	void measurementTypeModified(int,QString);
 	void measurementTypeDeleted(int);
 
-	void activated(bool);
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);

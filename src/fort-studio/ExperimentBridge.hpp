@@ -1,12 +1,12 @@
 #pragma once
 
-#include <QObject>
+#include "Bridge.hpp"
 
 #include <myrmidon/priv/Experiment.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 
-class ExperimentBridge : public QObject {
+class ExperimentBridge : public Bridge {
 	Q_OBJECT
 	Q_PROPERTY(QString name
 	           READ name WRITE setName
@@ -32,6 +32,8 @@ public:
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
+	bool isActive() const override;
+
 public:
 	QString name() const;
 	QString author() const;
@@ -50,8 +52,6 @@ signals:
 
 	void detectionSettingChanged(fort::tags::Family f,
 	                             uint8_t threshold);
-
-	void activated(bool);
 public slots:
 
 	void setName(const QString & name);

@@ -7,7 +7,7 @@
 
 
 UniverseBridge::UniverseBridge( QObject * parent)
-	: QObject(parent)
+	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 
 	connect(d_model,
@@ -16,6 +16,10 @@ UniverseBridge::UniverseBridge( QObject * parent)
 	        &UniverseBridge::onItemChanged);
 
 
+}
+
+bool UniverseBridge::isActive() const {
+	return d_experiment.get() != NULL;
 }
 
 QAbstractItemModel * UniverseBridge::model() {
@@ -38,7 +42,10 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 	} catch (const std::exception & e) {
 		qDebug() << "Could not change name: " << e.what();
 		item->setText(s->URI().c_str());
+		return;
 	}
+
+	setModified(true);
 	emit spaceChanged(s);
 }
 
@@ -106,6 +113,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 	}
 
 	d_model->appendRow(buildSpace(newSpace));
+	setModified(true);
 	emit spaceAdded(newSpace);
 }
 
@@ -132,6 +140,7 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 
 	rebuildSpaceChildren(item,s);
 
+	setModified(true);
 	emit trackingDataDirectoryAdded(tdd);
 	emit spaceChanged(s);
 }
@@ -149,8 +158,8 @@ void UniverseBridge::deleteSpace(const QString & URI) {
 
 	d_model->removeRows(item->row(),1);
 
+	setModified(true);
 	emit spaceDeleted(URI);
-
 }
 
 void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
@@ -176,6 +185,7 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 
 	rebuildSpaceChildren(item,fi.first);
 
+	setModified(true);
 	emit trackingDataDirectoryDeleted(URI);
 	emit spaceChanged(fi.first);
 }
@@ -201,6 +211,8 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 	d_model->clear();
+	setModified(false);
+
 	if (!d_experiment) {
 		emit activated(false);
 		return;
@@ -209,6 +221,7 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	for (const auto & s : d_experiment->Spaces() ) {
 		d_model->appendRow(buildSpace(s));
 	}
+
 	emit activated(true);
 }
 

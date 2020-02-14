@@ -9,8 +9,7 @@ namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
 ExperimentController::ExperimentController(QObject * parent)
-	: QObject(parent)
-	, d_modified(false)
+	: Bridge(parent)
 	, d_universe(new UniverseBridge(this))
 	, d_measurements(new MeasurementBridge(this))
 	, d_identifier(new IdentifierBridge(this))
@@ -72,18 +71,6 @@ bool ExperimentController::saveAs(const QString & path ) {
 		return false;
 	}
 	return true;
-}
-
-bool ExperimentController::isModified() const {
-	return d_modified;
-}
-
-void ExperimentController::setModified(bool mod) {
-	if ( d_modified == mod) {
-		return;
-	}
-	d_modified = mod;
-	emit modified(mod);
 }
 
 
@@ -151,118 +138,42 @@ void ExperimentController::setExperiment(const fmp::Experiment::Ptr & experiment
 	emit activated(d_experiment.get() != NULL);
 }
 
-void ExperimentController::setModifiedTrue() {
+void ExperimentController::onChildModified(bool modified) {
+	if ( modified == false ) {
+		return;
+	}
 	setModified(true);
 }
 
 void ExperimentController::connectModifications() {
 	connect(d_universe,
-	        &UniverseBridge::spaceDeleted,
+	        &UniverseBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_universe,
-	        &UniverseBridge::spaceAdded,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_universe,
-	        &UniverseBridge::spaceChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
 	connect(d_measurements,
-	        &MeasurementBridge::measurementModified,
+	        &MeasurementBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_measurements,
-	        &MeasurementBridge::measurementDeleted,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_measurements,
-	        &MeasurementBridge::measurementTypeModified,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_measurements,
-	        &MeasurementBridge::measurementTypeDeleted,
-	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
 	connect(d_identifier,
-	        &IdentifierBridge::antCreated,
+	        &IdentifierBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_identifier,
-	        &IdentifierBridge::antDeleted,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_identifier,
-	        &IdentifierBridge::identificationCreated,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_identifier,
-	        &IdentifierBridge::identificationDeleted,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_identifier,
-	        &IdentifierBridge::antDisplayChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
 	connect(d_expBridge,
-	        &ExperimentBridge::nameChanged,
+	        &ExperimentBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
-	connect(d_expBridge,
-	        &ExperimentBridge::authorChanged,
+	connect(d_selectedAnt,
+	        &SelectedAntBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_expBridge,
-	        &ExperimentBridge::commentChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_expBridge,
-	        &ExperimentBridge::tagFamilyChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_expBridge,
-	        &ExperimentBridge::thresholdChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
-
-	connect(d_expBridge,
-	        &ExperimentBridge::tagSizeChanged,
-	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
 	connect(d_selectedIdentification,
-	        &SelectedIdentificationBridge::startModified,
+	        &SelectedIdentificationBridge::modified,
 	        this,
-	        &ExperimentController::setModifiedTrue);
+	        &ExperimentController::onChildModified);
 
-	connect(d_selectedIdentification,
-	        &SelectedIdentificationBridge::endModified,
-	        this,
-	        &ExperimentController::setModifiedTrue);
 }

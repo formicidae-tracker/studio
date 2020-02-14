@@ -2,16 +2,18 @@
 
 #include <QStandardItemModel>
 
-#include "IdentifierBridge.hpp"
-#include "SelectedIdentificationBridge.hpp"
-
 #include <myrmidon/priv/Ant.hpp>
 
+#include "IdentifierBridge.hpp"
 
-class SelectedAntBridge : public QObject {
+namespace fmp = fort::myrmidon::priv;
+
+class SelectedAntBridge : public Bridge {
 	Q_OBJECT
 public:
 	SelectedAntBridge(QObject * parent);
+
+	bool isActive() const override;
 
 	QAbstractItemModel * identificationModel() const;
 	QAbstractItemModel * shapeModel() const;
@@ -20,9 +22,6 @@ public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
 
 	void onIdentificationModified(const fmp::Identification::ConstPtr &);
-
-signals:
-	void activated(bool);
 
 private:
 	void rebuildIdentificationModel();

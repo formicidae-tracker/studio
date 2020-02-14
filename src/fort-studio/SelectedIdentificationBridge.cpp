@@ -3,10 +3,15 @@
 #include <QDebug>
 
 SelectedIdentificationBridge::SelectedIdentificationBridge(QObject * parent)
-	: QObject(parent) {
+	: Bridge(parent) {
+}
+
+bool SelectedIdentificationBridge::isActive() const {
+	return d_identification.get() != NULL;
 }
 
 void SelectedIdentificationBridge::setIdentification(const fmp::Identification::Ptr & identification) {
+	setModified(false);
 	d_identification = identification;
 	emit startModified(start());
 	emit endModified(end());
@@ -53,6 +58,7 @@ void SelectedIdentificationBridge::setStart(const fm::Time::ConstPtr & start) {
 		return;
 	}
 
+	setModified(true);
 	emit startModified(start);
 	emit identificationModified(d_identification);
 }
@@ -70,6 +76,7 @@ void SelectedIdentificationBridge::setEnd(const fm::Time::ConstPtr & end ) {
 		return;
 	}
 
+	setModified(true);
 	emit endModified(end);
 	emit identificationModified(d_identification);
 }

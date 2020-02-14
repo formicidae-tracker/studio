@@ -2,11 +2,12 @@
 
 
 ExperimentBridge::ExperimentBridge(QObject * parent)
-	: QObject(parent) {
+	: Bridge(parent) {
 }
 
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	setModified(false);
 	if ( experiment == d_experiment ) {
 		return;
 	}
@@ -20,6 +21,9 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	emit activated(d_experiment.get() != NULL);
 }
 
+bool ExperimentBridge::isActive() const {
+	return d_experiment.get() != NULL;
+}
 
 QString ExperimentBridge::name() const {
 	if ( !d_experiment ) {
@@ -72,6 +76,7 @@ void ExperimentBridge::setName(const QString & name) {
 		return;
 	}
 	d_experiment->SetName(name.toUtf8().data());
+	setModified(true);
 	emit nameChanged(name);
 }
 
@@ -80,6 +85,7 @@ void ExperimentBridge::setAuthor(const QString & author) {
 		return;
 	}
 	d_experiment->SetAuthor(author.toUtf8().data());
+	setModified(true);
 	emit authorChanged(author);
 }
 
@@ -89,7 +95,7 @@ void ExperimentBridge::setComment(const QString & comment) {
 	}
 
 	d_experiment->SetComment(comment.toUtf8().data());
-
+	setModified(true);
 	emit commentChanged(comment);
 }
 
@@ -101,6 +107,7 @@ void ExperimentBridge::setThreshold(uint8_t th) {
 	auto old = d_experiment->Threshold();
 	d_experiment->SetThreshold(th);
 	if ( old != d_experiment->Threshold() ) {
+		setModified(true);
 		emit thresholdChanged(d_experiment->Threshold());
 		emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
 	}
@@ -111,6 +118,7 @@ void ExperimentBridge::setTagSize(double tagSize) {
 		return;
 	}
 	d_experiment->SetDefaultTagSize(tagSize);
+	setModified(true);
 	emit tagSizeChanged(tagSize);
 }
 
@@ -119,6 +127,7 @@ void ExperimentBridge::setTagFamily(fort::tags::Family tf) {
 		return;
 	}
 	d_experiment->SetFamily(tf);
+	setModified(true);
 	emit tagFamilyChanged(tf);
 	emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
 }

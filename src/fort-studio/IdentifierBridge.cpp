@@ -6,7 +6,7 @@
 
 
 IdentifierBridge::IdentifierBridge(QObject * parent)
-	: QObject(parent)
+	: Bridge(parent)
 	, d_model(new QStandardItemModel(this)) {
 
 	connect(d_model,
@@ -16,11 +16,17 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 
 }
 
+bool IdentifierBridge::isActive() const {
+	return d_experiment.get() != NULL;
+}
+
+
 QAbstractItemModel * IdentifierBridge::antModel() const {
 	return d_model;
 }
 
 void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	setModified(false);
 	d_model->clear();
 
 	if ( d_experiment ) {
@@ -59,6 +65,8 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	}
 
 	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
+
+	setModified(true);
 	emit antCreated(ant);
 	return ant;
 }
@@ -79,6 +87,7 @@ void IdentifierBridge::removeAnt(fm::Ant::ID AID) {
 	}
 
 	d_model->removeRows(item->row(),1);
+	setModified(true);
 	emit antDeleted(AID);
 }
 
@@ -117,6 +126,7 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
 	emit identificationCreated(identification);
+	setModified(true);
 	return identification;
 }
 
@@ -137,7 +147,7 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 	}
 
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
-
+	setModified(true);
 	emit identificationDeleted(identification);
 }
 
@@ -237,18 +247,22 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 		if ( item->checkState() == Qt::Checked ){
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
 			d_model->item(item->row(),3)->setCheckState(Qt::Unchecked);
+			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if (d_model->item(item->row(),3)->checkState() == Qt::Unchecked ) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
 	case 3:
 		if ( item->checkState() == Qt::Checked ) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
 			d_model->item(item->row(),2)->setCheckState(Qt::Unchecked);
+			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if ( d_model->item(item->row(),2)->checkState() == Qt::Unchecked) {
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
+			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
 	}
