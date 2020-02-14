@@ -120,9 +120,16 @@ set(SRC_FILES Frame.cpp
 	          Time.cpp
 	          )
 
+set(COMMON_UTEST_SRC_FILES TestSetup.cpp
+                           UtilsUTest.cpp
+                           )
+
+set(COMMON_UTEST_HDR_FILES TestSetup.hpp
+                           UtilsUTest.hpp
+                           )
+
+
 set(SRC_UTEST_FILES main-check.cpp
-                    TestSetup.cpp
-                    UtilsUTest.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
                     priv/SpaceUTest.cpp
@@ -149,9 +156,7 @@ set(SRC_UTEST_FILES main-check.cpp
 
 
 
-set(HDR_UTEST_FILES TestSetup.hpp
-                    UtilsUTest.hpp
-                    TimeUTest.hpp
+set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
@@ -189,11 +194,15 @@ target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
                                ${OpenCV_LIBS}
                                )
 
+add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
+                                         ${COMMON_UTEST_HDR_FILES})
+
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}
                               )
 target_link_libraries(myrmidon-tests myrmidon
+                                     myrmidon-utest-common
                                      gtest)
 
 add_test(NAME myrmidon-tests COMMAND myrmidon-tests)

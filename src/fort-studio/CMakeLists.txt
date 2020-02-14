@@ -1,5 +1,4 @@
-set(SRC_FILES main.cpp
-			  UniverseBridge.cpp
+set(SRC_FILES UniverseBridge.cpp
 			  MeasurementBridge.cpp
 			  ExperimentBridge.cpp
 			  IdentifierBridge.cpp
@@ -62,7 +61,10 @@ set(UI_FILES ExperimentEditorWidget.ui
 
 set(RCC_FILES )
 
-#pinclude_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+set(SRC_UTEST_FILES main-check.cpp)
+
+set(HDR_UTEST_FILES )
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
@@ -85,11 +87,29 @@ include_directories(${PROJECT_BINARY_DIR}/src
                     ${GLOG_INCLUDE_DIRS}
                     ${apriltag_INCLUDE_DIR})
 
-add_executable(fort-studio ${SRC_FILES}
-                           ${HDR_FILES}
-                           ${UI_HEADERS}
-                           ${MOC_FILES}
-                           ${PROTO_SRC}
-                           ${PROTO_HDR})
+add_library(fort-studio-common STATIC ${SRC_FILES}
+                                      ${HDR_FILES}
+                                      ${UI_HEADERS}
+                                      ${MOC_FILES}
+                                      ${PROTO_SRC}
+                                      ${PROTO_HDR}
+                                      )
 
-target_link_libraries(fort-studio Qt5::Widgets Qt5::Concurrent myrmidon fort-tags)
+target_link_libraries(fort-studio-common Qt5::Widgets Qt5::Concurrent myrmidon fort-tags)
+
+add_executable(fort-studio main.cpp)
+
+target_link_libraries(fort-studio fort-studio-common)
+
+add_executable(fort-studio-tests ${SRC_UTEST_FILES}
+                                 ${HDR_UTEST_FILES}
+                                 )
+
+target_link_libraries(fort-studio-tests fort-studio-common
+                                        myrmidon-utest-common
+                                        gtest
+                                        gmock
+                                        )
+
+add_test(NAME fort-studio-tests COMMAND fort-studio-tests)
+add_dependencies(check fort-studio-tests)
