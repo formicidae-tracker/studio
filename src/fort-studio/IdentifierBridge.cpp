@@ -60,6 +60,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 
 	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
 	emit antCreated(ant);
+	return ant;
 }
 
 void IdentifierBridge::removeAnt(fm::Ant::ID AID) {
@@ -116,7 +117,7 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
 	emit identificationCreated(identification);
-
+	return identification;
 }
 
 void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & identification) {

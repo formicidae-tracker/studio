@@ -32,7 +32,7 @@ public:
 	}
 
 	size_t Size() const override {
-		d_colors.size();
+		return d_colors.size();
 	}
 
 };
