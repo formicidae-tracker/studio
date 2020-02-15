@@ -62,12 +62,18 @@ bool ExperimentBridge::save() {
 
 
 bool ExperimentBridge::saveAs(const QString & path ) {
+	if ( !d_experiment ) {
+		qDebug() << "Ignoring ExperimentBridge::saveAs(): no experience loaded";
+		return false;
+	}
 	try {
+		qDebug() << "Calling fort::myrmidon::priv::Experiment::Save('" << path << "')";
 		d_experiment->Save(path.toUtf8().constData());
 		setModified(false);
+		qInfo() << "Saved experiment to '" << path << "'";
 	} catch (const std::exception & e ) {
-		qWarning() << "Could not save experiment to '"
-		           << path << "': " << e.what();
+		qCritical() << "Could not save experiment to '"
+		            << path << "': " << e.what();
 		return false;
 	}
 	return true;
@@ -77,12 +83,14 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 bool ExperimentBridge::open(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
+		qDebug() << "Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
-		qWarning() << "Could not open '" << path
-		           << "': " << e.what();
+		qCritical() << "Could not open '" << path
+		            << "': " << e.what();
 		return false;
 	}
+	qInfo() << "Opened experiment file '" << path << "'";
 	setExperiment(experiment);
 	return true;
 }
@@ -91,12 +99,14 @@ bool ExperimentBridge::open(const QString & path) {
 bool ExperimentBridge::create(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
+		qDebug() << "Calling fort::myrmidon::priv::Experiment::NewFile('" << path << "')";
 		experiment = fmp::Experiment::NewFile(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
-		qWarning() << "Could not create file '" << path
-		           << "': " << e.what();
+		qCritical() << "Could not create file '" << path
+		            << "': " << e.what();
 		return false;
 	}
+	qInfo() << "Created new experiment file '" << path  << "'";
 	setExperiment(experiment);
 	return true;
 }
@@ -127,6 +137,7 @@ SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const 
 }
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
 	d_experiment = experiment;
 	d_universe->setExperiment(experiment);
 	d_measurements->setExperiment(experiment);
