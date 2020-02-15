@@ -63,11 +63,11 @@ bool ExperimentBridge::save() {
 
 bool ExperimentBridge::saveAs(const QString & path ) {
 	if ( !d_experiment ) {
-		qDebug() << "Ignoring ExperimentBridge::saveAs(): no experience loaded";
+		qDebug() << "[ExperimentBridge]: Ignoring ExperimentBridge::saveAs(): no experience loaded";
 		return false;
 	}
 	try {
-		qDebug() << "Calling fort::myrmidon::priv::Experiment::Save('" << path << "')";
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Save('" << path << "')";
 		d_experiment->Save(path.toUtf8().constData());
 		setModified(false);
 		qInfo() << "Saved experiment to '" << path << "'";
@@ -83,7 +83,7 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 bool ExperimentBridge::open(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
-		qDebug() << "Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not open '" << path
@@ -99,7 +99,7 @@ bool ExperimentBridge::open(const QString & path) {
 bool ExperimentBridge::create(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
-		qDebug() << "Calling fort::myrmidon::priv::Experiment::NewFile('" << path << "')";
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::NewFile('" << path << "')";
 		experiment = fmp::Experiment::NewFile(path.toUtf8().constData());
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not create file '" << path

@@ -28,18 +28,18 @@ QAbstractItemModel * UniverseBridge::model() {
 
 void UniverseBridge::onItemChanged(QStandardItem * item) {
 	if ( item->data(Qt::UserRole+1).toInt() != SPACE_TYPE || item->column() != 0 ) {
-		qDebug() << "Invalid item was changed!!!";
+		qDebug() << "[UniverseBridge]: Invalid item was changed!!!";
 		return;
 	}
 
 	auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
 	if (item->text() == s->URI().c_str()) {
-		qDebug() << "Ignoring change event as name is the same";
+		qDebug() << "[UniverseBridge]: Ignoring change event as name is the same";
 		return;
 	}
 
 	try {
-		qDebug() << "Calling fort::myrmidon::Space::SetName('" << item->text() << "')";
+		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::Space::SetName('" << item->text() << "')";
 		s->SetName(item->text().toUtf8().data());
 	} catch (const std::exception & e) {
 		qCritical() << "Could not change name: " << e.what();
@@ -108,7 +108,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 
 	fmp::Space::Ptr newSpace;
 	try {
-		qDebug() << "Calling fort::myrmidon::priv::Experiment::Create('" << spaceName << "')";
+		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::Create('" << spaceName << "')";
 		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create space '" << spaceName
@@ -161,7 +161,7 @@ void UniverseBridge::deleteSpace(const QString & URI) {
 		return;
 	}
 	try {
-		qDebug() << "Calling fort::myrmidon::priv::Experiment::DeleteSpace('"
+		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteSpace('"
 		         << URI << "')";
 		d_experiment->DeleteSpace(URI.toUtf8().constData());
 	} catch ( const std::exception & e) {
@@ -211,7 +211,7 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 QStandardItem * UniverseBridge::locateSpace(const QString & URI) {
 	auto items = d_model->findItems(URI);
 	if ( items.size() != 1 ) {
-		qDebug() << "Could not locate Qt Item '" << URI << "'";
+		qDebug() << "[UniverseBridge]: Could not locate Qt Item '" << URI << "'";
 		return NULL;
 	}
 	return items[0];
@@ -227,6 +227,7 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 }
 
 void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	qDebug() << "[UniverseBride]: set new experiment";
 	d_experiment = experiment;
 	d_model->clear();
 	setModified(false);

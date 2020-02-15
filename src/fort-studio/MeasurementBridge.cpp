@@ -43,6 +43,7 @@ void TagCloseUpLoader::cancel() {
 }
 
 void TagCloseUpLoader::start() {
+	qInfo() << "Starting tag close-up loaders for TDD:'" << d_tddURI.c_str() << "'";
 	auto loaders = d_lister->PrepareLoaders();
 	d_done = 0;
 	d_toDo = loaders.size();
@@ -54,6 +55,10 @@ void TagCloseUpLoader::onResultReady(int index) {
 	d_done += 1;
 	for (auto & t : tags) {
 		emit newTagCloseUp(d_tddURI,d_lister->Family(),d_lister->Threshold(),t);
+	}
+	if ( d_done == d_toDo ) {
+		qInfo() << "Finished all tag close-up loaders for TDD:'"
+		        << d_tddURI.c_str() << "'";
 	}
 	emit progressChanged(d_done,d_done-1);
 }
@@ -81,6 +86,7 @@ QAbstractItemModel * MeasurementBridge::model() const {
 }
 
 void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	qDebug() << "[MeasurementBridge]: Got new experiment";
 	setModified(false);
 	cancelAll();
 	d_typeModel->clear();
@@ -119,10 +125,14 @@ void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family , uint8_t) 
 	if ( d_experiment ) {
 		return;
 	}
+	qDebug() << "[MeasurementBridge]: newDetectionSetting '"
+	         << int(d_experiment->Family()) << ";"
+	         << d_experiment->Threshold();
 
 	cancelAll();
 
 	if ( d_experiment->Family() == fort::tags::Family::Undefined) {
+		qDebug() << "[MeasurementBridge]: No tag family defined, not starting loaders";
 		return;
 	};
 
@@ -192,6 +202,7 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 
 
 void MeasurementBridge::cancelAll() {
+	qInfo() << "Cancelling all tag close-up loaders";
 	for(auto & [uri,l] : d_loaders) {
 		l->cancel();
 	}
@@ -211,6 +222,7 @@ void MeasurementBridge::cancelAll() {
 
 
 void MeasurementBridge::cancelOne(const fs::path & tddURI) {
+	qInfo() << "Cancelling tag close-up loaders for TDD:'" << tddURI.c_str() << "'";
 	auto fi = d_loaders.find(tddURI) ;
 	if ( fi == d_loaders.end() ) {
 		return;
@@ -258,7 +270,8 @@ QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPt
 }
 
 
-void MeasurementBridge::addOneTCU(const fs::path & tddURI, const fmp::TagCloseUp::ConstPtr & tcu) {
+void MeasurementBridge::addOneTCU(const fs::path & tddURI,
+                                  const fmp::TagCloseUp::ConstPtr & tcu) {
 	auto target = tcu->TagValue();
 
 	QString tagPath = QString("tags/%1");
@@ -317,7 +330,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	if ( ci == d_counts.end()
 	     || fi == d_closeups.end()
 	     || fi->second.count(tcu->URI()) == 0 ) {
-		qWarning() << "Not setting measurement: unknwon '" << tcu->URI().c_str() << "'";
+		qWarning() << "Not setting measurement: unknown '" << tcu->URI().c_str() << "'";
 		return;
 	}
 
@@ -331,12 +344,17 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                                            tcu->TagSizePx());
 
 	try {
+		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::SetMeasurement('"
+		         << m->URI().c_str() << "')";
 		d_experiment->SetMeasurement(m);
 	} catch (const std::exception & e ) {
-		qWarning() << "Could not set measurement: " << e.what();
+		qCritical() << "Could not set measurement '"
+		            << m->URI().c_str() << "': " << e.what();
 		return;
 	}
 
+
+	qInfo() << "Set measurement '" << m->URI().c_str() << "'";
 	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcu->URI())));
 
 	setModified(true);
@@ -350,10 +368,13 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 	auto tcuPath = mURI.parent_path().parent_path();
 	auto ci = d_counts.find(tcuPath);
 	if ( ci == d_counts.end() ) {
+		qWarning() << "Unknown measurement '" << mURI.c_str() << "'";
 		return;
 	}
 
 	try {
+		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::DeleteMeasurement('"
+		         << mURI.c_str() << "')";
 		d_experiment->DeleteMeasurement(mURI);
 	} catch (const std::exception & e) {
 		qWarning() << "Could not delete measurement '" << mURI.c_str()
@@ -362,6 +383,7 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 	}
 	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuPath)));
 
+	qInfo() << "Deleted measurement '" << mURI.c_str() << "'";
 	setModified(true);
 	emit measurementDeleted(mURI);
 }
@@ -387,6 +409,7 @@ void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
 		auto fi = d_experiment->MeasurementTypes().find(MTID);
 		if ( fi == d_experiment->MeasurementTypes().end() ) {
 			MTID = d_experiment->NextAvailableMeasurementTypeID();
+			qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::CreateMeasurement(NextAvailableMeasurementTypeID(),'" << name << "')";
 			auto type = d_experiment->CreateMeasurementType(MTID,name.toUtf8().data());
 			d_typeModel->appendRow(buildType(type));
 		} else {
@@ -394,13 +417,16 @@ void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
 			if ( items.size() != 1 ) {
 				throw std::logic_error("Internal type model error");
 			}
+			qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::MeasurementType::SetName('" << name << "')";
 			fi->second->SetName(name.toUtf8().data());
 			d_typeModel->item(items[0]->row(),1)->setText(name);
 		}
 	} catch ( const std::exception & e) {
-		qWarning() << "Could not set MeasurementType " << MTID << " to '" << name << "': " << e.what();
+		qCritical() << "Could not set MeasurementType " << MTID << " to '" << name << "': " << e.what();
 	}
 
+	qInfo() << "Set MeasurementType " << MTID
+	        << " name to '" << name << "'";
 	setModified(true);
 	emit measurementTypeModified(MTID,name);
 }
@@ -415,13 +441,16 @@ void MeasurementBridge::deleteMeasurementType(int MTID) {
 		if ( items.size() != 1 ) {
 			throw std::logic_error("Internal type model error");
 		}
+		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::Experiment::DeleteMeasurementType("
+		         << MTID << ")";
 		d_experiment->DeleteMeasurementType(MTID);
 		d_typeModel->removeRows(items[0]->row(),1);
 	} catch (const std::exception & e) {
-		qWarning() << "Could not delete MeasurementType " << MTID << ": " << e.what();
+		qCritical() << "Could not delete MeasurementType " << MTID << ": " << e.what();
 		return;
 	}
 
+	qInfo() << "Deleted MeasurementType " << MTID;
 	setModified(true);
 	emit measurementTypeDeleted(MTID);
 }
@@ -438,26 +467,32 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 
 void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
 	if (item->column() != 1) {
+		qDebug() << "[MeasurmentBridge]: Ignoring measurement type item change for column " << item->column();
 		return;
 	}
 
 	auto type = item->data().value<fmp::MeasurementType::Ptr>();
 	std::string newName = item->text().toUtf8().data();
 	if ( newName == type->Name() ) {
+		qDebug() << "[MeasurementBridge]:  Ignoring MEasurementType item change '"
+		         << item->text() << "': it is still the same";
 		return;
 	}
 
 	try {
+		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::MeasurementType::SetName('"
+		         << item->text() << "')";
 		type->SetName(newName);
 	} catch( const std::exception & e) {
-		qWarning() << "Could not change measurement type " << type->MTID()
-		           << ":'" << type->Name().c_str()
-		           <<"' to '" << item->text()
-		           << "': " << e.what();
+		qCritical() << "Could not change measurement type " << type->MTID()
+		            << ":'" << type->Name().c_str()
+		            <<"' to '" << item->text()
+		            << "': " << e.what();
 		item->setText(type->Name().c_str());
 		return;
 	}
-
+	qInfo() << "Set MeasurementType " << type->MTID()
+	        << " to '" << item->text() << "'";
 	setModified(true);
 	emit measurementTypeModified(type->MTID(),type->Name().c_str());
 }
