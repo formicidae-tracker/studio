@@ -28,22 +28,25 @@ QAbstractItemModel * UniverseBridge::model() {
 
 void UniverseBridge::onItemChanged(QStandardItem * item) {
 	if ( item->data(Qt::UserRole+1).toInt() != SPACE_TYPE || item->column() != 0 ) {
-		qDebug() << "Invalid item changed";
+		qDebug() << "Invalid item was changed!!!";
 		return;
 	}
 
 	auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
 	if (item->text() == s->URI().c_str()) {
+		qDebug() << "Ignoring change event as name is the same";
 		return;
 	}
 
 	try {
+		qDebug() << "Calling fort::myrmidon::Space::SetName('" << item->text() << "')";
 		s->SetName(item->text().toUtf8().data());
 	} catch (const std::exception & e) {
-		qDebug() << "Could not change name: " << e.what();
+		qCritical() << "Could not change name: " << e.what();
 		item->setText(s->URI().c_str());
 		return;
 	}
+	qInfo() << "Changed Space name to '" << item->text() << "'";
 
 	setModified(true);
 	emit spaceChanged(s);
@@ -105,13 +108,15 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 
 	fmp::Space::Ptr newSpace;
 	try {
+		qDebug() << "Calling fort::myrmidon::priv::Experiment::Create('" << spaceName << "')";
 		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
 	} catch (const std::exception & e) {
-		qWarning() << "Could not create space '" << spaceName
-		           <<"': " << e.what();
+		qCritical() << "Could not create space '" << spaceName
+		            <<"': " << e.what();
 		return;
 	}
 
+	qInfo() << "Created space '" << spaceName << "'";
 	d_model->appendRow(buildSpace(newSpace));
 	setModified(true);
 	emit spaceAdded(newSpace);
@@ -125,6 +130,9 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	auto s = d_experiment->LocateSpace(spaceURI.toUtf8().data());
 	auto item = locateSpace(spaceURI);
 	if ( !s || item == NULL) {
+		qWarning() << "Could not locate space '" << spaceURI
+		           << "' abording addition of TDD;'" << tdd->URI().c_str()
+		           << "'";
 		return;
 	}
 
@@ -132,12 +140,14 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	try {
 		s->AddTrackingDataDirectory(tdd);
 	} catch (const std::exception & e) {
-		qWarning() << "Could not add '" <<tdd->URI().c_str()
-		           << "' to '" << spaceURI
-		           << "': " << e.what();
+		qCritical() << "Could not add '" <<tdd->URI().c_str()
+		            << "' to '" << spaceURI
+		            << "': " << e.what();
 		return;
 	}
 
+	qInfo() << "Added TDD:'" << tdd->URI().c_str()
+	        << "' to Space:'" << spaceURI << "'";
 	rebuildSpaceChildren(item,s);
 
 	setModified(true);
@@ -147,15 +157,19 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 
 void UniverseBridge::deleteSpace(const QString & URI) {
 	auto item = locateSpace(URI);
-
-	if ( !d_experiment || item == NULL )
+	if ( !d_experiment || item == NULL ) {
+		return;
+	}
 	try {
+		qDebug() << "Calling fort::myrmidon::priv::Experiment::DeleteSpace('"
+		         << URI << "')";
 		d_experiment->DeleteSpace(URI.toUtf8().constData());
 	} catch ( const std::exception & e) {
-		qWarning() << "Could not remove space '" << URI << "': " << e.what();
+		qCritical() << "Could not remove space '" << URI << "': " << e.what();
 		return;
 	}
 
+	qInfo() << "Deleted Space:'" << URI << "'";
 	d_model->removeRows(item->row(),1);
 
 	setModified(true);
@@ -169,6 +183,7 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 
 	auto fi  = d_experiment->LocateTrackingDataDirectory(URI.toUtf8().data());
 	if (!fi.first || !fi.second) {
+		qWarning() << "Could not locate TDD:'" << URI << "', abording its deletion";
 		return;
 	}
 
@@ -177,13 +192,15 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 	try {
 		d_experiment->DeleteTrackingDataDirectory(URI.toUtf8().data());
 	} catch ( const std::exception & e) {
-		qWarning() << "Could not delete '" << URI
-		           <<"': " << e.what();
+		qCritical() << "Could not delete '" << URI
+		            <<"': " << e.what();
 		return;
 	}
 
-
 	rebuildSpaceChildren(item,fi.first);
+
+	qInfo() << "Removed TDD:'" << URI << "' from Space '"
+	        << fi.first->URI().c_str() << "'";
 
 	setModified(true);
 	emit trackingDataDirectoryDeleted(URI);
@@ -194,6 +211,7 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 QStandardItem * UniverseBridge::locateSpace(const QString & URI) {
 	auto items = d_model->findItems(URI);
 	if ( items.size() != 1 ) {
+		qDebug() << "Could not locate Qt Item '" << URI << "'";
 		return NULL;
 	}
 	return items[0];
