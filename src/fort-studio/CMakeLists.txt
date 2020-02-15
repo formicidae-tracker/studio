@@ -56,7 +56,8 @@ set(HDR_FILES Bridge.hpp
 
 set(UI_FILES GlobalPropertyWidget.ui
              UniverseEditorWidget.ui
-	         MainWindow.ui
+             MainWindow.ui
+             LoggerWidget.ui
              # AntListWidget.ui
 			 # FramePointerWidget.ui
 			 # AntIdentificationWidget.ui

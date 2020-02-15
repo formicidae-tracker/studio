@@ -299,6 +299,11 @@ void MainWindow::on_actionShowLog_triggered() {
 	if ( d_loggerWidget != NULL ) {
 		return;
 	}
+	qDebug() << "This is an example debug";
+	qInfo() << "This is an example info";
+	qWarning() << "This is an example warning";
+	qCritical() << "This is an example error";
+
 	d_loggerWidget = new LoggerWidget(d_logger,NULL);
 	d_loggerWidget->setAttribute(Qt::WA_DeleteOnClose);
 	connect(d_loggerWidget,

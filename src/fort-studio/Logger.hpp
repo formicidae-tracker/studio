@@ -23,8 +23,22 @@ private:
 	QStandardItemModel * d_model;
 };
 
+namespace Ui {
+class LoggerWidget;
+}
+
+class QSortFilterProxyModel;
+
 class LoggerWidget : public QWidget {
 	Q_OBJECT
 public:
-	LoggerWidget(Logger * logger, QWidget * parent);
+	explicit LoggerWidget(Logger * logger, QWidget * parent = 0);
+	~LoggerWidget();
+
+private slots:
+	void onDisplayLogLevelChanged(int);
+
+private:
+	Ui::LoggerWidget      * d_ui;
+	QSortFilterProxyModel * d_filteredModel;
 };
