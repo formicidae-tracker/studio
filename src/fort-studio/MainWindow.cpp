@@ -179,6 +179,9 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	bool cancelled = false;
 
 	if ( maybeSave(&cancelled) == true ) {
+		if ( d_loggerWidget ) {
+			d_loggerWidget->close();
+		}
 		e->accept();
 		return;
 	} else if ( cancelled == true ) {
@@ -194,6 +197,9 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 	switch(res) {
 	case QMessageBox::Discard:
+		if ( d_loggerWidget ) {
+			d_loggerWidget->close();
+		}
 		e->accept();
 		break;
 	case QMessageBox::Cancel:
@@ -297,12 +303,10 @@ void MainWindow::onExperimentActivated(bool active) {
 
 void MainWindow::on_actionShowLog_triggered() {
 	if ( d_loggerWidget != NULL ) {
+		d_loggerWidget->raise();
+		d_loggerWidget->activateWindow();
 		return;
 	}
-	qDebug() << "This is an example debug";
-	qInfo() << "This is an example info";
-	qWarning() << "This is an example warning";
-	qCritical() << "This is an example error";
 
 	d_loggerWidget = new LoggerWidget(d_logger,NULL);
 	d_loggerWidget->setAttribute(Qt::WA_DeleteOnClose);

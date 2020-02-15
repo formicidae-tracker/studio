@@ -19,6 +19,7 @@ public:
 public slots:
 	void logMessage(QtMsgType type, const QString & message);
 
+	void saveLogAs();
 private:
 	QStandardItemModel * d_model;
 };

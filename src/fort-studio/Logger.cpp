@@ -4,6 +4,10 @@
 #include <QStandardItemModel>
 #include <QDateTime>
 #include <QSortFilterProxyModel>
+#include <QFile>
+#include <QTextStream>
+#include <QFileDialog>
+#include <QDebug>
 
 Logger::Logger(QObject * parent)
 	: QObject(parent)
@@ -58,6 +62,28 @@ void Logger::logMessage(QtMsgType type, const QString & message) {
 	d_model->appendRow(res);
 }
 
+void Logger::saveLogAs() {
+	auto filepath = QFileDialog::getSaveFileName(NULL,tr("Save Log"),"",tr("Text files (*.txt)"));
+	if ( filepath.isEmpty() == true ) {
+		qDebug() << "Not saving log as user did not set a path";
+		return;
+	}
+	QFile logFile(filepath);
+	qDebug() << "Opening '" << filepath << "'";
+	if ( logFile.open(QIODevice::WriteOnly | QIODevice::Text) == false ) {
+		qCritical() << "Could not open '" << filepath << "': " << logFile.errorString();
+		return;
+	}
+	QTextStream out(&logFile);
+	for ( size_t i = 0 ; i < d_model->rowCount() ; ++i ) {
+		out << d_model->item(i,0)->text()
+		    << ":" << d_model->item(i,1)->text()
+		    << ":" << d_model->item(i,2)->text()
+		    << ";\n";
+	}
+	qInfo() << "Dumpped log to '" << filepath << "'";
+}
+
 
 LoggerWidget::LoggerWidget(Logger * logger, QWidget * parent)
 	: QWidget(parent)
@@ -75,6 +101,11 @@ LoggerWidget::LoggerWidget(Logger * logger, QWidget * parent)
 	d_ui->comboBox->insertItem(1,"Info","[IWE]");
 	d_ui->comboBox->insertItem(2,"Warning","[WE]");
 	d_ui->comboBox->insertItem(3,"Error","[E]");
+
+	connect(d_ui->pushButton,
+	        &QPushButton::clicked,
+	        logger,
+	        &Logger::saveLogAs);
 
 	connect(d_ui->comboBox,
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
