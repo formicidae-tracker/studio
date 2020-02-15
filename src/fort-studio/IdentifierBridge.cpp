@@ -26,6 +26,7 @@ QAbstractItemModel * IdentifierBridge::antModel() const {
 }
 
 void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	qDebug() << "[IdentifierBridge]: setting new experiment";
 	setModified(false);
 	d_model->clear();
 
@@ -58,11 +59,14 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	}
 	fmp::Ant::Ptr ant;
 	try {
+		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::CreateAnt()";
 		ant = d_experiment->Identifier().CreateAnt();
 	} catch ( const std::exception & e) {
-		qWarning() << "Could not create Ant: " << e.what();
+		qCritical() << "Could not create Ant: " << e.what();
 		return fmp::Ant::Ptr();
 	}
+
+	qInfo() << "Created new Ant " << ant->ID();
 
 	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
 
@@ -74,22 +78,27 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 void IdentifierBridge::removeAnt(fm::Ant::ID AID) {
 	auto item = findAnt(AID);
 	if ( !d_experiment || item == NULL) {
+		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(AID).c_str();
 		return;
 	}
-
 
 	try {
+		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteAnt("
+		         << fmp::Ant::FormatID(AID).c_str() << ")";
 		d_experiment->Identifier().DeleteAnt(AID);
 	} catch (const std::exception & e) {
-		qWarning() << "Could not delete Ant '" <<  fmp::Ant::FormatID(AID).c_str()
-		           << "': " << e.what();
+		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(AID).c_str()
+		            << "': " << e.what();
 		return;
 	}
+
+	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(AID).c_str();
 
 	d_model->removeRows(item->row(),1);
 	setModified(true);
 	emit antDeleted(AID);
 }
+
 
 fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
                                                              fmp::TagID TID,
@@ -108,21 +117,28 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 	auto item = findAnt(AID);
 
 	if ( !d_experiment || item == NULL ) {
+		qWarning() << "Not Adding Identification to Ant " << fmp::Ant::FormatID(AID).c_str();
 		return fmp::Identification::Ptr();
 	}
 
 	fmp::Identification::Ptr identification;
 	try {
+		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifider::AddIdentification( "
+		         << fmp::Ant::FormatID(AID).c_str()
+		         << "," << TID
+		         <<  "," << formatTime(start,"-")
+		         << "," << formatTime(end,"+") << ")";
 		identification = d_experiment->Identifier().AddIdentification(AID,TID,start,end);
 	} catch (const std::exception & e) {
-		qWarning() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
-		           << "↤" << TID
-		           << " [" << formatTime(start,"-")
-		           << ";" << formatTime(end,"+")
-		           << "]: " << e.what();
+		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
+		            << "↤" << TID
+		            << " [" << formatTime(start,"-")
+		            << ";" << formatTime(end,"+")
+		            << "]: " << e.what();
 		return fmp::Identification::Ptr();
 	}
 
+	qInfo() << "Added Identification " << formatIdentification(identification);
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
 	emit identificationCreated(identification);
@@ -133,18 +149,24 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & identification) {
 	auto item = findAnt(identification->Target()->ID());
 	if ( !d_experiment || item == NULL) {
+		qWarning() << "Not deleting Identification "
+		           << formatIdentification(identification);
 		return ;
 	}
 
 	try {
+		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteIdentification("
+		         << formatIdentification(identification) << ")";
 		d_experiment->Identifier().DeleteIdentification(identification);
 	} catch (const std::exception & e ) {
 		std::ostringstream os;
 		os << *identification;
-		qWarning() << "Could not delete identification " << os.str().c_str()
-		           << ": " <<  e.what();
+		qCritical() << "Could not delete identification " << os.str().c_str()
+		            << ": " <<  e.what();
 		return;
 	}
+
+	qInfo() << "Deleted identification " << formatIdentification(identification);
 
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 	setModified(true);
@@ -230,6 +252,7 @@ QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & 
 QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
 	auto items = d_model->findItems(fmp::Ant::FormatID(AID).c_str(), Qt::MatchStartsWith);
 	if ( items.size() != 1 ) {
+		qDebug() << "Could not find Ant " << fmp::Ant::FormatID(AID).c_str();
 		return NULL;
 	}
 	return items[0];
@@ -238,6 +261,7 @@ QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
 
 void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	if ( item->column() < 2 ) {
+		qDebug() << "[IdentifierBridge]: Uneditable column " << item->column() << " got changed";
 		return;
 	}
 
@@ -245,22 +269,30 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	switch ( item->column() ) {
 	case 2:
 		if ( item->checkState() == Qt::Checked ){
+			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+			        << " to HIDDEN";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
 			d_model->item(item->row(),3)->setCheckState(Qt::Unchecked);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if (d_model->item(item->row(),3)->checkState() == Qt::Unchecked ) {
+			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+			        << " to VISIBLE";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
 	case 3:
 		if ( item->checkState() == Qt::Checked ) {
+			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+			        << " to SOLO";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
 			d_model->item(item->row(),2)->setCheckState(Qt::Unchecked);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		} else if ( d_model->item(item->row(),2)->checkState() == Qt::Unchecked) {
+			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+			        << " to VISIBLE";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());

@@ -86,7 +86,7 @@ QAbstractItemModel * MeasurementBridge::model() const {
 }
 
 void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[MeasurementBridge]: Got new experiment";
+	qDebug() << "[MeasurementBridge]: setting new experiment";
 	setModified(false);
 	cancelAll();
 	d_typeModel->clear();

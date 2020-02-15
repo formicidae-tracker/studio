@@ -1,5 +1,6 @@
 #include "GlobalPropertyBridge.hpp"
 
+#include <QDebug>
 
 GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
 	: Bridge(parent) {
@@ -7,6 +8,7 @@ GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
 
 
 void GlobalPropertyBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	qDebug() << "[GlobalPropertyBridge]: setting new experiment";
 	setModified(false);
 	if ( experiment == d_experiment ) {
 		return;

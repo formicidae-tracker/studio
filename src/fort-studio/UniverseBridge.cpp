@@ -227,7 +227,7 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 }
 
 void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[UniverseBride]: set new experiment";
+	qDebug() << "[UniverseBride]: setting new experiment";
 	d_experiment = experiment;
 	d_model->clear();
 	setModified(false);
