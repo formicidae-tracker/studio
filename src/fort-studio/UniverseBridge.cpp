@@ -9,7 +9,7 @@
 UniverseBridge::UniverseBridge( QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
-
+	qRegisterMetaType<fmp::TrackingDataDirectory::ConstPtr>();
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
 	        this,
@@ -190,6 +190,8 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 	auto item = locateSpace(fi.first->URI().c_str());
 
 	try {
+		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteTrackingDataDirectory("
+		         << URI << "')";
 		d_experiment->DeleteTrackingDataDirectory(URI.toUtf8().data());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not delete '" << URI
@@ -253,7 +255,7 @@ bool UniverseBridge::isDeletable(const QModelIndex & index) const {
 
 	switch(item->data(Qt::UserRole+1).toInt()) {
 	case SPACE_TYPE:
-		return item->data(Qt::UserRole+1).value<fmp::Space::Ptr>()->TrackingDataDirectories().empty();
+		return item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->TrackingDataDirectories().empty();
 	case TDD_TYPE:
 		return true;
 	}
@@ -279,8 +281,12 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 		switch(item->data(Qt::UserRole+1).toInt()) {
 		case SPACE_TYPE:
 			spaceURIs.push_back(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->URI());
-		case TDD_TYPE:
-			tddURIs.push_back(item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>()->URI());
+			break;
+		case TDD_TYPE: {
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			tddURIs.push_back(tdd->URI());
+			break;
+		}
 		}
 	}
 

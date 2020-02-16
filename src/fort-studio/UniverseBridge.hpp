@@ -27,7 +27,7 @@ public slots:
 	void addSpace(const QString & spaceName);
 	void deleteSpace(const QString & spaceName);
 	void addTrackingDataDirectoryToSpace(const QString & spaceURI,
-	                                    const fmp::TrackingDataDirectoryConstPtr & tdd);
+	                                     const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	void deleteTrackingDataDirectory(const QString & URI);
 
 
@@ -39,7 +39,7 @@ signals:
 	void spaceChanged(const fmp::Space::Ptr & space);
 
 
-	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
+	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	void trackingDataDirectoryDeleted(const QString & URI);
 
 private slots:
@@ -50,14 +50,14 @@ private:
 	const static fmp::Space::Universe::TrackingDataDirectoryByURI s_emptyTDDs;
 
 	enum ObjectType {
-	                 SPACE_TYPE = 0,
-	                 TDD_TYPE  = 1,
+	                 SPACE_TYPE = 1,
+	                 TDD_TYPE  = 2,
 	};
 
 	QStandardItem * locateSpace(const QString & URI);
 	void rebuildSpaceChildren(QStandardItem * item, const fmp::Space::Ptr & z);
 
-	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
+	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	QList<QStandardItem*> buildSpace(const fmp::Space::Ptr & z);
 
 	void buildAll(const std::vector<fmp::Space::Ptr> & spaces);

@@ -72,10 +72,12 @@ set(RCC_FILES )
 set(SRC_UTEST_FILES main-check.cpp
                     ExperimentBridgeUTest.cpp
                     GlobalPropertyUTest.cpp
+                    UniverseUTest.cpp
                     )
 
 set(HDR_UTEST_FILES ExperimentBridgeUTest.hpp
                     GlobalPropertyUTest.hpp
+                    UniverseUTest.hpp
                     )
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
