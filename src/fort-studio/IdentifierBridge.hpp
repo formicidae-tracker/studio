@@ -3,17 +3,9 @@
 #include <QStandardItemModel>
 
 #include <myrmidon/priv/Experiment.hpp>
-#include <myrmidon/priv/Ant.hpp>
 
+#include "MyrmidonTypes.hpp"
 #include "Bridge.hpp"
-
-namespace fm = fort::myrmidon;
-namespace fmp = fort::myrmidon::priv;
-
-Q_DECLARE_METATYPE(fmp::Ant::Ptr)
-Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
-Q_DECLARE_METATYPE(fmp::Identification::Ptr)
-Q_DECLARE_METATYPE(fmp::Identification::ConstPtr)
 
 class IdentifierBridge : public Bridge {
 	Q_OBJECT

@@ -41,12 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
 	        this,
 	        &MainWindow::onExperimentActivated);
 
-	connect(d_logger->model(),
-	        &QAbstractItemModel::dataChanged,
-	        [=]() {
-		        std::cerr << "A row was inserted" << std::endl;
-	        });
-
+	d_ui->globalProperties->setup(d_experiment->globalProperties());
+	d_ui->universeEditor->setup(d_experiment->universe());
 
     loadSettings();
 }

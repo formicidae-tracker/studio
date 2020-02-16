@@ -4,10 +4,7 @@
 
 #include "Bridge.hpp"
 
-namespace fm = fort::myrmidon;
-namespace fmp = fort::myrmidon::priv;
-
-Q_DECLARE_METATYPE(fm::Time::ConstPtr)
+#include "MyrmidonTypes.hpp"
 
 class SelectedIdentificationBridge : public Bridge  {
 	Q_OBJECT

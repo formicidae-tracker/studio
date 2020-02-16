@@ -8,13 +8,7 @@
 #include <myrmidon/priv/Measurement.hpp>
 
 #include "Bridge.hpp"
-
-namespace fmp = fort::myrmidon::priv;
-
-Q_DECLARE_METATYPE(fmp::TagCloseUp::ConstPtr)
-Q_DECLARE_METATYPE(fmp::MeasurementType::ID)
-Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
-
+#include "MyrmidonTypes.hpp"
 
 class TagCloseUpLoader : public QObject {
 	Q_OBJECT;

@@ -5,15 +5,8 @@
 
 
 #include <myrmidon/priv/Experiment.hpp>
-#include <myrmidon/priv/Space.hpp>
-#include <myrmidon/priv/TrackingDataDirectory.hpp>
 
-
-namespace fmp = fort::myrmidon::priv;
-
-Q_DECLARE_METATYPE(fmp::TrackingDataDirectory::ConstPtr);
-Q_DECLARE_METATYPE(fmp::Space::Ptr);
-
+#include "MyrmidonTypes.hpp"
 
 class QAbstractItemModel;
 

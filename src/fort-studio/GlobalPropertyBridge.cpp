@@ -53,16 +53,15 @@ fort::tags::Family GlobalPropertyBridge::tagFamily() const {
 	if ( !d_experiment ) {
 		return fort::tags::Family::Undefined;
 	}
-
 	return d_experiment->Family();
 }
 
-uint8_t GlobalPropertyBridge::threshold() const {
+int GlobalPropertyBridge::threshold() const {
 	if ( !d_experiment ) {
 		return 255;
 	}
 
-	return d_experiment->Threshold();
+	return int(d_experiment->Threshold());
 }
 
 double GlobalPropertyBridge::tagSize() const {
@@ -91,17 +90,20 @@ void GlobalPropertyBridge::setAuthor(const QString & author) {
 	emit authorChanged(author);
 }
 
-void GlobalPropertyBridge::setComment(const QString & comment) {
+void GlobalPropertyBridge::setComment(const QString & comment, bool noSignal) {
 	if ( !d_experiment || d_experiment->Comment().c_str() == comment ) {
 		return;
 	}
 
 	d_experiment->SetComment(comment.toUtf8().data());
 	setModified(true);
-	emit commentChanged(comment);
+	if ( noSignal == false ) {
+		emit commentChanged(comment);
+	}
 }
 
-void GlobalPropertyBridge::setThreshold(uint8_t th) {
+void GlobalPropertyBridge::setThreshold(int th) {
+	th = std::min(std::max(th,1),254);
 	if ( !d_experiment || d_experiment->Threshold() == th ) {
 		return;
 	}

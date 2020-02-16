@@ -1,10 +1,7 @@
 #pragma once
 
 #include <QComboBox>
-
-#include <fort-tags/fort-tags.h>
-
-Q_DECLARE_METATYPE(fort::tags::Family)
+#include "MyrmidonTypes.hpp"
 
 class TagFamilyComboBox : public QComboBox {
 	Q_OBJECT

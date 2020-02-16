@@ -4,6 +4,8 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 
+#include "MyrmidonTypes.hpp"
+
 namespace fmp = fort::myrmidon::priv;
 
 class GlobalPropertyBridge : public Bridge {
@@ -39,7 +41,7 @@ public:
 	QString author() const;
 	QString comment() const;
 	fort::tags::Family tagFamily() const;
-	uint8_t threshold() const;
+	int threshold() const;
 	double tagSize() const;
 
 signals:
@@ -47,17 +49,17 @@ signals:
 	void authorChanged(QString author);
 	void commentChanged(QString comment);
 	void tagFamilyChanged(fort::tags::Family f);
-	void thresholdChanged(uint8_t value);
+	void thresholdChanged(int value);
 	void tagSizeChanged(double value);
 
 	void detectionSettingChanged(fort::tags::Family f,
-	                             uint8_t threshold);
+	                             int threshold);
 public slots:
 
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
-	void setComment(const QString & comment);
-	void setThreshold(uint8_t th);
+	void setComment(const QString & comment,bool noSignal = false);
+	void setThreshold(int th);
 	void setTagSize(double tagSize);
 	void setTagFamily(fort::tags::Family tf);
 

@@ -35,7 +35,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="GlobalPropertyWidget" name="widget" native="true"/>
+            <widget class="GlobalPropertyWidget" name="globalProperties" native="true"/>
            </item>
           </layout>
          </widget>
@@ -45,6 +45,11 @@
           <property name="title">
            <string>Spaces and Data Directories</string>
           </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="UniverseEditorWidget" name="universeEditor" native="true"/>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -356,6 +361,12 @@
    <class>GlobalPropertyWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/GlobalPropertyWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UniverseEditorWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/UniverseEditorWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

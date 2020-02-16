@@ -18,5 +18,6 @@ public:
 	void setup(GlobalPropertyBridge *properties);
 
 private:
+	friend class GlobalPropertyUTest_WidgetTest_Test;
 	Ui::GlobalPropertyWidget * d_ui;
 };

@@ -104,7 +104,7 @@ void GlobalPropertyWidget::setup(GlobalPropertyBridge *properties) {
 	connect(d_ui->commentEdit,
 	        &QPlainTextEdit::textChanged,
 	        [properties,this]() {
-		        properties->setComment(d_ui->commentEdit->toPlainText());
+		        properties->setComment(d_ui->commentEdit->toPlainText(),true);
 	        });
 
 }
