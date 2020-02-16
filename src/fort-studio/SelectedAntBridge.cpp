@@ -1,5 +1,6 @@
 #include "SelectedAntBridge.hpp"
 
+#include <QDebug>
 
 SelectedAntBridge::SelectedAntBridge(QObject * parent)
 	: Bridge(parent)
@@ -28,6 +29,7 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 		emit activated(false);
 		return;
 	}
+	qInfo() << "Selected Ant " << fmp::Ant::FormatID(ant->ID()).c_str();
 	rebuildIdentificationModel();
 	emit activated(true);
 }

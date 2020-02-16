@@ -1,4 +1,5 @@
-set(SRC_FILES Bridge.cpp
+set(SRC_FILES Format.cpp
+              Bridge.cpp
               UniverseBridge.cpp
 			  MeasurementBridge.cpp
 			  GlobalPropertyBridge.cpp
@@ -25,7 +26,8 @@ set(SRC_FILES Bridge.cpp
 			  MainWindow.cpp
 			  )
 
-set(HDR_FILES Bridge.hpp
+set(HDR_FILES Format.hpp
+			  Bridge.hpp
 			  UniverseBridge.hpp
 			  MeasurementBridge.hpp
 			  GlobalPropertyBridge.hpp

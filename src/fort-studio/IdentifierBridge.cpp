@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include "Format.hpp"
+
 #include <myrmidon/priv/Identifier.hpp>
 
 
@@ -43,6 +45,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	}
 	d_experiment->Identifier()
 		.SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
+			                              qDebug() << "Got ant position update for " << ToQString(ident);
 			                              emit identificationAntPositionModified(ident);
 		                              });
 
@@ -105,15 +108,6 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
                                                              fm::Time::ConstPtr & start,
                                                              fm::Time::ConstPtr & end) {
 
-	static auto formatTime= [](const fm::Time::ConstPtr & t, const QString & prefix) -> QString {
-		                        if (t) {
-			                        std::ostringstream os;
-			                        os << t;
-			                        return os.str().c_str();
-		                        }
-		                        return prefix + "∞";
-	                        };
-
 	auto item = findAnt(AID);
 
 	if ( !d_experiment || item == NULL ) {
@@ -126,19 +120,19 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifider::AddIdentification( "
 		         << fmp::Ant::FormatID(AID).c_str()
 		         << "," << TID
-		         <<  "," << formatTime(start,"-")
-		         << "," << formatTime(end,"+") << ")";
+		         <<  "," << ToQString(start,"-")
+		         << "," << ToQString(end,"+") << ")";
 		identification = d_experiment->Identifier().AddIdentification(AID,TID,start,end);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
 		            << "↤" << TID
-		            << " [" << formatTime(start,"-")
-		            << ";" << formatTime(end,"+")
+		            << " [" << ToQString(start,"-")
+		            << ";" << ToQString(end,"+")
 		            << "]: " << e.what();
 		return fmp::Identification::Ptr();
 	}
 
-	qInfo() << "Added Identification " << formatIdentification(identification);
+	qInfo() << "Added Identification " << ToQString(identification);
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
 	emit identificationCreated(identification);
@@ -150,13 +144,13 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 	auto item = findAnt(identification->Target()->ID());
 	if ( !d_experiment || item == NULL) {
 		qWarning() << "Not deleting Identification "
-		           << formatIdentification(identification);
+		           << ToQString(identification);
 		return ;
 	}
 
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteIdentification("
-		         << formatIdentification(identification) << ")";
+		         << ToQString(identification) << ")";
 		d_experiment->Identifier().DeleteIdentification(identification);
 	} catch (const std::exception & e ) {
 		std::ostringstream os;
@@ -166,7 +160,7 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 		return;
 	}
 
-	qInfo() << "Deleted identification " << formatIdentification(identification);
+	qInfo() << "Deleted identification " << ToQString(identification);
 
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 	setModified(true);
