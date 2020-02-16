@@ -3,6 +3,10 @@
 
 #include <myrmidon/TestSetup.hpp>
 
+#include <QtGlobal>
+
+void myHandler(QtMsgType, const QMessageLogContext &, const QString &){
+}
 
 int main(int argc, char ** argv) {
 	::testing::InitGoogleTest(&argc, argv);
@@ -11,6 +15,9 @@ int main(int argc, char ** argv) {
 
 	auto & listeners = ::testing::UnitTest::GetInstance()->listeners();
 	listeners.Append(new TestSetup());
+
+
+	qInstallMessageHandler(myHandler);
 
 	return RUN_ALL_TESTS();
 }
