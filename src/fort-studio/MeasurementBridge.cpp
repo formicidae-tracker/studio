@@ -81,8 +81,12 @@ bool MeasurementBridge::isActive() const {
 	return d_experiment.get() != NULL;
 }
 
-QAbstractItemModel * MeasurementBridge::model() const {
+QAbstractItemModel * MeasurementBridge::tagCloseUpModel() const {
 	return d_tcuModel;
+}
+
+QAbstractItemModel * MeasurementBridge::measurementTypeModel() const {
+	return d_typeModel;
 }
 
 void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
@@ -90,6 +94,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	setModified(false);
 	cancelAll();
 	d_typeModel->clear();
+	d_typeModel->setHorizontalHeaderLabels({tr("ID"),tr("Name")});
 	d_experiment = experiment;
 	d_toDo = 0;
 	d_done = 0;
@@ -429,6 +434,16 @@ void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
 	        << " name to '" << name << "'";
 	setModified(true);
 	emit measurementTypeModified(MTID,name);
+}
+
+void MeasurementBridge::deleteMeasurementType(const QModelIndex & index) {
+	auto item = d_typeModel->itemFromIndex(index);
+	if ( item == NULL ) {
+		qWarning() << "Could not delete measurement type at index " << index;
+		return;
+	}
+	auto mtype = item->data().value<fmp::MeasurementType::Ptr>();
+	deleteMeasurementType(mtype->MTID());
 }
 
 void MeasurementBridge::deleteMeasurementType(int MTID) {

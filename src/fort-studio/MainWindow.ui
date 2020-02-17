@@ -57,6 +57,11 @@
           <property name="title">
            <string>Measurement Types</string>
           </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="MeasurementTypeWidget" name="measurementType" native="true"/>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -367,6 +372,12 @@
    <class>UniverseEditorWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/UniverseEditorWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MeasurementTypeWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/MeasurementTypeWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

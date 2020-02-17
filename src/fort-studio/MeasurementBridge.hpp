@@ -22,9 +22,6 @@ public:
 
 	static fmp::TagCloseUp::List load(const fmp::TagCloseUp::Lister::Loader & l);
 
-	QAbstractItemModel * tagCloseUpModel() const;
-	QAbstractItemModel * measurementTypeModel() const;
-
 	size_t toDo() const;
 	size_t done() const;
 signals:
@@ -55,16 +52,17 @@ class MeasurementBridge : public Bridge {
 public:
 	MeasurementBridge(QObject * parent);
 
-	QAbstractItemModel * model() const;
-
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
+
+	QAbstractItemModel * tagCloseUpModel() const;
+	QAbstractItemModel * measurementTypeModel() const;
 
 	bool isActive() const override;
 
 signals:
 	void progressChanged(size_t done, size_t toDo);
 
-	void measurementModified(const fmp::MeasurementConstPtr);
+	void measurementModified(const fmp::Measurement::ConstPtr &);
 	void measurementDeleted(fs::path);
 
 	void measurementTypeModified(int,QString);
@@ -83,12 +81,11 @@ public slots:
 
 	void deleteMeasurement(const fs::path & mURI);
 
-
 	void setMeasurementType(int MTID, const QString & name);
 
 	void deleteMeasurementType(int MTID);
 
-
+	void deleteMeasurementType(const QModelIndex & index);
 private slots:
 
 	void onNewTagCloseUp(fs::path tddURI,

@@ -332,7 +332,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 	}
 
-
 	//creates data
 	fm::pb::Experiment e;
 
