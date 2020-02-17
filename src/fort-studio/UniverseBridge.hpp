@@ -3,7 +3,6 @@
 #include "Bridge.hpp"
 #include <QStandardItemModel>
 
-
 #include <myrmidon/priv/Experiment.hpp>
 
 #include "MyrmidonTypes.hpp"
@@ -14,6 +13,7 @@ class UniverseBridge : public Bridge {
 	Q_OBJECT
 
 public:
+
 	UniverseBridge(QObject * parent);
 
 	QAbstractItemModel * model();
@@ -22,6 +22,8 @@ public:
 	bool isDeletable(const QModelIndexList & ) const;
 
 	bool isActive() const override;
+
+	QString basepath() const;
 
 public slots:
 	void addSpace(const QString & spaceName);
@@ -46,6 +48,7 @@ private slots:
 	void onItemChanged(QStandardItem * item);
 
 private:
+
 	const static std::vector<fmp::Space::Ptr> s_emptySpaces;
 	const static fmp::Space::Universe::TrackingDataDirectoryByURI s_emptyTDDs;
 

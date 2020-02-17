@@ -11,6 +11,7 @@ set(SRC_FILES Format.cpp
 			  Logger.cpp
 			  GlobalPropertyWidget.cpp
 			  UniverseEditorWidget.cpp
+			  SpaceChoiceDialog.cpp
               # Error.cpp
               # AntListWidget.cpp
               # TaggingWidget.cpp
@@ -39,6 +40,7 @@ set(HDR_FILES Format.hpp
 			  Logger.hpp
 			  GlobalPropertyWidget.hpp
 			  UniverseEditorWidget.hpp
+			  SpaceChoiceDialog.hpp
               # Error.hpp
               # AntListWidget.hpp
               # TaggingWidget.hpp
@@ -60,6 +62,7 @@ set(UI_FILES GlobalPropertyWidget.ui
              UniverseEditorWidget.ui
              MainWindow.ui
              LoggerWidget.ui
+             SpaceChoiceDialog.ui
              # AntListWidget.ui
 			 # FramePointerWidget.ui
 			 # AntIdentificationWidget.ui

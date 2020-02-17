@@ -4,7 +4,10 @@
 #include "UniverseBridge.hpp"
 
 #include <QDebug>
+#include <QFileDialog>
+#include <QMessageBox>
 
+#include "SpaceChoiceDialog.hpp"
 
 UniverseEditorWidget::UniverseEditorWidget(QWidget *parent)
 	: QWidget(parent)
@@ -13,6 +16,8 @@ UniverseEditorWidget::UniverseEditorWidget(QWidget *parent)
 
 	d_ui->addButton->setEnabled(false);
 	d_ui->deleteButton->setEnabled(false);
+
+	d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 }
 
@@ -35,6 +40,17 @@ void UniverseEditorWidget::setup(UniverseBridge * universe) {
 	        this,
 	        &UniverseEditorWidget::onSelectionChanged);
 
+	connect(d_universe->model(),
+	        &QAbstractItemModel::rowsInserted,
+	        [this](const QModelIndex & parent, int first, int last) {
+		        if (parent.isValid() == true) {
+			        return;
+		        }
+		        for(; first <= last; ++first) {
+			        d_ui->treeView->expand(d_universe->model()->index(first,0,parent));
+		        }
+	        });
+
 }
 
 
@@ -43,7 +59,34 @@ void UniverseEditorWidget::on_addButton_clicked() {
 		return;
 	}
 
-	qWarning() << "Implements me !";
+	auto tddFilePath = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
+	                                                     d_universe->basepath(),
+	                                                     QFileDialog::ShowDirsOnly);
+	fmp::TrackingDataDirectory::ConstPtr tdd;
+	try {
+		tdd = fmp::TrackingDataDirectory::Open(tddFilePath.toUtf8().constData(),
+		                                       d_universe->basepath().toUtf8().constData());
+	} catch ( const std::exception & e ) {
+		qCritical() << "Could not open TrackingDataDirectory"
+		            << tddFilePath << ": " << e.what();
+		QMessageBox::warning(this,tr("Data Error"),
+		                     tr("Could not open Tracking Data Directory '%1'.\n"
+		                        "Error: %2").arg(tddFilePath,e.what()),
+		                     QMessageBox::Ok     );
+		return;
+	}
+
+	auto space = SpaceChoiceDialog::Get(d_universe,this);
+
+	if ( space.isEmpty() ) {
+		qDebug() << "[UniverseEditorWidget]: TDD addition aborded by user";
+		return;
+	}
+	// Will log errors, but who cares
+	d_universe->addSpace(space);
+
+
+	d_universe->addTrackingDataDirectoryToSpace(space,tdd);
 }
 
 void UniverseEditorWidget::on_deleteButton_clicked() {

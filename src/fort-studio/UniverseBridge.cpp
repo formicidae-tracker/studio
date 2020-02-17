@@ -1,20 +1,22 @@
 #include "UniverseBridge.hpp"
 
-#include <myrmidon/priv/TrackingDataDirectory.hpp>
-
 #include <QStandardItemModel>
 #include <QDebug>
 
+#include <myrmidon/priv/TrackingDataDirectory.hpp>
+
+#include "Format.hpp"
 
 UniverseBridge::UniverseBridge( QObject * parent)
 	: Bridge(parent)
-	, d_model(new QStandardItemModel(this) ) {
+	, d_model(new QStandardItemModel(this)) {
 	qRegisterMetaType<fmp::TrackingDataDirectory::ConstPtr>();
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
 	        this,
 	        &UniverseBridge::onItemChanged);
 
+;
 
 }
 
@@ -24,6 +26,13 @@ bool UniverseBridge::isActive() const {
 
 QAbstractItemModel * UniverseBridge::model() {
 	return d_model;
+}
+
+QString UniverseBridge::basepath() const {
+	if ( !d_experiment ) {
+		return "";
+	}
+	return d_experiment->AbsoluteFilePath().parent_path().c_str();
 }
 
 void UniverseBridge::onItemChanged(QStandardItem * item) {
@@ -58,8 +67,8 @@ QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory:
 	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
 	auto start = new QStandardItem(QString::number(tdd->StartFrame()));
 	auto end = new QStandardItem(QString::number(tdd->EndFrame()));
-	auto startDate = new QStandardItem(tdd->StartDate().DebugString().c_str());
-	auto endDate = new QStandardItem(tdd->EndDate().DebugString().c_str());
+	auto startDate = new QStandardItem(ToQString(tdd->StartDate()));
+	auto endDate = new QStandardItem(ToQString(tdd->EndDate()));
 
 	QList<QStandardItem*> res = {uri,path,start,end,startDate,endDate};
 	for(const auto i : res) {
@@ -232,6 +241,13 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[UniverseBride]: setting new experiment";
 	d_experiment = experiment;
 	d_model->clear();
+	d_model->setHorizontalHeaderLabels({tr("URI"),
+	                                    tr("Filepath"),
+	                                    tr("Start FrameID"),
+	                                    tr("End FrameID"),
+	                                    tr("Start Date"),
+	                                    tr("End Date")
+		});
 	setModified(false);
 
 	if (!d_experiment) {
