@@ -24,6 +24,7 @@ public slots:
 	void on_deleteButton_clicked();
 
 private:
+	friend class MeasurementUTest_TypeWidgetTest_Test;
 	Ui::MeasurementTypeWidget * d_ui;
 	MeasurementBridge         * d_measurements;
 };
