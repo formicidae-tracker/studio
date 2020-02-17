@@ -75,7 +75,7 @@ Experiment::TrackingDataDirectories() const {
 	return d_universe->TrackingDataDirectories();
 }
 
-void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
+void Experiment::CheckTDDIsDeletable(const fs::path & URI) const {
 	auto fi = std::find_if(d_measurementByURI.begin(),
 	                       d_measurementByURI.end(),
 	                       [URI](const std::pair<fs::path,MeasurementByType> & elem) -> bool {
@@ -91,9 +91,21 @@ void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
 		                         + "'");
 
 	}
+}
 
+bool Experiment::TrackingDataDirectoryIsDeletable(const fs::path & URI) const {
+	try {
+		CheckTDDIsDeletable(URI);
+	} catch ( const std::exception & e) {
+		return false;
+	}
+	return true;
+}
+
+
+void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
+	CheckTDDIsDeletable(URI);
 	d_universe->DeleteTrackingDataDirectory(URI);
-
 }
 
 

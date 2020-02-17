@@ -27,6 +27,7 @@ public slots:
 	void onSelectionChanged(const QItemSelection &);
 
 private:
+	friend class UniverseUTest_WidgetTest_Test;
 	Ui::UniverseEditorWidget * d_ui;
 	UniverseBridge           * d_universe;
 };

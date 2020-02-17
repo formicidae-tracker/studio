@@ -19,7 +19,7 @@ public:
 	QAbstractItemModel * model();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
-	bool isDeletable(const QModelIndex & ) const;
+	bool isDeletable(const QModelIndexList & ) const;
 
 	bool isActive() const override;
 

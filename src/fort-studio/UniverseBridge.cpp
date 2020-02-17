@@ -53,7 +53,7 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 }
 
 
-QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd) {
+QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
 	auto uri = new QStandardItem(tdd->URI().c_str());
 	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
 	auto start = new QStandardItem(QString::number(tdd->StartFrame()));
@@ -247,27 +247,49 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 }
 
 
-bool UniverseBridge::isDeletable(const QModelIndex & index) const {
-	auto item = d_model->itemFromIndex(index);
-	if ( item == NULL ) {
-		return false;
+bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
+	std::set<std::string> deleteNeeded;
+	std::set<std::string> deleted;
+
+	for ( const auto & i : index ) {
+		auto item = d_model->itemFromIndex(i);
+		if ( item == NULL ) {
+			return false;
+		}
+
+		switch(item->data(Qt::UserRole+1).toInt()) {
+		case SPACE_TYPE: {
+			auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
+			for ( const auto & tdd : s->TrackingDataDirectories() ) {
+				deleteNeeded.insert(tdd->URI().generic_string());
+			}
+			break;
+		}
+		case TDD_TYPE: {
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			if ( d_experiment->TrackingDataDirectoryIsDeletable(tdd->URI()) == false ) {
+				return false;
+			}
+			deleted.insert(tdd->URI().generic_string());
+			break;
+		}
+		}
 	}
 
-	switch(item->data(Qt::UserRole+1).toInt()) {
-	case SPACE_TYPE:
-		return item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->TrackingDataDirectories().empty();
-	case TDD_TYPE:
-		return true;
+	for ( const auto & n : deleteNeeded ) {
+		if ( deleted.count(n) == 0 ) {
+			return false;
+		}
 	}
 
-	return false;
+	return true;
 }
 
 
 
 void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
-	std::vector<fs::path> spaceURIs;
-	std::vector<fs::path> tddURIs;
+	std::set<fs::path> spaceURIs;
+	std::set<fs::path> tddURIs;
 	for ( const auto & index : selection ) {
 		if ( index.isValid() == false ) {
 			continue;
@@ -280,11 +302,11 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 
 		switch(item->data(Qt::UserRole+1).toInt()) {
 		case SPACE_TYPE:
-			spaceURIs.push_back(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->URI());
+			spaceURIs.insert(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->URI());
 			break;
 		case TDD_TYPE: {
 			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
-			tddURIs.push_back(tdd->URI());
+			tddURIs.insert(tdd->URI());
 			break;
 		}
 		}

@@ -14,10 +14,6 @@ UniverseEditorWidget::UniverseEditorWidget(QWidget *parent)
 	d_ui->addButton->setEnabled(false);
 	d_ui->deleteButton->setEnabled(false);
 
-	connect(d_ui->treeView->selectionModel(),
-	        &QItemSelectionModel::selectionChanged,
-	        this,
-	        &UniverseEditorWidget::onSelectionChanged);
 }
 
 UniverseEditorWidget::~UniverseEditorWidget() {
@@ -33,6 +29,11 @@ void UniverseEditorWidget::setup(UniverseBridge * universe) {
 	        &QToolButton::setEnabled);
 
 	d_ui->treeView->setModel(d_universe->model());
+
+	connect(d_ui->treeView->selectionModel(),
+	        &QItemSelectionModel::selectionChanged,
+	        this,
+	        &UniverseEditorWidget::onSelectionChanged);
 
 }
 
@@ -64,12 +65,6 @@ void UniverseEditorWidget::onSelectionChanged(const QItemSelection & selection) 
 		d_ui->deleteButton->setEnabled(false);
 		return;
 	}
-	bool enabled = true;
-	for ( const auto & index : selection.indexes() ) {
-		if ( d_universe->isDeletable(index) == false ) {
-			enabled = false;
-			break;
-		}
-	}
-	d_ui->deleteButton->setEnabled(enabled);
+	const auto & currentSelection  =d_ui->treeView->selectionModel()->selectedIndexes();
+	d_ui->deleteButton->setEnabled(d_universe->isDeletable(currentSelection));
 }

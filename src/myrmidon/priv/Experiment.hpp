@@ -112,6 +112,8 @@ public :
 
 	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
 
+	bool TrackingDataDirectoryIsDeletable(const fs::path & URI) const;
+
 	void DeleteTrackingDataDirectory(const fs::path & URI);
 
 	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
@@ -265,6 +267,8 @@ private:
 	Experiment(const Experiment&)  = delete;
 
 	Experiment(const fs::path & filepath);
+
+	void CheckTDDIsDeletable(const fs::path & URI) const;
 
 	fs::path             d_absoluteFilepath;
 	fs::path             d_basedir;

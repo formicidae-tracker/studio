@@ -1,31 +1,43 @@
 #include "UniverseUTest.hpp"
 
 #include "UniverseBridge.hpp"
+#include "UniverseEditorWidget.hpp"
+#include "ui_UniverseEditorWidget.h"
 
 #include <myrmidon/TestSetup.hpp>
 
 #include <QSignalSpy>
+#include <QTest>
+
+fort::myrmidon::priv::TrackingDataDirectory::ConstPtr UniverseUTest::s_foo[3];
+
+
+void UniverseUTest::SetUpTestSuite() {
+	EXPECT_NO_THROW({
+			s_foo[0] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",
+			                                                  TestSetup::Basedir());
+			s_foo[1] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",
+			                                                  TestSetup::Basedir());
+			s_foo[2] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",
+			                                                  TestSetup::Basedir());
+		});
+}
 
 TEST_F(UniverseUTest,TestModificationActivation) {
 
 	fmp::Experiment::Ptr experiment;
-	UniverseBridge universe(NULL);
-	fmp::TrackingDataDirectory::ConstPtr foo[3];
-	ASSERT_NO_THROW({
-			experiment = fmp::priv::Experiment::NewFile(TestSetup::Basedir() / "universe.myrmidon");
-			foo[0] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",
-			                                                TestSetup::Basedir());
-			foo[1] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",
-			                                                TestSetup::Basedir());
-			foo[2] = fmp::priv::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",
-			                                                TestSetup::Basedir());
+	EXPECT_NO_THROW({
+			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "universe.myrmidon");
+
 			auto bar = experiment->CreateSpace("bar");
 			auto baz = experiment->CreateSpace("baz");
 
-			bar->AddTrackingDataDirectory(foo[0]);
-			bar->AddTrackingDataDirectory(foo[1]);
-			baz->AddTrackingDataDirectory(foo[2]);
+			bar->AddTrackingDataDirectory(s_foo[0]);
+			bar->AddTrackingDataDirectory(s_foo[1]);
+			baz->AddTrackingDataDirectory(s_foo[2]);
 		});
+
+	UniverseBridge universe(NULL);
 
 	QSignalSpy activatedSignal(&universe,SIGNAL(activated(bool)));
 	QSignalSpy modifiedSignal(&universe,SIGNAL(modified(bool)));
@@ -66,12 +78,17 @@ TEST_F(UniverseUTest,TestModificationActivation) {
 
 
 
-	EXPECT_FALSE(universe.isDeletable(m->index(0,0)));
-	EXPECT_TRUE(universe.isDeletable(m->index(0,0,m->index(0,0))));
-	EXPECT_TRUE(universe.isDeletable(m->index(1,0,m->index(0,0))));
-	EXPECT_FALSE(universe.isDeletable(m->index(1,0)));
-	EXPECT_TRUE(universe.isDeletable(m->index(0,0,m->index(1,0))));
-	EXPECT_TRUE(universe.isDeletable(m->index(2,0)));
+	EXPECT_FALSE(universe.isDeletable({m->index(0,0)}));
+	EXPECT_TRUE(universe.isDeletable({m->index(0,0,m->index(0,0))}));
+	EXPECT_TRUE(universe.isDeletable({m->index(1,0,m->index(0,0))}));
+	EXPECT_FALSE(universe.isDeletable({m->index(1,0)}));
+	EXPECT_TRUE(universe.isDeletable({m->index(0,0,m->index(1,0))}));
+	EXPECT_TRUE(universe.isDeletable({m->index(2,0)}));
+	EXPECT_FALSE(universe.isDeletable({m->index(0,0),
+	                                   m->index(0,0,m->index(0,0))}));
+	EXPECT_TRUE(universe.isDeletable({m->index(0,0),
+	                                  m->index(0,0,m->index(0,0)),
+	                                  m->index(1,0,m->index(0,0))}));
 
 	universe.setExperiment(experiment);
 	EXPECT_FALSE(universe.isModified());
@@ -93,7 +110,7 @@ TEST_F(UniverseUTest,TestModificationActivation) {
 	ASSERT_EQ(modifiedSignal.count(),4);
 	EXPECT_FALSE(modifiedSignal.at(3).at(0).toBool());
 
-	universe.addTrackingDataDirectoryToSpace("wuhu",foo[1]);
+	universe.addTrackingDataDirectoryToSpace("wuhu",s_foo[1]);
 	EXPECT_TRUE(universe.isModified());
 	ASSERT_EQ(modifiedSignal.count(),5);
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
@@ -133,5 +150,69 @@ TEST_F(UniverseUTest,TestModificationActivation) {
 	          "newName");
 
 
+}
 
+
+TEST_F(UniverseUTest,WidgetTest) {
+	fmp::Experiment::Ptr experiment;
+	UniverseBridge universe(NULL);
+	UniverseEditorWidget widget;
+
+	EXPECT_NO_THROW({
+			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "universeWidget.myrmidon");
+			auto foo = experiment->CreateSpace("foo");
+			auto bar = experiment->CreateSpace("bar");
+			foo->AddTrackingDataDirectory(s_foo[0]);
+			foo->AddTrackingDataDirectory(s_foo[1]);
+			foo->AddTrackingDataDirectory(s_foo[2]);
+
+			widget.setup(&universe);
+		});
+
+	QSignalSpy spaceDeleted(&universe,SIGNAL(spaceDeleted(const QString &)));
+	QSignalSpy tddDeleted(&universe,SIGNAL(trackingDataDirectoryDeleted(const QString &)));
+
+
+	auto ui = widget.d_ui;
+	auto selection = ui->treeView->selectionModel();
+	auto model = ui->treeView->model();
+	EXPECT_FALSE(ui->addButton->isEnabled());
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	EXPECT_EQ(ui->treeView->model()->rowCount(),0);
+
+	universe.setExperiment(experiment);
+	EXPECT_TRUE(ui->addButton->isEnabled());
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	EXPECT_EQ(ui->treeView->model()->rowCount(),2);
+
+	selection->select(model->index(0,0),QItemSelectionModel::Select);
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	selection->select(model->index(0,0),QItemSelectionModel::Clear);
+	selection->select(model->index(1,0),QItemSelectionModel::Select);
+	EXPECT_TRUE(ui->deleteButton->isEnabled());
+	selection->select(model->index(0,0),QItemSelectionModel::Clear);
+	selection->select(model->index(0,0,model->index(0,0)),QItemSelectionModel::Select);
+	ASSERT_TRUE(ui->deleteButton->isEnabled());
+	QTest::mouseClick(ui->deleteButton,Qt::LeftButton);
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	ASSERT_EQ(tddDeleted.count(),1);
+	EXPECT_EQ(tddDeleted.at(0).at(0),"foo.0000");
+	selection->select(model->index(1,0),QItemSelectionModel::Select);
+	ASSERT_TRUE(ui->deleteButton->isEnabled());
+	QTest::mouseClick(ui->deleteButton,Qt::LeftButton);
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	ASSERT_EQ(spaceDeleted.count(),1);
+	EXPECT_EQ(spaceDeleted.at(0).at(0),"bar");
+
+	selection->select(model->index(0,0,model->index(0,0)),QItemSelectionModel::Select);
+	selection->select(model->index(1,0,model->index(0,0)),QItemSelectionModel::Select);
+	selection->select(model->index(0,0),QItemSelectionModel::Select);
+	ASSERT_TRUE(ui->deleteButton->isEnabled());
+	QTest::mouseClick(ui->deleteButton,Qt::LeftButton);
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	ASSERT_EQ(spaceDeleted.count(),2);
+	EXPECT_EQ(spaceDeleted.at(1).at(0),"foo");
+	ASSERT_EQ(tddDeleted.count(),3);
+	EXPECT_EQ(tddDeleted.at(1).at(0),"foo.0001");
+	EXPECT_EQ(tddDeleted.at(2).at(0),"foo.0002");
 }
