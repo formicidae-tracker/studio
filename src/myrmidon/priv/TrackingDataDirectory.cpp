@@ -224,6 +224,11 @@ TrackingDataDirectory::BuildIndexes(const fs::path & URI,
 			trackingIndexer->Insert(curReference,
 			                        f.filename().generic_string());
 
+			if ( cacheIter != cache.end() && cacheIter->first == curFID ) {
+				cacheIter->second = curReference;
+				++cacheIter;
+			}
+
 			if (!prevFc) {
 				prevFc = fc;
 				lastRo = ro;
@@ -296,7 +301,6 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
 	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
 
-
 	try {
 		return LoadFromCache(absoluteFilePath,URI);
 	} catch (const std::exception & e ) {
@@ -328,7 +332,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	Time::MonoclockID monoID = GetUID(absoluteFilePath);
 
-	auto bounds = BuildIndexes(absoluteFilePath,
+	auto bounds = BuildIndexes(URI,
 	                           monoID,
 	                           hermesFiles,
 	                           ti,
@@ -340,7 +344,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		if (fi == referenceCache->cend() ||
 		    ( fi->second.ID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
 			std::ostringstream oss;
-			oss << "Could not find FrameReference for FrameID " << m->StartFrame();
+			oss << "[MovieIndexing] Could not find FrameReference for FrameID " << m->StartFrame();
 			throw std::logic_error(oss.str());
 		}
 		mi->Insert(fi->second,m);
@@ -355,7 +359,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	}
 
 	for( auto FID : toErase ) {
-		std::cerr << "Could not find FrameReference for FrameID " << FID << std::endl;
+		std::cerr << "[CacheCleaning] Could not find FrameReference for FrameID " << FID << std::endl;
 		referenceCache->erase(FID);
 	}
 

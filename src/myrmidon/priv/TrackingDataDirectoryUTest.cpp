@@ -44,6 +44,9 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		}
 		ASSERT_EQ(segments.size(),tdd->TrackingSegments().Segments().size());
 		for(size_t i = 0;  i < segments.size(); ++i) {
+			// Can make mistakes about path extraction quite easily
+			EXPECT_EQ(segments[i].first.URI().generic_string(),
+			          tdd->TrackingSegments().Segments()[i].first.URI().generic_string());
 			EXPECT_EQ(segments[i].first.ID(),tdd->TrackingSegments().Segments()[i].first.ID());
 			EXPECT_TRUE(TimeEqual(segments[i].first.Time(),tdd->TrackingSegments().Segments()[i].first.Time()));
 			EXPECT_EQ(segments[i].second,tdd->TrackingSegments().Segments()[i].second);
