@@ -64,7 +64,13 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 			                              emit identificationAntPositionModified(ident);
 		                              });
 
-	for ( const auto & [AID,a] : d_experiment->Identifier().Ants() ) {
+	//reorder ants
+	std::map<quint32,fmp::Ant::Ptr> ants;
+	for ( const auto & a : d_experiment->Identifier().Ants() ) {
+		ants.insert(a);
+	}
+
+	for ( const auto & [AID,a] : ants) {
 		d_model->invisibleRootItem()->appendRow(buildAnt(a));
 	}
 
@@ -328,19 +334,15 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	switch ( item->column() ) {
 	case HIDE_COLUMN:
 		if ( item->checkState() == Qt::Checked ){
-			qDebug() << "INTERNAL set HIDDEN";
 			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::HIDDEN);
 		} else if (soloItem->checkState() == Qt::Unchecked ) {
-			qDebug() << "INTERNAL set VISIBLE";
 			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 		}
 		break;
 	case SOLO_COLUMN:
 		if ( item->checkState() == Qt::Checked ) {
-			qDebug() << "INTERNAL set SOLO";
 			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::SOLO);
 		} else if ( hideItem->checkState() == Qt::Unchecked) {
-			qDebug() << "INTERNAL set VISIBLE";
 			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 		}
 		break;
@@ -357,6 +359,7 @@ void IdentifierBridge::selectAnt(const QModelIndex & index) {
 	}
 
 	auto ant = d_model->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
+	qInfo() << "Selecting Ant" << fmp::Ant::FormatID(ant->ID()).c_str();
 
 	emit antSelected(ant);
 }

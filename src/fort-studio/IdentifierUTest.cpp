@@ -348,6 +348,40 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 
 }
 
+TEST_F(IdentifierUTest,AntSelection) {
+	fmp::Ant::ConstPtr ant[3];
+	QSignalSpy antSelected(identifier,SIGNAL(antSelected(fmp::Ant::Ptr)));
+
+	ASSERT_NO_THROW({
+			ant[0] = experiment->Identifier().CreateAnt();
+			ant[1] = experiment->Identifier().CreateAnt();
+			ant[2] = experiment->Identifier().CreateAnt();
+			identifier->setExperiment(experiment);
+		});
+	ASSERT_FALSE(!ant[0]);
+	ASSERT_FALSE(!ant[1]);
+	ASSERT_FALSE(!ant[2]);
+
+	EXPECT_EQ(antSelected.count(),0);
+
+	identifier->setExperiment(experiment);
+
+	EXPECT_EQ(antSelected.count(),0);
+	auto m = identifier->antModel();
+
+	identifier->selectAnt(m->index(0,1));
+	EXPECT_EQ(antSelected.count(),0);
+	identifier->selectAnt(m->index(0,2));
+	EXPECT_EQ(antSelected.count(),0);
+
+	identifier->selectAnt(m->index(0,0));
+	ASSERT_EQ(antSelected.count(),1);
+	EXPECT_EQ(antSelected.last().at(0).value<fmp::Ant::Ptr>().get(),
+	          ant[0].get());
+
+}
+
+
 
 TEST_F(IdentifierUTest,AntListWidgetTest) {
 	AntListWidget widget(NULL);
@@ -357,6 +391,7 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	QSignalSpy antCreated(identifier,SIGNAL(antCreated(fmp::Ant::ConstPtr)));
 	QSignalSpy antDeleted(identifier,SIGNAL(antDeleted(quint32)));
 	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy antSelected(identifier,SIGNAL(antSelected(fmp::Ant::Ptr)));
 
 
 	EXPECT_FALSE(ui->addButton->isEnabled());
