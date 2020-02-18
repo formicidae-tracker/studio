@@ -12,6 +12,13 @@ class QItemSelection;
 
 class IdentifierBridge : public Bridge {
 	Q_OBJECT
+	Q_PROPERTY(quint32 numberSoloAnt
+	           READ numberSoloAnt
+	           NOTIFY numberSoloAntChanged)
+	Q_PROPERTY(quint32 numberHiddenAnt
+	           READ numberHiddenAnt
+	           NOTIFY numberHiddenAntChanged)
+
 public:
 	IdentifierBridge(QObject * parent);
 
@@ -20,6 +27,11 @@ public:
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isActive() const override;
+
+	quint32 numberSoloAnt() const;
+
+	quint32 numberHiddenAnt() const;
+
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -34,6 +46,9 @@ signals:
 	                       fmp::Ant::DisplayState);
 
 	void antSelected(fmp::Ant::Ptr);
+
+	void numberSoloAntChanged(quint32 numberSolo);
+	void numberHiddenAntChanged(quint32 numberSolo);
 public slots:
 	fmp::Ant::Ptr createAnt();
 	void deleteAnt(quint32 AID);
@@ -48,6 +63,9 @@ public slots:
 	void selectAnt(const QModelIndex & index);
 	void setAntDisplayColor(const QItemSelection & selection,
 	                        const QColor & color);
+
+	void showAll();
+	void unsoloAll();
 private slots:
 
 	void onItemChanged(QStandardItem *);
@@ -56,6 +74,11 @@ private:
 	static QString formatAntName(const fmp::Ant::Ptr & ant);
 
 	static QIcon antDisplayColor(const fmp::Ant::Ptr & ant);
+
+	void setAntDisplayState(QStandardItem * hideItem,
+	                        QStandardItem * soloItem,
+	                        const fmp::Ant::Ptr & ant,
+	                        fmp::Ant::DisplayState ds);
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
@@ -70,4 +93,5 @@ private:
 
 	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_model;
+	quint32              d_numberSoloAnt,d_numberHiddenAnt;
 };

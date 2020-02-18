@@ -28,6 +28,9 @@
        <property name="text">
         <string>Filter:</string>
        </property>
+       <property name="buddy">
+        <cstring>filterEdit</cstring>
+       </property>
       </widget>
      </item>
      <item>
@@ -36,6 +39,41 @@
         <font>
          <family>DejaVu Sans Mono</family>
         </font>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="colorLabel">
+       <property name="text">
+        <string>Set Display Color:</string>
+       </property>
+       <property name="buddy">
+        <cstring>colorBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="ColorComboBox" name="colorBox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="showAllButton">
+       <property name="text">
+        <string>Show All</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="unsoloAllButton">
+       <property name="text">
+        <string>Unsolo All</string>
        </property>
       </widget>
      </item>
@@ -96,20 +134,6 @@
      </attribute>
     </widget>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="colorLabel">
-       <property name="text">
-        <string>Display Color:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="ColorComboBox" name="colorBox"/>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -119,6 +143,15 @@
    <header location="global">fort-studio/ColorComboBox.hpp</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>filterEdit</tabstop>
+  <tabstop>colorBox</tabstop>
+  <tabstop>showAllButton</tabstop>
+  <tabstop>unsoloAllButton</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>tableView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

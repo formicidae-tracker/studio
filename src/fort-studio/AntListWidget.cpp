@@ -21,6 +21,8 @@ AntListWidget::AntListWidget(QWidget * parent)
 	d_ui->filterEdit->setEnabled(false);
 	d_ui->addButton->setEnabled(false);
 	d_ui->deleteButton->setEnabled(false);
+	d_ui->showAllButton->setEnabled(false);
+	d_ui->unsoloAllButton->setEnabled(false);
 
 	d_ui->tableView->setModel(d_sortedModel);
 	auto header = d_ui->tableView->horizontalHeader();
@@ -75,6 +77,34 @@ void AntListWidget::setup(IdentifierBridge * identifier) {
 	        &QAbstractItemModel::rowsRemoved,
 	        this,
 	        &AntListWidget::updateNumber);
+
+	connect(d_ui->showAllButton,
+	        &QPushButton::clicked,
+	        d_identifier,
+	        &IdentifierBridge::showAll);
+
+	connect(d_ui->unsoloAllButton,
+	        &QPushButton::clicked,
+	        d_identifier,
+	        &IdentifierBridge::unsoloAll);
+
+	connect(d_identifier,
+	        &IdentifierBridge::numberHiddenAntChanged,
+	        this,
+	        &AntListWidget::updateShowAll);
+
+	connect(d_identifier,
+	        &IdentifierBridge::numberSoloAntChanged,
+	        this,
+	        &AntListWidget::updateShowAll);
+
+	connect(d_identifier,
+	        &IdentifierBridge::numberSoloAntChanged,
+	        this,
+	        &AntListWidget::updateUnsoloAll);
+
+	updateShowAll();
+	updateUnsoloAll();
 
 }
 
@@ -138,4 +168,15 @@ void AntListWidget::updateNumber() {
 		n = d_identifier->antModel()->rowCount();
 	}
 	d_ui->antLabel->setText(tr("Number: %1").arg(n));
+}
+
+void AntListWidget::updateShowAll() {
+	bool enabled = d_identifier != NULL && (d_identifier->numberSoloAnt() > 0
+	                                        || d_identifier->numberHiddenAnt() > 0);
+	d_ui->showAllButton->setEnabled(enabled);
+}
+
+void AntListWidget::updateUnsoloAll() {
+	bool enabled = d_identifier != NULL && d_identifier->numberSoloAnt() > 0;
+	d_ui->unsoloAllButton->setEnabled(enabled);
 }

@@ -11,7 +11,9 @@
 
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
-	, d_model(new QStandardItemModel(this)) {
+	, d_model(new QStandardItemModel(this))
+	, d_numberSoloAnt(0)
+	, d_numberHiddenAnt(0) {
 
 	qRegisterMetaType<fmp::Ant::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::Ptr>();
@@ -37,6 +39,9 @@ QAbstractItemModel * IdentifierBridge::antModel() const {
 
 void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[IdentifierBridge]: setting new experiment";
+	d_numberSoloAnt = 0;
+	d_numberHiddenAnt = 0;
+
 	setModified(false);
 	d_model->clear();
 	d_model->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
@@ -49,6 +54,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 	if ( !d_experiment ) {
 		emit activated(false);
+		emit numberSoloAntChanged(d_numberSoloAnt);
+		emit numberHiddenAntChanged(d_numberHiddenAnt);
 		return;
 	}
 	d_experiment->Identifier()
@@ -62,6 +69,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	}
 
 	emit activated(true);
+	emit numberSoloAntChanged(d_numberSoloAnt);
+	emit numberHiddenAntChanged(d_numberHiddenAnt);
 }
 
 fmp::Ant::Ptr IdentifierBridge::createAnt() {
@@ -215,10 +224,12 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 		solo->setCheckState(Qt::Unchecked);
 		break;
 	case fmp::Ant::DisplayState::HIDDEN:
+		++d_numberHiddenAnt;
 		hidden->setCheckState(Qt::Checked);
 		solo->setCheckState(Qt::Unchecked);
 		break;
 	case fmp::Ant::DisplayState::SOLO:
+		++d_numberSoloAnt;
 		hidden->setCheckState(Qt::Unchecked);
 		solo->setCheckState(Qt::Checked);
 		break;
@@ -258,6 +269,53 @@ QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
 	return items[0];
 }
 
+void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
+                                          QStandardItem * soloItem,
+                                          const fmp::Ant::Ptr & ant,
+                                          fmp::Ant::DisplayState ds) {
+	auto oldDs = ant->DisplayStatus();
+	if ( oldDs == ds ) {
+		return;
+	}
+	ant->SetDisplayStatus(ds);
+	switch(oldDs) {
+	case fmp::Ant::DisplayState::HIDDEN:
+		--d_numberHiddenAnt;
+		emit numberHiddenAntChanged(d_numberHiddenAnt);
+		break;
+	case fmp::Ant::DisplayState::SOLO:
+		--d_numberSoloAnt;
+		emit numberSoloAntChanged(d_numberSoloAnt);
+		break;
+	}
+
+	switch(ds) {
+	case fmp::Ant::DisplayState::VISIBLE:
+		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		        << " to VISIBLE";
+		hideItem->setCheckState(Qt::Unchecked);
+		soloItem->setCheckState(Qt::Unchecked);
+		break;
+	case fmp::Ant::DisplayState::HIDDEN:
+		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		        << " to HIDDEN";
+		++d_numberHiddenAnt;
+		emit numberHiddenAntChanged(d_numberHiddenAnt);
+		hideItem->setCheckState(Qt::Checked);
+		soloItem->setCheckState(Qt::Unchecked);
+		break;
+	case fmp::Ant::DisplayState::SOLO:
+		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		        << " to SOLO";
+		++d_numberSoloAnt;
+		emit numberSoloAntChanged(d_numberSoloAnt);
+		hideItem->setCheckState(Qt::Unchecked);
+		soloItem->setCheckState(Qt::Checked);
+		break;
+	}
+	setModified(true);
+	emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+}
 
 void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	if ( item->column() < HIDE_COLUMN || item->column() > SOLO_COLUMN ) {
@@ -265,37 +323,25 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	}
 
 	auto ant = item->data().value<fmp::Ant::Ptr>();
+	auto hideItem = d_model->item(item->row(),HIDE_COLUMN);
+	auto soloItem = d_model->item(item->row(),SOLO_COLUMN);
 	switch ( item->column() ) {
 	case HIDE_COLUMN:
 		if ( item->checkState() == Qt::Checked ){
-			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
-			        << " to HIDDEN";
-			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
-			d_model->item(item->row(),SOLO_COLUMN)->setCheckState(Qt::Unchecked);
-			setModified(true);
-			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
-		} else if (d_model->item(item->row(),SOLO_COLUMN)->checkState() == Qt::Unchecked ) {
-			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
-			        << " to VISIBLE";
-			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
-			setModified(true);
-			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+			qDebug() << "INTERNAL set HIDDEN";
+			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::HIDDEN);
+		} else if (soloItem->checkState() == Qt::Unchecked ) {
+			qDebug() << "INTERNAL set VISIBLE";
+			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 		}
 		break;
 	case SOLO_COLUMN:
 		if ( item->checkState() == Qt::Checked ) {
-			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
-			        << " to SOLO";
-			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
-			d_model->item(item->row(),HIDE_COLUMN)->setCheckState(Qt::Unchecked);
-			setModified(true);
-			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
-		} else if ( d_model->item(item->row(),HIDE_COLUMN)->checkState() == Qt::Unchecked) {
-			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
-			        << " to VISIBLE";
-			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
-			setModified(true);
-			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+			qDebug() << "INTERNAL set SOLO";
+			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::SOLO);
+		} else if ( hideItem->checkState() == Qt::Unchecked) {
+			qDebug() << "INTERNAL set VISIBLE";
+			setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 		}
 		break;
 	}
@@ -370,5 +416,35 @@ void IdentifierBridge::deleteSelection(const QItemSelection & selection) {
 	}
 	for ( const auto & AID : toDeleteAID ) {
 		deleteAnt(AID);
+	}
+}
+
+quint32 IdentifierBridge::numberHiddenAnt() const {
+	return d_numberHiddenAnt;
+}
+
+quint32 IdentifierBridge::numberSoloAnt() const {
+	return d_numberSoloAnt;
+}
+
+
+void IdentifierBridge::showAll() {
+	for(size_t i = 0; i < d_model->rowCount(); ++i) {
+		auto hideItem = d_model->itemFromIndex(d_model->index(i,HIDE_COLUMN));
+		auto soloItem = d_model->itemFromIndex(d_model->index(i,SOLO_COLUMN));
+		auto ant = hideItem->data().value<fmp::Ant::Ptr>();
+		setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
+	}
+}
+
+void IdentifierBridge::unsoloAll() {
+	for(size_t i = 0; i < d_model->rowCount(); ++i) {
+		auto hideItem = d_model->itemFromIndex(d_model->index(i,HIDE_COLUMN));
+		auto soloItem = d_model->itemFromIndex(d_model->index(i,SOLO_COLUMN));
+		auto ant = hideItem->data().value<fmp::Ant::Ptr>();
+		if (ant->DisplayStatus() != fmp::Ant::DisplayState::SOLO ) {
+			continue;
+		}
+		setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 	}
 }

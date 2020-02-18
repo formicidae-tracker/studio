@@ -31,6 +31,9 @@ private slots:
 	void on_deleteButton_clicked();
 
 	void onDoubleClicked(const QModelIndex & index);
+
+	void updateShowAll();
+	void updateUnsoloAll();
 private:
 
 	friend class IdentifierUTest_AntListWidgetTest_Test;

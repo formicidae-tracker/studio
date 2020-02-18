@@ -155,7 +155,8 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 	fmp::Ant::ConstPtr ant;
 	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
 	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
-
+	QSignalSpy hiddenChanged(identifier,SIGNAL(numberHiddenAntChanged(quint32)));
+	QSignalSpy soloChanged(identifier,SIGNAL(numberSoloAntChanged(quint32)));
 	ASSERT_NO_THROW({
 			ant = experiment->Identifier().CreateAnt();
 			identifier->setExperiment(experiment);
@@ -176,6 +177,8 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 		std::function<void()> Action;
 		fmp::Ant::DisplayState DisplayState;
 		Qt::CheckState         Hide,Solo;
+		quint32                NHidden,NSolo;
+		bool                   HiddenChanged,SoloChanged;
 	};
 
 	std::vector<TestData> testdata =
@@ -183,37 +186,51 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 		 {
 		  [&]() { hideItem->setCheckState(Qt::Checked);},
 		  fmp::Ant::DisplayState::HIDDEN,
-		  Qt::Checked,Qt::Unchecked
+		  Qt::Checked,Qt::Unchecked,
+		  1,0,
+		  true,false,
 		 },
 		 {
 		  [&]() { soloItem->setCheckState(Qt::Checked);},
 		  fmp::Ant::DisplayState::SOLO,
-		  Qt::Unchecked,Qt::Checked
+		  Qt::Unchecked,Qt::Checked,
+		  0,1,
+		  true,true,
 		 },
 		 {
 		  [&]() { hideItem->setCheckState(Qt::Checked);},
 		  fmp::Ant::DisplayState::HIDDEN,
-		  Qt::Checked,Qt::Unchecked
+		  Qt::Checked,Qt::Unchecked,
+		  1,0,
+		  true,true,
 		 },
 		 {
 		  [&]() { hideItem->setCheckState(Qt::Unchecked);},
 		  fmp::Ant::DisplayState::VISIBLE,
-		  Qt::Unchecked,Qt::Unchecked
+		  Qt::Unchecked,Qt::Unchecked,
+		  0,0,
+		  true,false,
 		 },
 		 {
 		  [&]() { soloItem->setCheckState(Qt::Checked);},
 		  fmp::Ant::DisplayState::SOLO,
-		  Qt::Unchecked,Qt::Checked
+		  Qt::Unchecked,Qt::Checked,
+		  0,1,
+		  false,true,
 		 },
 		 {
 		  [&]() { soloItem->setCheckState(Qt::Unchecked);},
 		  fmp::Ant::DisplayState::VISIBLE,
-		  Qt::Unchecked,Qt::Unchecked
+		  Qt::Unchecked,Qt::Unchecked,
+		  0,0,
+		  false,true,
 		 },
 		};
 
 	size_t modifiedCount = 0;
 	size_t signalCount = 0;
+	size_t hiddenCount = 1;
+	size_t soloCount = 1;
 	for ( const auto & d : testdata ) {
 		++modifiedCount;
 		++signalCount;
@@ -231,6 +248,27 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 		} else {
 			EXPECT_EQ(displayChanged.count(),signalCount);
 		}
+
+
+		if ( d.HiddenChanged == true ) {
+			++hiddenCount;
+		}
+		if ( d.SoloChanged == true ) {
+			++soloCount;
+		}
+
+		EXPECT_EQ(hiddenChanged.count(),hiddenCount);
+		if ( hiddenChanged.count() > 0 ) {
+			EXPECT_EQ(hiddenChanged.last().at(0).toInt(),d.NHidden);
+		}
+		EXPECT_EQ(identifier->numberHiddenAnt(),d.NHidden);
+
+		EXPECT_EQ(soloChanged.count(),soloCount);
+		if ( soloChanged.count() > 0 ) {
+			EXPECT_EQ(soloChanged.last().at(0).toInt(),d.NSolo);
+		}
+		EXPECT_EQ(identifier->numberSoloAnt(),d.NSolo);
+
 		EXPECT_EQ(ant->DisplayStatus(),d.DisplayState);
 		EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->ID());
 		EXPECT_EQ(displayChanged.last().at(2).value<fmp::Ant::DisplayState>(),d.DisplayState);
@@ -239,6 +277,8 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 
 		++modifiedCount;
 		identifier->setExperiment(experiment);
+		++hiddenCount;
+		++soloCount;
 		EXPECT_FALSE(identifier->isModified());
 		EXPECT_EQ(modified.count(),modifiedCount);
 		EXPECT_FALSE(modified.last().at(0).toBool());
@@ -406,5 +446,44 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	          fmp::Palette::Default().At(2));
 
 
+	auto sm = static_cast<QStandardItemModel*>(identifier->antModel());
+	QStandardItem * hide[2] =
+		{
+		 sm->itemFromIndex(sm->index(0,1)),sm->itemFromIndex(sm->index(1,1)),
+		};
+	QStandardItem * solo[2] =
+		{
+		 sm->itemFromIndex(sm->index(0,2)),sm->itemFromIndex(sm->index(1,2)),
+		};
+
+	hide[0]->setCheckState(Qt::Checked);
+	EXPECT_TRUE(ui->showAllButton->isEnabled());
+	EXPECT_FALSE(ui->unsoloAllButton->isEnabled());
+	QTest::mouseClick(ui->showAllButton,Qt::LeftButton);
+	EXPECT_FALSE(ui->showAllButton->isEnabled());
+	EXPECT_FALSE(ui->unsoloAllButton->isEnabled());
+	EXPECT_EQ(hide[0]->checkState(),Qt::Unchecked);
+
+
+	solo[1]->setCheckState(Qt::Checked);
+	hide[0]->setCheckState(Qt::Checked);
+	EXPECT_TRUE(ui->showAllButton->isEnabled());
+	EXPECT_TRUE(ui->unsoloAllButton->isEnabled());
+	QTest::mouseClick(ui->unsoloAllButton,Qt::LeftButton);
+	EXPECT_TRUE(ui->showAllButton->isEnabled());
+	EXPECT_FALSE(ui->unsoloAllButton->isEnabled());
+	EXPECT_EQ(hide[0]->checkState(),Qt::Checked);
+	EXPECT_EQ(solo[1]->checkState(),Qt::Unchecked);
+
+	solo[1]->setCheckState(Qt::Checked);
+	EXPECT_TRUE(ui->showAllButton->isEnabled());
+	EXPECT_TRUE(ui->unsoloAllButton->isEnabled());
+	QTest::mouseClick(ui->showAllButton,Qt::LeftButton);
+	EXPECT_FALSE(ui->showAllButton->isEnabled());
+	EXPECT_FALSE(ui->unsoloAllButton->isEnabled());
+	EXPECT_EQ(hide[0]->checkState(),Qt::Unchecked);
+	EXPECT_EQ(hide[1]->checkState(),Qt::Unchecked);
+	EXPECT_EQ(solo[0]->checkState(),Qt::Unchecked);
+	EXPECT_EQ(solo[1]->checkState(),Qt::Unchecked);
 
 }
