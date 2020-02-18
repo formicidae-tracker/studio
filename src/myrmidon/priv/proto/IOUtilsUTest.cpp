@@ -326,11 +326,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		}
 
 		EXPECT_EQ(res->DisplayColor(),
-		          dA->DisplayColor());
+		          d.DisplayColor);
 
 		EXPECT_EQ(res->DisplayStatus(),
 		          dA->DisplayStatus());
-
 	}
 
 }

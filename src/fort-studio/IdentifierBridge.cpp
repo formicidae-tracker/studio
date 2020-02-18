@@ -1,6 +1,7 @@
 #include "IdentifierBridge.hpp"
 
 #include <QDebug>
+#include <QItemSelection>
 
 #include "Format.hpp"
 #include "ColorComboBox.hpp"
@@ -12,6 +13,9 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this)) {
 
+	qRegisterMetaType<fmp::Ant::ConstPtr>();
+	qRegisterMetaType<fmp::Ant::Ptr>();
+	qRegisterMetaType<fmp::Identification::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::DisplayState>();
 	qRegisterMetaType<fmp::Color>();
 
@@ -82,7 +86,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	return ant;
 }
 
-void IdentifierBridge::removeAnt(fm::Ant::ID AID) {
+void IdentifierBridge::deleteAnt(fm::Ant::ID AID) {
 	auto item = findAnt(AID);
 	if ( !d_experiment || item == NULL) {
 		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(AID).c_str();
@@ -296,4 +300,66 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 		break;
 	}
 
+}
+
+
+void IdentifierBridge::selectAnt(const QModelIndex & index) {
+	if ( index.isValid() == false
+	     || index.column() != 0 ) {
+		qDebug() << "[IdentifierBridge]: Wrong column " <<  index.column() << " for selection";
+		return;
+	}
+
+	auto ant = d_model->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
+
+	emit antSelected(ant);
+}
+
+
+void IdentifierBridge::doOnSelection(const QItemSelection & selection,
+                                     const std::function<void (const fmp::Ant::Ptr & ant,
+                                                               QStandardItem * item)> & toDo) {
+	for ( const auto & index : selection.indexes() ) {
+		if ( index.isValid() == false || index.column() != 0 ) {
+			continue;
+		}
+		auto item = d_model->itemFromIndex(index);
+		auto ant = item->data().value<fmp::Ant::Ptr>();
+		if ( !ant ) {
+			continue;
+		}
+		toDo(ant,item);
+	}
+}
+
+
+void IdentifierBridge::setAntDisplayColor(const QItemSelection & selection,
+                                          const QColor & color) {
+	if ( color.isValid() == false ) {
+		return;
+	}
+	doOnSelection(selection,
+	              [this,&color](const fmp::Ant::Ptr & ant,
+	                            QStandardItem * item) {
+		              qInfo() << "Setting Display Color of Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		                      << " to " << color;
+		              ant->SetDisplayColor({color.red(),color.green(),color.blue()});
+
+		              item->setData(antDisplayColor(ant),Qt::DecorationRole);
+
+		              setModified(true);
+		              emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+	              });
+}
+
+
+void IdentifierBridge::deleteSelection(const QItemSelection & selection) {
+	doOnSelection(selection,
+	              [this](const fmp::Ant::Ptr & ant,
+	                     QStandardItem *) {
+		              for( const auto & i : ant->Identifications() ) {
+			              deleteIdentification(i);
+		              }
+		              deleteAnt(ant->ID());
+	              });
 }

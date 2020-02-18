@@ -1,6 +1,7 @@
 #include "Color.hpp"
 
 #include <vector>
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
@@ -45,3 +46,15 @@ const Palette & Palette::Default() {
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Color & color) {
+	auto flags = out.flags();
+	out << "#"
+	    << std::hex << int(std::get<0>(color))
+	    << std::hex << int(std::get<1>(color))
+	    << std::hex << int(std::get<2>(color));
+	out.flags(flags);
+	return out;
+}

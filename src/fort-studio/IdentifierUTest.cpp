@@ -80,7 +80,7 @@ TEST_F(IdentifierUTest,AntModificationTest) {
 	EXPECT_EQ(modified.count(),2);
 	EXPECT_FALSE(modified.last().at(0).toBool());
 
-	identifier->removeAnt(ant->ID());
+	identifier->deleteAnt(ant->ID());
 	EXPECT_TRUE(identifier->isModified());
 	EXPECT_EQ(modified.count(),3);
 	EXPECT_TRUE(modified.last().at(0).toBool());
@@ -252,6 +252,63 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 	}
 
 }
+
+
+TEST_F(IdentifierUTest,DisplayColorModification) {
+	fmp::Ant::ConstPtr ant;
+	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+
+	ASSERT_NO_THROW({
+			ant = experiment->Identifier().CreateAnt();
+			identifier->setExperiment(experiment);
+		});
+	ASSERT_FALSE(!ant);
+
+	QColor newColor(12,34,56);
+	fmp::Color newColorFmp({12,34,56});
+
+	EXPECT_FALSE(identifier->isModified());
+	EXPECT_EQ(modified.count(),0);
+
+	auto m = identifier->antModel();
+	auto selector = QItemSelectionModel(m);
+	//invalid index
+	identifier->setAntDisplayColor(selector.selection(),newColor);
+	EXPECT_FALSE(identifier->isModified());
+	EXPECT_EQ(modified.count(),0);
+	EXPECT_EQ(displayChanged.count(),0);
+	// invalid index
+	selector.select(m->index(0,1),QItemSelectionModel::Select);
+	identifier->setAntDisplayColor(selector.selection(),newColor);
+	EXPECT_FALSE(identifier->isModified());
+	EXPECT_EQ(modified.count(),0);
+	EXPECT_EQ(displayChanged.count(),0);
+
+	// invalid color
+	selector.select(m->index(0,1),QItemSelectionModel::Clear);
+	selector.select(m->index(0,0),QItemSelectionModel::Select);
+	identifier->setAntDisplayColor(selector.selection(),QColor());
+	EXPECT_FALSE(identifier->isModified());
+	EXPECT_EQ(modified.count(),0);
+	EXPECT_EQ(displayChanged.count(),0);
+
+
+	identifier->setAntDisplayColor(selector.selection(),newColor);
+	EXPECT_TRUE(identifier->isModified());
+	ASSERT_EQ(modified.count(),1);
+	ASSERT_EQ(displayChanged.count(),1);
+	EXPECT_TRUE(modified.last().at(0).toBool());
+	EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->ID());
+	EXPECT_EQ(displayChanged.last().at(1).value<fmp::Color>(),
+	          newColorFmp);
+	EXPECT_EQ(ant->DisplayColor(),
+	          newColorFmp);
+
+
+
+}
+
 
 TEST_F(IdentifierUTest,AntListWidgetTest) {
 
