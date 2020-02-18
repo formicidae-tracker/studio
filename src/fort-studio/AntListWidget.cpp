@@ -14,6 +14,8 @@ AntListWidget::AntListWidget(QWidget * parent)
 
 	d_ui->setupUi(this);
 
+	updateNumber();
+
 	d_ui->colorBox->setEnabled(false);
 	d_ui->colorBox->setCurrentIndex(-1);
 	d_ui->filterEdit->setEnabled(false);
@@ -42,6 +44,7 @@ AntListWidget::~AntListWidget() {
 
 void AntListWidget::setup(IdentifierBridge * identifier) {
 	d_identifier = identifier;
+	updateNumber();
 	d_ui->filterEdit->clear();
 	d_sortedModel->setSourceModel(d_identifier->antModel());
 	auto header = d_ui->tableView->horizontalHeader();
@@ -62,6 +65,16 @@ void AntListWidget::setup(IdentifierBridge * identifier) {
 	        &QItemSelectionModel::selectionChanged,
 	        this,
 	        &AntListWidget::onSelectionChanged);
+
+	connect(d_identifier->antModel(),
+	        &QAbstractItemModel::rowsInserted,
+	        this,
+	        &AntListWidget::updateNumber);
+
+	connect(d_identifier->antModel(),
+	        &QAbstractItemModel::rowsRemoved,
+	        this,
+	        &AntListWidget::updateNumber);
 
 }
 
@@ -116,4 +129,13 @@ void AntListWidget::on_deleteButton_clicked() {
 
 void AntListWidget::onDoubleClicked(const QModelIndex & index) {
 	d_identifier->selectAnt(d_sortedModel->mapToSource(d_sortedModel->index(index.row(),0)));
+}
+
+
+void AntListWidget::updateNumber() {
+	size_t n = 0;
+	if ( d_identifier != NULL ) {
+		n = d_identifier->antModel()->rowCount();
+	}
+	d_ui->antLabel->setText(tr("Number: %1").arg(n));
 }

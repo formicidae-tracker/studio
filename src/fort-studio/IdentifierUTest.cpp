@@ -324,6 +324,9 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	EXPECT_FALSE(ui->colorBox->isEnabled());
 	EXPECT_FALSE(ui->filterEdit->isEnabled());
 
+	EXPECT_EQ(ToStdString(ui->antLabel->text()),
+	          "Number: 0");
+
 	identifier->setExperiment(experiment);
 
 	EXPECT_TRUE(ui->addButton->isEnabled());
@@ -334,6 +337,8 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	auto s = ui->tableView->selectionModel();
 	auto m = widget.d_sortedModel;
 
+	EXPECT_EQ(ToStdString(ui->antLabel->text()),
+	          "Number: 0");
 
 	for ( size_t i = 0; i < 10; ++i ) {
 		QTest::mouseClick(ui->addButton,Qt::LeftButton);
@@ -348,9 +353,11 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 		ASSERT_EQ(m->rowCount(),i+1);
 		EXPECT_EQ(ToStdString(m->data(m->index(i,0)).toString()),
 		          fmp::Ant::FormatID(i+1) + " <no-tags>");
+		EXPECT_EQ(ToStdString(ui->antLabel->text()),
+		          "Number: " + std::to_string(i+1));
+
 
 	}
-
 
 	ui->filterEdit->setText("1|A");
 	EXPECT_EQ(m->rowCount(),2);
@@ -360,6 +367,9 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 		EXPECT_EQ(ToStdString(m->data(m->index(1,0)).toString()),
 		          "0x000A <no-tags>");
 	}
+	EXPECT_EQ(ToStdString(ui->antLabel->text()),
+	          "Number: 10");
+
 	ui->filterEdit->setText("");
 	EXPECT_EQ(m->rowCount(),10);
 
@@ -377,6 +387,8 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	ASSERT_EQ(antDeleted.count(),2);
 	EXPECT_EQ(antDeleted.at(0).at(0).toInt(),4);
 	EXPECT_EQ(antDeleted.at(1).at(0).toInt(),6);
+	EXPECT_EQ(ToStdString(ui->antLabel->text()),
+	          "Number: 8");
 
 
 	EXPECT_FALSE(ui->colorBox->isEnabled());
