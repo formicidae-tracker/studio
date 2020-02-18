@@ -8,13 +8,14 @@ set(SRC_FILES Format.cpp
 			  SelectedIdentificationBridge.cpp
 			  ExperimentBridge.cpp
 			  TagFamilyComboBox.cpp
+			  ColorComboBox.cpp
 			  Logger.cpp
 			  GlobalPropertyWidget.cpp
 			  UniverseEditorWidget.cpp
 			  SpaceChoiceDialog.cpp
 			  MeasurementTypeWidget.cpp
+			  AntListWidget.cpp
               # Error.cpp
-              # AntListWidget.cpp
               # TaggingWidget.cpp
               # Snapshot.cpp
               # SnapshotIndexer.cpp
@@ -38,13 +39,14 @@ set(HDR_FILES Format.hpp
 			  SelectedIdentificationBridge.hpp
 			  ExperimentBridge.hpp
 			  TagFamilyComboBox.hpp
+			  ColorComboBox.hpp
 			  Logger.hpp
 			  GlobalPropertyWidget.hpp
 			  UniverseEditorWidget.hpp
 			  SpaceChoiceDialog.hpp
 			  MeasurementTypeWidget.hpp
+			  AntListWidget.hpp
               # Error.hpp
-              # AntListWidget.hpp
               # TaggingWidget.hpp
               # Snapshot.hpp
               # SnapshotIndexer.hpp
@@ -66,7 +68,7 @@ set(UI_FILES GlobalPropertyWidget.ui
              LoggerWidget.ui
              SpaceChoiceDialog.ui
              MeasurementTypeWidget.ui
-             # AntListWidget.ui
+             AntListWidget.ui
 			 # FramePointerWidget.ui
 			 # AntIdentificationWidget.ui
 			 # TaggingWidget.ui
@@ -80,12 +82,14 @@ set(SRC_UTEST_FILES main-check.cpp
                     GlobalPropertyUTest.cpp
                     UniverseUTest.cpp
                     MeasurementUTest.cpp
+                    IdentifierUTest.cpp
                     )
 
 set(HDR_UTEST_FILES ExperimentBridgeUTest.hpp
                     GlobalPropertyUTest.hpp
                     UniverseUTest.hpp
                     MeasurementUTest.hpp
+                    IdentifierUTest.hpp
                     )
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})

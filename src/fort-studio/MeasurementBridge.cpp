@@ -406,7 +406,7 @@ size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) cons
 }
 
 
-void MeasurementBridge::setMeasurementType(int MTID, const QString & name) {
+void MeasurementBridge::setMeasurementType(quint32 MTID, const QString & name) {
 	if ( !d_experiment ) {
 		return;
 	}
@@ -446,7 +446,7 @@ void MeasurementBridge::deleteMeasurementType(const QModelIndex & index) {
 	deleteMeasurementType(mtype->MTID());
 }
 
-void MeasurementBridge::deleteMeasurementType(int MTID) {
+void MeasurementBridge::deleteMeasurementType(quint32 MTID) {
 	if ( !d_experiment ) {
 		return;
 	}

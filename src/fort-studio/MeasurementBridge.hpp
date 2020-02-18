@@ -65,8 +65,8 @@ signals:
 	void measurementModified(const fmp::Measurement::ConstPtr &);
 	void measurementDeleted(fs::path);
 
-	void measurementTypeModified(int,QString);
-	void measurementTypeDeleted(int);
+	void measurementTypeModified(quint32,QString);
+	void measurementTypeDeleted(quint32);
 
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
@@ -81,9 +81,9 @@ public slots:
 
 	void deleteMeasurement(const fs::path & mURI);
 
-	void setMeasurementType(int MTID, const QString & name);
+	void setMeasurementType(quint32 MTID, const QString & name);
 
-	void deleteMeasurementType(int MTID);
+	void deleteMeasurementType(quint32 MTID);
 
 	void deleteMeasurementType(const QModelIndex & index);
 private slots:

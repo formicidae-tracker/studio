@@ -150,7 +150,7 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QWidget" name="antList" native="true">
+      <widget class="AntListWidget" name="antList" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -378,6 +378,12 @@
    <class>MeasurementTypeWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/MeasurementTypeWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntListWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/AntListWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

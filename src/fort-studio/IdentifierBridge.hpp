@@ -20,24 +20,24 @@ public:
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
-	void antDeleted(fm::Ant::ID);
+	void antDeleted(quint32);
 
 	void identificationCreated(fmp::Identification::ConstPtr);
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
-	void antDisplayChanged(fm::Ant::ID,
+	void antDisplayChanged(quint32,
 	                       fmp::Color,
 	                       fmp::Ant::DisplayState);
 
 public slots:
 	fmp::Ant::Ptr createAnt();
-	void removeAnt(fm::Ant::ID AID);
+	void removeAnt(quint32 AID);
 
-	fmp::Identification::Ptr addIdentification(fm::Ant::ID AID,
+	fmp::Identification::Ptr addIdentification(quint32,
 	                                           fmp::TagID TID,
-	                                           fm::Time::ConstPtr & start,
-	                                           fm::Time::ConstPtr & end);
+	                                           const fm::Time::ConstPtr & start,
+	                                           const fm::Time::ConstPtr & end);
 
 	void deleteIdentification(const fmp::Identification::Ptr & ident);
 private slots:
@@ -48,9 +48,13 @@ private:
 	static QString formatAntName(const fmp::Ant::Ptr & ant);
 
 	static QIcon antDisplayColor(const fmp::Ant::Ptr & ant);
+
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
 	QStandardItem * findAnt(fm::Ant::ID AID) const;
+
+	const static int HIDE_COLUMN = 1;
+	const static int SOLO_COLUMN = 2;
 
 	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_model;

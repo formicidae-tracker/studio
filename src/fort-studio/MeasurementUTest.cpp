@@ -44,8 +44,8 @@ TEST_F(MeasurementUTest,BridgeActivation) {
 
 TEST_F(MeasurementUTest,TypeBridgeModification) {
 	QSignalSpy modified(measurements,SIGNAL(modified(bool)));
-	QSignalSpy typeModified(measurements,SIGNAL(measurementTypeModified(int,QString)));
-	QSignalSpy deleted(measurements,SIGNAL(measurementTypeDeleted(int)));
+	QSignalSpy typeModified(measurements,SIGNAL(measurementTypeModified(quint32,QString)));
+	QSignalSpy deleted(measurements,SIGNAL(measurementTypeDeleted(quint32)));
 	EXPECT_FALSE(measurements->isModified());
 	EXPECT_EQ(modified.count(),0);
 
@@ -87,8 +87,8 @@ TEST_F(MeasurementUTest,TypeBridgeModification) {
 TEST_F(MeasurementUTest,TypeWidgetTest) {
 	MeasurementTypeWidget widget(NULL);
 	widget.setup(measurements);
-	QSignalSpy typeModified(measurements,SIGNAL(measurementTypeModified(int,QString)));
-	QSignalSpy deleted(measurements,SIGNAL(measurementTypeDeleted(int)));
+	QSignalSpy typeModified(measurements,SIGNAL(measurementTypeModified(quint32,QString)));
+	QSignalSpy deleted(measurements,SIGNAL(measurementTypeDeleted(quint32)));
 
 	auto ui = widget.d_ui;
 	auto m = measurements->measurementTypeModel();

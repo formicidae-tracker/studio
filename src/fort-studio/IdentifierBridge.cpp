@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "Format.hpp"
+#include "ColorComboBox.hpp"
 
 #include <myrmidon/priv/Identifier.hpp>
 
@@ -10,6 +11,9 @@
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this)) {
+
+	qRegisterMetaType<fmp::Ant::DisplayState>();
+	qRegisterMetaType<fmp::Color>();
 
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
@@ -31,7 +35,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[IdentifierBridge]: setting new experiment";
 	setModified(false);
 	d_model->clear();
-
+	d_model->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
 	if ( d_experiment ) {
 		d_experiment->Identifier()
 			.SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
@@ -105,8 +109,8 @@ void IdentifierBridge::removeAnt(fm::Ant::ID AID) {
 
 fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
                                                              fmp::TagID TID,
-                                                             fm::Time::ConstPtr & start,
-                                                             fm::Time::ConstPtr & end) {
+                                                             const fm::Time::ConstPtr & start,
+                                                             const fm::Time::ConstPtr & end) {
 
 	auto item = findAnt(AID);
 
@@ -170,18 +174,18 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 QString IdentifierBridge::formatAntName(const fmp::Ant::Ptr & ant) {
 	QString res = fmp::Ant::FormatID(ant->ID()).c_str();
 	if ( ant->Identifications().empty() ) {
-		return res + ", <no-tags>";
+		return res + " <no-tags>";
 	}
 	std::set<fmp::TagID> tags;
 	for ( const auto & i : ant->Identifications() ) {
 		tags.insert(i->TagValue());
 	}
-	QString prefix = ", tags:";
+	QString prefix = " ↤ {";
 	for ( const auto & t : tags ) {
 		res += prefix + QString::number(t);
 		prefix = ",";
 	}
-	return res;
+	return res + "}";
 }
 
 QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
@@ -189,41 +193,39 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 	auto label = new QStandardItem(formatAntName(ant));
 	label->setEditable(false);
 	label->setData(data);
-
-	auto color = new QStandardItem("");
-	color->setEditable(false);
-	color->setIcon(antDisplayColor(ant));
-	color->setData(data);
+	label->setData(antDisplayColor(ant),Qt::DecorationRole);
 
 	auto hidden = new QStandardItem("");
 	hidden->setCheckable(true);
 	hidden->setData(data);
-
+	hidden->setData(tr("Hide this ant in visualization"),Qt::ToolTipRole);
+	hidden->setData(tr("Do not show this Ant in visualization."),Qt::WhatsThisRole);
 	auto solo = new QStandardItem("");
 	solo->setCheckable(true);
 	solo->setData(data);
-
+	solo->setData(tr("Solo this ant in visualization"),Qt::ToolTipRole);
+	solo->setData(tr("When some Ant are Solo-ed, only this Ant would be displayed in visualization."),Qt::WhatsThisRole);
 	switch(ant->DisplayStatus()) {
 	case fmp::Ant::DisplayState::VISIBLE:
 		hidden->setCheckState(Qt::Unchecked);
 		solo->setCheckState(Qt::Unchecked);
+		break;
 	case fmp::Ant::DisplayState::HIDDEN:
 		hidden->setCheckState(Qt::Checked);
 		solo->setCheckState(Qt::Unchecked);
+		break;
 	case fmp::Ant::DisplayState::SOLO:
 		hidden->setCheckState(Qt::Unchecked);
 		solo->setCheckState(Qt::Checked);
+		break;
 	}
 
-	return {label,color,hidden,solo};
+	return {label,hidden,solo};
 }
 
 QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	auto c = ant->DisplayColor();
-	QColor color(std::get<0>(c),std::get<1>(c),std::get<2>(c));
-	QPixmap pixmap(20,20);
-	pixmap.fill(color);
-	return pixmap;
+	return ColorComboBox::iconFromColor(ColorComboBox::fromMyrmidon(c));
 }
 
 QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {
@@ -254,43 +256,44 @@ QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
 
 
 void IdentifierBridge::onItemChanged(QStandardItem * item) {
-	if ( item->column() < 2 ) {
-		qDebug() << "[IdentifierBridge]: Uneditable column " << item->column() << " got changed";
+	if ( item->column() < HIDE_COLUMN || item->column() > SOLO_COLUMN ) {
 		return;
 	}
 
 	auto ant = item->data().value<fmp::Ant::Ptr>();
 	switch ( item->column() ) {
-	case 2:
+	case HIDE_COLUMN:
 		if ( item->checkState() == Qt::Checked ){
 			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
 			        << " to HIDDEN";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::HIDDEN);
-			d_model->item(item->row(),3)->setCheckState(Qt::Unchecked);
+			d_model->item(item->row(),SOLO_COLUMN)->setCheckState(Qt::Unchecked);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
-		} else if (d_model->item(item->row(),3)->checkState() == Qt::Unchecked ) {
+		} else if (d_model->item(item->row(),SOLO_COLUMN)->checkState() == Qt::Unchecked ) {
 			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
 			        << " to VISIBLE";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
-	case 3:
+		break;
+	case SOLO_COLUMN:
 		if ( item->checkState() == Qt::Checked ) {
 			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
 			        << " to SOLO";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::SOLO);
-			d_model->item(item->row(),2)->setCheckState(Qt::Unchecked);
+			d_model->item(item->row(),HIDE_COLUMN)->setCheckState(Qt::Unchecked);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
-		} else if ( d_model->item(item->row(),2)->checkState() == Qt::Unchecked) {
+		} else if ( d_model->item(item->row(),HIDE_COLUMN)->checkState() == Qt::Unchecked) {
 			qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
 			        << " to VISIBLE";
 			ant->SetDisplayStatus(fmp::Ant::DisplayState::VISIBLE);
 			setModified(true);
 			emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
 		}
+		break;
 	}
 
 }
