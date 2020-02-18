@@ -77,7 +77,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 		return fmp::Ant::Ptr();
 	}
 
-	qInfo() << "Created new Ant " << ant->ID();
+	qInfo() << "Created new Ant" << fmp::Ant::FormatID(ant->ID()).c_str();
 
 	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
 
@@ -354,12 +354,21 @@ void IdentifierBridge::setAntDisplayColor(const QItemSelection & selection,
 
 
 void IdentifierBridge::deleteSelection(const QItemSelection & selection) {
+	std::set<fmp::Identification::Ptr> toDeleteIdentifications;
+	std::set<fm::Ant::ID> toDeleteAID;
 	doOnSelection(selection,
-	              [this](const fmp::Ant::Ptr & ant,
+	              [&,this](const fmp::Ant::Ptr & ant,
 	                     QStandardItem *) {
 		              for( const auto & i : ant->Identifications() ) {
-			              deleteIdentification(i);
+			              toDeleteIdentifications.insert(i);
 		              }
-		              deleteAnt(ant->ID());
+		              toDeleteAID.insert(ant->ID());
 	              });
+
+	for ( const auto & i : toDeleteIdentifications ) {
+		deleteIdentification(i);
+	}
+	for ( const auto & AID : toDeleteAID ) {
+		deleteAnt(AID);
+	}
 }

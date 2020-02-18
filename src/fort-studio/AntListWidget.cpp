@@ -95,9 +95,15 @@ void AntListWidget::on_addButton_clicked() {
 }
 
 void AntListWidget::on_deleteButton_clicked() {
+	const auto & sortedSelection = d_ui->tableView->selectionModel()->selection();
 
+	auto selected = d_sortedModel->mapSelectionToSource(sortedSelection);
 
+	if (selected.isEmpty() == true ) {
+		return;
+	}
 
+	d_identifier->deleteSelection(selected);
 }
 
 

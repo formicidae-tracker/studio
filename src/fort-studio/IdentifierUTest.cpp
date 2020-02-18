@@ -9,6 +9,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QSortFilterProxyModel>
 
 #include "Format.hpp"
 
@@ -305,12 +306,80 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	EXPECT_EQ(ant->DisplayColor(),
 	          newColorFmp);
 
-
-
 }
 
 
 TEST_F(IdentifierUTest,AntListWidgetTest) {
+	AntListWidget widget(NULL);
+	widget.setup(identifier);
+	auto ui = widget.d_ui;
+
+	QSignalSpy antCreated(identifier,SIGNAL(antCreated(fmp::Ant::ConstPtr)));
+	QSignalSpy antDeleted(identifier,SIGNAL(antDeleted(quint32)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+
+
+	EXPECT_FALSE(ui->addButton->isEnabled());
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	EXPECT_FALSE(ui->colorBox->isEnabled());
+	EXPECT_FALSE(ui->filterEdit->isEnabled());
+
+	identifier->setExperiment(experiment);
+
+	EXPECT_TRUE(ui->addButton->isEnabled());
+	EXPECT_FALSE(ui->deleteButton->isEnabled());
+	EXPECT_FALSE(ui->colorBox->isEnabled());
+	EXPECT_TRUE(ui->filterEdit->isEnabled());
+
+	auto s = ui->tableView->selectionModel();
+	auto m = widget.d_sortedModel;
+
+
+	for ( size_t i = 0; i < 10; ++i ) {
+		QTest::mouseClick(ui->addButton,Qt::LeftButton);
+		if ( i == 0 ) {
+			ASSERT_EQ(antCreated.count(),i+1);
+		} else {
+			EXPECT_EQ(antCreated.count(),i+1);
+		}
+		auto ant = antCreated.last().at(0).value<fmp::Ant::ConstPtr>();
+		EXPECT_EQ(ant->ID(),i+1);
+		EXPECT_EQ(ant->DisplayColor(),fmp::Palette::Default().At(0));
+		ASSERT_EQ(m->rowCount(),i+1);
+		EXPECT_EQ(ToStdString(m->data(m->index(i,0)).toString()),
+		          fmp::Ant::FormatID(i+1) + " <no-tags>");
+
+	}
+
+
+	auto selectRow = [s,m](int i) {
+		                 for ( size_t ii = 0; ii < 4; ++ii ) {
+			                 s->select(m->index(i,ii),QItemSelectionModel::Select);
+		                 }
+	                 };
+	s->clear();
+	selectRow(3);
+	selectRow(5);
+	EXPECT_TRUE(ui->deleteButton->isEnabled());
+	QTest::mouseClick(ui->deleteButton,Qt::LeftButton);
+	ASSERT_EQ(antDeleted.count(),2);
+	EXPECT_EQ(antDeleted.at(0).at(0).toInt(),4);
+	EXPECT_EQ(antDeleted.at(1).at(0).toInt(),6);
+
+
+	EXPECT_FALSE(ui->colorBox->isEnabled());
+
+	selectRow(0);
+	selectRow(1);
+	EXPECT_TRUE(ui->colorBox->isEnabled());
+	ui->colorBox->setCurrentIndex(4);
+	ASSERT_EQ(displayChanged.count(),2);
+	EXPECT_EQ(displayChanged.at(0).at(0).toInt(),1);
+	EXPECT_EQ(displayChanged.at(0).at(1).value<fmp::Color>(),
+	          fmp::Palette::Default().At(2));
+	EXPECT_EQ(displayChanged.at(1).at(0).toInt(),2);
+	EXPECT_EQ(displayChanged.at(1).at(1).value<fmp::Color>(),
+	          fmp::Palette::Default().At(2));
 
 
 }

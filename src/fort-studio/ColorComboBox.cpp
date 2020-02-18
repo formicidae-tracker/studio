@@ -18,7 +18,7 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 		        color);
 	}
 	connect(this,
-	        static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 	        this,
 	        &ColorComboBox::onActivated);
 }
