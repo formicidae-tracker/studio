@@ -352,6 +352,18 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	}
 
 
+	ui->filterEdit->setText("1|A");
+	EXPECT_EQ(m->rowCount(),2);
+	if ( m->rowCount() >=2 ) {
+		EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
+		          "0x0001 <no-tags>");
+		EXPECT_EQ(ToStdString(m->data(m->index(1,0)).toString()),
+		          "0x000A <no-tags>");
+	}
+	ui->filterEdit->setText("");
+	EXPECT_EQ(m->rowCount(),10);
+
+
 	auto selectRow = [s,m](int i) {
 		                 for ( size_t ii = 0; ii < 4; ++ii ) {
 			                 s->select(m->index(i,ii),QItemSelectionModel::Select);
@@ -380,6 +392,7 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	EXPECT_EQ(displayChanged.at(1).at(0).toInt(),2);
 	EXPECT_EQ(displayChanged.at(1).at(1).value<fmp::Color>(),
 	          fmp::Palette::Default().At(2));
+
 
 
 }

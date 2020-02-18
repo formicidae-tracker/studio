@@ -28,6 +28,12 @@ AntListWidget::AntListWidget(QWidget * parent)
 	        &QTableView::doubleClicked,
 	        this,
 	        &AntListWidget::onDoubleClicked);
+
+	d_sortedModel->setFilterKeyColumn(0);
+	connect(d_ui->filterEdit,
+	        &QLineEdit::textChanged,
+	        d_sortedModel,
+	        static_cast<void (QSortFilterProxyModel::*)(const QString &)>(&QSortFilterProxyModel::setFilterRegExp));
 }
 
 AntListWidget::~AntListWidget() {
@@ -36,6 +42,7 @@ AntListWidget::~AntListWidget() {
 
 void AntListWidget::setup(IdentifierBridge * identifier) {
 	d_identifier = identifier;
+	d_ui->filterEdit->clear();
 	d_sortedModel->setSourceModel(d_identifier->antModel());
 	auto header = d_ui->tableView->horizontalHeader();
 	header->setSortIndicatorShown(true);
