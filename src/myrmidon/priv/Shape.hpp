@@ -5,9 +5,7 @@
 #include <memory>
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 
@@ -17,53 +15,66 @@ public:
 	typedef std::shared_ptr<const Capsule> ConstPtr;
 
 	Capsule();
-	Capsule(const Eigen::Vector2d & a,
-	        const Eigen::Vector2d & b,
-	        double aRadius,
-	        double bRadius);
+	Capsule(const Eigen::Vector2d & c1,
+	        const Eigen::Vector2d & c2,
+	        double r1,
+	        double r2);
 
-	inline void SetA(const Eigen::Vector2d & a) {
-		d_a = a;
+	inline void SetC1(const Eigen::Vector2d & c1) {
+		d_c1 = c1;
 	}
 
-	inline const Eigen::Vector2d & A() const {
-		return d_a;
+	inline const Eigen::Vector2d & C1() const {
+		return d_c1;
 	}
 
-	inline void SetB(const Eigen::Vector2d & b) {
-		d_b = b;
+	inline void SetC2(const Eigen::Vector2d & c2) {
+		d_c2 = c2;
 	}
 
-	inline const Eigen::Vector2d & B() const {
-		return d_b;
+	inline const Eigen::Vector2d & C2() const {
+		return d_c2;
 	}
 
-	inline void SetRadiusA(double ra) {
-		d_ra = ra;
+	inline void SetR1(double r1) {
+		d_r1 = r1;
 	}
 
-	inline double RadiusA() const {
-		return d_ra;
+	inline double R1() const {
+		return d_r1;
 	}
 
-	inline void SetRadiusB(double rb) {
-		d_rb = rb;
+	inline void SetR2(double r2) {
+		d_r2 = r2;
 	}
 
-	inline double RadiusB() const {
-		return d_rb;
+	inline double R2() const {
+		return d_r2;
 	}
 
+
+	static bool Intersect(const Eigen::Vector2d & aC1,
+	                      const Eigen::Vector2d & aC2,
+	                      double aR1,
+	                      double aR2,
+	                      const Eigen::Vector2d & bC1,
+	                      const Eigen::Vector2d & bC2,
+	                      double bR1,
+	                      double bR2);
 
 private:
-	Eigen::Vector2d d_a,d_b;
-	double d_ra,d_rb;
+	Eigen::Vector2d d_c1,d_c2;
+	double d_r1,d_r2;
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 
 
+
+
 } //namespace priv
-
 } //namespace myrmidon
-
 } //namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Capsule & c);

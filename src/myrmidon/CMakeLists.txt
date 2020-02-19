@@ -152,6 +152,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
+                    priv/ShapeUTest.cpp
                     )
 
 
@@ -178,6 +179,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
+                    priv/ShapeUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}

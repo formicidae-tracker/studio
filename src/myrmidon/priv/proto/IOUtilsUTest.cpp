@@ -193,10 +193,10 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCapsule(c);
-		EXPECT_TRUE(VectorAlmostEqual(res->A(),dC->A()));
-		EXPECT_TRUE(VectorAlmostEqual(res->B(),dC->B()));
-		EXPECT_DOUBLE_EQ(res->RadiusA(),dC->RadiusA());
-		EXPECT_DOUBLE_EQ(res->RadiusB(),dC->RadiusB());
+		EXPECT_TRUE(VectorAlmostEqual(res->C1(),dC->C1()));
+		EXPECT_TRUE(VectorAlmostEqual(res->C2(),dC->C2()));
+		EXPECT_DOUBLE_EQ(res->R1(),dC->R1());
+		EXPECT_DOUBLE_EQ(res->R2(),dC->R2());
 	}
 
 }
@@ -319,10 +319,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		    ++i) {
 			auto c = res->Shape()[i];
 			auto ce = d.Capsules[i];
-			EXPECT_TRUE(VectorAlmostEqual(c->A(),ce->A()));
-			EXPECT_TRUE(VectorAlmostEqual(c->B(),ce->B()));
-			EXPECT_DOUBLE_EQ(c->RadiusA(),ce->RadiusA());
-			EXPECT_DOUBLE_EQ(c->RadiusB(),ce->RadiusB());
+			EXPECT_TRUE(VectorAlmostEqual(c->C1(),ce->C1()));
+			EXPECT_TRUE(VectorAlmostEqual(c->C2(),ce->C2()));
+			EXPECT_DOUBLE_EQ(c->R1(),ce->R1());
+			EXPECT_DOUBLE_EQ(c->R2(),ce->R2());
 		}
 
 		EXPECT_EQ(res->DisplayColor(),

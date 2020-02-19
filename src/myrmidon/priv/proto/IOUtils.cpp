@@ -80,10 +80,10 @@ Capsule::Ptr IOUtils::LoadCapsule(const pb::Capsule & pb) {
 }
 
 void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule::ConstPtr & capsule) {
-	SaveVector(pb->mutable_a(),capsule->A());
-	SaveVector(pb->mutable_b(),capsule->B());
-	pb->set_a_radius(capsule->RadiusA());
-	pb->set_b_radius(capsule->RadiusB());
+	SaveVector(pb->mutable_a(),capsule->C1());
+	SaveVector(pb->mutable_b(),capsule->C2());
+	pb->set_a_radius(capsule->R1());
+	pb->set_b_radius(capsule->R2());
 }
 
 template <typename T>
