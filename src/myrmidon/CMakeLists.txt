@@ -75,6 +75,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
                       priv/Measurement.hpp
+                      priv/KDTree.hpp
+                      priv/KDTree.impl.hpp
                       )
 
 
@@ -112,6 +114,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
+                      priv/KDTree.cpp
                       )
 
 set(SRC_FILES Frame.cpp
