@@ -18,11 +18,11 @@ Duration KDTreeUTest::N2Duration(0);
 void KDTreeUTest::SetUpTestSuite() {
 	std::random_device r;
 	std::default_random_engine e1(r());
-	std::uniform_int_distribution<int> xdist(0, 200);
-	std::uniform_int_distribution<int> ydist(0, 200);
+	std::uniform_int_distribution<int> xdist(0, 1920);
+	std::uniform_int_distribution<int> ydist(0, 1080);
 
 	std::uniform_int_distribution<int> bound(80, 100);
-	const static size_t NUMBER_OF_OBJECT = 10;
+	const static size_t NUMBER_OF_OBJECT = 1000;
 
 	elements.reserve(NUMBER_OF_OBJECT);
 
@@ -53,7 +53,7 @@ void KDTreeUTest::TearDownTestSuite() {
 
 
 TEST_F(KDTreeUTest,TestCollision) {
-	std::set<std::pair<int,int>> newCollisions;
+	std::multiset<std::pair<int,int>> newCollisions;
 	auto inserter = std::inserter(newCollisions,newCollisions.begin());
 	auto start = Time::Now();
 	auto kdtree = KDT::Build(elements.begin(),elements.end(),-1);
@@ -63,15 +63,16 @@ TEST_F(KDTreeUTest,TestCollision) {
 	std::cerr << "[----------] N2Duration: "
 	          << N2Duration << " KDTreeDuration: " <<duration
 	          << std::endl;
-	ADD_FAILURE() << "foo";
+	std::cerr << "[----------] Collisions reduced from " << (elements.size() * elements.size() + 1) / 2
+	          << " to " << collisions.size() << std::endl;
 	EXPECT_EQ(collisions.size(),newCollisions.size());
 	for ( const auto & c : collisions ) {
 		EXPECT_EQ(newCollisions.count(c), 1) << c.first << " and " << c.second << " should collide";
 	}
+
 	cv::Mat debug;
 	KDTreePrinter::Print(debug,kdtree);
 	cv::imwrite((fs::temp_directory_path() / "myrmidon-kdtree-test.png").c_str(),debug);
-
 }
 
 } // namespace priv

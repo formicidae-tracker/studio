@@ -198,7 +198,7 @@ KDTree<T,Scalar,AmbientDim>::ComputeCollisionForNode(const typename Node::Ptr & 
 		upper.reserve(possible.size() + 1 + staggedSize);
 		for ( const auto & n : possible ) {
 			if ( node->Upper->Volume.intersects(n->ObjectVolume) ) {
-				upper.push_back(node);
+				upper.push_back(n);
 			}
 		}
 
@@ -229,9 +229,7 @@ KDTree<T,Scalar,AmbientDim>::ComputeCollisionForNode(const typename Node::Ptr & 
 
 	// test if I collide with any possible nodes
 	for ( const auto & n : possible ) {
-		std::cerr << "Testing " << node->Object << " and " << n->Object << std::endl;
 		if ( node->ObjectVolume.intersects(n->ObjectVolume) ) {
-			std::cerr << "Colllide !!!" << std::endl;
 			if ( n->Object < node->Object ) {
 				output = std::make_pair(n->Object,node->Object);
 			} else if ( n->Object > node->Object) {
@@ -259,6 +257,28 @@ KDTree<T,Scalar,AmbientDim>::Depth() const {
 	if ( !d_root ) { return 0; };
 	return std::max(d_root->UpperDepth,d_root->LowerDepth) + 1;
 }
+
+template<typename T, typename Scalar, int AmbientDim>
+inline void KDTree<T,Scalar,AmbientDim>::Debug(std::ostream & out) const {
+	typedef typename Node::Ptr NodePtr;
+	std::function<void (const std::string & , const NodePtr & )> PrintNode =
+		[&out,&PrintNode] (const std::string & prefix,const NodePtr & node) {
+			out << prefix << "+- " << node->Object << std::endl;
+			if ( node->Lower ) {
+				PrintNode(prefix + "   ",node->Lower);
+			}
+			if ( node->Upper ) {
+				PrintNode(prefix + "   ",node->Upper);
+			}
+		};
+	if ( !d_root) {
+		return;
+	}
+	PrintNode("",d_root);
+}
+
+
+
 
 } // namespace priv
 } // namespace myrmidon

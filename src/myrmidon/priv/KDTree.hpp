@@ -6,6 +6,8 @@
 
 #include <Eigen/Geometry>
 
+#include <iostream>
+
 namespace cv {
 class Mat;
 };
@@ -37,6 +39,8 @@ public:
 	void ComputeCollisions(OutputIter & iter) const;
 
 	size_t Depth() const;
+
+	void Debug(std::ostream & out) const;
 
 private:
 	friend class KDTreePrinter;

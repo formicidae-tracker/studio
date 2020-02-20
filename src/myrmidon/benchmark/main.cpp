@@ -40,8 +40,81 @@ void BuildElements(std::vector<KDT::Element> & elements,
 }
 
 
+typedef std::vector<std::pair<int,int> > CollisionList;
 
-void BenchmarkKDTree( const fs::path &  result) {
+void N2CollisionDetection(const std::vector<KDT::Element> & elements,
+                          CollisionList & results) {
+
+	for ( auto i = elements.begin(); i != elements.end(); ++i ) {
+		for ( auto j = i +1; j != elements.end(); ++j ) {
+			if ( i->Volume.intersects(j->Volume) ) {
+				results.push_back(std::make_pair(i->Object,j->Object));
+			}
+		}
+	}
+
+}
+
+
+void BenchmarkAABBCollisionDetection ( const fs::path & result ) {
+	std::vector<size_t> Numbers = {10,20,40,60,80,100,130,160,200,250,300,400,600,800,1000,2000,4000,6000};
+	std::vector<size_t> ArenaSize = {2000,4000,6000,8000};
+
+	std::cerr << "***********************************" << std::endl;
+	std::cerr << "*   A A B B   C O L L I S I O N   *" << std::endl;
+	std::cerr << "***********************************" << std::endl;
+	std::ofstream file(result.c_str());
+	file << "#Number,ArenaSize,N2Collisions,Collisions,N2ExectTime(us),KDTreeTotalExecTime(us),KDTreeBuild(us)" << std::endl;
+	for ( size_t i = 0; i < 100; ++i ) {
+		for ( const auto & n : Numbers ) {
+			for ( const auto & as : ArenaSize ) {
+				std::cerr << " -- N: " << n << " Arena: " << as << "x" << as << std::endl;
+				std::vector<KDT::Element> elements;
+				std::cerr << " ---- Building" << std::endl;
+				BuildElements(elements,n,as,as,80,100);
+				std::cerr << " ---- Building DONE" << std::endl;
+
+				CollisionList resultN2,result;
+				result.reserve(elements.size()*10);
+				resultN2.reserve(elements.size()*10);
+				std::cerr << " ---- N2 Collision" << std::endl;
+				auto start = Time::Now();
+				N2CollisionDetection(elements,resultN2);
+				auto end = Time::Now();
+				auto N2Duration = end.Sub(start);
+
+				std::cerr << " ---- N2 Collision DONE: " << N2Duration << std::endl;
+
+				std::cerr << " ---- KDTree Collision" << std::endl;
+				auto iter = std::inserter(result,result.begin());
+				start = Time::Now();
+				auto kdtree = KDT::Build(elements.begin(),elements.end(),-1);
+				end = Time::Now();
+				kdtree->ComputeCollisions(iter);
+				auto computeEnd = Time::Now();
+				std::cerr << " ---- KDTree Collision DONE: " << computeEnd.Sub(start) << std::endl;
+
+				file << n
+				     << "," << as
+				     << "," << resultN2.size()
+				     << "," << result.size()
+				     << "," << N2Duration.Microseconds()
+				     << "," << computeEnd.Sub(start).Microseconds()
+				     << "," << end.Sub(start).Microseconds()
+				     << std::endl;
+
+			}
+		}
+	};
+
+}
+
+
+void BenchmarkKDTreeBuilding( const fs::path &  result) {
+	std::cerr << "*************************************" << std::endl;
+	std::cerr << "*   K D T R E E   B U I L D I N G   *" << std::endl;
+	std::cerr << "*************************************" << std::endl;
+
 	struct BenchmarkData {
 		size_t                Number;
 		int                   Depth;
@@ -89,6 +162,9 @@ void BenchmarkKDTree( const fs::path &  result) {
 	}
 }
 
+
+
+
 }
 }
 }
@@ -104,7 +180,9 @@ void Execute(int argc, char ** argv) {
 		throw std::invalid_argument(dirpath.string() + " is not a directory");
 	}
 
-	fmp::BenchmarkKDTree(dirpath / "benchmark_kdtree.txt");
+	fmp::BenchmarkKDTreeBuilding(dirpath / "benchmark_kdtree.txt");
+
+	fmp::BenchmarkAABBCollisionDetection(dirpath / "aabb_collision.txt");
 
 	std::vector<fmp::KDT::Element> elements;
 	fmp::BuildElements(elements,20,1920,1080,80,100);
