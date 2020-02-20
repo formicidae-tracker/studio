@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <utility>
 
+#include <iostream>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -27,7 +29,7 @@ template<typename T, typename Scalar, int AmbientDim>
 template <typename Iter>
 inline Iter
 KDTree<T,Scalar,AmbientDim>::MedianOf3(Iter Lower, Iter Middle, Iter Upper, size_t dim) {
-#define swap(a,b) do {	  \
+#define fmp_kdtree_swap(a,b) do {	  \
 		std::swap(a,b); \
 		std::swap(p ## a, p ## b); \
 	}while(0)
@@ -37,14 +39,15 @@ KDTree<T,Scalar,AmbientDim>::MedianOf3(Iter Lower, Iter Middle, Iter Upper, size
 	double pUpper = ((Upper->Volume.min() + Upper->Volume.max()) / 2)(dim,0);
 
 	if ( pMiddle < pLower ) {
-		swap(Lower,Middle);
+		fmp_kdtree_swap(Lower,Middle);
 	}
 	if ( pUpper < pLower ) {
-		swap(Lower,Upper);
+		fmp_kdtree_swap(Lower,Upper);
 	}
 	if ( pMiddle < pUpper ) {
-		swap(Middle,Upper);
+		fmp_kdtree_swap(Middle,Upper);
 	}
+#undef fmp_kdtree_swap
 	return Upper;
 }
 
@@ -119,47 +122,143 @@ KDTree<T,Scalar,AmbientDim>::Build(const Iter & begin, const Iter & end, size_t 
 			}
 		}
 		res->Lower = Build(lower.begin(),lower.end(),depth+1,medianDepth);
+		res->NLower = lower.size();
 		res->Upper = Build(upper.begin(),upper.end(),depth+1,medianDepth);
+		res->NUpper = upper.size();
 	} else {
 		res->Lower = Build(begin,median,depth+1,medianDepth);
+		res->NLower = median-begin;
 		res->Upper = Build(median+1,end,depth+1,medianDepth);
+		res->NUpper = end - (median+1);
 	}
 
 	if ( res->Lower ) {
 		res->Volume.extend(res->Lower->Volume);
+		res->LowerDepth = std::max(res->LowerDepth,res->UpperDepth) + 1;
+	} else {
+		res->LowerDepth = 0;
 	}
 	if ( res->Upper ) {
 		res->Volume.extend(res->Upper->Volume);
+		res->UpperDepth = std::max(res->LowerDepth,res->UpperDepth) + 1;
+	} else {
+		res->UpperDepth = 0;
 	}
 	return res;
 }
 
-template<typename T, typename Scalar, int AmbientDim>
-std::pair<size_t,size_t>
-KDTree<T,Scalar,AmbientDim>::Elements(const typename Node::Ptr & node) {
-	if ( !node ) {
-		return {0,0};
-	}
-	std::pair<size_t,size_t> res;
-	if ( node->Lower ) {
-		auto l = Elements(node->Lower);
-		res.first = 1 + l.first + l.second;
-	}
-
-	if ( node->Upper ) {
-		auto l = Elements(node->Upper);
-		res.second = 1 + l.first + l.second;
-	}
-
-	return res;
-}
 
 template<typename T, typename Scalar, int AmbientDim>
 std::pair<size_t,size_t>
 KDTree<T,Scalar,AmbientDim>::ElementSeparation() const {
-	return Elements(d_root);
+	return std::make_pair(d_root->NLower,d_root->NUpper);
 }
 
+template<typename T, typename Scalar, int AmbientDim>
+template <typename OutputIter>
+inline void
+KDTree<T,Scalar,AmbientDim>::ComputeCollisionForNode(const typename Node::Ptr & node,
+                                                     const typename Node::List & possible,
+                                                     ReminderList & reminders,
+                                                     OutputIter & output) {
+	if (!node) {
+		return;
+	}
+
+	//we do a depth first
+	if ( node->Lower) {
+		typename Node::List lower;
+		lower.reserve(possible.size() + 1);
+		for (const auto & n : possible ) {
+			if ( node->Lower->Volume.intersects(n->ObjectVolume) ) {
+				lower.push_back(n);
+			}
+		}
+
+		if ( node->Lower->Volume.intersects(node->ObjectVolume)  ) {
+			lower.push_back(node);
+		}
+
+		if ( node->Upper ) {
+			reminders.push_back(std::make_pair(node->Upper,typename Node::List()));
+			reminders.back().second.reserve(node->NLower);
+		}
+		ComputeCollisionForNode(node->Lower,
+		                        lower,
+		                        reminders,
+		                        output);
+	}
+
+	if ( node->Upper ) {
+		typename Node::List upper;
+		size_t staggedSize = 0;
+		if ( node->Lower ) {
+			staggedSize = reminders.back().second.size();
+		}
+		upper.reserve(possible.size() + 1 + staggedSize);
+		for ( const auto & n : possible ) {
+			if ( node->Upper->Volume.intersects(n->ObjectVolume) ) {
+				upper.push_back(node);
+			}
+		}
+
+		if ( node->Lower ) {
+			for ( const auto & n : reminders.back().second ) {
+				// these ones intersects as its already tested
+				upper.push_back(n);
+			}
+			reminders.pop_back();
+		}
+
+		if  ( node->Upper->Volume.intersects(node->ObjectVolume) ) {
+			upper.push_back(node);
+		}
+
+		ComputeCollisionForNode(node->Upper,
+		                        upper,
+		                        reminders,
+		                        output);
+	}
+
+	// test if the current node collide with any of the reminders
+	for ( auto & reminder : reminders ) {
+		if ( reminder.first->Volume.intersects(node->ObjectVolume) ) {
+			reminder.second.push_back(node);
+		}
+	}
+
+	// test if I collide with any possible nodes
+	for ( const auto & n : possible ) {
+		std::cerr << "Testing " << node->Object << " and " << n->Object << std::endl;
+		if ( node->ObjectVolume.intersects(n->ObjectVolume) ) {
+			std::cerr << "Colllide !!!" << std::endl;
+			if ( n->Object < node->Object ) {
+				output = std::make_pair(n->Object,node->Object);
+			} else if ( n->Object > node->Object) {
+				output = std::make_pair(node->Object,n->Object);
+			}
+		}
+	}
+}
+
+template<typename T, typename Scalar, int AmbientDim>
+template <typename OutputIter>
+inline void
+KDTree<T,Scalar,AmbientDim>::ComputeCollisions(OutputIter & iter) const {
+	if ( !d_root ) {
+		return;
+	}
+	ReminderList reminders;
+	reminders.reserve(Depth());
+	ComputeCollisionForNode(d_root,{},reminders,iter);
+}
+
+template<typename T, typename Scalar, int AmbientDim>
+inline size_t
+KDTree<T,Scalar,AmbientDim>::Depth() const {
+	if ( !d_root ) { return 0; };
+	return std::max(d_root->UpperDepth,d_root->LowerDepth) + 1;
+}
 
 } // namespace priv
 } // namespace myrmidon
