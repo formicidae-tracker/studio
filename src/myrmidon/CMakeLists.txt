@@ -222,3 +222,6 @@ foreach(h ${HDR_PRIVATE_FILES})
 	list(APPEND MYRMIDON_PRIVATE_DOC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h})
 endforeach(h ${HDR_PRIVATE_FILES})
 set(MYRMIDON_PRIVATE_DOC_FILES ${MYRMIDON_PRIVATE_DOC_FILES} PARENT_SCOPE)
+
+add_executable(benchmarks benchmark/main.cpp)
+target_link_libraries(benchmarks myrmidon)
