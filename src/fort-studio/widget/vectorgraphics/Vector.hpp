@@ -2,8 +2,6 @@
 
 #include <QGraphicsItemGroup>
 
-class VectorialScene;
-
 class Vector : public QGraphicsItemGroup {
 public:
 	const static qreal LINE_WIDTH;
@@ -17,11 +15,18 @@ public:
 	       qreal bx, qreal by,
 	       QColor color,
 	       UpdatedCallback onUpdated,
-	       VectorialScene * scene,
 	       QGraphicsItem * parent = nullptr);
 	virtual ~Vector();
 
 	void setColor(const QColor & color);
+
+	inline QGraphicsItem * startPrecisionHandle() const {
+		return d_start;
+	}
+
+	inline QGraphicsItem * endPrecisionHandle() const {
+		return d_end;
+	}
 
 protected:
 	void paint(QPainter * painter,

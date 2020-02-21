@@ -30,9 +30,10 @@ VectorialScene::VectorialScene(QObject * parent)
 	                      ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(0)),
 	                      [](const QPointF & start, const QPointF & end) {
 		                      qDebug() << "Now " << start << " --> " << end;
-	                      },
-	                      this);
+	                      });
 	addItem(d_vector);
+	addItem(d_vector->startPrecisionHandle());
+	addItem(d_vector->endPrecisionHandle());
 }
 
 VectorialScene::~VectorialScene() {

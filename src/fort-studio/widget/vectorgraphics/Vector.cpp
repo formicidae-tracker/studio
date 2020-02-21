@@ -10,9 +10,9 @@
 
 const qreal Vector::LINE_WIDTH = 1.5;
 const int   Vector::OPACITY = 255;
-const double Vector::ARROW_LENGTH = 15;
-const double Vector::ARROW_WIDTH = 6;
-const qreal Vector::PrecisionHandle::SIZE = 15;
+const double Vector::ARROW_LENGTH = 12;
+const double Vector::ARROW_WIDTH = 5;
+const qreal Vector::PrecisionHandle::SIZE = 10;
 const qreal Vector::PrecisionHandle::LINE_WIDTH = 0.8;
 
 
@@ -20,7 +20,6 @@ Vector::Vector(qreal ax, qreal ay,
                qreal bx, qreal by,
                QColor color,
                UpdatedCallback onUpdated,
-               VectorialScene * scene,
                QGraphicsItem * parent)
 	: QGraphicsItemGroup(parent)
 	, d_onUpdated(onUpdated)
@@ -49,8 +48,6 @@ Vector::Vector(qreal ax, qreal ay,
 	d_start->setPos(ax,ay);
 	d_end->setPos(bx,by);
 
-	scene->addItem(d_start);
-	scene->addItem(d_end);
 
 
 
