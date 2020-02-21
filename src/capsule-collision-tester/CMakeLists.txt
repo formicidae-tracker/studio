@@ -1,12 +1,13 @@
 set(SRC_FILES main.cpp
-	)
+	          CapsuleCollisionDetecter.cpp)
 
-set(HDR_FILES )
+set(HDR_FILES CapsuleCollisionDetecter.hpp)
 
-set(UI_FILES )
-
+set(UI_FILES CapsuleCollisionDetecter.ui)
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(MOC_FILES )
 foreach(H ${HDR_FILES})
@@ -24,6 +25,7 @@ endforeach(H ${HDR_FILES})
 add_executable(capsule-collision-tester ${SRC_FILES}
                                         ${HDR_FILES}
                                         ${MOC_FILES}
+                                        ${UI_HEADERS}
                                         )
 
 target_link_libraries(capsule-collision-tester Qt5::Widgets)
