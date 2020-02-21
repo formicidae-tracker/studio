@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="experimentEditor">
        <property name="enabled">
@@ -70,6 +70,11 @@
        <attribute name="title">
         <string>Identification</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QGraphicsView" name="graphicsView"/>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="exploreWidget">
        <attribute name="title">

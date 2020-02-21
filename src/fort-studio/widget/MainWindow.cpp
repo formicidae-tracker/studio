@@ -12,6 +12,8 @@
 #include <fort-studio/bridge/ExperimentBridge.hpp>
 #include "Logger.hpp"
 
+#include <fort-studio/widget/vectorgraphics/VectorialScene.hpp>
+
 QPointer<Logger> myLogger;
 
 static void myLog(QtMsgType type, const QMessageLogContext &, const QString & msg) {
@@ -47,6 +49,10 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->antList->setup(d_experiment->identifier());
 
     loadSettings();
+
+    auto scene = new VectorialScene(this);
+	d_ui->graphicsView->setScene(scene);
+
 }
 
 MainWindow::~MainWindow() {
