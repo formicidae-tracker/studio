@@ -1,8 +1,6 @@
-#include "MainWindow.hpp"
+#include <fort-studio/widget/MainWindow.hpp>
 
 #include <QApplication>
-
-#include "Logger.hpp"
 
 #include <QPointer>
 
