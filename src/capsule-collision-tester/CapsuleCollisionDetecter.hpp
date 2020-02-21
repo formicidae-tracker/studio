@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class QGraphicsScene;
+
 namespace Ui {
 class CapsuleCollisionDetecter;
 }
@@ -12,6 +14,10 @@ public:
 	explicit CapsuleCollisionDetecter(QWidget *parent = 0);
 	~CapsuleCollisionDetecter();
 
+public slots:
+	void onAnyValueChanged();
+
 private:
 	Ui::CapsuleCollisionDetecter * d_ui;
+	QGraphicsScene               * d_scene;
 };

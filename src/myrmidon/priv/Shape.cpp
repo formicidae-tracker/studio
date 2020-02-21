@@ -1,5 +1,7 @@
 #include "Shape.hpp"
 
+#include <iostream>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -34,6 +36,26 @@ bool Capsule::Intersect(const Eigen::Vector2d & aC1,
                         double bR1,
                         double bR2) {
 
+	// To rapidly test collision between towo capsule, we project a
+	// center of a capsule on the segment of the other capsule, and
+	// perform a distance check, between the radius of the center, and
+	// the interpolated radius at the projected point. We repeat this
+	// for the 4 capsule centers (2 per capsule).
+	//
+	// This is is *NOT* mathematically accurate, as we can construct
+	// two capsules that should intersect, but the distance and radius
+	// to be considered have to be between the projected one and one
+	// of the center. In that case we won't report a collision
+	// immediatly, but when the capsule will become closer.. Since we
+	// are not building a physics engine, where the computation of the
+	// intersection points and normals should be really accurrate, we
+	// accept this approximation. Im most cases, i.e with well formed
+	// capsule which are not cone - shaped, its an
+	// error of about 1% of the capsule radius on the detection
+	// threshold, but detection will occurs if the capsule goes closer
+	// to one another. Won't affect detection of interactions.
+
+
 #define constraintToSegment(t,projected,point,start,startToEnd) do { \
 		t = (point - start).dot(startToEnd) / startToEnd.dot(startToEnd); \
 		t = clamp(t,0.0,1.0); \
@@ -43,20 +65,18 @@ bool Capsule::Intersect(const Eigen::Vector2d & aC1,
 	Eigen::Vector2d aCC = aC2 - aC1;
 	Eigen::Vector2d bCC = bC2 - bC1;
 
-	Eigen::Vector2d bCProj,aCProj;
-	double tB,tA,sumRadius;
+	Eigen::Vector2d proj;
+	double t,sumRadius;
 
-#define intersect(startPoint) do { \
-		constraintToSegment(tA,aCProj,startPoint,aC1,aCC); \
-		constraintToSegment(tB,bCProj,aCProj,bC1,bCC); \
-	  \
-		double distSqrd = (bCProj - aCProj).squaredNorm(); \
-		/*std::cerr << "dist2 is " << distSqrd << " tA " << tA << " tB " << tB <<  std::endl;*/ \
+#define intersect(point,startSegment,segment,pRadius1,pRadius2,radius) do {	  \
+		constraintToSegment(t,proj,point,startSegment,segment); \
+		double distSqrd = (proj-point).squaredNorm(); \
+		/* std::cerr << "Projecting " << #point << " on " << #segment << " t: " << t << std::endl; */\
 		if ( distSqrd < 1.0e-6 ) { \
 			/* Segments intersects */ \
 			return true; \
 		} \
-		sumRadius = aR1 + tA * (aR2 - aR1) + bR1 + tB * (bR2 - bR1); \
+		sumRadius = pRadius1 + t * (pRadius2 - pRadius1) + radius; \
 		sumRadius *= sumRadius; \
 		/*std::cerr << "sumRadius " << sumRadius << " tA " << tA << " tB " << tB <<  " aR1 " << aR1 << " bR1 " << bR1 << std::endl; */ \
 		if ( distSqrd <= sumRadius ) { \
@@ -64,8 +84,11 @@ bool Capsule::Intersect(const Eigen::Vector2d & aC1,
 		} \
 	}while(0)
 
-	intersect(bC1);
-	intersect(bC2);
+	intersect(bC1,aC1,aCC,aR1,aR2,bR1);
+	intersect(bC2,aC1,aCC,aR1,aR2,bR2);
+	intersect(aC1,bC1,bCC,bR1,bR2,aR1);
+	intersect(aC2,bC1,bCC,bR1,bR2,aR2);
+
 	return false;
 }
 

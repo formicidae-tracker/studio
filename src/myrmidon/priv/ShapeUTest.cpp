@@ -62,13 +62,12 @@ TEST_F(ShapeUTest,TestCaspuleCollision) {
 		  1,0.1,1.2,1.2,0.3,0.7,
 		  true,
 		 },
-		 // very special case that show up if the radii interpolation
-		 // are wrong
+		 //Another edge case found by playing with real shapes
 		 {
-		  0,0,0,1,0.01,0.1,
-		  1,0.1,1.1,0.9,0.01,1.2,
-		  false,
-		 },
+		  0.00,0.00,0.00,1.00,0.02,0.30,
+		  0.30,0.00,0.60,0.90,0.02,0.33,
+		  true
+		 }
 		};
 
 	for ( const auto & d : testdata ) {
