@@ -160,6 +160,10 @@ TEST_F(TimeUTest,HasMonotonicClock) {
 		Time::MonoclockID Expected;
 	};
 	timeval tv;
+	//avoid overflow because using unitialized data.
+	tv.tv_sec = 1000;
+	tv.tv_usec = 10;
+
 	google::protobuf::Timestamp pb;
 	std::vector<TestData> data
 		= {
