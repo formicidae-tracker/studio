@@ -3,7 +3,7 @@
 #include <QGraphicsScene>
 
 class Handle;
-
+class Vector;
 class VectorialScene : public QGraphicsScene {
 	Q_OBJECT
 public:
@@ -11,4 +11,5 @@ public:
 	virtual ~VectorialScene();
 
 	Handle * d_handles[4];
+	Vector * d_vector;
 };

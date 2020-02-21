@@ -23,7 +23,7 @@ Handle::Handle(MovedCallback onMove,
 	                                 SIZE,this);
 	d_inside->setPen(QPen(QColor(255,255,255),1));
 	d_inside->setBrush(COLOR);
-	setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+	setFlags(QGraphicsItem::ItemIsMovable);
 }
 
 Handle::~Handle() {
@@ -38,15 +38,4 @@ void Handle::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
 void Handle::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
 	QGraphicsItemGroup::mouseReleaseEvent(e);
 	d_onRelease();
-}
-
-void Handle::paint(QPainter * painter,
-                   const QStyleOptionGraphicsItem * option,
-                   QWidget * widget) {
-	if ( isSelected() == true ) {
-		d_inside->setBrush(SELECTED_COLOR);
-	} else {
-		d_inside->setBrush(COLOR);
-	}
-	QGraphicsItemGroup::paint(painter,option,widget);
 }

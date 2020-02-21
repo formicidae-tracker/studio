@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto scene = new VectorialScene(this);
 	d_ui->graphicsView->setScene(scene);
-
+	d_ui->graphicsView->setRenderHint(QPainter::Antialiasing,true);
 }
 
 MainWindow::~MainWindow() {

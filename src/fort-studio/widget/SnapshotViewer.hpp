@@ -105,6 +105,7 @@ private:
 
 	private:
 		QGraphicsRectItem * d_inside;
+
 		MoveCallback d_onMove;
 	};
 
