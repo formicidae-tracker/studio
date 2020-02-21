@@ -9,7 +9,7 @@
 #include <myrmidon/priv/Shape.hpp>
 #include <myrmidon/priv/KDTree.hpp>
 
-
+#include <fstream>
 
 
 namespace fort {
