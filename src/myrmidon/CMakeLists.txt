@@ -75,6 +75,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
                       priv/Measurement.hpp
+                      priv/KDTree.hpp
+                      priv/KDTree.impl.hpp
                       )
 
 
@@ -112,6 +114,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
+                      priv/KDTree.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -152,6 +155,8 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
+                    priv/ShapeUTest.cpp
+                    priv/KDTreeUTest.cpp
                     )
 
 
@@ -178,6 +183,8 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
+                    priv/ShapeUTest.hpp
+                    priv/KDTreeUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
@@ -217,3 +224,6 @@ foreach(h ${HDR_PRIVATE_FILES})
 	list(APPEND MYRMIDON_PRIVATE_DOC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h})
 endforeach(h ${HDR_PRIVATE_FILES})
 set(MYRMIDON_PRIVATE_DOC_FILES ${MYRMIDON_PRIVATE_DOC_FILES} PARENT_SCOPE)
+
+add_executable(benchmarks benchmark/main.cpp)
+target_link_libraries(benchmarks myrmidon)
