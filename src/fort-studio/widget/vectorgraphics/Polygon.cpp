@@ -52,7 +52,7 @@ void Polygon::addToScene(QGraphicsScene * scene) {
 }
 
 
-Handle * Polygon::appendPoint(const QPointF & point) {
+QGraphicsItem * Polygon::appendPoint(const QPointF & point) {
 	auto p = polygon();
 	if ( p.isClosed() == true ) {
 		return nullptr;

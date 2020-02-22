@@ -24,7 +24,7 @@ public:
 
 	void setColor(const QColor & color);
 
-	Handle * appendPoint(const QPointF & point);
+	QGraphicsItem * appendPoint(const QPointF & point);
 
 	void close();
 

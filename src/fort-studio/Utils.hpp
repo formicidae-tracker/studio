@@ -21,3 +21,7 @@ inline void EigenToPoint2d(fort::myrmidon::pb::Vector2d * pb, const Eigen::Vecto
 }
 }
 }
+
+inline Eigen::Vector2d ToEigen(const QPointF & a) {
+	return Eigen::Vector2d(a.x(),a.y());
+}

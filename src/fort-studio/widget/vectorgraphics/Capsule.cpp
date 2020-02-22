@@ -4,15 +4,13 @@
 #include <Eigen/Geometry>
 #include <QPen>
 
+#include <fort-studio/Utils.hpp>
+
 const qreal Capsule::LINE_WIDTH = 1.5;
 const int   Capsule::BORDER_OPACITY = 200;
 const int   Capsule::FILL_OPACITY = 40;
 const qreal Capsule::MIN_DISTANCE = 10.0;
 
-
-inline Eigen::Vector2d ToEigen(const QPointF & a) {
-	return Eigen::Vector2d(a.x(),a.y());
-}
 
 Capsule::Capsule(const QPointF & c1, const QPointF & c2,
                  qreal r1, qreal r2,
