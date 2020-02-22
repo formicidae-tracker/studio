@@ -17,6 +17,7 @@ set(SRC_FILES Format.cpp
 			  widget/vectorgraphics/Handle.cpp
 			  widget/vectorgraphics/Vector.cpp
 			  widget/vectorgraphics/Capsule.cpp
+			  widget/vectorgraphics/Polygon.cpp
 			  widget/Logger.cpp
 			  widget/GlobalPropertyWidget.cpp
 			  widget/UniverseEditorWidget.cpp
@@ -47,6 +48,7 @@ set(HDR_FILES Format.hpp
 			  widget/vectorgraphics/Handle.hpp
 			  widget/vectorgraphics/Vector.hpp
 			  widget/vectorgraphics/Capsule.hpp
+			  widget/vectorgraphics/Polygon.hpp
 			  widget/Logger.hpp
 			  widget/GlobalPropertyWidget.hpp
 			  widget/UniverseEditorWidget.hpp
