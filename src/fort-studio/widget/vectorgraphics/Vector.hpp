@@ -38,6 +38,7 @@ private:
 	public:
 		const static qreal SIZE;
 		const static qreal LINE_WIDTH;
+		const static qreal RATIO;
 		typedef std::function<void ()> MovedCallback;
 		typedef std::function<void ()> ReleasedCallback;
 

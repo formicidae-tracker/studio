@@ -69,8 +69,6 @@ private:
 };
 
 
-
-
 } //namespace priv
 } //namespace myrmidon
 } //namespace fort

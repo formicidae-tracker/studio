@@ -4,8 +4,6 @@
 
 #include <Eigen/Core>
 
-#include <iostream>
-
 #include "VectorialScene.hpp"
 
 const qreal Vector::LINE_WIDTH = 1.5;
@@ -13,7 +11,8 @@ const int   Vector::OPACITY = 255;
 const double Vector::ARROW_LENGTH = 12;
 const double Vector::ARROW_WIDTH = 5;
 const qreal Vector::PrecisionHandle::SIZE = 10;
-const qreal Vector::PrecisionHandle::LINE_WIDTH = 0.8;
+const qreal Vector::PrecisionHandle::LINE_WIDTH = 0.5;
+const qreal Vector::PrecisionHandle::RATIO = 0.1;
 
 
 Vector::Vector(qreal ax, qreal ay,
@@ -23,8 +22,8 @@ Vector::Vector(qreal ax, qreal ay,
                QGraphicsItem * parent)
 	: QGraphicsItemGroup(parent)
 	, d_onUpdated(onUpdated)
+	, d_line(new QGraphicsPathItem(this))
 	, d_color(color) {
-	d_line = new QGraphicsPathItem(this);
 
 	d_start =
 		new PrecisionHandle([this]() {
@@ -87,7 +86,6 @@ Vector::PrecisionHandle::PrecisionHandle(MovedCallback onMove,
 
 	d_circle = new QGraphicsEllipseItem(-SIZE,-SIZE,2*SIZE,2*SIZE,this);
 #define SQRT_2_2 0.70710678118
-#define RATIO 0.3
 	d_lines[0] = new QGraphicsLineItem(-1.0 * SQRT_2_2 * SIZE,  -1.0 *SQRT_2_2 * SIZE,
 	                                   -RATIO * SQRT_2_2 * SIZE,-RATIO *SQRT_2_2 * SIZE,
 	                                   this);
@@ -103,13 +101,13 @@ Vector::PrecisionHandle::PrecisionHandle(MovedCallback onMove,
 	d_lines[3] = new QGraphicsLineItem(-1.0 * SQRT_2_2 * SIZE,  +1.0 *SQRT_2_2 * SIZE,
 	                                   -RATIO * SQRT_2_2 * SIZE,+RATIO *SQRT_2_2 * SIZE,
 	                                   this);
+#undef SQRT_2_2
 
 	setFlags(QGraphicsItem::ItemIsMovable);
 
 }
 
 Vector::PrecisionHandle::~PrecisionHandle() {
-
 }
 
 
