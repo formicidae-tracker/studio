@@ -15,6 +15,7 @@ set(SRC_FILES Format.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
+			  widget/vectorgraphics/Shape.cpp
 			  widget/vectorgraphics/Vector.cpp
 			  widget/vectorgraphics/Capsule.cpp
 			  widget/vectorgraphics/Polygon.cpp
@@ -47,6 +48,7 @@ set(HDR_FILES Format.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
+			  widget/vectorgraphics/Shape.hpp
 			  widget/vectorgraphics/Vector.hpp
 			  widget/vectorgraphics/Capsule.hpp
 			  widget/vectorgraphics/Polygon.hpp

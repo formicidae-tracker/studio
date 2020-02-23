@@ -61,14 +61,18 @@ VectorialScene::VectorialScene(QObject * parent)
 	d_polygon->addToScene(this);
 
 	d_circle = new Circle({600,600},60,
-	                      ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(3)),
-	                      [] (const QPointF & center, qreal radius) {
-		                      std::cerr << "Circle update :(" << center.x()
-		                                << "," << center.y() << ") radius:"
-		                                << radius
-		                                << std::endl;
-	                      });
+	                      ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(3)));
+
 	d_circle->addToScene(this);
+	connect(d_circle,
+	        &Shape::updated,
+	        [this]() {
+		        auto p = d_circle->pos();
+		        std::cerr << "Updated circle center:(" << p.x() << ","
+		                  << p.y() << ") radius:"
+		                  << d_circle->radius()
+		                  << std::endl;
+	        });
 
 
 }

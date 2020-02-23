@@ -6,21 +6,16 @@
 
 #include <fort-studio/Utils.hpp>
 
-const qreal Circle::LINE_WIDTH = 1.5;
-const int   Circle::BORDER_OPACITY = 200;
-const int   Circle::FILL_OPACITY = 40;
 
 
 
 Circle::Circle(const QPointF & pos,
                qreal radius,
                QColor color,
-               UpdatedCallback onUpdated,
                QGraphicsItem * parent)
-	: QGraphicsEllipseItem(parent)
-	, d_radius(radius)
-	, d_onUpdated(onUpdated)
-	, d_color(color) {
+	: Shape(color,nullptr)
+	, QGraphicsEllipseItem(parent)
+	, d_radius(radius) {
 
 	setRect(pos.x() - radius,
 	        pos.y() - radius,
@@ -28,11 +23,11 @@ Circle::Circle(const QPointF & pos,
 	        2 * radius);
 
 	d_center = new Handle([this] () { update(true); },
-	                      [this] () { update(true);d_onUpdated(d_center->pos(),d_radius); });
+	                      [this] () { update(true); emit updated(); });
 	d_center->setPos(pos);
 
 	d_radiusHandle = new Handle([this] () { update(false); },
-	                            [this] () { update(false); d_onUpdated(d_center->pos(),d_radius); });
+	                            [this] () { update(false); emit updated(); });
 
 	d_radiusHandle->setPos(pos.x() + radius,pos.y());
 
@@ -50,10 +45,6 @@ void Circle::addToScene(QGraphicsScene * scene) {
 }
 
 
-
-void Circle::setColor(const QColor & color) {
-	d_color = color;
-}
 
 void Circle::paint(QPainter * painter,
                    const QStyleOptionGraphicsItem * option,
@@ -81,4 +72,13 @@ void Circle::update(bool fixRadius) {
 	        c.y() - d_radius,
 	        2*d_radius,
 	        2*d_radius);
+}
+
+
+QPointF Circle::pos() const {
+	return d_center->pos();
+}
+
+qreal Circle::radius() const {
+	return d_radius;
 }

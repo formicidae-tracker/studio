@@ -2,28 +2,28 @@
 
 
 #include <QGraphicsEllipseItem>
-
+#include "Shape.hpp"
 
 class Handle;
 
-class Circle : public QGraphicsEllipseItem {
+class Circle : public Shape, public QGraphicsEllipseItem {
+	Q_OBJECT
 public:
-	const static qreal LINE_WIDTH;
-	const static int   BORDER_OPACITY;
-	const static int   FILL_OPACITY;
 
-	typedef std::function<void (const QPointF &, qreal)> UpdatedCallback;
 	Circle(const QPointF & pos,
 	       qreal radius,
 	       QColor color,
-	       UpdatedCallback onUpdated,
 	       QGraphicsItem * parent = nullptr);
 	virtual ~Circle();
 
 
-	void addToScene(QGraphicsScene * scene);
+	void addToScene(QGraphicsScene * scene) override;
 
-	void setColor(const QColor & color);
+	QPointF pos() const;
+
+	qreal radius() const;
+
+
 
 protected:
 	void paint(QPainter * painter,
@@ -35,6 +35,4 @@ private:
 
 	Handle          * d_center, * d_radiusHandle;
 	qreal             d_radius;
-	UpdatedCallback   d_onUpdated;
-	QColor            d_color;
 };
