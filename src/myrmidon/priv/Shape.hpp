@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 
 #include "ForwardDeclaration.hpp"
+#include "Types.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -25,6 +26,8 @@ public:
 	Type ShapeType() const;
 
 	virtual bool Contains(const Eigen::Vector2d & point) const = 0;
+
+	virtual AABB ComputeAABB() const = 0;
 
 	static CapsuleConstPtr ToCapsule(const ConstPtr & s);
 	static CircleConstPtr  ToCircle(const ConstPtr & s);

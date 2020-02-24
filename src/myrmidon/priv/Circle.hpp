@@ -33,8 +33,10 @@ public:
 		return d_radius;
 	}
 
+	bool Contains(const Eigen::Vector2d & point) const override;
 
-	bool Contains(const Eigen::Vector2d & point) const;
+	AABB ComputeAABB() const override;
+
 
 private:
 	Eigen::Vector2d d_center;

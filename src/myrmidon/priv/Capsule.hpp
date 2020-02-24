@@ -54,7 +54,9 @@ public:
 		return d_r2;
 	}
 
-	bool Contains(const Eigen::Vector2d & point) const;
+	bool Contains(const Eigen::Vector2d & point) const override;
+
+	AABB ComputeAABB() const override;
 
 	static bool Intersect(const Eigen::Vector2d & aC1,
 	                      const Eigen::Vector2d & aC2,

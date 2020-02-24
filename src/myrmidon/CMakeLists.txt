@@ -49,6 +49,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/TimeUtils.hpp
                       priv/Color.hpp
                       priv/Space.hpp
+                      priv/Zone.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
@@ -94,6 +95,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/TimeUtils.cpp
                       priv/Color.cpp
                       priv/Space.cpp
+                      priv/Zone.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp
                       priv/Ant.cpp

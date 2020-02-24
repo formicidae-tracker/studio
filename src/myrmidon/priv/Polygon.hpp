@@ -23,6 +23,7 @@ public:
 
 	bool Contains(const Eigen::Vector2d & point) const override;
 
+	AABB ComputeAABB() const override;
 private:
 
 	Vector2dList d_vertices;

@@ -100,6 +100,14 @@ bool Capsule::Contains(const Eigen::Vector2d & point) const {
 	return diff.squaredNorm() <= r*r;
 }
 
+AABB Capsule::ComputeAABB() const {
+	Eigen::Vector2d r1(d_r1,d_r1),r2(d_r2,d_r2);
+	AABB res(d_c1 - r1,d_c1 + r1);
+	res.extend(AABB(d_c2 -r2, d_c2 + r2));
+	return res;
+}
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

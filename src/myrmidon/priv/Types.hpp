@@ -5,7 +5,7 @@
 
 #include <tuple>
 
-#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace fort {
 namespace myrmidon {
@@ -22,6 +22,9 @@ typedef uint32_t TagID;
 
 // A List of 2D vector
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
+
+// AABB
+typedef Eigen::AlignedBox<double,2> AABB;
 
 
 

@@ -15,6 +15,14 @@ Polygon::Polygon( const Vector2dList & vertices)
 Polygon::~Polygon() {
 }
 
+AABB Polygon::ComputeAABB() const {
+	AABB res(d_vertices[0],d_vertices[1]);
+	for ( size_t i = 2; i < d_vertices.size(); ++i) {
+		res.extend(d_vertices[i]);
+	}
+	return res;
+}
+
 size_t Polygon::Size() const {
 	return d_vertices.size();
 }
