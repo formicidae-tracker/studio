@@ -1,4 +1,4 @@
-#include "ShapeUTest.hpp"
+#include "CapsuleUTest.hpp"
 
 #include <random>
 #include <fstream>
@@ -8,13 +8,13 @@
 #include <opencv2/imgproc.hpp>
 
 
-#include "Shape.hpp"
+#include "Capsule.hpp"
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TEST_F(ShapeUTest,TestCaspuleCollision) {
+TEST_F(CapsuleUTest,TestCaspuleCollision) {
 	struct TestData {
 		double aC1X,aC1Y,aC2X,aC2Y,aR1,aR2;
 		double bC1X,bC1Y,bC2X,bC2Y,bR1,bR2;

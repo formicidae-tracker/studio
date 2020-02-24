@@ -6,7 +6,7 @@
 #include <myrmidon/priv/KDTreePrinter.hpp>
 #include <myrmidon/Time.hpp>
 #include <myrmidon/utils/FileSystem.hpp>
-#include <myrmidon/priv/Shape.hpp>
+#include <myrmidon/priv/Capsule.hpp>
 #include <myrmidon/priv/KDTree.hpp>
 
 #include <fstream>

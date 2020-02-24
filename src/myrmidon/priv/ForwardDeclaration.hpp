@@ -39,8 +39,6 @@ class RawFrame;
 // Forward decalation for an <priv::RawFrame::ConstPtr>
 typedef std::shared_ptr<const RawFrame>   RawFrameConstPtr;
 
-// Forward declaration for a <priv::Capsule>
-FORT_MYRMIDON_FDECLARE_CLASS(Capsule)
 
 // Forward declaration for a <priv::MovieSegment>
 FORT_MYRMIDON_FDECLARE_CLASS(MovieSegment)
@@ -62,6 +60,15 @@ FORT_MYRMIDON_FDECLARE_CLASS(MeasurementType)
 
 //Forward declaration for a <priv::Space>
 FORT_MYRMIDON_FDECLARE_CLASS(Space)
+
+//Forward declaration for a <priv::Capsule>
+FORT_MYRMIDON_FDECLARE_CLASS(Capsule)
+
+// Forward declaration for a <priv::Polygon>
+FORT_MYRMIDON_FDECLARE_CLASS(Polygon)
+
+// Forward declaration for a <priv::Circle>
+FORT_MYRMIDON_FDECLARE_CLASS(Circle)
 
 
 

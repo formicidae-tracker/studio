@@ -6,7 +6,7 @@
 #include <myrmidon/Ant.hpp>
 
 #include "Identification.hpp"
-#include "Shape.hpp"
+#include "Capsule.hpp"
 #include "Color.hpp"
 
 namespace fort {

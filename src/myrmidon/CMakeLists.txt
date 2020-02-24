@@ -63,7 +63,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/TimeValid.hpp
                       priv/MovieSegment.hpp
                       priv/Types.hpp
-                      priv/Shape.hpp
+                      priv/Capsule.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
                       priv/SnapshotCache.hpp
@@ -102,7 +102,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/ExperimentReadWriter.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
-                      priv/Shape.cpp
+                      priv/Capsule.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp
                       priv/SnapshotCache.cpp
@@ -155,7 +155,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
-                    priv/ShapeUTest.cpp
+                    priv/CapsuleUTest.cpp
                     priv/KDTreeUTest.cpp
                     )
 
@@ -183,7 +183,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
-                    priv/ShapeUTest.hpp
+                    priv/CapsuleUTest.hpp
                     priv/KDTreeUTest.hpp
                     )
 

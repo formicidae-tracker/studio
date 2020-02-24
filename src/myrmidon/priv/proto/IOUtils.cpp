@@ -2,7 +2,7 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
-#include <myrmidon/priv/Shape.hpp>
+#include <myrmidon/priv/Capsule.hpp>
 #include <myrmidon/priv/TagCloseUp.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Measurement.hpp>

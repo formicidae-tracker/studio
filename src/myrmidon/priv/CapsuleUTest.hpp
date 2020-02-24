@@ -8,7 +8,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class ShapeUTest : public ::testing::Test {
+class CapsuleUTest : public ::testing::Test {
 };
 
 

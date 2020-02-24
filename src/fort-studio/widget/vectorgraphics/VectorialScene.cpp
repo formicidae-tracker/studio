@@ -11,7 +11,7 @@
 
 #include <fort-studio/widget/base/ColorComboBox.hpp>
 
-
+#include <myrmidon/priv/Capsule.hpp>
 
 VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent) {

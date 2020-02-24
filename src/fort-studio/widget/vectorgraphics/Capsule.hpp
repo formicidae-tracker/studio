@@ -3,10 +3,6 @@
 
 #include "Handle.hpp"
 
-#include <myrmidon/priv/Shape.hpp>
-
-namespace fmp = fort::myrmidon::priv;
-
 class Capsule : public QGraphicsItemGroup {
 public:
 	const static qreal LINE_WIDTH;
