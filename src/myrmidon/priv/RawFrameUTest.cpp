@@ -53,13 +53,13 @@ TEST_F(RawFrameUTest,ExtractsDataFromHermes) {
 
 	for (auto  m : {&withData,&withError}) {
 		auto res = RawFrame::Create("foo",*m,mID);
-		EXPECT_EQ(res->ID(),frameID);
+		EXPECT_EQ(res->Frame().FID(),frameID);
 		auto expectedTime = time;
 		if ( m->error() != fort::hermes::FrameReadout_Error_NO_ERROR ) {
 			// strip monotonic values on errored frame, has timestamp is always null
 			expectedTime = Time::FromTimestamp(time.ToTimestamp());
 		}
-		EXPECT_TRUE(TimeEqual(res->Time(),expectedTime));
+		EXPECT_TRUE(TimeEqual(res->Frame().Time(),expectedTime));
 		EXPECT_EQ(res->Width(),width);
 		EXPECT_EQ(res->Height(),height);
 		results.push_back(res);

@@ -36,16 +36,16 @@ TEST_F(AntPoseEstimateUTest,HaveAnURI) {
 		                                   Eigen::Vector2d(2.0,0.0));
 
 
-		EXPECT_EQ(fromValues.Reference().URI().generic_string(),
-		          d.Reference.URI().generic_string());
+		EXPECT_EQ(fromValues.Reference().URI(),
+		          d.Reference.URI());
 
-		EXPECT_EQ(URI.generic_string(),
-		          d.Expected.generic_string());
-		EXPECT_EQ(fromValues.URI().generic_string(),
-		          d.Expected.generic_string());
+		EXPECT_EQ(URI,
+		          d.Expected);
+		EXPECT_EQ(fromValues.URI(),
+		          d.Expected);
 
-		EXPECT_EQ(fromVectors.URI().generic_string(),
-		          d.Expected.generic_string());
+		EXPECT_EQ(fromVectors.URI(),
+		          d.Expected);
 
 		EXPECT_EQ(fromValues.TargetTagID(),
 		          d.TID);

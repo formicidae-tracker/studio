@@ -165,7 +165,7 @@ public:
 	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
 	// @return a <FrameReference> contained in the message
 	static FrameReference LoadFrameReference(const pb::TimedFrame & pb,
-	                                         const fs::path & parentURI,
+	                                         const std::string & parentURI,
 	                                         Time::MonoclockID monoID);
 
 	// Save a FrameReference to a message
@@ -183,7 +183,7 @@ public:
 	// @return the segment in the message
 	static  TrackingDataDirectory::TrackingIndex::Segment
 	LoadTrackingIndexSegment(const pb::TrackingSegment & pb,
-	                         const fs::path & parentURI,
+	                         const std::string & parentURI,
 	                         Time::MonoclockID monoID);
 
 	// Saves a TrackingIndex to a message
@@ -202,7 +202,7 @@ public:
 	// @return the <MovieSegment> in the message
 	static MovieSegmentPtr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
 	                                        const fs::path & parentAbsoluteFilePath,
-	                                        const fs::path & parentURI);
+	                                        const std::string & parentURI);
 
 	// Saves a MovieSegment to a message
 	//

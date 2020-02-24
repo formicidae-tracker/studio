@@ -39,8 +39,6 @@ using namespace fort::myrmidon;
 class Experiment : public FileSystemLocatable {
 public :
 
-	// Maps <TrackingDataDirectory> by their path
-	typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
 	// Maps the <MeasurementType> by their <MeasurementType::ID>
 	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
@@ -48,7 +46,7 @@ public :
 
 	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
 
-	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
+	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
 
 
 	// A Pointer to an Experiment.
@@ -106,20 +104,20 @@ public :
 
 	Space::Ptr CreateSpace(const std::string & name);
 
-	void DeleteSpace(const fs::path & zoneURI);
+	void DeleteSpace(const std::string & zoneURI);
 
 	const std::vector<Space::Ptr> & Spaces() const;
 
-	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
+	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
-	bool TrackingDataDirectoryIsDeletable(const fs::path & URI) const;
+	bool TrackingDataDirectoryIsDeletable(const std::string & URI) const;
 
-	void DeleteTrackingDataDirectory(const fs::path & URI);
+	void DeleteTrackingDataDirectory(const std::string & URI);
 
 	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-	LocateTrackingDataDirectory(const fs::path & tddURI) const;
+	LocateTrackingDataDirectory(const std::string & tddURI) const;
 
-	Space::Ptr LocateSpace(const fs::path & spaceURI) const;
+	Space::Ptr LocateSpace(const std::string & spaceURI) const;
 
 	// Accessor to the underlying Identifier
 	//
@@ -215,7 +213,7 @@ public :
 	// Removes a Measurement
 	//
 	// @URI the URI of the measurement to remove
-	void DeleteMeasurement(const fs::path & URI);
+	void DeleteMeasurement(const std::string & URI);
 
 	// Lists all Measurement of the experiment.
 	//
@@ -257,7 +255,7 @@ public :
 private:
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
-	                          std::map<fs::path,
+	                          std::map<std::string,
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
@@ -268,7 +266,7 @@ private:
 
 	Experiment(const fs::path & filepath);
 
-	void CheckTDDIsDeletable(const fs::path & URI) const;
+	void CheckTDDIsDeletable(const std::string & URI) const;
 
 	fs::path             d_absoluteFilepath;
 	fs::path             d_basedir;

@@ -28,7 +28,7 @@ public:
 public slots:
 	void addSpace(const QString & spaceName);
 	void deleteSpace(const QString & spaceName);
-	void addTrackingDataDirectoryToSpace(const QString & spaceURI,
+	void addTrackingDataDirectoryToSpace(const QString & spaceName,
 	                                     const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	void deleteTrackingDataDirectory(const QString & URI);
 

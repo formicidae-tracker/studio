@@ -24,7 +24,7 @@ TEST_F(TDDCacheUTest,CahceIO) {
 
 	EXPECT_THROW({
 			//Was never opened, so there is no cache
-			TDDCache::Load(TestSetup::Basedir() / cacheURI ,cacheURI);
+			TDDCache::Load(TestSetup::Basedir() / cacheURI ,cacheURI.generic_string());
 		},std::runtime_error);
 
 	TrackingDataDirectory::ConstPtr opened,cached;
@@ -32,7 +32,7 @@ TEST_F(TDDCacheUTest,CahceIO) {
 			//will open it one first, and saving the cache
 			opened = TrackingDataDirectory::Open(TestSetup::Basedir() / cacheURI,
 			                            TestSetup::Basedir());
-			cached = TDDCache::Load(TestSetup::Basedir() / cacheURI, cacheURI);
+			cached = TDDCache::Load(TestSetup::Basedir() / cacheURI, cacheURI.generic_string());
 		});
 
 
@@ -63,7 +63,7 @@ TEST_F(TDDCacheUTest,CahceIO) {
 		});
 
 	EXPECT_THROW({
-			TDDCache::Load(TestSetup::Basedir() / cacheURI, cacheURI);
+			TDDCache::Load(TestSetup::Basedir() / cacheURI, cacheURI.generic_string());
 		},std::runtime_error);
 
 

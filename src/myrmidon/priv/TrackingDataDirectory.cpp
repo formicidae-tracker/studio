@@ -26,7 +26,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const fs::path & uri,
+TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const std::string & uri,
                                                               const fs::path & absoluteFilePath,
                                                               uint64_t startFrame,
                                                               uint64_t endFrame,
@@ -53,7 +53,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const fs::path & u
 }
 
 
-TrackingDataDirectory::TrackingDataDirectory(const fs::path & uri,
+TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
                                              const fs::path & absoluteFilePath,
                                              uint64_t startFrame,
                                              uint64_t endFrame,
@@ -89,7 +89,7 @@ TrackingDataDirectory::TrackingDataDirectory(const fs::path & uri,
 }
 
 
-const fs::path &  TrackingDataDirectory::URI() const {
+const std::string & TrackingDataDirectory::URI() const {
 	return d_URI;
 }
 
@@ -177,7 +177,7 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
 }
 
 void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
-                                              const fs::path & parentURI,
+                                              const std::string & parentURI,
                                               MovieSegment::List & movies ){
 	for ( const auto & [id,paths] : moviesPaths ) {
 		if ( !paths.first.empty() && !paths.second.empty() ) {
@@ -193,7 +193,7 @@ void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<
 
 
 std::pair<TrackingDataDirectory::TimedFrame,TrackingDataDirectory::TimedFrame>
-TrackingDataDirectory::BuildIndexes(const fs::path & URI,
+TrackingDataDirectory::BuildIndexes(const std::string & URI,
                                     Time::MonoclockID monoID,
                                     const std::vector<fs::path> & hermesFiles,
                                     const TrackingIndex::Ptr & trackingIndexer,
@@ -302,7 +302,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
 
 	try {
-		return LoadFromCache(absoluteFilePath,URI);
+		return LoadFromCache(absoluteFilePath,URI.generic_string());
 	} catch (const std::exception & e ) {
 	};
 
@@ -320,19 +320,19 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		throw std::invalid_argument(filepath.string() + " does not contains any .hermes file");
 	}
 
-	LoadMovieSegments(moviesPaths,URI,movies);
+	LoadMovieSegments(moviesPaths,URI.generic_string(),movies);
 	for(const auto & m : movies) {
-		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
+		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI.generic_string(),0,Time())));
 	}
 
 	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
 	for(const auto & [FID,s] : snapshots) {
-		referenceCache->insert(std::make_pair(FID,FrameReference(URI,0,Time())));
+		referenceCache->insert(std::make_pair(FID,FrameReference(URI.generic_string(),0,Time())));
 	}
 
 	Time::MonoclockID monoID = GetUID(absoluteFilePath);
 
-	auto bounds = BuildIndexes(URI,
+	auto bounds = BuildIndexes(URI.generic_string(),
 	                           monoID,
 	                           hermesFiles,
 	                           ti,
@@ -342,7 +342,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	for(const auto & m : movies) {
 		auto fi = referenceCache->find(m->StartFrame());
 		if (fi == referenceCache->cend() ||
-		    ( fi->second.ID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
+		    ( fi->second.FID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
 			std::ostringstream oss;
 			oss << "[MovieIndexing] Could not find FrameReference for FrameID " << m->StartFrame();
 			throw std::logic_error(oss.str());
@@ -353,7 +353,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	std::vector<FrameID> toErase;
 	toErase.reserve(referenceCache->size());
 	for ( const auto & [FID,ref] : *referenceCache ) {
-		if (ref.ID() == 0 && ref.Time().Equals(emptyTime) ) {
+		if (ref.FID() == 0 && ref.Time().Equals(emptyTime) ) {
 			toErase.push_back(FID);
 		}
 	}
@@ -364,7 +364,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	}
 
 
-	auto res = TrackingDataDirectory::Create(URI,
+	auto res = TrackingDataDirectory::Create(URI.generic_string(),
 	                                         absoluteFilePath,
 	                                         bounds.first.first,
 	                                         bounds.second.first,
@@ -424,7 +424,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	if ( d_current > parent->d_endFrame ) {
 		return NULLPTR;
 	}
-	while ( !d_frame || d_frame->ID() < d_current) {
+	while ( !d_frame || d_frame->Frame().FID() < d_current) {
 		if ( !d_file ) {
 			auto p = parent->d_absoluteFilePath / parent->d_segments->Find(d_current);
 			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
@@ -441,8 +441,8 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 			return NULLPTR;
 		}
 	}
-	if ( d_frame->ID() > d_current ) {
-		d_current = d_frame->ID();
+	if ( d_frame->Frame().FID() > d_current ) {
+		d_current = d_frame->Frame().FID();
 	}
 	return d_frame;
 }
@@ -479,7 +479,7 @@ FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID FID) const {
 	if ( fi != d_referencesByFID->cend() ) {
 		return fi->second;
 	}
-	return **FrameAt(FID);
+	return (*FrameAt(FID))->Frame();
 }
 
 FrameReference TrackingDataDirectory::FrameReferenceNear(const Time & t) const {
@@ -506,7 +506,7 @@ TrackingDataDirectory::ReferenceCache() const {
 
 TrackingDataDirectory::ConstPtr
 TrackingDataDirectory::LoadFromCache(const fs::path & absoluteFilePath,
-                                     const fs::path & URI) {
+                                     const std::string & URI) {
 	return proto::TDDCache::Load(absoluteFilePath,URI);
 }
 
@@ -533,8 +533,8 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::priv::TrackingDataDirectory & a) {
-	return out << "TDD{URI:" << a.URI().generic_string()
-	           << ", start:" << a.StartDate()
+	return out << "TDD{URI:'" << a.URI()
+	           << "', start:" << a.StartDate()
 	           << ", end:" << a.EndDate()
 	           << "}";
 }

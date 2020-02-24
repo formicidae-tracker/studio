@@ -222,7 +222,7 @@ Measurement::ConstPtr IOUtils::LoadMeasurement(const pb::Measurement & pb) {
 
 void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr & m) {
 	pb->Clear();
-	pb->set_tagcloseupuri(m->TagCloseUpURI().generic_string());
+	pb->set_tagcloseupuri(m->TagCloseUpURI());
 	pb->set_type(m->Type());
 	SaveVector(pb->mutable_start(),m->StartFromTag());
 	SaveVector(pb->mutable_end(),m->EndFromTag());
@@ -275,9 +275,9 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	auto zones = e.Spaces();
 	for (const auto & z : zones) {
 		auto zPb = pb->add_zones();
-		zPb->set_name(z->URI().generic_string());
+		zPb->set_name(z->Name());
 		for ( const auto & tdd : z->TrackingDataDirectories() ) {
-			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
+			zPb->add_trackingdatadirectories(tdd->URI());
 		}
 	}
 	for (const auto & [mt,t] : e.MeasurementTypes() ) {
@@ -288,20 +288,20 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 }
 
 FrameReference IOUtils::LoadFrameReference(const pb::TimedFrame & pb,
-                                           const fs::path & parentURI,
+                                           const std::string & parentURI,
                                            Time::MonoclockID monoID) {
 	return FrameReference(parentURI,pb.frameid(),LoadTime(pb.time(),monoID));
 }
 
 void IOUtils::SaveFrameReference(pb::TimedFrame * pb,
                                  const FrameReference & ref) {
-		pb->set_frameid(ref.ID());
+		pb->set_frameid(ref.FID());
 		SaveTime(pb->mutable_time(),ref.Time());
 }
 
 TrackingDataDirectory::TrackingIndex::Segment
 IOUtils::LoadTrackingIndexSegment(const pb::TrackingSegment & pb,
-                                  const fs::path & parentURI,
+                                  const std::string & parentURI,
                                   Time::MonoclockID monoID) {
 	return std::make_pair(LoadFrameReference(pb.frame(),parentURI,monoID),
 	                      pb.filename());
@@ -317,7 +317,7 @@ void IOUtils::SaveTrackingIndexSegment(pb::TrackingSegment * pb,
 MovieSegment::Ptr
 IOUtils::LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
                           const fs::path & parentAbsoluteFilePath,
-                          const fs::path & parentURI) {
+                          const std::string & parentURI) {
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(parentAbsoluteFilePath);
 
 	MovieSegment::ListOfOffset offsets;
@@ -364,7 +364,7 @@ TagCloseUp::ConstPtr IOUtils::LoadTagCloseUp(const pb::TagCloseUp & pb,
                                              std::function<FrameReference (FrameID)> resolver) {
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteBasedir);
 
-	TagCloseUp::Vector2dList corners;
+	Vector2dList corners;
 	if ( pb.corners_size() != 4 ) {
 		throw std::invalid_argument("protobuf message does not contains 4 corners");
 	}
@@ -390,7 +390,7 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 
 	pb->Clear();
 
-	pb->set_frameid(tcu->Frame().ID());
+	pb->set_frameid(tcu->Frame().FID());
 	pb->set_imagepath(fs::relative(tcu->AbsoluteFilePath(),absoluteBasedir).generic_string());
 	SaveVector(pb->mutable_position(),tcu->TagPosition());
 	pb->set_angle(tcu->TagAngle());

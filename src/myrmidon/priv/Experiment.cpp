@@ -62,7 +62,7 @@ Space::Ptr Experiment::CreateSpace(const std::string & name) {
 	return Space::Universe::Create(d_universe,name);
 }
 
-void Experiment::DeleteSpace(const fs::path & zoneURI) {
+void Experiment::DeleteSpace(const std::string & zoneURI) {
 	d_universe->DeleteSpace(zoneURI);
 }
 
@@ -70,30 +70,30 @@ const std::vector<Space::Ptr> & Experiment::Spaces() const {
 	return d_universe->Spaces();
 }
 
-const std::map<fs::path,TrackingDataDirectoryConstPtr> &
+const Space::Universe::TrackingDataDirectoryByURI &
 Experiment::TrackingDataDirectories() const {
 	return d_universe->TrackingDataDirectories();
 }
 
-void Experiment::CheckTDDIsDeletable(const fs::path & URI) const {
+void Experiment::CheckTDDIsDeletable(const std::string & URI) const {
 	auto fi = std::find_if(d_measurementByURI.begin(),
 	                       d_measurementByURI.end(),
 	                       [URI](const std::pair<fs::path,MeasurementByType> & elem) -> bool {
-		                       if ( elem.first.lexically_relative(URI).empty() == true ) {
+		                       if ( fs::path(elem.first).lexically_relative(URI).empty() == true ) {
 			                       return false;
 		                       }
 		                       return elem.second.empty() == false;
 	                       });
 	if ( fi != d_measurementByURI.end() ) {
-		throw std::runtime_error("Could not remove TrackingDataDirectory '" + URI.generic_string()
+		throw std::runtime_error("Could not remove TrackingDataDirectory '" + URI
 		                         + "': it contains measurement '"
-		                         + fi->first.generic_string()
+		                         + fi->first
 		                         + "'");
 
 	}
 }
 
-bool Experiment::TrackingDataDirectoryIsDeletable(const fs::path & URI) const {
+bool Experiment::TrackingDataDirectoryIsDeletable(const std::string & URI) const {
 	try {
 		CheckTDDIsDeletable(URI);
 	} catch ( const std::exception & e) {
@@ -103,7 +103,7 @@ bool Experiment::TrackingDataDirectoryIsDeletable(const fs::path & URI) const {
 }
 
 
-void Experiment::DeleteTrackingDataDirectory(const fs::path & URI) {
+void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 	CheckTDDIsDeletable(URI);
 	d_universe->DeleteTrackingDataDirectory(URI);
 }
@@ -170,22 +170,22 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 		throw std::runtime_error("Unknown MeasurementType::ID " + std::to_string(m->Type()));
 	}
 
-	fs::path tddPath;
+	std::string tddURI;
 	FrameID FID;
 	TagID TID;
 	MeasurementType::ID MTID;
-	Measurement::DecomposeURI(m->URI(),tddPath,FID,TID,MTID);
-	auto fi = d_universe->TrackingDataDirectories().find(tddPath.generic_string());
+	Measurement::DecomposeURI(m->URI(),tddURI,FID,TID,MTID);
+	auto fi = d_universe->TrackingDataDirectories().find(tddURI);
 	if ( fi == d_universe->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
-		oss << "Unknow data directory " << tddPath;
+		oss << "Unknown data directory '" << tddURI << "'";
 		throw std::invalid_argument(oss.str());
 	}
 
 	auto ref = fi->second->FrameReferenceAt(FID);
 
 	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
-	d_measurements[m->Type()][TID][tddPath][ref.Time()] = m;
+	d_measurements[m->Type()][TID][tddURI][ref.Time()] = m;
 
 	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
 		return;
@@ -197,32 +197,33 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	                                                                   m->StartFromTag()));
 }
 
-void Experiment::DeleteMeasurement(const fs::path & URI) {
-	fs::path tddPath;
+void Experiment::DeleteMeasurement(const std::string & URI) {
+	std::string tddURI;
 	FrameID FID;
 	TagID TID;
 	MeasurementType::ID MTID;
-	Measurement::DecomposeURI(URI,tddPath,FID,TID,MTID);
+	Measurement::DecomposeURI(URI,tddURI,FID,TID,MTID);
 
-	auto tfi = d_universe->TrackingDataDirectories().find(tddPath.generic_string());
+	auto tfi = d_universe->TrackingDataDirectories().find(tddURI);
 	if ( tfi == d_universe->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
+		oss << "Unknown data directory '" << tddURI << "'";
 		throw std::invalid_argument(oss.str());
 	}
 	auto ref = tfi->second->FrameReferenceAt(FID);
 
 
-	auto tagCloseUpURI = tddPath / "frames" / std::to_string(FID) / "closeups" / std::to_string(TID);
-	auto fi = d_measurementByURI.find(tagCloseUpURI);
+	auto tagCloseUpURI = fs::path(tddURI) / "frames" / std::to_string(FID) / "closeups" / std::to_string(TID);
+	auto fi = d_measurementByURI.find(tagCloseUpURI.generic_string());
 	if ( fi == d_measurementByURI.end() ){
 		throw std::runtime_error("Unknown measurement '"
-		                         + URI.generic_string()
+		                         + URI
 		                         + "'");
 	}
 	auto ffi = fi->second.find(MTID);
 	if ( ffi == fi->second.end() ) {
 		throw std::runtime_error("Unknown measurement '"
-		                         + URI.generic_string()
+		                         + URI
 		                         + "'");
 	}
 	fi->second.erase(ffi);
@@ -237,7 +238,7 @@ void Experiment::DeleteMeasurement(const fs::path & URI) {
 	if (sffi == sfi->second.end() ) {
 		throw std::logic_error("Sorting error");
 	}
-	auto sfffi =  sffi->second.find(tddPath);
+	auto sfffi =  sffi->second.find(tddURI);
 	if ( sfffi == sffi->second.end() ) {
 		throw std::logic_error("Sorting error");
 	}
@@ -386,11 +387,11 @@ const Experiment::MeasurementTypeByID & Experiment::MeasurementTypes() const {
 }
 
 std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-Experiment::LocateTrackingDataDirectory(const fs::path & tddURI) const {
+Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }
 
-Space::Ptr Experiment::LocateSpace(const fs::path & spaceURI) const {
+Space::Ptr Experiment::LocateSpace(const std::string & spaceURI) const {
 	return d_universe->LocateSpace(spaceURI);
 }
 

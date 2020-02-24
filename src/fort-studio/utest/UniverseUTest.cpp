@@ -6,6 +6,8 @@
 
 #include <myrmidon/TestSetup.hpp>
 
+#include <fort-studio/Format.hpp>
+
 #include <QSignalSpy>
 #include <QTest>
 
@@ -87,11 +89,11 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_EQ(m->rowCount(),2);
 	EXPECT_EQ(m->rowCount(m->index(0,0)),2);
 	EXPECT_EQ(m->rowCount(m->index(1,0)),1);
-	EXPECT_EQ(m->data(m->index(0,0)).toString(),"foo");
-	EXPECT_EQ(m->data(m->index(1,0)).toString(),"bar");
-	EXPECT_EQ(m->data(m->index(0,0,m->index(0,0))).toString(),"foo.0000");
-	EXPECT_EQ(m->data(m->index(1,0,m->index(0,0))).toString(),"foo.0001");
-	EXPECT_EQ(m->data(m->index(0,0,m->index(1,0))).toString(),"foo.0002");
+	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),"foo");
+	EXPECT_EQ(ToStdString(m->data(m->index(1,0)).toString()),"bar");
+	EXPECT_EQ(ToStdString(m->data(m->index(0,0,m->index(0,0))).toString()),"foo.0000");
+	EXPECT_EQ(ToStdString(m->data(m->index(1,0,m->index(0,0))).toString()),"foo.0001");
+	EXPECT_EQ(ToStdString(m->data(m->index(0,0,m->index(1,0))).toString()),"foo.0002");
 
 
 	universe->addSpace("wuhu");
@@ -125,8 +127,8 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	ASSERT_EQ(spaceChangedSignal.count(),1);
 	ASSERT_EQ(tddDeleted.count(),1);
 	EXPECT_EQ(tddDeleted.at(0).at(0).toString(),"foo.0001");
-	EXPECT_EQ(spaceChangedSignal.at(0).at(0).value<fmp::Space::Ptr>()->URI().string(),
-	          "foo");
+	EXPECT_EQ(spaceChangedSignal.at(0).at(0).value<fmp::Space::Ptr>()->URI(),
+	          "spaces/foo");
 
 	universe->setExperiment(experiment);
 	EXPECT_FALSE(universe->isModified());
@@ -139,9 +141,9 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
 	ASSERT_EQ(spaceChangedSignal.count(),2);
 	ASSERT_EQ(tddAdded.count(),1);
-	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::ConstPtr>()->URI().string(),"foo.0001");
-	EXPECT_EQ(spaceChangedSignal.at(1).at(0).value<fmp::Space::Ptr>()->URI().string(),
-	          "wuhu");
+	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::ConstPtr>()->URI(),"foo.0001");
+	EXPECT_EQ(spaceChangedSignal.at(1).at(0).value<fmp::Space::Ptr>()->URI(),
+	          "spaces/wuhu");
 
 	universe->setExperiment(experiment);
 	EXPECT_FALSE(universe->isModified());
@@ -155,8 +157,8 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_TRUE(modifiedSignal.at(6).at(0).toBool());
 	ASSERT_EQ(spaceDeletedSignal.count(),1);
 	ASSERT_EQ(tddDeleted.count(),2);
-	EXPECT_EQ(tddDeleted.at(1).at(0).toString(),"foo.0001");
-	EXPECT_EQ(spaceDeletedSignal.at(0).at(0).toString(),
+	EXPECT_EQ(ToStdString(tddDeleted.at(1).at(0).toString()),"foo.0001");
+	EXPECT_EQ(ToStdString(spaceDeletedSignal.at(0).at(0).toString()),
 	          "wuhu");
 
 	universe->setExperiment(experiment);
@@ -169,8 +171,8 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	ASSERT_EQ(modifiedSignal.count(),9);
 	EXPECT_TRUE(modifiedSignal.at(8).at(0).toBool());
 	ASSERT_EQ(spaceChangedSignal.count(),4);
-	EXPECT_EQ(spaceChangedSignal.at(3).at(0).value<fmp::Space::Ptr>()->URI().string(),
-	          "newName");
+	EXPECT_EQ(spaceChangedSignal.at(3).at(0).value<fmp::Space::Ptr>()->URI(),
+	          "spaces/newName");
 
 
 }

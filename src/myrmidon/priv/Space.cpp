@@ -30,16 +30,16 @@ std::string Space::TDDOverlap::BuildWhat(const TrackingDataDirectory::ConstPtr &
 	return oss.str();
 }
 
-Space::UnmanagedTrackingDataDirectory::UnmanagedTrackingDataDirectory(const fs::path & URI) noexcept
-	: std::runtime_error("TDD:'" + URI.generic_string() + "' is not managed by this Space or Universe") {
+Space::UnmanagedTrackingDataDirectory::UnmanagedTrackingDataDirectory(const std::string & URI) noexcept
+	: std::runtime_error("TDD:'" + URI + "' is not managed by this Space or Universe") {
 }
 
-Space::UnmanagedSpace::UnmanagedSpace(const fs::path & URI) noexcept
-	: std::runtime_error("Space:'" + URI.generic_string() + "' is not managed by this Universe") {
+Space::UnmanagedSpace::UnmanagedSpace(const std::string & URI) noexcept
+	: std::runtime_error("Space:'" + URI + "' is not managed by this Universe") {
 }
 
 Space::InvalidName::InvalidName(const std::string & name,
-                             const std::string & reason) noexcept
+                                const std::string & reason) noexcept
 	: std::runtime_error("Invalid Space name '" + name + "': " + reason) {
 }
 
@@ -49,22 +49,22 @@ Space::SpaceNotEmpty::SpaceNotEmpty(const Space & z)
 
 std::string Space::SpaceNotEmpty::BuildReason(const Space & z) {
 	std::ostringstream oss;
-	oss << "Space:'" << z.URI().generic_string()
+	oss << "Space:'" << z.Name()
 	    << "' is not empty (contains:";
 	std::string sep = "{";
 	for ( const auto & tdd : z.d_tdds ) {
-		oss << sep << tdd->URI().generic_string();
+		oss << sep << tdd->URI();
 		sep = ",";
 	}
 	oss << "})";
 	return oss.str();
 }
 
-Space::TDDAlreadyInUse::TDDAlreadyInUse(const fs::path & tddURI, const fs::path & spaceURI)
+Space::TDDAlreadyInUse::TDDAlreadyInUse(const std::string & tddURI, const std::string & spaceURI)
 	: std::runtime_error("TDD:'"
-	                     + tddURI.generic_string()
+	                     + tddURI
 	                     + "' is in use in Space:'"
-	                     + spaceURI.generic_string() + "'") {
+	                     + spaceURI + "'") {
 }
 
 Space::Ptr Space::Universe::Create(const Ptr & itself, const std::string & name) {
@@ -73,7 +73,7 @@ Space::Ptr Space::Universe::Create(const Ptr & itself, const std::string & name)
 	return res;
 }
 
-void Space::Universe::DeleteSpace(const fs::path & URI) {
+void Space::Universe::DeleteSpace(const std::string & URI) {
 	auto fi = std::find_if(d_spaces.begin(),
 	                       d_spaces.end(),
 	                       [URI](const Space::Ptr & z) -> bool {
@@ -90,7 +90,7 @@ void Space::Universe::DeleteSpace(const fs::path & URI) {
 	d_spaces.erase(fi);
 }
 
-void Space::Universe::DeleteTrackingDataDirectory(const fs::path & URI) {
+void Space::Universe::DeleteTrackingDataDirectory(const std::string & URI) {
 	for ( const auto & z : d_spaces ) {
 		try {
 			z->DeleteTrackingDataDirectory(URI);
@@ -115,8 +115,18 @@ Space::Universe::TrackingDataDirectories() const {
 	return d_tddsByURI;
 }
 
+bool HasPrefix(const std::string & s, const std::string & prefix ) {
+	if (prefix.size() > s.size() ) {
+		return false;
+	}
+	return std::mismatch(prefix.begin(),prefix.end(),s.begin(),s.end()).first == prefix.end();
+}
 
 void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd) {
+	if ( HasPrefix(tdd->URI(),"spaces/") == true ) {
+		throw std::runtime_error("Invalid TDD path '" + tdd->URI() + "': starts with 'spaces/'");
+	}
+
 	auto newList = d_tdds;
 	newList.push_back(tdd);
 	auto fi = TimeValid::SortAndCheckOverlap(newList.begin(),newList.end());
@@ -134,7 +144,7 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 
 	if ( zi != universe->d_spaces.end() ) {
 		throw std::runtime_error("TDD:'"
-		                         + tdd->URI().generic_string()
+		                         + tdd->URI()
 		                         + " has the same than a Space in this universe");
 	}
 
@@ -160,7 +170,7 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 	universe->d_tddsByURI.insert(std::make_pair(tdd->URI(),tdd));
 }
 
-void Space::DeleteTrackingDataDirectory(const fs::path & URI) {
+void Space::DeleteTrackingDataDirectory(const std::string & URI) {
 	auto fi = std::find_if(d_tdds.begin(),
 	                       d_tdds.end(),
 	                       [&URI](const TrackingDataDirectory::ConstPtr & tdd) {
@@ -175,17 +185,20 @@ void Space::DeleteTrackingDataDirectory(const fs::path & URI) {
 	d_tdds.erase(fi);
 }
 
-const fs::path & Space::URI() const {
+const std::string & Space::URI() const {
 	return d_URI;
 }
 
-void Space::SetName(const std::string & name) {
-	fs::path URI(name);
+const std::string & Space::Name() const {
+	return d_name;
+}
 
+void Space::SetName(const std::string & name) {
+	fs::path URI = "spaces" / fs::path(name);
 	if (name.empty()) {
 		throw InvalidName(name,"it is empty");
 	}
-	if (URI.filename() != URI) {
+	if (fs::path(name).filename() != fs::path(name)) {
 		throw InvalidName(name,"invalid character in path");
 	}
 
@@ -195,17 +208,18 @@ void Space::SetName(const std::string & name) {
 	auto zi = std::find_if(universe->d_spaces.begin(),
 	                       universe->d_spaces.end(),
 	                       [URI](const Space::Ptr & z ) {
-		                       return z->URI() == URI;
+		                       return z->URI() == URI.generic_string();
 	                       });
 	if (zi != universe->d_spaces.end()) {
 		throw InvalidName(name,"is already used by another Space");
 	}
 
-	if ( universe->d_tddsByURI.count(URI) != 0 ) {
+	if ( universe->d_tddsByURI.count(name) != 0 ) {
 		throw InvalidName(name,"is already used by another TDD");
 	}
 
-	d_URI = URI;
+	d_name = name;
+	d_URI = URI.generic_string();
 }
 
 const std::vector<TrackingDataDirectory::ConstPtr> & Space::TrackingDataDirectories() const {
@@ -221,7 +235,7 @@ Space::Universe::Ptr Space::LockUniverse() const {
 }
 
 std::pair<Space::Ptr,TrackingDataDirectory::ConstPtr>
-Space::Universe::LocateTrackingDataDirectory(const fs::path & tddURI) const {
+Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) const {
 	auto tddi = d_tddsByURI.find(tddURI) ;
 	if ( tddi == d_tddsByURI.end() ) {
 		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
@@ -244,7 +258,7 @@ Space::Universe::LocateTrackingDataDirectory(const fs::path & tddURI) const {
 	return std::make_pair(*zi,tddi->second);
 }
 
-Space::Ptr Space::Universe::LocateSpace(const fs::path & spaceURI) const {
+Space::Ptr Space::Universe::LocateSpace(const std::string & spaceURI) const {
 	auto zi = std::find_if(d_spaces.begin(),
 	                       d_spaces.end(),
 	                       [&spaceURI] ( const Space::Ptr & z) {

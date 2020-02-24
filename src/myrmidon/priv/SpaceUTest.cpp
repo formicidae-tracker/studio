@@ -56,15 +56,19 @@ TEST_F(SpaceUTest,NameCheck) {
 		} else {
 			EXPECT_NO_THROW({
 					good->SetName(d.Name);
-					EXPECT_EQ(good->URI().generic_string(),
+					EXPECT_EQ(good->Name(),
 					          d.Name);
+					EXPECT_EQ(good->URI(),
+					          "spaces/" + d.Name);
 					good->SetName("good");
 				}) << "Testing " << d.Name;
 
 			EXPECT_NO_THROW({
 					auto res = Space::Universe::Create(universe,d.Name);
-					EXPECT_EQ(res->URI().generic_string(),
+					EXPECT_EQ(res->Name(),
 					          d.Name);
+					EXPECT_EQ(res->URI(),
+					          "spaces/" + d.Name);
 				}) << "Testing " << d.Name;
 		}
 	}
@@ -116,11 +120,11 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 
 	EXPECT_THROW({
 			// Still having some data
-			universe->DeleteSpace("foo");
+			universe->DeleteSpace("spaces/foo");
 		},Space::SpaceNotEmpty);
 
 	EXPECT_THROW({
-			universe->DeleteSpace("bar");
+			universe->DeleteSpace("spaces/bar");
 		},Space::UnmanagedSpace);
 
 	auto z2 = Space::Universe::Create(universe,"bar");
@@ -141,7 +145,7 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 			// removes data that is associated with foo
 			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
 			// removes the zone is OK now
-			universe->DeleteSpace("bar");
+			universe->DeleteSpace("spaces/bar");
 		});
 
 }
@@ -166,7 +170,7 @@ TEST_F(SpaceUTest,ExceptionFormatting) {
 		{
 		 {
 		  Space::TDDOverlap(s_foo[0],s_foo[0]),
-		  "TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
+		  "TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
 		 },
 		 {
 		  Space::UnmanagedTrackingDataDirectory("doo"),

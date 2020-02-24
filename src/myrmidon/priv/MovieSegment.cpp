@@ -14,7 +14,7 @@ namespace priv {
 MovieSegment::Ptr MovieSegment::Open(MovieSegment::MovieID id,
                                      const fs::path & moviePath,
                                      const fs::path & frameMatchingPath,
-                                     const fs::path & parentURI) {
+                                     const std::string & parentURI) {
 
 	if ( fs::is_regular_file(frameMatchingPath) == false ) {
 		throw std::invalid_argument("'" + frameMatchingPath.string() + "' is not a regular file");
@@ -30,7 +30,6 @@ MovieSegment::Ptr MovieSegment::Open(MovieSegment::MovieID id,
 	MovieFrameID movieStart,movieEnd;
 
 
-	//TODO parse file
 	std::ifstream in(frameMatchingPath.c_str());
 	std::string line;
 	FrameID lastOffset;
@@ -105,7 +104,7 @@ uint64_t MovieSegment::ToMovieFrameID(uint64_t trackingFrameID) const {
 
 MovieSegment::MovieSegment(MovieID ID,
                            const fs::path & path,
-                           const fs::path & parentURI,
+                           const std::string & parentURI,
                            FrameID start,
                            FrameID end,
                            MovieFrameID startMovieID,
@@ -113,7 +112,7 @@ MovieSegment::MovieSegment(MovieID ID,
                            const ListOfOffset & offsets)
 	: d_ID(ID)
 	, d_absoluteMovieFilePath(fs::absolute(fs::weakly_canonical(path)))
-	, d_URI(parentURI / "movies"/ std::to_string(d_ID))
+	, d_URI( (fs::path(parentURI) / "movies" / std::to_string(d_ID)).generic_string() )
 	, d_trackingStart(start)
 	, d_trackingEnd(end)
 	, d_movieStart(startMovieID)
@@ -157,7 +156,7 @@ const fs::path & MovieSegment::AbsoluteFilePath() const {
 	return d_absoluteMovieFilePath;
 }
 
-const fs::path & MovieSegment::URI() const {
+const std::string & MovieSegment::URI() const {
 	return d_URI;
 }
 

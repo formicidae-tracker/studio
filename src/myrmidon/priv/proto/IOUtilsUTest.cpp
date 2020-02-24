@@ -338,7 +338,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 	struct TestData {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		Eigen::Vector2d       Start,End;
-		fs::path              ParentURI;
+		std::string           ParentURI;
 		MeasurementType::ID   TID;
 		double                TagSizePx;
 	};
@@ -360,7 +360,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		                                        d.End,
 		                                        d.TagSizePx);
 		pb::Measurement expected,pbRes;
-		expected.set_tagcloseupuri(d.ParentURI.generic_string());
+		expected.set_tagcloseupuri(d.ParentURI);
 		expected.set_type(d.TID);
 		IOUtils::SaveVector(expected.mutable_start(),d.Start);
 		IOUtils::SaveVector(expected.mutable_end(),d.End);
@@ -370,11 +370,11 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		EXPECT_TRUE(MessageEqual(pbRes,expected));
 
 		auto res = IOUtils::LoadMeasurement(pbRes);
-		EXPECT_EQ(res->URI().generic_string(),
-		          dM->URI().generic_string());
+		EXPECT_EQ(res->URI(),
+		          dM->URI());
 
-		EXPECT_EQ(res->TagCloseUpURI().generic_string(),
-		          dM->TagCloseUpURI().generic_string());
+		EXPECT_EQ(res->TagCloseUpURI(),
+		          dM->TagCloseUpURI());
 
 		EXPECT_EQ(res->Type(),dM->Type());
 		EXPECT_TRUE(VectorAlmostEqual(res->StartFromTag(),dM->StartFromTag()));
@@ -418,7 +418,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			z->AddTrackingDataDirectory(tdd);
 			auto zPb = expected.add_zones();
 			zPb->set_name("box");
-			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
+			zPb->add_trackingdatadirectories(tdd->URI());
 
 			e->MeasurementTypes().find(0)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();
@@ -460,7 +460,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 }
 
 TEST_F(IOUtilsUTest,TrackingIndexIO) {
-	fs::path parentURI("foo");
+	std::string parentURI("foo");
 	Time::MonoclockID monoID(42);
 	auto si = std::make_shared<TrackingDataDirectory::TrackingIndex>();
 	auto res = std::make_shared<TrackingDataDirectory::TrackingIndex>();
@@ -604,12 +604,12 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 	auto basedir = TestSetup::Basedir() / "foo.0000" / "ants";
 	struct TestData {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-		Eigen::Vector2d          Position;
-		fs::path                 Filepath;
-		FrameReference           Reference;
-		TagID                    TID;
-		double                   Angle;
-		TagCloseUp::Vector2dList Corners;
+		Eigen::Vector2d Position;
+		fs::path        Filepath;
+		FrameReference  Reference;
+		TagID           TID;
+		double          Angle;
+		Vector2dList    Corners;
 	};
 
 	std::vector<TestData> testdata =
@@ -641,7 +641,7 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		auto resolver = [&d](FrameID FID) {
 			                return FrameReference(d.Reference.ParentURI(),
 			                                      FID,
-			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.ID())) * Duration::Second));
+			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.FID())) * Duration::Second));
 		                };
 
 
@@ -653,17 +653,17 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		for (const auto & c : d.Corners ) {
 			IOUtils::SaveVector(expected.add_corners(),c);
 		}
-		expected.set_frameid(d.Reference.ID());
+		expected.set_frameid(d.Reference.FID());
 		expected.set_imagepath(d.Filepath.generic_string());
 
 		IOUtils::SaveTagCloseUp(&pbRes,dTCU,basedir);
 		EXPECT_TRUE(MessageEqual(pbRes,expected));
 		auto res = IOUtils::LoadTagCloseUp(pbRes,basedir,resolver);
 
-		EXPECT_EQ(res->Frame().URI().generic_string(),dTCU->Frame().URI().generic_string());
+		EXPECT_EQ(res->Frame().URI(),dTCU->Frame().URI());
 		EXPECT_TRUE(TimeEqual(res->Frame().Time(),dTCU->Frame().Time()));
-		EXPECT_EQ(res->URI().generic_string(),dTCU->URI().generic_string());
-		EXPECT_EQ(res->AbsoluteFilePath().generic_string(),dTCU->AbsoluteFilePath().generic_string());
+		EXPECT_EQ(res->URI(),dTCU->URI());
+		EXPECT_EQ(res->AbsoluteFilePath(),dTCU->AbsoluteFilePath());
 		EXPECT_TRUE(VectorAlmostEqual(res->TagPosition(),dTCU->TagPosition()));
 		EXPECT_DOUBLE_EQ(res->TagAngle(),dTCU->TagAngle());
 		ASSERT_EQ(4,res->Corners().size());

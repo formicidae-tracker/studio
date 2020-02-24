@@ -33,7 +33,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        double angle,
                        const Vector2dList & corners)
 	: d_reference(reference)
-	, d_URI(d_reference.URI() / "closeups" / std::to_string(tid))
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(tid)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(tid)
 	, d_tagPosition(position)
@@ -49,7 +49,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
                        const apriltag_detection_t * d)
 	: d_reference(reference)
-	, d_URI(d_reference.URI() / "closeups" / std::to_string(d->id))
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(d->id)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(d->id)
 	, d_tagPosition(d->c[0],d->c[1])
@@ -72,7 +72,7 @@ const FrameReference & TagCloseUp::Frame() const {
 	return d_reference;
 }
 
-const fs::path & TagCloseUp::URI() const {
+const std::string & TagCloseUp::URI() const {
 	return d_URI;
 }
 
@@ -92,7 +92,7 @@ double TagCloseUp::TagAngle() const {
 	return d_tagAngle;
 }
 
-const TagCloseUp::Vector2dList & TagCloseUp::Corners() const {
+const Vector2dList & TagCloseUp::Corners() const {
 	return d_corners;
 }
 

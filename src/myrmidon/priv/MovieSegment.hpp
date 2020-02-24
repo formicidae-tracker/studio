@@ -24,11 +24,11 @@ public:
 	static Ptr Open(MovieID id,
 	                const fs::path & moviePath,
 	                const fs::path & frameMatchingPath,
-	                const fs::path & parentURI);
+	                const std::string & parentURI);
 
 	MovieSegment(MovieID id,
 	             const fs::path & absoluteFilePath,
-	             const fs::path & parentURI,
+	             const std::string & parentURI,
 	             FrameID start,
 	             FrameID end,
 	             MovieFrameID startMovieID,
@@ -46,17 +46,17 @@ public:
 	ListOfOffset Offsets() const;
 
 	const fs::path & AbsoluteFilePath() const override;
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
 	uint64_t ToTrackingFrameID(uint64_t movieFrameID) const;
 
 	uint64_t ToMovieFrameID(uint64_t trackingFrameID) const;
 
 private:
-	MovieID  d_ID;
-	fs::path d_absoluteMovieFilePath;
-	fs::path d_URI;
-	FrameID d_trackingStart,d_trackingEnd;
+	MovieID      d_ID;
+	fs::path     d_absoluteMovieFilePath;
+	std::string  d_URI;
+	FrameID      d_trackingStart,d_trackingEnd;
 	MovieFrameID d_movieStart,d_movieEnd;
 	std::map<MovieFrameID,FrameID,std::greater<MovieFrameID> > d_byMovie;
 	std::map<FrameID,FrameID,std::greater<MovieFrameID> >      d_byTracking;

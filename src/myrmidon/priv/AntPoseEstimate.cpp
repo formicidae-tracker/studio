@@ -5,9 +5,9 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-fs::path AntPoseEstimate::BuildURI(const FrameReference & reference,
+std::string AntPoseEstimate::BuildURI(const FrameReference & reference,
                                    TagID tid) {
-	return reference.URI() / "estimates" / std::to_string(tid);
+	return (fs::path(reference.URI()) / "estimates" / std::to_string(tid)).generic_string();
 }
 
 
@@ -47,7 +47,7 @@ AntPoseEstimate::AntPoseEstimate(const FrameReference & reference,
 	d_y = center.y();
 }
 
-const fs::path & AntPoseEstimate::URI() const {
+const std::string & AntPoseEstimate::URI() const {
 	return d_URI;
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <myrmidon/utils/FileSystem.hpp>
 #include <memory>
 #include <iostream>
 
@@ -8,13 +7,14 @@
 
 #include <google/protobuf/util/time_util.h>
 
-
+#include <myrmidon/Time.hpp>
+#include "Types.hpp"
+#include "LocatableTypes.hpp"
 #include "FrameReference.hpp"
 
+
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 class TrackingDataDirectory;
@@ -27,7 +27,7 @@ class TrackingDataDirectory;
 // computer when the frame was acquired, and a monotonic timestamp of
 // the framegrabber.
 //
-class RawFrame : public FrameReference{
+class RawFrame : public Identifiable {
 public:
 	virtual ~RawFrame();
 	// A const pointer to a RawFrame
@@ -35,6 +35,10 @@ public:
 
 	// Any error on the frame
 	fort::hermes::FrameReadout_Error Error() const;
+
+	const std::string & URI() const override;
+
+	const FrameReference & Frame() const;
 
 	// The width of the frame
 	int32_t Width() const;
@@ -45,13 +49,14 @@ public:
 	const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & Tags() const;
 
 
-	static RawFrame::ConstPtr Create(const fs::path & path,
+
+	static RawFrame::ConstPtr Create(const std::string & parentURI,
 	                                 fort::hermes::FrameReadout & pb,
 	                                 Time::MonoclockID clockID);
 
 private:
 
-	RawFrame(const fs::path & path,
+	RawFrame(const std::string & parentURI,
 	         fort::hermes::FrameReadout & pb,
 	         Time::MonoclockID clockID);
 
@@ -59,10 +64,10 @@ private:
 	fort::hermes::FrameReadout_Error                      d_error;
 	int32_t                                               d_width,d_height;
 	google::protobuf::RepeatedPtrField<fort::hermes::Tag> d_tags;
+	FrameReference                                        d_frame;
+	std::string                                           d_URI;
 };
 
 }
-
 }
-
 }

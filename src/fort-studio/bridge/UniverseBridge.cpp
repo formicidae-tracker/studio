@@ -7,6 +7,8 @@
 
 #include <fort-studio/Format.hpp>
 
+
+
 UniverseBridge::UniverseBridge( QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this)) {
@@ -42,7 +44,7 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 	}
 
 	auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
-	if (item->text() == s->URI().c_str()) {
+	if (item->text() == s->Name().c_str()) {
 		qDebug() << "[UniverseBridge]: Ignoring change event as name is the same";
 		return;
 	}
@@ -52,7 +54,7 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 		s->SetName(item->text().toUtf8().data());
 	} catch (const std::exception & e) {
 		qCritical() << "Could not change name: " << e.what();
-		item->setText(s->URI().c_str());
+		item->setText(s->Name().c_str());
 		return;
 	}
 	qInfo() << "Changed Space name to '" << item->text() << "'";
@@ -80,7 +82,7 @@ QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory:
 }
 
 QList<QStandardItem*> UniverseBridge::buildSpace(const fmp::Space::Ptr & s) {
-	auto spaceItem = new QStandardItem(s->URI().c_str());
+	auto spaceItem = new QStandardItem(s->Name().c_str());
 	spaceItem->setEditable(true);
 	spaceItem->setData(SPACE_TYPE,Qt::UserRole+1);
 	spaceItem->setData(QVariant::fromValue(s),Qt::UserRole+2);
@@ -131,16 +133,17 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 	emit spaceAdded(newSpace);
 }
 
-void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
+void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
                                                      const fmp::TrackingDataDirectoryConstPtr & tdd) {
 	if (!d_experiment) {
 		return;
 	}
-	auto s = d_experiment->LocateSpace(spaceURI.toUtf8().data());
-	auto item = locateSpace(spaceURI);
+
+	auto s = d_experiment->LocateSpace("spaces/" + ToStdString(spaceName));
+	auto item = locateSpace(spaceName);
 	if ( !s || item == NULL) {
-		qWarning() << "Could not locate space '" << spaceURI
-		           << "' abording addition of TDD;'" << tdd->URI().c_str()
+		qWarning() << "Could not locate space '" << spaceName
+		           << "' abording addition of TDD;'" << ToQString(tdd->URI())
 		           << "'";
 		return;
 	}
@@ -149,14 +152,14 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	try {
 		s->AddTrackingDataDirectory(tdd);
 	} catch (const std::exception & e) {
-		qCritical() << "Could not add '" <<tdd->URI().c_str()
-		            << "' to '" << spaceURI
+		qCritical() << "Could not add '" << ToQString(tdd->URI())
+		            << "' to '" << spaceName
 		            << "': " << e.what();
 		return;
 	}
 
-	qInfo() << "Added TDD:'" << tdd->URI().c_str()
-	        << "' to Space:'" << spaceURI << "'";
+	qInfo() << "Added TDD:'" << ToQString(tdd->URI())
+	        << "' to Space:'" << spaceName << "'";
 	rebuildSpaceChildren(item,s);
 
 	setModified(true);
@@ -164,25 +167,27 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceURI,
 	emit spaceChanged(s);
 }
 
-void UniverseBridge::deleteSpace(const QString & URI) {
-	auto item = locateSpace(URI);
+void UniverseBridge::deleteSpace(const QString & spaceName) {
+	auto item = locateSpace(spaceName);
 	if ( !d_experiment || item == NULL ) {
 		return;
 	}
+	auto URI = fs::path("spaces") / ToStdString(spaceName);
+
 	try {
-		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteSpace('"
-		         << URI << "')";
-		d_experiment->DeleteSpace(URI.toUtf8().constData());
+		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteSpace("
+		         << ToQString(URI.generic_string()) << ")";
+		d_experiment->DeleteSpace(URI.generic_string());
 	} catch ( const std::exception & e) {
-		qCritical() << "Could not remove space '" << URI << "': " << e.what();
+		qCritical() << "Could not remove space '" << spaceName << "': " << e.what();
 		return;
 	}
 
-	qInfo() << "Deleted Space:'" << URI << "'";
+	qInfo() << "Deleted Space:'" << spaceName << "'";
 	d_model->removeRows(item->row(),1);
 
 	setModified(true);
-	emit spaceDeleted(URI);
+	emit spaceDeleted(spaceName);
 }
 
 void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
@@ -196,7 +201,10 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 		return;
 	}
 
-	auto item = locateSpace(fi.first->URI().c_str());
+	auto item = locateSpace(fi.first->Name().c_str());
+	if ( item == NULL ) {
+		return;
+	}
 
 	try {
 		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteTrackingDataDirectory("
@@ -219,13 +227,24 @@ void UniverseBridge::deleteTrackingDataDirectory(const QString & URI) {
 }
 
 
-QStandardItem * UniverseBridge::locateSpace(const QString & URI) {
-	auto items = d_model->findItems(URI);
-	if ( items.size() != 1 ) {
-		qDebug() << "[UniverseBridge]: Could not locate Qt Item '" << URI << "'";
-		return NULL;
+QStandardItem * UniverseBridge::locateSpace(const QString & name) {
+	auto items = d_model->findItems(name);
+	QStandardItem  * item = nullptr;
+	for ( const auto & i : items) {
+		if ( i->data(Qt::UserRole+1) != SPACE_TYPE ) {
+			continue;
+		}
+		if ( item != nullptr ) {
+			qDebug() << "[UniverseBridge]: Could not locate Qt Item '" << name << "': multiple entry found";
+		} else {
+			item = i;
+		}
+
 	}
-	return items[0];
+	if ( item == nullptr ) {
+		qDebug() << "[UniverseBridge]: Could not locate Qt Item '" << name << "'";
+	}
+	return item;
 }
 
 void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
@@ -235,6 +254,8 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 		auto tddItem = buildTDD(tdd);
 		item->appendRow(tddItem);
 	}
+
+
 }
 
 void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
@@ -277,7 +298,7 @@ bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 		case SPACE_TYPE: {
 			auto s = item->data(Qt::UserRole+2).value<fmp::Space::Ptr>();
 			for ( const auto & tdd : s->TrackingDataDirectories() ) {
-				deleteNeeded.insert(tdd->URI().generic_string());
+				deleteNeeded.insert(tdd->URI());
 			}
 			break;
 		}
@@ -286,7 +307,7 @@ bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 			if ( d_experiment->TrackingDataDirectoryIsDeletable(tdd->URI()) == false ) {
 				return false;
 			}
-			deleted.insert(tdd->URI().generic_string());
+			deleted.insert(tdd->URI());
 			break;
 		}
 		}
@@ -304,8 +325,8 @@ bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 
 
 void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
-	std::set<fs::path> spaceURIs;
-	std::set<fs::path> tddURIs;
+	std::set<std::string> spaceURIs;
+	std::set<std::string> tddURIs;
 	for ( const auto & index : selection ) {
 		if ( index.isValid() == false ) {
 			continue;
@@ -318,7 +339,7 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 
 		switch(item->data(Qt::UserRole+1).toInt()) {
 		case SPACE_TYPE:
-			spaceURIs.insert(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->URI());
+			spaceURIs.insert(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->Name());
 			break;
 		case TDD_TYPE: {
 			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();

@@ -167,20 +167,20 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
 	          Measurement::HEAD_TAIL_TYPE+3);
 
-	auto tcuPath = foo0->URI() / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
+	auto tcuPath = fs::path(foo0->URI()) / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
 	auto badPath = fs::path("bar.0000") / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
 
-	auto goodCustom = std::make_shared<Measurement>(tcuPath,
+	auto goodCustom = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                                Measurement::HEAD_TAIL_TYPE+1,
 	                                                Eigen::Vector2d(12,1),
 	                                                Eigen::Vector2d(1,12),
 	                                                12.0);
-	auto goodDefault = std::make_shared<Measurement>(tcuPath,
+	auto goodDefault = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                                 Measurement::HEAD_TAIL_TYPE,
 	                                                 Eigen::Vector2d(12,12),
 	                                                 Eigen::Vector2d(10,12),
 	                                                 12.0);
-	auto defaultWithBadPath = std::make_shared<Measurement>(badPath,
+	auto defaultWithBadPath = std::make_shared<Measurement>(badPath.generic_string(),
 	                                                        Measurement::HEAD_TAIL_TYPE,
 	                                                        Eigen::Vector2d(12,12),
 	                                                        Eigen::Vector2d(10,12),
@@ -248,19 +248,19 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		 {foo1,1,1,0},
 		 {foo1,1,1,1}
 		};
-	std::vector<fs::path> paths;
+	std::vector<std::string> paths;
 	paths.reserve(mData.size());
 
 
 
 	for ( const auto & md : mData ) {
-		auto tcuPath = md.TDD->URI()
+		auto tcuPath = fs::path(md.TDD->URI())
 			/ "frames"
 			/ std::to_string(md.TDD->StartFrame() + md.Offset)
 			/ "closeups"
 			/ std::to_string(md.TID);
 
-		auto m = std::make_shared<Measurement>(tcuPath,
+		auto m = std::make_shared<Measurement>(tcuPath.generic_string(),
 		                                       md.MTID,
 		                                       Eigen::Vector2d(12,0),
 		                                       Eigen::Vector2d(0,0),

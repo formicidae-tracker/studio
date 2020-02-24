@@ -145,7 +145,7 @@ void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family , uint8_t) 
 }
 
 
-void MeasurementBridge::onNewTagCloseUp(fs::path tddURI,
+void MeasurementBridge::onNewTagCloseUp(std::string tddURI,
                                         fort::tags::Family f,
                                         uint8_t threshold,
                                         fmp::TagCloseUp::ConstPtr tcu) {
@@ -226,7 +226,7 @@ void MeasurementBridge::cancelAll() {
 }
 
 
-void MeasurementBridge::cancelOne(const fs::path & tddURI) {
+void MeasurementBridge::cancelOne(const std::string & tddURI) {
 	qInfo() << "Cancelling tag close-up loaders for TDD:'" << tddURI.c_str() << "'";
 	auto fi = d_loaders.find(tddURI) ;
 	if ( fi == d_loaders.end() ) {
@@ -275,7 +275,7 @@ QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPt
 }
 
 
-void MeasurementBridge::addOneTCU(const fs::path & tddURI,
+void MeasurementBridge::addOneTCU(const std::string & tddURI,
                                   const fmp::TagCloseUp::ConstPtr & tcu) {
 	auto target = tcu->TagValue();
 
@@ -298,7 +298,7 @@ void MeasurementBridge::addOneTCU(const fs::path & tddURI,
 	fi.first->second.insert(std::make_pair(tcu->URI(),tcu));
 }
 
-void MeasurementBridge::clearTddTCUs(const fs::path & tddURI) {
+void MeasurementBridge::clearTddTCUs(const std::string & tddURI) {
 	auto fi = d_closeups.find(tddURI);
 	if ( fi == d_closeups.end() ){
 		return;
@@ -366,11 +366,11 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	emit measurementModified(m);
 }
 
-void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
+void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	if ( !d_experiment ) {
 		return;
 	}
-	auto tcuPath = mURI.parent_path().parent_path();
+	auto tcuPath = fs::path(mURI).parent_path().parent_path().generic_string();
 	auto ci = d_counts.find(tcuPath);
 	if ( ci == d_counts.end() ) {
 		qWarning() << "Unknown measurement '" << mURI.c_str() << "'";
@@ -394,7 +394,7 @@ void MeasurementBridge::deleteMeasurement(const fs::path & mURI) {
 }
 
 
-size_t MeasurementBridge::countMeasurementsForTCU(const fs::path & tcuPath) const {
+size_t MeasurementBridge::countMeasurementsForTCU(const std::string & tcuPath) const {
 	if ( !d_experiment ){
 		return 0;
 	}

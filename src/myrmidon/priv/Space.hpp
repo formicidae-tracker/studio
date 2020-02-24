@@ -50,14 +50,14 @@ public:
 	class UnmanagedTrackingDataDirectory : public std::runtime_error {
 	public:
 		// Constructor
-		UnmanagedTrackingDataDirectory(const fs::path & URI) noexcept;
+		UnmanagedTrackingDataDirectory(const std::string & URI) noexcept;
 	};
 
 	// Exception sent when the desired Space is unknown
 	class UnmanagedSpace : public std::runtime_error {
 	public:
 		// Constructor
-		UnmanagedSpace(const fs::path & URI) noexcept;
+		UnmanagedSpace(const std::string & URI) noexcept;
 	};
 
 	// Exception sent when the chosen name is invalid
@@ -81,7 +81,7 @@ public:
 	// another space
 	class TDDAlreadyInUse : public std::runtime_error {
 	public:
-		TDDAlreadyInUse(const fs::path & tddURI, const fs::path & spaceURI);
+		TDDAlreadyInUse(const std::string & tddURI, const std::string & spaceURI);
 	};
 
 
@@ -99,22 +99,22 @@ public:
 	public:
 		typedef std::shared_ptr<Universe> Ptr;
 
-		typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
+		typedef std::map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
 		static Space::Ptr Create(const Ptr & itself, const std::string & name);
 
-		void DeleteSpace(const fs::path & URI);
+		void DeleteSpace(const std::string & URI);
 
-		void DeleteTrackingDataDirectory(const fs::path & URI);
+		void DeleteTrackingDataDirectory(const std::string & URI);
 
 		const std::vector<Space::Ptr> & Spaces() const;
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
 		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-		LocateTrackingDataDirectory(const fs::path & tddURI) const;
+		LocateTrackingDataDirectory(const std::string & tddURI) const;
 
-		Space::Ptr LocateSpace(const fs::path & spaceURI) const;
+		Space::Ptr LocateSpace(const std::string & spaceURI) const;
 
 
 
@@ -126,7 +126,9 @@ public:
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
 
-	const fs::path & URI() const;
+	const std::string & URI() const override;
+
+	const std::string & Name() const;
 
 	void SetName(const std::string & name);
 
@@ -137,13 +139,14 @@ public:
 private :
 	Space(const std::string & name, const Universe::Ptr & universe);
 
-	void DeleteTrackingDataDirectory(const fs::path & URI);
+	void DeleteTrackingDataDirectory(const std::string & URI);
 
 
 	Universe::Ptr LockUniverse() const;
 
 
-	fs::path                d_URI;
+	std::string             d_URI;
+	std::string             d_name;
 	std::weak_ptr<Universe> d_universe;
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;

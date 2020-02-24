@@ -16,8 +16,8 @@ public :
 	typedef std::shared_ptr<AntPoseEstimate>       Ptr;
 	typedef std::shared_ptr<const AntPoseEstimate> ConstPtr;
 
-	static fs::path BuildURI(const FrameReference & reference,
-	                         TagID tid);
+	static std::string BuildURI(const FrameReference & reference,
+	                            TagID tid);
 
 	AntPoseEstimate(const FrameReference & reference,
 	                TagID tid,
@@ -30,7 +30,7 @@ public :
 	                const Eigen::Vector2d & tailFromTag);
 
 
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
 	const FrameReference & Reference() const;
 
@@ -67,7 +67,7 @@ private:
 	double         d_x,d_y,d_angle;
 	FrameReference d_reference;
 	TagID          d_tid;
-	fs::path       d_URI;
+	std::string    d_URI;
 };
 
 } // namespace priv

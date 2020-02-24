@@ -33,7 +33,7 @@ public:
 	// The relative path of the ressource
 	//
 	// @return a relative path designating the ressource.
-	virtual const fs::path & URI() const = 0;
+	virtual const std::string & URI() const = 0;
 
 	class Comparator {
 	public:

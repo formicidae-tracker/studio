@@ -87,7 +87,7 @@ public:
 	//
 	// Gets the path designating the TrackingDataDirectory
 	// @return a path relative to the experiment <Experiment>
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
 
 	// The directory absolute path
@@ -140,7 +140,7 @@ public:
 	// obtain infoirmation on the first and last frame.
 	static TrackingDataDirectory::ConstPtr Open(const fs::path & TDpath, const fs::path & experimentRoot);
 
-	static TrackingDataDirectory::ConstPtr Create(const fs::path & uri,
+	static TrackingDataDirectory::ConstPtr Create(const std::string & uri,
 	                                              const fs::path & absoluteFilePath,
 	                                              uint64_t startFrame,
 	                                              uint64_t endFrame,
@@ -165,7 +165,9 @@ private:
 
 
 	std::weak_ptr<const TrackingDataDirectory> d_itself;
-	fs::path       d_absoluteFilePath, d_URI;
+
+	fs::path       d_absoluteFilePath;
+	std::string    d_URI;
 	FrameID        d_startFrame,d_endFrame;
 	UID            d_uid;
 	const_iterator d_endIterator;
@@ -184,21 +186,21 @@ private:
 	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
 
 	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
-	                              const fs::path & URI,
+	                              const std::string & parentURI,
 	                              MovieSegment::List & movies);
 
 	static TrackingDataDirectory::ConstPtr LoadFromCache(const fs::path & absoluteFilePath,
-	                                                     const fs::path & URI);
+	                                                     const std::string & URI);
 
 	static std::pair<TimedFrame,TimedFrame>
-	BuildIndexes(const fs::path & URI,
+	BuildIndexes(const std::string & URI,
 	             Time::MonoclockID monoID,
 	             const std::vector<fs::path> & hermesFile,
 	             const TrackingIndex::Ptr & trackingIndexer,
 	             FrameReferenceCache & cache);
 
 
-	TrackingDataDirectory(const fs::path & uri,
+	TrackingDataDirectory(const std::string & uri,
 	                      const fs::path & absoluteFilePath,
 	                      uint64_t startFrame,
 	                      uint64_t endFrame,

@@ -11,11 +11,11 @@ FrameReference::FrameReference()
 	,  d_id(0) {
 }
 
-FrameReference::FrameReference(const fs::path & parentURI,
+FrameReference::FrameReference(const std::string & parentURI,
                                FrameID frameID,
                                const fort::myrmidon::Time & time)
 	: d_parentURI(parentURI.empty() ? "/" : parentURI)
-	, d_URI(d_parentURI / "frames" / std::to_string(frameID))
+	, d_URI( (fs::path(d_parentURI) / "frames" / std::to_string(frameID)).generic_string() )
 	, d_id(frameID)
 	, d_time(time) {
 }
@@ -26,15 +26,15 @@ const Time & FrameReference::Time() const {
 	return d_time;
 }
 
-FrameID FrameReference::ID() const {
+FrameID FrameReference::FID() const {
 	return d_id;
 }
 
-const fs::path & FrameReference::URI() const {
+const std::string & FrameReference::URI() const {
 	return d_URI;
 }
 
-const fs::path & FrameReference::ParentURI() const {
+const std::string & FrameReference::ParentURI() const {
 	return d_parentURI;
 }
 
@@ -45,5 +45,5 @@ const fs::path & FrameReference::ParentURI() const {
 
 std::ostream& operator<<(std::ostream & out,
                          const fort::myrmidon::priv::FrameReference & p) {
-	return out << p.URI().generic_string();
+	return out << p.URI();
 }

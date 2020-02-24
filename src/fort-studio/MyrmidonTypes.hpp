@@ -13,7 +13,7 @@
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
-
+Q_DECLARE_METATYPE(std::string)
 Q_DECLARE_METATYPE(fort::tags::Family)
 Q_DECLARE_METATYPE(fmp::Ant::Ptr)
 Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
