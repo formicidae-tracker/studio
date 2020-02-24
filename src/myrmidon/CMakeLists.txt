@@ -63,6 +63,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/TimeValid.hpp
                       priv/MovieSegment.hpp
                       priv/Types.hpp
+                      priv/Shape.hpp
                       priv/Capsule.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
@@ -102,6 +103,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/ExperimentReadWriter.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
+                      priv/Shape.cpp
                       priv/Capsule.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp

@@ -4,12 +4,14 @@
 
 #include <memory>
 
+#include "Shape.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
 
-class Capsule {
+class Capsule : public Shape {
 public:
 	typedef std::shared_ptr<Capsule> Ptr;
 	typedef std::shared_ptr<const Capsule> ConstPtr;
@@ -52,6 +54,7 @@ public:
 		return d_r2;
 	}
 
+	bool Contains(const Eigen::Vector2d & point) const;
 
 	static bool Intersect(const Eigen::Vector2d & aC1,
 	                      const Eigen::Vector2d & aC2,

@@ -10,7 +10,8 @@ Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,
                  double r2)
-	: d_c1(c1)
+	: Shape(Shape::Type::Capsule)
+	, d_c1(c1)
 	, d_c2(c2)
 	, d_r1(r1)
 	, d_r2(r2) {
@@ -92,6 +93,14 @@ bool Capsule::Intersect(const Eigen::Vector2d & aC1,
 	return false;
 }
 
+bool Capsule::Contains(const Eigen::Vector2d & point) const {
+	Eigen::Vector2d cc = d_c2 - d_c1;
+	double t = (point - d_c1).dot(cc) / cc.squaredNorm();
+	t = clamp(t,0.0,1.0);
+	double r = d_r1 + t * (d_r2 - d_r1);
+	Eigen::Vector2d diff = point - d_c1 + t * cc;
+	return diff.squaredNorm() <= r*r;
+}
 
 } // namespace priv
 } // namespace myrmidon
