@@ -1,6 +1,8 @@
 #include "Shape.hpp"
 
 #include "Capsule.hpp"
+#include "Circle.hpp"
+#include "Polygon.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -17,21 +19,18 @@ Shape::Type Shape::ShapeType() const {
 	return d_type;
 }
 
-CapsuleConstPtr Shape::ToCapsule(const ConstPtr & s) {
-	if ( s->ShapeType() != Type::Capsule ) {
-		return Capsule::ConstPtr();
-	}
-	return std::static_pointer_cast<const Capsule>(s);
-}
 
-// CircleConstPtr  Shape::ToCircle(const ConstPtr & s) {
+#define implement_caster(SType) \
+SType ## ConstPtr Shape::To ## SType(const ConstPtr & s) { \
+	if ( s->ShapeType() != Type::SType ) { \
+		return SType::ConstPtr(); \
+	} \
+	return std::static_pointer_cast<const SType>(s); \
+} \
 
-// }
-
-// PolygonConstPtr Shape::ToPolygon(const ConstPtr & s) {
-
-// }
-
+implement_caster(Capsule);
+implement_caster(Circle);
+implement_caster(Polygon);
 
 } // namespace priv
 } // namespace myrmidon

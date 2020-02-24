@@ -1,7 +1,5 @@
 #include "Capsule.hpp"
 
-#include <iostream>
-
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -98,7 +96,7 @@ bool Capsule::Contains(const Eigen::Vector2d & point) const {
 	double t = (point - d_c1).dot(cc) / cc.squaredNorm();
 	t = clamp(t,0.0,1.0);
 	double r = d_r1 + t * (d_r2 - d_r1);
-	Eigen::Vector2d diff = point - d_c1 + t * cc;
+	Eigen::Vector2d diff = point - d_c1 - t * cc;
 	return diff.squaredNorm() <= r*r;
 }
 

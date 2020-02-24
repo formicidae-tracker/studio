@@ -14,6 +14,34 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+TEST_F(CapsuleUTest,Type) {
+	Capsule capsule(Eigen::Vector2d(0,0),Eigen::Vector2d(0,0),0,0);
+	EXPECT_EQ(capsule.ShapeType(),Shape::Type::Capsule);
+}
+
+TEST_F(CapsuleUTest,PointCollision) {
+	Capsule capsule(Eigen::Vector2d(0,0),Eigen::Vector2d(0,1),1.0,0.01);
+
+	struct TestData {
+		double X,Y;
+		bool   Expected;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {0,0,true},
+		 {0,1,true},
+		 {1,0,true},
+		 {0.5-1.0e-6,0.5-1.0e-6,true},
+		 {0.1,1,false},
+		};
+	for ( const auto & d : testdata ) {
+		EXPECT_EQ(capsule.Contains(Eigen::Vector2d(d.X,d.Y)),d.Expected)
+			<< "Testing (" << d.X << "," << d.Y << ")";
+	}
+
+}
+
 TEST_F(CapsuleUTest,TestCaspuleCollision) {
 	struct TestData {
 		double aC1X,aC1Y,aC2X,aC2Y,aR1,aR2;
