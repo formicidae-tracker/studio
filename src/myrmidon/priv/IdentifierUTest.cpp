@@ -11,6 +11,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+typedef ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID> Container;
+
 TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 	auto i = Identifier::Create();
 
@@ -40,10 +42,9 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
 
-
 	EXPECT_THROW({
 			i->CreateAnt(1);
-		},Identifier::AlreadyExistingAnt);
+		},Container::AlreadyExistingObject);
 }
 
 TEST_F(IdentifierUTest,MemoryRobust) {
@@ -62,7 +63,7 @@ TEST_F(IdentifierUTest,AntsCanBeDeleted) {
 
 	EXPECT_THROW({
 			i->DeleteAnt(a->ID()+1);
-		}, Identifier::UnmanagedAnt);
+		}, Container::UnmanagedObject);
 
 	IdentificationPtr ident;
 	EXPECT_NO_THROW({
@@ -86,7 +87,7 @@ TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 	auto a = i->CreateAnt();
 	EXPECT_THROW({
 			i->AddIdentification(a->ID()+1,123,Time::ConstPtr(),Time::ConstPtr());
-		},Identifier::UnmanagedAnt);
+		},Container::UnmanagedObject);
 
 	IdentificationPtr ident1,ident2;
 	EXPECT_NO_THROW(ident1 = i->AddIdentification(a->ID(),123,Time::ConstPtr(),Time::ConstPtr()));

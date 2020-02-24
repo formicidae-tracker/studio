@@ -63,7 +63,7 @@ public:
 		Geometry::ConstPtr  d_geometry;
 	};
 
-	Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
+	static Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
 
 	Definition::Ptr AddDefinition(const Geometry::ConstPtr &,
 	                              const Time::ConstPtr & start,

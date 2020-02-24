@@ -14,6 +14,8 @@
 
 #include "DeletedReference.hpp"
 
+#include "ContiguousIDContainer.hpp"
+
 namespace fort {
 
 
@@ -34,7 +36,7 @@ namespace priv {
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier {
+class Identifier : protected ContiguousIDContainer<AntPtr,fort::myrmidon::Ant::ID> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
@@ -52,6 +54,8 @@ public:
 
 	// For unit test purpose only
 	static Identifier Invalid();
+
+	virtual ~Identifier();
 
 	// A self-referencing pointer
 	//@return a pointer to itself.
@@ -102,12 +106,6 @@ public:
 	// should be deleted before removing the <priv::Ant>
 	void DeleteIdentification(const IdentificationPtr & ident);
 
-	// An exeption when an Ant is not managed by this Identifier
-	class UnmanagedAnt : public std::runtime_error {
-	public:
-		UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept;
-		virtual ~UnmanagedAnt() noexcept {};
-	};
 	// An exeption when a TagID is not managed by this Identifier
 	class UnmanagedTag : public std::runtime_error {
 	public:
@@ -119,12 +117,6 @@ public:
 	public:
 		UnmanagedIdentification(const Identification & ident) noexcept;
 		virtual ~UnmanagedIdentification() noexcept {};
-	};
-	// An exeption when an Ant is already existing
-	class AlreadyExistingAnt : public std::runtime_error {
-	public:
-		AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept;
-		virtual ~AlreadyExistingAnt() noexcept {};
 	};
 
 	class Accessor {
@@ -200,14 +192,9 @@ private:
 	Identifier(const Identifier&) = delete;
 	Identifier & operator=(const Identifier&) = delete;
 
-	fort::myrmidon::Ant::ID NextAvailableID();
 
 
 	std::weak_ptr<Identifier> d_itself;
-
-	AntByID d_ants;
-	SetOfID d_antIDs;
-	bool    d_continuous;
 
 	IdentificationByTagID    d_identifications;
 	AntPoseEstimateByTagID   d_tagPoseEstimates;

@@ -297,7 +297,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
                                            MeasurementType::ID type) const {
 	auto afi = d_identifier->Ants().find(AID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw Identifier::UnmanagedAnt(AID);
+		throw ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID>::UnmanagedObject(AID);
 	}
 
 	double cornerWidthRatio = CornerWidthRatio(d_family);

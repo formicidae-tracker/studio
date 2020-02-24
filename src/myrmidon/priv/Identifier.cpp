@@ -8,12 +8,6 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
-	: std::runtime_error([id](){
-		                     std::ostringstream os;
-		                     os << "Ant:" << Ant::FormatID(id) <<  " is not managed by this object";
-		                     return os.str();
-	                     }()) {}
 
 Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identification & ident) noexcept
 	: std::runtime_error([&ident](){
@@ -29,18 +23,11 @@ Identifier::UnmanagedTag::UnmanagedTag(TagID ID) noexcept
 		                     return os.str();
 	                     }()) {}
 
-
-Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept
-	: std::runtime_error([id](){
-		                     std::ostringstream os;
-		                     os << "Ant:" << Ant::FormatID(id) <<  " already exist";
-		                     return os.str();
-	                     }()) {}
-
 Identifier::Identifier()
-	: d_continuous(false)
-	, d_callback([](const Identification::Ptr &){}) {
+	: d_callback([](const Identification::Ptr &){}) {
 }
+
+Identifier::~Identifier() {}
 
 Identifier::Ptr Identifier::Create() {
     std::shared_ptr<Identifier> res(new Identifier());
@@ -54,60 +41,25 @@ Identifier Identifier::Invalid() {
 
 
 AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
-	if ( ID  == NEXT_AVAILABLE_ID ) {
-		ID = NextAvailableID();
-	}
-	if ( d_antIDs.count(ID) != 0 ) {
-		throw AlreadyExistingAnt(ID);
-	}
-	auto res = std::make_shared<Ant>(ID);
-	d_ants[res->ID()] =  res;
-	d_antIDs.insert(res->ID());
-	return res;
+	return CreateObject([](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(ID); },ID);
 }
 
-void Identifier::DeleteAnt(fort::myrmidon::Ant::ID id) {
-	auto fi = d_ants.find(id);
-	if ( fi == d_ants.end() ) {
-		throw UnmanagedAnt(id);
-	}
-	if ( id != d_ants.size() ) {
-		d_continuous = false;
-	}
-
-
-	if ( !fi->second->Identifications().empty() ) {
+void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
+	auto fi = Ants().find(ID);
+	if ( fi != Ants().end() && fi->second->Identifications().empty() == false ) {
 		std::ostringstream os;
 		os <<"Ant:" <<fi->second->FormattedID() << " has Identification, delete them first";
 		throw std::logic_error(os.str());
 	}
 
-	d_antIDs.erase(id);
-	d_ants.erase(id);
-
+	DeleteObject(ID);
 }
 
 
 const AntByID & Identifier::Ants() const {
-	return d_ants;
+	return Objects();
 }
 
-
-fort::myrmidon::Ant::ID Identifier::NextAvailableID() {
-	if ( d_continuous == true ) {
-		return d_ants.size() + 1;
-	}
-	fort::myrmidon::Ant::ID res = 0;
-	auto missingIndex = std::find_if(d_antIDs.begin(),d_antIDs.end(),[&res] (fort::myrmidon::Ant::ID toTest ) {
-		                                                                 return ++res != toTest;
-	                                                                 });
-
-	if (missingIndex == d_antIDs.end() ) {
-		const_cast<Identifier*>(this)->d_continuous = true;
-		return d_antIDs.size() + 1;
-	}
-	return res;
-}
 
 Identifier::Ptr Identifier::Itself() const {
 	auto res = d_itself.lock();
@@ -119,14 +71,15 @@ Identifier::Ptr Identifier::Itself() const {
 }
 
 
-Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
+Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID ID,
                                                   TagID tagValue,
                                                   const Time::ConstPtr & start,
                                                   const Time::ConstPtr & end) {
-	if ( d_antIDs.count(id) == 0 ) {
-		throw UnmanagedAnt(id);
+	auto fi = Ants().find(ID);
+	if ( fi == Ants().end() ) {
+		throw UnmanagedObject(ID);
 	}
-	auto ant = d_ants[id];
+	auto ant = fi->second;
 
 	auto res = Identification::Accessor::Create(tagValue,Itself(),ant);
 	Identification::Accessor::SetStart(*res,start);
@@ -170,8 +123,8 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 	}
 
 	auto ant = ident->Target();
-	if ( d_antIDs.count(ant->ID()) == 0 ) {
-		throw UnmanagedAnt(ant->ID());
+	if ( Ants().find(ant->ID()) == Ants().end() ) {
+		throw UnmanagedObject(ant->ID());
 	}
 
 	auto toEraseAnt = ant->Identifications().begin();

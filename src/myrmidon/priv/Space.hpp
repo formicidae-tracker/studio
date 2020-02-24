@@ -4,6 +4,7 @@
 
 #include "LocatableTypes.hpp"
 #include "ForwardDeclaration.hpp"
+#include "Zone.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -23,6 +24,8 @@ public:
 	typedef std::shared_ptr<Space>       Ptr;
 	// A cpnst pointer to a Space
 	typedef std::shared_ptr<const Space> ConstPtr;
+
+	typedef std::unordered_map<Zone::ID,Zone::Ptr> ZoneByID;
 
 	// Exception sent when two TrackingDataDirectory overlaps in time.
 	class TDDOverlap : public std::runtime_error {
@@ -136,7 +139,18 @@ public:
 
 	const std::vector<TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
 
+	const static Zone::ID NEXT_AVAILABLE_ID = 0;
+
+	Zone::ID NextAvailableZoneID();
+
+	Zone::Ptr CreateZone(Zone::ID ID = NEXT_AVAILABLE_ID);
+
+	void DeleteZone(Zone::ID ID);
+
+	const ZoneByID & Zones() const;
+
 private :
+	typedef std::set<Zone::ID> SetOfZoneID;
 	Space(const std::string & name, const Universe::Ptr & universe);
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
@@ -150,6 +164,11 @@ private :
 	std::weak_ptr<Universe> d_universe;
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
+
+	ZoneByID    d_zones;
+	SetOfZoneID d_zoneIDs;
+	bool        d_continuous;
+
 };
 
 

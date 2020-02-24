@@ -14,6 +14,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+typedef ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID> Container;
+
 void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data.clear();
 	data.reserve(fs::file_size(a));
@@ -312,7 +314,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e->ComputeMeasurementsForAnt(measurements,
 			                             antAfter->ID() + 100,
 			                             0);
-		},Identifier::UnmanagedAnt);
+		},Container::UnmanagedObject);
 
 
 	auto antLast = e->Identifier().CreateAnt();

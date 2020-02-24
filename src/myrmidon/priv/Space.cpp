@@ -106,7 +106,8 @@ const std::vector<Space::Ptr> & Space::Universe::Spaces() const {
 }
 
 Space::Space(const std::string & name, const Universe::Ptr & universe)
-	: d_universe(universe) {
+	: d_universe(universe)
+	, d_continuous(false) {
 	SetName(name);
 }
 
@@ -270,6 +271,51 @@ Space::Ptr Space::Universe::LocateSpace(const std::string & spaceURI) const {
 	return *zi;
 }
 
+Zone::ID Space::NextAvailableZoneID() {
+	if ( d_continuous == true ) {
+		return d_zones.size() + 1;
+	}
+	Zone::ID res = 0;
+	auto missingIndex = std::find_if(d_zoneIDs.begin(),d_zoneIDs.end(),
+	                                 [&res] ( const Zone::ID toTest ) {
+		                                 return ++res != toTest;
+	                                 });
+	if ( missingIndex == d_zoneIDs.end() ) {
+		d_continuous = true;
+		return d_zones.size() + 1;
+	}
+	return res;
+}
+
+Zone::Ptr Space::CreateZone(Zone::ID ID) {
+	if ( ID == NEXT_AVAILABLE_ID ) {
+		ID =  NextAvailableZoneID();
+	}
+	if ( d_zoneIDs.count(ID) != 0 ) {
+		throw std::invalid_argument("Zone " + std::to_string(ID) + " already exits");
+	}
+	auto res = Zone::Create(ID,"new-zone",d_URI);
+	d_zones[ID] = res;
+	d_zoneIDs.insert(ID);
+	return res;
+}
+
+void Space::DeleteZone(Zone::ID ID) {
+	auto fi = d_zones.find(ID);
+	if ( fi == d_zones.end() ) {
+		throw std::invalid_argument("Zone " +std::to_string(ID) + " does not exist");
+	}
+	if ( ID != d_zones.size() ) {
+		d_continuous = false;
+	}
+
+	d_zones.erase(fi);
+	d_zoneIDs.erase(ID);
+}
+
+const Space::ZoneByID & Space::Zones() const {
+	return d_zones;
+}
 
 
 } //namespace priv
