@@ -239,11 +239,11 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetThreshold(pb.threshold());
 	e.SetDefaultTagSize(pb.tagsize());
 
-	for (const auto & zPb : pb.zones()) {
-		auto z = e.CreateSpace(zPb.name());
-		for ( const auto & tddRelPath : zPb.trackingdatadirectories() ) {
+	for (const auto & sPb : pb.spaces()) {
+		auto s = e.CreateSpace(sPb.id(),sPb.name());
+		for ( const auto & tddRelPath : sPb.trackingdatadirectories() ) {
 			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
-			z->AddTrackingDataDirectory(tdd);
+			s->AddTrackingDataDirectory(tdd);
 		}
 	}
 
@@ -272,12 +272,13 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_threshold(e.Threshold());
 	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
-	auto zones = e.Spaces();
-	for (const auto & z : zones) {
-		auto zPb = pb->add_zones();
-		zPb->set_name(z->Name());
-		for ( const auto & tdd : z->TrackingDataDirectories() ) {
-			zPb->add_trackingdatadirectories(tdd->URI());
+	auto spaces = e.Spaces();
+	for (const auto & [spaceID,s] : spaces) {
+		auto sPb = pb->add_spaces();
+		sPb->set_id(spaceID);
+		sPb->set_name(s->Name());
+		for ( const auto & tdd : s->TrackingDataDirectories() ) {
+			sPb->add_trackingdatadirectories(tdd->URI());
 		}
 	}
 	for (const auto & [mt,t] : e.MeasurementTypes() ) {

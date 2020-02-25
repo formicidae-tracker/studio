@@ -67,33 +67,31 @@ Space::TDDAlreadyInUse::TDDAlreadyInUse(const std::string & tddURI, const std::s
 	                     + spaceURI + "'") {
 }
 
-Space::Ptr Space::Universe::Create(const Ptr & itself, const std::string & name) {
-	std::shared_ptr<Space> res(new Space(name,itself));
-	itself->d_spaces.push_back(res);
-	return res;
+Space::Ptr Space::Universe::Create(const Ptr & itself,
+                                   Space::ID spaceID,
+                                   const std::string & name) {
+	return itself->d_spaces.CreateObject([&itself,&name](Space::ID ID) {
+		                                     return Space::Ptr(new Space(ID,name,itself));
+	                                    });
 }
 
-void Space::Universe::DeleteSpace(const std::string & URI) {
-	auto fi = std::find_if(d_spaces.begin(),
-	                       d_spaces.end(),
-	                       [URI](const Space::Ptr & z) -> bool {
-		                       return z->URI() == URI;
-	                       });
-	if ( fi == d_spaces.end() ) {
-		throw UnmanagedSpace(URI);
+void Space::Universe::DeleteSpace(Space::ID ID) {
+	auto fi = d_spaces.Objects().find(ID);
+	if ( fi == d_spaces.Objects().end() ) {
+		throw UnmanagedSpace("spaces/" + std::to_string(ID));
 	}
 
-	if ( (*fi)->d_tdds.empty() == false ) {
-		throw SpaceNotEmpty(**fi);
+	if ( fi->second->d_tdds.empty() == false ) {
+		throw SpaceNotEmpty(*fi->second);
 	}
 
-	d_spaces.erase(fi);
+	d_spaces.DeleteObject(ID);
 }
 
 void Space::Universe::DeleteTrackingDataDirectory(const std::string & URI) {
-	for ( const auto & z : d_spaces ) {
+	for ( const auto & [spaceID,s] : d_spaces.Objects() ) {
 		try {
-			z->DeleteTrackingDataDirectory(URI);
+			s->DeleteTrackingDataDirectory(URI);
 			return;
 		} catch ( const UnmanagedTrackingDataDirectory & e) {
 		}
@@ -101,13 +99,13 @@ void Space::Universe::DeleteTrackingDataDirectory(const std::string & URI) {
 	throw UnmanagedTrackingDataDirectory(URI);
 }
 
-const std::vector<Space::Ptr> & Space::Universe::Spaces() const {
-	return d_spaces;
+const SpaceByID & Space::Universe::Spaces() const {
+	return d_spaces.Objects();
 }
 
-Space::Space(const std::string & name, const Universe::Ptr & universe)
+Space::Space(ID spaceID, const std::string & name, const Universe::Ptr & universe)
 	: d_universe(universe)
-	, d_continuous(false) {
+	, d_ID(spaceID) {
 	SetName(name);
 }
 
@@ -137,34 +135,22 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 
 	auto universe = LockUniverse();
 
-	auto zi = std::find_if(universe->d_spaces.begin(),
-	                       universe->d_spaces.end(),
-	                       [&tdd](const Space::Ptr & z) {
-		                       return z->URI() == tdd->URI();
-	                       });
-
-	if ( zi != universe->d_spaces.end() ) {
-		throw std::runtime_error("TDD:'"
-		                         + tdd->URI()
-		                         + " has the same than a Space in this universe");
-	}
-
 	if ( universe->d_tddsByURI.count(tdd->URI()) != 0 ) {
-		auto zi = std::find_if(universe->d_spaces.begin(),
-		                       universe->d_spaces.end(),
-		                       [&tdd](const  Space::Ptr  &z) {
-			                       auto ti = std::find_if(z->d_tdds.begin(),
-			                                              z->d_tdds.end(),
+		auto si = std::find_if(universe->d_spaces.Objects().begin(),
+		                       universe->d_spaces.Objects().end(),
+		                       [&tdd](const std::pair<Space::ID,Space::Ptr> & iter) {
+			                       auto ti = std::find_if(iter.second->d_tdds.begin(),
+			                                              iter.second->d_tdds.end(),
 			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tdd) {
 				                                              return tdd->URI() == tdd->URI();
 			                                              });
-			                       return ti != z->d_tdds.end();
+			                       return ti != iter.second->d_tdds.end();
 		                       });
-		if ( zi == universe->d_spaces.end()){
+		if ( si == universe->d_spaces.Objects().end()){
 			throw std::logic_error("Internal data error");
 		}
 
-		throw TDDAlreadyInUse(tdd->URI(),(*zi)->URI());
+		throw TDDAlreadyInUse(tdd->URI(),si->second->URI());
 	}
 
 	d_tdds = newList;
@@ -194,8 +180,13 @@ const std::string & Space::Name() const {
 	return d_name;
 }
 
+Space::ID Space::SpaceID() const {
+	return d_ID;
+}
+
+
 void Space::SetName(const std::string & name) {
-	fs::path URI = "spaces" / fs::path(name);
+	fs::path URI = fs::path("spaces") / std::to_string(d_ID);
 	if (name.empty()) {
 		throw InvalidName(name,"it is empty");
 	}
@@ -205,13 +196,12 @@ void Space::SetName(const std::string & name) {
 
 	auto universe = LockUniverse();
 
-
-	auto zi = std::find_if(universe->d_spaces.begin(),
-	                       universe->d_spaces.end(),
-	                       [URI](const Space::Ptr & z ) {
-		                       return z->URI() == URI.generic_string();
+	auto zi = std::find_if(universe->d_spaces.Objects().begin(),
+	                       universe->d_spaces.Objects().end(),
+	                       [&name](const std::pair<Space::ID,Space::Ptr> & iter ) {
+		                       return iter.second->Name() == name;
 	                       });
-	if (zi != universe->d_spaces.end()) {
+	if (zi != universe->d_spaces.Objects().end()) {
 		throw InvalidName(name,"is already used by another Space");
 	}
 
@@ -242,79 +232,45 @@ Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) const {
 		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
 	}
 
-	auto zi = std::find_if(d_spaces.begin(),
-	                       d_spaces.end(),
-	                       [&tddURI]( const Space::Ptr & z) {
-		                       auto ti = std::find_if(z->d_tdds.begin(),
-		                                              z->d_tdds.end(),
+	auto si = std::find_if(d_spaces.Objects().begin(),
+	                       d_spaces.Objects().end(),
+	                       [&tddURI]( const std::pair<Space::ID,Space::Ptr> & iter) {
+		                       auto ti = std::find_if(iter.second->d_tdds.begin(),
+		                                              iter.second->d_tdds.end(),
 		                                              [&tddURI]( const TrackingDataDirectory::ConstPtr & tdd) {
 			                                              return tdd->URI() == tddURI;
 		                                              });
-		                       return ti != z->d_tdds.end();
+		                       return ti != iter.second->d_tdds.end();
 	                       });
-	if ( zi ==  d_spaces.end()) {
+	if ( si ==  d_spaces.Objects().end()) {
 		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
 	}
 
-	return std::make_pair(*zi,tddi->second);
+	return std::make_pair(si->second,tddi->second);
 }
 
-Space::Ptr Space::Universe::LocateSpace(const std::string & spaceURI) const {
-	auto zi = std::find_if(d_spaces.begin(),
-	                       d_spaces.end(),
-	                       [&spaceURI] ( const Space::Ptr & z) {
-		                       return z->URI() == spaceURI;
+Space::Ptr Space::Universe::LocateSpace(const std::string & spaceName) const {
+	auto si = std::find_if(d_spaces.Objects().begin(),
+	                       d_spaces.Objects().end(),
+	                       [&spaceName] ( const std::pair<Space::ID,Space::Ptr> & iter) {
+		                       return iter.second->Name() == spaceName;
 	                       });
-	if ( zi == d_spaces.end()) {
+	if ( si == d_spaces.Objects().end()) {
 		return Space::Ptr();
 	}
-	return *zi;
-}
-
-Zone::ID Space::NextAvailableZoneID() {
-	if ( d_continuous == true ) {
-		return d_zones.size() + 1;
-	}
-	Zone::ID res = 0;
-	auto missingIndex = std::find_if(d_zoneIDs.begin(),d_zoneIDs.end(),
-	                                 [&res] ( const Zone::ID toTest ) {
-		                                 return ++res != toTest;
-	                                 });
-	if ( missingIndex == d_zoneIDs.end() ) {
-		d_continuous = true;
-		return d_zones.size() + 1;
-	}
-	return res;
+	return si->second;
 }
 
 Zone::Ptr Space::CreateZone(Zone::ID ID) {
-	if ( ID == NEXT_AVAILABLE_ID ) {
-		ID =  NextAvailableZoneID();
-	}
-	if ( d_zoneIDs.count(ID) != 0 ) {
-		throw std::invalid_argument("Zone " + std::to_string(ID) + " already exits");
-	}
-	auto res = Zone::Create(ID,"new-zone",d_URI);
-	d_zones[ID] = res;
-	d_zoneIDs.insert(ID);
-	return res;
+	return d_zones.CreateObject([this](Zone::ID ZID) { return Zone::Create(ZID,"new-zone",d_URI); },ID);
 }
 
 void Space::DeleteZone(Zone::ID ID) {
-	auto fi = d_zones.find(ID);
-	if ( fi == d_zones.end() ) {
-		throw std::invalid_argument("Zone " +std::to_string(ID) + " does not exist");
-	}
-	if ( ID != d_zones.size() ) {
-		d_continuous = false;
-	}
-
-	d_zones.erase(fi);
-	d_zoneIDs.erase(ID);
+	d_zones.DeleteObject(ID);
 }
 
 const Space::ZoneByID & Space::Zones() const {
-	return d_zones;
+	return d_zones.Objects();
 }
 
 

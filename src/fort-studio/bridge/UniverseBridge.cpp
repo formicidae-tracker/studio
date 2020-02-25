@@ -88,24 +88,17 @@ QList<QStandardItem*> UniverseBridge::buildSpace(const fmp::Space::Ptr & s) {
 	spaceItem->setData(QVariant::fromValue(s),Qt::UserRole+2);
 	rebuildSpaceChildren(spaceItem,s);
 	QList<QStandardItem*> res = {spaceItem};
-	for(size_t i = 0 ; i < 5; ++i) {
+	for(size_t i = 0 ; i < 4; ++i) {
 		auto dummyItem = new QStandardItem("");
+		if ( i == 0 ) {
+			dummyItem->setText(QString::number(s->SpaceID()));
+		}
 		dummyItem->setEditable(false);
 		dummyItem->setData(SPACE_TYPE,Qt::UserRole+1);
 		dummyItem->setData(QVariant::fromValue(s),Qt::UserRole+2);
 		res.push_back(dummyItem);
 	}
 	return res;
-}
-
-void UniverseBridge::buildAll(const std::vector<fmp::Space::Ptr> & spaces) {
-	d_model->clear();
-	d_model->setColumnCount(6);
-	auto labels = {tr("URI"),tr("Filepath"),tr("Start Frame"),tr("End Frame"),tr("Start Date"),tr("End Date")};
-	d_model->setHorizontalHeaderLabels(labels);
-	for (const auto & s : spaces) {
-		d_model->invisibleRootItem()->appendRow(buildSpace(s));
-	}
 }
 
 const std::vector<fmp::Space::Ptr> UniverseBridge::s_emptySpaces;
@@ -120,15 +113,21 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 	fmp::Space::Ptr newSpace;
 	try {
 		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::Create('" << spaceName << "')";
-		newSpace = d_experiment->CreateSpace(spaceName.toUtf8().data());
+		newSpace = d_experiment->CreateSpace(0,spaceName.toUtf8().data());
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create space '" << spaceName
 		            <<"': " << e.what();
 		return;
 	}
 
-	qInfo() << "Created space '" << spaceName << "'";
-	d_model->appendRow(buildSpace(newSpace));
+	qInfo() << "Created space '" << spaceName << "' with ID" << newSpace->SpaceID();
+	if ( newSpace->SpaceID() == d_experiment->Spaces().size() ) {
+		d_model->appendRow(buildSpace(newSpace));
+	} else {
+		d_model->removeRows(0,d_model->rowCount());
+		rebuildAll(d_experiment->Spaces());
+	}
+
 	setModified(true);
 	emit spaceAdded(newSpace);
 }
@@ -139,7 +138,7 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
 		return;
 	}
 
-	auto s = d_experiment->LocateSpace("spaces/" + ToStdString(spaceName));
+	auto s = d_experiment->LocateSpace(ToStdString(spaceName));
 	auto item = locateSpace(spaceName);
 	if ( !s || item == NULL) {
 		qWarning() << "Could not locate space '" << spaceName
@@ -172,12 +171,14 @@ void UniverseBridge::deleteSpace(const QString & spaceName) {
 	if ( !d_experiment || item == NULL ) {
 		return;
 	}
-	auto URI = fs::path("spaces") / ToStdString(spaceName);
-
+	auto s = d_experiment->LocateSpace(ToStdString(spaceName));
+	if ( !s) {
+		qDebug() << "Could not locate space" << spaceName;
+	}
 	try {
 		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteSpace("
-		         << ToQString(URI.generic_string()) << ")";
-		d_experiment->DeleteSpace(URI.generic_string());
+		         << s->SpaceID() << ")";
+		d_experiment->DeleteSpace(s->SpaceID());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not remove space '" << spaceName << "': " << e.what();
 		return;
@@ -275,11 +276,7 @@ void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		emit activated(false);
 		return;
 	}
-
-	for (const auto & s : d_experiment->Spaces() ) {
-		d_model->appendRow(buildSpace(s));
-	}
-
+	rebuildAll(d_experiment->Spaces());
 	emit activated(true);
 }
 
@@ -354,5 +351,16 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 	}
 	for ( const auto & uri : spaceURIs ) {
 		deleteSpace(uri.c_str());
+	}
+}
+
+void UniverseBridge::rebuildAll(const fmp::SpaceByID & spaces) {
+	std::map<fmp::Space::ID,fmp::Space::Ptr> sorted;
+	for (const auto & iter : spaces ) {
+		sorted.insert(iter);
+	}
+
+	for ( const auto & [spaceID,s] : sorted ) {
+		d_model->appendRow(buildSpace(s));
 	}
 }

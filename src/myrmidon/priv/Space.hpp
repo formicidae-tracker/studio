@@ -5,6 +5,7 @@
 #include "LocatableTypes.hpp"
 #include "ForwardDeclaration.hpp"
 #include "Zone.hpp"
+#include "ContiguousIDContainer.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -20,6 +21,7 @@ class SpaceUTest;
 // <TrackingDataDirectory> can only be assigned once in a Space.
 class Space : public Identifiable {
 public:
+	typedef uint32_t                     ID;
 	// A pointer to a Space
 	typedef std::shared_ptr<Space>       Ptr;
 	// A cpnst pointer to a Space
@@ -104,27 +106,31 @@ public:
 
 		typedef std::map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
-		static Space::Ptr Create(const Ptr & itself, const std::string & name);
+		const static Space::ID NEXT_AVAILABLE_ID = 0;
 
-		void DeleteSpace(const std::string & URI);
+		static Space::Ptr Create(const Ptr & itself,
+		                         Space::ID spaceID,
+		                         const std::string & name);
+
+		void DeleteSpace(Space::ID spaceID);
 
 		void DeleteTrackingDataDirectory(const std::string & URI);
 
-		const std::vector<Space::Ptr> & Spaces() const;
+		const SpaceByID & Spaces() const;
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
 		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
 		LocateTrackingDataDirectory(const std::string & tddURI) const;
 
-		Space::Ptr LocateSpace(const std::string & spaceURI) const;
+		Space::Ptr LocateSpace(const std::string & spaceName) const;
 
 
 
 	private:
 		friend class Space;
 
-		std::vector<Space::Ptr> d_spaces;
+		ContiguousIDContainer<Space::Ptr,Space::ID> d_spaces;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
@@ -141,34 +147,31 @@ public:
 
 	const static Zone::ID NEXT_AVAILABLE_ID = 0;
 
-	Zone::ID NextAvailableZoneID();
-
 	Zone::Ptr CreateZone(Zone::ID ID = NEXT_AVAILABLE_ID);
 
 	void DeleteZone(Zone::ID ID);
 
 	const ZoneByID & Zones() const;
 
+	Space::ID SpaceID() const;
+
 private :
 	typedef std::set<Zone::ID> SetOfZoneID;
-	Space(const std::string & name, const Universe::Ptr & universe);
+	Space(ID spaceID, const std::string & name, const Universe::Ptr & universe);
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
 
 	Universe::Ptr LockUniverse() const;
 
-
+	ID                      d_ID;
 	std::string             d_URI;
 	std::string             d_name;
 	std::weak_ptr<Universe> d_universe;
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
 
-	ZoneByID    d_zones;
-	SetOfZoneID d_zoneIDs;
-	bool        d_continuous;
-
+	ContiguousIDContainer<Zone::Ptr,Zone::ID> d_zones;
 };
 
 

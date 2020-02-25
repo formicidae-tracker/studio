@@ -29,14 +29,14 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
 		ASSERT_FALSE(e->Spaces().empty());
-		e->Spaces()[0]->AddTrackingDataDirectory(tdd);
+		e->Spaces().begin()->second->AddTrackingDataDirectory(tdd);
 
-		ASSERT_EQ(e->Spaces()[0]->TrackingDataDirectories().size(),2);
+		ASSERT_EQ(e->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
 		auto ee = Experiment::Open(TestSetup::Basedir() / "test3.myrmidon");
 
 		ASSERT_FALSE(ee->Spaces().empty());
-		ASSERT_EQ(ee->Spaces()[0]->TrackingDataDirectories().size(),2);
+		ASSERT_EQ(ee->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 
 
 	} catch (const std::exception & e) {
@@ -48,7 +48,7 @@ TEST_F(ExperimentUTest,IOTest) {
 	try{
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		ASSERT_FALSE(e->Spaces().empty());
-		auto tdd = e->Spaces()[0]->TrackingDataDirectories();
+		auto tdd = e->Spaces().begin()->second->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
 		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
@@ -103,14 +103,14 @@ void ListAllMeasurements(const Experiment::MeasurementByTagCloseUp & measurement
 TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	ExperimentPtr e;
 	TrackingDataDirectory::ConstPtr foo0,foo1;
-	Space::Ptr z;
+	Space::Ptr s;
 	ASSERT_NO_THROW({
 			e = Experiment::NewFile(TestSetup::Basedir() / "new-file.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			foo1 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-			z = e->CreateSpace("box");
-			z->AddTrackingDataDirectory(foo0);
-			z->AddTrackingDataDirectory(foo1);
+			s = e->CreateSpace(0,"box");
+			s->AddTrackingDataDirectory(foo0);
+			s->AddTrackingDataDirectory(foo1);
 		});
 
 	// It has a default measurment type Measurement::HEAD_TAIL_TYPE called "head-tail"
@@ -357,7 +357,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			// contains a tracking data directory
-			e->DeleteSpace(z->URI());
+			e->DeleteSpace(s->SpaceID());
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -395,7 +395,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		});
 
 	EXPECT_NO_THROW({
-			e->DeleteSpace(z->URI());
+			e->DeleteSpace(s->SpaceID());
 		});
 
 

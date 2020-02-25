@@ -123,7 +123,7 @@ const std::string & Zone::URI() const {
 	return d_URI;
 }
 
-Zone::ID Zone::ZID() const {
+Zone::ID Zone::ZoneID() const {
 	return d_ZID;
 }
 

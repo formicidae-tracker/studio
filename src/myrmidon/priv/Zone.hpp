@@ -75,7 +75,7 @@ public:
 
 	const std::string & URI() const;
 
-	ID ZID() const;
+	ID ZoneID() const;
 
 	Geometry::ConstPtr AtTime(const Time & t);
 

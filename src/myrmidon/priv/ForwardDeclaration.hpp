@@ -79,6 +79,9 @@ typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 typedef std::vector<IdentificationPtr>  IdentificationList;
 
 
+typedef std::unordered_map<uint32_t,SpacePtr> SpaceByID;
+
+
 
 } // namespace priv
 

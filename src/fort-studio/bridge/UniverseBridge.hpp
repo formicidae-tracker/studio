@@ -63,7 +63,7 @@ private:
 	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	QList<QStandardItem*> buildSpace(const fmp::Space::Ptr & z);
 
-	void buildAll(const std::vector<fmp::Space::Ptr> & spaces);
+	void rebuildAll(const fmp::SpaceByID & spaces);
 
 	QStandardItemModel   * d_model;
 	fmp::Experiment::Ptr   d_experiment;

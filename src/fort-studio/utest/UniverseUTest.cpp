@@ -28,9 +28,8 @@ void UniverseUTest::SetUpTestSuite() {
 void UniverseUTest::SetUp() {
 	EXPECT_NO_THROW({
 			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "universe.myrmidon");
-			auto foo = experiment->CreateSpace("foo");
-			auto bar = experiment->CreateSpace("bar");
-
+			auto foo = experiment->CreateSpace(0,"foo");
+			auto bar = experiment->CreateSpace(0,"bar");
 			foo->AddTrackingDataDirectory(s_foo[0]);
 			foo->AddTrackingDataDirectory(s_foo[1]);
 			bar->AddTrackingDataDirectory(s_foo[2]);
@@ -128,7 +127,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	ASSERT_EQ(tddDeleted.count(),1);
 	EXPECT_EQ(tddDeleted.at(0).at(0).toString(),"foo.0001");
 	EXPECT_EQ(spaceChangedSignal.at(0).at(0).value<fmp::Space::Ptr>()->URI(),
-	          "spaces/foo");
+	          "spaces/1");
 
 	universe->setExperiment(experiment);
 	EXPECT_FALSE(universe->isModified());
@@ -143,7 +142,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	ASSERT_EQ(tddAdded.count(),1);
 	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::ConstPtr>()->URI(),"foo.0001");
 	EXPECT_EQ(spaceChangedSignal.at(1).at(0).value<fmp::Space::Ptr>()->URI(),
-	          "spaces/wuhu");
+	          "spaces/3");
 
 	universe->setExperiment(experiment);
 	EXPECT_FALSE(universe->isModified());
@@ -172,7 +171,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_TRUE(modifiedSignal.at(8).at(0).toBool());
 	ASSERT_EQ(spaceChangedSignal.count(),4);
 	EXPECT_EQ(spaceChangedSignal.at(3).at(0).value<fmp::Space::Ptr>()->URI(),
-	          "spaces/newName");
+	          "spaces/1");
 
 
 }

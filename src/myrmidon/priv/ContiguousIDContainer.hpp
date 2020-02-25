@@ -45,7 +45,7 @@ public:
 		}
 
 		auto res = creator(ID);
-		d_objects[res->ID()] = res;
+		d_objects[ID] = res;
 		d_objectIDs.insert(ID);
 		return res;
 	}

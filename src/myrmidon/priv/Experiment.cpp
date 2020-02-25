@@ -58,15 +58,15 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-Space::Ptr Experiment::CreateSpace(const std::string & name) {
-	return Space::Universe::Create(d_universe,name);
+Space::Ptr Experiment::CreateSpace(Space::ID ID, const std::string & name) {
+	return Space::Universe::Create(d_universe,ID,name);
 }
 
-void Experiment::DeleteSpace(const std::string & zoneURI) {
-	d_universe->DeleteSpace(zoneURI);
+void Experiment::DeleteSpace(Space::ID ID) {
+	d_universe->DeleteSpace(ID);
 }
 
-const std::vector<Space::Ptr> & Experiment::Spaces() const {
+const SpaceByID & Experiment::Spaces() const {
 	return d_universe->Spaces();
 }
 
@@ -391,8 +391,8 @@ Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }
 
-Space::Ptr Experiment::LocateSpace(const std::string & spaceURI) const {
-	return d_universe->LocateSpace(spaceURI);
+Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
+	return d_universe->LocateSpace(spaceName);
 }
 
 } //namespace priv

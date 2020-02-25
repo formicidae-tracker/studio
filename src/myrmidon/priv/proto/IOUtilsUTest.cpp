@@ -414,11 +414,12 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			e->SetDefaultTagSize(1.6);
 			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
-			auto z = e->CreateSpace("box");
-			z->AddTrackingDataDirectory(tdd);
-			auto zPb = expected.add_zones();
-			zPb->set_name("box");
-			zPb->add_trackingdatadirectories(tdd->URI());
+			auto s = e->CreateSpace(0,"box");
+			s->AddTrackingDataDirectory(tdd);
+			auto sPb = expected.add_spaces();
+			sPb->set_id(s->SpaceID());
+			sPb->set_name("box");
+			sPb->add_trackingdatadirectories(tdd->URI());
 
 			e->MeasurementTypes().find(0)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();

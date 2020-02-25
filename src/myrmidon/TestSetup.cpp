@@ -341,9 +341,10 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
-	auto z = e.add_zones();
-	z->set_name("box");
-	z->add_trackingdatadirectories("foo.0000");
+	auto s = e.add_spaces();
+	s->set_id(1);
+	s->set_name("box");
+	s->add_trackingdatadirectories("foo.0000");
 
 	auto mt = e.add_custommeasurementtypes();
 	mt->set_id(0);

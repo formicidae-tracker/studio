@@ -102,11 +102,11 @@ public :
 	const fs::path & Basedir() const;
 
 
-	Space::Ptr CreateSpace(const std::string & name);
+	Space::Ptr CreateSpace(Space::ID spaceID, const std::string & name);
 
-	void DeleteSpace(const std::string & zoneURI);
+	void DeleteSpace(Space::ID spaceID);
 
-	const std::vector<Space::Ptr> & Spaces() const;
+	const SpaceByID & Spaces() const;
 
 	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
@@ -117,7 +117,7 @@ public :
 	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
 	LocateTrackingDataDirectory(const std::string & tddURI) const;
 
-	Space::Ptr LocateSpace(const std::string & spaceURI) const;
+	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
 	// Accessor to the underlying Identifier
 	//

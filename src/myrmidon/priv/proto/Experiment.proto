@@ -6,9 +6,10 @@ import "google/protobuf/timestamp.proto";
 import "TagFamily.proto";
 import "Measurement.proto";
 
-message Zone {
-	string          name = 1;
-	repeated string trackingdatadirectories = 2;
+message Space {
+	uint32          ID   = 1;
+	string          name = 2;
+	repeated string trackingdatadirectories = 3;
 };
 
 message Experiment {
@@ -19,7 +20,7 @@ message Experiment {
 	uint32    threshold = 6;
 	double    tagsize   = 7;
 
-	repeated Zone zones = 11;
+	repeated Space spaces = 11;
 
 	repeated MeasurementType customMeasurementTypes  = 21;
 };
