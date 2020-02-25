@@ -2,11 +2,15 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Ant.hpp>
-#include <myrmidon/priv/Capsule.hpp>
 #include <myrmidon/priv/TagCloseUp.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Measurement.hpp>
 #include <myrmidon/priv/Space.hpp>
+
+#include <myrmidon/priv/Capsule.hpp>
+#include <myrmidon/priv/Polygon.hpp>
+#include <myrmidon/priv/Circle.hpp>
+
 
 #include <myrmidon/utils/Checker.hpp>
 
@@ -70,21 +74,6 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 }
 
 
-Capsule::Ptr IOUtils::LoadCapsule(const pb::Capsule & pb) {
-	Eigen::Vector2d a,b;
-	LoadVector(a,pb.a());
-	LoadVector(b,pb.b());
-	return std::make_shared<Capsule>(a,b,
-	                                 pb.a_radius(),
-	                                 pb.b_radius());
-}
-
-void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule::ConstPtr & capsule) {
-	SaveVector(pb->mutable_a(),capsule->C1());
-	SaveVector(pb->mutable_b(),capsule->C2());
-	pb->set_a_radius(capsule->R1());
-	pb->set_b_radius(capsule->R2());
-}
 
 template <typename T>
 inline T Clamp(T v, T min, T max) {
@@ -141,7 +130,7 @@ void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb
 		LoadIdentification(e,ant,ident);
 	}
 
-	for ( const auto & mc : pb.shape().capsules() ) {
+	for ( const auto & mc : pb.shape() ) {
 		ant->AddCapsule(LoadCapsule(mc));
 	}
 
@@ -158,7 +147,7 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 	}
 
 	for ( const auto & c : ant->Shape() ) {
-		SaveCapsule(pb->mutable_shape()->add_capsules(),c);
+		SaveCapsule(pb->add_shape(),c);
 	}
 
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
@@ -400,6 +389,83 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 		SaveVector(pb->add_corners(),c);
 	}
 
+}
+
+CapsulePtr IOUtils::LoadCapsule(const pb::Capsule & pb) {
+	Eigen::Vector2d c1,c2;
+	LoadVector(c1,pb.c1());
+	LoadVector(c2,pb.c2());
+	return std::make_shared<Capsule>(c1,c2,
+	                                 pb.r1(),
+	                                 pb.r2());
+}
+
+void IOUtils::SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule) {
+	SaveVector(pb->mutable_c1(),capsule->C1());
+	SaveVector(pb->mutable_c2(),capsule->C2());
+	pb->set_r1(capsule->R1());
+	pb->set_r2(capsule->R2());
+}
+
+CirclePtr IOUtils::LoadCircle(const pb::Circle & pb) {
+	Eigen::Vector2d center;
+	LoadVector(center,pb.center());
+	return std::make_shared<Circle>(center,pb.radius());
+}
+
+void IOUtils::SaveCircle(pb::Circle * pb, const CircleConstPtr & circle) {
+	pb->Clear();
+	SaveVector(pb->mutable_center(),circle->Center());
+	pb->set_radius(circle->Radius());
+}
+
+PolygonPtr IOUtils::LoadPolygon(const pb::Polygon & pb) {
+	Vector2dList vertices;
+	vertices.reserve(pb.vertices_size());
+	for ( const auto & v : pb.vertices() ) {
+		Eigen::Vector2d vv;
+		LoadVector(vv,v);
+		vertices.push_back(vv);
+	}
+	return std::make_shared<Polygon>(vertices);
+}
+
+void IOUtils::SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon) {
+	pb->Clear();
+	for ( size_t i = 0; i < polygon->Size(); ++i) {
+		SaveVector(pb->add_vertices(),polygon->Vertex(i));
+	}
+}
+
+Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
+	if ( pb.has_capsule() == true ) {
+		return LoadCapsule(pb.capsule());
+	}
+
+	if ( pb.has_circle() == true ) {
+		return LoadCircle(pb.circle());
+	}
+
+	if ( pb.has_polygon() == true) {
+		return LoadPolygon(pb.polygon());
+	}
+	return Shape::Ptr();
+}
+
+void IOUtils::SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape) {
+	switch(shape->ShapeType()) {
+	case Shape::Type::Capsule:
+		SaveCapsule(pb->mutable_capsule(),std::static_pointer_cast<const Capsule>(shape));
+		return;
+	case Shape::Type::Circle:
+		SaveCircle(pb->mutable_circle(),std::static_pointer_cast<const Circle>(shape));
+		return;
+	case Shape::Type::Polygon:
+		SavePolygon(pb->mutable_polygon(),std::static_pointer_cast<const Polygon>(shape));
+		return;
+	default:
+		return;
+	}
 }
 
 

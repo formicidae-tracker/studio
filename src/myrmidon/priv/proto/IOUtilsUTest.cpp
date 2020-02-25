@@ -184,10 +184,10 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		Eigen::Vector2d dA(d.AX,d.AY),dB(d.BX,d.BY);
 		auto dC = std::make_shared<Capsule>(dA,dB,d.AR,d.BR);
 		pb::Capsule c,expected;
-		IOUtils::SaveVector(expected.mutable_a(),dA);
-		IOUtils::SaveVector(expected.mutable_b(),dB);
-		expected.set_a_radius(d.AR);
-		expected.set_b_radius(d.BR);
+		IOUtils::SaveVector(expected.mutable_c1(),dA);
+		IOUtils::SaveVector(expected.mutable_c2(),dB);
+		expected.set_r1(d.AR);
+		expected.set_r2(d.BR);
 
 		IOUtils::SaveCapsule(&c,dC);
 		EXPECT_TRUE(MessageEqual(c,expected));
@@ -264,7 +264,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 		for ( const auto & c : d.Capsules ) {
 			dA->AddCapsule(c);
-			IOUtils::SaveCapsule(expected.mutable_shape()->add_capsules(),
+			IOUtils::SaveCapsule(expected.add_shape(),
 			                     c);
 		}
 

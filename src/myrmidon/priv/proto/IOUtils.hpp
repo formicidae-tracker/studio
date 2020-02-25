@@ -7,6 +7,7 @@
 #include <myrmidon/Experiment.pb.h>
 #include <myrmidon/TrackingDataDirectory.pb.h>
 #include <myrmidon/TagCloseUpCache.pb.h>
+#include <myrmidon/Shapes.pb.h>
 
 #include <myrmidon/Time.hpp>
 
@@ -14,6 +15,7 @@
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 #include <myrmidon/priv/Color.hpp>
 #include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Shape.hpp>
 
 #include <Eigen/Core>
 #include <myrmidon/Vector2d.pb.h>
@@ -84,19 +86,6 @@ public:
 	// @ident the <Identification> to save to
 	static void SaveIdentification(pb::Identification * pb,
 	                               const IdentificationConstPtr & ident);
-
-
-	// Loads a Capsule from a message
-	//
-	// @pb the protobuf message to read from
-	// @return a <Capsule::Ptr> initialized with the message data
-	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
-
-	// Saves a Capsule to a message
-	//
-	// @pb the protobuf message to save to
-	// @capsule the <Capsule> to save to
-	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
 
 
 	static Color LoadColor(const pb::Color & pb);
@@ -233,6 +222,32 @@ public:
 	static void SaveTagCloseUp(pb::TagCloseUp * pb,
 	                           const TagCloseUpConstPtr & tcu,
 	                           const fs::path & absoluteBasedir);
+
+
+	// Loads a Capsule from a message
+	//
+	// @pb the protobuf message to read from
+	// @return a <Capsule::Ptr> initialized with the message data
+	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+
+	// Saves a Capsule to a message
+	//
+	// @pb the protobuf message to save to
+	// @capsule the <Capsule> to save to
+	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+
+
+	static CirclePtr LoadCircle(const pb::Circle & pb);
+
+	static void SaveCircle(pb::Circle * pb, const CircleConstPtr & circle);
+
+	static PolygonPtr LoadPolygon(const pb::Polygon & pb);
+
+	static void SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon);
+
+	static Shape::Ptr LoadShape(const pb::Shape & pb);
+
+	static void SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape);
 
 
 };
