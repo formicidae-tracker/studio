@@ -421,14 +421,14 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			sPb->set_name("box");
 			sPb->add_trackingdatadirectories(tdd->URI());
 
-			e->MeasurementTypes().find(0)->second->SetName("my-head-tail");
+			e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();
-			mt->set_id(0);
+			mt->set_id(Measurement::HEAD_TAIL_TYPE);
 			mt->set_name("my-head-tail");
 
-			e->CreateMeasurementType(1,"antennas");
+			e->CreateMeasurementType("antennas");
 			mt = expected.add_custommeasurementtypes();
-			mt->set_id(1);
+			mt->set_id(Measurement::HEAD_TAIL_TYPE+1);
 			mt->set_name("antennas");
 
 		});

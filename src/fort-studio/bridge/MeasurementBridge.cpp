@@ -1,6 +1,7 @@
 #include "MeasurementBridge.hpp"
 
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <fort-studio/Format.hpp>
 
 #include <QtConcurrent>
 #include <QDebug>
@@ -413,9 +414,9 @@ void MeasurementBridge::setMeasurementType(quint32 MTID, const QString & name) {
 	try {
 		auto fi = d_experiment->MeasurementTypes().find(MTID);
 		if ( fi == d_experiment->MeasurementTypes().end() ) {
-			MTID = d_experiment->NextAvailableMeasurementTypeID();
-			qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::CreateMeasurement(NextAvailableMeasurementTypeID(),'" << name << "')";
-			auto type = d_experiment->CreateMeasurementType(MTID,name.toUtf8().data());
+			qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::CreateMeasurement('" << name << "')";
+			auto type = d_experiment->CreateMeasurementType(ToStdString(name));
+			MTID = type->MTID();
 			d_typeModel->appendRow(buildType(type));
 		} else {
 			auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);

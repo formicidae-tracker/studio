@@ -41,13 +41,15 @@ public :
 
 
 	// Maps the <MeasurementType> by their <MeasurementType::ID>
-	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
+	typedef std::unordered_map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
 
 	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
 
 	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
 
+
+	const static MeasurementTypeID NEXT_AVAILABLE_MEASUREMENT_TYPE_ID = 0;
 
 	// A Pointer to an Experiment.
 	typedef std::shared_ptr<Experiment>       Ptr;
@@ -195,10 +197,8 @@ public :
 	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
-	MeasurementTypeID NextAvailableMeasurementTypeID() const;
-
-	MeasurementTypePtr CreateMeasurementType(MeasurementTypeID MTID,
-	                                         const std::string & name);
+	MeasurementTypePtr CreateMeasurementType(const std::string & name,
+	                                         MeasurementTypeID MTID = NEXT_AVAILABLE_MEASUREMENT_TYPE_ID);
 
 	void DeleteMeasurementType(MeasurementTypeID MTID);
 
@@ -260,7 +260,7 @@ private:
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
-
+	typedef ContiguousIDContainer<MeasurementTypePtr,MeasurementTypeID> MeasurementTypeContainer;
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
@@ -281,9 +281,10 @@ private:
 	double             d_defaultTagSize;
 	uint8_t            d_threshold;
 
-	MeasurementByTagCloseUp d_measurementByURI;
-	SortedMeasurement       d_measurements;
-	MeasurementTypeByID     d_measurementTypeByID;
+	MeasurementByTagCloseUp  d_measurementByURI;
+	SortedMeasurement        d_measurements;
+	MeasurementTypeContainer d_measurementTypes;
+
 };
 
 } //namespace priv

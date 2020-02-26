@@ -125,8 +125,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			//we can't create a new one with the same type
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE,
-			                         "foo");
+			e->CreateMeasurementType("foo",Measurement::HEAD_TAIL_TYPE);
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -149,25 +148,15 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			                                                12.0));
 		},std::runtime_error);
 
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+1);
-
 	EXPECT_NO_THROW({
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE+2,
-			                         "foo");
+			e->CreateMeasurementType("foo");
 		});
-
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+1);
 
 	EXPECT_NO_THROW({
 			// its ok to be clumsy and use the same names for different type
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE+1,
-			                         "foo");
+			e->CreateMeasurementType("foo");
 		});
 
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+3);
 
 	auto tcuPath = fs::path(foo0->URI()) / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
 	auto badPath = fs::path("bar.0000") / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
@@ -233,22 +222,22 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	};
 	std::vector<MData> mData =
 		{
-		 {foo0,0,0,0},
 		 {foo0,0,0,1},
-		 {foo0,0,1,0},
+		 {foo0,0,0,2},
 		 {foo0,0,1,1},
-		 {foo0,1,0,0},
+		 {foo0,0,1,2},
 		 {foo0,1,0,1},
-		 {foo0,1,1,0},
+		 {foo0,1,0,2},
 		 {foo0,1,1,1},
-		 {foo1,0,0,0},
+		 {foo0,1,1,2},
 		 {foo1,0,0,1},
-		 {foo1,0,1,0},
+		 {foo1,0,0,2},
 		 {foo1,0,1,1},
-		 {foo1,1,0,0},
+		 {foo1,0,1,2},
 		 {foo1,1,0,1},
-		 {foo1,1,1,0},
-		 {foo1,1,1,1}
+		 {foo1,1,0,2},
+		 {foo1,1,1,1},
+		 {foo1,1,1,2}
 		};
 	std::vector<std::string> paths;
 	paths.reserve(mData.size());
@@ -290,7 +279,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	std::vector<Experiment::ComputedMeasurement> measurements;
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->ID(),
-	                             0);
+	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
@@ -303,7 +292,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antBefore->ID(),
-	                             0);
+	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
@@ -313,7 +302,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_THROW({
 			e->ComputeMeasurementsForAnt(measurements,
 			                             antAfter->ID() + 100,
-			                             0);
+			                             1);
 		},Container::UnmanagedObject);
 
 
@@ -330,7 +319,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antLast->ID(),
-	                             0);
+	                             1);
 	EXPECT_EQ(measurements.size(),0);
 
 
@@ -339,11 +328,11 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	}
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/0");
+			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/1");
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("foo.0000/frames/0/closeups/43/measurements/0");
+			e->DeleteMeasurement("foo.0000/frames/0/closeups/43/measurements/1");
 		},std::runtime_error);
 
 	EXPECT_THROW({

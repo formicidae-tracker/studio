@@ -244,7 +244,7 @@ void IOUtils::LoadExperiment(Experiment & e,
 			}
 			fi->second->SetName(ct.name());
 		} else {
-			e.CreateMeasurementType(ct.id(),ct.name());
+			e.CreateMeasurementType(ct.name(),ct.id());
 		}
 	}
 }
@@ -270,7 +270,12 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 			sPb->add_trackingdatadirectories(tdd->URI());
 		}
 	}
-	for (const auto & [mt,t] : e.MeasurementTypes() ) {
+	std::map<MeasurementTypeID,MeasurementTypePtr> sorted;
+	for (const auto & iter : e.MeasurementTypes() ) {
+		sorted.insert(iter);
+	}
+
+	for ( const auto & [MTID,t] : sorted) {
 		auto mtPb = pb->add_custommeasurementtypes();
 		mtPb->set_id(t->MTID());
 		mtPb->set_name(t->Name());

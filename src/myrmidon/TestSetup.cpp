@@ -347,7 +347,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	s->add_trackingdatadirectories("foo.0000");
 
 	auto mt = e.add_custommeasurementtypes();
-	mt->set_id(0);
+	mt->set_id(1);
 	mt->set_name("head-tail");
 
 	fm::pb::FileHeader header;

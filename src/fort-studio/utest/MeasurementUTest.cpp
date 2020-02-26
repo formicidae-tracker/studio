@@ -63,23 +63,23 @@ TEST_F(MeasurementUTest,TypeBridgeModification) {
 	ASSERT_EQ(typeModified.count(),1);
 	EXPECT_TRUE(modified.at(0).at(0).toBool());
 	ASSERT_EQ(m->rowCount(),2);
-	EXPECT_EQ(typeModified.last().at(0).toInt(),1);
+	EXPECT_EQ(typeModified.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 	EXPECT_EQ(typeModified.last().at(1).toString(),"foo");
 
 	measurements->setExperiment(experiment);
 	EXPECT_FALSE(modified.last().at(0).toBool());
-	measurements->setMeasurementType(1,"bar");
+	measurements->setMeasurementType(fmp::Measurement::HEAD_TAIL_TYPE+1,"bar");
 	EXPECT_TRUE(modified.last().at(0).toBool());
-	EXPECT_EQ(typeModified.last().at(0).toInt(),1);
+	EXPECT_EQ(typeModified.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 	EXPECT_EQ(typeModified.last().at(1).toString(),"bar");
 
 
 	measurements->setExperiment(experiment);
 	EXPECT_FALSE(modified.last().at(0).toBool());
-	measurements->deleteMeasurementType(1);
+	measurements->deleteMeasurementType(fmp::Measurement::HEAD_TAIL_TYPE+1);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	ASSERT_EQ(deleted.count(),1);
-	EXPECT_EQ(deleted.last().at(0).toInt(),1);
+	EXPECT_EQ(deleted.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 
 }
 
@@ -102,10 +102,10 @@ TEST_F(MeasurementUTest,TypeWidgetTest) {
 	QTest::mouseClick(ui->addButton,Qt::LeftButton);
 	EXPECT_EQ(m->rowCount(),2);
 	EXPECT_EQ(std::string(m->data(m->index(1,1)).toString().toUtf8().constData()),"new-measurement-type");
-	EXPECT_EQ(m->data(m->index(1,0)).toInt(),1);
+	EXPECT_EQ(m->data(m->index(1,0)).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 	m->setData(m->index(1,1),"foobar");
 	ASSERT_FALSE(typeModified.isEmpty());
-	EXPECT_EQ(typeModified.last().at(0).toInt(),1);
+	EXPECT_EQ(typeModified.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 	EXPECT_EQ(typeModified.last().at(1).toString(),"foobar");
 
 	auto selection = ui->tableView->selectionModel();
@@ -119,5 +119,5 @@ TEST_F(MeasurementUTest,TypeWidgetTest) {
 
 	QTest::mouseClick(ui->deleteButton,Qt::LeftButton);
 	ASSERT_FALSE(deleted.isEmpty());
-	EXPECT_EQ(deleted.last().at(0).toInt(),1);
+	EXPECT_EQ(deleted.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 }

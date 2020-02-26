@@ -24,7 +24,7 @@ MeasurementType::ID MeasurementType::MTID() const {
 	return d_TID;
 }
 
-const MeasurementType::ID Measurement::HEAD_TAIL_TYPE = 0;
+const MeasurementType::ID Measurement::HEAD_TAIL_TYPE = 1;
 
 Measurement::Measurement(const std::string & parentURI,
                          MeasurementType::ID TID,
