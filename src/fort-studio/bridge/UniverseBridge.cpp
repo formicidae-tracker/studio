@@ -18,8 +18,6 @@ UniverseBridge::UniverseBridge( QObject * parent)
 	        this,
 	        &UniverseBridge::onItemChanged);
 
-;
-
 }
 
 bool UniverseBridge::isActive() const {
@@ -355,12 +353,7 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 }
 
 void UniverseBridge::rebuildAll(const fmp::SpaceByID & spaces) {
-	std::map<fmp::Space::ID,fmp::Space::Ptr> sorted;
-	for (const auto & iter : spaces ) {
-		sorted.insert(iter);
-	}
-
-	for ( const auto & [spaceID,s] : sorted ) {
+	for ( const auto & [spaceID,s] : spaces ) {
 		d_model->appendRow(buildSpace(s));
 	}
 }
