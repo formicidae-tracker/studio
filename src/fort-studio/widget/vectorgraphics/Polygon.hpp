@@ -2,27 +2,21 @@
 
 
 #include <QGraphicsPolygonItem>
+#include "Shape.hpp"
 
 class Handle;
 
-class Polygon : public QGraphicsPolygonItem {
+class Polygon : public Shape, public QGraphicsPolygonItem {
 public:
-	const static qreal LINE_WIDTH;
-	const static int   BORDER_OPACITY;
-	const static int   FILL_OPACITY;
-
-	typedef std::function<void (const QVector<QPointF>&)> UpdatedCallback;
 	Polygon(const QVector<QPointF> & points,
 	        QColor color,
-	        UpdatedCallback onUpdated,
-	        QGraphicsItem * parent);
+	        QGraphicsItem * parent = nullptr);
 
 	virtual ~Polygon();
 
 	void addToScene(QGraphicsScene * scene);
 
-
-	void setColor(const QColor & color);
+	QVector<QPointF> vertices() const;
 
 	QGraphicsItem * appendPoint(const QPointF & point);
 
@@ -38,6 +32,4 @@ private:
 
 private:
 	QVector<Handle*> d_handles;
-	UpdatedCallback  d_onUpdated;
-	QColor           d_color;
 };

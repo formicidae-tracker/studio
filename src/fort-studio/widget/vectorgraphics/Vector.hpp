@@ -1,32 +1,26 @@
 #pragma once
 
 #include <QGraphicsItemGroup>
-
-class Vector : public QGraphicsItemGroup {
+#include "Shape.hpp"
+class Vector : public Shape, public QGraphicsItemGroup {
+	Q_OBJECT
 public:
-	const static qreal LINE_WIDTH;
-	const static int   OPACITY;
 	const static double ARROW_LENGTH;
 	const static double ARROW_WIDTH;
 
-	typedef std::function<void(const QPointF & ,const QPointF &)> UpdatedCallback;
 
 	Vector(qreal ax, qreal ay,
 	       qreal bx, qreal by,
 	       QColor color,
-	       UpdatedCallback onUpdated,
 	       QGraphicsItem * parent = nullptr);
 	virtual ~Vector();
 
-	void setColor(const QColor & color);
 
-	inline QGraphicsItem * startPrecisionHandle() const {
-		return d_start;
-	}
+	void addToScene(QGraphicsScene * scene) override;
 
-	inline QGraphicsItem * endPrecisionHandle() const {
-		return d_end;
-	}
+	QPointF startPos() const;
+
+	QPointF endPos() const;
 
 protected:
 	void paint(QPainter * painter,
@@ -60,10 +54,7 @@ private:
 	};
 
 	void rebuild();
-	void editFinished();
 
-	UpdatedCallback     d_onUpdated;
 	PrecisionHandle   * d_start, * d_end;
 	QGraphicsPathItem * d_line;
-	QColor              d_color;
 };

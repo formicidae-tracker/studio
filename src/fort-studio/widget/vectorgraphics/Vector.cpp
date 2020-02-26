@@ -6,8 +6,6 @@
 
 #include "VectorialScene.hpp"
 
-const qreal Vector::LINE_WIDTH = 1.5;
-const int   Vector::OPACITY = 255;
 const double Vector::ARROW_LENGTH = 12;
 const double Vector::ARROW_WIDTH = 5;
 const qreal Vector::PrecisionHandle::SIZE = 10;
@@ -18,12 +16,10 @@ const qreal Vector::PrecisionHandle::RATIO = 0.1;
 Vector::Vector(qreal ax, qreal ay,
                qreal bx, qreal by,
                QColor color,
-               UpdatedCallback onUpdated,
                QGraphicsItem * parent)
-	: QGraphicsItemGroup(parent)
-	, d_onUpdated(onUpdated)
-	, d_line(new QGraphicsPathItem(this))
-	, d_color(color) {
+	: Shape(color,NULL)
+	, QGraphicsItemGroup(parent)
+	, d_line(new QGraphicsPathItem(this)) {
 
 	d_start =
 		new PrecisionHandle([this]() {
@@ -31,7 +27,7 @@ Vector::Vector(qreal ax, qreal ay,
 		                    },
 			[this]() {
 				rebuild();
-				editFinished();
+				emit updated();
 			});
 
 
@@ -41,13 +37,11 @@ Vector::Vector(qreal ax, qreal ay,
 		                    },
 			[this]() {
 				rebuild();
-				editFinished();
+				emit updated();
 			});
 
 	d_start->setPos(ax,ay);
 	d_end->setPos(bx,by);
-
-
 
 
 	setFlags(QGraphicsItem::ItemIsSelectable);
@@ -57,9 +51,21 @@ Vector::Vector(qreal ax, qreal ay,
 Vector::~Vector() {
 }
 
-void Vector::setColor(const QColor & color) {
-	d_color = color;
+void Vector::addToScene(QGraphicsScene * scene) {
+	scene->addItem(this);
+	scene->addItem(d_start);
+	scene->addItem(d_end);
 }
+
+
+QPointF Vector::startPos() const {
+	return d_start->pos();
+}
+
+QPointF Vector::endPos() const {
+	return d_end->pos();
+}
+
 
 void Vector::paint(QPainter * painter,
                    const QStyleOptionGraphicsItem * option,
@@ -69,7 +75,7 @@ void Vector::paint(QPainter * painter,
 	if ( isSelected() ) {
 		actual = d_color.lighter(150);
 	}
-	actual.setAlpha(255);
+	actual.setAlpha(Shape::BORDER_OPACITY);
 	d_line->setPen(QPen(actual,LINE_WIDTH));
 	d_start->setColor(actual);
 	d_end->setColor(actual);
@@ -159,8 +165,4 @@ void Vector::rebuild() {
 	path.lineTo(arrowStart.x(),arrowStart.y());
 
 	d_line->setPath(path);
-}
-
-void Vector::editFinished() {
-	d_onUpdated(d_start->pos(),d_end->pos());
 }

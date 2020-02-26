@@ -3,33 +3,29 @@
 
 #include <Eigen/Geometry>
 #include <QPen>
+#include <QGraphicsScene>
 
 #include <fort-studio/Utils.hpp>
 
-const qreal Capsule::LINE_WIDTH = 1.5;
-const int   Capsule::BORDER_OPACITY = 200;
-const int   Capsule::FILL_OPACITY = 40;
 const qreal Capsule::MIN_DISTANCE = 10.0;
 
 
 Capsule::Capsule(const QPointF & c1, const QPointF & c2,
                  qreal r1, qreal r2,
                  QColor color,
-                 UpdatedCallback onUpdated,
                  QGraphicsItem * parent)
-	: QGraphicsItemGroup(parent)
+	: Shape(color,NULL)
+	, QGraphicsItemGroup(parent)
 	, d_radius1(r1)
 	, d_radius2(r2)
-	, d_color(color)
-	, d_path (new QGraphicsPathItem(this))
-	, d_onUpdated(onUpdated) {
+	, d_path (new QGraphicsPathItem(this)) {
 
 	d_c1 = new Handle([this]() {
 		                  updateCenter(d_c1);
 	                  },
 		[this] {
 			updateCenter(d_c1);
-			editFinished();
+			emit updated();
 		});
 
 	d_c2 = new Handle([this]() {
@@ -37,7 +33,7 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
 	                  },
 		[this] {
 			updateCenter(d_c2);
-			editFinished();
+			emit updated();
 		});
 
 	d_c1->setPos(c1);
@@ -47,14 +43,14 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
 	              },
 		[this]() {
 			updateRadius(d_r1);
-			editFinished();
+			emit updated();
 		});
 	d_r2 = new Handle([this]() {
 		                  updateRadius(d_r2);
 	                  },
 		[this]() {
 			updateRadius(d_r2);
-			editFinished();
+			emit updated();
 		});
 
 	setFlags(QGraphicsItem::ItemIsSelectable);
@@ -65,6 +61,30 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
 Capsule::~Capsule() {
 }
 
+
+void Capsule::addToScene(QGraphicsScene * scene) {
+	scene->addItem(this);
+	scene->addItem(d_c1);
+	scene->addItem(d_c2);
+	scene->addItem(d_r1);
+	scene->addItem(d_r2);
+}
+
+QPointF Capsule::c1Pos() const {
+	return d_c1->pos();
+}
+
+QPointF Capsule::c2Pos() const {
+	return d_c2->pos();
+}
+
+qreal Capsule::r1() const {
+	return d_radius1;
+}
+
+qreal Capsule::r2() const {
+	return d_radius2;
+}
 
 void Capsule::paint(QPainter * painter,
                     const QStyleOptionGraphicsItem * option,
@@ -125,13 +145,6 @@ void Capsule::updateRadius(Handle * radius) {
 	rebuild();
 }
 
-
-void Capsule::editFinished() const {
-	d_onUpdated(d_c1->pos(),
-	            d_c2->pos(),
-	            d_radius1,
-	            d_radius2);
-}
 
 void Capsule::rebuild() {
 	Eigen::Vector2d c1(ToEigen(d_c1->pos()));

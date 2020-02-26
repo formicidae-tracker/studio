@@ -4,26 +4,18 @@
 
 #include "Handle.hpp"
 
-#include <iostream>
-
-const qreal Polygon::LINE_WIDTH = 1.5;
-const int   Polygon::BORDER_OPACITY = 200;
-const int   Polygon::FILL_OPACITY = 40;
 
 
 Polygon::Polygon(const QVector<QPointF> & points,
                  QColor color,
-                 UpdatedCallback onUpdated,
                  QGraphicsItem * parent)
-	: QGraphicsPolygonItem(QPolygonF(points),parent)
-	, d_onUpdated(onUpdated)
-	, d_color(color) {
+	: Shape(color,NULL)
+	, QGraphicsPolygonItem(QPolygonF(points),parent) {
 
 	auto p = polygon();
 	size_t i = 0;
 	size_t size = p.size();
 	if ( p.size() > 2 && p.isClosed() ) {
-		std::cerr << "Closed" << std::endl;
 		size -= 1;
 	}
 	for ( size_t i = 0; i < size; ++i ) {
@@ -32,7 +24,7 @@ Polygon::Polygon(const QVector<QPointF> & points,
 		                    },
 			[this,i]() {
 				update(i);
-				d_onUpdated(polygon());
+				emit updated();
 			});
 		h->setPos(p[i]);
 		d_handles.push_back(h);
@@ -65,7 +57,7 @@ QGraphicsItem * Polygon::appendPoint(const QPointF & point) {
 	                    },
 		[this,i]() {
 			update(i);
-			d_onUpdated(polygon());
+			emit updated();
 		});
 	setPolygon(p);
 	d_handles.push_back(h);
@@ -80,9 +72,15 @@ void Polygon::close() {
 	setPolygon(p);
 }
 
-void Polygon::setColor(const QColor & color) {
-	d_color = color;
+
+QVector<QPointF> Polygon::vertices() const {
+	QVector<QPointF> vertices;
+	for ( const auto & h : d_handles ) {
+		vertices.push_back(h->pos());
+	}
+	return vertices;
 }
+
 
 void Polygon::paint(QPainter * painter,
                     const QStyleOptionGraphicsItem * option,
