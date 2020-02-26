@@ -229,7 +229,7 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetDefaultTagSize(pb.tagsize());
 
 	for (const auto & sPb : pb.spaces()) {
-		auto s = e.CreateSpace(sPb.id(),sPb.name());
+		auto s = e.CreateSpace(sPb.name(),sPb.id());
 		for ( const auto & tddRelPath : sPb.trackingdatadirectories() ) {
 			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
 			s->AddTrackingDataDirectory(tdd);

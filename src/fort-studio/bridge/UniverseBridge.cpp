@@ -113,7 +113,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 	fmp::Space::Ptr newSpace;
 	try {
 		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::Create('" << spaceName << "')";
-		newSpace = d_experiment->CreateSpace(0,spaceName.toUtf8().data());
+		newSpace = d_experiment->CreateSpace(ToStdString(spaceName));
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create space '" << spaceName
 		            <<"': " << e.what();

@@ -108,7 +108,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e = Experiment::NewFile(TestSetup::Basedir() / "new-file.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			foo1 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-			s = e->CreateSpace(0,"box");
+			s = e->CreateSpace("box");
 			s->AddTrackingDataDirectory(foo0);
 			s->AddTrackingDataDirectory(foo1);
 		});

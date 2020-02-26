@@ -58,7 +58,7 @@ void Experiment::Save(const fs::path & filepath) const {
 	ExperimentReadWriter::Save(*this,filepath);
 }
 
-Space::Ptr Experiment::CreateSpace(Space::ID ID, const std::string & name) {
+Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {
 	return Space::Universe::Create(d_universe,ID,name);
 }
 

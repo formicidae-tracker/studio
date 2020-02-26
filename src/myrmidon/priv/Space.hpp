@@ -106,7 +106,7 @@ public:
 
 		typedef std::map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
-		const static Space::ID NEXT_AVAILABLE_ID = 0;
+		const static Space::ID NEXT_AVAILABLE_SPACE_ID = 0;
 
 		static Space::Ptr Create(const Ptr & itself,
 		                         Space::ID spaceID,

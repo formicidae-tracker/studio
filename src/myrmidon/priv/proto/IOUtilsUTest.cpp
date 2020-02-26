@@ -414,7 +414,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			e->SetDefaultTagSize(1.6);
 			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
-			auto s = e->CreateSpace(0,"box");
+			auto s = e->CreateSpace("box");
 			s->AddTrackingDataDirectory(tdd);
 			auto sPb = expected.add_spaces();
 			sPb->set_id(s->SpaceID());

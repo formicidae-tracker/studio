@@ -102,7 +102,8 @@ public :
 	const fs::path & Basedir() const;
 
 
-	Space::Ptr CreateSpace(Space::ID spaceID, const std::string & name);
+	Space::Ptr CreateSpace(const std::string & name,
+	                       Space::ID spaceID = Space::Universe::NEXT_AVAILABLE_SPACE_ID);
 
 	void DeleteSpace(Space::ID spaceID);
 
