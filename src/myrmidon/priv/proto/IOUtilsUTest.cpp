@@ -409,8 +409,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		EXPECT_EQ(res->DisplayStatus(),
 		          dA->DisplayStatus());
 	}
-
 }
+
+
+
 
 TEST_F(IOUtilsUTest,MeasurementIO) {
 	struct TestData {
@@ -589,6 +591,35 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 
 }
 
+
+TEST_F(IOUtilsUTest,SpaceIO) {
+	auto e = Experiment::Create(TestSetup::Basedir() / "space-io.myrmidon");
+	auto e2 = Experiment::Create(TestSetup::Basedir() / "space2-io.myrmidon");
+	auto dS = e->CreateSpace("foo");
+	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000", TestSetup::Basedir() );
+	dS->AddTrackingDataDirectory(tdd);
+	auto z =dS->CreateZone("bar");
+	pb::Space expected,s;
+	expected.set_id(dS->SpaceID());
+	expected.set_name(dS->Name());
+	expected.add_trackingdatadirectories("foo.0000");
+	IOUtils::SaveZone(expected.add_zones(),z);
+
+	IOUtils::SaveSpace(&s,dS);
+	EXPECT_TRUE(MessageEqual(s,expected));
+	IOUtils::LoadSpace(*e2,s);
+	ASSERT_EQ(e2->Spaces().size(),1);
+	auto res = e2->Spaces().begin()->second;
+	EXPECT_EQ(res->SpaceID(),dS->SpaceID());
+	EXPECT_EQ(res->Name(),dS->Name());
+	ASSERT_EQ(res->TrackingDataDirectories().size(),1);
+	EXPECT_EQ(res->TrackingDataDirectories().front()->URI(),"foo.0000");
+	ASSERT_EQ(res->Zones().size(),1);
+	ASSERT_EQ(res->Zones().begin()->second->ZoneID(),z->ZoneID());
+	ASSERT_EQ(res->Zones().begin()->second->Name(),z->Name());
+
+
+}
 
 TEST_F(IOUtilsUTest,TrackingIndexIO) {
 	std::string parentURI("foo");
