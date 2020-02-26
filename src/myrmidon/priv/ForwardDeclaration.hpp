@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <unordered_map>
+#include "DenseMap.hpp"
 
 #include <myrmidon/Ant.hpp>
 
@@ -70,16 +70,23 @@ FORT_MYRMIDON_FDECLARE_CLASS(Polygon)
 // Forward declaration for a <priv::Circle>
 FORT_MYRMIDON_FDECLARE_CLASS(Circle)
 
+// Forward declaration for a <priv::Circle>
+FORT_MYRMIDON_FDECLARE_CLASS(Zone)
 
 
 // A Map of <Ant> identified by their <Ant::ID>
-typedef std::unordered_map<fort::myrmidon::Ant::ID,AntPtr> AntByID;
+typedef DenseMap<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 
 // A List of <Identification>
 typedef std::vector<IdentificationPtr>  IdentificationList;
 
 
-typedef std::unordered_map<uint32_t,SpacePtr> SpaceByID;
+typedef DenseMap<uint32_t,SpacePtr> SpaceByID;
+
+typedef DenseMap<uint32_t,ZonePtr> ZoneByID;
+
+// Maps the <MeasurementType> by their <MeasurementType::ID>
+typedef DenseMap<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
 
 

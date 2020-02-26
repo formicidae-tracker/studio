@@ -63,7 +63,7 @@ public:
 			, d_end(iter.d_end) {
 		}
 
-		iterator& operator++() {
+		const_iterator& operator++() {
 			if ( d_iter == d_end ) {
 				return *this;
 			}
@@ -72,9 +72,9 @@ public:
 			}while(d_iter != d_end && d_iter->first == 0);
 			return *this;
 		}
-        iterator operator++(int) {iterator retval = *this; ++(*this); return retval;}
-        bool operator==(const iterator & other) const {return d_iter == other.d_iter;}
-        bool operator!=(const iterator & other) const {return !(*this == other);}
+        const_iterator operator++(int) {const_iterator retval = *this; ++(*this); return retval;}
+        bool operator==(const const_iterator & other) const {return d_iter == other.d_iter;}
+        bool operator!=(const const_iterator & other) const {return !(*this == other);}
 		const DenseMap::value_type & operator*() const {
 			return reinterpret_cast<const std::pair<const Key,T>&>(*d_iter);
         }
@@ -143,6 +143,13 @@ public:
 
 	size_t size() const noexcept {
 		return d_size;
+	}
+
+	size_t count(const Key & key) const noexcept {
+		if ( key == 0 || key > d_values.size() ) {
+			return 0;
+		}
+		return d_values[key-1].first == 0 ? 0 : 1;
 	}
 
 	void clear() noexcept {

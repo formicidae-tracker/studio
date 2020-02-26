@@ -27,8 +27,6 @@ public:
 	// A cpnst pointer to a Space
 	typedef std::shared_ptr<const Space> ConstPtr;
 
-	typedef std::unordered_map<Zone::ID,Zone::Ptr> ZoneByID;
-
 	// Exception sent when two TrackingDataDirectory overlaps in time.
 	class TDDOverlap : public std::runtime_error {
 	public:
@@ -130,7 +128,7 @@ public:
 	private:
 		friend class Space;
 
-		ContiguousIDContainer<Space::Ptr,Space::ID> d_spaces;
+		AlmostContiguousIDContainer<Space::ID,Space::Ptr> d_spaces;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
@@ -171,7 +169,7 @@ private :
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
 
-	ContiguousIDContainer<Zone::Ptr,Zone::ID> d_zones;
+	AlmostContiguousIDContainer<Zone::ID,Zone::Ptr> d_zones;
 };
 
 

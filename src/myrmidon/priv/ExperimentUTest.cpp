@@ -14,7 +14,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-typedef ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID> Container;
+typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
 
 void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data.clear();

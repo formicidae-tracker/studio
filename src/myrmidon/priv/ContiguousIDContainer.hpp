@@ -1,14 +1,16 @@
 #pragma once
 
+#include "DenseMap.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
 
-template <typename T,typename TID>
-class ContiguousIDContainer {
+template <typename TID,typename T>
+class AlmostContiguousIDContainer {
 public:
-	typedef std::unordered_map<TID,T> ObjectByID;
+	typedef DenseMap<TID,T> ObjectByID;
 	typedef std::set<TID>             SetOfObjectID;
 	typedef std::function<T(TID)>     Creator;
 
@@ -30,10 +32,9 @@ public:
 
 	const static TID NEXT_AVAILABLE_OBJECT_ID = 0;
 
-	ContiguousIDContainer()
+	AlmostContiguousIDContainer()
 		: d_continuous(false) {
 	}
-	virtual ~ContiguousIDContainer() {}
 
 	T CreateObject(Creator creator, TID ID = NEXT_AVAILABLE_OBJECT_ID) {
 		if ( ID == NEXT_AVAILABLE_OBJECT_ID ) {
@@ -45,7 +46,7 @@ public:
 		}
 
 		auto res = creator(ID);
-		d_objects[ID] = res;
+		d_objects.insert(std::make_pair(ID,res));
 		d_objectIDs.insert(ID);
 		return res;
 	}

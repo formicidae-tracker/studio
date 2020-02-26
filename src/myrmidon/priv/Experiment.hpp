@@ -40,10 +40,6 @@ class Experiment : public FileSystemLocatable {
 public :
 
 
-	// Maps the <MeasurementType> by their <MeasurementType::ID>
-	typedef std::unordered_map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
-
-
 	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
 
 	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
@@ -260,7 +256,7 @@ private:
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
-	typedef ContiguousIDContainer<MeasurementTypePtr,MeasurementTypeID> MeasurementTypeContainer;
+	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;

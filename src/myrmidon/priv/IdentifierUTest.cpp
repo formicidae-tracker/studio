@@ -11,7 +11,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-typedef ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID> Container;
+typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
 
 TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 	auto i = Identifier::Create();

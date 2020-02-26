@@ -36,7 +36,7 @@ namespace priv {
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier : protected ContiguousIDContainer<AntPtr,fort::myrmidon::Ant::ID> {
+class Identifier : protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;

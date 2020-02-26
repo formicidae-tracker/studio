@@ -269,7 +269,7 @@ void Space::DeleteZone(Zone::ID ID) {
 	d_zones.DeleteObject(ID);
 }
 
-const Space::ZoneByID & Space::Zones() const {
+const ZoneByID & Space::Zones() const {
 	return d_zones.Objects();
 }
 

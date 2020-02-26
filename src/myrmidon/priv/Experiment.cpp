@@ -296,7 +296,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
                                            MeasurementType::ID type) const {
 	auto afi = d_identifier->Ants().find(AID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw ContiguousIDContainer<Ant::Ptr,fort::myrmidon::Ant::ID>::UnmanagedObject(AID);
+		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr>::UnmanagedObject(AID);
 	}
 
 	double cornerWidthRatio = CornerWidthRatio(d_family);
@@ -359,7 +359,7 @@ void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
 	d_measurementTypes.DeleteObject(MTID);
 }
 
-const Experiment::MeasurementTypeByID & Experiment::MeasurementTypes() const {
+const MeasurementTypeByID & Experiment::MeasurementTypes() const {
 	return d_measurementTypes.Objects();
 }
 
