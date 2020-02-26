@@ -7,6 +7,7 @@
 
 #include <myrmidon/UtilsUTest.hpp>
 
+#include <myrmidon/priv/UtilsUTest.hpp>
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
@@ -196,10 +197,7 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCapsule(c);
-		EXPECT_TRUE(VectorAlmostEqual(res->C1(),dC->C1()));
-		EXPECT_TRUE(VectorAlmostEqual(res->C2(),dC->C2()));
-		EXPECT_DOUBLE_EQ(res->R1(),dC->R1());
-		EXPECT_DOUBLE_EQ(res->R2(),dC->R2());
+		EXPECT_TRUE(CapsuleEqual(res,dC));
 	}
 
 }
@@ -229,8 +227,7 @@ TEST_F(IOUtilsUTest,CircleIO) {
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCircle(c);
-		EXPECT_TRUE(VectorAlmostEqual(res->Center(),dC->Center()));
-		EXPECT_DOUBLE_EQ(res->Radius(),dC->Radius());
+		EXPECT_TRUE(CircleEqual(res,dC));
 	}
 }
 
@@ -255,10 +252,7 @@ TEST_F(IOUtilsUTest,PolygonIO) {
 		EXPECT_TRUE(MessageEqual(p,expected));
 
 		auto res = IOUtils::LoadPolygon(p);
-		EXPECT_EQ(res->Size(),dP->Size());
-		for ( size_t i = 0 ; i < std::min(res->Size(),dP->Size()) ; ++i) {
-			EXPECT_TRUE(VectorAlmostEqual(res->Vertex(i),dP->Vertex(i)));
-		}
+		EXPECT_TRUE(PolygonEqual(res,dP));
 	}
 }
 
@@ -279,45 +273,7 @@ TEST_F(IOUtilsUTest,ShapeIO) {
 		if ( s.has_polygon() ) { ++i; }
 		EXPECT_EQ(i,1);
 		auto res = IOUtils::LoadShape(s);
-		EXPECT_EQ(res->ShapeType(),dS->ShapeType());
-		auto expectedCapsule = Shape::ToCapsule(dS);
-		auto expectedCircle = Shape::ToCircle(dS);
-		auto expectedPolygon = Shape::ToPolygon(dS);
-		auto capsule = Shape::ToCapsule(res);
-		if (  !expectedCapsule == false ) {
-			EXPECT_FALSE(!capsule);
-			EXPECT_TRUE(VectorAlmostEqual(capsule->C1(),
-			                              expectedCapsule->C1()));
-			EXPECT_TRUE(VectorAlmostEqual(capsule->C2(),
-			                              expectedCapsule->C2()));
-			EXPECT_DOUBLE_EQ(capsule->R1(),
-			                 expectedCapsule->R1());
-			EXPECT_DOUBLE_EQ(capsule->R2(),
-			                 expectedCapsule->R2());
-		} else {
-			EXPECT_TRUE(!capsule);
-		}
-		auto circle = Shape::ToCircle(res);
-		if ( !expectedCircle == false ) {
-			EXPECT_FALSE(!circle);
-			EXPECT_TRUE(VectorAlmostEqual(circle->Center(),
-			                              expectedCircle->Center()));
-			EXPECT_DOUBLE_EQ(circle->Radius(),
-			                 expectedCircle->Radius());
-		} else {
-			EXPECT_TRUE(!circle);
-		}
-		auto polygon = Shape::ToPolygon(res);
-		if ( !expectedPolygon == false ) {
-			EXPECT_FALSE(!polygon);
-			EXPECT_EQ(expectedPolygon->Size(),polygon->Size());
-			for ( size_t i = 0; i < std::min(expectedPolygon->Size(),polygon->Size()); ++i) {
-				EXPECT_TRUE(VectorAlmostEqual(polygon->Vertex(i),
-				                              expectedPolygon->Vertex(i)));
-			}
-		} else {
-			EXPECT_TRUE(!polygon);
-		}
+		EXPECT_TRUE(ShapeEqual(res,dS));
 	}
 }
 
@@ -444,10 +400,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			auto c = res->Capsules()[i].second;
 			auto ce = d.Capsules[i];
 			EXPECT_EQ(res->Capsules()[i].first,shapeType->TypeID());
-			EXPECT_TRUE(VectorAlmostEqual(c->C1(),ce->C1()));
-			EXPECT_TRUE(VectorAlmostEqual(c->C2(),ce->C2()));
-			EXPECT_DOUBLE_EQ(c->R1(),ce->R1());
-			EXPECT_DOUBLE_EQ(c->R2(),ce->R2());
+			EXPECT_TRUE(CapsuleEqual(c,ce));
 		}
 
 		EXPECT_EQ(res->DisplayColor(),
@@ -581,9 +534,61 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
 
+}
 
+TEST_F(IOUtilsUTest,ZoneIO) {
+	auto e = Experiment::Create(TestSetup::Basedir()/ "zone-io.myrmidon");
+	auto s1 = e->CreateSpace("foo");
+
+	auto dZ = s1->CreateZone("hole");
+	auto stamp = std::make_shared<Time>(Time::FromTimeT(1));
+	auto def1 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)})),
+	                              Time::ConstPtr(),
+	                              stamp);
+
+	auto def2 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)})),
+	                               stamp,
+	                               Time::ConstPtr());
+
+	pb::Zone z,expected;
+	expected.set_id(dZ->ZoneID());
+	expected.set_name(dZ->Name());
+	auto pbDef1 = expected.add_definitions();
+	stamp->ToTimestamp(pbDef1->mutable_end());
+	IOUtils::SaveShape(pbDef1->add_shapes(),def1->GetGeometry()->Shapes().front());
+	auto pbDef2 = expected.add_definitions();
+	stamp->ToTimestamp(pbDef2->mutable_start());
+	IOUtils::SaveShape(pbDef2->add_shapes(),def2->GetGeometry()->Shapes().front());
+
+	IOUtils::SaveZone(&z,dZ);
+	EXPECT_TRUE(MessageEqual(z,expected));
+	auto s2 = e->CreateSpace("bar");
+	IOUtils::LoadZone(s2,z);
+	ASSERT_FALSE(s2->Zones().empty());
+	auto res = s2->Zones().begin()->second;
+	EXPECT_EQ(dZ->ZoneID(),res->ZoneID());
+	EXPECT_EQ(dZ->Name(),res->Name());
+	EXPECT_EQ(dZ->Definitions().size(),res->Definitions().size());
+	for(size_t i = 0; i < std::min(dZ->Definitions().size(),res->Definitions().size()); ++i ) {
+		const auto & expectedDefinition = dZ->Definitions()[i];
+		const auto & definition = res->Definitions()[i];
+		EXPECT_TRUE(TimePtrEqual(definition->Start(),expectedDefinition->Start()));
+		EXPECT_TRUE(TimePtrEqual(definition->End(),expectedDefinition->End()));
+		ASSERT_FALSE(!expectedDefinition->GetGeometry());
+		ASSERT_FALSE(!definition->GetGeometry());
+		EXPECT_EQ(definition->GetGeometry()->Shapes().size(),
+		          expectedDefinition->GetGeometry()->Shapes().size());
+		for ( size_t j = 0; j < std::min(expectedDefinition->GetGeometry()->Shapes().size(),
+		                                 definition->GetGeometry()->Shapes().size()); ++j) {
+			const auto & shape =  definition->GetGeometry()->Shapes()[j];
+			const auto & expectedShape =  expectedDefinition->GetGeometry()->Shapes()[j];
+			EXPECT_EQ(shape->ShapeType(),expectedShape->ShapeType());
+			EXPECT_TRUE(ShapeEqual(shape,expectedShape));
+		}
+	}
 
 }
+
 
 TEST_F(IOUtilsUTest,TrackingIndexIO) {
 	std::string parentURI("foo");
