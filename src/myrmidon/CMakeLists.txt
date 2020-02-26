@@ -48,6 +48,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
+                      priv/DenseMap.hpp
                       priv/Color.hpp
                       priv/Space.hpp
                       priv/Zone.hpp
@@ -94,6 +95,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
+                      priv/DenseMap.cpp
                       priv/Color.cpp
                       priv/Space.cpp
                       priv/Zone.cpp
@@ -144,6 +146,7 @@ set(COMMON_UTEST_HDR_FILES TestSetup.hpp
 set(SRC_UTEST_FILES main-check.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
+                    priv/DenseMapUTest.cpp
                     priv/SpaceUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
@@ -175,6 +178,7 @@ set(SRC_UTEST_FILES main-check.cpp
 
 set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
+                    priv/DenseMapUTest.cpp
                     priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
