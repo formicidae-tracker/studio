@@ -14,6 +14,7 @@
 #include <fort-studio/widget/base/ColorComboBox.hpp>
 
 #include <myrmidon/priv/Capsule.hpp>
+#include <fort-studio/Utils.hpp>
 
 VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent)
@@ -35,36 +36,39 @@ VectorialScene::VectorialScene(QObject * parent)
 		                  QGraphicsScene::mouseReleaseEvent(e);
 	                  };
 
-	d_insertVectorPressEH = [this](QGraphicsSceneMouseEvent *e) {
-		                        if ( e->button() != Qt::LeftButton) {
-			                        return;
-		                        }
-		                        auto pos = e->scenePos();
-		                        auto vector = new Vector(pos.x(),pos.y(),pos.x(),pos.y(),d_color);
-		                        vector->addToScene(this);
-		                        connect(vector,
-		                                &Shape::updated,
-		                                []() {
-			                                std::cerr << "vector updated" << std::endl;
+	d_insertVectorPressEH =
+		[this](QGraphicsSceneMouseEvent *e) {
+			if ( e->button() != Qt::LeftButton) {
+				return;
+			}
+			auto pos = e->scenePos();
+			auto vector = new Vector(pos.x(),pos.y(),pos.x(),pos.y(),d_color);
+			vector->addToScene(this);
+			connect(vector,
+			        &Shape::updated,
+			        []() {
+				        std::cerr << "vector updated" << std::endl;
 		                                });
-		                        d_mouseMove = [vector] (QGraphicsSceneMouseEvent *e) {
-			                                       vector->setEndPos(e->scenePos());
-		                                       };
-		                        d_mouseRelease = [vector,this](QGraphicsSceneMouseEvent * e) {
-			                                         if ( e->button() != Qt::LeftButton ) {
-				                                         return;
-			                                         }
-			                                         auto pos = e->scenePos();
-			                                         vector->setEndPos(pos);
-			                                         std::cerr << "vector inserted" << std::endl;
-			                                         if ( d_once == true ) {
-				                                         setMode(Mode::Edit);
-			                                         } else {
-				                                         this->d_mouseMove = this->d_editMoveEH;
-				                                         this->d_mouseRelease = this->d_editReleaseEH;
-			                                         }
-		                                         };
-		                    };
+			d_mouseMove =
+				[vector] (QGraphicsSceneMouseEvent *e) {
+					vector->setEndPos(e->scenePos());
+				};
+			d_mouseRelease =
+				[vector,this](QGraphicsSceneMouseEvent * e) {
+					if ( e->button() != Qt::LeftButton ) {
+						return;
+					}
+					auto pos = e->scenePos();
+					vector->setEndPos(pos);
+					std::cerr << "vector inserted" << std::endl;
+					if ( d_once == true ) {
+						setMode(Mode::Edit);
+					} else {
+						this->d_mouseMove = this->d_editMoveEH;
+						this->d_mouseRelease = this->d_editReleaseEH;
+					}
+				};
+		};
 
 	d_insertCapsulePressEH =
 		[this] (QGraphicsSceneMouseEvent *e) {
@@ -80,23 +84,25 @@ VectorialScene::VectorialScene(QObject * parent)
 			        []() {
 				        std::cerr << "capsule updated" << std::endl;
 			        });
-			d_mouseMove = [capsule] (QGraphicsSceneMouseEvent *e) {
-				              capsule->setC2AndRadiusFromPos(e->scenePos());
-		              };
-			d_mouseRelease = [capsule,this](QGraphicsSceneMouseEvent * e) {
-				                 if ( e->button() != Qt::LeftButton ) {
-					                 return;
-				                 }
-				                 auto pos = e->scenePos();
-				                 capsule->setC2AndRadiusFromPos(pos);
-				                 std::cerr << "capsule inserted" << std::endl;
-				                 if ( d_once == true ) {
-					                 setMode(Mode::Edit);
-				                 } else {
-					                 d_mouseMove = d_editMoveEH;
-					                 d_mouseRelease = d_editReleaseEH;
-				                 }
-			                 };
+			d_mouseMove =
+				[capsule] (QGraphicsSceneMouseEvent *e) {
+					capsule->setC2AndRadiusFromPos(e->scenePos());
+				};
+			d_mouseRelease =
+				[capsule,this](QGraphicsSceneMouseEvent * e) {
+					if ( e->button() != Qt::LeftButton ) {
+						return;
+					}
+					auto pos = e->scenePos();
+					capsule->setC2AndRadiusFromPos(pos);
+					std::cerr << "capsule inserted" << std::endl;
+					if ( d_once == true ) {
+						setMode(Mode::Edit);
+					} else {
+						d_mouseMove = d_editMoveEH;
+						d_mouseRelease = d_editReleaseEH;
+					}
+				};
 		};
 
 	d_insertCirclePressEH =
@@ -113,25 +119,65 @@ VectorialScene::VectorialScene(QObject * parent)
 			        []() {
 				        std::cerr << "circle updated" << std::endl;
 			        });
-			d_mouseMove = [circle] (QGraphicsSceneMouseEvent *e) {
-				              circle->setRadiusFromPos(e->scenePos());
-			              };
-			d_mouseRelease = [circle,this](QGraphicsSceneMouseEvent * e) {
-				                 if ( e->button() != Qt::LeftButton ) {
-					                 return;
-				                 }
-				                 auto pos = e->scenePos();
-				                 circle->setRadiusFromPos(pos);
-				                 std::cerr << "circle inserted" << std::endl;
-				                 if ( d_once == true ) {
-					                 setMode(Mode::Edit);
-				                 } else {
-					                 d_mouseMove = d_editMoveEH;
-					                 d_mouseRelease = d_editReleaseEH;
-				                 }
-			                 };
+			d_mouseMove =
+				[circle] (QGraphicsSceneMouseEvent *e) {
+					circle->setRadiusFromPos(e->scenePos());
+				};
+			d_mouseRelease =
+				[circle,this](QGraphicsSceneMouseEvent * e) {
+					if ( e->button() != Qt::LeftButton ) {
+						return;
+					}
+					auto pos = e->scenePos();
+					circle->setRadiusFromPos(pos);
+					std::cerr << "circle inserted" << std::endl;
+					if ( d_once == true ) {
+						setMode(Mode::Edit);
+					} else {
+						d_mouseMove = d_editMoveEH;
+						d_mouseRelease = d_editReleaseEH;
+					}
+				};
 		};
 
+	d_insertPolygonPressEH =
+		[this] (QGraphicsSceneMouseEvent *e) {
+			if ( e->button() != Qt::LeftButton ) {
+				return;
+			}
+			auto start = e->scenePos();
+			auto polygon = new Polygon({start},d_color);
+			polygon->addToScene(this);
+			std::cerr << "Starting polygon insertion" << std::endl;
+			d_mouseMove = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
+			d_mouseRelease = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
+			d_mousePress =
+				[start,polygon,this](QGraphicsSceneMouseEvent *e) {
+					auto newPos = e->scenePos();
+					auto dist = (ToEigen(newPos) - ToEigen(start)).norm();
+
+					if ( polygon->vertices().size() > 2
+					     && (e->button() == Qt::RightButton
+					         || ( e->button() == Qt::LeftButton && dist < Handle::SIZE) ) ) {
+						polygon->close();
+						std::cerr << "End polygon insertion" << std::endl;
+						if ( d_once == true ) {
+							setMode(Mode::Edit);
+						} else {
+							d_mousePress = d_insertPolygonPressEH;
+						}
+						return;
+					}
+					if ( e->button() != Qt::LeftButton ) {
+						return;
+					}
+
+					auto p = polygon->appendPoint(e->scenePos());
+					if ( p != nullptr ) {
+						addItem(p);
+					}
+				};
+		};
 
 }
 
@@ -165,6 +211,12 @@ void VectorialScene::setMode(Mode mode) {
 	}
 	case Mode::InsertCircle: {
 		d_mousePress = d_insertCirclePressEH;
+		d_mouseMove = d_editMoveEH;
+		d_mouseRelease = d_editReleaseEH;
+		break;
+	}
+	case Mode::InsertPolygon: {
+		d_mousePress = d_insertPolygonPressEH;
 		d_mouseMove = d_editMoveEH;
 		d_mouseRelease = d_editReleaseEH;
 		break;

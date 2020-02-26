@@ -4,6 +4,7 @@
 
 #include "Handle.hpp"
 
+#include <fort-studio/Utils.hpp>
 
 
 Polygon::Polygon(const QVector<QPointF> & points,
@@ -46,8 +47,16 @@ void Polygon::addToScene(QGraphicsScene * scene) {
 
 QGraphicsItem * Polygon::appendPoint(const QPointF & point) {
 	auto p = polygon();
-	if ( p.isClosed() == true ) {
+	if ( p.size() > 1 && p.isClosed() == true ) {
 		return nullptr;
+	}
+
+	auto last = ToEigen(p.back());
+	auto newPoint = ToEigen(point);
+	if ((newPoint-last).norm() <= Handle::SIZE ) {
+		if ( p.size() < 3 ) {
+			return nullptr;
+		}
 	}
 
 	size_t i = p.size();
@@ -59,8 +68,10 @@ QGraphicsItem * Polygon::appendPoint(const QPointF & point) {
 			update(i);
 			emit updated();
 		});
+	h->setPos(point);
 	setPolygon(p);
 	d_handles.push_back(h);
+	return h;
 }
 
 void Polygon::close() {

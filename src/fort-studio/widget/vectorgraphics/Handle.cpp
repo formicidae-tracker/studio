@@ -3,6 +3,7 @@
 
 #include <QPen>
 
+
 const int Handle::SIZE = 7;
 const QColor Handle::COLOR = QColor(50,50,50,120);
 const QColor Handle::SELECTED_COLOR = QColor(150,150,150,120);
@@ -27,7 +28,6 @@ Handle::Handle(MovedCallback onMove,
 }
 
 Handle::~Handle() {
-
 }
 
 void Handle::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {

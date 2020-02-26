@@ -30,7 +30,6 @@ public:
 
 signals:
 
-
 protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
@@ -56,4 +55,5 @@ private:
 	EventHandler d_insertVectorPressEH;
 	EventHandler d_insertCapsulePressEH;
 	EventHandler d_insertCirclePressEH;
+	EventHandler d_insertPolygonPressEH;
 };

@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->graphicsView->setScene(scene);
 	d_ui->graphicsView->setRenderHint(QPainter::Antialiasing,true);
 	d_ui->graphicsView->setMouseTracking(true);
-	scene->setMode(VectorialScene::Mode::InsertCircle);
+	scene->setMode(VectorialScene::Mode::InsertPolygon);
 }
 
 MainWindow::~MainWindow() {
