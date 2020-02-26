@@ -130,8 +130,8 @@ void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb
 		LoadIdentification(e,ant,ident);
 	}
 
-	for ( const auto & mc : pb.shape() ) {
-		ant->AddCapsule(LoadCapsule(mc));
+	for ( const auto & s : pb.shape() ) {
+		e.AddCapsuleToAnt(ant,s.type(),LoadCapsule(s.capsule()));
 	}
 
 	ant->SetDisplayColor(LoadColor(pb.color()));
@@ -146,8 +146,10 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 		SaveIdentification(pb->add_identifications(),ident);
 	}
 
-	for ( const auto & c : ant->Shape() ) {
-		SaveCapsule(pb->add_shape(),c);
+	for ( const auto & c : ant->Capsules() ) {
+		auto spb = pb->add_shape();
+		spb->set_type(c.first);
+		SaveCapsule(spb->mutable_capsule(),c.second);
 	}
 
 	SaveColor(pb->mutable_color(),ant->DisplayColor());

@@ -46,6 +46,7 @@ public :
 
 
 	const static MeasurementTypeID NEXT_AVAILABLE_MEASUREMENT_TYPE_ID = 0;
+	const static AntShapeTypeID    NEXT_AVAILABLE_ANT_SHAPE_TYPE_ID = 0;
 
 	// A Pointer to an Experiment.
 	typedef std::shared_ptr<Experiment>       Ptr;
@@ -224,6 +225,18 @@ public :
 		double LengthMM;
 	};
 
+	AntShapeTypePtr CreateAntShapeType(const std::string & name,
+	                                   AntShapeTypeID TypeID = NEXT_AVAILABLE_ANT_SHAPE_TYPE_ID);
+
+	void DeleteAntShapeType(AntShapeTypeID TypeID);
+
+	AntShapeTypeByID AntShapeTypes() const;
+
+
+	void AddCapsuleToAnt(const AntPtr & ant,
+	                     AntShapeTypeID typeID,
+	                     const CapsulePtr & capsule);
+
 	// Computes all Measurement of a type for an Ant
 	//
 	// @result a vector that will be filled with the corresponding
@@ -257,6 +270,7 @@ private:
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
 	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
+	typedef AlmostContiguousIDContainer<AntShapeTypeID,AntShapeTypePtr>       AntShapeTypeContainer;
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
@@ -280,7 +294,7 @@ private:
 	MeasurementByTagCloseUp  d_measurementByURI;
 	SortedMeasurement        d_measurements;
 	MeasurementTypeContainer d_measurementTypes;
-
+	AntShapeTypeContainer    d_antShapeTypes;
 };
 
 } //namespace priv

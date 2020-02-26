@@ -52,8 +52,6 @@ FORT_MYRMIDON_FDECLARE_CLASS(AntPoseEstimate)
 //Forward declaration for a <priv::Measurement>
 FORT_MYRMIDON_FDECLARE_CLASS(Measurement)
 
-// Forward declaration of <priv::MeasurementType::ID>
-typedef uint32_t MeasurementTypeID;
 
 //Forward declaration for a <priv::MeasurementType>
 FORT_MYRMIDON_FDECLARE_CLASS(MeasurementType)
@@ -70,8 +68,12 @@ FORT_MYRMIDON_FDECLARE_CLASS(Polygon)
 // Forward declaration for a <priv::Circle>
 FORT_MYRMIDON_FDECLARE_CLASS(Circle)
 
-// Forward declaration for a <priv::Circle>
+// Forward declaration for a <priv::Zone>
 FORT_MYRMIDON_FDECLARE_CLASS(Zone)
+
+// Forward declaration for a <priv::AntShapeType>
+FORT_MYRMIDON_FDECLARE_CLASS(AntShapeType)
+
 
 
 // A Map of <Ant> identified by their <Ant::ID>
@@ -80,14 +82,19 @@ typedef DenseMap<fort::myrmidon::Ant::ID,AntPtr> AntByID;
 // A List of <Identification>
 typedef std::vector<IdentificationPtr>  IdentificationList;
 
+typedef uint32_t                   SpaceID;
+typedef DenseMap<SpaceID,SpacePtr> SpaceByID;
 
-typedef DenseMap<uint32_t,SpacePtr> SpaceByID;
+typedef uint32_t                   ZoneID;
+typedef DenseMap<ZoneID,ZonePtr> ZoneByID;
 
-typedef DenseMap<uint32_t,ZonePtr> ZoneByID;
-
+// Forward declaration of <priv::MeasurementType::ID>
+typedef uint32_t MeasurementTypeID;
 // Maps the <MeasurementType> by their <MeasurementType::ID>
 typedef DenseMap<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
+typedef uint32_t AntShapeTypeID;
+typedef DenseMap<AntShapeTypeID,AntShapeTypePtr> AntShapeTypeByID;
 
 
 } // namespace priv

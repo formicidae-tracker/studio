@@ -13,6 +13,8 @@
 #include <myrmidon/priv/Measurement.hpp>
 #include <myrmidon/priv/Space.hpp>
 #include <myrmidon/TestSetup.hpp>
+#include <myrmidon/priv/Capsule.hpp>
+#include <myrmidon/priv/AntShapeType.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -246,7 +248,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
-
+	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier().CreateAnt();
 		std::vector<Identification::Ptr> dIdents;
@@ -263,8 +265,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		}
 
 		for ( const auto & c : d.Capsules ) {
-			dA->AddCapsule(c);
-			IOUtils::SaveCapsule(expected.add_shape(),
+			e->AddCapsuleToAnt(dA,shapeType->TypeID(),c);
+			auto sPb = expected.add_shape();
+			sPb->set_type(shapeType->TypeID());
+			IOUtils::SaveCapsule(sPb->mutable_capsule(),
 			                     c);
 		}
 
@@ -312,13 +316,14 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 		}
 
-		EXPECT_EQ(res->Shape().size(),
+		EXPECT_EQ(res->Capsules().size(),
 		          d.Capsules.size());
 		for(size_t i = 0;
-		    i < std::min(d.Capsules.size(),res->Shape().size());
+		    i < std::min(d.Capsules.size(),res->Capsules().size());
 		    ++i) {
-			auto c = res->Shape()[i];
+			auto c = res->Capsules()[i].second;
 			auto ce = d.Capsules[i];
+			EXPECT_EQ(res->Capsules()[i].first,shapeType->TypeID());
 			EXPECT_TRUE(VectorAlmostEqual(c->C1(),ce->C1()));
 			EXPECT_TRUE(VectorAlmostEqual(c->C2(),ce->C2()));
 			EXPECT_DOUBLE_EQ(c->R1(),ce->R1());

@@ -55,6 +55,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
+                      priv/AntShapeType.hpp
                       priv/Identification.hpp
                       priv/SegmentIndexer.hpp
                       priv/TrackingDataDirectory.hpp
@@ -102,6 +103,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp
                       priv/Ant.cpp
+                      priv/AntShapeType.cpp
                       priv/SegmentIndexer.cpp
                       priv/Identification.cpp
                       priv/TrackingDataDirectory.cpp

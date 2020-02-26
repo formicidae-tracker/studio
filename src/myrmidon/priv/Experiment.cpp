@@ -8,6 +8,7 @@
 #include "TrackingDataDirectory.hpp"
 #include "Identifier.hpp"
 #include "AntPoseEstimate.hpp"
+#include "AntShapeType.hpp"
 
 #include <myrmidon/utils/Checker.hpp>
 
@@ -371,6 +372,51 @@ Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
 Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
 	return d_universe->LocateSpace(spaceName);
 }
+
+AntShapeType::Ptr Experiment::CreateAntShapeType(const std::string & name,
+                                                 AntShapeTypeID TypeID) {
+	return d_antShapeTypes.CreateObject([&name](AntShapeTypeID ID) {
+		                                    return std::make_shared<AntShapeType>(ID,name);
+	                                    },TypeID);
+}
+
+void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
+	auto fi  = d_antShapeTypes.Objects().find(typeID);
+	if ( fi == d_antShapeTypes.Objects().end() ) {
+		//will throw
+		d_antShapeTypes.DeleteObject(typeID);
+		return;
+	}
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		for ( const auto & [type,c] : a->Capsules() ) {
+			if ( type == typeID ) {
+				throw std::runtime_error("Could not delete shape type "
+				                         + std::to_string(fi->first)
+				                         + ":'" + fi->second->Name()
+				                         + "': Ant " + Ant::FormatID(aID)
+				                         + " has a capsule of this type");
+			}
+		}
+	}
+	d_antShapeTypes.DeleteObject(typeID);
+}
+
+void Experiment::AddCapsuleToAnt(const AntPtr & ant,
+                                 AntShapeTypeID typeID,
+                                 const CapsulePtr & capsule) {
+	if ( d_antShapeTypes.Objects().count(typeID) == 0 ) {
+		throw std::invalid_argument("Unknown shape type ID " + std::to_string(typeID));
+	}
+
+	Ant::Accessor::AddCapsule(*ant,typeID,capsule);
+}
+
+
+
+AntShapeTypeByID Experiment::AntShapeTypes() const {
+	return d_antShapeTypes.Objects();
+}
+
 
 } //namespace priv
 } //namespace myrmidon

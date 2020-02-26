@@ -6,7 +6,6 @@
 #include <myrmidon/Ant.hpp>
 
 #include "Identification.hpp"
-#include "Capsule.hpp"
 #include "Color.hpp"
 
 namespace fort {
@@ -40,7 +39,7 @@ public:
 	typedef std::shared_ptr<const Ant> ConstPtr;
 
 	// A List of shape
-	typedef std::vector<Capsule::Ptr> Shapes;
+	typedef std::vector<std::pair<AntShapeTypeID,CapsulePtr>> TypedCapsuleList;
 
 	// The Constructor for an Ant
 	Ant(fort::myrmidon::Ant::ID ID);
@@ -79,10 +78,9 @@ public:
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
 
 
-	const Shapes & Shape() const;
+	const TypedCapsuleList & Capsules() const;
 
-	void AddCapsule(const Capsule::Ptr & capsule);
-
+	void DeleteCapsule(size_t index);
 
 	const Color & DisplayColor() const;
 
@@ -99,9 +97,11 @@ public:
 	class Accessor {
 	private:
 		static Identification::List & Identifications(Ant & a);
+		static void AddCapsule(Ant & a, AntShapeTypeID TypeID,  const CapsulePtr & capsule);
 	public:
 		friend class Identifier;
 		friend class Identification;
+		friend class Experiment;
 	};
 
 private:
@@ -112,7 +112,7 @@ private:
 	fort::myrmidon::Ant::ID d_ID;
 	std::string             d_IDStr;
 	Identification::List    d_identifications;
-	Shapes                  d_shape;
+	TypedCapsuleList        d_capsules;
 	Color                   d_displayColor;
 	DisplayState            d_displayState;
 };
