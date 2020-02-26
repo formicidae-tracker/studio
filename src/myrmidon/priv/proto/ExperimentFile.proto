@@ -6,14 +6,17 @@ import "Experiment.proto";
 import "TrackingDataDirectory.proto";
 import "AntMetadata.proto";
 import "Measurement.proto";
+import "Space.proto";
 
 message FileHeader {
 	int32 MajorVersion = 1;
 	int32 MinorVersion = 2;
 };
 
+
 message FileLine {
 	Experiment            Experiment  = 1;
 	AntMetadata           AntData     = 2;
 	Measurement           measurement = 3;
+	Space                 space       = 4;
 };

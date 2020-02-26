@@ -28,6 +28,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
+
 		ASSERT_FALSE(e->Spaces().empty());
 		e->Spaces().begin()->second->AddTrackingDataDirectory(tdd);
 

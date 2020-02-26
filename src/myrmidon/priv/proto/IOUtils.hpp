@@ -8,6 +8,8 @@
 #include <myrmidon/TrackingDataDirectory.pb.h>
 #include <myrmidon/TagCloseUpCache.pb.h>
 #include <myrmidon/Shapes.pb.h>
+#include <myrmidon/Zone.pb.h>
+#include <myrmidon/Space.pb.h>
 
 #include <myrmidon/Time.hpp>
 
@@ -71,6 +73,8 @@ public:
 		pb->set_y(v.y());
 	}
 
+
+
 	// Loads an Identification from protobuf message
 	//
 	// @e the <priv::Experiment> that owns the <Identification> and the <priv::Ant>
@@ -132,6 +136,19 @@ public:
 	// @pb the message to save to
 	// @m the <Measurement> to save
 	static void SaveMeasurement(pb::Measurement * pb, const MeasurementConstPtr & m);
+
+
+	static void  LoadZone(const SpacePtr & space,
+	                      const pb::Zone & pb);
+
+	static void SaveZone(pb::Zone * pb, const ZoneConstPtr & zone);
+
+	static void LoadSpace(Experiment & e,
+	                      const pb::Space & pb);
+
+	static void SaveSpace(pb::Space * pb,
+	                      const SpacePtr & space);
+
 
 	// Loads an Experiment from a protobuf message
 	//

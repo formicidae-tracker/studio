@@ -341,11 +341,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
-	auto s = e.add_spaces();
-	s->set_id(1);
-	s->set_name("box");
-	s->add_trackingdatadirectories("foo.0000");
-
 	auto mt = e.add_custommeasurementtypes();
 	mt->set_id(1);
 	mt->set_name("head-tail");
@@ -375,13 +370,24 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	}
 	l.release_experiment();
 
+	fort::myrmidon::pb::Space s;
+	s.set_id(1);
+	s.set_name("box");
+	s.add_trackingdatadirectories("foo.0000");
+
+	l.set_allocated_space(&s);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+		throw std::runtime_error("could not write space data");
+	}
+	l.release_space();
+
 	for (size_t i = 1; i <=3; ++i) {
 		fort::myrmidon::pb::AntMetadata a;
 		a.set_id(i);
 		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::Palette::Default().At(0));
 		l.set_allocated_antdata(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-			throw std::runtime_error("could not write ant data 1");
+			throw std::runtime_error("could not write ant data " + std::to_string(i));
 		}
 		l.release_antdata();
 	}

@@ -261,8 +261,8 @@ Space::Ptr Space::Universe::LocateSpace(const std::string & spaceName) const {
 	return si->second;
 }
 
-Zone::Ptr Space::CreateZone(Zone::ID ID) {
-	return d_zones.CreateObject([this](Zone::ID ZID) { return Zone::Create(ZID,"new-zone",d_URI); },ID);
+Zone::Ptr Space::CreateZone(const std::string & name, Zone::ID ID) {
+	return d_zones.CreateObject([&name,this](Zone::ID ZID) { return Zone::Create(ZID,name,d_URI); },ID);
 }
 
 void Space::DeleteZone(Zone::ID ID) {

@@ -44,6 +44,10 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 		                 if (line.has_measurement() == true ) {
 			                 measurements.push_back(IOUtils::LoadMeasurement(line.measurement()));
 		                 }
+
+		                 if (line.has_space() == true ) {
+			                 IOUtils::LoadSpace(*res,line.space());
+		                 }
 	                 });
 	for ( const auto & m : measurements ) {
 		res->SetMeasurement(m);
@@ -64,6 +68,12 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 	lines.push_back([&experiment](pb::FileLine & line) {
 		                IOUtils::SaveExperiment(line.mutable_experiment(),experiment);
 	                });
+
+	for ( const auto & [spaceID,space] : experiment.Spaces() ) {
+		lines.push_back([space](pb::FileLine & line) {
+			                IOUtils::SaveSpace(line.mutable_space(),space);
+		                });
+	}
 
 	std::vector<fort::myrmidon::Ant::ID> antIDs;
 	for (const auto & [ID,a] : experiment.ConstIdentifier().Ants() ) {

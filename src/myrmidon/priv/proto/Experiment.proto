@@ -6,10 +6,10 @@ import "google/protobuf/timestamp.proto";
 import "TagFamily.proto";
 import "Measurement.proto";
 
-message Space {
-	uint32          ID   = 1;
-	string          name = 2;
-	repeated string trackingdatadirectories = 3;
+
+message AntShapeType {
+	uint32 ID   = 1;
+	string Name = 2;
 };
 
 message Experiment {
@@ -20,7 +20,7 @@ message Experiment {
 	uint32    threshold = 6;
 	double    tagsize   = 7;
 
-	repeated Space spaces = 11;
-
 	repeated MeasurementType customMeasurementTypes  = 21;
+
+	repeated AntShapeType antshapetypes              = 31;
 };

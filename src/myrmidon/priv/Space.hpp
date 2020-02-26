@@ -145,7 +145,7 @@ public:
 
 	const static Zone::ID NEXT_AVAILABLE_ID = 0;
 
-	Zone::Ptr CreateZone(Zone::ID ID = NEXT_AVAILABLE_ID);
+	Zone::Ptr CreateZone(const std::string & name, Zone::ID ID = NEXT_AVAILABLE_ID);
 
 	void DeleteZone(Zone::ID ID);
 

@@ -14,6 +14,8 @@
 #include <myrmidon/priv/Space.hpp>
 #include <myrmidon/TestSetup.hpp>
 #include <myrmidon/priv/Capsule.hpp>
+#include <myrmidon/priv/Circle.hpp>
+#include <myrmidon/priv/Polygon.hpp>
 #include <myrmidon/priv/AntShapeType.hpp>
 
 namespace fort {
@@ -140,7 +142,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 			});
 		e->Identifier().DeleteIdentification(finalIdent);
 	}
-
 }
 
 TEST_F(IOUtilsUTest,VectorIO) {
@@ -202,6 +203,125 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 	}
 
 }
+
+TEST_F(IOUtilsUTest,CircleIO) {
+	struct TestData {
+		double X,Y,R;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    0.0,0.0,1.0,
+		   },
+		   {
+		    1.0,1.0,0.5
+		   },
+	};
+	for ( const auto & d: testdata ) {
+		Eigen::Vector2d dCenter(d.X,d.Y);
+		auto dC = std::make_shared<Circle>(dCenter,d.R);
+		pb::Circle c,expected;
+		IOUtils::SaveVector(expected.mutable_center(),dCenter);
+		expected.set_radius(d.R);
+
+		IOUtils::SaveCircle(&c,dC);
+		EXPECT_TRUE(MessageEqual(c,expected));
+
+		auto res = IOUtils::LoadCircle(c);
+		EXPECT_TRUE(VectorAlmostEqual(res->Center(),dC->Center()));
+		EXPECT_DOUBLE_EQ(res->Radius(),dC->Radius());
+	}
+}
+
+TEST_F(IOUtilsUTest,PolygonIO) {
+	struct TestData {
+		Vector2dList Vertices;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {Vector2dList({{-1,-1},{1,-1},{1,1},{-1,1}})},
+	};
+
+	for ( const auto & d: testdata ) {
+		auto dP = std::make_shared<Polygon>(d.Vertices);
+		pb::Polygon p,expected;
+		for ( const auto & v : d.Vertices ) {
+			IOUtils::SaveVector(expected.add_vertices(),v);
+		}
+
+		IOUtils::SavePolygon(&p,dP);
+		EXPECT_TRUE(MessageEqual(p,expected));
+
+		auto res = IOUtils::LoadPolygon(p);
+		EXPECT_EQ(res->Size(),dP->Size());
+		for ( size_t i = 0 ; i < std::min(res->Size(),dP->Size()) ; ++i) {
+			EXPECT_TRUE(VectorAlmostEqual(res->Vertex(i),dP->Vertex(i)));
+		}
+	}
+}
+
+TEST_F(IOUtilsUTest,ShapeIO) {
+	std::vector<Shape::Ptr> shapes
+		={
+		  std::make_shared<Circle>(Eigen::Vector2d(1,2),3),
+		  std::make_shared<Capsule>(Eigen::Vector2d(1,2),Eigen::Vector2d(3,4),1,0.9),
+		  std::make_shared<Polygon>(Vector2dList({{1,2},{3,4},{1,1},{12,0}})),
+	};
+
+	for ( const auto dS : shapes ) {
+		pb::Shape s;
+		IOUtils::SaveShape(&s,dS);
+		size_t i = 0;
+		if ( s.has_circle() ) { ++i; }
+		if ( s.has_capsule() ) { ++i; }
+		if ( s.has_polygon() ) { ++i; }
+		EXPECT_EQ(i,1);
+		auto res = IOUtils::LoadShape(s);
+		EXPECT_EQ(res->ShapeType(),dS->ShapeType());
+		auto expectedCapsule = Shape::ToCapsule(dS);
+		auto expectedCircle = Shape::ToCircle(dS);
+		auto expectedPolygon = Shape::ToPolygon(dS);
+		auto capsule = Shape::ToCapsule(res);
+		if (  !expectedCapsule == false ) {
+			EXPECT_FALSE(!capsule);
+			EXPECT_TRUE(VectorAlmostEqual(capsule->C1(),
+			                              expectedCapsule->C1()));
+			EXPECT_TRUE(VectorAlmostEqual(capsule->C2(),
+			                              expectedCapsule->C2()));
+			EXPECT_DOUBLE_EQ(capsule->R1(),
+			                 expectedCapsule->R1());
+			EXPECT_DOUBLE_EQ(capsule->R2(),
+			                 expectedCapsule->R2());
+		} else {
+			EXPECT_TRUE(!capsule);
+		}
+		auto circle = Shape::ToCircle(res);
+		if ( !expectedCircle == false ) {
+			EXPECT_FALSE(!circle);
+			EXPECT_TRUE(VectorAlmostEqual(circle->Center(),
+			                              expectedCircle->Center()));
+			EXPECT_DOUBLE_EQ(circle->Radius(),
+			                 expectedCircle->Radius());
+		} else {
+			EXPECT_TRUE(!circle);
+		}
+		auto polygon = Shape::ToPolygon(res);
+		if ( !expectedPolygon == false ) {
+			EXPECT_FALSE(!polygon);
+			EXPECT_EQ(expectedPolygon->Size(),polygon->Size());
+			for ( size_t i = 0; i < std::min(expectedPolygon->Size(),polygon->Size()); ++i) {
+				EXPECT_TRUE(VectorAlmostEqual(polygon->Vertex(i),
+				                              expectedPolygon->Vertex(i)));
+			}
+		} else {
+			EXPECT_TRUE(!polygon);
+		}
+	}
+}
+
+
 
 
 TEST_F(IOUtilsUTest,AntIO) {
@@ -421,10 +541,6 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			auto s = e->CreateSpace("box");
 			s->AddTrackingDataDirectory(tdd);
-			auto sPb = expected.add_spaces();
-			sPb->set_id(s->SpaceID());
-			sPb->set_name("box");
-			sPb->add_trackingdatadirectories(tdd->URI());
 
 			e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();
@@ -435,6 +551,20 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			mt = expected.add_custommeasurementtypes();
 			mt->set_id(Measurement::HEAD_TAIL_TYPE+1);
 			mt->set_name("antennas");
+
+			e->CreateAntShapeType("head");
+			auto st = expected.add_antshapetypes();
+			st->set_id(1);
+			st->set_name("head");
+			e->CreateAntShapeType("antenna-left");
+			st = expected.add_antshapetypes();
+			st->set_id(2);
+			st->set_name("antenna-left");
+			e->CreateAntShapeType("antenna-right");
+			st = expected.add_antshapetypes();
+			st->set_id(3);
+			st->set_name("antenna-right");
+
 
 		});
 
@@ -450,18 +580,8 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
-	ASSERT_EQ(res->Spaces().size(),
-	          e->Spaces().size());
-	for ( const auto & [URI,tdd] : e->TrackingDataDirectories() ) {
-		auto fi = res->TrackingDataDirectories().find(URI);
-		if ( fi == res->TrackingDataDirectories().cend() ) {
-			ADD_FAILURE() << "Could not find TrackingDataDirectory:" << URI;
-			continue;
-		}
-		EXPECT_EQ(fi->second->URI(),tdd->URI());
-		EXPECT_EQ(fi->second->AbsoluteFilePath(),tdd->AbsoluteFilePath());
 
-	}
+
 
 }
 

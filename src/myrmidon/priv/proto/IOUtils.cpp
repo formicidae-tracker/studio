@@ -6,6 +6,7 @@
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Measurement.hpp>
 #include <myrmidon/priv/Space.hpp>
+#include <myrmidon/priv/AntShapeType.hpp>
 
 #include <myrmidon/priv/Capsule.hpp>
 #include <myrmidon/priv/Polygon.hpp>
@@ -211,6 +212,82 @@ Measurement::ConstPtr IOUtils::LoadMeasurement(const pb::Measurement & pb) {
 	                                     pb.tagsizepx());
 }
 
+
+void IOUtils::LoadZone(const Space::Ptr & space,
+                       const pb::Zone & pb) {
+	auto z = space->CreateZone(pb.name(),pb.id());
+	for ( const auto & dPb : pb.definitions() ) {
+		Zone::Geometry::ConstPtr geometry;
+		std::vector<Shape::ConstPtr> shapes;
+		for ( const auto & sPb : dPb.shapes() ) {
+			shapes.push_back(LoadShape(sPb));
+		}
+
+		if ( shapes.empty() == false ) {
+			geometry = std::make_shared<Zone::Geometry>(shapes);
+		}
+
+		Time::ConstPtr start,end;
+
+		if ( dPb.has_start() ) {
+			start = std::make_shared<Time>(Time::FromTimestamp(dPb.start()));
+		}
+		if ( dPb.has_end() ) {
+			end = std::make_shared<Time>(Time::FromTimestamp(dPb.end()));
+		}
+
+		z->AddDefinition(geometry,start,end);
+
+	}
+}
+
+void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
+	pb->Clear();
+	pb->set_id(zone->ZoneID());
+	pb->set_name(zone->Name());
+	for ( const auto & d : zone->Definitions() ) {
+		auto dPb = pb->add_definitions();
+		if ( d->Start() ) {
+			d->Start()->ToTimestamp(dPb->mutable_start());
+		}
+		if ( d->End() ) {
+			d->End()->ToTimestamp(dPb->mutable_end());
+		}
+		if ( !d->GetGeometry() ) {
+			continue;
+		}
+		for ( const auto & s : d->GetGeometry()->Shapes() ) {
+			SaveShape(dPb->add_shapes(),s);
+		}
+	}
+}
+
+void IOUtils::LoadSpace(Experiment & e,
+                        const pb::Space & pb) {
+	auto s = e.CreateSpace(pb.name(),pb.id());
+	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
+		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+		s->AddTrackingDataDirectory(tdd);
+	}
+	for ( const auto & zPb : pb.zones() ) {
+		LoadZone(s,zPb);
+	}
+}
+
+void IOUtils::SaveSpace(pb::Space * pb,
+                        const Space::Ptr & space) {
+	pb->Clear();
+	pb->set_id(space->SpaceID());
+	pb->set_name(space->Name());
+	for ( const auto & tdd : space->TrackingDataDirectories() ) {
+		pb->add_trackingdatadirectories(tdd->URI());
+	}
+	for ( const auto & [zoneID,z] : space->Zones() ) {
+		SaveZone(pb->add_zones(),z);
+	}
+}
+
+
 void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr & m) {
 	pb->Clear();
 	pb->set_tagcloseupuri(m->TagCloseUpURI());
@@ -230,14 +307,6 @@ void IOUtils::LoadExperiment(Experiment & e,
 	e.SetThreshold(pb.threshold());
 	e.SetDefaultTagSize(pb.tagsize());
 
-	for (const auto & sPb : pb.spaces()) {
-		auto s = e.CreateSpace(sPb.name(),sPb.id());
-		for ( const auto & tddRelPath : sPb.trackingdatadirectories() ) {
-			auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
-			s->AddTrackingDataDirectory(tdd);
-		}
-	}
-
 	for (const auto & ct : pb.custommeasurementtypes()) {
 		if ( ct.id() == Measurement::HEAD_TAIL_TYPE ) {
 			auto fi = e.MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
@@ -248,6 +317,10 @@ void IOUtils::LoadExperiment(Experiment & e,
 		} else {
 			e.CreateMeasurementType(ct.name(),ct.id());
 		}
+	}
+
+	for (const auto & ast : pb.antshapetypes() ) {
+		e.CreateAntShapeType(ast.name(),ast.id());
 	}
 }
 
@@ -263,25 +336,21 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_threshold(e.Threshold());
 	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
-	auto spaces = e.Spaces();
-	for (const auto & [spaceID,s] : spaces) {
-		auto sPb = pb->add_spaces();
-		sPb->set_id(spaceID);
-		sPb->set_name(s->Name());
-		for ( const auto & tdd : s->TrackingDataDirectories() ) {
-			sPb->add_trackingdatadirectories(tdd->URI());
-		}
-	}
-	std::map<MeasurementTypeID,MeasurementTypePtr> sorted;
-	for (const auto & iter : e.MeasurementTypes() ) {
-		sorted.insert(iter);
-	}
 
-	for ( const auto & [MTID,t] : sorted) {
+
+	for ( const auto & [MTID,t] : e.MeasurementTypes() ) {
 		auto mtPb = pb->add_custommeasurementtypes();
 		mtPb->set_id(t->MTID());
 		mtPb->set_name(t->Name());
 	}
+
+	for ( const auto & [typeID,shapeType] : e.AntShapeTypes() ) {
+		auto stPb = pb->add_antshapetypes();
+		stPb->set_id(shapeType->TypeID());
+		stPb->set_name(shapeType->Name());
+	}
+
+
 }
 
 FrameReference IOUtils::LoadFrameReference(const pb::TimedFrame & pb,

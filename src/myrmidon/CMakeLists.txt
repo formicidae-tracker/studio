@@ -30,6 +30,8 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/TagCloseUpCache.proto
                 priv/proto/TagFamily.proto
                 priv/proto/Measurement.proto
+                priv/proto/Zone.proto
+                priv/proto/Space.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
