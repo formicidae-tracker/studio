@@ -66,6 +66,11 @@ QPointF Vector::endPos() const {
 	return d_end->pos();
 }
 
+void Vector::setEndPos(const QPointF & pos) {
+	d_end->setPos(pos);
+	rebuild();
+}
+
 
 void Vector::paint(QPainter * painter,
                    const QStyleOptionGraphicsItem * option,

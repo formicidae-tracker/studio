@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     auto scene = new VectorialScene(this);
 	d_ui->graphicsView->setScene(scene);
 	d_ui->graphicsView->setRenderHint(QPainter::Antialiasing,true);
+	d_ui->graphicsView->setMouseTracking(true);
+	scene->setMode(VectorialScene::Mode::InsertCircle);
 }
 
 MainWindow::~MainWindow() {

@@ -18,6 +18,8 @@ public:
 
 	void addToScene(QGraphicsScene * scene) override;
 
+	void setC2AndRadiusFromPos(const QPointF & pos);
+
 	QPointF c1Pos() const;
 	QPointF c2Pos() const;
 

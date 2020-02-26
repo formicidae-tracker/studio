@@ -23,6 +23,8 @@ public:
 
 	qreal radius() const;
 
+	void setRadiusFromPos(const QPointF & pos);
+
 protected:
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,

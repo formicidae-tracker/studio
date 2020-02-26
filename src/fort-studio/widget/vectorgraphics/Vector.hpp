@@ -18,9 +18,12 @@ public:
 
 	void addToScene(QGraphicsScene * scene) override;
 
+
 	QPointF startPos() const;
 
 	QPointF endPos() const;
+
+	void setEndPos(const QPointF & pos);
 
 protected:
 	void paint(QPainter * painter,

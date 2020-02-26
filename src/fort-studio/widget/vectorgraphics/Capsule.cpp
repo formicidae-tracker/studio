@@ -7,7 +7,7 @@
 
 #include <fort-studio/Utils.hpp>
 
-const qreal Capsule::MIN_DISTANCE = 10.0;
+const qreal Capsule::MIN_DISTANCE = 20.0;
 
 
 Capsule::Capsule(const QPointF & c1, const QPointF & c2,
@@ -16,9 +16,10 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
                  QGraphicsItem * parent)
 	: Shape(color,NULL)
 	, QGraphicsItemGroup(parent)
-	, d_radius1(r1)
-	, d_radius2(r2)
 	, d_path (new QGraphicsPathItem(this)) {
+	d_radius1 = r1;
+	d_radius2 = r2;
+
 
 	d_c1 = new Handle([this]() {
 		                  updateCenter(d_c1);
@@ -52,7 +53,6 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
 			updateRadius(d_r2);
 			emit updated();
 		});
-
 	setFlags(QGraphicsItem::ItemIsSelectable);
 
 	rebuild();
@@ -76,6 +76,26 @@ QPointF Capsule::c1Pos() const {
 
 QPointF Capsule::c2Pos() const {
 	return d_c2->pos();
+}
+
+void Capsule::setC2AndRadiusFromPos(const QPointF & pos) {
+	auto c1 = ToEigen(d_c1->pos());
+	auto c2 = ToEigen(pos);
+	auto cc = (c2-c1);
+	auto distance = cc.norm();
+	if ( distance < 1e-6 ) {
+		c2 = MIN_DISTANCE *Eigen::Vector2d::UnitX() + c1;
+		distance = MIN_DISTANCE;
+	}
+	if ( distance < MIN_DISTANCE ) {
+		c2 = cc * MIN_DISTANCE / distance + c1;
+		distance = MIN_DISTANCE;
+	}
+	d_c2->setPos(QPointF(c2.x(),c2.y()));
+
+	d_radius1 = std::max(MIN_DISTANCE,distance/3);
+	d_radius2 = d_radius1;
+	rebuild();
 }
 
 qreal Capsule::r1() const {

@@ -82,3 +82,12 @@ QPointF Circle::pos() const {
 qreal Circle::radius() const {
 	return d_radius;
 }
+
+void Circle::setRadiusFromPos(const QPointF & pos) {
+	auto c = ToEigen(d_center->pos());
+	auto r = ToEigen(pos);
+	auto d = r-c;
+	auto radius = d.norm();
+	d_radius = std::max(20.0,radius);
+	update(true);
+}
