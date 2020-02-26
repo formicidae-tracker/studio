@@ -8,7 +8,6 @@
 #include "Polygon.hpp"
 #include "Circle.hpp"
 
-
 #include <iostream>
 
 #include <fort-studio/widget/base/ColorComboBox.hpp>
@@ -18,9 +17,10 @@
 
 VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent)
-	, d_once(true) {
-	setSceneRect(QRectF(0,0,800,800));
-
+	, d_once(true)
+	, d_handleScaleFactor(1.0) {
+	setSceneRect(QRectF(0,0,1200,1200));
+	setBackgroundBrush(QColor(127,127,127));
 	setMode(Mode::Edit);
 	d_color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(0));
 
@@ -174,7 +174,7 @@ VectorialScene::VectorialScene(QObject * parent)
 
 					auto p = polygon->appendPoint(e->scenePos());
 					if ( p != nullptr ) {
-						addItem(p);
+						p->addToScene(this);
 					}
 				};
 		};
@@ -240,4 +240,21 @@ void VectorialScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) {
 void VectorialScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
 	auto saved = d_mouseRelease;
 	saved(mouseEvent);
+}
+
+
+double VectorialScene::handleScaleFactor() const {
+	return d_handleScaleFactor;
+}
+
+void VectorialScene::setHandleScaleFactor(double factor) {
+	if ( factor == d_handleScaleFactor ) {
+		return;
+	}
+	d_handleScaleFactor = factor;
+	emit handleScaleFactorChanged(d_handleScaleFactor);
+}
+
+void VectorialScene::onZoomed(double factor) {
+	setHandleScaleFactor(std::max(1.0/factor,1.0));
 }

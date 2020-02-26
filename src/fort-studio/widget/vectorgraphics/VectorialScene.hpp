@@ -28,7 +28,14 @@ public:
 
 	void setMode(Mode mode);
 
+	double handleScaleFactor() const;
+	void setHandleScaleFactor(double factor);
+
+public slots:
+	void onZoomed(double factor);
+
 signals:
+	void handleScaleFactorChanged(double factor);
 
 protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
@@ -45,6 +52,7 @@ private:
 	Mode                d_mode;
 	QColor              d_color;
 	bool                d_once;
+	double              d_handleScaleFactor;
 
 	EventHandler d_mousePress;
 	EventHandler d_mouseMove;

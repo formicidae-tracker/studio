@@ -18,7 +18,7 @@ public:
 
 	QVector<QPointF> vertices() const;
 
-	QGraphicsItem * appendPoint(const QPointF & point);
+	Handle * appendPoint(const QPointF & point);
 
 	void close();
 

@@ -55,6 +55,10 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->graphicsView->setRenderHint(QPainter::Antialiasing,true);
 	d_ui->graphicsView->setMouseTracking(true);
 	scene->setMode(VectorialScene::Mode::InsertPolygon);
+	connect(d_ui->graphicsView,
+	        &VectorialView::zoomed,
+	        scene,
+	        &VectorialScene::onZoomed);
 }
 
 MainWindow::~MainWindow() {

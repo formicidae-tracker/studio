@@ -40,12 +40,12 @@ Polygon::~Polygon() {
 void Polygon::addToScene(QGraphicsScene * scene) {
 	scene->addItem(this);
 	for ( const auto & h : d_handles ){
-		scene->addItem(h);
+		h->addToScene(scene);
 	}
 }
 
 
-QGraphicsItem * Polygon::appendPoint(const QPointF & point) {
+Handle * Polygon::appendPoint(const QPointF & point) {
 	auto p = polygon();
 	if ( p.size() > 1 && p.isClosed() == true ) {
 		return nullptr;

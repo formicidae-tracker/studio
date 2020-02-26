@@ -40,10 +40,9 @@ Circle::~Circle() {
 
 void Circle::addToScene(QGraphicsScene * scene) {
 	scene->addItem(this);
-	scene->addItem(d_center);
-	scene->addItem(d_radiusHandle);
+	d_center->addToScene(scene);
+	d_radiusHandle->addToScene(scene);
 }
-
 
 
 void Circle::paint(QPainter * painter,

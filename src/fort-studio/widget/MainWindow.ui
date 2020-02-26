@@ -72,7 +72,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <widget class="QGraphicsView" name="graphicsView"/>
+         <widget class="VectorialView" name="graphicsView"/>
         </item>
        </layout>
       </widget>
@@ -390,6 +390,11 @@
    <extends>QWidget</extends>
    <header location="global">fort-studio/widget/AntListWidget.hpp</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VectorialView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">fort-studio/widget/vectorgraphics/VectorialView.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

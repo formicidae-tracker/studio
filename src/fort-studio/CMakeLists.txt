@@ -13,6 +13,7 @@ set(SRC_FILES Format.cpp
 			  bridge/ExperimentBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
+			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
 			  widget/vectorgraphics/Shape.cpp
@@ -46,6 +47,7 @@ set(HDR_FILES Format.hpp
 			  bridge/ExperimentBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
+			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
 			  widget/vectorgraphics/Shape.hpp

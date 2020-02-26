@@ -64,10 +64,10 @@ Capsule::~Capsule() {
 
 void Capsule::addToScene(QGraphicsScene * scene) {
 	scene->addItem(this);
-	scene->addItem(d_c1);
-	scene->addItem(d_c2);
-	scene->addItem(d_r1);
-	scene->addItem(d_r2);
+	d_c1->addToScene(scene);
+	d_c2->addToScene(scene);
+	d_r1->addToScene(scene);
+	d_r2->addToScene(scene);
 }
 
 QPointF Capsule::c1Pos() const {
