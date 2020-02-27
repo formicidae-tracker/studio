@@ -7,7 +7,7 @@
 #include "IdentifierBridge.hpp"
 #include "SelectedAntBridge.hpp"
 #include "SelectedIdentificationBridge.hpp"
-#include "IdentifiedFrameLoader.hpp"
+#include "IdentifiedFrameConcurrentLoader.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 

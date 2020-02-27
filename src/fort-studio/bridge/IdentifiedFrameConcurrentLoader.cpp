@@ -1,4 +1,4 @@
-#include "IdentifiedFrameLoader.hpp"
+#include "IdentifiedFrameConcurrentLoader.hpp"
 
 #include <QtConcurrent>
 
