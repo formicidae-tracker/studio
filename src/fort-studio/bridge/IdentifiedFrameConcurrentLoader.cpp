@@ -61,17 +61,20 @@ struct IdentifiedFrameComputer {
 		, d_segment(segment) {
 	}
 
-	IdentifiedFrameConcurrentLoader::MappedResult operator()(const fmp::RawFrame::ConstPtr & rawFrame) {
+	IdentifiedFrameConcurrentLoader::MappedResult
+	operator()(const fmp::RawFrame::ConstPtr & rawFrame) {
 		if ( !rawFrame ) {
-			return std::make_pair(d_segment->StartMovieFrame()-1,fmp::IdentifiedFrame::ConstPtr());
+			return std::make_pair(d_segment->EndMovieFrame()+1,
+			                      fmp::IdentifiedFrame::ConstPtr());
 		}
 		auto frameID = rawFrame->Frame().FID();
 		fmp::MovieFrameID movieID;
 
 		try {
 			movieID = d_segment->ToMovieFrameID(frameID);
-		} catch ( const std::exception ) {
-			return std::make_pair(d_segment->StartMovieFrame()-1,fmp::IdentifiedFrame::ConstPtr());
+		} catch ( const std::exception & ) {
+			return std::make_pair(d_segment->EndMovieFrame()+1,
+			                      fmp::IdentifiedFrame::ConstPtr());
 		}
 
 		return std::make_pair(movieID,
@@ -79,8 +82,8 @@ struct IdentifiedFrameComputer {
 	}
 
 private:
-	fmp::IdentifierIF::ConstPtr                d_identifier;
-	fmp::MovieSegment::ConstPtr                d_segment;
+	fmp::IdentifierIF::ConstPtr d_identifier;
+	fmp::MovieSegment::ConstPtr d_segment;
 };
 
 
@@ -97,37 +100,47 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	}
 	clear();
 
+	setDone(false);
+	auto identifier = d_experiment->ConstIdentifier().Compile();
+	// frames are single threaded read and loaded in memory
+	auto load =
+		[tdd,segment,identifier,this]() {
+			QVector<fmp::RawFrame::ConstPtr> frames;
+			frames.reserve(segment->EndFrame() - segment->StartFrame());
+			try {
+				auto start = tdd->FrameAt(segment->StartFrame());
+				while(true) {
+					if ( start == tdd->end() ) {
+						break;
+					}
 
-	try {
-		auto start = tdd->FrameAt(segment->StartFrame());
-		setDone(false);
-		auto identifier = d_experiment->ConstIdentifier().Compile();
-		QFuture<MappedResult> future;
-
-		if ( segment->EndFrame() >= tdd->EndFrame() ) {
-			future =
-				QtConcurrent::mapped(start,
-				                     tdd->end(),
+					auto rawFrame = *start;
+					// We may jump frame number if there is no data,
+					// it may be the last frame on the MovieSegment
+					// that is jumped.
+					if ( !rawFrame || rawFrame->Frame().FID() > segment->EndFrame() ) {
+						break;
+					}
+					frames.push_back(rawFrame);
+					++start;
+				}
+			} catch ( const std::exception & e) {
+				qCritical() << "Could not extract tracking data for "
+				            << ToQString(segment->URI())
+				            << ": " << e.what();
+				setDone(true);
+				return;
+			}
+			// for each frame, concurrently Compute each IdentifiedFrame
+			auto future =
+				QtConcurrent::mapped(frames,
 				                     IdentifiedFrameComputer(identifier,
 				                                             segment));
-		} else {
-			auto end = tdd->FrameAt(segment->EndFrame()+1);
-			// this is an heavy computation but it is required. sic.
-			qInfo() << "Last frame will be " << (*end)->Frame().FID();
-			future =
-				QtConcurrent::mapped(start,
-				                     end,
-				                     IdentifiedFrameComputer(identifier,
-				                                             segment));
-		}
-		d_futureWatcher->setFuture(future);
-	} catch ( const std::exception & e ) {
-		qCritical() << "Could not start frame identification for" << ToQString(segment->URI())
-		            <<": " << e.what();
-		return;
-	}
+			d_futureWatcher->setFuture(future);
+		};
+
+	QtConcurrent::run(QThreadPool::globalInstance(),load);
 }
-
 
 void IdentifiedFrameConcurrentLoader::clear() {
 	d_futureWatcher->cancel();
@@ -145,7 +158,6 @@ void IdentifiedFrameConcurrentLoader::clear() {
 	        Qt::QueuedConnection);
 
 }
-
 
 void IdentifiedFrameConcurrentLoader::setDone(bool done_) {
 	if ( done_ == d_done ) {
