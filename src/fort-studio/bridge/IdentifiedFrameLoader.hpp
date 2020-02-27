@@ -9,14 +9,14 @@
 
 namespace fmp = fort::myrmidon::priv;
 
-class IdentifiedFrameLoader : public QObject {
+class IdentifiedFrameConcurrentLoader : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(bool done
 	           READ isDone
 	           NOTIFY done)
 public:
-	explicit IdentifiedFrameLoader(QObject * parent = nullptr);
-	~IdentifiedFrameLoader();
+	explicit IdentifiedFrameConcurrentLoader(QObject * parent = nullptr);
+	~IdentifiedFrameConcurrentLoader();
 
 	bool isDone() const;
 

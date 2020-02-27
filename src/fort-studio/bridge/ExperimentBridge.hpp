@@ -37,7 +37,7 @@ public:
 
 	SelectedIdentificationBridge * selectedIdentification() const;
 
-	IdentifiedFrameLoader * identifiedFrameLoader() const;
+	IdentifiedFrameConcurrentLoader * identifiedFrameLoader() const;
 
 public slots:
 
@@ -52,12 +52,12 @@ private:
 	void connectModifications();
 
 
-	fmp::Experiment::Ptr           d_experiment;
-	UniverseBridge               * d_universe;
-	MeasurementBridge            * d_measurements;
-	IdentifierBridge             * d_identifier;
-	GlobalPropertyBridge         * d_globalProperties;
-	SelectedAntBridge            * d_selectedAnt;
-	SelectedIdentificationBridge * d_selectedIdentification;
-	IdentifiedFrameLoader        * d_identifiedFrameLoader;
+	fmp::Experiment::Ptr              d_experiment;
+	UniverseBridge                  * d_universe;
+	MeasurementBridge               * d_measurements;
+	IdentifierBridge                * d_identifier;
+	GlobalPropertyBridge            * d_globalProperties;
+	SelectedAntBridge               * d_selectedAnt;
+	SelectedIdentificationBridge    * d_selectedIdentification;
+	IdentifiedFrameConcurrentLoader * d_identifiedFrameLoader;
 };

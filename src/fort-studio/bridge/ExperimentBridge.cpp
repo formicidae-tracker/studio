@@ -16,7 +16,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_selectedAnt(new SelectedAntBridge(this))
 	, d_selectedIdentification(new SelectedIdentificationBridge(this))
-	, d_identifiedFrameLoader(new IdentifiedFrameLoader(this)) {
+	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this)) {
 
 	connectModifications();
 
@@ -137,7 +137,7 @@ SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const 
 	return d_selectedIdentification;
 }
 
-IdentifiedFrameLoader * ExperimentBridge::identifiedFrameLoader() const {
+IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() const {
 	return d_identifiedFrameLoader;
 }
 
