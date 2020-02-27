@@ -51,7 +51,7 @@ public:
 
 	const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & Tags() const;
 
-	IdentifiedFrame::ConstPtr IdentifyFrom(const IdentifierIF & identifier);
+	IdentifiedFrame::ConstPtr IdentifyFrom(const IdentifierIF & identifier) const;
 
 	static RawFrame::ConstPtr Create(const std::string & parentURI,
 	                                 fort::hermes::FrameReadout & pb,

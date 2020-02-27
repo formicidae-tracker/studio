@@ -11,6 +11,7 @@ set(SRC_FILES Format.cpp
 			  bridge/SelectedAntBridge.cpp
 			  bridge/SelectedIdentificationBridge.cpp
 			  bridge/ExperimentBridge.cpp
+			  bridge/IdentifiedFrameLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/vectorgraphics/VectorialView.cpp
@@ -45,6 +46,7 @@ set(HDR_FILES Format.hpp
 			  bridge/SelectedAntBridge.hpp
 			  bridge/SelectedIdentificationBridge.hpp
 			  bridge/ExperimentBridge.hpp
+			  bridge/IdentifiedFrameLoader.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/vectorgraphics/VectorialView.hpp

@@ -28,6 +28,10 @@ FORT_MYRMIDON_FDECLARE_CLASS(Experiment)
 FORT_MYRMIDON_FDECLARE_CLASS(Ant)
 // Forward decalation for an <priv::Identification>
 FORT_MYRMIDON_FDECLARE_CLASS(Identification)
+
+// Forward decalation for an <priv::IdentifierIF>
+FORT_MYRMIDON_FDECLARE_CLASS(IdentifierIF)
+
 // Forward decalation for an <priv::Identifier>
 FORT_MYRMIDON_FDECLARE_CLASS(Identifier)
 

@@ -30,6 +30,8 @@ namespace priv {
 
 class IdentifierIF {
 public:
+	typedef std::shared_ptr<IdentifierIF>       Ptr;
+	typedef std::shared_ptr<const IdentifierIF> ConstPtr;
 	virtual IdentificationPtr Identify(TagID tagID, const Time & time) const = 0;
 };
 
