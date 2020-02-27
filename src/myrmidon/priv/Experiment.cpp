@@ -413,7 +413,7 @@ void Experiment::AddCapsuleToAnt(const AntPtr & ant,
 
 
 
-AntShapeTypeByID Experiment::AntShapeTypes() const {
+const AntShapeTypeByID & Experiment::AntShapeTypes() const {
 	return d_antShapeTypes.Objects();
 }
 

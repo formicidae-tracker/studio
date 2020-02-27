@@ -102,6 +102,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 
 	setDone(false);
 	auto identifier = d_experiment->ConstIdentifier().Compile();
+
 	// frames are single threaded read and loaded in memory
 	auto load =
 		[tdd,segment,identifier,this]() {

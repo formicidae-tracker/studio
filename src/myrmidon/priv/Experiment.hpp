@@ -230,7 +230,7 @@ public :
 
 	void DeleteAntShapeType(AntShapeTypeID TypeID);
 
-	AntShapeTypeByID AntShapeTypes() const;
+	const AntShapeTypeByID & AntShapeTypes() const;
 
 
 	void AddCapsuleToAnt(const AntPtr & ant,

@@ -226,9 +226,12 @@ public:
 	}
 
 	DenseMap()
-		: d_size(0) {}
+		: d_size(0) {
+	}
 
 private:
+	DenseMap( const DenseMap & other ) = delete;
+	DenseMap & operator=(const DenseMap & other) = delete;
 	std::vector<std::pair<Key,T>> d_values;
 	size_t                        d_size;
 };

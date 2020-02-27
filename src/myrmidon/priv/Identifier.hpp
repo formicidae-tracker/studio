@@ -196,15 +196,16 @@ public:
 		typedef std::map<Time,IdentificationsByTagID,Time::Comparator>   IdentificationsByTime;
 
 		void Build(const std::unordered_map<TagID,IdentificationList> & identifier);
-		IdentificationsByTagID BuildMapAtTime(const std::unordered_map<TagID,IdentificationList> & identifications,
-		                                      const Time & t) const;
+		void  BuildMapAtTime(IdentificationsByTagID & result,
+		                     const std::unordered_map<TagID,IdentificationList> & identifications,
+		                     const Time & t) const;
 
 		const IdentificationPtr & IdentifyFromMap(const IdentificationsByTagID & identifications,
 		                                          TagID tagID) const;
 
 
 		IdentificationsByTime  d_identifications;
-		IdentificationsByTagID d_firstIdentifications,d_lastIdentifications;
+		IdentificationsByTagID d_lastIdentifications;
 	};
 
 	Compiled::ConstPtr Compile() const;

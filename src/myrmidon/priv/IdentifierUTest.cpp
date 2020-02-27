@@ -7,6 +7,8 @@
 
 #include "../UtilsUTest.hpp"
 
+#include <random>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -154,6 +156,104 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 
 }
 
+
+TEST_F(IdentifierUTest,Compilation) {
+	  std::random_device r;
+    // Choose a random mean between 1 and 6
+    std::default_random_engine e1(r());
+
+    std::uniform_int_distribution<uint32_t> duration(0, 600000);
+    std::uniform_real_distribution<double> uniform(0, 1.0);
+	auto identifier = Identifier::Create();
+	std::set<Time,Time::Comparator> times;
+	std::set<TagID> tags;
+	const size_t NB_ANTS = 100;
+	for ( size_t i = 0; i < NB_ANTS; ++i) {
+		auto a = identifier->CreateAnt();
+		std::set<Time,Time::Comparator> antTimes;
+
+		while( uniform(e1) < 0.8 ) {
+			antTimes.insert(Time::FromTimeT(0).Add(duration(e1) * Duration::Millisecond));
+		}
+		Time::ConstPtr lastTime;
+
+		for ( const auto & t : antTimes ) {
+			times.insert(t);
+			auto tagID = NB_ANTS * a->Identifications().size() + i;
+			tags.insert(tagID);
+			auto end = std::make_shared<Time>(t);
+			identifier->AddIdentification(a->ID(),tagID,
+			                              lastTime,
+			                              end);
+			lastTime = end;
+		}
+
+		auto tagID = NB_ANTS * a->Identifications().size() + i;
+		tags.insert(tagID);
+		identifier->AddIdentification(a->ID(),tagID,
+		                              lastTime,Time::ConstPtr());
+	}
+
+	auto start = Time::Now();
+	auto compiled = identifier->Compile();
+	auto end = Time::Now();
+
+	auto testEqualityAtTime =
+		[identifier,compiled,tags](const Time & time) -> ::testing::AssertionResult {
+			for ( const auto & t : tags ) {
+				auto start = Time::Now();
+				auto expected = identifier->Identify(t,time);
+				auto middle = Time::Now();
+				auto res = compiled->Identify(t,time);
+				auto end = Time::Now();
+
+				if ( !expected ) {
+					if ( !res == false ) {
+						return ::testing::AssertionFailure() << " tag should not have been identified";
+					}
+
+					// if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
+					// 	return ::testing::AssertionFailure() <<
+					// 		" Compiled time " << end.Sub(middle) <<
+					// 		" is larger than flat time " << middle.Sub(start);
+					// }
+
+					return ::testing::AssertionSuccess();
+				}
+				if ( !res ) {
+					return ::testing::AssertionFailure()
+						<< "tag " << t << " should have been identified to "
+						<< expected->Target()->ID() << " idents: "
+						<< expected->Target()->Identifications().size();
+
+				}
+
+				if ( res->Target()->ID() != expected->Target()->ID() ) {
+					return ::testing::AssertionFailure()
+						<< "Got identification target mismatch, expected: "
+						<< expected->Target()->ID()
+						<< " got: " << res->Target()->ID();
+
+				}
+				// if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
+				// 	return ::testing::AssertionFailure() <<
+				// 		" Compiled time " << end.Sub(middle) <<
+				// 		" is larger than flat time " << middle.Sub(start);
+				// }
+
+			}
+			return ::testing::AssertionSuccess();
+		};
+
+	size_t i  = 0;
+	for ( const auto & t : times ) {
+		//		EXPECT_TRUE(testEqualityAtTime(t.Add(-1))) << i;
+		//EXPECT_TRUE(testEqualityAtTime(t)) << i;
+		//EXPECT_TRUE(testEqualityAtTime(t.Add(1))) << i;
+		++i;
+	}
+
+}
 
 
 } // namespace fort
