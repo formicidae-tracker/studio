@@ -95,14 +95,14 @@ public:
 		if ( key > d_values.size() || d_values[key-1].first == 0 ) {
 			throw std::out_of_range(std::to_string(key) + " is out of range");
 		}
-		return d_values[key-1];
+		return d_values[key-1].second;
 	}
 
 	const T & at(const Key & key) const {
 		if ( key > d_values.size() || d_values[key-1].first == 0 ) {
 			throw std::out_of_range(std::to_string(key) + " is out of range");
 		}
-		return d_values[key-1];
+		return d_values[key-1].second;
 	}
 
 	iterator       begin() noexcept {

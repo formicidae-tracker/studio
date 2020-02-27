@@ -172,6 +172,33 @@ public:
 
 	void SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback);
 
+
+
+	class Compiled {
+	public:
+		typedef std::shared_ptr<const Compiled> ConstPtr;
+		Compiled(const std::unordered_map<TagID,IdentificationList> & identification);
+
+		const IdentificationConstPtr & Identify(TagID tagID, const Time & time) const;
+
+	private:
+		typedef DenseMap<TagID,IdentificationConstPtr>                   IdentificationsByTagID;
+		typedef std::map<Time,IdentificationsByTagID,Time::Comparator>   IdentificationsByTime;
+
+		void Build(const std::unordered_map<TagID,IdentificationList> & identifier);
+		IdentificationsByTagID BuildMapAtTime(const std::unordered_map<TagID,IdentificationList> & identifications,
+		                                      const Time & t) const;
+
+		const IdentificationConstPtr & IdentifyFromMap(const IdentificationsByTagID & identifications,
+		                                               TagID tagID) const;
+
+
+		IdentificationsByTime  d_identifications;
+		IdentificationsByTagID d_firstIdentifications,d_lastIdentifications;
+	};
+
+	Compiled::ConstPtr Compile() const;
+
 private:
 	class AntPoseEstimateComparator {
 	public:
@@ -182,11 +209,10 @@ private:
 
 	void UpdateIdentificationAntPosition(const IdentificationPtr & identification);
 
-	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
 
 	typedef std::set<AntPoseEstimateConstPtr,AntPoseEstimateComparator>     AntPoseEstimateList;
-	typedef std::map<TagID,AntPoseEstimateList> AntPoseEstimateByTagID;
+	typedef std::map<TagID,AntPoseEstimateList>                             AntPoseEstimateByTagID;
 
 	Identifier();
 	Identifier(const Identifier&) = delete;

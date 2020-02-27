@@ -376,6 +376,7 @@ inline fort::myrmidon::Duration operator*(int64_t a,
 }
 
 
+
 // Formats a Duration
 // @out the std::ostream to format to
 // @d the <fort::myrmidon::Duration> to format

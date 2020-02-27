@@ -293,6 +293,78 @@ void Identifier::SetAntPositionUpdateCallback(const OnPositionUpdateCallback & c
 }
 
 
+Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identifications) {
+	Build(identifications);
+}
+
+const Identification::ConstPtr & Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
+	if ( d_identifications.empty() == true || time.Before(d_identifications.begin()->first) == true ) {
+		return IdentifyFromMap(d_firstIdentifications,tagID);
+	}
+	auto fi = d_identifications.upper_bound(time);
+	if ( fi == d_identifications.end() ) {
+		return IdentifyFromMap(d_lastIdentifications,tagID);
+	}
+	return IdentifyFromMap(fi->second,tagID);
+}
+
+void Identifier::Compiled::Build(const Identifier::IdentificationByTagID & identifications) {
+	std::set<Time,Time::Comparator> times;
+	for ( const auto & [tagID,idents] : identifications ) {
+		for ( const auto & i : idents) {
+			if ( i->Start() ) {
+				times.insert(*(i->Start()));
+			}
+			if ( i->End() ) {
+				times.insert(*(i->End()));
+			}
+		}
+	}
+	Time time;
+	if ( !times.empty() ) {
+		time = times.begin()->Add(-1 * Duration::Nanosecond);
+	}
+	d_firstIdentifications = BuildMapAtTime(identifications,time);
+	for ( const auto & t : times ) {
+		d_identifications.insert(std::make_pair(t,BuildMapAtTime(identifications,t)));
+	}
+	if ( times.empty() ) {
+		return;
+	}
+	time = (--times.end())->Add(1 * Duration::Nanosecond);
+	d_lastIdentifications = BuildMapAtTime(identifications,time);
+}
+
+
+Identifier::Compiled::IdentificationsByTagID
+Identifier::Compiled::BuildMapAtTime(const Identifier::IdentificationByTagID & identifications,
+                                     const Time & time) const {
+	Identifier::Compiled::IdentificationsByTagID results;
+
+	for ( const auto & [tagID,idents] : identifications ) {
+		for ( const auto & i : idents ) {
+			if ( i->IsValid(time) == true ) {
+				results.insert(std::make_pair(tagID+1,i));
+				break;
+			}
+		}
+	}
+}
+
+const Identification::ConstPtr &
+Identifier::Compiled::IdentifyFromMap(const Compiled::IdentificationsByTagID & identifications,
+                                      TagID tagID) const {
+	static Identification::ConstPtr empty;
+	if ( identifications.count(tagID+1) == 0 ) {
+		return empty;
+	}
+	return identifications.at(tagID+1);
+}
+
+Identifier::Compiled::ConstPtr Identifier::Compile() const {
+	return std::make_shared<Compiled>(d_identifications);
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
