@@ -15,7 +15,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_identifier(new IdentifierBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_selectedAnt(new SelectedAntBridge(this))
-	, d_selectedIdentification(new SelectedIdentificationBridge(this)) {
+	, d_selectedIdentification(new SelectedIdentificationBridge(this))
+	, d_identifiedFrameLoader(new IdentifiedFrameLoader(this)) {
 
 	connectModifications();
 
@@ -136,6 +137,11 @@ SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const 
 	return d_selectedIdentification;
 }
 
+IdentifiedFrameLoader * ExperimentBridge::identifiedFrameLoader() const {
+	return d_identifiedFrameLoader;
+}
+
+
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
 	d_experiment = experiment;
@@ -145,6 +151,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_globalProperties->setExperiment(experiment);
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
+	d_identifiedFrameLoader->setExperiment(experiment);
 	setModified(false);
 	emit activated(d_experiment.get() != NULL);
 }

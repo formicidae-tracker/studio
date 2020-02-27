@@ -11,13 +11,15 @@
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 
 IdentifiedFrameLoader::IdentifiedFrameLoader(QObject * parent)
-	: d_done(true) {
-	connect(&d_futureWatcher,
+	: QObject(parent)
+	, d_done(true)
+	, d_futureWatcher(new QFutureWatcher<MappedResult>(this)) {
+	connect(d_futureWatcher,
 	        &QFutureWatcher<MappedResult>::finished,
 	        this,
 	        &IdentifiedFrameLoader::onFinished);
 
-	connect(&d_futureWatcher,
+	connect(d_futureWatcher,
 	        &QFutureWatcher<MappedResult>::resultReadyAt,
 	        this,
 	        &IdentifiedFrameLoader::onResultReadyAt,
@@ -32,7 +34,7 @@ bool IdentifiedFrameLoader::isDone() const {
 	return d_done;
 }
 
-void IdentifiedFrameLoader::setExperiment(fmp::Experiment::ConstPtr & experiment) {
+void IdentifiedFrameLoader::setExperiment(const fmp::Experiment::ConstPtr & experiment) {
 	if ( !d_experiment ) {
 		clear();
 	}
@@ -110,7 +112,7 @@ void IdentifiedFrameLoader::loadMovieSegment(const fmp::TrackingDataDirectory::C
 			                     IdentifiedFrameComputer(identifier,
 			                                             segment,
 			                                             start));
-		d_futureWatcher.setFuture(future);
+		d_futureWatcher->setFuture(future);
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not start frame identification for" << ToQString(segment->URI())
 		            <<": " << e.what();
@@ -120,15 +122,15 @@ void IdentifiedFrameLoader::loadMovieSegment(const fmp::TrackingDataDirectory::C
 
 
 void IdentifiedFrameLoader::clear() {
-	d_futureWatcher.cancel();
-	disconnect(&d_futureWatcher,
+	d_futureWatcher->cancel();
+	disconnect(d_futureWatcher,
 	           &QFutureWatcher<MappedResult>::resultReadyAt,
 	           this,
 	           &IdentifiedFrameLoader::onResultReadyAt);
-	d_futureWatcher.waitForFinished();
-	d_futureWatcher.setFuture(QFuture<MappedResult>());
+	d_futureWatcher->waitForFinished();
+	d_futureWatcher->setFuture(QFuture<MappedResult>());
 	d_frames.clear();
-	connect(&d_futureWatcher,
+	connect(d_futureWatcher,
 	        &QFutureWatcher<MappedResult>::resultReadyAt,
 	        this,
 	        &IdentifiedFrameLoader::onResultReadyAt,
@@ -147,7 +149,7 @@ void IdentifiedFrameLoader::setDone(bool done_) {
 
 
 void IdentifiedFrameLoader::onResultReadyAt(int index) {
-	auto res = d_futureWatcher.resultAt(index);
+	auto res = d_futureWatcher->resultAt(index);
 	d_frames.insert(res.first,res.second);
 }
 

@@ -7,6 +7,7 @@
 #include "IdentifierBridge.hpp"
 #include "SelectedAntBridge.hpp"
 #include "SelectedIdentificationBridge.hpp"
+#include "IdentifiedFrameLoader.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -36,6 +37,7 @@ public:
 
 	SelectedIdentificationBridge * selectedIdentification() const;
 
+	IdentifiedFrameLoader * identifiedFrameLoader() const;
 
 public slots:
 
@@ -57,4 +59,5 @@ private:
 	GlobalPropertyBridge         * d_globalProperties;
 	SelectedAntBridge            * d_selectedAnt;
 	SelectedIdentificationBridge * d_selectedIdentification;
+	IdentifiedFrameLoader        * d_identifiedFrameLoader;
 };

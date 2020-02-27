@@ -15,12 +15,12 @@ class IdentifiedFrameLoader : public QObject {
 	           READ isDone
 	           NOTIFY done)
 public:
-	explicit IdentifiedFrameLoader(QObject * parent);
+	explicit IdentifiedFrameLoader(QObject * parent = nullptr);
 	~IdentifiedFrameLoader();
 
 	bool isDone() const;
 
-	void setExperiment(fmp::ExperimentConstPtr & experiment);
+	void setExperiment(const fmp::ExperimentConstPtr & experiment);
 
 	const fmp::IdentifiedFrame::ConstPtr & FrameAt(fmp::MovieFrameID movieID) const;
 
@@ -40,13 +40,11 @@ private :
 	typedef QHash<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> FramesByMovieID;
 	typedef std::pair<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> MappedResult;
 
-
-
 	void setDone(bool done);
 
 	bool                    d_done;
 	fmp::ExperimentConstPtr d_experiment;
 	FramesByMovieID         d_frames;
 
-	QFutureWatcher<MappedResult> d_futureWatcher;
+	QFutureWatcher<MappedResult> * d_futureWatcher;
 };
