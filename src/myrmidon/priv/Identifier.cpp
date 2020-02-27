@@ -194,14 +194,14 @@ Identification::Ptr Identifier::Identify(TagID tag,const Time & t) const {
 		return Identification::Ptr();
 	}
 
-	for(const auto & ident : fi->second ) {
+	for( const auto & ident : fi->second ) {
 		if (ident->IsValid(t) == true ) {
 			return ident;
 		}
 	}
+
 	return Identification::Ptr();
 }
-
 
 Time::ConstPtr Identifier::UpperUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
@@ -297,7 +297,10 @@ Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identif
 	Build(identifications);
 }
 
-const Identification::ConstPtr & Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
+Identifier::Compiled::~Compiled() {
+}
+
+Identification::Ptr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
 	if ( d_identifications.empty() == true || time.Before(d_identifications.begin()->first) == true ) {
 		return IdentifyFromMap(d_firstIdentifications,tagID);
 	}
@@ -351,10 +354,10 @@ Identifier::Compiled::BuildMapAtTime(const Identifier::IdentificationByTagID & i
 	}
 }
 
-const Identification::ConstPtr &
+const Identification::Ptr &
 Identifier::Compiled::IdentifyFromMap(const Compiled::IdentificationsByTagID & identifications,
                                       TagID tagID) const {
-	static Identification::ConstPtr empty;
+	static Identification::Ptr empty;
 	if ( identifications.count(tagID+1) == 0 ) {
 		return empty;
 	}

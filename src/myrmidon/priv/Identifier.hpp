@@ -28,6 +28,12 @@ class AntMetadata;
 
 namespace priv {
 
+class IdentifierIF {
+public:
+	virtual IdentificationPtr Identify(TagID tagID, const Time & time) const = 0;
+};
+
+
 // An Identifier identifies Ants through Identification
 //
 // The <Identifier> is responsible to keep track in the the
@@ -36,7 +42,7 @@ namespace priv {
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier : protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
+class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
@@ -139,7 +145,8 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(TagID tag,const Time & frame) const;
+	IdentificationPtr Identify(TagID tag,const Time & frame) const override;
+
 
 	// Return the first next frame if any where tag is not used
 	Time::ConstPtr UpperUnidentifiedBound(TagID tag, const Time & t) const;
@@ -174,23 +181,24 @@ public:
 
 
 
-	class Compiled {
+	class Compiled : public IdentifierIF {
 	public:
 		typedef std::shared_ptr<const Compiled> ConstPtr;
 		Compiled(const std::unordered_map<TagID,IdentificationList> & identification);
+		virtual ~Compiled();
 
-		const IdentificationConstPtr & Identify(TagID tagID, const Time & time) const;
+		IdentificationPtr Identify(TagID tagID, const Time & time) const override;
 
 	private:
-		typedef DenseMap<TagID,IdentificationConstPtr>                   IdentificationsByTagID;
+		typedef DenseMap<TagID,IdentificationPtr>                        IdentificationsByTagID;
 		typedef std::map<Time,IdentificationsByTagID,Time::Comparator>   IdentificationsByTime;
 
 		void Build(const std::unordered_map<TagID,IdentificationList> & identifier);
 		IdentificationsByTagID BuildMapAtTime(const std::unordered_map<TagID,IdentificationList> & identifications,
 		                                      const Time & t) const;
 
-		const IdentificationConstPtr & IdentifyFromMap(const IdentificationsByTagID & identifications,
-		                                               TagID tagID) const;
+		const IdentificationPtr & IdentifyFromMap(const IdentificationsByTagID & identifications,
+		                                          TagID tagID) const;
 
 
 		IdentificationsByTime  d_identifications;

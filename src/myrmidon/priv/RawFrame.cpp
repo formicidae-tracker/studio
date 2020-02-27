@@ -6,6 +6,11 @@
 
 #include "TimeUtils.hpp"
 
+#include "Identifier.hpp"
+#include "Isometry2D.hpp"
+#include "Identification.hpp"
+#include "Ant.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -55,6 +60,25 @@ const std::string & RawFrame::URI() const {
 const FrameReference & RawFrame::Frame() const {
 	return d_frame;
 }
+
+IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier) {
+	auto res = std::make_shared<IdentifiedFrame>();
+	res->FrameTime = Frame().Time();
+	res->Width = d_width;
+	res->Height = d_height;
+	res->Positions.reserve(d_tags.size());
+	for ( const auto & t : d_tags ) {
+		auto identification = identifier.Identify(t.id(),res->FrameTime);
+		if ( !identification ) {
+			continue;
+		}
+		Isometry2Dd tagToOrig(t.theta(),Eigen::Vector2d(t.x(),t.y()));
+		auto antToOrig = identification->AntToTagTransform() * tagToOrig;
+		res->Positions.push_back({antToOrig.translation(),antToOrig.angle(),identification->Target()->ID()});
+	}
+
+}
+
 
 } //namespace priv
 } //namespace myrmidon

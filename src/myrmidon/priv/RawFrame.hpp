@@ -13,10 +13,13 @@
 #include "FrameReference.hpp"
 
 
+
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
+class IdentifierIF;
 class TrackingDataDirectory;
 
 // RawFrame stores raw tracking data in a point in Time
@@ -48,7 +51,7 @@ public:
 
 	const ::google::protobuf::RepeatedPtrField<::fort::hermes::Tag> & Tags() const;
 
-
+	IdentifiedFrame::ConstPtr IdentifyFrom(const IdentifierIF & identifier);
 
 	static RawFrame::ConstPtr Create(const std::string & parentURI,
 	                                 fort::hermes::FrameReadout & pb,
