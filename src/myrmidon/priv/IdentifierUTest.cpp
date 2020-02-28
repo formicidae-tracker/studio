@@ -158,8 +158,8 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 
 
 TEST_F(IdentifierUTest,Compilation) {
-	  std::random_device r;
-    // Choose a random mean between 1 and 6
+	std::random_device r;
+	// Choose a random mean between 1 and 6
     std::default_random_engine e1(r());
 
     std::uniform_int_distribution<uint32_t> duration(0, 600000);
