@@ -211,12 +211,13 @@ TEST_F(IdentifierUTest,Compilation) {
 					if ( !res == false ) {
 						return ::testing::AssertionFailure() << " tag should not have been identified";
 					}
-
-					// if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
-					// 	return ::testing::AssertionFailure() <<
-					// 		" Compiled time " << end.Sub(middle) <<
-					// 		" is larger than flat time " << middle.Sub(start);
-					// }
+#ifdef MYRMIDON_TEST_TIMING
+					if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
+						return ::testing::AssertionFailure() <<
+							" Compiled time " << end.Sub(middle) <<
+							" is larger than flat time " << middle.Sub(start);
+					}
+#endif
 
 					return ::testing::AssertionSuccess();
 				}
@@ -235,21 +236,22 @@ TEST_F(IdentifierUTest,Compilation) {
 						<< " got: " << res->Target()->ID();
 
 				}
-				// if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
-				// 	return ::testing::AssertionFailure() <<
-				// 		" Compiled time " << end.Sub(middle) <<
-				// 		" is larger than flat time " << middle.Sub(start);
-				// }
-
+#ifdef MYRMIDON_TEST_TIMING
+				if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
+					return ::testing::AssertionFailure() <<
+						" Compiled time " << end.Sub(middle) <<
+						" is larger than flat time " << middle.Sub(start);
+				}
+#endif
 			}
 			return ::testing::AssertionSuccess();
 		};
 
 	size_t i  = 0;
 	for ( const auto & t : times ) {
-		//		EXPECT_TRUE(testEqualityAtTime(t.Add(-1))) << i;
-		//EXPECT_TRUE(testEqualityAtTime(t)) << i;
-		//EXPECT_TRUE(testEqualityAtTime(t.Add(1))) << i;
+		EXPECT_TRUE(testEqualityAtTime(t.Add(-1))) << i;
+		EXPECT_TRUE(testEqualityAtTime(t)) << i;
+		EXPECT_TRUE(testEqualityAtTime(t.Add(1))) << i;
 		++i;
 	}
 

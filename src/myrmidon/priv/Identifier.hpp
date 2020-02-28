@@ -192,20 +192,8 @@ public:
 		IdentificationPtr Identify(TagID tagID, const Time & time) const override;
 
 	private:
-		typedef DenseMap<TagID,IdentificationPtr>                        IdentificationsByTagID;
-		typedef std::map<Time,IdentificationsByTagID,Time::Comparator>   IdentificationsByTime;
-
-		void Build(const std::unordered_map<TagID,IdentificationList> & identifier);
-		void  BuildMapAtTime(IdentificationsByTagID & result,
-		                     const std::unordered_map<TagID,IdentificationList> & identifications,
-		                     const Time & t) const;
-
-		const IdentificationPtr & IdentifyFromMap(const IdentificationsByTagID & identifications,
-		                                          TagID tagID) const;
-
-
-		IdentificationsByTime  d_identifications;
-		IdentificationsByTagID d_lastIdentifications;
+		typedef DenseMap<TagID,IdentificationList> IdentificationsByTagID;
+		IdentificationsByTagID d_identifications;
 	};
 
 	Compiled::ConstPtr Compile() const;

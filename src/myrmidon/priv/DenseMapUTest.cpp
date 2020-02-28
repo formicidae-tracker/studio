@@ -112,6 +112,7 @@ TEST_F(DenseMapUTest,ConsistencyAndTiming) {
     DMOfPtr denseMap;
 
     for (size_t i = 0; i < SIZE; ++i ) {
+	    // we must ensure key > 0 for DenseMap
 	    auto toInsert = std::make_pair(uniform(e1)+1,std::make_shared<uint32_t>(uniform(e1)));
 
 	    auto mapRes = map.insert(toInsert);
@@ -136,7 +137,8 @@ TEST_F(DenseMapUTest,ConsistencyAndTiming) {
 	    ++start;++denseStart;
     }
 
-    // Random access time is faster
+#ifdef MYRMIDON_TEST_TIMING
+    // Random access time is faster. We compare here O(log(n)) and O(1).
     for ( const auto & k :keys ) {
 	    auto start = Time::Now();
 	    auto res = map.at(k);
@@ -145,12 +147,10 @@ TEST_F(DenseMapUTest,ConsistencyAndTiming) {
 	    auto end = Time::Now();
 
 	    EXPECT_TRUE(middle.Sub(start).Nanoseconds() >= end.Sub(middle).Nanoseconds())
-		    << "map random access: " << middle.Sub(start)
-		    << " DenseMap random access: " << end.Sub(middle);
+		    << "std::map random access time: " << middle.Sub(start)
+		    << " DenseMap random access time: " << end.Sub(middle);
     }
-
-
-
+#endif
 }
 
 

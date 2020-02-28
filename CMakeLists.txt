@@ -102,6 +102,13 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	APPEND_COVERAGE_COMPILER_FLAGS()
 endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 
+
+option(UNIT_TEST_CHECK_TIMING "Test timing improvements during unit tests. May fails due to kernel scheduling, disable for automation" Off)
+if(UNIT_TEST_CHECK_TIMING)
+	add_definitions("-DMYRMIDON_TEST_TIMING")
+endif(UNIT_TEST_CHECK_TIMING)
+
+
 add_subdirectory(src)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")

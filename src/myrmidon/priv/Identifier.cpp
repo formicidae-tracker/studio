@@ -4,6 +4,8 @@
 #include "DeletedReference.hpp"
 #include "AntPoseEstimate.hpp"
 
+#include <iostream>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -294,77 +296,25 @@ void Identifier::SetAntPositionUpdateCallback(const OnPositionUpdateCallback & c
 
 
 Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identifications) {
-	Build(identifications);
+	for ( const auto & [tagID,idents] : identifications ) {
+		d_identifications.insert(std::make_pair(tagID+1,idents));
+	}
 }
 
 Identifier::Compiled::~Compiled() {
 }
 
 Identification::Ptr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
-	auto fi = d_identifications.upper_bound(time);
-	if ( fi == d_identifications.end() ) {
-		return IdentifyFromMap(d_lastIdentifications,tagID);
-	}
-	return IdentifyFromMap(fi->second,tagID);
-}
-
-void Identifier::Compiled::Build(const Identifier::IdentificationByTagID & identifications) {
-	std::set<Time,Time::Comparator> times;
-	for ( const auto & [tagID,idents] : identifications ) {
-		for ( const auto & i : idents) {
-			if ( i->Start() ) {
-				times.insert(*(i->Start()));
-			}
-			if ( i->End() ) {
-				times.insert(*(i->End()));
-			}
-		}
-	}
-	Time time;
-
-	if ( times.empty() ) {
-		BuildMapAtTime(d_lastIdentifications,identifications,time);
-		return;
-	}
-
-	auto tstart = times.cbegin()->Add(-1);
-	BuildMapAtTime(d_identifications[tstart],
-	               identifications,
-	               tstart);
-
-	for ( const auto & t : times ) {
-		BuildMapAtTime(d_identifications[t],
-		               identifications,
-		               t);
-	}
-	time = (--times.end())->Add(1);
-	BuildMapAtTime(d_lastIdentifications,identifications,time);
-}
-
-
-void
-Identifier::Compiled::BuildMapAtTime(IdentificationsByTagID & result,
-                                     const Identifier::IdentificationByTagID & identifications,
-                                     const Time & time) const {
-	result.clear();
-	for ( const auto & [tagID,idents] : identifications ) {
-		for ( const auto & i : idents ) {
+	try {
+		for ( const auto & i : d_identifications.at(tagID+1) ) {
 			if ( i->IsValid(time) == true ) {
-				result.insert(std::make_pair(tagID+1,i));
+					return i;
 			}
 		}
-
+	} catch ( const std::out_of_range & ) {
+		return Identification::Ptr();
 	}
-}
-
-const Identification::Ptr &
-Identifier::Compiled::IdentifyFromMap(const Compiled::IdentificationsByTagID & identifications,
-                                      TagID tagID) const {
-	static Identification::Ptr empty;
-	if ( identifications.count(tagID+1) == 0 ) {
-		return empty;
-	}
-	return identifications.at(tagID+1);
+	return Identification::Ptr();
 }
 
 Identifier::Compiled::ConstPtr Identifier::Compile() const {
