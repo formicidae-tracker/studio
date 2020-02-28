@@ -139,6 +139,8 @@ TEST_F(DenseMapUTest,ConsistencyAndTiming) {
 
 #ifdef MYRMIDON_TEST_TIMING
     // Random access time is faster. We compare here O(log(n)) and O(1).
+    double meanMapTime;
+    double meanDenseMapTime;
     for ( const auto & k :keys ) {
 	    auto start = Time::Now();
 	    auto res = map.at(k);
@@ -146,10 +148,13 @@ TEST_F(DenseMapUTest,ConsistencyAndTiming) {
 	    auto denseRes = denseMap.at(k);
 	    auto end = Time::Now();
 
-	    EXPECT_TRUE(middle.Sub(start).Nanoseconds() >= end.Sub(middle).Nanoseconds())
-		    << "std::map random access time: " << middle.Sub(start)
-		    << " DenseMap random access time: " << end.Sub(middle);
+	    meanMapTime += middle.Sub(start).Microseconds() / keys.size();
+	    meanDenseMapTime += end.Sub(middle).Microseconds() / keys.size();
     }
+
+    EXPECT_TRUE( meanMapTime >=  meanDenseMapTime)
+	    << "std::map mean random access time: " << meanMapTime << "μs "
+	    << " DenseMap mean random access time: " << meanDenseMapTime << "μs";
 #endif
 }
 

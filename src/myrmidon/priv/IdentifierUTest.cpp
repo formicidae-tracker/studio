@@ -198,8 +198,10 @@ TEST_F(IdentifierUTest,Compilation) {
 	auto compiled = identifier->Compile();
 	auto end = Time::Now();
 
+	std::vector<Duration> flatTimes,compiledTimes;
+
 	auto testEqualityAtTime =
-		[identifier,compiled,tags](const Time & time) -> ::testing::AssertionResult {
+		[identifier,compiled,tags,&flatTimes,&compiledTimes](const Time & time) -> ::testing::AssertionResult {
 			for ( const auto & t : tags ) {
 				auto start = Time::Now();
 				auto expected = identifier->Identify(t,time);
@@ -211,15 +213,9 @@ TEST_F(IdentifierUTest,Compilation) {
 					if ( !res == false ) {
 						return ::testing::AssertionFailure() << " tag should not have been identified";
 					}
-#ifdef MYRMIDON_TEST_TIMING
-					if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
-						return ::testing::AssertionFailure() <<
-							" Compiled time " << end.Sub(middle) <<
-							" is larger than flat time " << middle.Sub(start);
-					}
-#endif
-
-					return ::testing::AssertionSuccess();
+					flatTimes.push_back(middle.Sub(start));
+					compiledTimes.push_back(end.Sub(middle));
+					continue;
 				}
 				if ( !res ) {
 					return ::testing::AssertionFailure()
@@ -236,13 +232,8 @@ TEST_F(IdentifierUTest,Compilation) {
 						<< " got: " << res->Target()->ID();
 
 				}
-#ifdef MYRMIDON_TEST_TIMING
-				if (middle.Sub(start).Nanoseconds() < end.Sub(middle).Nanoseconds()) {
-					return ::testing::AssertionFailure() <<
-						" Compiled time " << end.Sub(middle) <<
-						" is larger than flat time " << middle.Sub(start);
-				}
-#endif
+				flatTimes.push_back(middle.Sub(start));
+				compiledTimes.push_back(end.Sub(middle));
 			}
 			return ::testing::AssertionSuccess();
 		};
@@ -254,6 +245,24 @@ TEST_F(IdentifierUTest,Compilation) {
 		EXPECT_TRUE(testEqualityAtTime(t.Add(1))) << i;
 		++i;
 	}
+
+
+#ifdef MYRMIDON_TEST_TIMING
+	auto computeMean =
+		[](const std::vector<Duration> & durations) -> double {
+			double res = 0;
+			for ( const auto & d: durations) {
+				res += d.Microseconds() / durations.size();
+			}
+			return res;
+		};
+	double meanFlatTime = computeMean(flatTimes);
+	double meanCompiledTime = computeMean(compiledTimes);
+	EXPECT_TRUE(meanFlatTime >  meanCompiledTime )
+		<< "flat time is " << meanFlatTime  <<"us "
+		<< "compiled time is " << meanCompiledTime << "us";
+#endif
+
 
 }
 
