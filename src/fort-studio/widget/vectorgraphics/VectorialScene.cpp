@@ -2,13 +2,14 @@
 
 #include <QGraphicsSceneMouseEvent>
 
+#include <QDebug>
+
+
 #include "Handle.hpp"
 #include "Vector.hpp"
 #include "Capsule.hpp"
 #include "Polygon.hpp"
 #include "Circle.hpp"
-
-#include <iostream>
 
 #include <fort-studio/widget/base/ColorComboBox.hpp>
 
@@ -44,11 +45,6 @@ VectorialScene::VectorialScene(QObject * parent)
 			auto pos = e->scenePos();
 			auto vector = new Vector(pos.x(),pos.y(),pos.x(),pos.y(),d_color);
 			vector->addToScene(this);
-			connect(vector,
-			        &Shape::updated,
-			        []() {
-				        std::cerr << "vector updated" << std::endl;
-		                                });
 			d_mouseMove =
 				[vector] (QGraphicsSceneMouseEvent *e) {
 					vector->setEndPos(e->scenePos());
@@ -60,7 +56,8 @@ VectorialScene::VectorialScene(QObject * parent)
 					}
 					auto pos = e->scenePos();
 					vector->setEndPos(pos);
-					std::cerr << "vector inserted" << std::endl;
+					d_vectors.push_back(vector);
+					emit vectorCreated(vector);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
@@ -79,11 +76,6 @@ VectorialScene::VectorialScene(QObject * parent)
 			auto capsule = new Capsule(pos,pos,0,0,d_color);
 			capsule->setC2AndRadiusFromPos(pos);
 			capsule->addToScene(this);
-			connect(capsule,
-			        &Shape::updated,
-			        []() {
-				        std::cerr << "capsule updated" << std::endl;
-			        });
 			d_mouseMove =
 				[capsule] (QGraphicsSceneMouseEvent *e) {
 					capsule->setC2AndRadiusFromPos(e->scenePos());
@@ -95,7 +87,8 @@ VectorialScene::VectorialScene(QObject * parent)
 					}
 					auto pos = e->scenePos();
 					capsule->setC2AndRadiusFromPos(pos);
-					std::cerr << "capsule inserted" << std::endl;
+					d_capsules.push_back(capsule);
+					emit capsuleCreated(capsule);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
@@ -114,11 +107,6 @@ VectorialScene::VectorialScene(QObject * parent)
 			auto circle = new Circle(pos,0,d_color);
 			circle->setRadiusFromPos(pos);
 			circle->addToScene(this);
-			connect(circle,
-			        &Shape::updated,
-			        []() {
-				        std::cerr << "circle updated" << std::endl;
-			        });
 			d_mouseMove =
 				[circle] (QGraphicsSceneMouseEvent *e) {
 					circle->setRadiusFromPos(e->scenePos());
@@ -130,7 +118,8 @@ VectorialScene::VectorialScene(QObject * parent)
 					}
 					auto pos = e->scenePos();
 					circle->setRadiusFromPos(pos);
-					std::cerr << "circle inserted" << std::endl;
+					d_circles.push_back(circle);
+					emit circleCreated(circle);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
@@ -148,7 +137,6 @@ VectorialScene::VectorialScene(QObject * parent)
 			auto start = e->scenePos();
 			auto polygon = new Polygon({start},d_color);
 			polygon->addToScene(this);
-			std::cerr << "Starting polygon insertion" << std::endl;
 			d_mouseMove = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
 			d_mouseRelease = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
 			d_mousePress =
@@ -160,7 +148,8 @@ VectorialScene::VectorialScene(QObject * parent)
 					     && (e->button() == Qt::RightButton
 					         || ( e->button() == Qt::LeftButton && dist < Handle::SIZE) ) ) {
 						polygon->close();
-						std::cerr << "End polygon insertion" << std::endl;
+						d_polygons.push_back(polygon);
+						emit polygonCreated(polygon);
 						if ( d_once == true ) {
 							setMode(Mode::Edit);
 						} else {
@@ -185,11 +174,96 @@ VectorialScene::~VectorialScene() {
 }
 
 
-void VectorialScene::setColor(const QColor & color) {
-	d_color = color;
+const QColor VectorialScene::color() const {
+	return d_color;
+}
+
+VectorialScene::Mode VectorialScene::mode() const {
+	return d_mode;
+}
+
+bool VectorialScene::once() const {
+	return d_once;
+}
+
+double VectorialScene::handleScaleFactor() const {
+	return d_handleScaleFactor;
+}
+
+const QVector<Vector*> & VectorialScene::vectors() const {
+	return d_vectors;
+}
+
+const QVector<Capsule*> & VectorialScene::capsules() const {
+	return d_capsules;
+}
+
+const QVector<Polygon*> & VectorialScene::polygons() const {
+	return d_polygons;
+}
+
+const QVector<Circle*> & VectorialScene::circles() const {
+	return d_circles;
+}
+
+
+
+Circle * VectorialScene::appendCircle(const QPointF & center, qreal radius) {
+	auto circle = new Circle(center,radius,d_color);
+	circle->addToScene(this);
+	d_circles.push_back(circle);
+}
+
+Capsule * VectorialScene::appendCapsule(const QPointF & c1, const QPointF & c2,
+                                        qreal r1, qreal r2) {
+	auto capsule = new Capsule(c1,c2,r1,r2,d_color);
+	capsule->addToScene(this);
+	d_capsules.push_back(capsule);
+}
+
+Polygon * VectorialScene::appendPolygon(const QVector<QPointF> & vertices) {
+	auto polygon = new Polygon(vertices,d_color);
+	polygon->addToScene(this);
+	d_polygons.push_back(polygon);
+}
+
+Vector * VectorialScene::appendVector(const QPointF & start, const QPointF & end) {
+	auto vector = new Vector(start.x(),start.y(),end.x(),end.y(),d_color);
+	vector->addToScene(this);
+	d_vectors.push_back(vector);
+}
+
+
+void VectorialScene::setPoseIndicator(const QPointF & position, double angle) {
+	qWarning() << "Implement me!";
+}
+
+void VectorialScene::clearPoseIndicator() {
+	qWarning() << "Implement me!";
+}
+
+
+void VectorialScene::setBackgroundPicture(const QString & filepath) {
+	qWarning() << "Implement me!";
+}
+
+
+void VectorialScene::onZoomed(double factor) {
+	setHandleScaleFactor(std::max(1.0/factor,1.0));
+}
+
+void VectorialScene::setOnce(bool once) {
+	if ( once == d_once ) {
+		return;
+	}
+	d_once = once;
+	emit onceChanged(d_once);
 }
 
 void VectorialScene::setMode(Mode mode) {
+	if ( mode == d_mode) {
+		return;
+	}
 	d_mode = mode;
 	switch(d_mode) {
 	case Mode::Edit:
@@ -221,9 +295,28 @@ void VectorialScene::setMode(Mode mode) {
 		d_mouseRelease = d_editReleaseEH;
 		break;
 	}
-
+	default:
+		qWarning() << "Unknown mode: " << mode;
 	}
+	emit modeChanged(d_mode);
+}
 
+
+void VectorialScene::setColor(const QColor & color) {
+	if ( color == d_color || color.isValid() == false ){
+		return;
+	}
+	d_color = color;
+	emit colorChanged(d_color);
+}
+
+
+void VectorialScene::setHandleScaleFactor(double factor) {
+	if ( factor == d_handleScaleFactor ) {
+		return;
+	}
+	d_handleScaleFactor = factor;
+	emit handleScaleFactorChanged(d_handleScaleFactor);
 }
 
 void VectorialScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
@@ -242,19 +335,25 @@ void VectorialScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
 	saved(mouseEvent);
 }
 
-
-double VectorialScene::handleScaleFactor() const {
-	return d_handleScaleFactor;
-}
-
-void VectorialScene::setHandleScaleFactor(double factor) {
-	if ( factor == d_handleScaleFactor ) {
-		return;
+QDebug operator<<(QDebug debug, VectorialScene::Mode mode) {
+	switch (mode) {
+	case VectorialScene::Mode::Edit:
+		debug << "VectorialScene::Mode::Edit";
+		break;
+	case VectorialScene::Mode::InsertVector:
+		debug << "VectorialScene::Mode::InsertVector";
+		break;
+	case VectorialScene::Mode::InsertCircle:
+		debug << "VectorialScene::Mode::InsertCircle";
+		break;
+	case VectorialScene::Mode::InsertPolygon:
+		debug << "VectorialScene::Mode::InsertPolygon";
+		break;
+	case VectorialScene::Mode::InsertCapsule:
+		debug << "VectorialScene::Mode::InsertCapsule";
+		break;
+	default:
+		debug << "VectorialScene::Mode::" << int(mode);
 	}
-	d_handleScaleFactor = factor;
-	emit handleScaleFactorChanged(d_handleScaleFactor);
-}
-
-void VectorialScene::onZoomed(double factor) {
-	setHandleScaleFactor(std::max(1.0/factor,1.0));
+	return debug;
 }

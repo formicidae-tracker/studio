@@ -12,6 +12,18 @@ class Shape;
 
 class VectorialScene : public QGraphicsScene {
 	Q_OBJECT
+	Q_PROPERTY(QColor color
+	           READ color
+	           WRITE setColor
+	           NOTIFY colorChanged)
+	Q_PROPERTY(Mode mode
+	           READ mode
+	           WRITE setMode
+	           NOTIFY modeChanged)
+	Q_PROPERTY(bool once
+	           READ once
+	           WRITE setOnce
+	           NOTIFY onceChanged);
 public:
 	explicit VectorialScene(QObject * parent = nullptr);
 	virtual ~VectorialScene();
@@ -24,18 +36,53 @@ public:
 		InsertVector  = 4,
 	};
 
-	void setColor(const QColor & color);
 
-	void setMode(Mode mode);
+	const QColor color() const;
+	Mode mode() const;
+	bool once() const;
 
 	double handleScaleFactor() const;
-	void setHandleScaleFactor(double factor);
+
+	const QVector<Vector*> & vectors() const;
+	const QVector<Capsule*> & capsules() const;
+	const QVector<Polygon*> & polygons() const;
+	const QVector<Circle*> & circles() const;
+
+	Circle * appendCircle(const QPointF & center, qreal radius);
+	Capsule * appendCapsule(const QPointF & c1, const QPointF & c2,
+	                        qreal r1, qreal r2);
+	Polygon * appendPolygon(const QVector<QPointF> & vertices);
+	Vector * appendVector(const QPointF & start, const QPointF & end);
+
+	void setPoseIndicator(const QPointF & center, double angle);
+	void clearPoseIndicator();
+
+	void setBackgroundPicture(const QString & path);
 
 public slots:
 	void onZoomed(double factor);
 
+	void setOnce(bool once);
+
+	void setMode(Mode mode);
+
+	void setColor(const QColor & color);
+
+	void setHandleScaleFactor(double factor);
 signals:
 	void handleScaleFactorChanged(double factor);
+	void modeChanged(Mode mode);
+	void onceChanged(bool once);
+
+	void colorChanged(const QColor & color);
+
+	void vectorCreated(Vector * vector);
+
+	void capsuleCreated(Capsule * capsule);
+
+	void polygonCreated(Polygon * polygon);
+
+	void circleCreated(Circle * circle);
 
 protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
@@ -64,4 +111,11 @@ private:
 	EventHandler d_insertCapsulePressEH;
 	EventHandler d_insertCirclePressEH;
 	EventHandler d_insertPolygonPressEH;
+
+	QVector<Vector*>  d_vectors;
+	QVector<Capsule*> d_capsules;
+	QVector<Polygon*> d_polygons;
+	QVector<Circle*>  d_circles;
 };
+
+QDebug operator<<(QDebug, VectorialScene::Mode);
