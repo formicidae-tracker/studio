@@ -16,10 +16,12 @@
 #include <myrmidon/priv/Capsule.hpp>
 #include <fort-studio/Utils.hpp>
 
+
 VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent)
 	, d_once(true)
-	, d_handleScaleFactor(1.0) {
+	, d_handleScaleFactor(1.0)
+	, d_poseIndicator(nullptr) {
 	setSceneRect(QRectF(0,0,1200,1200));
 	setBackgroundBrush(QColor(127,127,127));
 	setMode(Mode::Edit);
@@ -235,7 +237,9 @@ Vector * VectorialScene::appendVector(const QPointF & start, const QPointF & end
 
 
 void VectorialScene::setPoseIndicator(const QPointF & position, double angle) {
-	qWarning() << "Implement me!";
+	if ( d_poseIndicator == nullptr ) {
+
+	}
 }
 
 void VectorialScene::clearPoseIndicator() {

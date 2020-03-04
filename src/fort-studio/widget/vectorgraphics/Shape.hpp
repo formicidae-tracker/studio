@@ -5,7 +5,6 @@
 
 class QGraphicsScene;
 
-
 class Shape : public QObject {
 	Q_OBJECT
 public :

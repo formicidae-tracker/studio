@@ -5,6 +5,8 @@
 #include <Eigen/Core>
 
 #include "VectorialScene.hpp"
+#include <QStyleOptionGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 
 const double Vector::ARROW_LENGTH = 12;
 const double Vector::ARROW_WIDTH = 5;
@@ -18,8 +20,7 @@ Vector::Vector(qreal ax, qreal ay,
                QColor color,
                QGraphicsItem * parent)
 	: Shape(color,NULL)
-	, QGraphicsItemGroup(parent)
-	, d_line(new QGraphicsPathItem(this)) {
+	, QGraphicsPathItem(parent) {
 
 	d_start =
 		new PrecisionHandle([this]() {
@@ -42,7 +43,8 @@ Vector::Vector(qreal ax, qreal ay,
 
 	d_start->setPos(ax,ay);
 	d_end->setPos(bx,by);
-
+	d_start->setColor(d_color);
+	d_end->setColor(d_color);
 
 	setFlags(QGraphicsItem::ItemIsSelectable);
 	rebuild();
@@ -76,15 +78,16 @@ void Vector::paint(QPainter * painter,
                    const QStyleOptionGraphicsItem * option,
                    QWidget * widget) {
 	QColor actual = d_color;
-
 	if ( isSelected() ) {
 		actual = d_color.lighter(150);
 	}
 	actual.setAlpha(Shape::BORDER_OPACITY);
-	d_line->setPen(QPen(actual,LINE_WIDTH));
+	setPen(QPen(actual,LINE_WIDTH));
 	d_start->setColor(actual);
 	d_end->setColor(actual);
-	QGraphicsItemGroup::paint(painter,option,widget);
+	QStyleOptionGraphicsItem myOptions(*option);
+	myOptions.state &= ~QStyle::State_Selected;
+	QGraphicsPathItem::paint(painter,&myOptions,widget);
 
 }
 
@@ -147,7 +150,7 @@ void Vector::rebuild() {
 	auto dist = diff.norm();
 
 	if ( dist < ARROW_LENGTH + PrecisionHandle::SIZE) {
-		d_line->setPath(QPainterPath());
+		setPath(QPainterPath());
 		return;
 	}
 	diff /= dist;
@@ -169,5 +172,43 @@ void Vector::rebuild() {
 	path.moveTo(arrowB.x(),arrowB.y());
 	path.lineTo(arrowStart.x(),arrowStart.y());
 
-	d_line->setPath(path);
+	setPath(path);
+}
+
+void Vector::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	if ( d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	d_moveEvent = std::make_shared<QPointF>(e->scenePos());
+}
+
+void Vector::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+}
+
+void Vector::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+	d_moveEvent.reset();
+	emit updated();
+}
+
+
+void Vector::moveUpdate(const QPointF & newPos) {
+	auto delta = newPos - *d_moveEvent;
+	d_start->setPos(d_start->pos() + delta);
+	d_end->setPos(d_end->pos() + delta);
+	*d_moveEvent = newPos;
+	rebuild();
 }

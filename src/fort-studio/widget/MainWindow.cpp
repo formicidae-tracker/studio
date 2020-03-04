@@ -9,10 +9,16 @@
 #include <QAbstractItemModel>
 #include <QPointer>
 
+
 #include <fort-studio/bridge/ExperimentBridge.hpp>
 #include "Logger.hpp"
 
 #include <fort-studio/widget/vectorgraphics/VectorialScene.hpp>
+#include <fort-studio/widget/base/ColorComboBox.hpp>
+#include <QToolBar>
+#include <QPushButton>
+
+#include <fort-studio/widget/vectorgraphics/Polygon.hpp>
 
 QPointer<Logger> myLogger;
 
@@ -59,6 +65,69 @@ MainWindow::MainWindow(QWidget *parent)
 	        &VectorialView::zoomed,
 	        scene,
 	        &VectorialScene::onZoomed);
+
+	auto toolbar = addToolBar(tr("test"));
+	auto colorBox = new ColorComboBox(NULL);
+	toolbar->addWidget(colorBox);
+	connect(colorBox,
+	        &ColorComboBox::colorChanged,
+	        scene,
+	        &VectorialScene::setColor);
+	colorBox->setCurrentIndex(2);
+
+	auto buttons = new QButtonGroup(this);
+#define myAddButton(mode) \
+	auto mode ## Button = new QPushButton(tr(#mode)); \
+	connect( mode ## Button, &QPushButton::clicked, \
+	         [scene]() { scene->setMode(VectorialScene::Mode::mode); }); \
+	buttons->addButton(mode ## Button); \
+	mode ## Button->setCheckable(true); \
+	toolbar->addWidget(mode ## Button);
+
+	myAddButton(Edit);
+	myAddButton(InsertVector);
+	myAddButton(InsertCapsule);
+	myAddButton(InsertCircle);
+	myAddButton(InsertPolygon);
+
+
+
+	connect(scene,
+	        &VectorialScene::modeChanged,
+	        buttons,
+	        [=](VectorialScene::Mode mode) {
+		        switch(mode) {
+		        case VectorialScene::Mode::Edit:
+			        EditButton->setChecked(true);
+			        break;
+		        case VectorialScene::Mode::InsertVector:
+			        InsertVectorButton->setChecked(true);
+			        break;
+		        case VectorialScene::Mode::InsertCircle:
+			        InsertCircleButton->setChecked(true);
+			        break;
+		        case VectorialScene::Mode::InsertCapsule:
+			        InsertCapsuleButton->setChecked(true);
+			        break;
+		        case VectorialScene::Mode::InsertPolygon:
+			        InsertPolygonButton->setChecked(true);
+			        break;
+		        }
+	        });
+
+	scene->setMode(VectorialScene::Mode::InsertVector);
+
+
+	connect(scene,
+	        &VectorialScene::polygonCreated,
+	        [](const Polygon * polygon) {
+		        connect(polygon,
+		                &Shape::updated,
+		                [polygon]() {
+			                std::cerr << "Polygon " << polygon << " updated." << std::endl;
+		                });
+			        });
+
 }
 
 MainWindow::~MainWindow() {

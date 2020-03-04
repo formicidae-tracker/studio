@@ -1,6 +1,8 @@
 #include "Polygon.hpp"
 
 #include <QGraphicsScene>
+#include <QStyleOptionGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 
 #include "Handle.hpp"
 
@@ -31,7 +33,7 @@ Polygon::Polygon(const QVector<QPointF> & points,
 		d_handles.push_back(h);
 	}
 
-	setFlags(QGraphicsItem::ItemIsSelectable);
+	setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
 
 Polygon::~Polygon() {
@@ -104,7 +106,9 @@ void Polygon::paint(QPainter * painter,
 	setPen(QPen(actual,LINE_WIDTH));
 	actual.setAlpha(FILL_OPACITY);
 	setBrush(actual);
-	QGraphicsPolygonItem::paint(painter,option,widget);
+	QStyleOptionGraphicsItem myOptions(*option);
+	myOptions.state &= ~QStyle::State_Selected;
+	QGraphicsPolygonItem::paint(painter,&myOptions,widget);
 }
 
 
@@ -124,4 +128,51 @@ void Polygon::update(size_t i) {
 		p[number] = d_handles[i]->pos();
 	}
 	setPolygon(p);
+}
+
+
+
+void Polygon::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	if ( d_moveEvent  ) {
+		e->ignore();
+		return;
+	}
+	d_moveEvent = std::make_shared<QPointF>(e->scenePos());
+	e->accept();
+}
+void Polygon::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	moveUpdate(e->scenePos());
+	e->accept();
+}
+
+void Polygon::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	moveUpdate(e->scenePos());
+	e->accept();
+	emit updated();
+	d_moveEvent.reset();
+}
+
+void Polygon::moveUpdate(const QPointF & newPos) {
+	if ( !d_moveEvent ) {
+		return;
+	}
+
+	QPointF delta = newPos - *d_moveEvent;
+	for ( const auto & h : d_handles ) {
+		h->setPos(h->pos() + delta);
+	}
+	auto p = polygon();
+	for ( auto & vertex : p ) {
+		vertex += delta;
+	}
+	setPolygon(p);
+	*d_moveEvent = newPos;
 }

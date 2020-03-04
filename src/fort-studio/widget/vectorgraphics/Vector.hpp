@@ -1,8 +1,12 @@
 #pragma once
 
-#include <QGraphicsItemGroup>
+#include <QGraphicsPathItem>
 #include "Shape.hpp"
-class Vector : public Shape, public QGraphicsItemGroup {
+
+#include <memory>
+
+
+class Vector : public Shape, public QGraphicsPathItem {
 	Q_OBJECT
 public:
 	const static double ARROW_LENGTH;
@@ -29,6 +33,10 @@ protected:
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;
+
+	void mousePressEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
 
 private:
 	class PrecisionHandle : public QGraphicsItemGroup {
@@ -57,7 +65,8 @@ private:
 	};
 
 	void rebuild();
+	void moveUpdate(const QPointF & newPos);
 
 	PrecisionHandle   * d_start, * d_end;
-	QGraphicsPathItem * d_line;
+	std::shared_ptr<QPointF> d_moveEvent;
 };

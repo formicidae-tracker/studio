@@ -1,11 +1,12 @@
 #include "Circle.hpp"
 
 #include <QGraphicsScene>
+#include <QStyleOptionGraphicsItem>
 
 #include "Handle.hpp"
 
 #include <fort-studio/Utils.hpp>
-
+#include <QGraphicsSceneMouseEvent>
 
 
 
@@ -57,8 +58,9 @@ void Circle::paint(QPainter * painter,
 	setPen(QPen(actual,LINE_WIDTH));
 	actual.setAlpha(FILL_OPACITY);
 	setBrush(actual);
-	QGraphicsEllipseItem::paint(painter,option,widget);
-
+	QStyleOptionGraphicsItem myOptions(*option);
+	myOptions.state &= ~QStyle::State_Selected;
+	QGraphicsEllipseItem::paint(painter,&myOptions,widget);
 }
 
 void Circle::update(bool fixRadius) {
@@ -88,5 +90,42 @@ void Circle::setRadiusFromPos(const QPointF & pos) {
 	auto d = r-c;
 	auto radius = d.norm();
 	d_radius = std::max(20.0,radius);
+	update(true);
+}
+
+void Circle::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	if ( d_moveEvent) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	d_moveEvent = std::make_shared<QPointF>(e->scenePos());
+
+}
+
+void Circle::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+}
+
+void Circle::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+	d_moveEvent.reset();
+	emit updated();
+}
+
+void Circle::moveUpdate(const QPointF & newPos) {
+	auto delta = newPos -*d_moveEvent;
+	*d_moveEvent = newPos;
+	d_center->setPos(d_center->pos() + delta);
 	update(true);
 }

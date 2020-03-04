@@ -4,6 +4,8 @@
 #include <Eigen/Geometry>
 #include <QPen>
 #include <QGraphicsScene>
+#include <QStyleOptionGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 
 #include <fort-studio/Utils.hpp>
 
@@ -15,11 +17,9 @@ Capsule::Capsule(const QPointF & c1, const QPointF & c2,
                  QColor color,
                  QGraphicsItem * parent)
 	: Shape(color,NULL)
-	, QGraphicsItemGroup(parent)
-	, d_path (new QGraphicsPathItem(this)) {
+	, QGraphicsPathItem(parent) {
 	d_radius1 = r1;
 	d_radius2 = r2;
-
 
 	d_c1 = new Handle([this]() {
 		                  updateCenter(d_c1);
@@ -116,9 +116,11 @@ void Capsule::paint(QPainter * painter,
 	line.setAlpha(BORDER_OPACITY);
 	QColor fill = line;
 	fill.setAlpha(FILL_OPACITY);
-	d_path->setPen(QPen(line,LINE_WIDTH));
-	d_path->setBrush(fill);
-	QGraphicsItemGroup::paint(painter,option,widget);
+	setPen(QPen(line,LINE_WIDTH));
+	setBrush(fill);
+	QStyleOptionGraphicsItem myOptions(*option);
+	myOptions.state &= ~QStyle::State_Selected;
+	QGraphicsPathItem::paint(painter,&myOptions,widget);
 
 }
 
@@ -174,7 +176,7 @@ void Capsule::rebuild() {
 
 	QPainterPath path;
 	if (d_radius1 < 1e-6 || d_radius2 < 1e-6 || distance < 1e-6) {
-		d_path->setPath(path);
+		setPath(path);
 		return;
 	}
 
@@ -209,7 +211,45 @@ void Capsule::rebuild() {
 	           startAngle2,
 	           180 + 2*angle * 180.0 / M_PI);
 	path.closeSubpath();
-	d_path->setPath(path);
+	setPath(path);
 
 
+}
+
+void Capsule::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	if ( d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	d_moveEvent = std::make_shared<QPointF>(e->scenePos());
+
+}
+
+void Capsule::mouseMoveEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+}
+
+void Capsule::mouseReleaseEvent(QGraphicsSceneMouseEvent * e) {
+	if ( !d_moveEvent ) {
+		e->ignore();
+		return;
+	}
+	e->accept();
+	moveUpdate(e->scenePos());
+	d_moveEvent.reset();
+	emit updated();
+}
+
+void Capsule::moveUpdate(const QPointF & newPos) {
+	auto delta = newPos - *d_moveEvent;
+	*d_moveEvent = newPos;
+	d_c1->setPos(d_c1->pos() + delta);
+	d_c2->setPos(d_c2->pos() + delta);
+	rebuild();
 }

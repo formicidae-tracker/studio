@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QGraphicsScene>
+#include <QGraphicsItemGroup>
+
 #include <functional>
 
 class Handle;
@@ -35,7 +37,6 @@ public:
 		InsertPolygon = 3,
 		InsertVector  = 4,
 	};
-
 
 	const QColor color() const;
 	Mode mode() const;
@@ -91,6 +92,12 @@ protected:
 
 
 private:
+	class PoseIndicator : public QGraphicsItemGroup {
+	public:
+		PoseIndicator(QGraphicsItem * parent = nullptr);
+		virtual ~PoseIndicator();
+	};
+
 	typedef std::function<void(QGraphicsSceneMouseEvent *mouseEvent)> EventHandler;
 
 
@@ -116,6 +123,8 @@ private:
 	QVector<Capsule*> d_capsules;
 	QVector<Polygon*> d_polygons;
 	QVector<Circle*>  d_circles;
+
+	PoseIndicator * d_poseIndicator;
 };
 
 QDebug operator<<(QDebug, VectorialScene::Mode);

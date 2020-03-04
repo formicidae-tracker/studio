@@ -4,6 +4,8 @@
 #include <QGraphicsEllipseItem>
 #include "Shape.hpp"
 
+#include <memory>
+
 class Handle;
 
 class Circle : public Shape, public QGraphicsEllipseItem {
@@ -30,9 +32,15 @@ protected:
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;
 
+	void mousePressEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
+
 private:
 	void update(bool fixRadius);
+	void moveUpdate(const QPointF & mewPos);
 
 	Handle          * d_center, * d_radiusHandle;
 	qreal             d_radius;
+	std::shared_ptr<QPointF> d_moveEvent;
 };

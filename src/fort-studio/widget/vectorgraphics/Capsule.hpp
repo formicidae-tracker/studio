@@ -4,7 +4,11 @@
 #include "Handle.hpp"
 #include "Shape.hpp"
 
-class Capsule : public Shape, public QGraphicsItemGroup {
+#include <QGraphicsPathItem>
+
+#include <memory>
+
+class Capsule : public Shape, public QGraphicsPathItem {
 	Q_OBJECT
 public:
 	const static qreal MIN_DISTANCE;
@@ -31,13 +35,17 @@ protected:
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;
 
+	void mousePressEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * e) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent * e) override;
+
 private:
 	void updateCenter(Handle * center);
 	void updateRadius(Handle * radius);
 	void rebuild();
+	void moveUpdate(const QPointF & newPos);
 
-
-	Handle            * d_c1,*d_c2,*d_r1,*d_r2;
-	qreal               d_radius1,d_radius2;
-	QGraphicsPathItem * d_path;
+	Handle                 * d_c1,*d_c2,*d_r1,*d_r2;
+	qreal                    d_radius1,d_radius2;
+	std::shared_ptr<QPointF> d_moveEvent;
 };
