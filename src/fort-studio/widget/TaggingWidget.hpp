@@ -8,6 +8,7 @@
 class GlobalPropertyBridge;
 class MeasurementBridge;
 class IdentifierBridge;
+class QSortFilterProxyModel;
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -37,4 +38,5 @@ public slots:
 
 private:
 	Ui::TaggingWidget * d_ui;
+	QSortFilterProxyModel * d_sortedModel;
 };

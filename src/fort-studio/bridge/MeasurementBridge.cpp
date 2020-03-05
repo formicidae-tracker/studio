@@ -179,13 +179,11 @@ void MeasurementBridge::startAll() {
 
 }
 
-#include <iostream>
 
 void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd) {
 	if ( !d_experiment ) {
 		return;
 	}
-	std::cerr << "Loading " << tdd->URI() << std::endl;
 	if ( d_loaders.count(tdd->URI()) != 0 ) {
 		qWarning() << "Already loading '" << tdd->URI().c_str() << "'";
 		return;
@@ -216,6 +214,7 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 
 void MeasurementBridge::cancelAll() {
 	qInfo() << "Cancelling all tag close-up loaders";
+	std::cerr << "cancelling all" << std::endl;
 	for(auto & [uri,l] : d_loaders) {
 		l->cancel();
 	}
@@ -258,6 +257,7 @@ QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
 	auto tagItem = new QStandardItem(QString("tags/%1").arg(TID));
 	tagItem->setEditable(false);
 	tagItem->setData(TID,Qt::UserRole+1);
+	tagItem->setData(TID,Qt::UserRole+2);
 	auto dummyItem = new QStandardItem("");
 	dummyItem->setEditable(false);
 	dummyItem->setData(TID,Qt::UserRole+1);
@@ -272,7 +272,7 @@ QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPt
 	auto tcuItem = new QStandardItem(tcu->URI().c_str());
 	tcuItem->setEditable(false);
 	tcuItem->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
-
+	tcuItem->setData(qulonglong(tcu->Frame().FID()),Qt::UserRole+2);
 	size_t mCount = countMeasurementsForTCU(tcu->URI());
 
 	auto measurementCounts = new QStandardItem(QString("%1").arg(mCount));
@@ -324,6 +324,7 @@ void MeasurementBridge::clearTddTCUs(const std::string & tddURI) {
 
 void MeasurementBridge::clearAllTCUs() {
 	d_tcuModel->clear();
+	d_tcuModel->setHorizontalHeaderLabels({tr("URI"),tr("Nb Measurements"),tr("")});
 	d_closeups.clear();
 	d_counts.clear();
 }

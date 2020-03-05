@@ -13,130 +13,126 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
-   <item>
-    <widget class="QGroupBox" name="tagBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>250</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>400</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Tag Selection</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="familyLabel">
-          <property name="text">
-           <string>Family:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="TagFamilyComboBox" name="familySelector"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="thresholdLabel">
-          <property name="text">
-           <string>B/W Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSpinBox" name="thresholdBox">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>254</number>
-          </property>
-          <property name="value">
-           <number>40</number>
-          </property>
-          <property name="displayIntegerBase">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QTreeView" name="treeView"/>
-      </item>
-      <item>
-       <layout class="QFormLayout" name="formLayout_3">
-        <item row="0" column="0">
-         <widget class="QLabel" name="unusedTagLabel">
-          <property name="text">
-           <string>Unused Tag(s):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="unusedTagDisplay">
-          <property name="text">
-           <string>N.A.</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="missingTagLabel">
-          <property name="text">
-           <string>Missing Tag(s):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="missingTagDisplay">
-          <property name="text">
-           <string>N.A.</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QProgressBar" name="tagCloseUpLoadingProgress">
-        <property name="value">
-         <number>24</number>
-        </property>
-        <property name="format">
-         <string>%v / %m</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QGroupBox" name="tagBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>250</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="title">
+        <string>Tag Selection</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="familyLabel">
+            <property name="text">
+             <string>Family:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="TagFamilyComboBox" name="familySelector"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="thresholdLabel">
+            <property name="text">
+             <string>B/W Threshold:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="thresholdBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>254</number>
+            </property>
+            <property name="value">
+             <number>40</number>
+            </property>
+            <property name="displayIntegerBase">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="unusedTagLabel">
+            <property name="text">
+             <string>Unused Tag(s):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="unusedTagDisplay">
+            <property name="text">
+             <string>N.A.</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="missingTagLabel">
+            <property name="text">
+             <string>Missing Tag(s):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="missingTagDisplay">
+            <property name="text">
+             <string>N.A.</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTreeView" name="treeView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
      <item>
       <widget class="VectorialView" name="snapshotViewer">
        <property name="sizePolicy">
@@ -216,6 +212,22 @@
       </layout>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="tagCloseUpLoadingProgress">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>-1</number>
+     </property>
+     <property name="format">
+      <string>%v / %m</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
