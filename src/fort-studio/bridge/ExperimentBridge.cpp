@@ -39,6 +39,16 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        &GlobalPropertyBridge::detectionSettingChanged,
 	        d_measurements,
 	        &MeasurementBridge::onDetectionSettingChanged);
+
+	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        d_measurements,
+	        &MeasurementBridge::onTDDAdded);
+	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        d_measurements,
+	        &MeasurementBridge::onTDDDeleted);
+
 }
 
 bool ExperimentBridge::isActive() const {

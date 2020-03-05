@@ -20,7 +20,7 @@ public:
 
 	void waitForFinished();
 
-	static fmp::TagCloseUp::List load(const fmp::TagCloseUp::Lister::Loader & l);
+	static fmp::TagCloseUp::List load(fmp::TagCloseUp::Lister::Loader l);
 
 	size_t toDo() const;
 	size_t done() const;
@@ -40,10 +40,11 @@ private slots:
 
 
 private :
-	std::string                             d_tddURI;
-	QFutureWatcher<fmp::TagCloseUp::List> * d_futureWatcher;
-	fmp::TagCloseUp::Lister::Ptr            d_lister;
-	size_t                                  d_done,d_toDo;
+	std::string                                  d_tddURI;
+	QFutureWatcher<fmp::TagCloseUp::List>      * d_futureWatcher;
+	fmp::TagCloseUp::Lister::Ptr                 d_lister;
+	std::vector<fmp::TagCloseUp::Lister::Loader> d_loaders;
+	size_t                                       d_done,d_toDo;
 };
 
 

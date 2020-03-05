@@ -20,7 +20,8 @@ TagCloseUpLoader::TagCloseUpLoader(const fmp::TrackingDataDirectoryConstPtr & td
 	connect(d_futureWatcher,
 	        &QFutureWatcher<fmp::TagCloseUp::List>::resultReadyAt,
 	        this,
-	        &TagCloseUpLoader::onResultReady);
+	        &TagCloseUpLoader::onResultReady,
+	        Qt::QueuedConnection);
 }
 
 size_t TagCloseUpLoader::toDo() const {
@@ -35,7 +36,8 @@ void TagCloseUpLoader::waitForFinished() {
 	d_futureWatcher->waitForFinished();
 }
 
-fmp::TagCloseUp::List TagCloseUpLoader::load(const fmp::TagCloseUp::Lister::Loader & l) {
+
+fmp::TagCloseUp::List TagCloseUpLoader::load(fmp::TagCloseUp::Lister::Loader l) {
 	return l();
 }
 
@@ -45,10 +47,10 @@ void TagCloseUpLoader::cancel() {
 
 void TagCloseUpLoader::start() {
 	qInfo() << "Starting tag close-up loaders for TDD:'" << d_tddURI.c_str() << "'";
-	auto loaders = d_lister->PrepareLoaders();
+	d_loaders = d_lister->PrepareLoaders();
 	d_done = 0;
-	d_toDo = loaders.size();
-	d_futureWatcher->setFuture(QtConcurrent::mapped(loaders,TagCloseUpLoader::load));
+	d_toDo = d_loaders.size();
+	d_futureWatcher->setFuture(QtConcurrent::mapped(d_loaders,&TagCloseUpLoader::load));
 }
 
 void TagCloseUpLoader::onResultReady(int index) {
@@ -120,6 +122,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 }
 
 void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd) {
+	qDebug() << "new TDD";
 	startOne(tdd);
 }
 
@@ -128,7 +131,7 @@ void MeasurementBridge::onTDDDeleted(const QString & tddURI) {
 }
 
 void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family , uint8_t) {
-	if ( d_experiment ) {
+	if ( !d_experiment ) {
 		return;
 	}
 	qDebug() << "[MeasurementBridge]: newDetectionSetting '"
@@ -176,11 +179,13 @@ void MeasurementBridge::startAll() {
 
 }
 
+#include <iostream>
+
 void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd) {
 	if ( !d_experiment ) {
 		return;
 	}
-
+	std::cerr << "Loading " << tdd->URI() << std::endl;
 	if ( d_loaders.count(tdd->URI()) != 0 ) {
 		qWarning() << "Already loading '" << tdd->URI().c_str() << "'";
 		return;
@@ -193,12 +198,14 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 	connect(loader,
 	        &TagCloseUpLoader::newTagCloseUp,
 	        this,
-	        &MeasurementBridge::onNewTagCloseUp);
+	        &MeasurementBridge::onNewTagCloseUp,
+	        Qt::QueuedConnection);
 
 	connect(loader,
 	        &TagCloseUpLoader::progressChanged,
 	        this,
-	        &MeasurementBridge::onLoaderProgressChanged);
+	        &MeasurementBridge::onLoaderProgressChanged,
+	        Qt::QueuedConnection);
 
 	d_loaders.insert(std::make_pair(tdd->URI(),loader));
 	loader->start();

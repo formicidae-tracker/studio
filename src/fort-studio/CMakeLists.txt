@@ -28,7 +28,7 @@ set(SRC_FILES Format.cpp
 			  widget/SpaceChoiceDialog.cpp
 			  widget/MeasurementTypeWidget.cpp
 			  widget/AntListWidget.cpp
-              # TaggingWidget.cpp
+              widget/TaggingWidget.cpp
 			  # SnapshotViewer.cpp
 			  # AntIdentificationWidget.cpp
 			  # QLongSpinBox.cpp
@@ -63,7 +63,7 @@ set(HDR_FILES Format.hpp
 			  widget/SpaceChoiceDialog.hpp
 			  widget/MeasurementTypeWidget.hpp
 			  widget/AntListWidget.hpp
-              # TaggingWidget.hpp
+              widget/TaggingWidget.hpp
 			  # SnapshotViewer.hpp
 			  # AntIdentificationWidget.hpp
 			  # QLongSpinBox.hpp
@@ -80,9 +80,9 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/SpaceChoiceDialog.ui
              widget/MeasurementTypeWidget.ui
              widget/AntListWidget.ui
+             widget/TaggingWidget.ui
 			 # FramePointerWidget.ui
 			 # AntIdentificationWidget.ui
-			 # TaggingWidget.ui
 			 )
 
 set(RCC_FILES )

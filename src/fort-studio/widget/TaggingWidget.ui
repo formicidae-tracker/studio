@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="tagBox">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -30,23 +30,30 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>250</width>
+       <width>400</width>
        <height>16777215</height>
       </size>
      </property>
      <property name="title">
-      <string>Tags</string>
+      <string>Tag Selection</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="1">
-         <widget class="QComboBox" name="familySelector"/>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="familyLabel">
           <property name="text">
            <string>Family:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="TagFamilyComboBox" name="familySelector"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="thresholdLabel">
+          <property name="text">
+           <string>B/W Threshold:</string>
           </property>
          </widget>
         </item>
@@ -66,46 +73,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="thresholdLabel">
-          <property name="text">
-           <string>B/W Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>ROI:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="roiBox">
-          <property name="minimum">
-           <number>100</number>
-          </property>
-          <property name="maximum">
-           <number>1000</number>
-          </property>
-          <property name="singleStep">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
-       <widget class="QTreeWidget" name="tagList">
-        <column>
-         <property name="text">
-          <string notr="true">Tag</string>
-         </property>
-        </column>
-       </widget>
+       <widget class="QTreeView" name="treeView"/>
       </item>
       <item>
        <layout class="QFormLayout" name="formLayout_3">
@@ -152,7 +123,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QProgressBar" name="snapshotProgress">
+       <widget class="QProgressBar" name="tagCloseUpLoadingProgress">
         <property name="value">
          <number>24</number>
         </property>
@@ -167,7 +138,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="SnapshotViewer" name="snapshotViewer">
+      <widget class="VectorialView" name="snapshotViewer">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -244,62 +215,20 @@
        </item>
       </layout>
      </item>
-     <item>
-      <widget class="QTabWidget" name="tabWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="AntIdentificationWidget" name="identificationWidget">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>150</height>
-         </size>
-        </property>
-        <attribute name="title">
-         <string>Identification and Pose</string>
-        </attribute>
-       </widget>
-       <widget class="QWidget" name="tab_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <attribute name="title">
-         <string>Shape</string>
-        </attribute>
-       </widget>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SnapshotViewer</class>
+   <class>VectorialView</class>
    <extends>QGraphicsView</extends>
-   <header location="global">fort-studio/SnapshotViewer.hpp</header>
+   <header location="global">fort-studio/widget/vectorgraphics/VectorialView.hpp</header>
   </customwidget>
   <customwidget>
-   <class>AntIdentificationWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/AntIdentificationWidget.hpp</header>
-   <container>1</container>
+   <class>TagFamilyComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">fort-studio/widget/base/TagFamilyComboBox.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

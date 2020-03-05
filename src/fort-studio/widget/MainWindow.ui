@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="experimentEditor">
        <property name="enabled">
@@ -66,15 +66,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="taggingWidget">
+      <widget class="TaggingWidget" name="taggingWidget">
        <attribute name="title">
         <string>Identification</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="VectorialView" name="graphicsView"/>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="verticalLayout_6"/>
       </widget>
       <widget class="QWidget" name="exploreWidget">
        <attribute name="title">
@@ -392,9 +388,10 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>VectorialView</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">fort-studio/widget/vectorgraphics/VectorialView.hpp</header>
+   <class>TaggingWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/widget/TaggingWidget.hpp</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

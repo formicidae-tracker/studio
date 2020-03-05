@@ -53,86 +53,10 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->universeEditor->setup(d_experiment->universe());
 	d_ui->measurementType->setup(d_experiment->measurements());
 	d_ui->antList->setup(d_experiment->identifier());
-
+	d_ui->taggingWidget->setup(d_experiment->globalProperties(),
+	                           d_experiment->measurements(),
+	                           d_experiment->identifier());
     loadSettings();
-
-    auto scene = new VectorialScene(this);
-	d_ui->graphicsView->setScene(scene);
-	d_ui->graphicsView->setRenderHint(QPainter::Antialiasing,true);
-	d_ui->graphicsView->setMouseTracking(true);
-	scene->setMode(VectorialScene::Mode::InsertPolygon);
-	connect(d_ui->graphicsView,
-	        &VectorialView::zoomed,
-	        scene,
-	        &VectorialScene::onZoomed);
-
-	auto toolbar = addToolBar(tr("test"));
-	auto colorBox = new ColorComboBox(NULL);
-	toolbar->addWidget(colorBox);
-	connect(colorBox,
-	        &ColorComboBox::colorChanged,
-	        scene,
-	        &VectorialScene::setColor);
-	colorBox->setCurrentIndex(2);
-
-	auto buttons = new QButtonGroup(this);
-#define myAddButton(mode) \
-	auto mode ## Button = new QPushButton(tr(#mode)); \
-	connect( mode ## Button, &QPushButton::clicked, \
-	         [scene]() { scene->setMode(VectorialScene::Mode::mode); }); \
-	buttons->addButton(mode ## Button); \
-	mode ## Button->setCheckable(true); \
-	toolbar->addWidget(mode ## Button);
-
-	myAddButton(Edit);
-	myAddButton(InsertVector);
-	myAddButton(InsertCapsule);
-	myAddButton(InsertCircle);
-	myAddButton(InsertPolygon);
-
-
-
-	connect(scene,
-	        &VectorialScene::modeChanged,
-	        buttons,
-	        [=](VectorialScene::Mode mode) {
-		        switch(mode) {
-		        case VectorialScene::Mode::Edit:
-			        EditButton->setChecked(true);
-			        break;
-		        case VectorialScene::Mode::InsertVector:
-			        InsertVectorButton->setChecked(true);
-			        break;
-		        case VectorialScene::Mode::InsertCircle:
-			        InsertCircleButton->setChecked(true);
-			        break;
-		        case VectorialScene::Mode::InsertCapsule:
-			        InsertCapsuleButton->setChecked(true);
-			        break;
-		        case VectorialScene::Mode::InsertPolygon:
-			        InsertPolygonButton->setChecked(true);
-			        break;
-		        }
-	        });
-
-	scene->setMode(VectorialScene::Mode::InsertVector);
-
-
-	connect(scene,
-	        &VectorialScene::polygonCreated,
-	        [](const Polygon * polygon) {
-		        connect(polygon,
-		                &Shape::updated,
-		                [polygon]() {
-			                std::cerr << "Polygon " << polygon << " updated." << std::endl;
-		                });
-		        connect(polygon,
-		                &QObject::destroyed,
-		                [polygon]() {
-			                std::cerr << "Polygon " << polygon << " removed" <<  std::endl;
-		                });
-			        });
-
 }
 
 MainWindow::~MainWindow() {

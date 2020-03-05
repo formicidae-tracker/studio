@@ -70,6 +70,8 @@ public slots:
 	void setColor(const QColor & color);
 
 	void setHandleScaleFactor(double factor);
+
+	void deleteShape(Shape * shape);
 signals:
 	void handleScaleFactorChanged(double factor);
 	void modeChanged(Mode mode);

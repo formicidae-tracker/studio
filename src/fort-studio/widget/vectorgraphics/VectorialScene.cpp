@@ -385,11 +385,17 @@ void VectorialScene::keyPressEvent(QKeyEvent * e) {
 	case Qt::Key_Delete:
 		e->accept();
 		for ( const auto & i : selectedItems() ) {
-			auto s = dynamic_cast<Shape*>(i);
-			s->removeFromScene(this);
-			s->deleteLater();
+			if ( auto s = dynamic_cast<Shape*>(i) ) {
+				deleteShape(s);
+			}
 		}
 	default:
 		e->ignore();
 	}
+}
+
+
+void VectorialScene::deleteShape(Shape * shape) {
+	shape->removeFromScene(this);
+	shape->deleteLater();
 }
