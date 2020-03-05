@@ -21,6 +21,7 @@ public:
 
 
 	void addToScene(QGraphicsScene * scene);
+
 public slots:
 	void setScaleFactor(double factor);
 

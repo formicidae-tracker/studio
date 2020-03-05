@@ -70,6 +70,18 @@ void Capsule::addToScene(QGraphicsScene * scene) {
 	d_r2->addToScene(scene);
 }
 
+void Capsule::removeFromScene(QGraphicsScene * scene) {
+	scene->removeItem(d_r2);
+	scene->removeItem(d_r1);
+	scene->removeItem(d_c2);
+	scene->removeItem(d_c1);
+	scene->removeItem(this);
+	d_r1->deleteLater();
+	d_r2->deleteLater();
+	d_c2->deleteLater();
+	d_c1->deleteLater();
+}
+
 QPointF Capsule::c1Pos() const {
 	return d_c1->pos();
 }
@@ -217,8 +229,8 @@ void Capsule::rebuild() {
 }
 
 void Capsule::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsPathItem::mousePressEvent(e);
 	if ( d_moveEvent ) {
-		e->ignore();
 		return;
 	}
 	e->accept();

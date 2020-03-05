@@ -1,6 +1,7 @@
 #include "VectorialScene.hpp"
 
 #include <QGraphicsSceneMouseEvent>
+#include <QKeyEvent>
 
 #include <QDebug>
 
@@ -21,9 +22,9 @@ VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent)
 	, d_once(true)
 	, d_handleScaleFactor(1.0)
-	, d_poseIndicator(nullptr) {
-	setSceneRect(QRectF(0,0,1200,1200));
-	setBackgroundBrush(QColor(127,127,127));
+	, d_poseIndicator(nullptr)
+	, d_background(nullptr) {
+	setBackgroundPicture("");
 	setMode(Mode::Edit);
 	d_color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(0));
 
@@ -248,7 +249,19 @@ void VectorialScene::clearPoseIndicator() {
 
 
 void VectorialScene::setBackgroundPicture(const QString & filepath) {
-	qWarning() << "Implement me!";
+	if ( d_background ) {
+		removeItem(d_background);
+		delete d_background;
+	}
+	setBackgroundBrush(QColor(127,127,127));
+	if ( filepath.isEmpty() ) {
+		setSceneRect(QRectF(0,0,500,500));
+		return;
+	}
+	d_background = new QGraphicsPixmapItem(filepath);
+	addItem(d_background);
+	setSceneRect(d_background->boundingRect());
+	d_background->setZValue(-100);
 }
 
 
@@ -351,7 +364,7 @@ QDebug operator<<(QDebug debug, VectorialScene::Mode mode) {
 		debug << "VectorialScene::Mode::InsertCircle";
 		break;
 	case VectorialScene::Mode::InsertPolygon:
-		debug << "VectorialScene::Mode::InsertPolygon";
+		debug << "VectorialSxcene::Mode::InsertPolygon";
 		break;
 	case VectorialScene::Mode::InsertCapsule:
 		debug << "VectorialScene::Mode::InsertCapsule";
@@ -360,4 +373,23 @@ QDebug operator<<(QDebug debug, VectorialScene::Mode mode) {
 		debug << "VectorialScene::Mode::" << int(mode);
 	}
 	return debug;
+}
+
+
+void VectorialScene::keyPressEvent(QKeyEvent * e) {
+	if ( mode() != Mode::Edit ) {
+		return;
+	}
+	switch ( e->key() ) {
+	case Qt::Key_Backspace:
+	case Qt::Key_Delete:
+		e->accept();
+		for ( const auto & i : selectedItems() ) {
+			auto s = dynamic_cast<Shape*>(i);
+			s->removeFromScene(this);
+			s->deleteLater();
+		}
+	default:
+		e->ignore();
+	}
 }

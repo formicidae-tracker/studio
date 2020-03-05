@@ -45,6 +45,13 @@ void Circle::addToScene(QGraphicsScene * scene) {
 	d_radiusHandle->addToScene(scene);
 }
 
+void Circle::removeFromScene(QGraphicsScene * scene) {
+	scene->removeItem(d_center);
+	scene->removeItem(d_radiusHandle);
+	scene->removeItem(this);
+	d_radiusHandle->deleteLater();
+	d_center->deleteLater();
+}
 
 void Circle::paint(QPainter * painter,
                    const QStyleOptionGraphicsItem * option,
@@ -94,8 +101,8 @@ void Circle::setRadiusFromPos(const QPointF & pos) {
 }
 
 void Circle::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsEllipseItem::mousePressEvent(e);
 	if ( d_moveEvent) {
-		e->ignore();
 		return;
 	}
 	e->accept();

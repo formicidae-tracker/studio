@@ -47,6 +47,14 @@ void Polygon::addToScene(QGraphicsScene * scene) {
 }
 
 
+void Polygon::removeFromScene(QGraphicsScene * scene) {
+	for ( const auto & h : d_handles ) {
+		scene->removeItem(h);
+		h->deleteLater();
+	}
+	scene->removeItem(this);
+}
+
 Handle * Polygon::appendPoint(const QPointF & point) {
 	auto p = polygon();
 	if ( p.size() > 1 && p.isClosed() == true ) {
@@ -133,8 +141,8 @@ void Polygon::update(size_t i) {
 
 
 void Polygon::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsPolygonItem::mousePressEvent(e);
 	if ( d_moveEvent  ) {
-		e->ignore();
 		return;
 	}
 	d_moveEvent = std::make_shared<QPointF>(e->scenePos());

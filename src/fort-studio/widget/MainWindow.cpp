@@ -126,6 +126,11 @@ MainWindow::MainWindow(QWidget *parent)
 		                [polygon]() {
 			                std::cerr << "Polygon " << polygon << " updated." << std::endl;
 		                });
+		        connect(polygon,
+		                &QObject::destroyed,
+		                [polygon]() {
+			                std::cerr << "Polygon " << polygon << " removed" <<  std::endl;
+		                });
 			        });
 
 }

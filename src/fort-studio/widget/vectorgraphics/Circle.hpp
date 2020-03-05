@@ -20,6 +20,7 @@ public:
 
 
 	void addToScene(QGraphicsScene * scene) override;
+	void removeFromScene(QGraphicsScene * scene) override;
 
 	QPointF pos() const;
 

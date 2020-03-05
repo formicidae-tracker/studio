@@ -89,7 +89,7 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
-
+	void keyPressEvent(QKeyEvent * e) override;
 
 private:
 	class PoseIndicator : public QGraphicsItemGroup {
@@ -125,6 +125,7 @@ private:
 	QVector<Circle*>  d_circles;
 
 	PoseIndicator * d_poseIndicator;
+	QGraphicsPixmapItem * d_background;
 };
 
 QDebug operator<<(QDebug, VectorialScene::Mode);

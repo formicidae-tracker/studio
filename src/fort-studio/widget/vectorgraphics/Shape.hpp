@@ -18,6 +18,7 @@ public :
 	void setColor(const QColor & color);
 
 	virtual void addToScene( QGraphicsScene * scene ) = 0;
+	virtual void removeFromScene( QGraphicsScene * scene ) = 0;
 
 signals:
 	void updated();

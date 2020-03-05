@@ -21,6 +21,7 @@ public:
 	virtual ~Capsule();
 
 	void addToScene(QGraphicsScene * scene) override;
+	void removeFromScene(QGraphicsScene * scene) override;
 
 	void setC2AndRadiusFromPos(const QPointF & pos);
 

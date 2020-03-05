@@ -59,6 +59,14 @@ void Vector::addToScene(QGraphicsScene * scene) {
 	scene->addItem(d_end);
 }
 
+void Vector::removeFromScene(QGraphicsScene * scene) {
+	scene->removeItem(d_end);
+	scene->removeItem(d_start);
+	scene->removeItem(this);
+	delete d_end;
+	delete d_start;
+}
+
 
 QPointF Vector::startPos() const {
 	return d_start->pos();
@@ -176,10 +184,11 @@ void Vector::rebuild() {
 }
 
 void Vector::mousePressEvent(QGraphicsSceneMouseEvent * e) {
+	QGraphicsPathItem::mousePressEvent(e);
 	if ( d_moveEvent ) {
-		e->ignore();
 		return;
 	}
+
 	e->accept();
 	d_moveEvent = std::make_shared<QPointF>(e->scenePos());
 }
