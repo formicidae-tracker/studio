@@ -78,7 +78,6 @@ public:
 		FrameReferenceResolver d_resolver;
 		ByLocalFile            d_cache;
 		std::mutex             d_mutex;
-		ATFamilyPtr            d_atfamily;
 		bool                   d_cacheModified;
 		size_t                 d_parsed;
 	};

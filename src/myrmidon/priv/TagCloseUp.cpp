@@ -11,6 +11,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
@@ -121,7 +122,6 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_family(f)
 	, d_threshold(threshold)
 	, d_resolver(resolver)
-	, d_atfamily(LoadFamily(f))
 	, d_parsed(0) {
 	try {
 		LoadCache();
@@ -268,10 +268,8 @@ TagCloseUp::Lister::CreateDetector() {
 		detector(apriltag_detector_create(),
 		         apriltag_detector_destroy);
 
-	apriltag_detector_add_family(detector.get(),d_atfamily.get());
 	detector->qtp.min_white_black_diff = d_threshold;
 
-	detector->nthreads =1;
 	detector->nthreads = 1;
 	detector->quad_decimate = 1.0;
 	detector->quad_sigma = 0.0;
@@ -311,6 +309,8 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 	std::vector<ConstPtr> tags;
 	auto detector = CreateDetector();
+	auto family = LoadFamily(d_family);
+	apriltag_detector_add_family(detector.get(),family.get());
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
 
@@ -360,7 +360,7 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	res.reserve(files.size());
 
 	for( const auto & [FID,f] : files ) {
-		res.push_back([itself,f,FID,nbFiles]() {
+		res.push_back([=]() {
 			              return itself->LoadFile(f,FID,nbFiles);
 		              });
 	}

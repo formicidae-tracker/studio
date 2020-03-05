@@ -134,6 +134,7 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	                                         80,
 	                                         resolver);
 	auto loaders = lister->PrepareLoaders();
+	lister.reset();
 	ASSERT_EQ(loaders.size(),1);
 	TagCloseUp::ConstPtr computed;
 	auto res = loaders[0]();
