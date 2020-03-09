@@ -1,6 +1,5 @@
 #include "AntPoseEstimate.hpp"
 
-
 namespace fort {
 namespace myrmidon {
 namespace priv {

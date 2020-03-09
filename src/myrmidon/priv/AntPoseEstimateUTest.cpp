@@ -120,7 +120,7 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		  Eigen::Vector2d(0,0),
 		  0.0,
 		  {
-		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(1,0),  0.1 * M_PI),
+		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(1,0),  -0.1 * M_PI),
 		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(-1,0), 2.1 * M_PI),
 		  },
 		 },
@@ -131,8 +131,16 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		  {},
 		 },
 
-		};
+		 {
+		  Eigen::Vector2d(0,0),
+		  M_PI,
+		  {
+		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(0,0),  M_PI),
+		  },
+		 },
 
+		};
+	size_t idx = 0;
 	for (const auto & d : testdata) {
 		Eigen::Vector2d res;
 		double angle;
@@ -140,8 +148,9 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		                                                 d.Poses.begin(),
 		                                                 d.Poses.end()));
 
-		EXPECT_TRUE(VectorAlmostEqual(res,d.ExpectedPosition));
-		EXPECT_NEAR(angle,d.ExpectedAngle,1.0e-8);
+		EXPECT_TRUE(VectorAlmostEqual(res,d.ExpectedPosition)) << "Testing " << idx;
+		EXPECT_NEAR(angle,d.ExpectedAngle,1.0e-8) << "Testing " << idx;
+		++idx;
 	}
 }
 

@@ -137,7 +137,7 @@ void Identification::ComputePositionFromTag(Eigen::Vector2d & position,
                                             const Eigen::Vector2d & tagPosition,
                                             double tagAngle) const {
 	Isometry2Dd tagToOrig(tagAngle,tagPosition);
-	auto antToOrig = d_antToTag * tagToOrig;
+	auto antToOrig = tagToOrig * d_antToTag;
 	position = antToOrig.translation();
 	angle = antToOrig.angle();
 }

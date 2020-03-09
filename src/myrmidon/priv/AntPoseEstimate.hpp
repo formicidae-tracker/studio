@@ -41,7 +41,7 @@ public :
 
 	template <typename iterator_type>
 	static void ComputeMeanPose(Eigen::Vector2d & position,
-	                            double angle,
+	                            double & angle,
 	                            iterator_type begin,
 	                            iterator_type end) {
 		position.setZero();
