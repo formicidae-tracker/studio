@@ -214,7 +214,6 @@ void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd)
 
 void MeasurementBridge::cancelAll() {
 	qInfo() << "Cancelling all tag close-up loaders";
-	std::cerr << "cancelling all" << std::endl;
 	for(auto & [uri,l] : d_loaders) {
 		l->cancel();
 	}

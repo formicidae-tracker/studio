@@ -142,6 +142,8 @@ void AntListWidget::on_colorBox_colorChanged(const QColor & color) {
 
 void AntListWidget::on_addButton_clicked() {
 	d_identifier->createAnt();
+	auto header = d_ui->tableView->horizontalHeader();
+	header->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void AntListWidget::on_deleteButton_clicked() {
