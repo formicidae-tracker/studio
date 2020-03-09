@@ -451,3 +451,11 @@ void IdentifierBridge::unsoloAll() {
 		setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 	}
 }
+
+fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
+                                                         const fm::Time & time) const {
+	if ( !d_experiment ) {
+		return fmp::Identification::ConstPtr();
+	}
+	return d_experiment->ConstIdentifier().Identify(tagID,time);
+}

@@ -132,6 +132,17 @@ bool Identification::UseDefaultTagSize() const {
 	return d_tagSize == DEFAULT_TAG_SIZE;
 }
 
+void Identification::ComputePositionFromTag(Eigen::Vector2d & position,
+                                            double & angle,
+                                            const Eigen::Vector2d & tagPosition,
+                                            double tagAngle) const {
+	Isometry2Dd tagToOrig(tagAngle,tagPosition);
+	auto antToOrig = d_antToTag * tagToOrig;
+	position = antToOrig.translation();
+	angle = antToOrig.angle();
+}
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

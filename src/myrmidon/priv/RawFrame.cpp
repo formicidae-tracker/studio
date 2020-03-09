@@ -67,14 +67,16 @@ IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier
 	res->Width = d_width;
 	res->Height = d_height;
 	res->Positions.reserve(d_tags.size());
+	Eigen::Vector2d position;
+	double angle;
 	for ( const auto & t : d_tags ) {
 		auto identification = identifier.Identify(t.id(),res->FrameTime);
 		if ( !identification ) {
 			continue;
 		}
-		Isometry2Dd tagToOrig(t.theta(),Eigen::Vector2d(t.x(),t.y()));
-		auto antToOrig = identification->AntToTagTransform() * tagToOrig;
-		res->Positions.push_back({antToOrig.translation(),antToOrig.angle(),identification->Target()->ID()});
+		identification->ComputePositionFromTag(position,angle,Eigen::Vector2d(t.x(),t.y()),t.theta());
+		res->Positions.push_back({position,angle,identification->Target()->ID()});
+
 	}
 	return res;
 }

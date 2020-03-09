@@ -10,9 +10,10 @@
 #include <fort-studio/bridge/IdentifierBridge.hpp>
 
 #include <fort-studio/Format.hpp>
+#include <fort-studio/Utils.hpp>
 #include <fort-studio/widget/vectorgraphics/VectorialScene.hpp>
-
-
+#include <fort-studio/widget/vectorgraphics/Vector.hpp>
+#include <fort-studio/widget/base/ColorComboBox.hpp>
 
 
 TaggingWidget::TaggingWidget(QWidget *parent)
@@ -20,6 +21,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	, d_ui(new Ui::TaggingWidget)
 	, d_sortedModel ( new QSortFilterProxyModel(this) )
 	, d_measurements(nullptr)
+	, d_identifier(nullptr)
 	, d_vectorialScene(new VectorialScene) {
 	installEventFilter(this);
 
@@ -37,10 +39,16 @@ TaggingWidget::TaggingWidget(QWidget *parent)
             &VectorialView::zoomed,
             d_vectorialScene,
             &VectorialScene::onZoomed);
+    d_vectorialScene->setColor(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(fmp::Measurement::HEAD_TAIL_TYPE)));
+    connect(d_vectorialScene,
+            &VectorialScene::vectorCreated,
+            this,
+            &TaggingWidget::onVectorCreated);
 }
 
 TaggingWidget::~TaggingWidget() {
     delete d_ui;
+    d_tcu.reset();
 }
 
 
@@ -101,6 +109,13 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        });
 	d_measurements = measurements;
 
+	connect(identifier,
+	        &IdentifierBridge::identificationAntPositionModified,
+	        this,
+	        &TaggingWidget::onIdentificationAntPositionChanged);
+	d_identifier = identifier;
+
+
 }
 
 
@@ -116,8 +131,18 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 	qWarning() << "implements me!";
 }
 
-void TaggingWidget::onIdentificationAntPositionChanged(fmp::IdentificationConstPtr) {
-	qWarning() << "implements me!";
+void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
+	if ( !d_tcu
+	     || identification->TagValue() != d_tcu->TagValue()
+	     || identification->IsValid(d_tcu->Frame().Time()) == false ) {
+		return;
+	}
+	Eigen::Vector2d position;
+	double angle;
+	identification->ComputePositionFromTag(position,angle,d_tcu->TagPosition(),d_tcu->TagAngle());
+	d_vectorialScene->setPoseIndicator(QPointF(position.x(),
+	                                           position.y()),
+	                                   angle);
 }
 
 
@@ -239,11 +264,21 @@ void TaggingWidget::selectRow(int tagRow, int tcuRow) {
 
 
 void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
+	if ( d_tcu == tcu ) {
+		return;
+	}
+
+	d_tcu.reset();
+	for ( const auto & v : d_vectorialScene->vectors() ) {
+		d_vectorialScene->deleteShape(static_cast<Shape*>(v));
+	}
+
 	if ( !tcu ) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
 		return;
 	}
+
 	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
 
 	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
@@ -251,4 +286,93 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	auto & tagPosition = tcu->TagPosition();
 	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
 	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));
+	auto ident = d_identifier->identify(tcu->TagValue(),tcu->Frame().Time());
+	if ( !ident ) {
+		d_vectorialScene->clearPoseIndicator();
+	} else {
+		onIdentificationAntPositionChanged(ident);
+	}
+
+
+	auto m = d_measurements->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	if ( !m ) {
+		d_vectorialScene->setOnce(true);
+		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
+	} else {
+		fmp::Isometry2Dd tagToOrig(tcu->TagAngle(),tcu->TagPosition());
+		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
+		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
+
+		auto vector = d_vectorialScene->appendVector(QPointF(start.x(),
+		                                                     start.y()),
+		                                             QPointF(end.x(),
+		                                                     end.y()));
+		connect(vector,
+		        &Shape::updated,
+		        this,
+		        &TaggingWidget::onVectorUpdated);
+
+		connect(vector,
+		        &QObject::destroyed,
+		        this,
+		        &TaggingWidget::onVectorRemoved);
+
+		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
+	}
+
+	d_tcu = tcu;
+}
+
+
+void TaggingWidget::onVectorUpdated() {
+	if ( !d_tcu ) {
+		qDebug() << "[TaggingWidget]: Vector updated without TCU";
+		return;
+	}
+	if ( d_vectorialScene->vectors().isEmpty() == true ) {
+		qDebug() << "[TaggingWidget]: Vector updated without vector";
+		return;
+	}
+	auto vector = d_vectorialScene->vectors()[0];
+	auto imageToTag = d_tcu->ImageToTag();
+
+	d_measurements->setMeasurement(d_tcu,
+	                               fmp::Measurement::HEAD_TAIL_TYPE,
+	                               vector->startPos(),
+	                               vector->endPos());
+}
+
+void TaggingWidget::onVectorCreated(Vector * vector) {
+	if ( !d_tcu ) {
+		qDebug() << "[TaggingWidget]: Vector created without TCU";
+		return;
+	}
+	d_measurements->setMeasurement(d_tcu,
+	                               fmp::Measurement::HEAD_TAIL_TYPE,
+	                               vector->startPos(),
+	                               vector->endPos());
+
+	connect(vector,
+	        &Shape::updated,
+	        this,
+	        &TaggingWidget::onVectorUpdated);
+
+	connect(vector,
+	        &QObject::destroyed,
+	        this,
+	        &TaggingWidget::onVectorRemoved);
+
+}
+
+
+void TaggingWidget::onVectorRemoved() {
+	if ( !d_tcu ) {
+		return;
+	}
+	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	if ( !m ) {
+		qCritical() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
+		return;
+	}
+	d_measurements->deleteMeasurement(m->URI());
 }

@@ -352,7 +352,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	}
 
 	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
-	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
+	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(end.x(),end.y());
 
 	auto m = std::make_shared<fmp::Measurement>(tcu->URI(),
 	                                            MTID,
@@ -536,4 +536,20 @@ fmp::TagCloseUp::ConstPtr MeasurementBridge::fromTagCloseUpModelIndex(const QMod
 	}
 
 	return d_tcuModel->itemFromIndex(index)->data(Qt::UserRole+1).value<fmp::TagCloseUp::ConstPtr>();
+}
+
+fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tcuURI,
+                                                        fmp::MeasurementTypeID type) {
+	if ( !d_experiment ) {
+		return fmp::Measurement::ConstPtr();
+	}
+	auto tcufi = d_experiment->Measurements().find(tcuURI);
+	if ( tcufi == d_experiment->Measurements().end()) {
+		return fmp::Measurement::ConstPtr();
+	}
+	auto fi = tcufi->second.find(type);
+	if ( fi == tcufi->second.end() ) {
+		return fmp::Measurement::ConstPtr();
+	}
+	return fi->second;
 }

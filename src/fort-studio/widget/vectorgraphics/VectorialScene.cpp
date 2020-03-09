@@ -404,6 +404,19 @@ void VectorialScene::keyPressEvent(QKeyEvent * e) {
 void VectorialScene::deleteShape(Shape * shape) {
 	shape->removeFromScene(this);
 	shape->deleteLater();
+	if ( auto v = dynamic_cast<Vector*>(shape) ) {
+		d_vectors.removeOne(v);
+	}
+	if ( auto c = dynamic_cast<Circle*>(shape) ) {
+		d_circles.removeOne(c);
+	}
+	if ( auto c = dynamic_cast<Capsule*>(shape) ) {
+		d_capsules.removeOne(c);
+	}
+	if ( auto p = dynamic_cast<Polygon*>(shape) ) {
+		d_polygons.removeOne(p);
+	}
+
 }
 
 

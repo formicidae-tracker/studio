@@ -62,6 +62,9 @@ public:
 
 	fmp::TagCloseUp::ConstPtr fromTagCloseUpModelIndex(const QModelIndex & index);
 
+	fmp::MeasurementConstPtr measurement(const std::string & tcuURI,
+	                                     fmp::MeasurementTypeID typeID);
+
 signals:
 	void progressChanged(size_t done, size_t toDo);
 

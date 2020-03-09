@@ -10,6 +10,7 @@ class MeasurementBridge;
 class IdentifierBridge;
 class QSortFilterProxyModel;
 class VectorialScene;
+class Vector;
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -38,6 +39,9 @@ public slots:
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
 
+	void onVectorUpdated();
+	void onVectorCreated(Vector * vector);
+	void onVectorRemoved();
 
 	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
 
@@ -53,5 +57,7 @@ private:
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;
 	MeasurementBridge     * d_measurements;
+	IdentifierBridge      * d_identifier;
 	VectorialScene        * d_vectorialScene;
+	fmp::TagCloseUpConstPtr d_tcu;
 };

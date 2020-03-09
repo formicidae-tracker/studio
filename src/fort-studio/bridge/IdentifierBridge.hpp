@@ -32,7 +32,8 @@ public:
 
 	quint32 numberHiddenAnt() const;
 
-
+	fmp::IdentificationConstPtr identify(fmp::TagID tagID,
+	                                     const fm::Time & time) const;
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
 	void antDeleted(quint32);

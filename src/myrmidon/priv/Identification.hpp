@@ -113,6 +113,11 @@ public:
 		return d_antToTag;
 	}
 
+	void ComputePositionFromTag(Eigen::Vector2d & position,
+	                            double & angle,
+	                            const Eigen::Vector2d & tagPosition,
+	                            double tagAngle) const;
+
 	// Gets the identified Ant
 	// @return an <Ant::Ptr> to the identified Ant
 	//
