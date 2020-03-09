@@ -41,7 +41,7 @@ public slots:
 	void onIdentificationDeleted(fmp::IdentificationConstPtr);
 
 	void onVectorUpdated();
-	void onVectorCreated(Vector * vector);
+	void onVectorCreated(QSharedPointer<Vector> vector);
 	void onVectorRemoved();
 
 	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);

@@ -2,9 +2,12 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>
+#include <QSharedPointer>
 
 #include <functional>
 #include <myrmidon/priv/Types.hpp>
+
+
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -48,16 +51,16 @@ public:
 
 	double handleScaleFactor() const;
 
-	const QVector<Vector*> & vectors() const;
-	const QVector<Capsule*> & capsules() const;
-	const QVector<Polygon*> & polygons() const;
-	const QVector<Circle*> & circles() const;
+	const QVector<QSharedPointer<Vector>> & vectors() const;
+	const QVector<QSharedPointer<Capsule>> & capsules() const;
+	const QVector<QSharedPointer<Polygon>> & polygons() const;
+	const QVector<QSharedPointer<Circle>> & circles() const;
 
-	Circle * appendCircle(const QPointF & center, qreal radius);
-	Capsule * appendCapsule(const QPointF & c1, const QPointF & c2,
-	                        qreal r1, qreal r2);
-	Polygon * appendPolygon(const QVector<QPointF> & vertices);
-	Vector * appendVector(const QPointF & start, const QPointF & end);
+	QSharedPointer<Circle>  appendCircle(const QPointF & center, qreal radius);
+	QSharedPointer<Capsule> appendCapsule(const QPointF & c1, const QPointF & c2,
+	                                      qreal r1, qreal r2);
+	QSharedPointer<Polygon> appendPolygon(const QVector<QPointF> & vertices);
+	QSharedPointer<Vector>  appendVector(const QPointF & start, const QPointF & end);
 
 	void setPoseIndicator(const QPointF & center, double angle);
 	void clearPoseIndicator();
@@ -80,7 +83,7 @@ public slots:
 
 	void setHandleScaleFactor(double factor);
 
-	void deleteShape(Shape * shape);
+	void deleteShape(QSharedPointer<Shape> shape);
 signals:
 	void handleScaleFactorChanged(double factor);
 	void modeChanged(Mode mode);
@@ -88,13 +91,20 @@ signals:
 
 	void colorChanged(const QColor & color);
 
-	void vectorCreated(Vector * vector);
+	void vectorCreated(QSharedPointer<Vector> vector);
+	void vectorRemoved(QSharedPointer<Vector> vector);
 
-	void capsuleCreated(Capsule * capsule);
+	void circleCreated(QSharedPointer<Circle> circle);
+	void circleRemoved(QSharedPointer<Circle> circle);
 
-	void polygonCreated(Polygon * polygon);
+	void capsuleCreated(QSharedPointer<Capsule> capsule);
+	void capsuleRemoved(QSharedPointer<Capsule> capsule);
 
-	void circleCreated(Circle * circle);
+	void polygonCreated(QSharedPointer<Polygon> polygon);
+	void polygonRemoved(QSharedPointer<Polygon> polygon);
+
+
+
 
 protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
@@ -111,9 +121,8 @@ private:
 
 	typedef std::function<void(QGraphicsSceneMouseEvent *mouseEvent)> EventHandler;
 
+	void deleteShapePtr(Shape* shape);
 
-
-	std::vector<Shape*> d_shapes;
 	Mode                d_mode;
 	QColor              d_color;
 	bool                d_once;
@@ -130,10 +139,10 @@ private:
 	EventHandler d_insertCirclePressEH;
 	EventHandler d_insertPolygonPressEH;
 
-	QVector<Vector*>  d_vectors;
-	QVector<Capsule*> d_capsules;
-	QVector<Polygon*> d_polygons;
-	QVector<Circle*>  d_circles;
+	QVector<QSharedPointer<Vector>>  d_vectors;
+	QVector<QSharedPointer<Capsule>> d_capsules;
+	QVector<QSharedPointer<Polygon>> d_polygons;
+	QVector<QSharedPointer<Circle>>  d_circles;
 
 	PoseIndicator        * d_poseIndicator;
 	QGraphicsPixmapItem  * d_background;

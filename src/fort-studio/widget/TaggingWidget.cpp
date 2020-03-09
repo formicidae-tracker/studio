@@ -45,6 +45,11 @@ TaggingWidget::TaggingWidget(QWidget *parent)
             &VectorialScene::vectorCreated,
             this,
             &TaggingWidget::onVectorCreated);
+    connect(d_vectorialScene,
+            &VectorialScene::vectorRemoved,
+            this,
+            &TaggingWidget::onVectorRemoved);
+
     updateButtonStates();
 }
 
@@ -191,8 +196,9 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 		return;
 	}
 	for ( const auto & v : d_vectorialScene->vectors() ) {
-		d_vectorialScene->deleteShape(static_cast<Shape*>(v));
+		d_vectorialScene->deleteShape(v.staticCast<Shape>());
 	}
+	onVectorRemoved();
 }
 
 void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
@@ -334,7 +340,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 
 	d_tcu.reset();
 	for ( const auto & v : d_vectorialScene->vectors() ) {
-		d_vectorialScene->deleteShape(static_cast<Shape*>(v));
+		d_vectorialScene->deleteShape(v.staticCast<Shape>());
 	}
 	d_tcu = tcu;
 	if ( !tcu ) {
@@ -372,15 +378,10 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		                                                     start.y()),
 		                                             QPointF(end.x(),
 		                                                     end.y()));
-		connect(vector,
+		connect(vector.data(),
 		        &Shape::updated,
 		        this,
 		        &TaggingWidget::onVectorUpdated);
-
-		connect(vector,
-		        &QObject::destroyed,
-		        this,
-		        &TaggingWidget::onVectorRemoved);
 
 		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 	}
@@ -409,7 +410,7 @@ void TaggingWidget::onVectorUpdated() {
 	updateButtonStates();
 }
 
-void TaggingWidget::onVectorCreated(Vector * vector) {
+void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 	if ( !d_tcu ) {
 		qDebug() << "[TaggingWidget]: Vector created without TCU";
 		return;
@@ -419,15 +420,10 @@ void TaggingWidget::onVectorCreated(Vector * vector) {
 	                               vector->startPos(),
 	                               vector->endPos());
 
-	connect(vector,
+	connect(vector.data(),
 	        &Shape::updated,
 	        this,
 	        &TaggingWidget::onVectorUpdated);
-
-	connect(vector,
-	        &QObject::destroyed,
-	        this,
-	        &TaggingWidget::onVectorRemoved);
 
 	updateButtonStates();
 

@@ -46,7 +46,7 @@ VectorialScene::VectorialScene(QObject * parent)
 				return;
 			}
 			auto pos = e->scenePos();
-			auto vector = new Vector(pos.x(),pos.y(),pos.x(),pos.y(),d_color);
+			auto vector = QSharedPointer<Vector>(new Vector(pos.x(),pos.y(),pos.x(),pos.y(),d_color));
 			vector->addToScene(this);
 			d_mouseMove =
 				[vector] (QGraphicsSceneMouseEvent *e) {
@@ -76,7 +76,7 @@ VectorialScene::VectorialScene(QObject * parent)
 				return;
 			}
 			auto pos = e->scenePos();
-			auto capsule = new Capsule(pos,pos,0,0,d_color);
+			auto capsule = QSharedPointer<Capsule>(new Capsule(pos,pos,0,0,d_color));
 			capsule->setC2AndRadiusFromPos(pos);
 			capsule->addToScene(this);
 			d_mouseMove =
@@ -107,7 +107,7 @@ VectorialScene::VectorialScene(QObject * parent)
 				return;
 			}
 			auto pos = e->scenePos();
-			auto circle = new Circle(pos,0,d_color);
+			auto circle = QSharedPointer<Circle>(new Circle(pos,0,d_color));
 			circle->setRadiusFromPos(pos);
 			circle->addToScene(this);
 			d_mouseMove =
@@ -138,7 +138,7 @@ VectorialScene::VectorialScene(QObject * parent)
 				return;
 			}
 			auto start = e->scenePos();
-			auto polygon = new Polygon({start},d_color);
+			auto polygon = QSharedPointer<Polygon>(new Polygon({start},d_color));
 			polygon->addToScene(this);
 			d_mouseMove = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
 			d_mouseRelease = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
@@ -175,6 +175,21 @@ VectorialScene::VectorialScene(QObject * parent)
 }
 
 VectorialScene::~VectorialScene() {
+	for ( const auto & v : d_vectors ) {
+		v->removeFromScene(this);
+	}
+
+	for ( const auto & c : d_capsules ) {
+		c->removeFromScene(this);
+	}
+
+	for ( const auto & c : d_circles ) {
+		c->removeFromScene(this);
+	}
+
+	for ( const auto & p : d_polygons ) {
+		p->removeFromScene(this);
+	}
 }
 
 
@@ -194,48 +209,48 @@ double VectorialScene::handleScaleFactor() const {
 	return d_handleScaleFactor;
 }
 
-const QVector<Vector*> & VectorialScene::vectors() const {
+const QVector<QSharedPointer<Vector>> & VectorialScene::vectors() const {
 	return d_vectors;
 }
 
-const QVector<Capsule*> & VectorialScene::capsules() const {
+const QVector<QSharedPointer<Capsule>> & VectorialScene::capsules() const {
 	return d_capsules;
 }
 
-const QVector<Polygon*> & VectorialScene::polygons() const {
+const QVector<QSharedPointer<Polygon>> & VectorialScene::polygons() const {
 	return d_polygons;
 }
 
-const QVector<Circle*> & VectorialScene::circles() const {
+const QVector<QSharedPointer<Circle>> & VectorialScene::circles() const {
 	return d_circles;
 }
 
 
 
-Circle * VectorialScene::appendCircle(const QPointF & center, qreal radius) {
-	auto circle = new Circle(center,radius,d_color);
+QSharedPointer<Circle> VectorialScene::appendCircle(const QPointF & center, qreal radius) {
+	auto circle = QSharedPointer<Circle>(new Circle(center,radius,d_color));
 	circle->addToScene(this);
 	d_circles.push_back(circle);
 	return circle;
 }
 
-Capsule * VectorialScene::appendCapsule(const QPointF & c1, const QPointF & c2,
-                                        qreal r1, qreal r2) {
-	auto capsule = new Capsule(c1,c2,r1,r2,d_color);
+QSharedPointer<Capsule> VectorialScene::appendCapsule(const QPointF & c1, const QPointF & c2,
+                                                      qreal r1, qreal r2) {
+	auto capsule = QSharedPointer<Capsule>(new Capsule(c1,c2,r1,r2,d_color));
 	capsule->addToScene(this);
 	d_capsules.push_back(capsule);
 	return capsule;
 }
 
-Polygon * VectorialScene::appendPolygon(const QVector<QPointF> & vertices) {
-	auto polygon = new Polygon(vertices,d_color);
+QSharedPointer<Polygon> VectorialScene::appendPolygon(const QVector<QPointF> & vertices) {
+	auto polygon = QSharedPointer<Polygon>(new Polygon(vertices,d_color));
 	polygon->addToScene(this);
 	d_polygons.push_back(polygon);
 	return polygon;
 }
 
-Vector * VectorialScene::appendVector(const QPointF & start, const QPointF & end) {
-	auto vector = new Vector(start.x(),start.y(),end.x(),end.y(),d_color);
+QSharedPointer<Vector> VectorialScene::appendVector(const QPointF & start, const QPointF & end) {
+	auto vector = QSharedPointer<Vector>(new Vector(start.x(),start.y(),end.x(),end.y(),d_color));
 	vector->addToScene(this);
 	d_vectors.push_back(vector);
 	return vector;
@@ -403,7 +418,7 @@ void VectorialScene::keyPressEvent(QKeyEvent * e) {
 		e->accept();
 		for ( const auto & i : selectedItems() ) {
 			if ( auto s = dynamic_cast<Shape*>(i) ) {
-				deleteShape(s);
+				deleteShapePtr(s);
 			}
 		}
 	default:
@@ -411,20 +426,43 @@ void VectorialScene::keyPressEvent(QKeyEvent * e) {
 	}
 }
 
+void VectorialScene::deleteShapePtr(Shape * shape) {
+	auto className = QString(shape->metaObject()->className());
+#define implements_lookup_type(Name,name) do {	  \
+		if ( className == #Name ) { \
+			auto fi = std::find_if(d_ ## name ## s.begin(), \
+			                       d_ ## name ## s.end(), \
+			                       [shape](const QSharedPointer<Name> & o ) -> bool { \
+				                       return o.data() == shape; \
+			                       }); \
+			if ( fi != d_ ## name ## s.end() ) { \
+				auto o = *fi; \
+				deleteShape(o); \
+				emit name ## Removed(o); \
+				return; \
+			} \
+		} \
+	} while(0)
 
-void VectorialScene::deleteShape(Shape * shape) {
+	implements_lookup_type(Vector,vector);
+	implements_lookup_type(Capsule,capsule);
+	implements_lookup_type(Circle,circle);
+	implements_lookup_type(Polygon,polygon);
+
+}
+
+void VectorialScene::deleteShape(QSharedPointer<Shape> shape) {
 	shape->removeFromScene(this);
-	shape->deleteLater();
-	if ( auto v = dynamic_cast<Vector*>(shape) ) {
+	if ( auto v = shape.dynamicCast<Vector>() ) {
 		d_vectors.removeOne(v);
 	}
-	if ( auto c = dynamic_cast<Circle*>(shape) ) {
+	if ( auto c = shape.dynamicCast<Circle>() ) {
 		d_circles.removeOne(c);
 	}
-	if ( auto c = dynamic_cast<Capsule*>(shape) ) {
+	if ( auto c = shape.dynamicCast<Capsule>() ) {
 		d_capsules.removeOne(c);
 	}
-	if ( auto p = dynamic_cast<Polygon*>(shape) ) {
+	if ( auto p = shape.dynamicCast<Polygon>() ) {
 		d_polygons.removeOne(p);
 	}
 
