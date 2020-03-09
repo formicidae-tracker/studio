@@ -29,7 +29,6 @@ void VectorialView::resetZoom() {
 
 void VectorialView::zoom(double factor) {
 	scale(factor, factor);
-	qWarning() << "scenePos: " << d_targetScenePos;
 	centerOn(d_targetScenePos);
 	QPointF deltaViewportPos = d_targetViewportPos - QPointF(viewport()->width() / 2.0,
 	                                                         viewport()->height() / 2.0);

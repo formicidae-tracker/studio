@@ -8,10 +8,10 @@
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsSceneMouseEvent>
 
-const double Vector::ARROW_LENGTH = 12;
-const double Vector::ARROW_WIDTH = 5;
-const qreal Vector::PrecisionHandle::SIZE = 10;
-const qreal Vector::PrecisionHandle::LINE_WIDTH = 0.5;
+const double Vector::ARROW_LENGTH = 16;
+const double Vector::ARROW_WIDTH = 8;
+const qreal Vector::PrecisionHandle::SIZE = 15;
+const qreal Vector::PrecisionHandle::LINE_WIDTH = 1.0;
 const qreal Vector::PrecisionHandle::RATIO = 0.1;
 
 

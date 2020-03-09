@@ -34,6 +34,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     d_ui->vectorialView->setScene(d_vectorialScene);
+    d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
     d_vectorialScene->installEventFilter(d_ui->vectorialView);
     connect(d_ui->vectorialView,
             &VectorialView::zoomed,
@@ -306,7 +307,6 @@ void TaggingWidget::previousTagCloseUp() {
 }
 
 void TaggingWidget::selectRow(int tagRow, int tcuRow) {
-	qWarning() << "Selecting " << tagRow << "-" << tcuRow;
 	if (tagRow < 0 || tagRow >= d_sortedModel->rowCount() || tcuRow < 0) {
 		return;
 	}
@@ -440,7 +440,7 @@ void TaggingWidget::onVectorRemoved() {
 	}
 	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
-		qCritical() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
+		qDebug() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
 		return;
 	}
 	d_measurements->deleteMeasurement(m->URI());

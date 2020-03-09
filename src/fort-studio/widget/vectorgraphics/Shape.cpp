@@ -1,7 +1,7 @@
 #include "Shape.hpp"
 
 
-const qreal Shape::LINE_WIDTH = 1.5;
+const qreal Shape::LINE_WIDTH = 2.5;
 const int   Shape::BORDER_OPACITY = 200;
 const int   Shape::FILL_OPACITY = 40;
 

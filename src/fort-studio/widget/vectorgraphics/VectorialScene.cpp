@@ -466,22 +466,27 @@ void VectorialScene::clearStaticPolygon() {
 VectorialScene::PoseIndicator::PoseIndicator(QGraphicsItem * parent )
 	: QGraphicsItemGroup(parent) {
 
-	const static qreal SIZE = 25.0;
+	const static qreal SIZE = 20.0;
+	const static qreal LINE_WIDTH = 6.0;
 
-	auto pathItem = new QGraphicsPathItem(this);
+	auto outerPathItem = new QGraphicsPathItem(this);
+	auto innerPathItem = new QGraphicsPathItem(this);
 	QPainterPath path;
 	path.moveTo(0,0);
 	path.lineTo(2*SIZE,0);
 	path.lineTo(1.5*SIZE,SIZE/2.0);
 	path.moveTo(1.5*SIZE,-SIZE/2.0);
 	path.lineTo(2*SIZE,0);
-	pathItem->setPath(path);
+	outerPathItem->setPen(QPen(QColor(0,0,0),LINE_WIDTH,Qt::SolidLine,Qt::RoundCap));
+	outerPathItem->setPath(path);
 
+	innerPathItem->setPen(QPen(QColor(255,255,255),LINE_WIDTH/2.0,Qt::SolidLine,Qt::RoundCap));
+	innerPathItem->setPath(path);
 
-	auto center = new QGraphicsEllipseItem(-SIZE/2.0,-SIZE/2.0,
-	                                       SIZE,SIZE,
+	auto center = new QGraphicsEllipseItem(-LINE_WIDTH,-LINE_WIDTH,
+	                                       2*LINE_WIDTH,2*LINE_WIDTH,
 	                                       this);
-	center->setPen(QPen(QColor(0,0,0),2.0));
+	center->setPen(QPen(QColor(0,0,0),LINE_WIDTH/4.0));
 	center->setBrush(QColor(255,255,255));
 
 }

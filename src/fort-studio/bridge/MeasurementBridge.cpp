@@ -332,7 +332,6 @@ void MeasurementBridge::clearAllTCUs() {
 	d_counts.clear();
 }
 
-
 void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
                                        fmp::MeasurementType::ID MTID,
                                        QPointF start,
@@ -353,7 +352,6 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 
 	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
 	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(end.x(),end.y());
-
 	auto m = std::make_shared<fmp::Measurement>(tcu->URI(),
 	                                            MTID,
 	                                            startFromTag,
