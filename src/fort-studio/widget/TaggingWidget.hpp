@@ -38,6 +38,7 @@ public slots:
 	void on_treeView_activated(const QModelIndex & index);
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
+	void onIdentificationDeleted(fmp::IdentificationConstPtr);
 
 	void onVectorUpdated();
 	void onVectorCreated(Vector * vector);
@@ -53,6 +54,7 @@ public slots:
 private:
 	void selectRow(int tagRow, int tcuRow);
 	bool eventFilter(QObject * obj, QEvent * event);
+	void updateButtonStates();
 
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;

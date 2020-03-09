@@ -44,6 +44,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
             &VectorialScene::vectorCreated,
             this,
             &TaggingWidget::onVectorCreated);
+    updateButtonStates();
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -113,22 +114,84 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        &IdentifierBridge::identificationAntPositionModified,
 	        this,
 	        &TaggingWidget::onIdentificationAntPositionChanged);
-	d_identifier = identifier;
 
+	connect(identifier,
+	        &IdentifierBridge::identificationCreated,
+	        this,
+	        &TaggingWidget::onIdentificationAntPositionChanged);
+	connect(identifier,
+	        &IdentifierBridge::identificationDeleted,
+	        this,
+	        &TaggingWidget::onIdentificationDeleted);
+
+
+	d_identifier = identifier;
+	setTagCloseUp(fmp::TagCloseUp::Ptr());
 
 }
 
 
 void TaggingWidget::on_addIdentButton_clicked() {
-	qWarning() << "implements me!";
+	if ( !d_tcu ) {
+		return;
+	}
+	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	if ( !m ) {
+		return;
+	}
+
+	if ( !d_identifier->selectedAnt() ) {
+		return;
+	}
+
+	fm::Time::ConstPtr start,end;
+	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
+		qCritical() << "TagID:" << d_tcu->TagValue()
+		            << " already identifies an Ant at Time "
+		            << ToQString(d_tcu->Frame().Time());
+		return;
+	}
+
+
+	d_identifier->addIdentification(d_identifier->selectedAnt()->ID(),
+	                                d_tcu->TagValue(),
+	                                start,end);
+
+	updateButtonStates();
 }
 
 void TaggingWidget::on_newAntButton_clicked() {
-	qWarning() << "implements me!";
+	if ( !d_tcu ) {
+		return;
+	}
+	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	if ( !m ) {
+		return;
+	}
+	fm::Time::ConstPtr start,end;
+	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
+		qCritical() << "TagID:" << d_tcu->TagValue()
+		            << " already identifies an Ant at Time "
+		            << ToQString(d_tcu->Frame().Time());
+		return;
+	}
+
+
+	auto a = d_identifier->createAnt();
+	d_identifier->addIdentification(a->ID(),
+	                                d_tcu->TagValue(),
+	                                start,end);
+
+	updateButtonStates();
 }
 
 void TaggingWidget::on_deletePoseButton_clicked() {
-	qWarning() << "implements me!";
+	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
+		return;
+	}
+	for ( const auto & v : d_vectorialScene->vectors() ) {
+		d_vectorialScene->deleteShape(static_cast<Shape*>(v));
+	}
 }
 
 void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
@@ -143,6 +206,7 @@ void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::Cons
 	d_vectorialScene->setPoseIndicator(QPointF(position.x(),
 	                                           position.y()),
 	                                   angle);
+	updateButtonStates();
 }
 
 
@@ -272,10 +336,11 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	for ( const auto & v : d_vectorialScene->vectors() ) {
 		d_vectorialScene->deleteShape(static_cast<Shape*>(v));
 	}
-
+	d_tcu = tcu;
 	if ( !tcu ) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
+		updateButtonStates();
 		return;
 	}
 
@@ -321,6 +386,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	}
 
 	d_tcu = tcu;
+	updateButtonStates();
 }
 
 
@@ -340,6 +406,7 @@ void TaggingWidget::onVectorUpdated() {
 	                               fmp::Measurement::HEAD_TAIL_TYPE,
 	                               vector->startPos(),
 	                               vector->endPos());
+	updateButtonStates();
 }
 
 void TaggingWidget::onVectorCreated(Vector * vector) {
@@ -362,6 +429,8 @@ void TaggingWidget::onVectorCreated(Vector * vector) {
 	        this,
 	        &TaggingWidget::onVectorRemoved);
 
+	updateButtonStates();
+
 }
 
 
@@ -375,4 +444,41 @@ void TaggingWidget::onVectorRemoved() {
 		return;
 	}
 	d_measurements->deleteMeasurement(m->URI());
+	d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
+	updateButtonStates();
+}
+
+
+void TaggingWidget::updateButtonStates() {
+	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
+		d_ui->newAntButton->setEnabled(false);
+		d_ui->addIdentButton->setEnabled(false);
+		d_ui->deletePoseButton->setEnabled(false);
+		return;
+	}
+	d_ui->deletePoseButton->setEnabled(true);
+
+	auto ident = d_identifier->identify(d_tcu->TagValue(),d_tcu->Frame().Time());
+	if ( ident ) {
+		d_ui->newAntButton->setEnabled(false);
+		d_ui->addIdentButton->setEnabled(false);
+		return;
+	}
+	d_ui->newAntButton->setEnabled(true);
+
+	if ( !d_identifier->selectedAnt() ) {
+		d_ui->addIdentButton->setEnabled(false);
+		return;
+	}
+	d_ui->addIdentButton->setEnabled(true);
+}
+
+void TaggingWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
+	if ( !d_tcu
+	     || d_tcu->TagValue() != ident->TagValue()
+	     || ident->IsValid(d_tcu->Frame().Time()) == false ) {
+		return;
+	}
+	d_vectorialScene->clearPoseIndicator();
+	updateButtonStates();
 }

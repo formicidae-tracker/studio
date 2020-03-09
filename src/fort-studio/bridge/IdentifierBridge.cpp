@@ -41,6 +41,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[IdentifierBridge]: setting new experiment";
 	d_numberSoloAnt = 0;
 	d_numberHiddenAnt = 0;
+	d_selectedAnt.reset();
+	emit antSelected(d_selectedAnt);
 
 	setModified(false);
 	d_model->clear();
@@ -359,6 +361,10 @@ void IdentifierBridge::selectAnt(const QModelIndex & index) {
 	}
 
 	auto ant = d_model->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
+	if ( ant == d_selectedAnt ) {
+		return;
+	}
+	d_selectedAnt = ant;
 	qInfo() << "Selecting Ant" << fmp::Ant::FormatID(ant->ID()).c_str();
 
 	emit antSelected(ant);
@@ -458,4 +464,18 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 		return fmp::Identification::ConstPtr();
 	}
 	return d_experiment->ConstIdentifier().Identify(tagID,time);
+}
+
+fmp::Ant::ConstPtr IdentifierBridge::selectedAnt() const {
+	return d_selectedAnt;
+}
+
+
+bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
+                                           fm::Time::ConstPtr & end,
+                                           fmp::TagID tagID, const fm::Time & time) const {
+	if ( !d_experiment ) {
+		return false;
+	}
+	return d_experiment->ConstIdentifier().FreeRangeContaining(start,end,tagID,time);
 }

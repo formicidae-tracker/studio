@@ -244,12 +244,23 @@ Vector * VectorialScene::appendVector(const QPointF & start, const QPointF & end
 
 void VectorialScene::setPoseIndicator(const QPointF & position, double angle) {
 	if ( d_poseIndicator == nullptr ) {
-
+		d_poseIndicator = new PoseIndicator;
+		addItem(d_poseIndicator);
+		d_poseIndicator->setZValue(-98);
+		d_poseIndicator->setEnabled(false);
 	}
+
+	d_poseIndicator->setPos(position);
+	d_poseIndicator->setRotation(angle*180.0/M_PI);
 }
 
 void VectorialScene::clearPoseIndicator() {
-	qWarning() << "Implement me!";
+	if ( d_poseIndicator == nullptr ) {
+		return;
+	}
+	removeItem(d_poseIndicator);
+	delete d_poseIndicator;
+	d_poseIndicator = nullptr;
 }
 
 
@@ -449,4 +460,31 @@ void VectorialScene::clearStaticPolygon() {
 	}
 	removeItem(d_staticPolygon);
 	delete d_staticPolygon;
+}
+
+
+VectorialScene::PoseIndicator::PoseIndicator(QGraphicsItem * parent )
+	: QGraphicsItemGroup(parent) {
+
+	const static qreal SIZE = 25.0;
+
+	auto pathItem = new QGraphicsPathItem(this);
+	QPainterPath path;
+	path.moveTo(0,0);
+	path.lineTo(2*SIZE,0);
+	path.lineTo(1.5*SIZE,SIZE/2.0);
+	path.moveTo(1.5*SIZE,-SIZE/2.0);
+	path.lineTo(2*SIZE,0);
+	pathItem->setPath(path);
+
+
+	auto center = new QGraphicsEllipseItem(-SIZE/2.0,-SIZE/2.0,
+	                                       SIZE,SIZE,
+	                                       this);
+	center->setPen(QPen(QColor(0,0,0),2.0));
+	center->setBrush(QColor(255,255,255));
+
+}
+
+VectorialScene::PoseIndicator::~PoseIndicator() {
 }

@@ -34,6 +34,13 @@ public:
 
 	fmp::IdentificationConstPtr identify(fmp::TagID tagID,
 	                                     const fm::Time & time) const;
+
+	bool freeRangeContaining(fm::Time::ConstPtr & start,
+	                         fm::Time::ConstPtr & end,
+	                         fmp::TagID tagID, const fm::Time & time) const;
+
+
+	fmp::Ant::ConstPtr selectedAnt() const;
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
 	void antDeleted(quint32);
@@ -55,8 +62,8 @@ public slots:
 	void deleteAnt(quint32 AID);
 	void deleteSelection(const QItemSelection & selection);
 
-	fmp::Identification::Ptr addIdentification(quint32,
-	                                           fmp::TagID TID,
+	fmp::Identification::Ptr addIdentification(quint32 antID,
+	                                           fmp::TagID tagID,
 	                                           const fm::Time::ConstPtr & start,
 	                                           const fm::Time::ConstPtr & end);
 
@@ -95,4 +102,5 @@ private:
 	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_model;
 	quint32              d_numberSoloAnt,d_numberHiddenAnt;
+	fmp::AntPtr          d_selectedAnt;
 };

@@ -362,20 +362,20 @@ TEST_F(IdentifierUTest,AntSelection) {
 	ASSERT_FALSE(!ant[1]);
 	ASSERT_FALSE(!ant[2]);
 
-	EXPECT_EQ(antSelected.count(),0);
+	EXPECT_EQ(antSelected.count(),1);
 
 	identifier->setExperiment(experiment);
 
-	EXPECT_EQ(antSelected.count(),0);
+	EXPECT_EQ(antSelected.count(),2);
 	auto m = identifier->antModel();
 
 	identifier->selectAnt(m->index(0,1));
-	EXPECT_EQ(antSelected.count(),0);
+	EXPECT_EQ(antSelected.count(),2);
 	identifier->selectAnt(m->index(0,2));
-	EXPECT_EQ(antSelected.count(),0);
+	EXPECT_EQ(antSelected.count(),2);
 
 	identifier->selectAnt(m->index(0,0));
-	ASSERT_EQ(antSelected.count(),1);
+	ASSERT_EQ(antSelected.count(),3);
 	EXPECT_EQ(antSelected.last().at(0).value<fmp::Ant::Ptr>().get(),
 	          ant[0].get());
 
