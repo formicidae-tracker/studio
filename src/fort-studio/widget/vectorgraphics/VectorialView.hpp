@@ -15,8 +15,6 @@ public slots:
 signals:
 	void zoomed(double zoomFactor);
 
-protected:
-
 private:
 	void zoom(double factor);
 

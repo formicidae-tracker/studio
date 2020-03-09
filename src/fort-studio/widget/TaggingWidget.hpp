@@ -40,7 +40,15 @@ public slots:
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
 
+	void nextTag();
+	void nextTagCloseUp();
+	void previousTag();
+	void previousTagCloseUp();
+
 private:
+	void selectRow(int tagRow, int tcuRow);
+	bool eventFilter(QObject * obj, QEvent * event);
+
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;
 	MeasurementBridge     * d_measurements;

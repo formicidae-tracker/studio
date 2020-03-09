@@ -216,6 +216,7 @@ Circle * VectorialScene::appendCircle(const QPointF & center, qreal radius) {
 	auto circle = new Circle(center,radius,d_color);
 	circle->addToScene(this);
 	d_circles.push_back(circle);
+	return circle;
 }
 
 Capsule * VectorialScene::appendCapsule(const QPointF & c1, const QPointF & c2,
@@ -223,18 +224,21 @@ Capsule * VectorialScene::appendCapsule(const QPointF & c1, const QPointF & c2,
 	auto capsule = new Capsule(c1,c2,r1,r2,d_color);
 	capsule->addToScene(this);
 	d_capsules.push_back(capsule);
+	return capsule;
 }
 
 Polygon * VectorialScene::appendPolygon(const QVector<QPointF> & vertices) {
 	auto polygon = new Polygon(vertices,d_color);
 	polygon->addToScene(this);
 	d_polygons.push_back(polygon);
+	return polygon;
 }
 
 Vector * VectorialScene::appendVector(const QPointF & start, const QPointF & end) {
 	auto vector = new Vector(start.x(),start.y(),end.x(),end.y(),d_color);
 	vector->addToScene(this);
 	d_vectors.push_back(vector);
+	return vector;
 }
 
 
