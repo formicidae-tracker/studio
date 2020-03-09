@@ -24,6 +24,8 @@ addons:
       - libopencv-imgcodecs-dev
       - libopencv-imgproc-dev
       - libopencv-dev
+      - libxkbcommon-x11-0
+      - libgl1-mesa-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
