@@ -200,9 +200,9 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 void Experiment::DeleteMeasurement(const std::string & URI) {
 	std::string tddURI;
 	FrameID FID;
-	TagID TID;
+	TagID tagID;
 	MeasurementType::ID MTID;
-	Measurement::DecomposeURI(URI,tddURI,FID,TID,MTID);
+	Measurement::DecomposeURI(URI,tddURI,FID,tagID,MTID);
 
 	auto tfi = d_universe->TrackingDataDirectories().find(tddURI);
 	if ( tfi == d_universe->TrackingDataDirectories().end() ) {
@@ -212,8 +212,12 @@ void Experiment::DeleteMeasurement(const std::string & URI) {
 	}
 	auto ref = tfi->second->FrameReferenceAt(FID);
 
+	if ( MTID == Measurement::HEAD_TAIL_TYPE ) {
+		d_identifier->DeleteAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,tagID,Eigen::Vector2d(0,0),0.0));
+	}
 
-	auto tagCloseUpURI = fs::path(tddURI) / "frames" / std::to_string(FID) / "closeups" / std::to_string(TID);
+
+	auto tagCloseUpURI = fs::path(tddURI) / "frames" / std::to_string(FID) / "closeups" / std::to_string(tagID);
 	auto fi = d_measurementByURI.find(tagCloseUpURI.generic_string());
 	if ( fi == d_measurementByURI.end() ){
 		throw std::runtime_error("Unknown measurement '"
@@ -234,7 +238,7 @@ void Experiment::DeleteMeasurement(const std::string & URI) {
 	if ( sfi == d_measurements.end() ) {
 		throw std::logic_error("Sorting error");
 	}
-	auto sffi = sfi->second.find(TID);
+	auto sffi = sfi->second.find(tagID);
 	if (sffi == sfi->second.end() ) {
 		throw std::logic_error("Sorting error");
 	}

@@ -327,6 +327,12 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	for ( const auto & uri : paths ) {
 		e->DeleteMeasurement(uri);
 	}
+	//deleting all measurements set the position to 0
+
+	EXPECT_TRUE(VectorAlmostEqual(identBefore1->AntPosition(),
+	                              Eigen::Vector2d(0.0,0.0)));
+	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
+	                              Eigen::Vector2d(0.0,0.0)));
 
 	EXPECT_THROW({
 			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/1");

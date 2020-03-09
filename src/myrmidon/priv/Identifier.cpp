@@ -266,6 +266,18 @@ void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
 	UpdateIdentificationAntPosition(identification);
 }
 
+void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
+	auto fi = d_tagPoseEstimates.find(ape->TargetTagID());
+	if ( fi == d_tagPoseEstimates.end() ) {
+		return;
+	}
+	fi->second.erase(ape);
+	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	if ( !identification ) {
+		return;
+	}
+	UpdateIdentificationAntPosition(identification);
+}
 
 
 void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {

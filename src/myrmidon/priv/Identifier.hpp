@@ -177,7 +177,9 @@ public:
 	                         TagID tag, const Time & t) const;
 
 
-	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & tpe);
+	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
+
+	void DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
 
 	void SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback);
 
