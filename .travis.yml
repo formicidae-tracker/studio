@@ -37,8 +37,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake  -DCMAKE_BUILD_TYPE=Debug ..
-  - make all
-  - xvfb-run make check
+  - make all myrmidon-tests
+  - src/myrmidon/myrmidon-tests
   - cd ..
 
 after_success:
