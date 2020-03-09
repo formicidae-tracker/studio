@@ -76,6 +76,7 @@ IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier
 		auto antToOrig = identification->AntToTagTransform() * tagToOrig;
 		res->Positions.push_back({antToOrig.translation(),antToOrig.angle(),identification->Target()->ID()});
 	}
+	return res;
 }
 
 
