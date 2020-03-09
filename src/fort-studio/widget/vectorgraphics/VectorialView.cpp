@@ -29,6 +29,7 @@ void VectorialView::resetZoom() {
 
 void VectorialView::zoom(double factor) {
 	scale(factor, factor);
+	qWarning() << "scenePos: " << d_targetScenePos;
 	centerOn(d_targetScenePos);
 	QPointF deltaViewportPos = d_targetViewportPos - QPointF(viewport()->width() / 2.0,
 	                                                         viewport()->height() / 2.0);
@@ -39,20 +40,12 @@ void VectorialView::zoom(double factor) {
 }
 
 bool VectorialView::eventFilter(QObject * object, QEvent * event) {
-	if ( event->type() == QEvent::MouseMove ) {
-		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-		QPointF delta = d_targetViewportPos - mouseEvent->pos();
-		if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5) {
-			d_targetViewportPos = mouseEvent->pos();
-			d_targetScenePos = mapToScene(mouseEvent->pos());
-		}
-		return false;
-	}
-
 	if ( event->type() == QEvent::Wheel ) {
 		QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 		if (QApplication::keyboardModifiers() == Qt::ShiftModifier
 		    && wheelEvent->orientation() == Qt::Vertical ) {
+			d_targetViewportPos = wheelEvent->pos();
+			d_targetScenePos = mapToScene(wheelEvent->pos());
 			double angle = wheelEvent->angleDelta().y();
 			double factor = std::pow(d_zoomFactorBase, angle);
 			zoom(factor);

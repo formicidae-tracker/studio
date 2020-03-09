@@ -32,6 +32,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     d_ui->vectorialView->setScene(d_vectorialScene);
+    d_vectorialScene->installEventFilter(d_ui->vectorialView);
     connect(d_ui->vectorialView,
             &VectorialView::zoomed,
             d_vectorialScene,
@@ -128,13 +129,7 @@ void TaggingWidget::on_treeView_activated(const QModelIndex & index) {
 	if ( !tcu ) {
 		return;
 	}
-	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
-
-	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
-	d_ui->vectorialView->resetZoom();
-	auto & tagPosition = tcu->TagPosition();
-	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
-	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));
+	setTagCloseUp(tcu);
 }
 
 
@@ -240,4 +235,20 @@ void TaggingWidget::selectRow(int tagRow, int tcuRow) {
 	auto index = d_sortedModel->index(tcuRow,0,tagIndex);
 	on_treeView_activated(index);
 	d_ui->treeView->scrollTo(index);
+}
+
+
+void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
+	if ( !tcu ) {
+		d_vectorialScene->setBackgroundPicture("");
+		d_vectorialScene->clearStaticPolygon();
+		return;
+	}
+	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
+
+	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
+	d_ui->vectorialView->resetZoom();
+	auto & tagPosition = tcu->TagPosition();
+	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
+	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));
 }

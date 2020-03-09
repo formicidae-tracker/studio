@@ -30,15 +30,16 @@ public:
 
 
 public slots:
-
 	void on_addIdentButton_clicked();
 	void on_newAntButton_clicked();
 	void on_deletePoseButton_clicked();
 
 	void on_treeView_activated(const QModelIndex & index);
 
-
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
+
+
+	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
 
 	void nextTag();
 	void nextTagCloseUp();
