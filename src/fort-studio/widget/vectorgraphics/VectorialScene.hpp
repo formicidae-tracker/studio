@@ -4,6 +4,10 @@
 #include <QGraphicsItemGroup>
 
 #include <functional>
+#include <myrmidon/priv/Types.hpp>
+
+namespace fmp = fort::myrmidon::priv;
+
 
 class Handle;
 class Vector;
@@ -59,6 +63,11 @@ public:
 	void clearPoseIndicator();
 
 	void setBackgroundPicture(const QString & path);
+
+
+	void setStaticPolygon(const fmp::Vector2dList & corners,
+	                      const QColor & color);
+	void clearStaticPolygon();
 
 public slots:
 	void onZoomed(double factor);
@@ -126,8 +135,9 @@ private:
 	QVector<Polygon*> d_polygons;
 	QVector<Circle*>  d_circles;
 
-	PoseIndicator * d_poseIndicator;
-	QGraphicsPixmapItem * d_background;
+	PoseIndicator        * d_poseIndicator;
+	QGraphicsPixmapItem  * d_background;
+	QGraphicsPolygonItem * d_staticPolygon;
 };
 
 QDebug operator<<(QDebug, VectorialScene::Mode);

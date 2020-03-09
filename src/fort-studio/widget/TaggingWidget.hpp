@@ -9,6 +9,7 @@ class GlobalPropertyBridge;
 class MeasurementBridge;
 class IdentifierBridge;
 class QSortFilterProxyModel;
+class VectorialScene;
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -34,9 +35,14 @@ public slots:
 	void on_newAntButton_clicked();
 	void on_deletePoseButton_clicked();
 
+	void on_treeView_activated(const QModelIndex & index);
+
+
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
 
 private:
-	Ui::TaggingWidget * d_ui;
+	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;
+	MeasurementBridge     * d_measurements;
+	VectorialScene        * d_vectorialScene;
 };

@@ -134,7 +134,7 @@
       </widget>
      </item>
      <item>
-      <widget class="VectorialView" name="snapshotViewer">
+      <widget class="VectorialView" name="vectorialView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>

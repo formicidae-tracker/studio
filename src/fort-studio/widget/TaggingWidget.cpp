@@ -1,23 +1,33 @@
 #include "TaggingWidget.hpp"
 #include "ui_TaggingWidget.h"
 
+
 #include <QSortFilterProxyModel>
 
 #include <fort-studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort-studio/bridge/MeasurementBridge.hpp>
 #include <fort-studio/bridge/IdentifierBridge.hpp>
 
-using namespace fort::myrmidon::priv;
+#include <fort-studio/Format.hpp>
+#include <fort-studio/widget/vectorgraphics/VectorialScene.hpp>
+
 
 
 TaggingWidget::TaggingWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TaggingWidget)
-	, d_sortedModel ( new QSortFilterProxyModel(this) ) {
+	, d_sortedModel ( new QSortFilterProxyModel(this) )
+	, d_measurements(nullptr)
+	, d_vectorialScene(new VectorialScene) {
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
     d_ui->treeView->setModel(d_sortedModel);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    d_ui->vectorialView->setScene(d_vectorialScene);
+    connect(d_ui->vectorialView,
+            &VectorialView::zoomed,
+            d_vectorialScene,
+            &VectorialScene::onZoomed);
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -80,6 +90,7 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 		        d_ui->tagCloseUpLoadingProgress->setMaximum(toDo);
 		        d_ui->tagCloseUpLoadingProgress->setValue(done);
 	        });
+	d_measurements = measurements;
 
 }
 
@@ -98,4 +109,22 @@ void TaggingWidget::on_deletePoseButton_clicked() {
 
 void TaggingWidget::onIdentificationAntPositionChanged(fmp::IdentificationConstPtr) {
 	qWarning() << "implements me!";
+}
+
+
+void TaggingWidget::on_treeView_activated(const QModelIndex & index) {
+	if ( index.parent().isValid() == false || d_measurements == nullptr ) {
+		return;
+	}
+	auto tcu = d_measurements->fromTagCloseUpModelIndex(d_sortedModel->mapToSource(index));
+	if ( !tcu ) {
+		return;
+	}
+	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
+
+	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
+	d_ui->vectorialView->resetZoom();
+	auto & tagPosition = tcu->TagPosition();
+	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
+	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));
 }

@@ -258,10 +258,14 @@ QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
 	tagItem->setEditable(false);
 	tagItem->setData(TID,Qt::UserRole+1);
 	tagItem->setData(TID,Qt::UserRole+2);
-	auto dummyItem = new QStandardItem("");
-	dummyItem->setEditable(false);
-	dummyItem->setData(TID,Qt::UserRole+1);
-	return {tagItem,dummyItem,dummyItem};
+	QList<QStandardItem*> res = {tagItem};
+	for ( size_t i = 0; i < 2; ++i ) {
+		auto dummyItem = new QStandardItem("");
+		dummyItem->setEditable(false);
+		dummyItem->setData(TID,Qt::UserRole+1);
+		res.push_back(dummyItem);
+	}
+	return res;
 }
 
 QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPtr & tcu) {
@@ -524,4 +528,13 @@ void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
 void MeasurementBridge::onLoaderProgressChanged(size_t done, size_t oldDone) {
 	d_done += done - oldDone;
 	emit progressChanged(d_done,d_toDo);
+}
+
+
+fmp::TagCloseUp::ConstPtr MeasurementBridge::fromTagCloseUpModelIndex(const QModelIndex & index) {
+	if ( index.parent().isValid() == false ){
+		return fmp::TagCloseUp::ConstPtr();
+	}
+
+	return d_tcuModel->itemFromIndex(index)->data(Qt::UserRole+1).value<fmp::TagCloseUp::ConstPtr>();
 }

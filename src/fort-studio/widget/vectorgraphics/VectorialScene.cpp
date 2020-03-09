@@ -23,9 +23,9 @@ VectorialScene::VectorialScene(QObject * parent)
 	, d_once(true)
 	, d_handleScaleFactor(1.0)
 	, d_poseIndicator(nullptr)
-	, d_background(nullptr) {
+	, d_background(nullptr)
+	, d_staticPolygon(nullptr) {
 	setBackgroundPicture("");
-	setMode(Mode::Edit);
 	d_color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(0));
 
 	d_editPressEH = [this](QGraphicsSceneMouseEvent *e) {
@@ -171,6 +171,7 @@ VectorialScene::VectorialScene(QObject * parent)
 				};
 		};
 
+	setMode(Mode::Edit);
 }
 
 VectorialScene::~VectorialScene() {
@@ -258,6 +259,7 @@ void VectorialScene::setBackgroundPicture(const QString & filepath) {
 		setSceneRect(QRectF(0,0,500,500));
 		return;
 	}
+	qInfo() << "setting " << filepath;
 	d_background = new QGraphicsPixmapItem(filepath);
 	addItem(d_background);
 	setSceneRect(d_background->boundingRect());
@@ -398,4 +400,36 @@ void VectorialScene::keyPressEvent(QKeyEvent * e) {
 void VectorialScene::deleteShape(Shape * shape) {
 	shape->removeFromScene(this);
 	shape->deleteLater();
+}
+
+
+void VectorialScene::setStaticPolygon(const fmp::Vector2dList & corners,
+                                      const QColor & color) {
+	if ( d_staticPolygon == nullptr ) {
+		d_staticPolygon = new QGraphicsPolygonItem;
+		addItem(d_staticPolygon);
+		d_staticPolygon->setEnabled(false);
+		d_staticPolygon->setZValue(-99);
+	}
+	QVector<QPointF> vertices;
+	for ( const auto & c : corners ) {
+		vertices.push_back(QPointF(c.x(),c.y()));
+	}
+	if ( corners.empty() == false ) {
+		vertices.push_back(QPointF(corners[0].x(),corners[0].y()));
+	}
+	QColor actual(color);
+	actual.setAlpha(Shape::BORDER_OPACITY);
+	d_staticPolygon->setPen(QPen(actual,Shape::LINE_WIDTH));
+	actual.setAlpha(Shape::FILL_OPACITY);
+	d_staticPolygon->setBrush(actual);
+	d_staticPolygon->setPolygon(vertices);
+}
+
+void VectorialScene::clearStaticPolygon() {
+	if ( d_staticPolygon == nullptr ) {
+		return;
+	}
+	removeItem(d_staticPolygon);
+	delete d_staticPolygon;
 }

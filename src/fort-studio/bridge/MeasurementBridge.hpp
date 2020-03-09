@@ -60,6 +60,8 @@ public:
 
 	bool isActive() const override;
 
+	fmp::TagCloseUp::ConstPtr fromTagCloseUpModelIndex(const QModelIndex & index);
+
 signals:
 	void progressChanged(size_t done, size_t toDo);
 
