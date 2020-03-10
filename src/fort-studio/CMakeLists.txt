@@ -14,6 +14,7 @@ set(SRC_FILES Format.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
+			  widget/base/TimeEditorWidget.cpp
 			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
@@ -49,6 +50,7 @@ set(HDR_FILES Format.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
+			  widget/base/TimeEditorWidget.hpp
 			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
@@ -80,6 +82,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/TaggingWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
+             widget/base/TimeEditorWidget.ui
 			 )
 
 set(RCC_FILES )
