@@ -9,7 +9,7 @@ namespace priv {
 TEST_F(MeasurementUTest,CanDecomposeURI) {
 
 	struct TestData {
-		fs::path            ParentURI,TDDURI;
+		std::string         ParentURI,TDDURI;
 		FrameID             FID;
 		TagID               TID;
 		MeasurementType::ID MTID;
@@ -31,15 +31,15 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		              Eigen::Vector2d(),
 		              1.0);
 
-		fs::path            tddURI;
+		std::string         tddURI;
 		FrameID             FID;
 		TagID               TID;
 		MeasurementType::ID MTID;
 
 		EXPECT_NO_THROW(Measurement::DecomposeURI(m.URI(),tddURI,FID,TID,MTID));
 
-		EXPECT_EQ(tddURI.generic_string(),
-		          d.TDDURI.generic_string());
+		EXPECT_EQ(tddURI,
+		          d.TDDURI);
 
 		EXPECT_EQ(FID,
 		          d.FID);
@@ -67,7 +67,7 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 
 	for (const auto & d :errordata) {
 		try {
-			fs::path            tddURI;
+			std::string         tddURI;
 			FrameID             FID;
 			TagID               TID;
 			MeasurementType::ID MTID;

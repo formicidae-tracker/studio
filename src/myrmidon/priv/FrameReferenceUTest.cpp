@@ -34,9 +34,9 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 
 		EXPECT_EQ(os.str(),d.Expected);
 
-		EXPECT_EQ(a.ParentURI().generic_string(),d.ExpectedParentPath.generic_string());
+		EXPECT_EQ(a.ParentURI(),d.ExpectedParentPath);
 		auto expectedURI = d.ExpectedParentPath / "frames" / std::to_string(d.FID);
-		EXPECT_EQ(a.URI().generic_string(), expectedURI.generic_string());
+		EXPECT_EQ(a.URI(), expectedURI);
 	}
 
 }

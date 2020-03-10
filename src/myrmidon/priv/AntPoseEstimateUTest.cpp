@@ -36,16 +36,16 @@ TEST_F(AntPoseEstimateUTest,HaveAnURI) {
 		                                   Eigen::Vector2d(2.0,0.0));
 
 
-		EXPECT_EQ(fromValues.Reference().URI().generic_string(),
-		          d.Reference.URI().generic_string());
+		EXPECT_EQ(fromValues.Reference().URI(),
+		          d.Reference.URI());
 
-		EXPECT_EQ(URI.generic_string(),
-		          d.Expected.generic_string());
-		EXPECT_EQ(fromValues.URI().generic_string(),
-		          d.Expected.generic_string());
+		EXPECT_EQ(URI,
+		          d.Expected);
+		EXPECT_EQ(fromValues.URI(),
+		          d.Expected);
 
-		EXPECT_EQ(fromVectors.URI().generic_string(),
-		          d.Expected.generic_string());
+		EXPECT_EQ(fromVectors.URI(),
+		          d.Expected);
 
 		EXPECT_EQ(fromValues.TargetTagID(),
 		          d.TID);
@@ -120,7 +120,7 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		  Eigen::Vector2d(0,0),
 		  0.0,
 		  {
-		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(1,0),  0.1 * M_PI),
+		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(1,0),  -0.1 * M_PI),
 		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(-1,0), 2.1 * M_PI),
 		  },
 		 },
@@ -131,8 +131,16 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		  {},
 		 },
 
-		};
+		 {
+		  Eigen::Vector2d(0,0),
+		  M_PI,
+		  {
+		   std::make_shared<AntPoseEstimate>(ref,0,Eigen::Vector2d(0,0),  M_PI),
+		  },
+		 },
 
+		};
+	size_t idx = 0;
 	for (const auto & d : testdata) {
 		Eigen::Vector2d res;
 		double angle;
@@ -140,8 +148,9 @@ TEST_F(AntPoseEstimateUTest,CanComputeMeanPose) {
 		                                                 d.Poses.begin(),
 		                                                 d.Poses.end()));
 
-		EXPECT_TRUE(VectorAlmostEqual(res,d.ExpectedPosition));
-		EXPECT_DOUBLE_EQ(angle,d.ExpectedAngle);
+		EXPECT_TRUE(VectorAlmostEqual(res,d.ExpectedPosition)) << "Testing " << idx;
+		EXPECT_NEAR(angle,d.ExpectedAngle,1.0e-8) << "Testing " << idx;
+		++idx;
 	}
 }
 

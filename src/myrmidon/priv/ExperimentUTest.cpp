@@ -14,6 +14,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
+
 void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data.clear();
 	data.reserve(fs::file_size(a));
@@ -26,15 +28,16 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
-		ASSERT_FALSE(e->Spaces().empty());
-		e->Spaces()[0]->AddTrackingDataDirectory(tdd);
 
-		ASSERT_EQ(e->Spaces()[0]->TrackingDataDirectories().size(),2);
+		ASSERT_FALSE(e->Spaces().empty());
+		e->Spaces().begin()->second->AddTrackingDataDirectory(tdd);
+
+		ASSERT_EQ(e->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
 		auto ee = Experiment::Open(TestSetup::Basedir() / "test3.myrmidon");
 
 		ASSERT_FALSE(ee->Spaces().empty());
-		ASSERT_EQ(ee->Spaces()[0]->TrackingDataDirectories().size(),2);
+		ASSERT_EQ(ee->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 
 
 	} catch (const std::exception & e) {
@@ -46,7 +49,7 @@ TEST_F(ExperimentUTest,IOTest) {
 	try{
 		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		ASSERT_FALSE(e->Spaces().empty());
-		auto tdd = e->Spaces()[0]->TrackingDataDirectories();
+		auto tdd = e->Spaces().begin()->second->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
 		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
@@ -82,17 +85,33 @@ TEST_F(ExperimentUTest,IOTest) {
 
 }
 
+
+void ListAllMeasurements(const Experiment::MeasurementByTagCloseUp & measurements,
+                         std::vector<Measurement::ConstPtr> & result) {
+	size_t size = 0;
+	for (const auto & [uri,measurementsByType] : measurements) {
+		size += measurementsByType.size();
+	}
+	result.clear();
+	result.reserve(size);
+	for (const auto & [uri,measurementsByType] : measurements) {
+		for (const auto & [type,m] : measurementsByType ) {
+			result.push_back(m);
+		}
+	}
+}
+
 TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	ExperimentPtr e;
 	TrackingDataDirectory::ConstPtr foo0,foo1;
-	Space::Ptr z;
+	Space::Ptr s;
 	ASSERT_NO_THROW({
 			e = Experiment::NewFile(TestSetup::Basedir() / "new-file.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			foo1 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
-			z = e->CreateSpace("box");
-			z->AddTrackingDataDirectory(foo0);
-			z->AddTrackingDataDirectory(foo1);
+			s = e->CreateSpace("box");
+			s->AddTrackingDataDirectory(foo0);
+			s->AddTrackingDataDirectory(foo1);
 		});
 
 	// It has a default measurment type Measurement::HEAD_TAIL_TYPE called "head-tail"
@@ -107,8 +126,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			//we can't create a new one with the same type
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE,
-			                         "foo");
+			e->CreateMeasurementType("foo",Measurement::HEAD_TAIL_TYPE);
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -131,40 +149,30 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			                                                12.0));
 		},std::runtime_error);
 
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+1);
-
 	EXPECT_NO_THROW({
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE+2,
-			                         "foo");
+			e->CreateMeasurementType("foo");
 		});
-
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+1);
 
 	EXPECT_NO_THROW({
 			// its ok to be clumsy and use the same names for different type
-			e->CreateMeasurementType(Measurement::HEAD_TAIL_TYPE+1,
-			                         "foo");
+			e->CreateMeasurementType("foo");
 		});
 
-	EXPECT_EQ(e->NextAvailableMeasurementTypeID(),
-	          Measurement::HEAD_TAIL_TYPE+3);
 
-	auto tcuPath = foo0->URI() / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
+	auto tcuPath = fs::path(foo0->URI()) / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
 	auto badPath = fs::path("bar.0000") / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
 
-	auto goodCustom = std::make_shared<Measurement>(tcuPath,
+	auto goodCustom = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                                Measurement::HEAD_TAIL_TYPE+1,
 	                                                Eigen::Vector2d(12,1),
 	                                                Eigen::Vector2d(1,12),
 	                                                12.0);
-	auto goodDefault = std::make_shared<Measurement>(tcuPath,
+	auto goodDefault = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                                 Measurement::HEAD_TAIL_TYPE,
 	                                                 Eigen::Vector2d(12,12),
 	                                                 Eigen::Vector2d(10,12),
 	                                                 12.0);
-	auto defaultWithBadPath = std::make_shared<Measurement>(badPath,
+	auto defaultWithBadPath = std::make_shared<Measurement>(badPath.generic_string(),
 	                                                        Measurement::HEAD_TAIL_TYPE,
 	                                                        Eigen::Vector2d(12,12),
 	                                                        Eigen::Vector2d(10,12),
@@ -180,7 +188,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		},std::invalid_argument);
 
 	std::vector<Measurement::ConstPtr> list = {goodCustom, goodDefault, defaultWithBadPath} ;
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),2);
 	auto listContains = [&list](const Measurement::ConstPtr & m) {
 		                    auto fi = std::find_if(list.cbegin(),list.cend(),
@@ -215,36 +223,36 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	};
 	std::vector<MData> mData =
 		{
-		 {foo0,0,0,0},
 		 {foo0,0,0,1},
-		 {foo0,0,1,0},
+		 {foo0,0,0,2},
 		 {foo0,0,1,1},
-		 {foo0,1,0,0},
+		 {foo0,0,1,2},
 		 {foo0,1,0,1},
-		 {foo0,1,1,0},
+		 {foo0,1,0,2},
 		 {foo0,1,1,1},
-		 {foo1,0,0,0},
+		 {foo0,1,1,2},
 		 {foo1,0,0,1},
-		 {foo1,0,1,0},
+		 {foo1,0,0,2},
 		 {foo1,0,1,1},
-		 {foo1,1,0,0},
+		 {foo1,0,1,2},
 		 {foo1,1,0,1},
-		 {foo1,1,1,0},
-		 {foo1,1,1,1}
+		 {foo1,1,0,2},
+		 {foo1,1,1,1},
+		 {foo1,1,1,2}
 		};
-	std::vector<fs::path> paths;
+	std::vector<std::string> paths;
 	paths.reserve(mData.size());
 
 
 
 	for ( const auto & md : mData ) {
-		auto tcuPath = md.TDD->URI()
+		auto tcuPath = fs::path(md.TDD->URI())
 			/ "frames"
 			/ std::to_string(md.TDD->StartFrame() + md.Offset)
 			/ "closeups"
 			/ std::to_string(md.TID);
 
-		auto m = std::make_shared<Measurement>(tcuPath,
+		auto m = std::make_shared<Measurement>(tcuPath.generic_string(),
 		                                       md.MTID,
 		                                       Eigen::Vector2d(12,0),
 		                                       Eigen::Vector2d(0,0),
@@ -272,7 +280,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	std::vector<Experiment::ComputedMeasurement> measurements;
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->ID(),
-	                             0);
+	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
@@ -285,7 +293,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antBefore->ID(),
-	                             0);
+	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
@@ -295,8 +303,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_THROW({
 			e->ComputeMeasurementsForAnt(measurements,
 			                             antAfter->ID() + 100,
-			                             0);
-		},Identifier::UnmanagedAnt);
+			                             1);
+		},Container::UnmanagedObject);
 
 
 	auto antLast = e->Identifier().CreateAnt();
@@ -312,20 +320,26 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antLast->ID(),
-	                             0);
+	                             1);
 	EXPECT_EQ(measurements.size(),0);
 
 
 	for ( const auto & uri : paths ) {
 		e->DeleteMeasurement(uri);
 	}
+	//deleting all measurements set the position to 0
+
+	EXPECT_TRUE(VectorAlmostEqual(identBefore1->AntPosition(),
+	                              Eigen::Vector2d(0.0,0.0)));
+	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
+	                              Eigen::Vector2d(0.0,0.0)));
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/0");
+			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/1");
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("foo.0000/frames/0/closeups/43/measurements/0");
+			e->DeleteMeasurement("foo.0000/frames/0/closeups/43/measurements/1");
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -339,7 +353,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			// contains a tracking data directory
-			e->DeleteSpace(z->URI());
+			e->DeleteSpace(s->SpaceID());
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -359,7 +373,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e->DeleteMeasurementType(Measurement::HEAD_TAIL_TYPE+1);
 		});
 
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),1);
 	EXPECT_TRUE(listContains(goodDefault));
 
@@ -368,7 +382,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			e->DeleteMeasurement(goodDefault->URI());
 		});
 
-	e->ListAllMeasurements(list);
+	ListAllMeasurements(e->Measurements(),list);
 	EXPECT_EQ(list.size(),0);
 
 	EXPECT_NO_THROW({
@@ -377,7 +391,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		});
 
 	EXPECT_NO_THROW({
-			e->DeleteSpace(z->URI());
+			e->DeleteSpace(s->SpaceID());
 		});
 
 

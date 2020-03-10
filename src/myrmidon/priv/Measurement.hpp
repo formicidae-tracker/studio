@@ -38,18 +38,18 @@ public:
 	typedef std::shared_ptr<Measurement>       Ptr;
 	typedef std::shared_ptr<const Measurement> ConstPtr;
 
-	Measurement(const fs::path & parentURI,
+	Measurement(const std::string & parentURI,
 	            MeasurementType::ID TID,
 	            const Eigen::Vector2d & startFromTag,
 	            const Eigen::Vector2d & endFromTag,
 	            double tagSizePx);
 
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
-	fs::path TagCloseUpURI() const;
+	std::string TagCloseUpURI() const;
 
-	static void DecomposeURI(const fs::path & URI,
-	                         fs::path & tddURI,
+	static void DecomposeURI(const std::string & URI,
+	                         std::string & tddURI,
 	                         FrameID & FID,
 	                         TagID & TID,
 	                         MeasurementType::ID & MTID);
@@ -65,7 +65,7 @@ public:
 private:
 	Eigen::Vector2d     d_start,d_end;
 	MeasurementType::ID d_TID;
-	fs::path            d_URI;
+	std::string         d_URI;
 	double              d_tagSizePx;
 
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW

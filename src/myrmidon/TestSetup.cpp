@@ -1,11 +1,12 @@
 #include "TestSetup.hpp"
 
-#include <myrmidon/ExperimentFile.pb.h>
 
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/io/gzip_stream.h>
 #include <fort-hermes/Header.pb.h>
+
+#include <myrmidon/ExperimentFile.pb.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,6 +25,8 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <apriltag/apriltag.h>
+
+#include <myrmidon/priv/proto/IOUtils.hpp>
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -330,7 +333,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 	}
 
-
 	//creates data
 	fm::pb::Experiment e;
 
@@ -340,12 +342,8 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	e.set_threshold(42);
 	e.set_tagfamily(fm::pb::TAG16H5);
 
-	auto z = e.add_zones();
-	z->set_name("box");
-	z->add_trackingdatadirectories("foo.0000");
-
 	auto mt = e.add_custommeasurementtypes();
-	mt->set_id(0);
+	mt->set_id(1);
 	mt->set_name("head-tail");
 
 	fm::pb::FileHeader header;
@@ -373,12 +371,24 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	}
 	l.release_experiment();
 
+	fort::myrmidon::pb::Space s;
+	s.set_id(1);
+	s.set_name("box");
+	s.add_trackingdatadirectories("foo.0000");
+
+	l.set_allocated_space(&s);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+		throw std::runtime_error("could not write space data");
+	}
+	l.release_space();
+
 	for (size_t i = 1; i <=3; ++i) {
 		fort::myrmidon::pb::AntMetadata a;
 		a.set_id(i);
+		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::Palette::Default().At(0));
 		l.set_allocated_antdata(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-			throw std::runtime_error("could not write ant data 1");
+			throw std::runtime_error("could not write ant data " + std::to_string(i));
 		}
 		l.release_antdata();
 	}

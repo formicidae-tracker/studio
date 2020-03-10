@@ -6,9 +6,7 @@
 #include "LocatableTypes.hpp"
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
 class FrameReference : public Identifiable {
@@ -18,13 +16,13 @@ public:
 
 	FrameReference();
 
-	FrameReference(const fs::path & parentURI,
+	FrameReference(const std::string & parentURI,
 	               FrameID frameID,
 	               const fort::myrmidon::Time & Time);
 
 	virtual ~FrameReference();
 
-	const fs::path & ParentURI() const;
+	const std::string & ParentURI() const;
 
 	// The Time of the Frame
 	//
@@ -34,16 +32,16 @@ public:
 	// The FrameID of the frame
 	//
 	// @return the <FrameID> of the designated frame
-	FrameID ID() const;
+	FrameID FID() const;
 
 	// A Path uniquely defining the FramePointer
 	//
 	// @return a fs::path uniquely identifying the Frame
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
 private:
-	fs::path             d_parentURI;
-	fs::path             d_URI;
+	std::string          d_parentURI;
+	std::string          d_URI;
 	FrameID              d_id;
 	fort::myrmidon::Time d_time;
 };

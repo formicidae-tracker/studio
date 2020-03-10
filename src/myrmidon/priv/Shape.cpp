@@ -1,19 +1,36 @@
 #include "Shape.hpp"
 
+#include "Capsule.hpp"
+#include "Circle.hpp"
+#include "Polygon.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Capsule::Capsule(const Eigen::Vector2d & a,
-                 const Eigen::Vector2d & b,
-                 double aRadius,
-                 double bRadius)
-	: d_a(a)
-	, d_b(b)
-	, d_ra(aRadius)
-	, d_rb(bRadius) {
+Shape::Shape(Type type)
+	: d_type(type) {
 }
 
+Shape::~Shape() {
+}
+
+Shape::Type Shape::ShapeType() const {
+	return d_type;
+}
+
+
+#define implement_caster(SType) \
+SType ## ConstPtr Shape::To ## SType(const ConstPtr & s) { \
+	if ( s->ShapeType() != Type::SType ) { \
+		return SType::ConstPtr(); \
+	} \
+	return std::static_pointer_cast<const SType>(s); \
+} \
+
+implement_caster(Capsule);
+implement_caster(Circle);
+implement_caster(Polygon);
 
 } // namespace priv
 } // namespace myrmidon

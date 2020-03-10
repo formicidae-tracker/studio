@@ -8,10 +8,13 @@
 #include "../Time.hpp"
 
 #include "Types.hpp"
+#include "LocatableTypes.hpp"
 
 #include "ForwardDeclaration.hpp"
 
 #include "DeletedReference.hpp"
+
+#include "ContiguousIDContainer.hpp"
 
 namespace fort {
 
@@ -25,6 +28,14 @@ class AntMetadata;
 
 namespace priv {
 
+class IdentifierIF {
+public:
+	typedef std::shared_ptr<IdentifierIF>       Ptr;
+	typedef std::shared_ptr<const IdentifierIF> ConstPtr;
+	virtual IdentificationPtr Identify(TagID tagID, const Time & time) const = 0;
+};
+
+
 // An Identifier identifies Ants through Identification
 //
 // The <Identifier> is responsible to keep track in the the
@@ -33,10 +44,13 @@ namespace priv {
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier {
+class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
+
+
+	typedef std::function<void(const IdentificationPtr & )> OnPositionUpdateCallback;
 
 	// Creates a new Identifier
 	// @return a pointer to an Identifier
@@ -48,6 +62,8 @@ public:
 
 	// For unit test purpose only
 	static Identifier Invalid();
+
+	virtual ~Identifier();
 
 	// A self-referencing pointer
 	//@return a pointer to itself.
@@ -98,12 +114,6 @@ public:
 	// should be deleted before removing the <priv::Ant>
 	void DeleteIdentification(const IdentificationPtr & ident);
 
-	// An exeption when an Ant is not managed by this Identifier
-	class UnmanagedAnt : public std::runtime_error {
-	public:
-		UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept;
-		virtual ~UnmanagedAnt() noexcept {};
-	};
 	// An exeption when a TagID is not managed by this Identifier
 	class UnmanagedTag : public std::runtime_error {
 	public:
@@ -116,17 +126,15 @@ public:
 		UnmanagedIdentification(const Identification & ident) noexcept;
 		virtual ~UnmanagedIdentification() noexcept {};
 	};
-	// An exeption when an Ant is already existing
-	class AlreadyExistingAnt : public std::runtime_error {
-	public:
-		AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept;
-		virtual ~AlreadyExistingAnt() noexcept {};
-	};
 
 	class Accessor {
 	private:
 		static IdentificationList & IdentificationsForTag(Identifier & identifier,TagID tagID);
-		static void UpdateIdentificationAntPosition(Identifier & identifier,Identification & identification);
+		static void UpdateIdentificationAntPosition(Identifier & identifier,
+		                                            const IdentificationPtr & identification);
+		static void UpdateIdentificationAntPosition(Identifier & identifier,
+		                                            Identification * identificationPtr);
+
 	public:
 		friend class Identification;
 	};
@@ -139,7 +147,8 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(TagID tag,const Time & frame) const;
+	IdentificationPtr Identify(TagID tag,const Time & frame) const override;
+
 
 	// Return the first next frame if any where tag is not used
 	Time::ConstPtr UpperUnidentifiedBound(TagID tag, const Time & t) const;
@@ -168,41 +177,55 @@ public:
 	                         TagID tag, const Time & t) const;
 
 
-	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & tpe);
+	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
+
+	void DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
+
+	void SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback);
+
+
+
+	class Compiled : public IdentifierIF {
+	public:
+		typedef std::shared_ptr<const Compiled> ConstPtr;
+		Compiled(const std::unordered_map<TagID,IdentificationList> & identification);
+		virtual ~Compiled();
+
+		IdentificationPtr Identify(TagID tagID, const Time & time) const override;
+
+	private:
+		typedef DenseMap<TagID,IdentificationList> IdentificationsByTagID;
+		IdentificationsByTagID d_identifications;
+	};
+
+	Compiled::ConstPtr Compile() const;
 
 private:
-	class AntPoseTimeComparator {
+	class AntPoseEstimateComparator {
 	public:
 		bool operator() (const AntPoseEstimateConstPtr & a,
-		                 const AntPoseEstimateConstPtr & b);
+		                 const AntPoseEstimateConstPtr & b) const;
 
 	};
 
-	void UpdateIdentificationAntPosition(Identification & identification);
+	void UpdateIdentificationAntPosition(const IdentificationPtr & identification);
 
-	typedef std::set<fort::myrmidon::Ant::ID>            SetOfID;
 	typedef std::unordered_map<TagID,IdentificationList> IdentificationByTagID;
 
-	typedef std::set<AntPoseEstimateConstPtr,
-	                 AntPoseTimeComparator>     AntPoseEstimateList;
-	typedef std::map<TagID,AntPoseEstimateList> AntPoseEstimateByTagID;
+	typedef std::set<AntPoseEstimateConstPtr,AntPoseEstimateComparator>     AntPoseEstimateList;
+	typedef std::map<TagID,AntPoseEstimateList>                             AntPoseEstimateByTagID;
 
 	Identifier();
 	Identifier(const Identifier&) = delete;
 	Identifier & operator=(const Identifier&) = delete;
 
-	fort::myrmidon::Ant::ID NextAvailableID();
 
 
 	std::weak_ptr<Identifier> d_itself;
 
-	AntByID d_ants;
-	SetOfID d_antIDs;
-	bool    d_continuous;
-
-	IdentificationByTagID  d_identifications;
-	AntPoseEstimateByTagID d_tagPoseEstimates;
-
+	IdentificationByTagID    d_identifications;
+	AntPoseEstimateByTagID   d_tagPoseEstimates;
+	OnPositionUpdateCallback d_callback;
 };
 
 

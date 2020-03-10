@@ -30,7 +30,7 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 		data.push_back({"foo\bar\baz",42,103,"foo/bar/baz/frames/42/closeups/103"});
 	}
 
-	TagCloseUp::Vector2dList corners =
+	Vector2dList corners =
 		{
 		 Eigen::Vector2d(0,0),
 		 Eigen::Vector2d(0,0),
@@ -48,7 +48,7 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 		os << t;
 		EXPECT_EQ(os.str(),d.Expected);
 		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FID) / "closeups" / std::to_string(d.TID);
-		EXPECT_EQ(t.URI().generic_string(), expectedURI.generic_string());
+		EXPECT_EQ(t.URI(), expectedURI);
 	}
 
 
@@ -57,7 +57,7 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 
 
 TEST_F(TagCloseUpUTest,CanComputeGeometricValues) {
-	TagCloseUp::Vector2dList corners =
+	Vector2dList corners =
 		{
 		 Eigen::Vector2d(1.0,1.0),
 		 Eigen::Vector2d(2.0,1.0),
@@ -76,7 +76,7 @@ TEST_F(TagCloseUpUTest,CanComputeGeometricValues) {
 
 	for ( const auto &  a : angles ) {
 		Isometry2Dd trans(a,Eigen::Vector2d(2.0,1.0));
-		TagCloseUp::Vector2dList transCorners =
+		Vector2dList transCorners =
 			{
 			 trans * corners[0],
 			 trans * corners[1],
@@ -134,6 +134,7 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	                                         80,
 	                                         resolver);
 	auto loaders = lister->PrepareLoaders();
+	lister.reset();
 	ASSERT_EQ(loaders.size(),1);
 	TagCloseUp::ConstPtr computed;
 	auto res = loaders[0]();
@@ -178,8 +179,8 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	ASSERT_EQ(cachedList.size(),1);
 	auto cached = cachedList[0];
 
-	EXPECT_EQ(computed->Frame().URI().generic_string(),
-	          cached->Frame().URI().generic_string());
+	EXPECT_EQ(computed->Frame().URI(),
+	          cached->Frame().URI());
 
 	EXPECT_EQ(computed->AbsoluteFilePath().generic_string(),
 	          cached->AbsoluteFilePath().generic_string());
@@ -200,6 +201,41 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 
 }
 
+TEST_F(TagCloseUpUTest,ComputesSquareness) {
+	struct TestData {
+		Vector2dList Corners;
+		double Expected;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {
+		  {{1,1},{1,-1},{-1,-1},{-1,1}},
+		  1.0,
+		 },
+		 //this is a triangle, it is not square
+		 {
+		  {{1,1},{1,-1},{-1,-1},{1,1}},
+		  0.0,
+		 },
+		 {
+		  {{11,12},{9,-11},{-11,-10},{-12,9}},
+		  0.8622,
+		 },
+		};
+
+	for ( const auto & d : testdata ) {
+		auto tcu = TagCloseUp(TestSetup::Basedir() / "foo.png",
+		                      FrameReference("",0,Time()),
+		                      0,
+		                      Eigen::Vector2d(0,0),
+		                      0,
+		                      d.Corners);
+		EXPECT_NEAR(tcu.Squareness(),d.Expected,1.0e-3);
+	}
+
+
+}
 
 TEST_F(TagCloseUpUTest,ClassInvariants) {
 

@@ -44,11 +44,11 @@ TEST_F(SpaceUTest,NameCheck) {
 		};
 	auto universe = std::make_shared<Space::Universe>();
 
-	auto good = Space::Universe::Create(universe,"good");
+	auto good = Space::Universe::Create(universe,0,"good");
 	for (const auto & d : testdata) {
 		if (d.Throws == true) {
 			EXPECT_THROW({
-					Space::Universe::Create(universe,d.Name);
+					Space::Universe::Create(universe,0,d.Name);
 					;},Space::InvalidName) << "Testing " << d.Name;
 			EXPECT_THROW({
 					good->SetName(d.Name);
@@ -56,21 +56,25 @@ TEST_F(SpaceUTest,NameCheck) {
 		} else {
 			EXPECT_NO_THROW({
 					good->SetName(d.Name);
-					EXPECT_EQ(good->URI().generic_string(),
+					EXPECT_EQ(good->Name(),
 					          d.Name);
+					EXPECT_EQ(good->URI(),
+					          "spaces/" + std::to_string(good->SpaceID()));
 					good->SetName("good");
 				}) << "Testing " << d.Name;
 
 			EXPECT_NO_THROW({
-					auto res = Space::Universe::Create(universe,d.Name);
-					EXPECT_EQ(res->URI().generic_string(),
+					auto res = Space::Universe::Create(universe,0,d.Name);
+					EXPECT_EQ(res->Name(),
 					          d.Name);
+					EXPECT_EQ(res->URI(),
+					          "spaces/" + std::to_string(res->SpaceID()));
 				}) << "Testing " << d.Name;
 		}
 	}
 
 	EXPECT_THROW({
-			Space::Universe::Create(universe,"good");
+			Space::Universe::Create(universe,0,"good");
 		}, Space::InvalidName);
 
 	universe.reset();
@@ -83,21 +87,21 @@ TEST_F(SpaceUTest,NameCheck) {
 TEST_F(SpaceUTest,CanHoldTDD) {
 
 	auto universe = std::make_shared<Space::Universe>();
-	auto z = Space::Universe::Create(universe,"foo");
+	auto foo = Space::Universe::Create(universe,0,"foo");
 	EXPECT_NO_THROW({
-			z->AddTrackingDataDirectory(s_foo[2]);
-			z->AddTrackingDataDirectory(s_foo[1]);
-			z->AddTrackingDataDirectory(s_foo[0]);
+			foo->AddTrackingDataDirectory(s_foo[2]);
+			foo->AddTrackingDataDirectory(s_foo[1]);
+			foo->AddTrackingDataDirectory(s_foo[0]);
 		});
-	ASSERT_EQ(z->TrackingDataDirectories().size(),3);
+	ASSERT_EQ(foo->TrackingDataDirectories().size(),3);
 
 	// now they are sorted
-	EXPECT_EQ(z->TrackingDataDirectories()[0],s_foo[0]);
-	EXPECT_EQ(z->TrackingDataDirectories()[1],s_foo[1]);
-	EXPECT_EQ(z->TrackingDataDirectories()[2],s_foo[2]);
+	EXPECT_EQ(foo->TrackingDataDirectories()[0],s_foo[0]);
+	EXPECT_EQ(foo->TrackingDataDirectories()[1],s_foo[1]);
+	EXPECT_EQ(foo->TrackingDataDirectories()[2],s_foo[2]);
 
 	try {
-		z->AddTrackingDataDirectory(s_foo[0]);
+		foo->AddTrackingDataDirectory(s_foo[0]);
 		ADD_FAILURE() << "Should have thrown Space::TDDOverlap but nothing is thrown";
 	} catch (const Space::TDDOverlap & e) {
 		EXPECT_EQ(e.A(),s_foo[0]);
@@ -116,24 +120,24 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 
 	EXPECT_THROW({
 			// Still having some data
-			universe->DeleteSpace("foo");
+			universe->DeleteSpace(foo->SpaceID());
 		},Space::SpaceNotEmpty);
 
 	EXPECT_THROW({
-			universe->DeleteSpace("bar");
+			universe->DeleteSpace(foo->SpaceID()+1);
 		},Space::UnmanagedSpace);
 
-	auto z2 = Space::Universe::Create(universe,"bar");
+	auto bar = Space::Universe::Create(universe,0,"bar");
 
 	EXPECT_NO_THROW({
 			//not used by any other zone
-			z2->AddTrackingDataDirectory(s_foo[0]);
+			bar->AddTrackingDataDirectory(s_foo[0]);
 		});
 
 
 	EXPECT_THROW({
-			//used by z
-			z2->AddTrackingDataDirectory(s_foo[2]);
+			//used by foo
+			bar->AddTrackingDataDirectory(s_foo[2]);
 		},Space::TDDAlreadyInUse);
 
 
@@ -141,7 +145,7 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 			// removes data that is associated with foo
 			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
 			// removes the zone is OK now
-			universe->DeleteSpace("bar");
+			universe->DeleteSpace(bar->SpaceID());
 		});
 
 }
@@ -157,7 +161,7 @@ TEST_F(SpaceUTest,ExceptionFormatting) {
 
 	ASSERT_NO_THROW({
 			universe = std::make_shared<Space::Universe>();
-			z = Space::Universe::Create(universe,"z");
+			z = Space::Universe::Create(universe,0,"z");
 			z->AddTrackingDataDirectory(s_foo[1]);
 			z->AddTrackingDataDirectory(s_foo[0]);
 		});
@@ -166,7 +170,7 @@ TEST_F(SpaceUTest,ExceptionFormatting) {
 		{
 		 {
 		  Space::TDDOverlap(s_foo[0],s_foo[0]),
-		  "TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:foo.0000, start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
+		  "TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
 		 },
 		 {
 		  Space::UnmanagedTrackingDataDirectory("doo"),

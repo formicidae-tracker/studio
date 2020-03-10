@@ -22,6 +22,7 @@ configure_file(config.h.in myrmidon-config.h)
 set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/AntMetadata.proto
                 priv/proto/Vector2d.proto
+                priv/proto/Shapes.proto
                 priv/proto/Time.proto
                 priv/proto/TrackingDataDirectory.proto
                 priv/proto/ExperimentFile.proto
@@ -29,6 +30,8 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/TagCloseUpCache.proto
                 priv/proto/TagFamily.proto
                 priv/proto/Measurement.proto
+                priv/proto/Zone.proto
+                priv/proto/Space.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
@@ -47,10 +50,14 @@ include_directories(${PROJECT_BINARY_DIR}/src
 set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
+                      priv/DenseMap.hpp
+                      priv/Color.hpp
                       priv/Space.hpp
+                      priv/Zone.hpp
                       priv/Experiment.hpp
                       priv/Identifier.hpp
                       priv/Ant.hpp
+                      priv/AntShapeType.hpp
                       priv/Identification.hpp
                       priv/SegmentIndexer.hpp
                       priv/TrackingDataDirectory.hpp
@@ -63,6 +70,9 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/MovieSegment.hpp
                       priv/Types.hpp
                       priv/Shape.hpp
+                      priv/Capsule.hpp
+                      priv/Circle.hpp
+                      priv/Polygon.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
                       priv/SnapshotCache.hpp
@@ -74,6 +84,8 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
                       priv/Measurement.hpp
+                      priv/KDTree.hpp
+                      priv/KDTree.impl.hpp
                       )
 
 
@@ -86,10 +98,14 @@ set(HDR_PUBLIC_FILES Frame.hpp
 set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
+                      priv/DenseMap.cpp
+                      priv/Color.cpp
                       priv/Space.cpp
+                      priv/Zone.cpp
                       priv/Experiment.cpp
                       priv/Identifier.cpp
                       priv/Ant.cpp
+                      priv/AntShapeType.cpp
                       priv/SegmentIndexer.cpp
                       priv/Identification.cpp
                       priv/TrackingDataDirectory.cpp
@@ -99,6 +115,9 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
                       priv/Shape.cpp
+                      priv/Capsule.cpp
+                      priv/Circle.cpp
+                      priv/Polygon.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp
                       priv/SnapshotCache.cpp
@@ -110,6 +129,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
+                      priv/KDTree.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -118,11 +138,20 @@ set(SRC_FILES Frame.cpp
 	          Time.cpp
 	          )
 
+set(COMMON_UTEST_SRC_FILES TestSetup.cpp
+                           UtilsUTest.cpp
+                           )
+
+set(COMMON_UTEST_HDR_FILES TestSetup.hpp
+                           UtilsUTest.hpp
+                           )
+
+
 set(SRC_UTEST_FILES main-check.cpp
-                    TestSetup.cpp
-                    UtilsUTest.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
+                    priv/UtilsUTest.cpp
+                    priv/DenseMapUTest.cpp
                     priv/SpaceUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
@@ -143,14 +172,19 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/proto/TDDCacheUTest.cpp
                     priv/AntPoseEstimateUTest.cpp
                     priv/MeasurementUTest.cpp
+                    priv/ShapeUTest.cpp
+                    priv/CircleUTest.cpp
+                    priv/CapsuleUTest.cpp
+                    priv/PolygonUTest.cpp
+                    priv/KDTreeUTest.cpp
                     )
 
 
 
-set(HDR_UTEST_FILES TestSetup.hpp
-                    UtilsUTest.hpp
-                    TimeUTest.hpp
+set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
+                    priv/UtilsUTest.hpp
+                    priv/DenseMapUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
@@ -171,6 +205,11 @@ set(HDR_UTEST_FILES TestSetup.hpp
                     priv/proto/TDDCacheUTest.hpp
                     priv/AntPoseEstimateUTest.hpp
                     priv/MeasurementUTest.hpp
+                    priv/ShapeUTest.hpp
+                    priv/CircleUTest.hpp
+                    priv/CapsuleUTest.hpp
+                    priv/PolygonUTest.hpp
+                    priv/KDTreeUTest.hpp
                     )
 
 add_library(myrmidon SHARED ${SRC_FILES}
@@ -187,11 +226,17 @@ target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
                                ${OpenCV_LIBS}
                                )
 
+add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
+                                         ${COMMON_UTEST_HDR_FILES}
+                                         ${PROTO_HDR}
+                                         )
+target_link_libraries(myrmidon-utest-common gtest)
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}
                               )
 target_link_libraries(myrmidon-tests myrmidon
+                                     myrmidon-utest-common
                                      gtest)
 
 add_test(NAME myrmidon-tests COMMAND myrmidon-tests)
@@ -206,3 +251,6 @@ foreach(h ${HDR_PRIVATE_FILES})
 	list(APPEND MYRMIDON_PRIVATE_DOC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h})
 endforeach(h ${HDR_PRIVATE_FILES})
 set(MYRMIDON_PRIVATE_DOC_FILES ${MYRMIDON_PRIVATE_DOC_FILES} PARENT_SCOPE)
+
+add_executable(benchmarks benchmark/main.cpp)
+target_link_libraries(benchmarks myrmidon)

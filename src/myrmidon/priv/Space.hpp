@@ -4,6 +4,8 @@
 
 #include "LocatableTypes.hpp"
 #include "ForwardDeclaration.hpp"
+#include "Zone.hpp"
+#include "ContiguousIDContainer.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -19,6 +21,7 @@ class SpaceUTest;
 // <TrackingDataDirectory> can only be assigned once in a Space.
 class Space : public Identifiable {
 public:
+	typedef uint32_t                     ID;
 	// A pointer to a Space
 	typedef std::shared_ptr<Space>       Ptr;
 	// A cpnst pointer to a Space
@@ -50,14 +53,14 @@ public:
 	class UnmanagedTrackingDataDirectory : public std::runtime_error {
 	public:
 		// Constructor
-		UnmanagedTrackingDataDirectory(const fs::path & URI) noexcept;
+		UnmanagedTrackingDataDirectory(const std::string & URI) noexcept;
 	};
 
 	// Exception sent when the desired Space is unknown
 	class UnmanagedSpace : public std::runtime_error {
 	public:
 		// Constructor
-		UnmanagedSpace(const fs::path & URI) noexcept;
+		UnmanagedSpace(const std::string & URI) noexcept;
 	};
 
 	// Exception sent when the chosen name is invalid
@@ -81,7 +84,7 @@ public:
 	// another space
 	class TDDAlreadyInUse : public std::runtime_error {
 	public:
-		TDDAlreadyInUse(const fs::path & tddURI, const fs::path & spaceURI);
+		TDDAlreadyInUse(const std::string & tddURI, const std::string & spaceURI);
 	};
 
 
@@ -99,28 +102,40 @@ public:
 	public:
 		typedef std::shared_ptr<Universe> Ptr;
 
-		typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
+		typedef std::map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
-		static Space::Ptr Create(const Ptr & itself, const std::string & name);
+		const static Space::ID NEXT_AVAILABLE_SPACE_ID = 0;
 
-		void DeleteSpace(const fs::path & URI);
+		static Space::Ptr Create(const Ptr & itself,
+		                         Space::ID spaceID,
+		                         const std::string & name);
 
-		void DeleteTrackingDataDirectory(const fs::path & URI);
+		void DeleteSpace(Space::ID spaceID);
 
-		const std::vector<Space::Ptr> & Spaces() const;
+		void DeleteTrackingDataDirectory(const std::string & URI);
+
+		const SpaceByID & Spaces() const;
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
+
+		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+		LocateTrackingDataDirectory(const std::string & tddURI) const;
+
+		Space::Ptr LocateSpace(const std::string & spaceName) const;
+
+
 
 	private:
 		friend class Space;
 
-		std::map<fs::path,Space::Ptr> d_spacesByURI;
-		std::vector<Space::Ptr>       d_spaces;
+		AlmostContiguousIDContainer<Space::ID,Space::Ptr> d_spaces;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
 
-	const fs::path & URI() const;
+	const std::string & URI() const override;
+
+	const std::string & Name() const;
 
 	void SetName(const std::string & name);
 
@@ -128,19 +143,33 @@ public:
 
 	const std::vector<TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
 
-private :
-	Space(const std::string & name, const Universe::Ptr & universe);
+	const static Zone::ID NEXT_AVAILABLE_ID = 0;
 
-	void DeleteTrackingDataDirectory(const fs::path & URI);
+	Zone::Ptr CreateZone(const std::string & name, Zone::ID ID = NEXT_AVAILABLE_ID);
+
+	void DeleteZone(Zone::ID ID);
+
+	const ZoneByID & Zones() const;
+
+	Space::ID SpaceID() const;
+
+private :
+	typedef std::set<Zone::ID> SetOfZoneID;
+	Space(ID spaceID, const std::string & name, const Universe::Ptr & universe);
+
+	void DeleteTrackingDataDirectory(const std::string & URI);
 
 
 	Universe::Ptr LockUniverse() const;
 
-
-	fs::path                d_URI;
+	ID                      d_ID;
+	std::string             d_URI;
+	std::string             d_name;
 	std::weak_ptr<Universe> d_universe;
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
+
+	AlmostContiguousIDContainer<Zone::ID,Zone::Ptr> d_zones;
 };
 
 

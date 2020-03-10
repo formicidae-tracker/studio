@@ -7,6 +7,8 @@ notifications:
   email: false
 
 dist: bionic
+services:
+  - xvfb
 addons:
   apt:
     packages:
@@ -22,6 +24,8 @@ addons:
       - libopencv-imgcodecs-dev
       - libopencv-imgproc-dev
       - libopencv-dev
+      - libxkbcommon-x11-0
+      - libgl1-mesa-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
@@ -33,7 +37,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake  -DCMAKE_BUILD_TYPE=Debug ..
-  - make all check
+  - make all myrmidon-tests
+  - src/myrmidon/myrmidon-tests
   - cd ..
 
 after_success:

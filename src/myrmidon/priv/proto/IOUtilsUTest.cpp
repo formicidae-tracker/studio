@@ -7,12 +7,17 @@
 
 #include <myrmidon/UtilsUTest.hpp>
 
+#include <myrmidon/priv/UtilsUTest.hpp>
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Identifier.hpp>
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/priv/Measurement.hpp>
 #include <myrmidon/priv/Space.hpp>
 #include <myrmidon/TestSetup.hpp>
+#include <myrmidon/priv/Capsule.hpp>
+#include <myrmidon/priv/Circle.hpp>
+#include <myrmidon/priv/Polygon.hpp>
+#include <myrmidon/priv/AntShapeType.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -138,7 +143,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 			});
 		e->Identifier().DeleteIdentification(finalIdent);
 	}
-
 }
 
 TEST_F(IOUtilsUTest,VectorIO) {
@@ -184,35 +188,111 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		Eigen::Vector2d dA(d.AX,d.AY),dB(d.BX,d.BY);
 		auto dC = std::make_shared<Capsule>(dA,dB,d.AR,d.BR);
 		pb::Capsule c,expected;
-		IOUtils::SaveVector(expected.mutable_a(),dA);
-		IOUtils::SaveVector(expected.mutable_b(),dB);
-		expected.set_a_radius(d.AR);
-		expected.set_b_radius(d.BR);
+		IOUtils::SaveVector(expected.mutable_c1(),dA);
+		IOUtils::SaveVector(expected.mutable_c2(),dB);
+		expected.set_r1(d.AR);
+		expected.set_r2(d.BR);
 
 		IOUtils::SaveCapsule(&c,dC);
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCapsule(c);
-		EXPECT_TRUE(VectorAlmostEqual(res->A(),dC->A()));
-		EXPECT_TRUE(VectorAlmostEqual(res->B(),dC->B()));
-		EXPECT_DOUBLE_EQ(res->RadiusA(),dC->RadiusA());
-		EXPECT_DOUBLE_EQ(res->RadiusB(),dC->RadiusB());
+		EXPECT_TRUE(CapsuleEqual(res,dC));
 	}
 
 }
 
+TEST_F(IOUtilsUTest,CircleIO) {
+	struct TestData {
+		double X,Y,R;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    0.0,0.0,1.0,
+		   },
+		   {
+		    1.0,1.0,0.5
+		   },
+	};
+	for ( const auto & d: testdata ) {
+		Eigen::Vector2d dCenter(d.X,d.Y);
+		auto dC = std::make_shared<Circle>(dCenter,d.R);
+		pb::Circle c,expected;
+		IOUtils::SaveVector(expected.mutable_center(),dCenter);
+		expected.set_radius(d.R);
+
+		IOUtils::SaveCircle(&c,dC);
+		EXPECT_TRUE(MessageEqual(c,expected));
+
+		auto res = IOUtils::LoadCircle(c);
+		EXPECT_TRUE(CircleEqual(res,dC));
+	}
+}
+
+TEST_F(IOUtilsUTest,PolygonIO) {
+	struct TestData {
+		Vector2dList Vertices;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {Vector2dList({{-1,-1},{1,-1},{1,1},{-1,1}})},
+	};
+
+	for ( const auto & d: testdata ) {
+		auto dP = std::make_shared<Polygon>(d.Vertices);
+		pb::Polygon p,expected;
+		for ( const auto & v : d.Vertices ) {
+			IOUtils::SaveVector(expected.add_vertices(),v);
+		}
+
+		IOUtils::SavePolygon(&p,dP);
+		EXPECT_TRUE(MessageEqual(p,expected));
+
+		auto res = IOUtils::LoadPolygon(p);
+		EXPECT_TRUE(PolygonEqual(res,dP));
+	}
+}
+
+TEST_F(IOUtilsUTest,ShapeIO) {
+	std::vector<Shape::Ptr> shapes
+		={
+		  std::make_shared<Circle>(Eigen::Vector2d(1,2),3),
+		  std::make_shared<Capsule>(Eigen::Vector2d(1,2),Eigen::Vector2d(3,4),1,0.9),
+		  std::make_shared<Polygon>(Vector2dList({{1,2},{3,4},{1,1},{12,0}})),
+	};
+
+	for ( const auto dS : shapes ) {
+		pb::Shape s;
+		IOUtils::SaveShape(&s,dS);
+		size_t i = 0;
+		if ( s.has_circle() ) { ++i; }
+		if ( s.has_capsule() ) { ++i; }
+		if ( s.has_polygon() ) { ++i; }
+		EXPECT_EQ(i,1);
+		auto res = IOUtils::LoadShape(s);
+		EXPECT_TRUE(ShapeEqual(res,dS));
+	}
+}
+
+
+
 
 TEST_F(IOUtilsUTest,AntIO) {
 	struct IdentificationData {
-		Time::ConstPtr Start,End;
-		double X,Y,Angle;
-		TagID Value;
+		Time::ConstPtr    Start,End;
+		double            X,Y,Angle;
+		TagID             Value;
 	};
 
 
 	struct TestData {
 		std::vector<IdentificationData> IData;
 		std::vector<CapsulePtr>         Capsules;
+		Color                           DisplayColor;
+		Ant::DisplayState               DisplayState;
 	};
 
 	std::vector<TestData> testdata
@@ -238,11 +318,13 @@ TEST_F(IOUtilsUTest,AntIO) {
 		                               Eigen::Vector2d(6.1,8.9),
 		                               5.0,-3.0)
 		    },
+		    {127,56,94},
+		    Ant::DisplayState::SOLO,
 		   },
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
-
+	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier().CreateAnt();
 		std::vector<Identification::Ptr> dIdents;
@@ -259,10 +341,17 @@ TEST_F(IOUtilsUTest,AntIO) {
 		}
 
 		for ( const auto & c : d.Capsules ) {
-			dA->AddCapsule(c);
-			IOUtils::SaveCapsule(expected.mutable_shape()->add_capsules(),
+			e->AddCapsuleToAnt(dA,shapeType->TypeID(),c);
+			auto sPb = expected.add_shape();
+			sPb->set_type(shapeType->TypeID());
+			IOUtils::SaveCapsule(sPb->mutable_capsule(),
 			                     c);
 		}
+
+		dA->SetDisplayColor(d.DisplayColor);
+		IOUtils::SaveColor(expected.mutable_color(),d.DisplayColor);
+		dA->SetDisplayStatus(d.DisplayState);
+		expected.set_displaystate(IOUtils::SaveAntDisplayState(d.DisplayState));
 
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
@@ -303,28 +392,33 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 		}
 
-		EXPECT_EQ(res->Shape().size(),
+		EXPECT_EQ(res->Capsules().size(),
 		          d.Capsules.size());
 		for(size_t i = 0;
-		    i < std::min(d.Capsules.size(),res->Shape().size());
+		    i < std::min(d.Capsules.size(),res->Capsules().size());
 		    ++i) {
-			auto c = res->Shape()[i];
+			auto c = res->Capsules()[i].second;
 			auto ce = d.Capsules[i];
-			EXPECT_TRUE(VectorAlmostEqual(c->A(),ce->A()));
-			EXPECT_TRUE(VectorAlmostEqual(c->B(),ce->B()));
-			EXPECT_DOUBLE_EQ(c->RadiusA(),ce->RadiusA());
-			EXPECT_DOUBLE_EQ(c->RadiusB(),ce->RadiusB());
+			EXPECT_EQ(res->Capsules()[i].first,shapeType->TypeID());
+			EXPECT_TRUE(CapsuleEqual(c,ce));
 		}
 
-	}
+		EXPECT_EQ(res->DisplayColor(),
+		          d.DisplayColor);
 
+		EXPECT_EQ(res->DisplayStatus(),
+		          dA->DisplayStatus());
+	}
 }
+
+
+
 
 TEST_F(IOUtilsUTest,MeasurementIO) {
 	struct TestData {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		Eigen::Vector2d       Start,End;
-		fs::path              ParentURI;
+		std::string           ParentURI;
 		MeasurementType::ID   TID;
 		double                TagSizePx;
 	};
@@ -346,7 +440,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		                                        d.End,
 		                                        d.TagSizePx);
 		pb::Measurement expected,pbRes;
-		expected.set_tagcloseupuri(d.ParentURI.generic_string());
+		expected.set_tagcloseupuri(d.ParentURI);
 		expected.set_type(d.TID);
 		IOUtils::SaveVector(expected.mutable_start(),d.Start);
 		IOUtils::SaveVector(expected.mutable_end(),d.End);
@@ -356,11 +450,11 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		EXPECT_TRUE(MessageEqual(pbRes,expected));
 
 		auto res = IOUtils::LoadMeasurement(pbRes);
-		EXPECT_EQ(res->URI().generic_string(),
-		          dM->URI().generic_string());
+		EXPECT_EQ(res->URI(),
+		          dM->URI());
 
-		EXPECT_EQ(res->TagCloseUpURI().generic_string(),
-		          dM->TagCloseUpURI().generic_string());
+		EXPECT_EQ(res->TagCloseUpURI(),
+		          dM->TagCloseUpURI());
 
 		EXPECT_EQ(res->Type(),dM->Type());
 		EXPECT_TRUE(VectorAlmostEqual(res->StartFromTag(),dM->StartFromTag()));
@@ -400,21 +494,32 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			e->SetDefaultTagSize(1.6);
 			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
-			auto z = e->CreateSpace("box");
-			z->AddTrackingDataDirectory(tdd);
-			auto zPb = expected.add_zones();
-			zPb->set_name("box");
-			zPb->add_trackingdatadirectories(tdd->URI().generic_string());
+			auto s = e->CreateSpace("box");
+			s->AddTrackingDataDirectory(tdd);
 
-			e->MeasurementTypes().find(0)->second->SetName("my-head-tail");
+			e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();
-			mt->set_id(0);
+			mt->set_id(Measurement::HEAD_TAIL_TYPE);
 			mt->set_name("my-head-tail");
 
-			e->CreateMeasurementType(1,"antennas");
+			e->CreateMeasurementType("antennas");
 			mt = expected.add_custommeasurementtypes();
-			mt->set_id(1);
+			mt->set_id(Measurement::HEAD_TAIL_TYPE+1);
 			mt->set_name("antennas");
+
+			e->CreateAntShapeType("head");
+			auto st = expected.add_antshapetypes();
+			st->set_id(1);
+			st->set_name("head");
+			e->CreateAntShapeType("antenna-left");
+			st = expected.add_antshapetypes();
+			st->set_id(2);
+			st->set_name("antenna-left");
+			e->CreateAntShapeType("antenna-right");
+			st = expected.add_antshapetypes();
+			st->set_id(3);
+			st->set_name("antenna-right");
+
 
 		});
 
@@ -430,23 +535,94 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
-	ASSERT_EQ(res->Spaces().size(),
-	          e->Spaces().size());
-	for ( const auto & [URI,tdd] : e->TrackingDataDirectories() ) {
-		auto fi = res->TrackingDataDirectories().find(URI);
-		if ( fi == res->TrackingDataDirectories().cend() ) {
-			ADD_FAILURE() << "Could not find TrackingDataDirectory:" << URI;
-			continue;
-		}
-		EXPECT_EQ(fi->second->URI(),tdd->URI());
-		EXPECT_EQ(fi->second->AbsoluteFilePath(),tdd->AbsoluteFilePath());
 
+}
+
+TEST_F(IOUtilsUTest,ZoneIO) {
+	auto e = Experiment::Create(TestSetup::Basedir()/ "zone-io.myrmidon");
+	auto s1 = e->CreateSpace("foo");
+
+	auto dZ = s1->CreateZone("hole");
+	auto stamp = std::make_shared<Time>(Time::FromTimeT(1));
+	auto def1 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)})),
+	                              Time::ConstPtr(),
+	                              stamp);
+
+	auto def2 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)})),
+	                               stamp,
+	                               Time::ConstPtr());
+
+	pb::Zone z,expected;
+	expected.set_id(dZ->ZoneID());
+	expected.set_name(dZ->Name());
+	auto pbDef1 = expected.add_definitions();
+	stamp->ToTimestamp(pbDef1->mutable_end());
+	IOUtils::SaveShape(pbDef1->add_shapes(),def1->GetGeometry()->Shapes().front());
+	auto pbDef2 = expected.add_definitions();
+	stamp->ToTimestamp(pbDef2->mutable_start());
+	IOUtils::SaveShape(pbDef2->add_shapes(),def2->GetGeometry()->Shapes().front());
+
+	IOUtils::SaveZone(&z,dZ);
+	EXPECT_TRUE(MessageEqual(z,expected));
+	auto s2 = e->CreateSpace("bar");
+	IOUtils::LoadZone(s2,z);
+	ASSERT_FALSE(s2->Zones().empty());
+	auto res = s2->Zones().begin()->second;
+	EXPECT_EQ(dZ->ZoneID(),res->ZoneID());
+	EXPECT_EQ(dZ->Name(),res->Name());
+	EXPECT_EQ(dZ->Definitions().size(),res->Definitions().size());
+	for(size_t i = 0; i < std::min(dZ->Definitions().size(),res->Definitions().size()); ++i ) {
+		const auto & expectedDefinition = dZ->Definitions()[i];
+		const auto & definition = res->Definitions()[i];
+		EXPECT_TRUE(TimePtrEqual(definition->Start(),expectedDefinition->Start()));
+		EXPECT_TRUE(TimePtrEqual(definition->End(),expectedDefinition->End()));
+		ASSERT_FALSE(!expectedDefinition->GetGeometry());
+		ASSERT_FALSE(!definition->GetGeometry());
+		EXPECT_EQ(definition->GetGeometry()->Shapes().size(),
+		          expectedDefinition->GetGeometry()->Shapes().size());
+		for ( size_t j = 0; j < std::min(expectedDefinition->GetGeometry()->Shapes().size(),
+		                                 definition->GetGeometry()->Shapes().size()); ++j) {
+			const auto & shape =  definition->GetGeometry()->Shapes()[j];
+			const auto & expectedShape =  expectedDefinition->GetGeometry()->Shapes()[j];
+			EXPECT_EQ(shape->ShapeType(),expectedShape->ShapeType());
+			EXPECT_TRUE(ShapeEqual(shape,expectedShape));
+		}
 	}
 
 }
 
+
+TEST_F(IOUtilsUTest,SpaceIO) {
+	auto e = Experiment::Create(TestSetup::Basedir() / "space-io.myrmidon");
+	auto e2 = Experiment::Create(TestSetup::Basedir() / "space2-io.myrmidon");
+	auto dS = e->CreateSpace("foo");
+	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000", TestSetup::Basedir() );
+	dS->AddTrackingDataDirectory(tdd);
+	auto z =dS->CreateZone("bar");
+	pb::Space expected,s;
+	expected.set_id(dS->SpaceID());
+	expected.set_name(dS->Name());
+	expected.add_trackingdatadirectories("foo.0000");
+	IOUtils::SaveZone(expected.add_zones(),z);
+
+	IOUtils::SaveSpace(&s,dS);
+	EXPECT_TRUE(MessageEqual(s,expected));
+	IOUtils::LoadSpace(*e2,s);
+	ASSERT_EQ(e2->Spaces().size(),1);
+	auto res = e2->Spaces().begin()->second;
+	EXPECT_EQ(res->SpaceID(),dS->SpaceID());
+	EXPECT_EQ(res->Name(),dS->Name());
+	ASSERT_EQ(res->TrackingDataDirectories().size(),1);
+	EXPECT_EQ(res->TrackingDataDirectories().front()->URI(),"foo.0000");
+	ASSERT_EQ(res->Zones().size(),1);
+	ASSERT_EQ(res->Zones().begin()->second->ZoneID(),z->ZoneID());
+	ASSERT_EQ(res->Zones().begin()->second->Name(),z->Name());
+
+
+}
+
 TEST_F(IOUtilsUTest,TrackingIndexIO) {
-	fs::path parentURI("foo");
+	std::string parentURI("foo");
 	Time::MonoclockID monoID(42);
 	auto si = std::make_shared<TrackingDataDirectory::TrackingIndex>();
 	auto res = std::make_shared<TrackingDataDirectory::TrackingIndex>();
@@ -590,12 +766,12 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 	auto basedir = TestSetup::Basedir() / "foo.0000" / "ants";
 	struct TestData {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-		Eigen::Vector2d          Position;
-		fs::path                 Filepath;
-		FrameReference           Reference;
-		TagID                    TID;
-		double                   Angle;
-		TagCloseUp::Vector2dList Corners;
+		Eigen::Vector2d Position;
+		fs::path        Filepath;
+		FrameReference  Reference;
+		TagID           TID;
+		double          Angle;
+		Vector2dList    Corners;
 	};
 
 	std::vector<TestData> testdata =
@@ -627,7 +803,7 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		auto resolver = [&d](FrameID FID) {
 			                return FrameReference(d.Reference.ParentURI(),
 			                                      FID,
-			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.ID())) * Duration::Second));
+			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.FID())) * Duration::Second));
 		                };
 
 
@@ -639,17 +815,17 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		for (const auto & c : d.Corners ) {
 			IOUtils::SaveVector(expected.add_corners(),c);
 		}
-		expected.set_frameid(d.Reference.ID());
+		expected.set_frameid(d.Reference.FID());
 		expected.set_imagepath(d.Filepath.generic_string());
 
 		IOUtils::SaveTagCloseUp(&pbRes,dTCU,basedir);
 		EXPECT_TRUE(MessageEqual(pbRes,expected));
 		auto res = IOUtils::LoadTagCloseUp(pbRes,basedir,resolver);
 
-		EXPECT_EQ(res->Frame().URI().generic_string(),dTCU->Frame().URI().generic_string());
+		EXPECT_EQ(res->Frame().URI(),dTCU->Frame().URI());
 		EXPECT_TRUE(TimeEqual(res->Frame().Time(),dTCU->Frame().Time()));
-		EXPECT_EQ(res->URI().generic_string(),dTCU->URI().generic_string());
-		EXPECT_EQ(res->AbsoluteFilePath().generic_string(),dTCU->AbsoluteFilePath().generic_string());
+		EXPECT_EQ(res->URI(),dTCU->URI());
+		EXPECT_EQ(res->AbsoluteFilePath(),dTCU->AbsoluteFilePath());
 		EXPECT_TRUE(VectorAlmostEqual(res->TagPosition(),dTCU->TagPosition()));
 		EXPECT_DOUBLE_EQ(res->TagAngle(),dTCU->TagAngle());
 		ASSERT_EQ(4,res->Corners().size());

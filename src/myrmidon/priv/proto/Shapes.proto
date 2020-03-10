@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "Vector2d.proto";
+
+package fort.myrmidon.pb;
+
+
+message Capsule {
+	Vector2d C1 = 1;
+	Vector2d C2 = 2;
+	double   R1 = 3;
+	double   R2 = 4;
+};
+
+message Circle {
+	Vector2d Center = 1;
+	double   Radius = 2;
+};
+
+message Polygon {
+	repeated Vector2d Vertices = 1;
+}
+
+message Shape {
+	Capsule capsule = 1;
+	Circle  circle  = 2;
+	Polygon polygon = 3;
+};

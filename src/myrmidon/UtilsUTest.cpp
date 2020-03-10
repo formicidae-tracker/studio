@@ -13,7 +13,7 @@
 	if ( google::protobuf::util::MessageDifferencer::Equals(a.ToTimestamp(),b.ToTimestamp()) == false ) {
 		return ::testing::AssertionFailure() << "a: " << a.DebugString()
 		                                     << "b: " << b.DebugString()
-		                                     << " and a.Timestamp() and b.Timestamp() yied different results";
+		                                     << " and a.Timestamp() and b.Timestamp() yield different results";
 	}
 
 	if ( a.HasMono() == false ) {

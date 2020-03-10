@@ -7,11 +7,17 @@
 #include <myrmidon/Experiment.pb.h>
 #include <myrmidon/TrackingDataDirectory.pb.h>
 #include <myrmidon/TagCloseUpCache.pb.h>
+#include <myrmidon/Shapes.pb.h>
+#include <myrmidon/Zone.pb.h>
+#include <myrmidon/Space.pb.h>
 
 #include <myrmidon/Time.hpp>
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
+#include <myrmidon/priv/Color.hpp>
+#include <myrmidon/priv/Ant.hpp>
+#include <myrmidon/priv/Shape.hpp>
 
 #include <Eigen/Core>
 #include <myrmidon/Vector2d.pb.h>
@@ -67,6 +73,8 @@ public:
 		pb->set_y(v.y());
 	}
 
+
+
 	// Loads an Identification from protobuf message
 	//
 	// @e the <priv::Experiment> that owns the <Identification> and the <priv::Ant>
@@ -84,17 +92,13 @@ public:
 	                               const IdentificationConstPtr & ident);
 
 
-	// Loads a Capsule from a message
-	//
-	// @pb the protobuf message to read from
-	// @return a <Capsule::Ptr> initialized with the message data
-	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+	static Color LoadColor(const pb::Color & pb);
 
-	// Saves a Capsule to a message
-	//
-	// @pb the protobuf message to save to
-	// @capsule the <Capsule> to save to
-	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+	static void  SaveColor(pb::Color * pb, const Color & c);
+
+	static Ant::DisplayState LoadAntDisplayState(pb::AntDisplayState pb);
+
+	static pb::AntDisplayState  SaveAntDisplayState(Ant::DisplayState s);
 
 
 	// Loads an Ant from a protobuf message
@@ -133,6 +137,19 @@ public:
 	// @m the <Measurement> to save
 	static void SaveMeasurement(pb::Measurement * pb, const MeasurementConstPtr & m);
 
+
+	static void  LoadZone(const SpacePtr & space,
+	                      const pb::Zone & pb);
+
+	static void SaveZone(pb::Zone * pb, const ZoneConstPtr & zone);
+
+	static void LoadSpace(Experiment & e,
+	                      const pb::Space & pb);
+
+	static void SaveSpace(pb::Space * pb,
+	                      const SpacePtr & space);
+
+
 	// Loads an Experiment from a protobuf message
 	//
 	// @e the empty <priv::Experiment> to load data to
@@ -154,7 +171,7 @@ public:
 	// @monoID the <Time::MonoclockID> associated with the parent <TrackingDataDirectory>
 	// @return a <FrameReference> contained in the message
 	static FrameReference LoadFrameReference(const pb::TimedFrame & pb,
-	                                         const fs::path & parentURI,
+	                                         const std::string & parentURI,
 	                                         Time::MonoclockID monoID);
 
 	// Save a FrameReference to a message
@@ -172,7 +189,7 @@ public:
 	// @return the segment in the message
 	static  TrackingDataDirectory::TrackingIndex::Segment
 	LoadTrackingIndexSegment(const pb::TrackingSegment & pb,
-	                         const fs::path & parentURI,
+	                         const std::string & parentURI,
 	                         Time::MonoclockID monoID);
 
 	// Saves a TrackingIndex to a message
@@ -191,7 +208,7 @@ public:
 	// @return the <MovieSegment> in the message
 	static MovieSegmentPtr LoadMovieSegment(const fort::myrmidon::pb::MovieSegment & pb,
 	                                        const fs::path & parentAbsoluteFilePath,
-	                                        const fs::path & parentURI);
+	                                        const std::string & parentURI);
 
 	// Saves a MovieSegment to a message
 	//
@@ -222,6 +239,32 @@ public:
 	static void SaveTagCloseUp(pb::TagCloseUp * pb,
 	                           const TagCloseUpConstPtr & tcu,
 	                           const fs::path & absoluteBasedir);
+
+
+	// Loads a Capsule from a message
+	//
+	// @pb the protobuf message to read from
+	// @return a <Capsule::Ptr> initialized with the message data
+	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+
+	// Saves a Capsule to a message
+	//
+	// @pb the protobuf message to save to
+	// @capsule the <Capsule> to save to
+	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+
+
+	static CirclePtr LoadCircle(const pb::Circle & pb);
+
+	static void SaveCircle(pb::Circle * pb, const CircleConstPtr & circle);
+
+	static PolygonPtr LoadPolygon(const pb::Polygon & pb);
+
+	static void SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon);
+
+	static Shape::Ptr LoadShape(const pb::Shape & pb);
+
+	static void SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape);
 
 
 };

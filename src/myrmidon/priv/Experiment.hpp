@@ -39,14 +39,18 @@ using namespace fort::myrmidon;
 class Experiment : public FileSystemLocatable {
 public :
 
-	// Maps <TrackingDataDirectory> by their path
-	typedef std::map<fs::path,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
 
-	// Maps the <MeasurementType> by their <MeasurementType::ID>
-	typedef std::map<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
+	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
+
+	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
+
+
+	const static MeasurementTypeID NEXT_AVAILABLE_MEASUREMENT_TYPE_ID = 0;
+	const static AntShapeTypeID    NEXT_AVAILABLE_ANT_SHAPE_TYPE_ID = 0;
 
 	// A Pointer to an Experiment.
-	typedef std::unique_ptr<Experiment> Ptr;
+	typedef std::shared_ptr<Experiment>       Ptr;
+	typedef std::shared_ptr<const Experiment> ConstPtr;
 
 	// Opens an existing experiment given its fs::path
 	// @filename the fs::path to the ".myrmidon" file
@@ -97,15 +101,23 @@ public :
 	const fs::path & Basedir() const;
 
 
-	Space::Ptr CreateSpace(const std::string & name);
+	Space::Ptr CreateSpace(const std::string & name,
+	                       Space::ID spaceID = Space::Universe::NEXT_AVAILABLE_SPACE_ID);
 
-	void DeleteSpace(const fs::path & zoneURI);
+	void DeleteSpace(Space::ID spaceID);
 
-	const std::vector<Space::Ptr> & Spaces() const;
+	const SpaceByID & Spaces() const;
 
-	const std::map<fs::path,TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
+	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
-	void DeleteTrackingDataDirectory(const fs::path & URI);
+	bool TrackingDataDirectoryIsDeletable(const std::string & URI) const;
+
+	void DeleteTrackingDataDirectory(const std::string & URI);
+
+	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+	LocateTrackingDataDirectory(const std::string & tddURI) const;
+
+	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
 	// Accessor to the underlying Identifier
 	//
@@ -182,10 +194,8 @@ public :
 	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
-	MeasurementTypeID NextAvailableMeasurementTypeID() const;
-
-	MeasurementTypePtr CreateMeasurementType(MeasurementTypeID MTID,
-	                                         const std::string & name);
+	MeasurementTypePtr CreateMeasurementType(const std::string & name,
+	                                         MeasurementTypeID MTID = NEXT_AVAILABLE_MEASUREMENT_TYPE_ID);
 
 	void DeleteMeasurementType(MeasurementTypeID MTID);
 
@@ -201,19 +211,31 @@ public :
 	// Removes a Measurement
 	//
 	// @URI the URI of the measurement to remove
-	void DeleteMeasurement(const fs::path & URI);
+	void DeleteMeasurement(const std::string & URI);
 
 	// Lists all Measurement of the experiment.
 	//
 	// @list a vector that will be filled with all measurements in the
 	// experiment.
-	void ListAllMeasurements(std::vector<MeasurementConstPtr> & list) const;
+	const MeasurementByTagCloseUp & Measurements() const;
 
 	// Represents a Measurement in mm at a given Time.
 	struct ComputedMeasurement {
 		Time   MTime;
 		double LengthMM;
 	};
+
+	AntShapeTypePtr CreateAntShapeType(const std::string & name,
+	                                   AntShapeTypeID TypeID = NEXT_AVAILABLE_ANT_SHAPE_TYPE_ID);
+
+	void DeleteAntShapeType(AntShapeTypeID TypeID);
+
+	const AntShapeTypeByID & AntShapeTypes() const;
+
+
+	void AddCapsuleToAnt(const AntPtr & ant,
+	                     AntShapeTypeID typeID,
+	                     const CapsulePtr & capsule);
 
 	// Computes all Measurement of a type for an Ant
 	//
@@ -241,20 +263,21 @@ public :
 	static double CornerWidthRatio(fort::tags::Family f);
 
 private:
-	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
-	typedef std::map<fs::path,MeasurementByType>       MeasurementByTagCloseUp;
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
-	                          std::map<fs::path,
+	                          std::map<std::string,
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
-
+	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
+	typedef AlmostContiguousIDContainer<AntShapeTypeID,AntShapeTypePtr>       AntShapeTypeContainer;
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
 
 	Experiment(const fs::path & filepath);
+
+	void CheckTDDIsDeletable(const std::string & URI) const;
 
 	fs::path             d_absoluteFilepath;
 	fs::path             d_basedir;
@@ -268,9 +291,10 @@ private:
 	double             d_defaultTagSize;
 	uint8_t            d_threshold;
 
-	MeasurementByTagCloseUp d_measurementByURI;
-	SortedMeasurement       d_measurements;
-	MeasurementTypeByID     d_measurementTypeByID;
+	MeasurementByTagCloseUp  d_measurementByURI;
+	SortedMeasurement        d_measurements;
+	MeasurementTypeContainer d_measurementTypes;
+	AntShapeTypeContainer    d_antShapeTypes;
 };
 
 } //namespace priv

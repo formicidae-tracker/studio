@@ -2,68 +2,41 @@
 
 #include <Eigen/Core>
 
-#include <memory>
+#include "ForwardDeclaration.hpp"
+#include "Types.hpp"
 
 namespace fort {
-
 namespace myrmidon {
-
 namespace priv {
 
-
-class Capsule {
+class Shape {
 public:
-	typedef std::shared_ptr<Capsule> Ptr;
-	typedef std::shared_ptr<const Capsule> ConstPtr;
+	typedef std::shared_ptr<Shape>       Ptr;
+	typedef std::shared_ptr<const Shape> ConstPtr;
 
-	Capsule();
-	Capsule(const Eigen::Vector2d & a,
-	        const Eigen::Vector2d & b,
-	        double aRadius,
-	        double bRadius);
+	enum class Type {
+		Capsule = 0,
+		Circle  = 1,
+		Polygon = 2
+	};
 
-	inline void SetA(const Eigen::Vector2d & a) {
-		d_a = a;
-	}
+	Shape(Type type);
+	virtual ~Shape();
 
-	inline const Eigen::Vector2d & A() const {
-		return d_a;
-	}
+	Type ShapeType() const;
 
-	inline void SetB(const Eigen::Vector2d & b) {
-		d_b = b;
-	}
+	virtual bool Contains(const Eigen::Vector2d & point) const = 0;
 
-	inline const Eigen::Vector2d & B() const {
-		return d_b;
-	}
+	virtual AABB ComputeAABB() const = 0;
 
-	inline void SetRadiusA(double ra) {
-		d_ra = ra;
-	}
-
-	inline double RadiusA() const {
-		return d_ra;
-	}
-
-	inline void SetRadiusB(double rb) {
-		d_rb = rb;
-	}
-
-	inline double RadiusB() const {
-		return d_rb;
-	}
-
-
+	static CapsuleConstPtr ToCapsule(const ConstPtr & s);
+	static CircleConstPtr  ToCircle(const ConstPtr & s);
+	static PolygonConstPtr ToPolygon(const ConstPtr & s);
 private:
-	Eigen::Vector2d d_a,d_b;
-	double d_ra,d_rb;
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+	Type d_type;
 };
 
 
-} //namespace priv
-
-} //namespace myrmidon
-
-} //namespace fort
+} // namespace priv
+} // namespace myrmidon
+} // namespace fort

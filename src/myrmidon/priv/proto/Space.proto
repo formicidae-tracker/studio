@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "Zone.proto";
+
+package fort.myrmidon.pb;
+
+message Space {
+	uint32          ID                      = 1;
+	string          name                    = 2;
+	repeated string trackingdatadirectories = 3;
+	repeated Zone   zones                   = 4;
+};

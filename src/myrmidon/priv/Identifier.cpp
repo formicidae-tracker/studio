@@ -4,16 +4,12 @@
 #include "DeletedReference.hpp"
 #include "AntPoseEstimate.hpp"
 
+#include <iostream>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Identifier::UnmanagedAnt::UnmanagedAnt(fort::myrmidon::Ant::ID id) noexcept
-	: std::runtime_error([id](){
-		                     std::ostringstream os;
-		                     os << "Ant:" << Ant::FormatID(id) <<  " is not managed by this object";
-		                     return os.str();
-	                     }()) {}
 
 Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identification & ident) noexcept
 	: std::runtime_error([&ident](){
@@ -29,18 +25,11 @@ Identifier::UnmanagedTag::UnmanagedTag(TagID ID) noexcept
 		                     return os.str();
 	                     }()) {}
 
-
-Identifier::AlreadyExistingAnt::AlreadyExistingAnt(fort::myrmidon::Ant::ID id) noexcept
-	: std::runtime_error([id](){
-		                     std::ostringstream os;
-		                     os << "Ant:" << Ant::FormatID(id) <<  " already exist";
-		                     return os.str();
-	                     }()) {}
-
 Identifier::Identifier()
-	: d_continuous(false) {
-
+	: d_callback([](const Identification::Ptr &){}) {
 }
+
+Identifier::~Identifier() {}
 
 Identifier::Ptr Identifier::Create() {
     std::shared_ptr<Identifier> res(new Identifier());
@@ -54,60 +43,25 @@ Identifier Identifier::Invalid() {
 
 
 AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
-	if ( ID  == NEXT_AVAILABLE_ID ) {
-		ID = NextAvailableID();
-	}
-	if ( d_antIDs.count(ID) != 0 ) {
-		throw AlreadyExistingAnt(ID);
-	}
-	auto res = std::make_shared<Ant>(ID);
-	d_ants[res->ID()] =  res;
-	d_antIDs.insert(res->ID());
-	return res;
+	return CreateObject([](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(ID); },ID);
 }
 
-void Identifier::DeleteAnt(fort::myrmidon::Ant::ID id) {
-	auto fi = d_ants.find(id);
-	if ( fi == d_ants.end() ) {
-		throw UnmanagedAnt(id);
-	}
-	if ( id != d_ants.size() ) {
-		d_continuous = false;
-	}
-
-
-	if ( !fi->second->Identifications().empty() ) {
+void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
+	auto fi = Ants().find(ID);
+	if ( fi != Ants().end() && fi->second->Identifications().empty() == false ) {
 		std::ostringstream os;
 		os <<"Ant:" <<fi->second->FormattedID() << " has Identification, delete them first";
 		throw std::logic_error(os.str());
 	}
 
-	d_antIDs.erase(id);
-	d_ants.erase(id);
-
+	DeleteObject(ID);
 }
 
 
 const AntByID & Identifier::Ants() const {
-	return d_ants;
+	return Objects();
 }
 
-
-fort::myrmidon::Ant::ID Identifier::NextAvailableID() {
-	if ( d_continuous == true ) {
-		return d_ants.size() + 1;
-	}
-	fort::myrmidon::Ant::ID res = 0;
-	auto missingIndex = std::find_if(d_antIDs.begin(),d_antIDs.end(),[&res] (fort::myrmidon::Ant::ID toTest ) {
-		                                                                 return ++res != toTest;
-	                                                                 });
-
-	if (missingIndex == d_antIDs.end() ) {
-		const_cast<Identifier*>(this)->d_continuous = true;
-		return d_antIDs.size() + 1;
-	}
-	return res;
-}
 
 Identifier::Ptr Identifier::Itself() const {
 	auto res = d_itself.lock();
@@ -119,14 +73,15 @@ Identifier::Ptr Identifier::Itself() const {
 }
 
 
-Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
+Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID ID,
                                                   TagID tagValue,
                                                   const Time::ConstPtr & start,
                                                   const Time::ConstPtr & end) {
-	if ( d_antIDs.count(id) == 0 ) {
-		throw UnmanagedAnt(id);
+	auto fi = Ants().find(ID);
+	if ( fi == Ants().end() ) {
+		throw UnmanagedObject(ID);
 	}
-	auto ant = d_ants[id];
+	auto ant = fi->second;
 
 	auto res = Identification::Accessor::Create(tagValue,Itself(),ant);
 	Identification::Accessor::SetStart(*res,start);
@@ -142,7 +97,7 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID id,
 	d_identifications[tagValue] = current;
 	Ant::Accessor::Identifications(*ant) = antIdents;
 
-	UpdateIdentificationAntPosition(*res);
+	UpdateIdentificationAntPosition(res);
 
 	return res;
 }
@@ -170,8 +125,8 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 	}
 
 	auto ant = ident->Target();
-	if ( d_antIDs.count(ant->ID()) == 0 ) {
-		throw UnmanagedAnt(ant->ID());
+	if ( Ants().find(ant->ID()) == Ants().end() ) {
+		throw UnmanagedObject(ant->ID());
 	}
 
 	auto toEraseAnt = ant->Identifications().begin();
@@ -199,8 +154,25 @@ Identification::List & Identifier::Accessor::IdentificationsForTag(Identifier & 
 }
 
 void Identifier::Accessor::UpdateIdentificationAntPosition(Identifier & identifier,
-                                                           Identification & identification) {
+                                                           const IdentificationPtr & identification) {
 	identifier.UpdateIdentificationAntPosition(identification);
+}
+
+void Identifier::Accessor::UpdateIdentificationAntPosition(Identifier & identifier,
+                                                           Identification * identificationPtr) {
+	auto fi = identifier.d_identifications.find(identificationPtr->TagValue());
+	if ( fi == identifier.d_identifications.end() ) {
+		return;
+	}
+	auto ffi = std::find_if(fi->second.begin(),
+	                        fi->second.end(),
+	                        [identificationPtr](const Identification::Ptr & ident) {
+		                        return ident.get() == identificationPtr;
+	                        });
+	if ( ffi == fi->second.end() ) {
+		return;
+	}
+	identifier.UpdateIdentificationAntPosition(*ffi);
 }
 
 
@@ -224,14 +196,14 @@ Identification::Ptr Identifier::Identify(TagID tag,const Time & t) const {
 		return Identification::Ptr();
 	}
 
-	for(const auto & ident : fi->second ) {
+	for( const auto & ident : fi->second ) {
 		if (ident->IsValid(t) == true ) {
 			return ident;
 		}
 	}
+
 	return Identification::Ptr();
 }
-
 
 Time::ConstPtr Identifier::UpperUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
@@ -260,9 +232,9 @@ size_t Identifier::UseCount(TagID tag) const {
 	return fi->second.size();
 }
 
-bool Identifier::AntPoseTimeComparator::operator() (const AntPoseEstimateConstPtr & a,
-                                                    const AntPoseEstimateConstPtr & b) {
-	return a->Reference().Time().Before(b->Reference().Time());
+bool Identifier::AntPoseEstimateComparator::operator() (const AntPoseEstimateConstPtr & a,
+                                                        const AntPoseEstimateConstPtr & b) const {
+	return a->URI() < b->URI();
 }
 
 bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
@@ -281,26 +253,42 @@ bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
 }
 
 void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
-	auto & APEs = d_tagPoseEstimates[ape->TargetTagID()];
-	APEs.erase(ape);
-	APEs.insert(ape);
+	// create or get existing AntPoseEstimateList
+	auto fi = d_tagPoseEstimates.insert(std::make_pair(ape->TargetTagID(),
+	                                                   AntPoseEstimateList())).first;
+	fi->second.erase(ape);
+	fi->second.insert(ape);
 
 	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
 	if (!identification) {
 		return;
 	}
-	UpdateIdentificationAntPosition(*identification);
+	UpdateIdentificationAntPosition(identification);
 }
 
-void Identifier::UpdateIdentificationAntPosition(Identification & identification) {
+void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
+	auto fi = d_tagPoseEstimates.find(ape->TargetTagID());
+	if ( fi == d_tagPoseEstimates.end() ) {
+		return;
+	}
+	fi->second.erase(ape);
+	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	if ( !identification ) {
+		return;
+	}
+	UpdateIdentificationAntPosition(identification);
+}
+
+
+void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
 	std::vector<AntPoseEstimateConstPtr> matched;
-	auto & APEs = d_tagPoseEstimates[identification.TagValue()];
+	auto & APEs = d_tagPoseEstimates[identification->TagValue()];
 	matched.reserve(APEs.size());
 	for (const auto & ape : APEs ) {
-		if ( ape->TargetTagID() != identification.TagValue() ) {
+		if ( ape->TargetTagID() != identification->TagValue() ) {
 			throw std::logic_error("Unexpected TagID");
 		}
-		if ( identification.IsValid(ape->Reference().Time()) == false ) {
+		if ( identification->IsValid(ape->Reference().Time()) == false ) {
 			continue;
 		}
 		matched.push_back(ape);
@@ -308,10 +296,42 @@ void Identifier::UpdateIdentificationAntPosition(Identification & identification
 	Eigen::Vector2d newPosition;
 	double newAngle;
 	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
-	identification.SetAntPosition(newPosition,newAngle);
+	if ( newPosition != identification->AntPosition() || newAngle != identification->AntAngle() ) {
+		identification->SetAntPosition(newPosition,newAngle);
+		d_callback(identification);
+	}
+}
+
+void Identifier::SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback) {
+	d_callback =  callback;
 }
 
 
+Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identifications) {
+	for ( const auto & [tagID,idents] : identifications ) {
+		d_identifications.insert(std::make_pair(tagID+1,idents));
+	}
+}
+
+Identifier::Compiled::~Compiled() {
+}
+
+Identification::Ptr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
+	try {
+		for ( const auto & i : d_identifications.at(tagID+1) ) {
+			if ( i->IsValid(time) == true ) {
+					return i;
+			}
+		}
+	} catch ( const std::out_of_range & ) {
+		return Identification::Ptr();
+	}
+	return Identification::Ptr();
+}
+
+Identifier::Compiled::ConstPtr Identifier::Compile() const {
+	return std::make_shared<Compiled>(d_identifications);
+}
 
 } // namespace priv
 } // namespace myrmidon

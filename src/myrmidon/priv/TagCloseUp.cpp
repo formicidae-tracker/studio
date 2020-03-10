@@ -11,6 +11,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
@@ -33,7 +34,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        double angle,
                        const Vector2dList & corners)
 	: d_reference(reference)
-	, d_URI(d_reference.URI() / "closeups" / std::to_string(tid))
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(tid)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(tid)
 	, d_tagPosition(position)
@@ -49,7 +50,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
                        const apriltag_detection_t * d)
 	: d_reference(reference)
-	, d_URI(d_reference.URI() / "closeups" / std::to_string(d->id))
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(d->id)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(d->id)
 	, d_tagPosition(d->c[0],d->c[1])
@@ -72,7 +73,7 @@ const FrameReference & TagCloseUp::Frame() const {
 	return d_reference;
 }
 
-const fs::path & TagCloseUp::URI() const {
+const std::string & TagCloseUp::URI() const {
 	return d_URI;
 }
 
@@ -92,7 +93,7 @@ double TagCloseUp::TagAngle() const {
 	return d_tagAngle;
 }
 
-const TagCloseUp::Vector2dList & TagCloseUp::Corners() const {
+const Vector2dList & TagCloseUp::Corners() const {
 	return d_corners;
 }
 
@@ -121,7 +122,6 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_family(f)
 	, d_threshold(threshold)
 	, d_resolver(resolver)
-	, d_atfamily(LoadFamily(f))
 	, d_parsed(0) {
 	try {
 		LoadCache();
@@ -268,10 +268,8 @@ TagCloseUp::Lister::CreateDetector() {
 		detector(apriltag_detector_create(),
 		         apriltag_detector_destroy);
 
-	apriltag_detector_add_family(detector.get(),d_atfamily.get());
 	detector->qtp.min_white_black_diff = d_threshold;
 
-	detector->nthreads =1;
 	detector->nthreads = 1;
 	detector->quad_decimate = 1.0;
 	detector->quad_sigma = 0.0;
@@ -311,6 +309,8 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 	std::vector<ConstPtr> tags;
 	auto detector = CreateDetector();
+	auto family = LoadFamily(d_family);
+	apriltag_detector_add_family(detector.get(),family.get());
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
 
@@ -360,13 +360,22 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	res.reserve(files.size());
 
 	for( const auto & [FID,f] : files ) {
-		res.push_back([itself,f,FID,nbFiles]() {
+		res.push_back([=]() {
 			              return itself->LoadFile(f,FID,nbFiles);
 		              });
 	}
 
 	return res;
 }
+
+tags::Family TagCloseUp::Lister::Family() const {
+	return d_family;
+}
+
+uint8_t TagCloseUp::Lister::Threshold() const {
+	return d_threshold;
+}
+
 
 Isometry2Dd TagCloseUp::ImageToTag() const {
 	return Isometry2Dd(d_tagAngle,d_tagPosition).inverse();
@@ -386,7 +395,12 @@ double TagCloseUp::Squareness() const {
 	for(size_t i = 0 ; i < 4; ++i ) {
 		Eigen::Vector2d a = d_corners[(i-1)%4] - d_corners[i];
 		Eigen::Vector2d b = d_corners[(i+1)%4] - d_corners[i];
-		double angle = std::acos(a.dot(b));
+		double aNorm = a.norm();
+		double bNorm = b.norm();
+		if ( aNorm < 1.0e-3 || bNorm < 1.0e-3 ) {
+			return 0;
+		}
+		double angle = std::acos(a.dot(b)/ (aNorm * bNorm));
 		maxAngleDistanceToPI_2 = std::max(maxAngleDistanceToPI_2,
 		                                  std::abs(angle - (M_PI / 2.0)));
 	}

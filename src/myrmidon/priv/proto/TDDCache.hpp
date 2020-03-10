@@ -14,7 +14,7 @@ class TDDCache {
 public:
 	typedef FileReadWriter<pb::TrackingDataDirectory,pb::TrackingDataDirectoryFileLine> ReadWriter;
 	static TrackingDataDirectory::ConstPtr Load(const fs::path & absoluteFilePath ,
-	                                            const fs::path & URI);
+	                                            const std::string & URI);
 
 	static void Save(const TrackingDataDirectory::ConstPtr & tdd);
 

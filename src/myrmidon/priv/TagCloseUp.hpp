@@ -22,8 +22,6 @@ public:
 	typedef std::shared_ptr<const TagCloseUp> ConstPtr;
 	typedef std::vector<ConstPtr>             List;
 
-	typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > Vector2dList;
-
 
 	class Lister {
 	public :
@@ -49,6 +47,9 @@ public:
 
 		std::vector<Loader> PrepareLoaders();
 
+		tags::Family Family() const;
+
+		uint8_t Threshold() const;
 
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;
@@ -77,7 +78,6 @@ public:
 		FrameReferenceResolver d_resolver;
 		ByLocalFile            d_cache;
 		std::mutex             d_mutex;
-		ATFamilyPtr            d_atfamily;
 		bool                   d_cacheModified;
 		size_t                 d_parsed;
 	};
@@ -105,7 +105,7 @@ public:
 	const FrameReference & Frame() const;
 
 
-	const fs::path & URI() const override;
+	const std::string & URI() const override;
 
 	const fs::path & AbsoluteFilePath() const override;
 
@@ -126,7 +126,7 @@ public:
 private:
 
 	FrameReference  d_reference;
-	fs::path        d_URI;
+	std::string     d_URI;
 	fs::path        d_absoluteFilePath;
 	TagID           d_tagID;
 	Eigen::Vector2d d_tagPosition;
