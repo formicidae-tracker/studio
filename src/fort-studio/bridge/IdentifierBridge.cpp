@@ -10,13 +10,12 @@
 
 #include "SelectedAntBridge.hpp"
 
-IdentifierBridge::IdentifierBridge(SelectedAntBridge * selectedAnt,
-                                   QObject * parent)
+IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this))
 	, d_numberSoloAnt(0)
 	, d_numberHiddenAnt(0)
-	, d_selectedAnt(selectedAnt) {
+	, d_selectedAnt(new SelectedAntBridge(this)) {
 
 	qRegisterMetaType<fmp::Ant::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::Ptr>();
@@ -28,6 +27,17 @@ IdentifierBridge::IdentifierBridge(SelectedAntBridge * selectedAnt,
 	        &QStandardItemModel::itemChanged,
 	        this,
 	        &IdentifierBridge::onItemChanged);
+
+	connect(this,
+	        &IdentifierBridge::identificationCreated,
+	        d_selectedAnt,
+	        &SelectedAntBridge::onIdentificationModified);
+
+	connect(this,
+	        &IdentifierBridge::identificationDeleted,
+	        d_selectedAnt,
+	        &SelectedAntBridge::onIdentificationModified);
+
 
 }
 
@@ -470,4 +480,8 @@ bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
 		return false;
 	}
 	return d_experiment->ConstIdentifier().FreeRangeContaining(start,end,tagID,time);
+}
+
+SelectedAntBridge * IdentifierBridge::selectedAnt() const {
+	return d_selectedAnt;
 }

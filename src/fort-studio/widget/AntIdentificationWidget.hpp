@@ -2,11 +2,12 @@
 
 #include <QWidget>
 
-#include "ExperimentController.hpp"
-
 namespace Ui {
 class AntIdentificationWidget;
 }
+
+class SelectedAntBridge;
+
 
 class AntIdentificationWidget : public QWidget {
 	Q_OBJECT
@@ -14,14 +15,13 @@ public:
 	explicit AntIdentificationWidget(QWidget *parent = 0);
 	~AntIdentificationWidget();
 
-public slots:
-	void onNewController(ExperimentController * controller);
-	void on_startFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrameConstPtr &);
-	void on_endFrame_framePointerUpdated(const fort::myrmidon::priv::RawFrameConstPtr &);
-
+	void setup(SelectedAntBridge * selectedAnt);
+private slots :
+	void onSelection();
+	void on_tableView_doubleClicked(const QModelIndex & index);
 private:
 	Ui::AntIdentificationWidget * d_ui;
 
-	ExperimentController * d_controller;
+	SelectedAntBridge * d_selectedAnt;
 
 };

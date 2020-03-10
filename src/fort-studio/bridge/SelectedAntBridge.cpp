@@ -1,15 +1,31 @@
 #include "SelectedAntBridge.hpp"
 
+#include "SelectedIdentificationBridge.hpp"
+
 #include <QDebug>
+
+#include <fort-studio/Format.hpp>
+
 
 SelectedAntBridge::SelectedAntBridge(QObject * parent)
 	: Bridge(parent)
 	, d_identificationModel(new QStandardItemModel(this))
-	, d_shapeModel(new QStandardItemModel(this)) {
+	, d_shapeModel(new QStandardItemModel(this))
+	, d_selectedIdentification( new SelectedIdentificationBridge(this) ){
+
+	connect(d_selectedIdentification,
+	        &SelectedIdentificationBridge::identificationModified,
+	        this,
+	        &SelectedAntBridge::onIdentificationModified);
+
 }
 
 bool SelectedAntBridge::isActive() const {
 	return d_ant.get() != NULL;
+}
+
+SelectedIdentificationBridge * SelectedAntBridge::selectedIdentification() const {
+	return d_selectedIdentification;
 }
 
 QAbstractItemModel * SelectedAntBridge::identificationModel() const {
@@ -25,6 +41,7 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 	d_identificationModel->clear();
 	d_shapeModel->clear();
 	d_ant = ant;
+	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
 	if ( !d_ant ) {
 		emit activated(false);
 		return;
@@ -49,6 +66,7 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 	}
 
 	d_identificationModel->clear();
+	d_identificationModel->setHorizontalHeaderLabels({tr("TagID"),tr("From Time"),tr("To Time")});
 
 	for ( const auto & ident : d_ant->Identifications() ) {
 		auto data = QVariant::fromValue(ident);
@@ -59,7 +77,7 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 		start->setEditable(false);
 		start->setData(data);
 		if ( ident->Start() ) {
-			start->setText(ident->Start()->DebugString().c_str());
+			start->setText(ToQString(*ident->Start()));
 		} else {
 			start->setText("-∞");
 		}
@@ -67,7 +85,7 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 		end->setEditable(false);
 		end->setData(data);
 		if ( ident->End() ) {
-			end->setText(ident->End()->DebugString().c_str());
+			end->setText(ToQString(*ident->End()));
 		} else {
 			end->setText("+∞");
 		}
@@ -82,4 +100,13 @@ fm::Ant::ID SelectedAntBridge::selectedID() const {
 		return 0;
 	}
 	return d_ant->ID();
+}
+
+
+void SelectedAntBridge::selectIdentification(const QModelIndex & index) {
+	auto item = d_identificationModel->itemFromIndex(index);
+	if ( !item ) {
+		return;
+	}
+	d_selectedIdentification->setIdentification(item->data().value<fmp::Identification::Ptr>());
 }

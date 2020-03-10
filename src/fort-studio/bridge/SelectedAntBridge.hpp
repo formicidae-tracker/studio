@@ -4,10 +4,12 @@
 
 #include <myrmidon/priv/Ant.hpp>
 
-#include "IdentifierBridge.hpp"
+#include "Bridge.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 namespace fm = fort::myrmidon;
+
+class SelectedIdentificationBridge;
 
 class SelectedAntBridge : public Bridge {
 	Q_OBJECT
@@ -15,6 +17,8 @@ public:
 	SelectedAntBridge(QObject * parent);
 
 	bool isActive() const override;
+
+	SelectedIdentificationBridge * selectedIdentification() const;
 
 	QAbstractItemModel * identificationModel() const;
 	QAbstractItemModel * shapeModel() const;
@@ -26,10 +30,13 @@ public slots:
 
 	void onIdentificationModified(const fmp::Identification::ConstPtr &);
 
+	void selectIdentification(const QModelIndex & index);
+
 private:
 	void rebuildIdentificationModel();
 
-	QStandardItemModel * d_identificationModel;
-	QStandardItemModel * d_shapeModel;
-	fmp::Ant::Ptr        d_ant;
+	QStandardItemModel           * d_identificationModel;
+	QStandardItemModel           * d_shapeModel;
+	SelectedIdentificationBridge * d_selectedIdentification;
+	fmp::Ant::Ptr                  d_ant;
 };

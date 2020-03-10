@@ -142,6 +142,7 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        &TaggingWidget::updateButtonStates);
 	d_selectedAnt = selectedAnt;
 
+	d_ui->selectedAntIdentification->setup(selectedAnt);
 }
 
 

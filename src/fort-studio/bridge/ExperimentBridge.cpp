@@ -12,28 +12,12 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	: Bridge(parent)
 	, d_universe(new UniverseBridge(this))
 	, d_measurements(new MeasurementBridge(this))
-	, d_selectedAnt(new SelectedAntBridge(this))
-	, d_identifier(new IdentifierBridge(d_selectedAnt,this))
+	, d_identifier(new IdentifierBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
-	, d_selectedIdentification(new SelectedIdentificationBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this)) {
 
 	connectModifications();
 
-	connect(d_identifier,
-	        &IdentifierBridge::identificationCreated,
-	        d_selectedAnt,
-	        &SelectedAntBridge::onIdentificationModified);
-
-	connect(d_identifier,
-	        &IdentifierBridge::identificationDeleted,
-	        d_selectedAnt,
-	        &SelectedAntBridge::onIdentificationModified);
-
-	connect(d_selectedIdentification,
-	        &SelectedIdentificationBridge::identificationModified,
-	        d_selectedAnt,
-	        &SelectedAntBridge::onIdentificationModified);
 
 	connect(d_globalProperties,
 	        &GlobalPropertyBridge::detectionSettingChanged,
@@ -140,11 +124,11 @@ GlobalPropertyBridge * ExperimentBridge::globalProperties() const {
 }
 
 SelectedAntBridge * ExperimentBridge::selectedAnt() const {
-	return d_selectedAnt;
+	return d_identifier->selectedAnt();
 }
 
 SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const {
-	return d_selectedIdentification;
+	return selectedAnt()->selectedIdentification();
 }
 
 IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() const {
@@ -158,9 +142,8 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_universe->setExperiment(experiment);
 	d_measurements->setExperiment(experiment);
 	d_identifier->setExperiment(experiment);
+	d_identifier->selectedAnt()->selectedIdentification()->setExperiment(experiment);
 	d_globalProperties->setExperiment(experiment);
-	d_selectedAnt->setAnt(fmp::Ant::Ptr());
-	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
 	d_identifiedFrameLoader->setExperiment(experiment);
 	setModified(false);
 	emit activated(d_experiment.get() != NULL);
@@ -194,12 +177,12 @@ void ExperimentBridge::connectModifications() {
 	        this,
 	        &ExperimentBridge::onChildModified);
 
-	connect(d_selectedAnt,
+	connect(d_identifier->selectedAnt(),
 	        &SelectedAntBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);
 
-	connect(d_selectedIdentification,
+	connect(d_identifier->selectedAnt()->selectedIdentification(),
 	        &SelectedIdentificationBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);

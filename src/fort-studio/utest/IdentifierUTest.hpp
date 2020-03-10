@@ -16,6 +16,5 @@ protected:
 	void TearDown();
 
 	fmp::Experiment::Ptr experiment;
-	SelectedAntBridge  * selectedAnt;
 	IdentifierBridge   * identifier;
 };

@@ -22,8 +22,7 @@ class IdentifierBridge : public Bridge {
 	           NOTIFY numberHiddenAntChanged)
 
 public:
-	IdentifierBridge(SelectedAntBridge * selectedAnnt,
-	                 QObject * parent);
+	IdentifierBridge(QObject * parent);
 
 	QAbstractItemModel * antModel() const;
 
@@ -41,6 +40,8 @@ public:
 	bool freeRangeContaining(fm::Time::ConstPtr & start,
 	                         fm::Time::ConstPtr & end,
 	                         fmp::TagID tagID, const fm::Time & time) const;
+
+	SelectedAntBridge * selectedAnt() const;
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
