@@ -4,6 +4,8 @@
 #include <fort-studio/bridge/SelectedAntBridge.hpp>
 #include <fort-studio/Format.hpp>
 
+#include <QDebug>
+
 AntIdentificationWidget::AntIdentificationWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::AntIdentificationWidget)
@@ -29,6 +31,11 @@ void AntIdentificationWidget::setup(SelectedAntBridge * selectedAnt) {
 	        &AntIdentificationWidget::onSelection);
 	d_ui->tableView->setModel(d_selectedAnt->identificationModel());
 	d_ui->identificationEditor->setup(d_selectedAnt->selectedIdentification());
+	connect(d_ui->tableView->selectionModel(),
+	        &QItemSelectionModel::selectionChanged,
+	        this,
+	        &AntIdentificationWidget::onIdentificationSelectionChanged);
+
 }
 
 
@@ -44,4 +51,22 @@ void  AntIdentificationWidget::onSelection() {
 
 void AntIdentificationWidget::on_tableView_doubleClicked(const QModelIndex & index) {
 	d_selectedAnt->selectIdentification(index);
+}
+
+
+void AntIdentificationWidget::onIdentificationSelectionChanged() {
+	if ( d_ui->tableView->selectionModel()->hasSelection() == true ) {
+		d_ui->removeButton->setEnabled(true);
+	} else {
+		d_ui->removeButton->setEnabled(false);
+	}
+}
+
+void AntIdentificationWidget::on_removeButton_clicked() {
+	qWarning() << "Clicked";
+	auto rows = d_ui->tableView->selectionModel()->selectedRows();
+	if ( rows.isEmpty() == true ) {
+		return;
+	}
+	d_selectedAnt->removeIdentification(rows[0]);
 }

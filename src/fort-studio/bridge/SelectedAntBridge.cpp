@@ -8,8 +8,11 @@
 
 #include <myrmidon/priv/Experiment.hpp>
 
-SelectedAntBridge::SelectedAntBridge(QObject * parent)
+#include "IdentifierBridge.hpp"
+
+SelectedAntBridge::SelectedAntBridge(IdentifierBridge * parent)
 	: Bridge(parent)
+	, d_identifier(parent)
 	, d_identificationModel(new QStandardItemModel(this))
 	, d_shapeModel(new QStandardItemModel(this))
 	, d_selectedIdentification( new SelectedIdentificationBridge(this) ){
@@ -118,8 +121,19 @@ fm::Ant::ID SelectedAntBridge::selectedID() const {
 
 void SelectedAntBridge::selectIdentification(const QModelIndex & index) {
 	auto item = d_identificationModel->itemFromIndex(index);
-	if ( !item ) {
+	if ( item == nullptr ) {
 		return;
 	}
 	d_selectedIdentification->setIdentification(item->data().value<fmp::Identification::Ptr>());
+}
+
+
+void SelectedAntBridge::removeIdentification(const QModelIndex & index) {
+	auto item = d_identificationModel->itemFromIndex(index);
+	if ( item == nullptr || d_identifier == nullptr) {
+		return;
+	}
+
+
+	d_identifier->deleteIdentification(item->data().value<fmp::Identification::Ptr>());
 }

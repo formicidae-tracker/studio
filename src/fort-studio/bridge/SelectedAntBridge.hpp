@@ -10,11 +10,12 @@ namespace fmp = fort::myrmidon::priv;
 namespace fm = fort::myrmidon;
 
 class SelectedIdentificationBridge;
+class IdentifierBridge;
 
 class SelectedAntBridge : public Bridge {
 	Q_OBJECT
 public:
-	SelectedAntBridge(QObject * parent);
+	SelectedAntBridge(IdentifierBridge * parent);
 
 	bool isActive() const override;
 
@@ -34,9 +35,11 @@ public slots:
 
 	void selectIdentification(const QModelIndex & index);
 
+	void removeIdentification(const QModelIndex & index);
 private:
 	void rebuildIdentificationModel();
 
+	IdentifierBridge             * d_identifier;
 	QStandardItemModel           * d_identificationModel;
 	QStandardItemModel           * d_shapeModel;
 	SelectedIdentificationBridge * d_selectedIdentification;

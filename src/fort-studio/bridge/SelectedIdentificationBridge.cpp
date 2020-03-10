@@ -114,7 +114,6 @@ double SelectedIdentificationBridge::tagSize() const {
 }
 
 void SelectedIdentificationBridge::setTagSize(double tagSize) {
-	qWarning() << "setSize " << tagSize;
 	if ( !d_identification
 	     || d_identification->UseDefaultTagSize() == true
 	     || tagSize == d_identification->TagSize() ) {
@@ -126,7 +125,6 @@ void SelectedIdentificationBridge::setTagSize(double tagSize) {
 }
 
 void SelectedIdentificationBridge::setUseGlobalSize(bool useGlobalSize) {
-	qWarning() << "setUse " << useGlobalSize;
 	if ( !d_identification ) {
 		return;
 	}

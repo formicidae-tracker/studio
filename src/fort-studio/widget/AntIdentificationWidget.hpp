@@ -19,6 +19,9 @@ public:
 private slots :
 	void onSelection();
 	void on_tableView_doubleClicked(const QModelIndex & index);
+
+	void onIdentificationSelectionChanged();
+	void on_removeButton_clicked();
 private:
 	Ui::AntIdentificationWidget * d_ui;
 
