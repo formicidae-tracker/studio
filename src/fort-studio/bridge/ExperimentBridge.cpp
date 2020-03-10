@@ -142,6 +142,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_universe->setExperiment(experiment);
 	d_measurements->setExperiment(experiment);
 	d_identifier->setExperiment(experiment);
+	d_identifier->selectedAnt()->setExperiment(experiment);
 	d_identifier->selectedAnt()->selectedIdentification()->setExperiment(experiment);
 	d_globalProperties->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);

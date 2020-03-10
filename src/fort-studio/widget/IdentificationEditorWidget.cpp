@@ -52,4 +52,35 @@ void IdentificationEditorWidget::setup(SelectedIdentificationBridge * selectedId
 	        selectedIdentification,
 	        &SelectedIdentificationBridge::setTagSize);
 
+	connect(selectedIdentification,
+	        &SelectedIdentificationBridge::activated,
+	        d_ui->startTime,
+	        &TimeEditorWidget::setEnabled);
+
+	connect(selectedIdentification,
+	        &SelectedIdentificationBridge::startModified,
+	        d_ui->startTime,
+	        &TimeEditorWidget::setTime);
+
+	connect(d_ui->startTime,
+	        &TimeEditorWidget::timeChanged,
+	        selectedIdentification,
+	        &SelectedIdentificationBridge::setStart);
+
+
+	connect(selectedIdentification,
+	        &SelectedIdentificationBridge::activated,
+	        d_ui->endTime,
+	        &TimeEditorWidget::setEnabled);
+
+	connect(selectedIdentification,
+	        &SelectedIdentificationBridge::endModified,
+	        d_ui->endTime,
+	        &TimeEditorWidget::setTime);
+
+	connect(d_ui->endTime,
+	        &TimeEditorWidget::timeChanged,
+	        selectedIdentification,
+	        &SelectedIdentificationBridge::setEnd);
+
 }

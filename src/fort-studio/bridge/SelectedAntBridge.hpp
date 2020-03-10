@@ -18,6 +18,8 @@ public:
 
 	bool isActive() const override;
 
+	void setExperiment(const fmp::ExperimentConstPtr & experiment);
+
 	SelectedIdentificationBridge * selectedIdentification() const;
 
 	QAbstractItemModel * identificationModel() const;
@@ -39,4 +41,5 @@ private:
 	QStandardItemModel           * d_shapeModel;
 	SelectedIdentificationBridge * d_selectedIdentification;
 	fmp::Ant::Ptr                  d_ant;
+	fmp::ExperimentConstPtr        d_experiment;
 };

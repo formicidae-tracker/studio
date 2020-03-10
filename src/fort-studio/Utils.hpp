@@ -1,8 +1,11 @@
 #pragma once
 
 #include <myrmidon/Vector2d.pb.h>
+#include <myrmidon/Time.hpp>
 
 #include <Eigen/Core>
+
+#include <QPointF>
 
 namespace fort {
 namespace myrmidon {
@@ -24,4 +27,15 @@ inline void EigenToPoint2d(fort::myrmidon::pb::Vector2d * pb, const Eigen::Vecto
 
 inline Eigen::Vector2d ToEigen(const QPointF & a) {
 	return Eigen::Vector2d(a.x(),a.y());
+}
+
+inline bool TimePtrEquals(const fort::myrmidon::Time::ConstPtr & a,
+                          const fort::myrmidon::Time::ConstPtr & b) {
+	if ( !a ) {
+		return !b;
+	}
+	if (!b) {
+		return false;
+	}
+	return a->Equals(*b);
 }

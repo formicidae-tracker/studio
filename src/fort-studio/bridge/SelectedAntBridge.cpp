@@ -6,6 +6,7 @@
 
 #include <fort-studio/Format.hpp>
 
+#include <myrmidon/priv/Experiment.hpp>
 
 SelectedAntBridge::SelectedAntBridge(QObject * parent)
 	: Bridge(parent)
@@ -23,6 +24,11 @@ SelectedAntBridge::SelectedAntBridge(QObject * parent)
 bool SelectedAntBridge::isActive() const {
 	return d_ant.get() != NULL;
 }
+
+void SelectedAntBridge::setExperiment(const fmp::Experiment::ConstPtr & experiment) {
+	d_experiment = experiment;
+}
+
 
 SelectedIdentificationBridge * SelectedAntBridge::selectedIdentification() const {
 	return d_selectedIdentification;
@@ -52,7 +58,7 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 }
 
 void SelectedAntBridge::onIdentificationModified(const fmp::Identification::ConstPtr & ident) {
-	if ( d_ant || ident->Target() != d_ant ) {
+	if ( !d_ant || !ident || ident->Target()->ID() != d_ant->ID() ) {
 		return;
 	}
 	rebuildIdentificationModel();
@@ -66,13 +72,20 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 	}
 
 	d_identificationModel->clear();
-	d_identificationModel->setHorizontalHeaderLabels({tr("TagID"),tr("From Time"),tr("To Time")});
+	d_identificationModel->setHorizontalHeaderLabels({tr("TagID"),tr("Size(mm)"),tr("From Time"),tr("To Time")});
 
 	for ( const auto & ident : d_ant->Identifications() ) {
 		auto data = QVariant::fromValue(ident);
 		auto tag = new QStandardItem(QString::number(ident->TagValue()));
 		tag->setEditable(false);
 		tag->setData(data);
+		double sizeValue = ident->TagSize();
+		if ( sizeValue == 0.0 ) {
+			sizeValue = d_experiment->DefaultTagSize();
+		}
+		auto size = new QStandardItem(QString::number(sizeValue));
+		size->setEditable(false);
+		size->setData(data);
 		auto start = new QStandardItem("");
 		start->setEditable(false);
 		start->setData(data);
@@ -90,7 +103,7 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 			end->setText("+∞");
 		}
 
-		d_identificationModel->appendRow({tag,start,end});
+		d_identificationModel->appendRow({tag,size,start,end});
 	}
 }
 

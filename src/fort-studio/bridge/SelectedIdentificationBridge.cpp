@@ -7,6 +7,8 @@
 #include <myrmidon/priv/Experiment.hpp>
 #include <myrmidon/priv/Identification.hpp>
 
+#include <fort-studio/Utils.hpp>
+
 SelectedIdentificationBridge::SelectedIdentificationBridge(QObject * parent)
 	: Bridge(parent) {
 }
@@ -48,17 +50,6 @@ fm::Time::ConstPtr SelectedIdentificationBridge::end() const {
 	return d_identification->End();
 }
 
-bool TimePtrEquals(const fm::Time::ConstPtr & a,
-                   const fm::Time::ConstPtr & b) {
-	if ( !a ) {
-		return !b;
-	}
-	if (!b) {
-		return false;
-	}
-	return a->Equals(*b);
-}
-
 
 void SelectedIdentificationBridge::setStart(const fm::Time::ConstPtr & start) {
 	if ( !d_identification
@@ -72,6 +63,7 @@ void SelectedIdentificationBridge::setStart(const fm::Time::ConstPtr & start) {
 		d_identification->SetStart(start);
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not set identification start: " << e.what();
+		emit startModified(d_identification->Start());
 		return;
 	}
 	qInfo() << "Set identification start to " << ToQString(start,"-");
@@ -92,6 +84,7 @@ void SelectedIdentificationBridge::setEnd(const fm::Time::ConstPtr & end ) {
 		d_identification->SetEnd(end);
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not set identification end: " << e.what();
+		emit endModified(d_identification->End());
 		return;
 	}
 
