@@ -354,11 +354,21 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	if ( !tcu ) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
+		d_ui->vectorialView->setBannerMessage("",QColor());
 		updateButtonStates();
 		return;
 	}
 
 	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
+
+	double squareness = d_tcu->Squareness();
+	const static double threshold = 0.95;
+	if ( squareness < threshold ) {
+		auto color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(5));
+		d_ui->vectorialView->setBannerMessage(tr("WARNING: Tag Squareness is Low (%1 < %2)").arg(squareness).arg(threshold),color);
+	} else {
+		d_ui->vectorialView->setBannerMessage("",QColor());
+	}
 
 	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
 	d_ui->vectorialView->resetZoom();

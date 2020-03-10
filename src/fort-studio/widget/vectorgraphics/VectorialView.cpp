@@ -15,6 +15,24 @@ VectorialView::VectorialView(QWidget * parent)
 	d_zoomFactorBase = 1.0015;
 }
 
+void VectorialView::setBannerMessage(const QString & bannerMessage, const QColor & color) {
+	if ( bannerMessage == d_bannerMessage && color == d_bannerColor) {
+		return;
+	}
+	d_bannerMessage = bannerMessage;
+	d_bannerColor = color;
+	d_bannerColor.setAlpha(200);
+	if ( d_bannerMessage.isEmpty() == true) {
+		setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+	} else {
+		setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+	}
+	if ( scene() != nullptr ) {
+		scene()->invalidate();
+	}
+}
+
+
 VectorialView::~VectorialView() {
 }
 
@@ -34,22 +52,36 @@ void VectorialView::zoom(double factor) {
 	                                                         viewport()->height() / 2.0);
 	QPointF viewportCenter = mapFromScene(d_targetScenePos) - deltaViewportPos;
 	centerOn(mapToScene(viewportCenter.toPoint()));
-
 	emit zoomed(transform().m11());
 }
 
 bool VectorialView::eventFilter(QObject * object, QEvent * event) {
 	if ( event->type() == QEvent::Wheel ) {
 		QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
-		if (QApplication::keyboardModifiers() == Qt::ShiftModifier
-		    && wheelEvent->orientation() == Qt::Vertical ) {
-			d_targetViewportPos = wheelEvent->pos();
-			d_targetScenePos = mapToScene(wheelEvent->pos());
-			double angle = wheelEvent->angleDelta().y();
-			double factor = std::pow(d_zoomFactorBase, angle);
-			zoom(factor);
+		if (QApplication::keyboardModifiers() == Qt::ShiftModifier ) {
+			if ( wheelEvent->orientation() == Qt::Vertical ) {
+				d_targetViewportPos = wheelEvent->pos();
+				d_targetScenePos = mapToScene(wheelEvent->pos());
+				double angle = wheelEvent->angleDelta().y();
+				double factor = std::pow(d_zoomFactorBase, angle);
+				zoom(factor);
+			}
+			// also disables horizontal scrolling, useful for laptop gestures
 			return true;
 		}
 	}
 	return false;
+}
+
+
+void VectorialView::drawForeground(QPainter *painter, const QRectF &rect) {
+	if ( d_bannerMessage.isEmpty() ) {
+		return;
+	}
+	QRectF bannerRect(rect.topLeft(),QSizeF(rect.width(),60));
+	painter->fillRect(bannerRect,d_bannerColor);
+	auto font = painter->font();
+	font.setPointSize(14);
+	painter->setFont(font);
+	painter->drawText(bannerRect,Qt::AlignCenter,d_bannerMessage);
 }
