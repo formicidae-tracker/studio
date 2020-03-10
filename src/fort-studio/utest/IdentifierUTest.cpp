@@ -1,6 +1,7 @@
 #include "IdentifierUTest.hpp"
 
 #include <fort-studio/bridge/IdentifierBridge.hpp>
+#include <fort-studio/bridge/SelectedAntBridge.hpp>
 #include <fort-studio/widget/AntListWidget.hpp>
 #include "ui_AntListWidget.h"
 
@@ -17,12 +18,14 @@
 void IdentifierUTest::SetUp() {
 	ASSERT_NO_THROW({
 			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "identifierUTest.myrmidon");
-			identifier = new IdentifierBridge(NULL);
+			selectedAnt = new SelectedAntBridge(NULL);
+			identifier = new IdentifierBridge(selectedAnt,NULL);
 		});
 }
 
 void IdentifierUTest::TearDown() {
 	delete identifier;
+	delete selectedAnt;
 	experiment.reset();
 }
 
@@ -350,7 +353,7 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 
 TEST_F(IdentifierUTest,AntSelection) {
 	fmp::Ant::ConstPtr ant[3];
-	QSignalSpy antSelected(identifier,SIGNAL(antSelected(fmp::Ant::Ptr)));
+	QSignalSpy antSelected(selectedAnt,SIGNAL(activated(bool)));
 
 	ASSERT_NO_THROW({
 			ant[0] = experiment->Identifier().CreateAnt();
@@ -376,8 +379,9 @@ TEST_F(IdentifierUTest,AntSelection) {
 
 	identifier->selectAnt(m->index(0,0));
 	ASSERT_EQ(antSelected.count(),3);
-	EXPECT_EQ(antSelected.last().at(0).value<fmp::Ant::Ptr>().get(),
-	          ant[0].get());
+	EXPECT_EQ(antSelected.last().at(0).toBool(),
+	          true);
+	EXPECT_EQ(selectedAnt->selectedID(),ant[0]->ID());
 
 }
 

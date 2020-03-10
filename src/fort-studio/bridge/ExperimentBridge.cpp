@@ -12,9 +12,9 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	: Bridge(parent)
 	, d_universe(new UniverseBridge(this))
 	, d_measurements(new MeasurementBridge(this))
-	, d_identifier(new IdentifierBridge(this))
-	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_selectedAnt(new SelectedAntBridge(this))
+	, d_identifier(new IdentifierBridge(d_selectedAnt,this))
+	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_selectedIdentification(new SelectedIdentificationBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this)) {
 

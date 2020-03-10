@@ -55,9 +55,9 @@ private:
 	fmp::Experiment::Ptr              d_experiment;
 	UniverseBridge                  * d_universe;
 	MeasurementBridge               * d_measurements;
+	SelectedAntBridge               * d_selectedAnt;
 	IdentifierBridge                * d_identifier;
 	GlobalPropertyBridge            * d_globalProperties;
-	SelectedAntBridge               * d_selectedAnt;
 	SelectedIdentificationBridge    * d_selectedIdentification;
 	IdentifiedFrameConcurrentLoader * d_identifiedFrameLoader;
 };

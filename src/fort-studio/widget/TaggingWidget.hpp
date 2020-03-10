@@ -8,6 +8,7 @@
 class GlobalPropertyBridge;
 class MeasurementBridge;
 class IdentifierBridge;
+class SelectedAntBridge;
 class QSortFilterProxyModel;
 class VectorialScene;
 class Vector;
@@ -27,7 +28,8 @@ public:
 
 	void setup(GlobalPropertyBridge * globalProperties,
 	           MeasurementBridge * measurements,
-	           IdentifierBridge * identifier);
+	           IdentifierBridge * identifier,
+	           SelectedAntBridge * selectedAnt);
 
 
 public slots:
@@ -51,15 +53,19 @@ public slots:
 	void previousTag();
 	void previousTagCloseUp();
 
+private slots:
+	void updateButtonStates();
+
+
 private:
 	void selectRow(int tagRow, int tcuRow);
 	bool eventFilter(QObject * obj, QEvent * event);
-	void updateButtonStates();
 
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;
 	MeasurementBridge     * d_measurements;
 	IdentifierBridge      * d_identifier;
 	VectorialScene        * d_vectorialScene;
+	SelectedAntBridge     * d_selectedAnt;
 	fmp::TagCloseUpConstPtr d_tcu;
 };

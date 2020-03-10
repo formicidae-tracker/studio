@@ -10,6 +10,8 @@
 class QModelIndex;
 class QItemSelection;
 
+class SelectedAntBridge;
+
 class IdentifierBridge : public Bridge {
 	Q_OBJECT
 	Q_PROPERTY(quint32 numberSoloAnt
@@ -20,7 +22,8 @@ class IdentifierBridge : public Bridge {
 	           NOTIFY numberHiddenAntChanged)
 
 public:
-	IdentifierBridge(QObject * parent);
+	IdentifierBridge(SelectedAntBridge * selectedAnnt,
+	                 QObject * parent);
 
 	QAbstractItemModel * antModel() const;
 
@@ -39,8 +42,6 @@ public:
 	                         fm::Time::ConstPtr & end,
 	                         fmp::TagID tagID, const fm::Time & time) const;
 
-
-	fmp::Ant::ConstPtr selectedAnt() const;
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
 	void antDeleted(quint32);
@@ -52,8 +53,6 @@ signals:
 	void antDisplayChanged(quint32,
 	                       fmp::Color,
 	                       fmp::Ant::DisplayState);
-
-	void antSelected(fmp::Ant::Ptr);
 
 	void numberSoloAntChanged(quint32 numberSolo);
 	void numberHiddenAntChanged(quint32 numberSolo);
@@ -102,5 +101,5 @@ private:
 	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_model;
 	quint32              d_numberSoloAnt,d_numberHiddenAnt;
-	fmp::AntPtr          d_selectedAnt;
+	SelectedAntBridge  * d_selectedAnt;
 };

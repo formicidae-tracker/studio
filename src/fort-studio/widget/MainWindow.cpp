@@ -55,7 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment->globalProperties(),
 	                           d_experiment->measurements(),
-	                           d_experiment->identifier());
+	                           d_experiment->identifier(),
+	                           d_experiment->selectedAnt());
     loadSettings();
 }
 

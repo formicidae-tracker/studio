@@ -8,6 +8,7 @@
 #include <fort-studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort-studio/bridge/MeasurementBridge.hpp>
 #include <fort-studio/bridge/IdentifierBridge.hpp>
+#include <fort-studio/bridge/SelectedAntBridge.hpp>
 
 #include <fort-studio/Format.hpp>
 #include <fort-studio/Utils.hpp>
@@ -61,7 +62,8 @@ TaggingWidget::~TaggingWidget() {
 
 void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
                           MeasurementBridge * measurements,
-                          IdentifierBridge * identifier) {
+                          IdentifierBridge * identifier,
+                          SelectedAntBridge * selectedAnt) {
 	connect(globalProperties,
 	        &GlobalPropertyBridge::activated,
 	        d_ui->familySelector,
@@ -134,6 +136,12 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	d_identifier = identifier;
 	setTagCloseUp(fmp::TagCloseUp::Ptr());
 
+	connect(selectedAnt,
+	        &Bridge::activated,
+	        this,
+	        &TaggingWidget::updateButtonStates);
+	d_selectedAnt = selectedAnt;
+
 }
 
 
@@ -146,7 +154,7 @@ void TaggingWidget::on_addIdentButton_clicked() {
 		return;
 	}
 
-	if ( !d_identifier->selectedAnt() ) {
+	if ( d_selectedAnt->isActive() == false ) {
 		return;
 	}
 
@@ -159,7 +167,7 @@ void TaggingWidget::on_addIdentButton_clicked() {
 	}
 
 
-	d_identifier->addIdentification(d_identifier->selectedAnt()->ID(),
+	d_identifier->addIdentification(d_selectedAnt->selectedID(),
 	                                d_tcu->TagValue(),
 	                                start,end);
 
@@ -462,7 +470,7 @@ void TaggingWidget::updateButtonStates() {
 	}
 	d_ui->newAntButton->setEnabled(true);
 
-	if ( !d_identifier->selectedAnt() ) {
+	if ( d_selectedAnt->isActive() == false ) {
 		d_ui->addIdentButton->setEnabled(false);
 		return;
 	}

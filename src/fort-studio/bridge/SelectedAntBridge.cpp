@@ -75,3 +75,11 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 		d_identificationModel->appendRow({tag,start,end});
 	}
 }
+
+
+fm::Ant::ID SelectedAntBridge::selectedID() const {
+	if ( !d_ant ) {
+		return 0;
+	}
+	return d_ant->ID();
+}

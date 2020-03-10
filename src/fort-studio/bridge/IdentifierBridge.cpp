@@ -8,12 +8,15 @@
 
 #include <myrmidon/priv/Identifier.hpp>
 
+#include "SelectedAntBridge.hpp"
 
-IdentifierBridge::IdentifierBridge(QObject * parent)
+IdentifierBridge::IdentifierBridge(SelectedAntBridge * selectedAnt,
+                                   QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this))
 	, d_numberSoloAnt(0)
-	, d_numberHiddenAnt(0) {
+	, d_numberHiddenAnt(0)
+	, d_selectedAnt(selectedAnt) {
 
 	qRegisterMetaType<fmp::Ant::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::Ptr>();
@@ -41,8 +44,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[IdentifierBridge]: setting new experiment";
 	d_numberSoloAnt = 0;
 	d_numberHiddenAnt = 0;
-	d_selectedAnt.reset();
-	emit antSelected(d_selectedAnt);
+	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 
 	setModified(false);
 	d_model->clear();
@@ -361,13 +363,7 @@ void IdentifierBridge::selectAnt(const QModelIndex & index) {
 	}
 
 	auto ant = d_model->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
-	if ( ant == d_selectedAnt ) {
-		return;
-	}
-	d_selectedAnt = ant;
-	qInfo() << "Selecting Ant" << fmp::Ant::FormatID(ant->ID()).c_str();
-
-	emit antSelected(ant);
+	d_selectedAnt->setAnt(ant);
 }
 
 
@@ -464,10 +460,6 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 		return fmp::Identification::ConstPtr();
 	}
 	return d_experiment->ConstIdentifier().Identify(tagID,time);
-}
-
-fmp::Ant::ConstPtr IdentifierBridge::selectedAnt() const {
-	return d_selectedAnt;
 }
 
 

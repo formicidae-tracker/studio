@@ -7,6 +7,7 @@
 #include "IdentifierBridge.hpp"
 
 namespace fmp = fort::myrmidon::priv;
+namespace fm = fort::myrmidon;
 
 class SelectedAntBridge : public Bridge {
 	Q_OBJECT
@@ -17,6 +18,8 @@ public:
 
 	QAbstractItemModel * identificationModel() const;
 	QAbstractItemModel * shapeModel() const;
+
+	fm::Ant::ID selectedID() const;
 
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);

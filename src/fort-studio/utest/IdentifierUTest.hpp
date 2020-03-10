@@ -7,6 +7,7 @@
 namespace fmp = fort::myrmidon::priv;
 
 class IdentifierBridge;
+class SelectedAntBridge;
 
 class IdentifierUTest : public ::testing::Test {
 protected:
@@ -15,5 +16,6 @@ protected:
 	void TearDown();
 
 	fmp::Experiment::Ptr experiment;
+	SelectedAntBridge  * selectedAnt;
 	IdentifierBridge   * identifier;
 };
