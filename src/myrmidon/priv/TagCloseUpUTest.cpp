@@ -201,6 +201,41 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 
 }
 
+TEST_F(TagCloseUpUTest,ComputesSquareness) {
+	struct TestData {
+		Vector2dList Corners;
+		double Expected;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {
+		  {{1,1},{1,-1},{-1,-1},{-1,1}},
+		  1.0,
+		 },
+		 //this is a triangle, it is not square
+		 {
+		  {{1,1},{1,-1},{-1,-1},{1,1}},
+		  0.0,
+		 },
+		 {
+		  {{11,12},{9,-11},{-11,-10},{-12,9}},
+		  0.8622,
+		 },
+		};
+
+	for ( const auto & d : testdata ) {
+		auto tcu = TagCloseUp(TestSetup::Basedir() / "foo.png",
+		                      FrameReference("",0,Time()),
+		                      0,
+		                      Eigen::Vector2d(0,0),
+		                      0,
+		                      d.Corners);
+		EXPECT_NEAR(tcu.Squareness(),d.Expected,1.0e-3);
+	}
+
+
+}
 
 TEST_F(TagCloseUpUTest,ClassInvariants) {
 

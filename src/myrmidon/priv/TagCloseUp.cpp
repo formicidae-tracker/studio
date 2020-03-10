@@ -395,7 +395,12 @@ double TagCloseUp::Squareness() const {
 	for(size_t i = 0 ; i < 4; ++i ) {
 		Eigen::Vector2d a = d_corners[(i-1)%4] - d_corners[i];
 		Eigen::Vector2d b = d_corners[(i+1)%4] - d_corners[i];
-		double angle = std::acos(a.dot(b));
+		double aNorm = a.norm();
+		double bNorm = b.norm();
+		if ( aNorm < 1.0e-3 || bNorm < 1.0e-3 ) {
+			return 0;
+		}
+		double angle = std::acos(a.dot(b)/ (aNorm * bNorm));
 		maxAngleDistanceToPI_2 = std::max(maxAngleDistanceToPI_2,
 		                                  std::abs(angle - (M_PI / 2.0)));
 	}
