@@ -7,6 +7,7 @@
 #include <fort-studio/Format.hpp>
 
 #include <myrmidon/priv/Experiment.hpp>
+#include <myrmidon/priv/Capsule.hpp>
 
 #include "IdentifierBridge.hpp"
 
@@ -14,8 +15,7 @@ SelectedAntBridge::SelectedAntBridge(IdentifierBridge * parent)
 	: Bridge(parent)
 	, d_identifier(parent)
 	, d_identificationModel(new QStandardItemModel(this))
-	, d_shapeModel(new QStandardItemModel(this))
-	, d_selectedIdentification( new SelectedIdentificationBridge(this) ){
+	, d_selectedIdentification( new SelectedIdentificationBridge(this) ) {
 
 	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::identificationModified,
@@ -28,7 +28,7 @@ bool SelectedAntBridge::isActive() const {
 	return d_ant.get() != NULL;
 }
 
-void SelectedAntBridge::setExperiment(const fmp::Experiment::ConstPtr & experiment) {
+void SelectedAntBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 }
 
@@ -41,14 +41,18 @@ QAbstractItemModel * SelectedAntBridge::identificationModel() const {
 	return d_identificationModel;
 }
 
-QAbstractItemModel * SelectedAntBridge::shapeModel() const {
-	return d_shapeModel;
+const fmp::Ant::TypedCapsuleList & SelectedAntBridge::capsules() const {
+	if ( !d_ant ) {
+		static fmp::Ant::TypedCapsuleList empty;
+		return empty;
+	}
+	return d_ant->Capsules();
 }
+
 
 void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 	setModified(false);
 	d_identificationModel->clear();
-	d_shapeModel->clear();
 	d_ant = ant;
 	d_selectedIdentification->setIdentification(fmp::Identification::Ptr());
 	if ( !d_ant ) {
@@ -136,4 +140,47 @@ void SelectedAntBridge::removeIdentification(const QModelIndex & index) {
 
 
 	d_identifier->deleteIdentification(item->data().value<fmp::Identification::Ptr>());
+}
+
+
+void SelectedAntBridge::addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule) {
+	if ( !d_ant || !d_experiment || !capsule) {
+		return;
+	}
+	try {
+		qDebug() << "[SelectedAntBridge]: Calling fmp::Experiment::AddCapsuleToAnt("
+		         << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		         << "," << typeID
+		         << "," << ToQString(*capsule)
+		         << ")";
+		d_experiment->AddCapsuleToAnt(d_ant,typeID,capsule);
+	} catch (const std::exception & e ) {
+		qCritical() << "Could not add Capsule of type " << typeID
+		            << " to Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		            << ": " << e.what();
+		return;
+	}
+	setModified(true);
+}
+
+void SelectedAntBridge::removeCapsule(int index) {
+	if ( !d_ant ) {
+		return;
+	}
+
+	try {
+		qDebug() << "[SelectedAntBridge]: Calling fmp::Ant("
+		         << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		         << ")::DeleteCapsule("
+		         << index
+		         << ")";
+		d_ant->DeleteCapsule(index);
+	} catch ( const std::exception & e ) {
+		qCritical() << "Could not remove Capsule "  << index
+		            << " from Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		            << ": " << e.what();
+		return;
+	}
+
+	setModified(true);
 }
