@@ -20,8 +20,14 @@
       <property name="tabPosition">
        <enum>QTabWidget::East</enum>
       </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
+      </property>
+      <property name="usesScrollButtons">
+       <bool>false</bool>
       </property>
       <widget class="QWidget" name="experimentEditor">
        <property name="enabled">

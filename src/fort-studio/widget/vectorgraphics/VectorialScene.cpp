@@ -171,7 +171,11 @@ VectorialScene::VectorialScene(QObject * parent)
 				};
 		};
 
-	setMode(Mode::Edit);
+	d_mode = Mode::Edit;
+	d_mousePress = d_editPressEH;
+	d_mouseMove = d_editMoveEH;
+	d_mouseRelease = d_editReleaseEH;
+
 }
 
 VectorialScene::~VectorialScene() {

@@ -13,7 +13,6 @@ AntIdentificationWidget::AntIdentificationWidget(QWidget *parent)
 	d_ui->setupUi(this);
 	auto hHeader = d_ui->tableView->horizontalHeader();
 	hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
-	hHeader->setStretchLastSection(true);
 	d_ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 	d_ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
