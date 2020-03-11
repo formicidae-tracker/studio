@@ -99,7 +99,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	setModified(false);
 	cancelAll();
 	d_typeModel->clear();
-	d_typeModel->setHorizontalHeaderLabels({tr("ID"),tr("Name")});
+	d_typeModel->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
 	d_experiment = experiment;
 	d_toDo = 0;
 	d_done = 0;
@@ -464,7 +464,7 @@ void MeasurementBridge::deleteMeasurementType(quint32 MTID) {
 	}
 
 	try {
-		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);
+		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,1);
 		if ( items.size() != 1 ) {
 			throw std::logic_error("Internal type model error");
 		}
@@ -486,23 +486,23 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	auto mtid =new QStandardItem(QString::number(type->MTID()));
 	mtid->setEditable(false);
 	mtid->setData(QVariant::fromValue(type));
+	auto name = new QStandardItem(type->Name().c_str());
 	QPixmap icon(10,10);
 	icon.fill(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(type->MTID())));
-	mtid->setIcon(icon);
-	auto name = new QStandardItem(type->Name().c_str());
+	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);
-	return {mtid,name};
+	return {name,mtid};
 }
 
 void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
-	if (item->column() != 1) {
+	if (item->column() != 0) {
 		qDebug() << "[MeasurmentBridge]: Ignoring measurement type item change for column " << item->column();
 		return;
 	}
 
 	auto type = item->data().value<fmp::MeasurementType::Ptr>();
-	std::string newName = item->text().toUtf8().data();
+	std::string newName = ToStdString(item->text());
 	if ( newName == type->Name() ) {
 		qDebug() << "[MeasurementBridge]:  Ignoring MEasurementType item change '"
 		         << item->text() << "': it is still the same";
@@ -555,4 +555,25 @@ fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tc
 		return fmp::Measurement::ConstPtr();
 	}
 	return fi->second;
+}
+
+
+void MeasurementBridge::queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
+                                        const fmp::IdentificationConstPtr & identification) {
+	auto items = d_tcuModel->findItems(QString("tags/%1").arg(identification->TagValue()));
+	if ( items.isEmpty() == true ) {
+		return;
+	}
+	tcus.reserve(tcus.size() + items[0]->rowCount());
+
+	for ( size_t i =  0; i < items[0]->rowCount(); ++i) {
+		auto tcu = items[0]->child(i)->data().value<fmp::TagCloseUp::ConstPtr>();
+		if ( !tcu) {
+			continue;
+		}
+		if ( identification->IsValid(tcu->Frame().Time()) == true ) {
+			tcus.push_back(tcu);
+		}
+	}
+
 }

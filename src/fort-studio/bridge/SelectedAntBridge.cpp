@@ -184,3 +184,15 @@ void SelectedAntBridge::removeCapsule(int index) {
 
 	setModified(true);
 }
+
+std::vector<fmp::Identification::ConstPtr> SelectedAntBridge::identifications() const {
+	if ( !d_ant ) {
+		return {};
+	}
+	std::vector<fmp::Identification::ConstPtr> res;
+	res.reserve(d_ant->Identifications().size());
+	for ( const auto & i : d_ant->Identifications() ) {
+		res.push_back(i);
+	}
+	return res;
+}

@@ -29,6 +29,9 @@ public:
 
 	fm::Ant::ID selectedID() const;
 
+	std::vector<fmp::Identification::ConstPtr> identifications() const;
+
+
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
 

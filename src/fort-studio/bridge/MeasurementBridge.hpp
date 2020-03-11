@@ -65,6 +65,9 @@ public:
 	fmp::MeasurementConstPtr measurement(const std::string & tcuURI,
 	                                     fmp::MeasurementTypeID typeID);
 
+	void queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
+	                     const fmp::IdentificationConstPtr & identification);
+
 signals:
 	void progressChanged(size_t done, size_t toDo);
 

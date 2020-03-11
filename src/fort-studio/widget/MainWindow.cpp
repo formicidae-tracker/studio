@@ -57,6 +57,13 @@ MainWindow::MainWindow(QWidget *parent)
 	                           d_experiment->identifier(),
 	                           d_experiment->selectedAnt());
 	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->shappingWidget->setEnabled(false);
+	connect(d_ui->workspaceSelector,
+	        &QTabWidget::currentChanged,
+	        [this](int index) {
+		        d_ui->shappingWidget->setEnabled(index == 2);
+	        });
+	d_ui->workspaceSelector->setCurrentIndex(0);
     loadSettings();
 }
 
