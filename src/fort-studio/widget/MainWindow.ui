@@ -17,8 +17,11 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
+      <property name="tabPosition">
+       <enum>QTabWidget::East</enum>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="experimentEditor">
        <property name="enabled">
@@ -71,6 +74,11 @@
         <string>Identification</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6"/>
+      </widget>
+      <widget class="ShappingWidget" name="shappingWidget">
+       <attribute name="title">
+        <string>Shapping</string>
+       </attribute>
       </widget>
       <widget class="QWidget" name="exploreWidget">
        <attribute name="title">
@@ -391,6 +399,12 @@
    <class>TaggingWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/widget/TaggingWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ShappingWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/widget/ShappingWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -33,6 +33,7 @@ set(SRC_FILES Format.cpp
 			  widget/TaggingWidget.cpp
 			  widget/AntIdentificationWidget.cpp
 			  widget/IdentificationEditorWidget.cpp
+			  widget/ShappingWidget.cpp
 			  # QLongSpinBox.cpp
 			  widget/MainWindow.cpp
 			  )
@@ -70,6 +71,7 @@ set(HDR_FILES Format.hpp
 			  widget/TaggingWidget.hpp
 			  widget/AntIdentificationWidget.hpp
 			  widget/IdentificationEditorWidget.hpp
+			  widget/ShappingWidget.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -85,6 +87,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
+             widget/ShappingWidget.ui
 			 )
 
 set(RCC_FILES )
