@@ -64,6 +64,17 @@ MainWindow::MainWindow(QWidget *parent)
 		        d_ui->shappingWidget->setEnabled(index == 2);
 	        });
 	d_ui->workspaceSelector->setCurrentIndex(0);
+
+	setWindowTitle(tr("FORmicidae Tracker Studio"));
+	connect(d_experiment,
+	        &ExperimentBridge::activated,
+	        [this]() {
+		        if (d_experiment->isActive() == false ) {
+			        setWindowTitle(tr("FORmicidae Tracker Studio"));
+		        }
+		        setWindowTitle(tr("FORmicidae Tracker Studio - %1").arg(d_experiment->absoluteFilePath().c_str()));
+	        });
+
     loadSettings();
 }
 
