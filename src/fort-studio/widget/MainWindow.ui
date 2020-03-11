@@ -24,7 +24,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>false</bool>
@@ -61,18 +61,6 @@
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="QGroupBox" name="measurementTypeBox">
-          <property name="title">
-           <string>Measurement Types</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="MeasurementTypeWidget" name="measurementType" native="true"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="TaggingWidget" name="taggingWidget">
@@ -83,7 +71,7 @@
       </widget>
       <widget class="ShappingWidget" name="shappingWidget">
        <attribute name="title">
-        <string>Shapping</string>
+        <string>Shapping and Measure</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="exploreWidget">
@@ -387,12 +375,6 @@
    <class>UniverseEditorWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/widget/UniverseEditorWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MeasurementTypeWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/widget/MeasurementTypeWidget.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>

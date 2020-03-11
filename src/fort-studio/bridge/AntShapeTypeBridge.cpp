@@ -24,13 +24,19 @@ AntShapeTypeBridge::AntShapeTypeBridge(QObject * parent)
 AntShapeTypeBridge::~AntShapeTypeBridge() {
 }
 
+bool AntShapeTypeBridge::isActive() const {
+	return d_experiment.get () != nullptr;
+}
+
 void AntShapeTypeBridge::setExperiment(const fmp::ExperimentPtr & experiment) {
 	setModified(false);
 	d_model->clear();
+	d_model->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
 	d_experiment = experiment;
 
 	if ( !d_experiment ) {
 		emit activated(false);
+		return;
 	}
 
 	emit activated(true);
@@ -50,10 +56,15 @@ void AntShapeTypeBridge::addType(const QString & name) {
 		return;
 	}
 	fmp::AntShapeTypePtr shapeType;
+	QString actualName = name;
+	if ( name.isEmpty() == true ) {
+		actualName = QString("body part %1").arg(d_experiment->AntShapeTypes().size()+1);
+	}
+
 	try {
 		qDebug() << "[AntShapeTypeBridge]: Calling fmp::Experiment::CreateAntShapeType("
-		         << name << ")";
-		shapeType = d_experiment->CreateAntShapeType(ToStdString(name));
+		         << actualName << ")";
+		shapeType = d_experiment->CreateAntShapeType(ToStdString(actualName));
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not create AntShapeType " << name
 		            << ": " << e.what();
@@ -68,7 +79,7 @@ void AntShapeTypeBridge::deleteType(quint32 typeID) {
 	if ( !d_experiment ) {
 		return;
 	}
-	auto items = d_model->findItems(QString::number(typeID));
+	auto items = d_model->findItems(QString::number(typeID),Qt::MatchExactly,1);
 	if ( items.isEmpty() == true ) {
 		qWarning() << "Could not find type " << typeID;
 		return;
@@ -89,7 +100,7 @@ void AntShapeTypeBridge::deleteType(quint32 typeID) {
 
 
 void AntShapeTypeBridge::onTypeItemChanged(QStandardItem * item) {
-	if ( item->column() != 1 ) {
+	if ( item->column() != 0 ) {
 		return;
 	}
 
@@ -117,9 +128,10 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 	id->setData(data);
 	QPixmap pixmap(20,20);
 	pixmap.fill(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(shapeType->TypeID())));
-	id->setIcon(pixmap);
 	auto name = new QStandardItem(ToQString(shapeType->Name()));
 	name->setEditable(true);
-	id->setData(data);
-	return {id,name};
+	name->setData(data);
+	name->setIcon(pixmap);
+
+	return {name,id};
 }

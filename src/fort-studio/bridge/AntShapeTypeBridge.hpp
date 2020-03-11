@@ -20,6 +20,8 @@ public :
 
 	QAbstractItemModel * shapeModel() const;
 
+	bool isActive() const override;
+
 public slots:
 	void addType(const QString & name);
 	void deleteType(quint32 typeID);

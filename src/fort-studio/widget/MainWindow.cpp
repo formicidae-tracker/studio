@@ -51,12 +51,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 	d_ui->globalProperties->setup(d_experiment->globalProperties());
 	d_ui->universeEditor->setup(d_experiment->universe());
-	d_ui->measurementType->setup(d_experiment->measurements());
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment->globalProperties(),
 	                           d_experiment->measurements(),
 	                           d_experiment->identifier(),
 	                           d_experiment->selectedAnt());
+	d_ui->shappingWidget->setup(d_experiment);
     loadSettings();
 }
 

@@ -34,6 +34,7 @@ set(SRC_FILES Format.cpp
 			  widget/AntIdentificationWidget.cpp
 			  widget/IdentificationEditorWidget.cpp
 			  widget/ShappingWidget.cpp
+			  widget/AntShapeTypeEditorWidget.cpp
 			  # QLongSpinBox.cpp
 			  widget/MainWindow.cpp
 			  )
@@ -72,6 +73,7 @@ set(HDR_FILES Format.hpp
 			  widget/AntIdentificationWidget.hpp
 			  widget/IdentificationEditorWidget.hpp
 			  widget/ShappingWidget.hpp
+			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -88,6 +90,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
              widget/ShappingWidget.ui
+             widget/AntShapeTypeEditorWidget.ui
 			 )
 
 set(RCC_FILES )
@@ -99,6 +102,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/UniverseUTest.cpp
                     utest/MeasurementUTest.cpp
                     utest/IdentifierUTest.cpp
+                    utest/AntShapeTypeUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -106,6 +110,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/UniverseUTest.hpp
                     utest/MeasurementUTest.hpp
                     utest/IdentifierUTest.hpp
+                    utest/AntShapeTypeUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src
