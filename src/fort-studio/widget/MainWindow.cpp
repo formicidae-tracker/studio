@@ -58,7 +58,10 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(d_ui->workspaceSelector,
 	        &QTabWidget::currentChanged,
 	        [this](int index) {
-		        d_ui->shappingWidget->setEnabled(index == 2);
+		        for ( size_t i = 0; i < d_ui->workspaceSelector->count(); ++i ) {
+			        auto w = d_ui->workspaceSelector->widget(i);
+			        w->setEnabled(i == index);
+		        }
 	        });
 	d_ui->workspaceSelector->setCurrentIndex(0);
 
