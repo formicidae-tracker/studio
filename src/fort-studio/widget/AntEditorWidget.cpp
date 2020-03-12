@@ -1,25 +1,25 @@
-#include "ShappingWidget.hpp"
-#include "ui_ShappingWidget.h"
+#include "AntEditorWidget.hpp"
+#include "ui_AntEditorWidget.h"
 
 #include <fort-studio/bridge/ExperimentBridge.hpp>
 #include <fort-studio/Format.hpp>
 
 #include <QStandardItemModel>
 
-ShappingWidget::ShappingWidget(QWidget *parent)
+AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
-	, d_ui(new Ui::ShappingWidget)
+	, d_ui(new Ui::AntEditorWidget)
 	, d_closeUps(new QStandardItemModel(this) ) {
 	d_ui->setupUi(this);
 	d_ui->treeView->setModel(d_closeUps);
 }
 
-ShappingWidget::~ShappingWidget() {
+AntEditorWidget::~AntEditorWidget() {
 	delete d_ui;
 }
 
 
-void ShappingWidget::setup(ExperimentBridge * experiment) {
+void AntEditorWidget::setup(ExperimentBridge * experiment) {
 	d_experiment = experiment;
 
 	d_ui->shapeTypeEditor->setup(d_experiment->antShapeTypes());
@@ -29,14 +29,14 @@ void ShappingWidget::setup(ExperimentBridge * experiment) {
 	connect(d_experiment->selectedAnt(),
 	        &SelectedAntBridge::activated,
 	        this,
-	        &ShappingWidget::onAntSelected);
+	        &AntEditorWidget::onAntSelected);
 
 	d_ui->toolBox->setCurrentIndex(0);
 	on_toolBox_currentChanged(0);
 
 }
 
-void  ShappingWidget::on_toolBox_currentChanged(int index) {
+void  AntEditorWidget::on_toolBox_currentChanged(int index) {
 	switch(index) {
 	case 0:
 		setShappingMode();
@@ -50,15 +50,15 @@ void  ShappingWidget::on_toolBox_currentChanged(int index) {
 }
 
 
-void ShappingWidget::setShappingMode() {
+void AntEditorWidget::setShappingMode() {
 	d_ui->comboBox->setModel(d_experiment->antShapeTypes()->shapeModel());
 }
 
-void ShappingWidget::setMeasureMode() {
+void AntEditorWidget::setMeasureMode() {
 	d_ui->comboBox->setModel(d_experiment->measurements()->measurementTypeModel());
 }
 
-void ShappingWidget::onAntSelected(bool antSelected) {
+void AntEditorWidget::onAntSelected(bool antSelected) {
 	if ( isEnabled() == false ) {
 		return;
 	}
@@ -66,14 +66,14 @@ void ShappingWidget::onAntSelected(bool antSelected) {
 }
 
 
-void ShappingWidget::changeEvent(QEvent * event)  {
+void AntEditorWidget::changeEvent(QEvent * event)  {
 	QWidget::changeEvent(event);
 	if ( event->type() == QEvent::EnabledChange && isEnabled() == true ) {
 		buildCloseUpList();
 	}
 }
 
-void ShappingWidget::buildCloseUpList() {
+void AntEditorWidget::buildCloseUpList() {
 	d_closeUps->clear();
 	d_closeUps->setHorizontalHeaderLabels({tr("Name")});
 
@@ -82,7 +82,6 @@ void ShappingWidget::buildCloseUpList() {
 	}
 	auto formatedAntID = fmp::Ant::FormatID(d_experiment->selectedAnt()->selectedID());
 
-	qInfo() << "Computing ... ";
 	auto ant = new QStandardItem(QString("Ant %1").arg(formatedAntID.c_str()));
 	ant->setData(QVariant::fromValue(fmp::TagCloseUp::ConstPtr()));
 	ant->setEditable(false);

@@ -72,9 +72,9 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6"/>
       </widget>
-      <widget class="ShappingWidget" name="shappingWidget">
+      <widget class="AntEditorWidget" name="shappingWidget">
        <attribute name="title">
-        <string>Shapping and Measure</string>
+        <string>Ant Editor</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="exploreWidget">
@@ -393,9 +393,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ShappingWidget</class>
+   <class>AntEditorWidget</class>
    <extends>QWidget</extends>
-   <header location="global">fort-studio/widget/ShappingWidget.hpp</header>
+   <header location="global">fort-studio/widget/AntEditorWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

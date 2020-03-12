@@ -3,17 +3,17 @@
 #include <QWidget>
 
 namespace Ui {
-class ShappingWidget;
+class AntEditorWidget;
 }
 
 class ExperimentBridge;
 class QStandardItemModel;
 
-class ShappingWidget : public QWidget {
+class AntEditorWidget : public QWidget {
 	Q_OBJECT
 public:
-	explicit ShappingWidget(QWidget *parent = 0);
-	~ShappingWidget();
+	explicit AntEditorWidget(QWidget *parent = 0);
+	~AntEditorWidget();
 
 	void setup(ExperimentBridge * experiment);
 
@@ -31,7 +31,7 @@ private:
 
 	void buildCloseUpList();
 
-	Ui::ShappingWidget * d_ui;
-	ExperimentBridge   * d_experiment;
-	QStandardItemModel * d_closeUps;
+	Ui::AntEditorWidget * d_ui;
+	ExperimentBridge    * d_experiment;
+	QStandardItemModel  * d_closeUps;
 };
