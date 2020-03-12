@@ -6,6 +6,7 @@ namespace Ui {
 class IdentificationEditorWidget;
 }
 
+class ExperimentBridge;
 class SelectedIdentificationBridge;
 
 class IdentificationEditorWidget : public QWidget {
@@ -14,7 +15,7 @@ public:
 	explicit IdentificationEditorWidget(QWidget *parent = 0);
 	~IdentificationEditorWidget();
 
-	void setup(SelectedIdentificationBridge * selectedIdentification);
+	void setup(ExperimentBridge * experiment);
 
 private:
 	Ui::IdentificationEditorWidget * d_ui;

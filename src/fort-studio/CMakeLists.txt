@@ -35,6 +35,7 @@ set(SRC_FILES Format.cpp
 			  widget/IdentificationEditorWidget.cpp
 			  widget/ShappingWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
+			  widget/FrameFinderDialog.cpp
 			  # QLongSpinBox.cpp
 			  widget/MainWindow.cpp
 			  )
@@ -74,6 +75,7 @@ set(HDR_FILES Format.hpp
 			  widget/IdentificationEditorWidget.hpp
 			  widget/ShappingWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
+			  widget/FrameFinderDialog.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -91,6 +93,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/base/TimeEditorWidget.ui
              widget/ShappingWidget.ui
              widget/AntShapeTypeEditorWidget.ui
+             widget/FrameFinderDialog.ui
 			 )
 
 set(RCC_FILES )

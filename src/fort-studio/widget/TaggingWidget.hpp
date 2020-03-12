@@ -5,6 +5,7 @@
 
 #include <myrmidon/priv/ForwardDeclaration.hpp>
 
+class ExperimentBridge;
 class GlobalPropertyBridge;
 class MeasurementBridge;
 class IdentifierBridge;
@@ -26,10 +27,7 @@ public:
 	~TaggingWidget();
 
 
-	void setup(GlobalPropertyBridge * globalProperties,
-	           MeasurementBridge * measurements,
-	           IdentifierBridge * identifier,
-	           SelectedAntBridge * selectedAnt);
+	void setup(ExperimentBridge * experiment);
 
 
 public slots:

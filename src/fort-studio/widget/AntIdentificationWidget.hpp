@@ -6,6 +6,7 @@ namespace Ui {
 class AntIdentificationWidget;
 }
 
+class ExperimentBridge;
 class SelectedAntBridge;
 
 
@@ -15,7 +16,7 @@ public:
 	explicit AntIdentificationWidget(QWidget *parent = 0);
 	~AntIdentificationWidget();
 
-	void setup(SelectedAntBridge * selectedAnt);
+	void setup(ExperimentBridge * experiment);
 private slots :
 	void onSelection();
 	void on_tableView_doubleClicked(const QModelIndex & index);

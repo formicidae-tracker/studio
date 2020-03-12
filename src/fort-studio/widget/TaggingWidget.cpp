@@ -5,6 +5,7 @@
 
 #include <QSortFilterProxyModel>
 
+#include <fort-studio/bridge/ExperimentBridge.hpp>
 #include <fort-studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort-studio/bridge/MeasurementBridge.hpp>
 #include <fort-studio/bridge/IdentifierBridge.hpp>
@@ -60,10 +61,13 @@ TaggingWidget::~TaggingWidget() {
 }
 
 
-void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
-                          MeasurementBridge * measurements,
-                          IdentifierBridge * identifier,
-                          SelectedAntBridge * selectedAnt) {
+void TaggingWidget::setup(ExperimentBridge * experiment) {
+
+	auto globalProperties = experiment->globalProperties();
+	auto identifier = experiment->identifier();
+	auto measurements = experiment->measurements();
+	auto selectedAnt = experiment->selectedAnt();
+
 	connect(globalProperties,
 	        &GlobalPropertyBridge::activated,
 	        d_ui->familySelector,
@@ -142,7 +146,8 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        &TaggingWidget::updateButtonStates);
 	d_selectedAnt = selectedAnt;
 
-	d_ui->selectedAntIdentification->setup(selectedAnt);
+	d_ui->selectedAntIdentification->setup(experiment);
+
 }
 
 

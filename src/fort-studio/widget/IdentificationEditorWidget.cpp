@@ -1,6 +1,7 @@
 #include "IdentificationEditorWidget.hpp"
 #include "ui_IdentificationEditorWidget.h"
 
+#include <fort-studio/bridge/ExperimentBridge.hpp>
 #include <fort-studio/bridge/SelectedIdentificationBridge.hpp>
 
 #include <QCheckBox>
@@ -17,22 +18,22 @@ IdentificationEditorWidget::~IdentificationEditorWidget() {
 }
 
 
-void IdentificationEditorWidget::setup(SelectedIdentificationBridge * selectedIdentification) {
-	d_selectedIdentification = selectedIdentification;
+void IdentificationEditorWidget::setup(ExperimentBridge * experiment) {
+	d_selectedIdentification = experiment->selectedIdentification();
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::activated,
 	        d_ui->useGlobalSizeBox,
 	        &QCheckBox::setEnabled);
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::useGlobalSizeChanged,
 	        d_ui->useGlobalSizeBox,
 	        &QAbstractButton::setChecked);
 
 	connect(d_ui->useGlobalSizeBox,
 	        &QAbstractButton::toggled,
-	        selectedIdentification,
+	        d_selectedIdentification,
 	        &SelectedIdentificationBridge::setUseGlobalSize);
 
 
@@ -42,45 +43,49 @@ void IdentificationEditorWidget::setup(SelectedIdentificationBridge * selectedId
 		        d_ui->sizeBox->setEnabled(!checked);
 	        });
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::tagSizeChanged,
 	        d_ui->sizeBox,
 	        &QDoubleSpinBox::setValue);
 
 	connect(d_ui->sizeBox,
 	        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-	        selectedIdentification,
+	        d_selectedIdentification,
 	        &SelectedIdentificationBridge::setTagSize);
 
-	connect(selectedIdentification,
+	d_ui->startTime->setup(experiment->universe());
+	d_ui->endTime->setup(experiment->universe());
+
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::activated,
 	        d_ui->startTime,
 	        &TimeEditorWidget::setEnabled);
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::startModified,
 	        d_ui->startTime,
 	        &TimeEditorWidget::setTime);
 
 	connect(d_ui->startTime,
 	        &TimeEditorWidget::timeChanged,
-	        selectedIdentification,
+	        d_selectedIdentification,
 	        &SelectedIdentificationBridge::setStart);
 
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::activated,
 	        d_ui->endTime,
 	        &TimeEditorWidget::setEnabled);
 
-	connect(selectedIdentification,
+	connect(d_selectedIdentification,
 	        &SelectedIdentificationBridge::endModified,
 	        d_ui->endTime,
 	        &TimeEditorWidget::setTime);
 
 	connect(d_ui->endTime,
 	        &TimeEditorWidget::timeChanged,
-	        selectedIdentification,
+	        d_selectedIdentification,
 	        &SelectedIdentificationBridge::setEnd);
+
 
 }

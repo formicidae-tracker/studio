@@ -1,6 +1,7 @@
 #include "AntIdentificationWidget.hpp"
 #include "ui_AntIdentificationWidget.h"
 
+#include <fort-studio/bridge/ExperimentBridge.hpp>
 #include <fort-studio/bridge/SelectedAntBridge.hpp>
 #include <fort-studio/Format.hpp>
 
@@ -22,21 +23,20 @@ AntIdentificationWidget::~AntIdentificationWidget() {
 }
 
 
-void AntIdentificationWidget::setup(SelectedAntBridge * selectedAnt) {
-	d_selectedAnt = selectedAnt;
+void AntIdentificationWidget::setup(ExperimentBridge * experiment) {
+	d_selectedAnt = experiment->selectedAnt();
 	connect(d_selectedAnt,
 	        &SelectedAntBridge::activated,
 	        this,
 	        &AntIdentificationWidget::onSelection);
 	d_ui->tableView->setModel(d_selectedAnt->identificationModel());
-	d_ui->identificationEditor->setup(d_selectedAnt->selectedIdentification());
+	d_ui->identificationEditor->setup(experiment);
 	connect(d_ui->tableView->selectionModel(),
 	        &QItemSelectionModel::selectionChanged,
 	        this,
 	        &AntIdentificationWidget::onIdentificationSelectionChanged);
 
 }
-
 
 void  AntIdentificationWidget::onSelection() {
 	if ( d_selectedAnt->isActive() == false ) {
