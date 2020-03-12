@@ -11,6 +11,8 @@ class TimeEditorWidget;
 
 class QAction;
 class UniverseBridge;
+class QCalendarWidget;
+class QTimeEdit;
 
 class TimeEditorWidget : public QWidget {
 	Q_OBJECT
@@ -50,4 +52,7 @@ private:
 	QAction              * d_popup;
 	QAction              * d_warning;
 	UniverseBridge       * d_universe;
+	QWidget              * d_popupWidget;
+	QCalendarWidget      * d_calendar;
+	QTimeEdit            * d_timeEdit;
 };

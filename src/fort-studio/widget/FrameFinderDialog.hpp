@@ -23,6 +23,9 @@ public:
 
 	static fmp::FrameReference::ConstPtr Get(UniverseBridge * universe,
 	                                         QWidget * parent);
+private slots :
+
+	void on_comboBox_currentIndexChanged(int);
 
 private:
 	Ui::FrameFinderDialog * d_ui;
