@@ -382,8 +382,17 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	if ( !d_experiment ) {
 		return;
 	}
-	auto tcuPath = fs::path(mURI).parent_path().parent_path().generic_string();
-	auto ci = d_counts.find(tcuPath);
+	quint32 mtID,tagID;
+	fmp::FrameID frameID;
+	std::string tddURI;
+	fmp::Measurement::DecomposeURI(mURI,
+	                               tddURI,
+	                               frameID,
+	                               tagID,
+	                               mtID);
+
+	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
+	auto ci = d_counts.find(tcuURI);
 	if ( ci == d_counts.end() ) {
 		qWarning() << "Unknown measurement '" << mURI.c_str() << "'";
 		return;
@@ -398,11 +407,11 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 		           << "':" << e.what();
 		return;
 	}
-	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuPath)));
+	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuURI)));
 
 	qInfo() << "Deleted measurement '" << mURI.c_str() << "'";
 	setModified(true);
-	emit measurementDeleted(mURI);
+	emit measurementDeleted(ToQString(tcuURI),mtID);
 }
 
 

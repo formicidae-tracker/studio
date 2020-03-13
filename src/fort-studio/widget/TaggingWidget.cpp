@@ -29,12 +29,15 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
-    d_ui->vectorialView->installEventFilter(this);
+
+
     d_ui->treeView->installEventFilter(this);
     d_ui->treeView->setModel(d_sortedModel);
     d_ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    d_ui->vectorialView->installEventFilter(this);
     d_ui->vectorialView->setScene(d_vectorialScene);
     d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
     d_vectorialScene->installEventFilter(d_ui->vectorialView);
@@ -135,6 +138,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	        &IdentifierBridge::identificationDeleted,
 	        this,
 	        &TaggingWidget::onIdentificationDeleted);
+
 
 
 	d_identifier = identifier;
@@ -377,7 +381,6 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	}
 
 	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
-	d_ui->vectorialView->resetZoom();
 	auto & tagPosition = tcu->TagPosition();
 	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
 	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));

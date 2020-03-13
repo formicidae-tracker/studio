@@ -71,8 +71,8 @@ public:
 signals:
 	void progressChanged(size_t done, size_t toDo);
 
-	void measurementModified(const fmp::Measurement::ConstPtr &);
-	void measurementDeleted(std::string);
+	void measurementModified(const fmp::Measurement::ConstPtr &m);
+	void measurementDeleted(QString tcuURI, quint32 mtID);
 
 	void measurementTypeModified(quint32,QString);
 	void measurementTypeDeleted(quint32);
