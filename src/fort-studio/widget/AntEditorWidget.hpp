@@ -72,6 +72,8 @@ private:
 	                               quint32 mtID,
 	                               int direction);
 
+	fmp::CapsulePtr capsuleFromScene(const QSharedPointer<Capsule> & capsule);
+	void rebuildCapsules();
 
 	fmp::MeasurementTypeConstPtr currentMeasurementType() const;
 

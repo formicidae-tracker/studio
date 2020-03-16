@@ -62,6 +62,12 @@ public:
 	QSharedPointer<Polygon> appendPolygon(const QVector<QPointF> & vertices);
 	QSharedPointer<Vector>  appendVector(const QPointF & start, const QPointF & end);
 
+
+	void clearCircles();
+	void clearCapsules();
+	void clearVectors();
+	void clearPolygons();
+
 	void setPoseIndicator(const QPointF & center, double angle);
 	void clearPoseIndicator();
 

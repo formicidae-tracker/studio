@@ -31,7 +31,6 @@ public:
 
 	std::vector<fmp::Identification::ConstPtr> identifications() const;
 
-
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
 
@@ -42,7 +41,7 @@ public slots:
 	void removeIdentification(const QModelIndex & index);
 
 	void addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule);
-	void removeCapsule(int index);
+	void clearCapsules();
 
 private:
 	void rebuildIdentificationModel();

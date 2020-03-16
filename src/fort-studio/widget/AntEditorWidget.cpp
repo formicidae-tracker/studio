@@ -10,6 +10,10 @@
 
 #include <fort-studio/widget/base/ColorComboBox.hpp>
 
+#include <fort-studio/Utils.hpp>
+
+#include <myrmidon/priv/Capsule.hpp>
+
 AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::AntEditorWidget)
@@ -146,13 +150,44 @@ void AntEditorWidget::setShappingMode() {
 	d_tcu.reset();
 	d_ui->comboBox->setModel(d_experiment->antShapeTypes()->shapeModel());
 	on_comboBox_currentIndexChanged(d_ui->comboBox->currentIndex());
-	for ( const auto & v : d_vectorialScene->vectors() ) {
-		d_vectorialScene->deleteShape(v.staticCast<Shape>());
-	}
-
+	d_vectorialScene->clearVectors();
+	d_vectors.clear();
 	d_tcu = savedTcu;
 
+	d_capsules.clear();
 
+	if ( !d_tcu
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false) {
+		return;
+	}
+
+	auto identification = d_experiment->identifier()->identify(d_tcu->TagValue(),
+	                                                           d_tcu->Frame().Time());
+	if ( !identification ) {
+		return;
+	}
+	// we need AntToOrig
+	// we have origToTag and AntToTag
+	fmp::Isometry2Dd tagToOrig(d_tcu->TagAngle(),d_tcu->TagPosition());
+	auto antToOrig = tagToOrig * identification->AntToTagTransform();
+	for ( const auto & [stID,c] : d_experiment->selectedAnt()->capsules() ) {
+		qWarning() << "Got " << ToQString(c);
+		Eigen::Vector2d c1 = antToOrig * c->C1();
+		Eigen::Vector2d c2 = antToOrig * c->C2();
+		setColorFromType(stID);
+		auto capsule = d_vectorialScene->appendCapsule(QPointF(c1.x(),c1.y()),
+		                                               QPointF(c2.x(),c2.y()),
+		                                               c->R1(),
+		                                               c->R2());
+		d_capsules.insert(std::make_pair(capsule,stID));
+		connect(capsule.data(),
+		        &Shape::updated,
+		        this,
+		        &AntEditorWidget::onCapsuleUpdated);
+	}
+
+	setColorFromType(typeFromComboBox());
 }
 
 void AntEditorWidget::setColorFromType(quint32 typeID) {
@@ -165,9 +200,8 @@ void AntEditorWidget::setMeasureMode() {
 	d_tcu.reset();
 	d_ui->comboBox->setModel(d_experiment->measurements()->measurementTypeModel());
 	on_comboBox_currentIndexChanged(d_ui->comboBox->currentIndex());
-	for ( const auto & c : d_vectorialScene->capsules() ) {
-		d_vectorialScene->deleteShape(c.staticCast<Shape>());
-	}
+	d_vectorialScene->clearCapsules();
+	d_capsules.clear();
 	d_tcu = savedTcu;
 
 	d_vectors.clear();
@@ -543,24 +577,69 @@ void AntEditorWidget::on_comboBox_currentIndexChanged(int i) {
 
 
 void AntEditorWidget::onCapsuleUpdated() {
+	if ( !d_tcu
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false) {
+		return;
+	}
+	rebuildCapsules();
 }
 
 void AntEditorWidget::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
+	if ( !d_tcu
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false ) {
+		qDebug() << "[AntEditorWidget]: Vector created without tcu or selected ant";
+		d_vectorialScene->deleteShape(capsule.staticCast<Shape>());
+		return;
+	};
+
+	auto shapeType = currentAntShapeType();
+	if ( !shapeType ) {
+		qDebug() << "No shape type selected";
+		d_vectorialScene->deleteShape(capsule.staticCast<Shape>());
+		return;
+	}
+
+	auto c = capsuleFromScene(capsule);
+	if ( !c )  {
+		qDebug() << "Could not compute capsule, removing it";
+		d_vectorialScene->deleteShape(capsule.staticCast<Shape>());
+		return;
+	}
+
+	connect(capsule.data(),
+	        &Shape::updated,
+	        this,
+	        &AntEditorWidget::onCapsuleUpdated);
+
+	d_capsules.insert(std::make_pair(capsule,shapeType->TypeID()));
+
+	d_experiment->selectedAnt()->addCapsule(shapeType->TypeID(),c);
+
 }
 
 void AntEditorWidget::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
+	if ( !d_tcu
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false ) {
+		return;
+	}
+	auto fi = d_capsules.find(capsule);
+	if ( fi == d_capsules.end() ) {
+		qDebug() << "[AntEditorWidget]: Could not find back capsule";
+		return;
+	}
 
+	d_capsules.erase(fi);
+	rebuildCapsules();
 }
 
 void AntEditorWidget::clearScene() {
 	auto savedTcu = d_tcu;
 	d_tcu.reset();
-	for ( const auto & v : d_vectorialScene->vectors() ) {
-		d_vectorialScene->deleteShape(v.staticCast<Shape>());
-	}
-	for ( const auto & c : d_vectorialScene->capsules() ) {
-		d_vectorialScene->deleteShape(c.staticCast<Shape>());
-	}
+	d_vectorialScene->clearVectors();
+	d_vectorialScene->clearCapsules();
 	d_vectors.clear();
 	d_capsules.clear();
 	d_tcu = savedTcu;
@@ -590,7 +669,22 @@ void AntEditorWidget::changeVectorType(Vector * vector,fmp::MeasurementTypeID mt
 }
 
 void AntEditorWidget::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID) {
+	auto fi = std::find_if(d_capsules.begin(),
+	                       d_capsules.end(),
+	                       [capsule](const std::pair<QSharedPointer<Capsule>,uint32_t> & iter) -> bool {
+		                       return iter.first.data() == capsule;
+	                       });
+	if ( !d_tcu
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false
+	     || fi == d_capsules.end() ) {
+		return;
+	}
 
+	fi->second = stID;
+	fi->first->setColor(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(stID)));
+	d_vectorialScene->update();
+	rebuildCapsules();
 }
 
 fmp::MeasurementTypeConstPtr AntEditorWidget::currentMeasurementType() const {
@@ -610,4 +704,40 @@ int AntEditorWidget::columnForMeasurementType(fmp::MeasurementTypeID mtID) const
 		}
 	}
 	return -1;
+}
+
+fmp::CapsulePtr AntEditorWidget::capsuleFromScene(const QSharedPointer<Capsule> & capsule) {
+	if ( !d_tcu
+	     || d_experiment == nullptr) {
+		return fmp::CapsulePtr();
+	}
+	auto ident = d_experiment->identifier()->identify(d_tcu->TagValue(),
+	                                                  d_tcu->Frame().Time());
+	if ( !ident ) {
+		qDebug() << "[AntEditorWdiget]: No Identification for " << ToQString(d_tcu->URI());
+		return fmp::CapsulePtr();
+	}
+
+	// we need origToAnt
+	// we have origToTag and antToTag
+	auto origToAnt = ident->AntToTagTransform().inverse() * d_tcu->ImageToTag();
+	Eigen::Vector2d c1 = origToAnt * ToEigen(capsule->c1Pos());
+	Eigen::Vector2d c2 = origToAnt * ToEigen(capsule->c2Pos());
+
+	return std::make_shared<fmp::Capsule>(c1,c2,capsule->r1(),capsule->r2());
+}
+
+void AntEditorWidget::rebuildCapsules() {
+	if ( d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false ){
+		return;
+	}
+	d_experiment->selectedAnt()->clearCapsules();
+	for ( const auto & [sceneCapsule,stID] : d_capsules ) {
+		auto c = capsuleFromScene(sceneCapsule);
+		if ( !c ) {
+			continue;
+		}
+		d_experiment->selectedAnt()->addCapsule(stID,c);
+	}
 }

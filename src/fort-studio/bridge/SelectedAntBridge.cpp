@@ -163,7 +163,7 @@ void SelectedAntBridge::addCapsule(fmp::AntShapeTypeID typeID,const fmp::Capsule
 	setModified(true);
 }
 
-void SelectedAntBridge::removeCapsule(int index) {
+void SelectedAntBridge::clearCapsules() {
 	if ( !d_ant ) {
 		return;
 	}
@@ -171,12 +171,10 @@ void SelectedAntBridge::removeCapsule(int index) {
 	try {
 		qDebug() << "[SelectedAntBridge]: Calling fmp::Ant("
 		         << ToQString(fmp::Ant::FormatID(d_ant->ID()))
-		         << ")::DeleteCapsule("
-		         << index
-		         << ")";
-		d_ant->DeleteCapsule(index);
+		         << ")::DeleteCapsules()";
+		d_ant->ClearCapsules();
 	} catch ( const std::exception & e ) {
-		qCritical() << "Could not remove Capsule "  << index
+		qCritical() << "Could not remove Capsules "
 		            << " from Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))
 		            << ": " << e.what();
 		return;

@@ -260,6 +260,36 @@ QSharedPointer<Vector> VectorialScene::appendVector(const QPointF & start, const
 	return vector;
 }
 
+void VectorialScene::clearCircles() {
+	for ( const auto & c : d_circles ) {
+		c->removeFromScene(this);
+	}
+	d_circles.clear();
+}
+
+void VectorialScene::clearCapsules() {
+	for ( const auto & c : d_capsules ) {
+		c->removeFromScene(this);
+	}
+	d_capsules.clear();
+
+}
+
+void VectorialScene::clearVectors() {
+	for ( const auto & v : d_vectors ) {
+		v->removeFromScene(this);
+	}
+	d_vectors.clear();
+}
+
+void VectorialScene::clearPolygons() {
+	for ( const auto & p : d_polygons ) {
+		p->removeFromScene(this);
+	}
+	d_polygons.clear();
+}
+
+
 
 void VectorialScene::setPoseIndicator(const QPointF & position, double angle) {
 	if ( d_poseIndicator == nullptr ) {
