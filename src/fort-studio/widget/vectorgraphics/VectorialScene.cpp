@@ -314,9 +314,10 @@ void VectorialScene::clearPoseIndicator() {
 
 
 void VectorialScene::setBackgroundPicture(const QString & filepath) {
-	if ( d_background ) {
+	if ( d_background != nullptr) {
 		removeItem(d_background);
 		delete d_background;
+		d_background = nullptr;
 	}
 	setBackgroundBrush(QColor(127,127,127));
 	if ( filepath.isEmpty() ) {
@@ -532,6 +533,7 @@ void VectorialScene::clearStaticPolygon() {
 	}
 	removeItem(d_staticPolygon);
 	delete d_staticPolygon;
+	d_staticPolygon = nullptr;
 }
 
 

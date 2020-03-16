@@ -245,10 +245,14 @@ void AntEditorWidget::setMeasureMode() {
 }
 
 void AntEditorWidget::onAntSelected(bool antSelected) {
+	setTagCloseUp(fmp::TagCloseUp::ConstPtr());
 	if ( isEnabled() == false ) {
 		return;
 	}
 	buildCloseUpList();
+
+
+
 }
 
 
