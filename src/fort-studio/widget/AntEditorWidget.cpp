@@ -26,6 +26,11 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
 	d_ui->editButton->setCheckable(true);
 	d_ui->editButton->setChecked(true);
 
+	installEventFilter(this);
+	d_ui->treeView->installEventFilter(this);
+	d_ui->vectorialView->installEventFilter(this);
+
+
 	auto hHeader = d_ui->treeView->header();
 	hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -251,8 +256,27 @@ void AntEditorWidget::onAntSelected(bool antSelected) {
 	}
 	buildCloseUpList();
 
-
-
+	auto ant = d_closeUps->itemFromIndex(d_closeUps->index(0,0));
+	if ( ant == nullptr || ant->rowCount() == 0) {
+		return;
+	}
+	int idx = -1;
+	for ( int i = 0; i < ant->rowCount(); ++i ) {
+		auto item = d_closeUps->itemFromIndex(d_closeUps->index(i,1,ant->index()));
+		if ( item == nullptr ) {
+			continue;
+		}
+		if ( item->text().isEmpty() == false ) {
+			idx = i;
+			break;
+		}
+	}
+	idx = std::max(0,idx);;
+	auto index = d_closeUps->index(idx,0,ant->index());
+	auto sModel = d_ui->treeView->selectionModel();
+	sModel->clear();
+	sModel->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows);
+	on_treeView_activated(index);
 }
 
 
@@ -744,4 +768,54 @@ void AntEditorWidget::rebuildCapsules() {
 		}
 		d_experiment->selectedAnt()->addCapsule(stID,c);
 	}
+}
+
+bool AntEditorWidget::eventFilter(QObject * obj, QEvent * event) {
+	if ( event->type() != QEvent::KeyPress ) {
+		return false;
+	}
+	auto keyEvent = static_cast<QKeyEvent*>(event);
+
+	if ( keyEvent->modifiers() == Qt::ShiftModifier ) {
+		if ( keyEvent->key() == Qt::Key_Down ) {
+			select(+1);
+			return true;
+		}
+		if ( keyEvent->key() == Qt::Key_Up ) {
+			select(-1);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void AntEditorWidget::select(int increment) {
+	if ( d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false) {
+		return;
+	}
+	auto ant = d_closeUps->itemFromIndex(d_closeUps->index(0,0));
+	if ( ant == nullptr ) {
+		return;
+	}
+	int idx = -1;
+	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
+		idx = 0;
+		return;
+	} else {
+		auto rows = d_ui->treeView->selectionModel()->selectedRows();
+		if ( rows.isEmpty() == true || rows[0].parent().isValid() == false ) {
+			idx = 0;
+		} else {
+			idx = rows[0].row();
+		}
+	}
+	idx = std::min(std::max(idx+increment,0),ant->rowCount());
+	auto sModel = d_ui->treeView->selectionModel();
+	sModel->clear();
+	auto index = d_closeUps->index(idx,0,ant->index());
+	sModel->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows);
+	on_treeView_activated(index);
+
 }

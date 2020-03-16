@@ -53,6 +53,8 @@ private slots:
 protected:
 	void changeEvent(QEvent * event) override;
 private:
+
+
 	enum class Mode {Shape,Measure};
 	void setTagCloseUp(const fmp::TagCloseUp::ConstPtr & tcu);
 	void setShappingMode();
@@ -82,6 +84,9 @@ private:
 	int columnForMeasurementType(fmp::MeasurementTypeID mtID) const;
 
 	void setColorFromType(quint32 typeID);
+
+	bool eventFilter(QObject * obj, QEvent * event);
+	void select(int incremet);
 
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
