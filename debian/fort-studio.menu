@@ -1,0 +1,2 @@
+?package(fort-studio):needs="x11" section="Applications/Science"\
+  title="fort-studio" command="/usr/bin/fort-studio"
