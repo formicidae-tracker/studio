@@ -131,13 +131,16 @@ add_library(fort-studio-common STATIC ${SRC_FILES}
                                       ${RCC_FILES}
                                       )
 
-target_link_libraries(fort-studio-common Qt5::Widgets Qt5::Concurrent myrmidon fort-tags)
+target_link_libraries(fort-studio-common Qt5::Widgets Qt5::Concurrent fort-myrmidon fort-tags)
 
 add_executable(fort-studio main.cpp)
 
 target_link_libraries(fort-studio fort-studio-common)
 
+set_target_properties(fort-studio PROPERTIES VERSION ${PROJECT_VERSION}
+                                             SOVERSION ${VERSION_ABI})
 
+install(TARGETS fort-studio DESTINATION bin)
 
 add_executable(fort-studio-tests ${SRC_UTEST_FILES}
                                  ${HDR_UTEST_FILES}

@@ -5,6 +5,14 @@ project(fort-studio VERSION 0.1.0
 
 cmake_minimum_required(VERSION 3.11)
 
+set(VERSION_API ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+if(${PROJECT_VERSION_MAJOR} EQUAL 0)
+	set(VERSION_ABI ${VERSION_API})
+else(${PROJECT_VERSION_MAJOR} EQUAL 0)
+	set(VERSION_ABI ${PROJECT_VERSION_MAJOR})
+endif(${PROJECT_VERSION_MAJOR} EQUAL 0)
+
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
@@ -104,6 +112,23 @@ option(UNIT_TEST_CHECK_TIMING "Test timing improvements during unit tests. May f
 if(UNIT_TEST_CHECK_TIMING)
 	add_definitions("-DMYRMIDON_TEST_TIMING")
 endif(UNIT_TEST_CHECK_TIMING)
+
+set(INCLUDE_INSTALL_DIR include/fort/myrmidon)
+set(LIB_INSTALL_DIR lib )
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(FortMyrmidonConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
+	INSTALL_DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake
+	PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY SameMajorVersion )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
+        DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake )
+
 
 
 add_subdirectory(src)

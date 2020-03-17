@@ -212,19 +212,26 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/KDTreeUTest.hpp
                     )
 
-add_library(myrmidon SHARED ${SRC_FILES}
-                            ${SRC_PRIVATE_FILES}
-                            ${HDR_PRIVATE_FILES}
-                            ${HDR_PUBLIC_FILES}
-                            ${PROTO_HDR}
-                            ${PROTO_SRC})
+add_library(fort-myrmidon SHARED ${SRC_FILES}
+                                 ${SRC_PRIVATE_FILES}
+                                 ${HDR_PRIVATE_FILES}
+                                 ${HDR_PUBLIC_FILES}
+                                 ${PROTO_HDR}
+                                 ${PROTO_SRC})
 
-target_link_libraries(myrmidon ${PROTOBUF_LIBRARIES}
-                               fort-hermes-cpp
-                               ${CXXFS_LIBRARY}
-                               fort-tags
-                               ${OpenCV_LIBS}
-                               )
+target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
+                                    fort-hermes-cpp
+                                    ${CXXFS_LIBRARY}
+                                    fort-tags
+                                    ${OpenCV_LIBS}
+                                    )
+
+set_target_properties(fort-myrmidon PROPERTIES
+                                    VERSION ${VERSION_API}
+                                    SOVERSION ${VERSION_ABI})
+
+install(TARGETS fort-myrmidon DESTINATION lib)
+install(FILES ${HDR_PUBLIC_FILES} DESTINATION include/fort/myrmidon)
 
 add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
                                          ${COMMON_UTEST_HDR_FILES}
@@ -235,7 +242,7 @@ target_link_libraries(myrmidon-utest-common gtest)
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}
                               )
-target_link_libraries(myrmidon-tests myrmidon
+target_link_libraries(myrmidon-tests fort-myrmidon
                                      myrmidon-utest-common
                                      gtest)
 
@@ -253,4 +260,4 @@ endforeach(h ${HDR_PRIVATE_FILES})
 set(MYRMIDON_PRIVATE_DOC_FILES ${MYRMIDON_PRIVATE_DOC_FILES} PARENT_SCOPE)
 
 add_executable(benchmarks benchmark/main.cpp)
-target_link_libraries(benchmarks myrmidon)
+target_link_libraries(benchmarks fort-myrmidon)
