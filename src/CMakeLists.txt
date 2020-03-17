@@ -1,7 +1,7 @@
-add_subdirectory(myrmidon)
+add_subdirectory(fort/myrmidon)
 
 
-add_subdirectory(fort-studio)
+add_subdirectory(fort/studio)
 
 add_subdirectory(capsule-collision-tester)
 
