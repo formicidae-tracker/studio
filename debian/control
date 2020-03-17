@@ -2,10 +2,11 @@ Source: fort-studio
 Priority: optional
 Maintainer: Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
 Build-Depends: debhelper (>= 10)
-Standards-Version: 4.1.2
+Standards-Version: 4.1.4
 Section: science
 Homepage: https://github.com/formicidae-tracker/studio
 Vcs-Git: https://github.com/formicidae-tracker/studio.git
+Vcs-Browser: https://github.com/formicidae-tracker/studio
 
 Package: apriltag-dev
 Section: libdevel
