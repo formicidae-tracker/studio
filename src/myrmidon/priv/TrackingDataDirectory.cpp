@@ -4,8 +4,8 @@
 
 #include <mutex>
 
-#include <fort-hermes/Error.h>
-#include <fort-hermes/FileContext.h>
+#include <fort/hermes/Error.h>
+#include <fort/hermes/FileContext.h>
 
 #include <myrmidon/utils/NotYetImplemented.hpp>
 #include <myrmidon/utils/Checker.hpp>

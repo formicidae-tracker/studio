@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fort-tags/fort-tags.h>
+#include <fort/tags/fort-tags.h>
 #include <myrmidon/priv/Ant.hpp>
 #include <myrmidon/priv/AntShapeType.hpp>
 #include <myrmidon/priv/Identification.hpp>

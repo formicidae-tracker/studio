@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <fort-tags/fort-tags.h>
+#include <fort/tags/fort-tags.h>
 
 #include <myrmidon/Ant.hpp>
 #include <myrmidon/Time.hpp>

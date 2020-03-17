@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fort-tags/fort-tags.h>
+#include <fort/tags/fort-tags.h>
 
 #include <myrmidon/Time.pb.h>
 #include <myrmidon/AntMetadata.pb.h>

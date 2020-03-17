@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fort-hermes/FrameReadout.pb.h>
+#include <fort/hermes/FrameReadout.pb.h>
 #include <myrmidon/Time.hpp>
 
 

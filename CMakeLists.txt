@@ -7,7 +7,6 @@ cmake_minimum_required(VERSION 3.11)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
@@ -23,13 +22,11 @@ FetchContent_Declare(googletest
 
 FetchContent_Declare(fort-tags
                      GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.1.0)
+                     GIT_TAG        v1.2.0)
 
 FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
-                     GIT_TAG        v0.2.3)
-
-
+                     GIT_TAG        v0.3.0)
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)

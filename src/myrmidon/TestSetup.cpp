@@ -4,7 +4,7 @@
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/io/gzip_stream.h>
-#include <fort-hermes/Header.pb.h>
+#include <fort/hermes/Header.pb.h>
 
 #include <myrmidon/ExperimentFile.pb.h>
 
