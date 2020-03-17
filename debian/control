@@ -128,7 +128,7 @@ Description: Experiment data API for the FORmicidae Tracker - runtime
  .
  This package contains the library runtime
 
-Package: fort-stduio
+Package: fort-studio
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
