@@ -38,11 +38,11 @@ script:
   - cd build
   - cmake  -DCMAKE_BUILD_TYPE=Debug ..
   - make all myrmidon-tests
-  - src/myrmidon/myrmidon-tests
+  - src/fort/myrmidon/myrmidon-tests
   - cd ..
 
 after_success:
-  - coveralls -b build -r . -i 'src/myrmidon' -E '.*UTest.*' --verbose
+  - coveralls -b build -r . -i 'src/fort/myrmidon' -E '.*UTest.*' --verbose
 
 cache:
   directories:
