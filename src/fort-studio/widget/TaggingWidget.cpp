@@ -5,6 +5,7 @@
 
 #include <QSortFilterProxyModel>
 
+#include <fort-studio/bridge/ExperimentBridge.hpp>
 #include <fort-studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort-studio/bridge/MeasurementBridge.hpp>
 #include <fort-studio/bridge/IdentifierBridge.hpp>
@@ -28,12 +29,15 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
-    d_ui->vectorialView->installEventFilter(this);
+
+
     d_ui->treeView->installEventFilter(this);
     d_ui->treeView->setModel(d_sortedModel);
     d_ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    d_ui->vectorialView->installEventFilter(this);
     d_ui->vectorialView->setScene(d_vectorialScene);
     d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
     d_vectorialScene->installEventFilter(d_ui->vectorialView);
@@ -60,10 +64,13 @@ TaggingWidget::~TaggingWidget() {
 }
 
 
-void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
-                          MeasurementBridge * measurements,
-                          IdentifierBridge * identifier,
-                          SelectedAntBridge * selectedAnt) {
+void TaggingWidget::setup(ExperimentBridge * experiment) {
+
+	auto globalProperties = experiment->globalProperties();
+	auto identifier = experiment->identifier();
+	auto measurements = experiment->measurements();
+	auto selectedAnt = experiment->selectedAnt();
+
 	connect(globalProperties,
 	        &GlobalPropertyBridge::activated,
 	        d_ui->familySelector,
@@ -133,6 +140,7 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        &TaggingWidget::onIdentificationDeleted);
 
 
+
 	d_identifier = identifier;
 	setTagCloseUp(fmp::TagCloseUp::Ptr());
 
@@ -142,7 +150,8 @@ void TaggingWidget::setup(GlobalPropertyBridge * globalProperties,
 	        &TaggingWidget::updateButtonStates);
 	d_selectedAnt = selectedAnt;
 
-	d_ui->selectedAntIdentification->setup(selectedAnt);
+	d_ui->selectedAntIdentification->setup(experiment);
+
 }
 
 
@@ -372,7 +381,6 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	}
 
 	d_vectorialScene->setBackgroundPicture(ToQString(tcu->AbsoluteFilePath().string()));
-	d_ui->vectorialView->resetZoom();
 	auto & tagPosition = tcu->TagPosition();
 	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
 	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));

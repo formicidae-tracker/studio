@@ -51,12 +51,30 @@ MainWindow::MainWindow(QWidget *parent)
 
 	d_ui->globalProperties->setup(d_experiment->globalProperties());
 	d_ui->universeEditor->setup(d_experiment->universe());
-	d_ui->measurementType->setup(d_experiment->measurements());
 	d_ui->antList->setup(d_experiment->identifier());
-	d_ui->taggingWidget->setup(d_experiment->globalProperties(),
-	                           d_experiment->measurements(),
-	                           d_experiment->identifier(),
-	                           d_experiment->selectedAnt());
+	d_ui->taggingWidget->setup(d_experiment);
+	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->shappingWidget->setEnabled(false);
+	connect(d_ui->workspaceSelector,
+	        &QTabWidget::currentChanged,
+	        [this](int index) {
+		        for ( size_t i = 0; i < d_ui->workspaceSelector->count(); ++i ) {
+			        auto w = d_ui->workspaceSelector->widget(i);
+			        w->setEnabled(i == index);
+		        }
+	        });
+	d_ui->workspaceSelector->setCurrentIndex(0);
+
+	setWindowTitle(tr("FORmicidae Tracker Studio"));
+	connect(d_experiment,
+	        &ExperimentBridge::activated,
+	        [this]() {
+		        if (d_experiment->isActive() == false ) {
+			        setWindowTitle(tr("FORmicidae Tracker Studio"));
+		        }
+		        setWindowTitle(tr("FORmicidae Tracker Studio - %1").arg(d_experiment->absoluteFilePath().c_str()));
+	        });
+
     loadSettings();
 }
 

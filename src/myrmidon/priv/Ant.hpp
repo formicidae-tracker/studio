@@ -82,6 +82,8 @@ public:
 
 	void DeleteCapsule(size_t index);
 
+	void ClearCapsules();
+
 	const Color & DisplayColor() const;
 
 	void SetDisplayColor(const Color & color);

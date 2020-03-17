@@ -357,3 +357,12 @@ void UniverseBridge::rebuildAll(const fmp::SpaceByID & spaces) {
 		d_model->appendRow(buildSpace(s));
 	}
 }
+
+
+const fmp::Space::Universe::TrackingDataDirectoryByURI & UniverseBridge::trackingDataDirectories() const {
+	if ( !d_experiment ) {
+		static fmp::Space::Universe::TrackingDataDirectoryByURI empty;
+		return empty;
+	}
+	return d_experiment->TrackingDataDirectories();
+}

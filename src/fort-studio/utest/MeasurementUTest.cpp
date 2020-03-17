@@ -101,9 +101,9 @@ TEST_F(MeasurementUTest,TypeWidgetTest) {
 
 	QTest::mouseClick(ui->addButton,Qt::LeftButton);
 	EXPECT_EQ(m->rowCount(),2);
-	EXPECT_EQ(std::string(m->data(m->index(1,1)).toString().toUtf8().constData()),"new-measurement-type");
-	EXPECT_EQ(m->data(m->index(1,0)).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
-	m->setData(m->index(1,1),"foobar");
+	EXPECT_EQ(std::string(m->data(m->index(1,0)).toString().toUtf8().constData()),"new-measurement-type");
+	EXPECT_EQ(m->data(m->index(1,1)).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
+	m->setData(m->index(1,0),"foobar");
 	ASSERT_FALSE(typeModified.isEmpty());
 	EXPECT_EQ(typeModified.last().at(0).toInt(),fmp::Measurement::HEAD_TAIL_TYPE+1);
 	EXPECT_EQ(typeModified.last().at(1).toString(),"foobar");

@@ -17,8 +17,20 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
+      <property name="tabPosition">
+       <enum>QTabWidget::East</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="usesScrollButtons">
+       <bool>false</bool>
       </property>
       <widget class="QWidget" name="experimentEditor">
        <property name="enabled">
@@ -52,18 +64,6 @@
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="QGroupBox" name="measurementTypeBox">
-          <property name="title">
-           <string>Measurement Types</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="MeasurementTypeWidget" name="measurementType" native="true"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="TaggingWidget" name="taggingWidget">
@@ -71,6 +71,11 @@
         <string>Identification</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6"/>
+      </widget>
+      <widget class="AntEditorWidget" name="shappingWidget">
+       <attribute name="title">
+        <string>Ant Editor</string>
+       </attribute>
       </widget>
       <widget class="QWidget" name="exploreWidget">
        <attribute name="title">
@@ -376,12 +381,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MeasurementTypeWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort-studio/widget/MeasurementTypeWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>AntListWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/widget/AntListWidget.hpp</header>
@@ -391,6 +390,12 @@
    <class>TaggingWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort-studio/widget/TaggingWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntEditorWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort-studio/widget/AntEditorWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

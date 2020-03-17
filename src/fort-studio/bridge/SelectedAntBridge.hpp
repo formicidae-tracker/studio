@@ -19,14 +19,17 @@ public:
 
 	bool isActive() const override;
 
-	void setExperiment(const fmp::ExperimentConstPtr & experiment);
+	void setExperiment(const fmp::ExperimentPtr & experiment);
 
 	SelectedIdentificationBridge * selectedIdentification() const;
 
 	QAbstractItemModel * identificationModel() const;
-	QAbstractItemModel * shapeModel() const;
+
+	const fmp::Ant::TypedCapsuleList & capsules() const;
 
 	fm::Ant::ID selectedID() const;
+
+	std::vector<fmp::Identification::ConstPtr> identifications() const;
 
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
@@ -36,13 +39,16 @@ public slots:
 	void selectIdentification(const QModelIndex & index);
 
 	void removeIdentification(const QModelIndex & index);
+
+	void addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule);
+	void clearCapsules();
+
 private:
 	void rebuildIdentificationModel();
 
 	IdentifierBridge             * d_identifier;
 	QStandardItemModel           * d_identificationModel;
-	QStandardItemModel           * d_shapeModel;
 	SelectedIdentificationBridge * d_selectedIdentification;
 	fmp::Ant::Ptr                  d_ant;
-	fmp::ExperimentConstPtr        d_experiment;
+	fmp::ExperimentPtr             d_experiment;
 };

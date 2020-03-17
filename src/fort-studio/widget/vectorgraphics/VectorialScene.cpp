@@ -171,7 +171,11 @@ VectorialScene::VectorialScene(QObject * parent)
 				};
 		};
 
-	setMode(Mode::Edit);
+	d_mode = Mode::Edit;
+	d_mousePress = d_editPressEH;
+	d_mouseMove = d_editMoveEH;
+	d_mouseRelease = d_editReleaseEH;
+
 }
 
 VectorialScene::~VectorialScene() {
@@ -256,6 +260,36 @@ QSharedPointer<Vector> VectorialScene::appendVector(const QPointF & start, const
 	return vector;
 }
 
+void VectorialScene::clearCircles() {
+	for ( const auto & c : d_circles ) {
+		c->removeFromScene(this);
+	}
+	d_circles.clear();
+}
+
+void VectorialScene::clearCapsules() {
+	for ( const auto & c : d_capsules ) {
+		c->removeFromScene(this);
+	}
+	d_capsules.clear();
+
+}
+
+void VectorialScene::clearVectors() {
+	for ( const auto & v : d_vectors ) {
+		v->removeFromScene(this);
+	}
+	d_vectors.clear();
+}
+
+void VectorialScene::clearPolygons() {
+	for ( const auto & p : d_polygons ) {
+		p->removeFromScene(this);
+	}
+	d_polygons.clear();
+}
+
+
 
 void VectorialScene::setPoseIndicator(const QPointF & position, double angle) {
 	if ( d_poseIndicator == nullptr ) {
@@ -280,9 +314,10 @@ void VectorialScene::clearPoseIndicator() {
 
 
 void VectorialScene::setBackgroundPicture(const QString & filepath) {
-	if ( d_background ) {
+	if ( d_background != nullptr) {
 		removeItem(d_background);
 		delete d_background;
+		d_background = nullptr;
 	}
 	setBackgroundBrush(QColor(127,127,127));
 	if ( filepath.isEmpty() ) {
@@ -498,6 +533,7 @@ void VectorialScene::clearStaticPolygon() {
 	}
 	removeItem(d_staticPolygon);
 	delete d_staticPolygon;
+	d_staticPolygon = nullptr;
 }
 
 

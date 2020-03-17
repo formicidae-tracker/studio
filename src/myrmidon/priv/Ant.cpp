@@ -48,6 +48,9 @@ void Ant::DeleteCapsule(size_t index) {
 	d_capsules.erase(d_capsules.begin() + index);
 }
 
+void Ant::ClearCapsules() {
+	d_capsules.clear();
+}
 
 void Ant::Accessor::AddCapsule(Ant & a, AntShapeTypeID typeID, const CapsulePtr & capsule) {
 	if (!capsule) {

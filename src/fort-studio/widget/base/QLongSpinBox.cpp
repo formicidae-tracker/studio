@@ -7,7 +7,10 @@ QLongSpinBox::QLongSpinBox(QWidget * parent)
 	, d_minimum(0)
 	, d_maximum(100)
 	, d_value(0) {
-	connect(lineEdit(), SIGNAL(textEdited(QString)), this, SLOT(onEditFinished()));
+	connect(lineEdit(),
+	        &QLineEdit::textEdited,
+	        this,
+	        &QLongSpinBox::onEditFinished);
 }
 
 QLongSpinBox::~QLongSpinBox() {}
@@ -67,15 +70,30 @@ void QLongSpinBox::stepBy(int steps) {
 QValidator::State QLongSpinBox::validate(QString &input, int &pos) const {
 	bool ok;
 	uint64_t value = input.toLongLong(&ok);
-	if ( ok == false ) {
+	if ( ok == false  ) {
+		if ( input.isEmpty() == true ) {
+			return QValidator::Intermediate;
+		}
 		return QValidator::Invalid;
 	}
 
 	if (value < d_minimum || value > d_maximum) {
-		return QValidator::Invalid;
+		return QValidator::Intermediate;
 	}
 
 	return QValidator::Acceptable;
+}
+
+void QLongSpinBox::fixup(QString &input) const {
+	bool ok;
+	uint64_t value = input.toLongLong(&ok);
+	if ( ok == false || value < d_minimum ) {
+		value = d_minimum;
+	}
+	if ( value > d_maximum ) {
+		value = d_maximum;
+	}
+	input = QString::number(value);
 }
 
 uint64_t QLongSpinBox::valueFromText(const QString &text) const {
@@ -102,9 +120,10 @@ void QLongSpinBox::setValue(uint64_t value) {
 void QLongSpinBox::onEditFinished() {
 	 QString input = lineEdit()->text();
 	 int pos = 0;
-	 if (QValidator::Acceptable == validate(input, pos)) {
+	 auto status = validate(input, pos);
+	 if (status == QValidator::Acceptable) {
 		 setValue(valueFromText(input));
-	 } else {
+	 } else if (status == QValidator::Invalid ) {
 		 lineEdit()->setText(textFromValue(d_value));
 	 }
 }

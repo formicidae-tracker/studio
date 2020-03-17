@@ -3,6 +3,8 @@
 #include <myrmidon/priv/TrackingDataDirectory.hpp>
 #include <fort-studio/Format.hpp>
 
+#include <fort-studio/widget/base/ColorComboBox.hpp>
+
 #include <QtConcurrent>
 #include <QDebug>
 
@@ -97,7 +99,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	setModified(false);
 	cancelAll();
 	d_typeModel->clear();
-	d_typeModel->setHorizontalHeaderLabels({tr("ID"),tr("Name")});
+	d_typeModel->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
 	d_experiment = experiment;
 	d_toDo = 0;
 	d_done = 0;
@@ -380,8 +382,17 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	if ( !d_experiment ) {
 		return;
 	}
-	auto tcuPath = fs::path(mURI).parent_path().parent_path().generic_string();
-	auto ci = d_counts.find(tcuPath);
+	quint32 mtID,tagID;
+	fmp::FrameID frameID;
+	std::string tddURI;
+	fmp::Measurement::DecomposeURI(mURI,
+	                               tddURI,
+	                               frameID,
+	                               tagID,
+	                               mtID);
+
+	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
+	auto ci = d_counts.find(tcuURI);
 	if ( ci == d_counts.end() ) {
 		qWarning() << "Unknown measurement '" << mURI.c_str() << "'";
 		return;
@@ -396,11 +407,11 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 		           << "':" << e.what();
 		return;
 	}
-	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuPath)));
+	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuURI)));
 
 	qInfo() << "Deleted measurement '" << mURI.c_str() << "'";
 	setModified(true);
-	emit measurementDeleted(mURI);
+	emit measurementDeleted(ToQString(tcuURI),mtID);
 }
 
 
@@ -462,7 +473,7 @@ void MeasurementBridge::deleteMeasurementType(quint32 MTID) {
 	}
 
 	try {
-		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);
+		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,1);
 		if ( items.size() != 1 ) {
 			throw std::logic_error("Internal type model error");
 		}
@@ -485,19 +496,22 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	mtid->setEditable(false);
 	mtid->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
+	QPixmap icon(10,10);
+	icon.fill(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(type->MTID())));
+	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);
-	return {mtid,name};
+	return {name,mtid};
 }
 
 void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
-	if (item->column() != 1) {
+	if (item->column() != 0) {
 		qDebug() << "[MeasurmentBridge]: Ignoring measurement type item change for column " << item->column();
 		return;
 	}
 
 	auto type = item->data().value<fmp::MeasurementType::Ptr>();
-	std::string newName = item->text().toUtf8().data();
+	std::string newName = ToStdString(item->text());
 	if ( newName == type->Name() ) {
 		qDebug() << "[MeasurementBridge]:  Ignoring MEasurementType item change '"
 		         << item->text() << "': it is still the same";
@@ -550,4 +564,25 @@ fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tc
 		return fmp::Measurement::ConstPtr();
 	}
 	return fi->second;
+}
+
+
+void MeasurementBridge::queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
+                                        const fmp::IdentificationConstPtr & identification) {
+	auto items = d_tcuModel->findItems(QString("tags/%1").arg(identification->TagValue()));
+	if ( items.isEmpty() == true ) {
+		return;
+	}
+	tcus.reserve(tcus.size() + items[0]->rowCount());
+
+	for ( size_t i =  0; i < items[0]->rowCount(); ++i) {
+		auto tcu = items[0]->child(i)->data().value<fmp::TagCloseUp::ConstPtr>();
+		if ( !tcu) {
+			continue;
+		}
+		if ( identification->IsValid(tcu->Frame().Time()) == true ) {
+			tcus.push_back(tcu);
+		}
+	}
+
 }

@@ -6,14 +6,14 @@
 
 namespace fmp = fort::myrmidon::priv;
 
-class IdentifierBridge;
+class AntShapeTypeBridge;
 
-class IdentifierUTest : public ::testing::Test {
+class AntShapeTypeUTest : public ::testing::Test {
 protected:
 
 	void SetUp();
 	void TearDown();
 
 	fmp::Experiment::Ptr experiment;
-	IdentifierBridge   * identifier;
+	AntShapeTypeBridge * shapeTypes;
 };

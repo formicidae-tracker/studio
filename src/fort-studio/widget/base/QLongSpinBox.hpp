@@ -29,6 +29,8 @@ public:
 
 	QValidator::State validate(QString &input, int &pos) const override;
 
+	void fixup(QString &input) const override;
+
 	virtual uint64_t valueFromText(const QString &text) const;
 
 	virtual QString textFromValue(uint64_t val) const;

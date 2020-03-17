@@ -31,6 +31,7 @@ Handle::Handle(MovedCallback onMove,
 	d_inside->setPen(empty);
 	d_inside->setBrush(COLOR);
 	setFlags(QGraphicsItem::ItemIsMovable);
+	setZValue(100);
 }
 
 Handle::~Handle() {

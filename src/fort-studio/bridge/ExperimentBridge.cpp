@@ -14,7 +14,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_measurements(new MeasurementBridge(this))
 	, d_identifier(new IdentifierBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
-	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this)) {
+	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
+	, d_antShapeTypes(new AntShapeTypeBridge(this)) {
 
 	connectModifications();
 
@@ -135,6 +136,10 @@ IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() cons
 	return d_identifiedFrameLoader;
 }
 
+AntShapeTypeBridge *  ExperimentBridge::antShapeTypes() const {
+	return d_antShapeTypes;
+}
+
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -146,11 +151,13 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_identifier->selectedAnt()->selectedIdentification()->setExperiment(experiment);
 	d_globalProperties->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
+	d_antShapeTypes->setExperiment(experiment);
 	setModified(false);
 	emit activated(d_experiment.get() != NULL);
 }
 
 void ExperimentBridge::onChildModified(bool modified) {
+	qWarning() << "Modified" << modified;
 	if ( modified == false ) {
 		return;
 	}
@@ -185,6 +192,11 @@ void ExperimentBridge::connectModifications() {
 
 	connect(d_identifier->selectedAnt()->selectedIdentification(),
 	        &SelectedIdentificationBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
+
+	connect(d_antShapeTypes,
+	        &AntShapeTypeBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);
 

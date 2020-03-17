@@ -12,9 +12,11 @@ set(SRC_FILES Format.cpp
 			  bridge/SelectedIdentificationBridge.cpp
 			  bridge/ExperimentBridge.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
+			  bridge/AntShapeTypeBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
+			  widget/base/QLongSpinBox.cpp
 			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
@@ -32,6 +34,9 @@ set(SRC_FILES Format.cpp
 			  widget/TaggingWidget.cpp
 			  widget/AntIdentificationWidget.cpp
 			  widget/IdentificationEditorWidget.cpp
+			  widget/AntEditorWidget.cpp
+			  widget/AntShapeTypeEditorWidget.cpp
+			  widget/FrameFinderDialog.cpp
 			  # QLongSpinBox.cpp
 			  widget/MainWindow.cpp
 			  )
@@ -48,9 +53,11 @@ set(HDR_FILES Format.hpp
 			  bridge/SelectedIdentificationBridge.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
+			  bridge/AntShapeTypeBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
+			  widget/base/QLongSpinBox.hpp
 			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
@@ -68,6 +75,9 @@ set(HDR_FILES Format.hpp
 			  widget/TaggingWidget.hpp
 			  widget/AntIdentificationWidget.hpp
 			  widget/IdentificationEditorWidget.hpp
+			  widget/AntEditorWidget.hpp
+			  widget/AntShapeTypeEditorWidget.hpp
+			  widget/FrameFinderDialog.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -83,6 +93,9 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
+             widget/AntEditorWidget.ui
+             widget/AntShapeTypeEditorWidget.ui
+             widget/FrameFinderDialog.ui
 			 )
 
 set(RCC_FILES )
@@ -94,6 +107,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/UniverseUTest.cpp
                     utest/MeasurementUTest.cpp
                     utest/IdentifierUTest.cpp
+                    utest/AntShapeTypeUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -101,6 +115,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/UniverseUTest.hpp
                     utest/MeasurementUTest.hpp
                     utest/IdentifierUTest.hpp
+                    utest/AntShapeTypeUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

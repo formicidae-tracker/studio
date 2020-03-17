@@ -25,6 +25,9 @@ public:
 
 	QString basepath() const;
 
+	const fmp::Space::Universe::TrackingDataDirectoryByURI & trackingDataDirectories() const;
+
+
 public slots:
 	void addSpace(const QString & spaceName);
 	void deleteSpace(const QString & spaceName);
