@@ -3,22 +3,134 @@ Priority: optional
 Maintainer: Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
 Build-Depends: debhelper (>= 10)
 Standards-Version: 4.1.2
-Section: libs
-Homepage: <insert the upstream URL, if relevant>
-#Vcs-Git: https://anonscm.debian.org/git/collab-maint/fort-studio.git
-#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/fort-studio.git
+Section: science
+Homepage: https://github.com/formicidae-tracker/studio
+Vcs-Git: https://github.com/formicidae-tracker/studio.git
 
-Package: fort-studio-dev
+Package: apriltag-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: fort-studioBROKEN (= ${binary:Version}), ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: apriltag3 (= ${binary:Version}), ${misc:Depends}
+Description: visual fiducial system for robotics - dev files
+ AprilTag is a robust and flexible visual fiducial system popular in
+ robotics research. AprilTag 3, which includes a faster (>2x)
+ detector, improved detection rate on small tags, flexible tag
+ layouts, and pose estimation.
+ .
+ This package contains header and development files
 
-Package: fort-studioBROKEN
+Package: apriltag3
+Section: libs
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: visual fiducial system for robotics - runtime
+ AprilTag is a robust and flexible visual fiducial system popular in
+ robotics research. AprilTag 3, which includes a faster (>2x)
+ detector, improved detection rate on small tags, flexible tag
+ layouts, and pose estimation.
+ .
+ This package contains library runtime
+
+Package: fort-tags-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: fort-tags1 (= ${binary:Version}), ${misc:Depends}
+Description: fiducial markers for the FORmicidae Tracker - dev files
+ Actual fiducial markers (tags) used for the FORmicidae Tracker
+ project (https://github.com/formicidae-tracker/)
+ .
+ This package contains header and development files
+
+Package: fort-tags1
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: fiducial markers for the FORmicidae Tracker - runtime
+ Actual fiducial markers (tags) used for the FORmicidae Tracker
+ project (https://github.com/formicidae-tracker/)
+  .
+ This package contains library runtime
+
+Package: fort-hermes-cpp-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: fort-hermes-cpp0.1 (= ${binary:Version}), ${misc:Depends}
+Description: Tracking data IO for the FORmicidae Tracker - c++ dev files
+ This library provides IO function to read or write tracking data from
+ file or network stream for the FORmicidae Tracker project
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains c++ header and development files
+
+Package: fort-hermes-cpp0.1
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tracking data IO for the FORmicidae Tracker - c++ runtime
+ This library provides IO function to read or write tracking data from
+ file or network stream for the FORmicidae Tracker project
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains the library c++ runtime
+
+Package: fort-hermes-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: fort-hermes0.1 (= ${binary:Version}), ${misc:Depends}
+Description: Tracking data IO for the FORmicidae Tracker - c dev files
+ This library provides IO function to read or write tracking data from
+ file or network stream for the FORmicidae Tracker project
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains c header and development files
+
+Package: fort-hermes0.1
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tracking data IO for the FORmicidae Tracker - c runtime
+ This library provides IO function to read or write tracking data from
+ file or network stream for the FORmicidae Tracker project
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains the library c runtime
+
+Package: fort-myrmidon-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: fort-myrmidon0.1 (= ${binary:Version}), ${misc:Depends}
+Description: Experiment data API for the FORmicidae Tracker - dev files
+ This library provides an API to access and edit experimental data for
+ the FORmicidae Tracker project.
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains header and development files
+
+Package: fort-myrmidon0.1
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Experiment data API for the FORmicidae Tracker - runtime
+ This library provides an API to access and edit experimental data for
+ the FORmicidae Tracker project.
+ (https://github.com/formicidae-tracker)
+ .
+ This package contains the library runtime
+
+Package: fort-stduio
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Graphical Interface of the FORmicidae Tracker
+ Graphical interface of the FORmicidae Tracker, to edit Ant Pose,
+ Shape, Metadata , and experiment definition.
