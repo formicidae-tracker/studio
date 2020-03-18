@@ -1,7 +1,10 @@
 Source: fort-studio
 Priority: optional
 Maintainer: Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
-Build-Depends: debhelper (>= 10)
+Build-Depends: debhelper (>= 10), cmake (>=3.11), libeigen3-dev,
+ qtbase5-dev, libasio-dev, libopencv-imgproc-dev,
+ libopencv-imgcodecs-dev, libopencv-dev, libprotobuf-dev,
+ protobuf-compiler, git, libboost-filesystem-dev
 Standards-Version: 4.1.4
 Section: science
 Homepage: https://github.com/formicidae-tracker/studio
