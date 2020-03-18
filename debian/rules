@@ -11,3 +11,6 @@
 override_dh_install:
 	dh_install
 	cd debian/fort-hermes-dev; find ./usr/include/fort/hermes/ -type f -exec rm -f ../fort-hermes-cpp-dev/{} \;
+
+override_dh_auto_test:
+	dh_auto_test -- "ARGS=-E fort-studio"
