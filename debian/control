@@ -123,7 +123,7 @@ Description: Experiment data API for the FORmicidae Tracker - runtime
 
 Package: fort-studio
 Architecture: any
-Depends: ${misc:Depends}
+Depends: libqt5widget5, libqt5concurrent5, ${misc:Depends}
 Description: Graphical Interface of the FORmicidae Tracker
  Graphical interface of the FORmicidae Tracker, to edit Ant Pose,
  Shape, Metadata , and experiment definition.
