@@ -1,4 +1,11 @@
-fort-studio (0.1.0~dev1-1) UNRELEASED; urgency=medium
+fort-studio (0.1.0~dev1-0ubuntu2) bionic; urgency=medium
+
+  * Adds missing runtime dependency
+  * Actually ships the binary
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Wed, 18 Mar 2020 22:49:14 +0100
+
+fort-studio (0.1.0~dev1-0ubuntu1) bionic; urgency=medium
 
   * Initial release (Closes: #0011)
 
