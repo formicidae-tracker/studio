@@ -237,7 +237,7 @@ add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
                                          ${COMMON_UTEST_HDR_FILES}
                                          ${PROTO_HDR}
                                          )
-target_link_libraries(myrmidon-utest-common gtest)
+target_link_libraries(myrmidon-utest-common gtest fort-myrmidon)
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}
