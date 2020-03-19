@@ -4,6 +4,7 @@
 #include <fort/myrmidon/priv/DeletedReference.hpp>
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace fort {
 namespace myrmidon {
@@ -26,37 +27,52 @@ MetadataColumn::Ptr MetadataColumn::Manager::Create(const Ptr & itself,
 	return res;
 }
 
-void MetadataColumn::Manager::Delete(const std::string & columnName) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+void MetadataColumn::Manager::Delete(const std::string & name) {
+	auto fi =  d_columns.find(name);
+	if ( fi == d_columns.end() ) {
+		throw std::out_of_range("Unmanaged column '" + name + "'");
+	}
+	d_columns.erase(fi);
 }
 
 const MetadataColumn::Manager::ColumnByName & MetadataColumn::Manager::Columns() const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	return d_columns;
 }
-
 
 MetadataColumn::Validity MetadataColumn::Validate(const std::string & name) {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 }
 
 std::string MetadataColumn::FromValue(bool value) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	return value ?  "TRUE" :  "FALSE";
 }
 
 std::string MetadataColumn::FromValue(int32_t value) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	return std::to_string(value);
 }
 
 bool MetadataColumn::ToBool(const std::string & value) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	std::string lowered(value);
+	std::transform(lowered.begin(),
+	               lowered.end(),
+	               lowered.begin(),
+	               [](unsigned char c ) -> unsigned char { return std::tolower(c);});
+	if ( value.empty() == true || lowered == "false" ) {
+		return false;
+	}
+	return true;
 }
 
 int32_t MetadataColumn::ToInt(const std::string & value) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	try {
+		return std::stoi(value);
+	} catch ( const std::exception & e ) {
+		return 0;
+	}
 }
 
 const std::string & MetadataColumn::Name() const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	return d_name;
 }
 
 void MetadataColumn::SetName(const std::string & name) {
@@ -75,11 +91,11 @@ void MetadataColumn::SetName(const std::string & name) {
 }
 
 MetadataColumn::Type MetadataColumn::MetadataType() const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	return d_type;
 }
 
 void MetadataColumn::SetMetadataType(MetadataColumn::Type type){
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	d_type = type;
 }
 
 MetadataColumn::MetadataColumn(const std::weak_ptr<Manager> & manager,
