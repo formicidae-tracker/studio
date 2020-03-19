@@ -125,6 +125,7 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionShowLog"/>
+    <addaction name="actionShowAntSelector"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -140,12 +141,15 @@
   <widget class="QDockWidget" name="dockWidget">
    <property name="minimumSize">
     <size>
-     <width>293</width>
-     <height>53</height>
+     <width>318</width>
+     <height>73</height>
     </size>
    </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Ant Selector</string>
@@ -364,6 +368,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionShowAntSelector">
+   <property name="text">
+    <string>Show Ant Selector</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
    </property>
   </action>
  </widget>

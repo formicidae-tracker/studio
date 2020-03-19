@@ -12,6 +12,24 @@ namespace Ui {
 class MainWindow;
 }
 
+class VisibilityActionController : public QObject {
+	Q_OBJECT
+public :
+	VisibilityActionController(QWidget * widget,
+	                           QAction * action,
+	                           QObject * parent = nullptr);
+	virtual ~VisibilityActionController();
+
+private slots:
+	void onActionToggled(bool checked);
+protected:
+	bool eventFilter(QObject * object, QEvent * event) override;
+private:
+	QWidget * d_widget;
+	QAction * d_action;
+};
+
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
@@ -40,6 +58,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
 
