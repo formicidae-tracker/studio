@@ -41,10 +41,15 @@ public:
 		const ColumnByName & Columns() const;
 
 	private:
+		void CheckName(const std::string & name) const;
+
 		friend class MetadataColumn;
 		ColumnByName d_columns;
 	};
 
+	MetadataColumn(const std::weak_ptr<Manager> & manager,
+	               const std::string & name,
+	               Type type);
 
 	static Validity Validate(const std::string & name);
 
@@ -57,18 +62,16 @@ public:
 
 
 	const std::string & Name() const;
-	void SetName(const std::string & name) const;
+	void SetName(const std::string & name);
 
 	Type MetadataType() const;
-	void SetMetadataType(Type type) const;
+	void SetMetadataType(Type type);
 private:
-	MetadataColumn(const std::weak_ptr<Manager> & manager,
-	               const std::string & name,
-	               Type type);
 
 
 	std::weak_ptr<Manager> d_manager;
-
+	std::string            d_name;
+	Type                   d_type;
 };
 
 } // namespace priv
