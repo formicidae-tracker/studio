@@ -125,7 +125,9 @@ pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
 
 
 void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntMetadata & pb) {
-	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),pb.id());
+	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                      e->AntMetadataConstPtr(),
+	                                      pb.id());
 
 	for ( const auto & ident : pb.identifications() ) {
 		LoadIdentification(e,ant,ident);

@@ -100,7 +100,8 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	fmp::Ant::Ptr ant;
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::CreateAnt()";
-		ant = d_experiment->Identifier()->CreateAnt(d_experiment->AntShapeTypesConstPtr());
+		ant = d_experiment->Identifier()->CreateAnt(d_experiment->AntShapeTypesConstPtr(),
+		                                            d_experiment->AntMetadataConstPtr());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Ant: " << e.what();
 		return fmp::Ant::Ptr();

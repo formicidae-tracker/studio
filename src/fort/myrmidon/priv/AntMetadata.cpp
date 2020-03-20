@@ -10,24 +10,24 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-void AntMetadataUniqueColumnList::CheckName(const std::string & name) const {
+void AntMetadata::CheckName(const std::string & name) const {
 	auto fi = d_columns.find(name);
 	if ( fi != d_columns.cend() ) {
 		throw std::invalid_argument("Column name '" + name + "' is already used");
 	}
 }
 
-AntMetadataColumn::Ptr AntMetadataUniqueColumnList::Create(const Ptr & itself,
-                                                           const std::string & name,
-                                                           AntMetadata::Type type) {
+AntMetadata::Column::Ptr AntMetadata::Create(const Ptr & itself,
+                                             const std::string & name,
+                                             AntMetadata::Type type) {
 	itself->CheckName(name);
 
-	auto res = std::make_shared<AntMetadataColumn>(itself,name,type);
+	auto res = std::make_shared<AntMetadata::Column>(itself,name,type);
 	itself->d_columns.insert(std::make_pair(name,res));
 	return res;
 }
 
-void AntMetadataUniqueColumnList::Delete(const std::string & name) {
+void AntMetadata::Delete(const std::string & name) {
 	auto fi =  d_columns.find(name);
 	if ( fi == d_columns.end() ) {
 		throw std::out_of_range("Unmanaged column '" + name + "'");
@@ -35,11 +35,11 @@ void AntMetadataUniqueColumnList::Delete(const std::string & name) {
 	d_columns.erase(fi);
 }
 
-const AntMetadataUniqueColumnList::ColumnByName & AntMetadataUniqueColumnList::Columns() const {
+const AntMetadata::ColumnByName & AntMetadata::Columns() const {
 	return d_columns;
 }
 
-size_t AntMetadataUniqueColumnList::Count(const std::string & name) const {
+size_t AntMetadata::Count(const std::string & name) const {
 	return d_columns.count(name);
 }
 
@@ -75,37 +75,37 @@ int32_t AntMetadata::ToInt(const std::string & value) {
 	}
 }
 
-const std::string & AntMetadataColumn::Name() const {
+const std::string & AntMetadata::Column::Name() const {
 	return d_name;
 }
 
-void AntMetadataColumn::SetName(const std::string & name) {
-	auto list = d_list.lock();
-	if ( !list ) {
-		throw DeletedReference<AntMetadataUniqueColumnList>();
+void AntMetadata::Column::SetName(const std::string & name) {
+	auto metadata = d_metadata.lock();
+	if ( !metadata ) {
+		throw DeletedReference<AntMetadata>();
 	}
-	list->CheckName(name);
-	auto fi = list->d_columns.find(d_name);
-	if ( fi == list->d_columns.end() ) {
+	metadata->CheckName(name);
+	auto fi = metadata->d_columns.find(d_name);
+	if ( fi == metadata->d_columns.end() ) {
 		throw std::logic_error("column '" + d_name + "' is not managed by its manager");
 	}
-	list->d_columns.insert(std::make_pair(name,fi->second));
-	list->d_columns.erase(d_name);
+	metadata->d_columns.insert(std::make_pair(name,fi->second));
+	metadata->d_columns.erase(d_name);
 	d_name = name;
 }
 
-AntMetadata::Type AntMetadataColumn::MetadataType() const {
+AntMetadata::Type AntMetadata::Column::MetadataType() const {
 	return d_type;
 }
 
-void AntMetadataColumn::SetMetadataType(AntMetadata::Type type){
+void AntMetadata::Column::SetMetadataType(AntMetadata::Type type){
 	d_type = type;
 }
 
-AntMetadataColumn::AntMetadataColumn(const std::weak_ptr<AntMetadataUniqueColumnList> & list,
-                                     const std::string & name,
-                                     AntMetadata::Type type)
-	: d_list(list)
+AntMetadata::Column::Column(const std::weak_ptr<AntMetadata> & metadata,
+                            const std::string & name,
+                            AntMetadata::Type type)
+	: d_metadata(metadata)
 	, d_name(name)
 	, d_type(type) {
 }

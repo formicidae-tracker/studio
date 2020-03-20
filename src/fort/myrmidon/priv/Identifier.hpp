@@ -66,7 +66,8 @@ public:
 	// <AlreadyExistingAnt> if the ID is already used. If
 	// NEXT_AVAILABLE_ID is used, a unique ID will be automatically
 	// chosen.
-	AntPtr CreateAnt(const AntShapeTypeContainerConstPtr & experiment,
+	AntPtr CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
+	                 const AntMetadataConstPtr & metadataColumns,
 	                 fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
 
 	// Deletes an Ant

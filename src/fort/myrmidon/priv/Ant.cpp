@@ -17,12 +17,14 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 }
 
 Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
+         const AntMetadataConstPtr & metadata,
          fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
 	, d_IDStr(FormatID(ID))
 	, d_displayColor(Palette::Default().At(0) )
 	, d_displayState(DisplayState::VISIBLE)
-	, d_shapeTypes(shapeTypeContainer) {
+	, d_shapeTypes(shapeTypeContainer)
+	, d_metadata(metadata) {
 }
 
 Ant::~Ant() {

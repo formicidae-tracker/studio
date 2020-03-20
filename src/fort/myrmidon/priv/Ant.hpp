@@ -48,6 +48,7 @@ public:
 
 	// The Constructor for an Ant
 	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
+	    const AntMetadataConstPtr & metadata,
 	    fort::myrmidon::Ant::ID ID);
 
 	// Its destructor
@@ -130,6 +131,7 @@ private:
 	DisplayState            d_displayState;
 
 	AntShapeTypeContainerConstPtr d_shapeTypes;
+	AntMetadataConstPtr           d_metadata;
 };
 
 } //namespace priv

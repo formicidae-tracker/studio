@@ -3,6 +3,7 @@
 #include "Identifier.hpp"
 #include "Ant.hpp"
 #include "AntShapeType.hpp"
+#include "AntMetadata.hpp"
 
 #include <google/protobuf/util/time_util.h>
 
@@ -19,12 +20,13 @@ typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
 TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 	auto i = std::make_shared<Identifier>();
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
+	auto metadata = std::make_shared<AntMetadata>();
 	try{
 		size_t startSize = i->Ants().size();
 		size_t toCreate = 5;
 
 		for(size_t ii = 0; ii < toCreate; ++ii) {
-			auto ant = i->CreateAnt(shapeTypes);
+			auto ant = i->CreateAnt(shapeTypes,metadata);
 			ASSERT_EQ(ant->ID(),i->Ants().size());
 		}
 		ASSERT_EQ(i->Ants().size(),startSize + toCreate);
@@ -32,13 +34,13 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 		i->DeleteAnt(startSize+1);
 		i->DeleteAnt(startSize+3);
 
-		auto ant = i->CreateAnt(shapeTypes);
+		auto ant = i->CreateAnt(shapeTypes,metadata);
 		ASSERT_EQ(ant->ID(),startSize+1);
 
-		ant = i->CreateAnt(shapeTypes);
+		ant = i->CreateAnt(shapeTypes,metadata);
 		ASSERT_EQ(ant->ID(),startSize+3);
 
-		ant = i->CreateAnt(shapeTypes);
+		ant = i->CreateAnt(shapeTypes,metadata);
 		ASSERT_EQ(ant->ID(),i->Ants().size());
 
 	} catch ( const std::exception & e) {
@@ -46,7 +48,7 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 	}
 
 	EXPECT_THROW({
-			i->CreateAnt(shapeTypes,1);
+			i->CreateAnt(shapeTypes,metadata,1);
 		},Container::AlreadyExistingObject);
 }
 
@@ -54,9 +56,10 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 TEST_F(IdentifierUTest,AntsCanBeDeleted) {
 	auto i = std::make_shared<Identifier>();
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
+	auto metadata = std::make_shared<AntMetadata>();
 	AntPtr a;
 	EXPECT_NO_THROW({
-			a = i->CreateAnt(shapeTypes);
+			a = i->CreateAnt(shapeTypes,metadata);
 		});
 
 	EXPECT_THROW({
@@ -83,7 +86,8 @@ TEST_F(IdentifierUTest,AntsCanBeDeleted) {
 TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 	auto i = std::make_shared<Identifier>();
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
-	auto a = i->CreateAnt(shapeTypes);
+	auto metadata = std::make_shared<AntMetadata>();
+	auto a = i->CreateAnt(shapeTypes,metadata);
 	EXPECT_THROW({
 			Identifier::AddIdentification(i,a->ID()+1,123,Time::ConstPtr(),Time::ConstPtr());
 		},Container::UnmanagedObject);
@@ -92,7 +96,7 @@ TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 	EXPECT_NO_THROW(ident1 = Identifier::AddIdentification(i,a->ID(),123,Time::ConstPtr(),Time::ConstPtr()));
 
 	auto ii = std::make_shared<Identifier>();
-	auto aa = ii->CreateAnt(shapeTypes);
+	auto aa = ii->CreateAnt(shapeTypes,metadata);
 	ident2 = Identifier::AddIdentification(ii,aa->ID(),124,Time::ConstPtr(),Time::ConstPtr());
 
 	EXPECT_THROW({
@@ -107,7 +111,8 @@ TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 	auto i = std::make_shared<Identifier>();
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
-	auto a = i->CreateAnt(shapeTypes);
+	auto metadata = std::make_shared<AntMetadata>();
+	auto a = i->CreateAnt(shapeTypes,metadata);
 	auto start = std::make_shared<const Time>(Time::Parse("2019-11-02T22:00:20.021+01:00"));
 	auto end = std::make_shared<const Time>(Time::Parse("2019-11-02T22:30:25.863+01:00"));
 	auto secondStart = std::make_shared<const Time>(Time::Parse("2019-11-02T22:34:25.412+01:00"));
@@ -163,11 +168,14 @@ TEST_F(IdentifierUTest,Compilation) {
     std::uniform_int_distribution<uint32_t> duration(0, 600000);
     std::uniform_real_distribution<double> uniform(0, 1.0);
     auto identifier = std::make_shared<Identifier>();
+    auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
+    auto metadata = std::make_shared<AntMetadata>();
 	std::set<Time,Time::Comparator> times;
 	std::set<TagID> tags;
 	const size_t NB_ANTS = 100;
 	for ( size_t i = 0; i < NB_ANTS; ++i) {
-		auto a = identifier->CreateAnt(std::make_shared<AntShapeTypeContainer>());
+		auto a = identifier->CreateAnt(shapeTypes,
+		                               metadata);
 		std::set<Time,Time::Comparator> antTimes;
 
 		while( uniform(e1) < 0.8 ) {

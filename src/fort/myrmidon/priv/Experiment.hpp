@@ -234,6 +234,8 @@ public :
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
+	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+
 	// Computes all Measurement of a type for an Ant
 	//
 	// @result a vector that will be filled with the corresponding
@@ -294,6 +296,7 @@ private:
 	MeasurementTypeContainer d_measurementTypes;
 
 	AntShapeTypeContainerPtr d_antShapeTypes;
+	AntMetadataPtr           d_antMetadata;
 };
 
 } //namespace priv

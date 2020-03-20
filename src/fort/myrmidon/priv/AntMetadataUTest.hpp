@@ -13,7 +13,7 @@ protected:
 	void SetUp();
 	void TearDown();
 
-	AntMetadataUniqueColumnList::Ptr list;
+	AntMetadata::Ptr metadata;
 };
 
 } // namespace priv

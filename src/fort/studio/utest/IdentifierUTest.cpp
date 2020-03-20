@@ -8,6 +8,7 @@
 #include <fort/myrmidon/TestSetup.hpp>
 #include <fort/myrmidon/priv/Identifier.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
+#include <fort/myrmidon/priv/AntMetadata.hpp>
 
 #include <QTest>
 #include <QSignalSpy>
@@ -99,7 +100,8 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	QSignalSpy identificationDeleted(identifier,SIGNAL(identificationDeleted(fmp::Identification::ConstPtr)));
 
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(std::make_shared<fmp::AntShapeTypeContainer>());
+			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
+			                                          experiment->AntMetadataConstPtr());
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -160,7 +162,8 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 	QSignalSpy hiddenChanged(identifier,SIGNAL(numberHiddenAntChanged(quint32)));
 	QSignalSpy soloChanged(identifier,SIGNAL(numberSoloAntChanged(quint32)));
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(std::make_shared<fmp::AntShapeTypeContainer>());
+			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
+			                                          experiment->AntMetadataConstPtr());
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -303,7 +306,8 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
 
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(std::make_shared<fmp::AntShapeTypeContainer>());
+			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
+			                                          experiment->AntMetadataConstPtr());
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -354,10 +358,11 @@ TEST_F(IdentifierUTest,AntSelection) {
 	fmp::Ant::ConstPtr ant[3];
 	QSignalSpy antSelected(identifier->selectedAnt(),SIGNAL(activated(bool)));
 	auto shapeTypes = std::make_shared<fmp::AntShapeTypeContainer>();
+	auto metadata = std::make_shared<fmp::AntMetadata>();
 	ASSERT_NO_THROW({
-			ant[0] = experiment->Identifier()->CreateAnt(shapeTypes);
-			ant[1] = experiment->Identifier()->CreateAnt(shapeTypes);
-			ant[2] = experiment->Identifier()->CreateAnt(shapeTypes);
+			ant[0] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
+			ant[1] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
+			ant[2] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant[0]);

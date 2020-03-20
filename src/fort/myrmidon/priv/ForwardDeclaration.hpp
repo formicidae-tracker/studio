@@ -103,6 +103,7 @@ typedef DenseMap<AntShapeTypeID,AntShapeTypePtr>                    AntShapeType
 
 FORT_MYRMIDON_FDECLARE_CLASS(AntShapeTypeContainer)
 
+FORT_MYRMIDON_FDECLARE_CLASS(AntMetadata)
 
 } // namespace priv
 

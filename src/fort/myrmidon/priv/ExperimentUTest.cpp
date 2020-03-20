@@ -202,7 +202,9 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_TRUE(listContains(goodDefault));
 	EXPECT_FALSE(listContains(defaultWithBadPath));
 
-	auto antBefore = e->Identifier()->CreateAnt(0);
+	auto antBefore = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                            e->AntMetadataConstPtr(),
+	                                            0);
 	auto identBefore1 = Identifier::AddIdentification(e->Identifier(),
 	                                                  antBefore->ID(),
 	                                                  1,
@@ -312,7 +314,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		},Container::UnmanagedObject);
 
 
-	auto antLast = e->Identifier()->CreateAnt(std::make_shared<AntShapeTypeContainer>());
+	auto antLast = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                          e->AntMetadataConstPtr());
 	Identifier::AddIdentification(e->Identifier(),
 	                              antLast->ID(),
 	                              22,

@@ -2,6 +2,7 @@
 
 #include "Identification.hpp"
 #include "AntShapeType.hpp"
+#include "AntMetadata.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -10,7 +11,7 @@ namespace priv {
 void IdentificationUTest::SetUp() {
 	d_identifier = std::make_shared<Identifier>();
 
-	d_ant = d_identifier->CreateAnt(d_shapeTypes);
+	d_ant = d_identifier->CreateAnt(d_shapeTypes,d_metadata);
 	d_list.clear();
 
 	Time t;
@@ -129,8 +130,9 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	auto identifier = std::make_shared<Identifier>();
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
-	auto ant1 = identifier->CreateAnt(shapeTypes);
-	auto ant2 = identifier->CreateAnt(shapeTypes);
+	auto metadata = std::make_shared<AntMetadata>();
+	auto ant1 = identifier->CreateAnt(shapeTypes,metadata);
+	auto ant2 = identifier->CreateAnt(shapeTypes,metadata);
 	Identification::Ptr ant1ID1,ant2ID1,ant1ID2,ant2ID2;
 	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->ID(),0,NULL,NULL);});
 	// the two ant cannot share the same tag

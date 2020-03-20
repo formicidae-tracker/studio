@@ -8,8 +8,11 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+
 class AntMetadata {
 public:
+	typedef std::shared_ptr<AntMetadata>       Ptr;
+	typedef std::shared_ptr<const AntMetadata> ConstPtr;
 
 	enum class Type {
 	                 Bool = 0,
@@ -23,6 +26,29 @@ public:
 	                     Invalid = 2,
 	};
 
+	class Column {
+	public:
+		typedef std::shared_ptr<Column>       Ptr;
+		typedef std::shared_ptr<const Column> ConstPtr;
+
+
+		Column(const std::weak_ptr<AntMetadata> & metadata,
+		       const std::string & name,
+		       Type type);
+
+		const std::string & Name() const;
+		void SetName(const std::string & name);
+
+		Type MetadataType() const;
+		void SetMetadataType(Type type);
+	private:
+		std::weak_ptr<AntMetadata> d_metadata;
+		std::string                d_name;
+		Type                       d_type;
+	};
+
+	typedef std::map<std::string,Column::Ptr> ColumnByName;
+
 	static AntMetadata::Validity Validate(const std::string & name);
 
 	static std::string FromValue(bool value);
@@ -31,41 +57,9 @@ public:
 	static bool ToBool(const std::string & value);
 	static int32_t ToInt(const std::string & value);
 
-};
-class AntMetadataUniqueColumnList;
-
-class AntMetadataColumn {
-public:
-	typedef std::shared_ptr<AntMetadataColumn>       Ptr;
-	typedef std::shared_ptr<const AntMetadataColumn> ConstPtr;
-
-
-	AntMetadataColumn(const std::weak_ptr<AntMetadataUniqueColumnList> & list,
-	                  const std::string & name,
-	                  AntMetadata::Type type);
-
-	const std::string & Name() const;
-	void SetName(const std::string & name);
-
-	AntMetadata::Type MetadataType() const;
-	void SetMetadataType(AntMetadata::Type type);
-private:
-	std::weak_ptr<AntMetadataUniqueColumnList> d_list;
-	std::string                                d_name;
-	AntMetadata::Type                          d_type;
-};
-
-
-class AntMetadataUniqueColumnList {
-public:
-	typedef std::shared_ptr<AntMetadataUniqueColumnList>       Ptr;
-	typedef std::shared_ptr<const AntMetadataUniqueColumnList> ConstPtr;
-
-	typedef std::map<std::string,AntMetadataColumn::Ptr> ColumnByName;
-
-	static AntMetadataColumn::Ptr Create(const Ptr & itself,
-	                                     const std::string & name,
-	                                     AntMetadata::Type type);
+	static Column::Ptr Create(const Ptr & itself,
+	                          const std::string & name,
+	                          AntMetadata::Type type);
 
 	size_t Count(const std::string & name) const;
 
@@ -73,10 +67,9 @@ public:
 
 	const ColumnByName & Columns() const;
 
-	private:
+private:
 	void CheckName(const std::string & name) const;
 
-	friend class AntMetadataColumn;
 	ColumnByName d_columns;
 };
 

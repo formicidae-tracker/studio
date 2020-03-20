@@ -97,7 +97,8 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
-	auto a = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr());
+	auto a = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                    e->AntMetadataConstPtr());
 	for ( const auto & d : data ) {
 		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
@@ -326,7 +327,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
-		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr());
+		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+		                                     e->AntMetadataConstPtr());
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntMetadata a,expected;

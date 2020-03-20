@@ -5,54 +5,54 @@ namespace myrmidon {
 namespace priv {
 
 void AntMetadataUTest::SetUp() {
-	list =  std::make_shared<AntMetadataUniqueColumnList>();
+	metadata =  std::make_shared<AntMetadata>();
 }
 void AntMetadataUTest::TearDown() {
-	list.reset();
+	metadata.reset();
 }
 
 
 TEST_F(AntMetadataUTest,ColumnHaveUniqueName) {
-	AntMetadataColumn::Ptr foo,bar,baz;
-	EXPECT_NO_THROW(foo = AntMetadataUniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
-	EXPECT_NO_THROW(bar = AntMetadataUniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
-	EXPECT_NO_THROW(baz = AntMetadataUniqueColumnList::Create(list,"baz",AntMetadata::Type::String););
+	AntMetadata::Column::Ptr foo,bar,baz;
+	EXPECT_NO_THROW(foo = AntMetadata::Create(metadata,"foo",AntMetadata::Type::Bool););
+	EXPECT_NO_THROW(bar = AntMetadata::Create(metadata,"bar",AntMetadata::Type::Int););
+	EXPECT_NO_THROW(baz = AntMetadata::Create(metadata,"baz",AntMetadata::Type::String););
 
 	EXPECT_THROW({
 	              foo->SetName("bar");
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			AntMetadataUniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool);
+			AntMetadata::Create(metadata,"foo",AntMetadata::Type::Bool);
 		},std::invalid_argument);
 
 	foo->SetName("foobar");
-	AntMetadataUniqueColumnList::Create(list,"foo",AntMetadata::Type::String);
+	AntMetadata::Create(metadata,"foo",AntMetadata::Type::String);
 }
 
 TEST_F(AntMetadataUTest,ColumnAdditionDeletion) {
-	AntMetadataColumn::Ptr foo,bar,baz;
-	EXPECT_NO_THROW(foo = AntMetadataUniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
-	EXPECT_NO_THROW(bar = AntMetadataUniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
-	EXPECT_NO_THROW(baz = AntMetadataUniqueColumnList::Create(list,"baz",AntMetadata::Type::String););
+	AntMetadata::Column::Ptr foo,bar,baz;
+	EXPECT_NO_THROW(foo = AntMetadata::Create(metadata,"foo",AntMetadata::Type::Bool););
+	EXPECT_NO_THROW(bar = AntMetadata::Create(metadata,"bar",AntMetadata::Type::Int););
+	EXPECT_NO_THROW(baz = AntMetadata::Create(metadata,"baz",AntMetadata::Type::String););
 
-	EXPECT_EQ(list->Columns().size(),3);
+	EXPECT_EQ(metadata->Columns().size(),3);
 
 	EXPECT_THROW({
-			list->Delete("foobar");
+			metadata->Delete("foobar");
 		},std::out_of_range);
 
 	EXPECT_NO_THROW({
-			list->Delete("foo");
+			metadata->Delete("foo");
 		});
 
-	EXPECT_EQ(list->Columns().size(),2);
+	EXPECT_EQ(metadata->Columns().size(),2);
 
 	EXPECT_THROW({
-			list->Delete("foo");
+			metadata->Delete("foo");
 		},std::out_of_range);
 
-	EXPECT_EQ(list->Columns().size(),2);
+	EXPECT_EQ(metadata->Columns().size(),2);
 }
 
 TEST_F(AntMetadataUTest,DataTypeConversion) {

@@ -33,8 +33,9 @@ Identifier::Identifier()
 Identifier::~Identifier() {}
 
 AntPtr Identifier::CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
+                             const AntMetadataConstPtr & antMetadata,
                              fort::myrmidon::Ant::ID ID ) {
-	return CreateObject([&shapeTypes](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(shapeTypes,ID); },ID);
+	return CreateObject([&shapeTypes,&antMetadata](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(shapeTypes,antMetadata,ID); },ID);
 }
 
 void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {

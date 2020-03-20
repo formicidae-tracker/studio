@@ -9,6 +9,7 @@
 #include "Identifier.hpp"
 #include "AntPoseEstimate.hpp"
 #include "AntShapeType.hpp"
+#include "AntMetadata.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
@@ -24,7 +25,8 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
-	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>())
+	, d_antMetadata( std::make_shared<AntMetadata>()) {
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
 }
 
@@ -413,6 +415,9 @@ AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
 	return d_antShapeTypes;
 }
 
+fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() const {
+	return d_antMetadata;
+}
 
 } //namespace priv
 } //namespace myrmidon
