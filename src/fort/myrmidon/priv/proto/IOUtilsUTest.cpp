@@ -97,9 +97,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
-	auto a = e->Identifier().CreateAnt();
+	auto a = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr());
 	for ( const auto & d : data ) {
-		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
+		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
@@ -116,9 +116,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		IOUtils::SaveIdentification(&identPb, ident);
 		EXPECT_TRUE(MessageEqual(identPb,expected));
 
-		e->Identifier().DeleteIdentification(ident);
+		e->Identifier()->DeleteIdentification(ident);
 		ASSERT_TRUE(a->Identifications().empty());
-		IOUtils::LoadIdentification(*e,a,identPb);
+		IOUtils::LoadIdentification(e,a,identPb);
 
 		EXPECT_EQ(a->Identifications().size(),1);
 
@@ -141,7 +141,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_NO_THROW({
 				EXPECT_EQ(finalIdent->Target().get(),a.get());
 			});
-		e->Identifier().DeleteIdentification(finalIdent);
+		e->Identifier()->DeleteIdentification(finalIdent);
 	}
 }
 
@@ -326,22 +326,23 @@ TEST_F(IOUtilsUTest,AntIO) {
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
-		auto dA = e->Identifier().CreateAnt();
+		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr());
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntMetadata a,expected;
 		expected.set_id(dA->ID());
 		for(const auto & identData : d.IData ) {
-			auto ident  =e->Identifier().AddIdentification(dA->ID(),
-			                                               identData.Value,
-			                                               identData.Start,
-			                                               identData.End);
+			auto ident = Identifier::AddIdentification(e->Identifier(),
+			                                           dA->ID(),
+			                                           identData.Value,
+			                                           identData.Start,
+			                                           identData.End);
 			dIdents.push_back(ident);
 			IOUtils::SaveIdentification(expected.add_identifications(), ident);
 		}
 
 		for ( const auto & c : d.Capsules ) {
-			e->AddCapsuleToAnt(dA,shapeType->TypeID(),c);
+			dA->AddCapsule(shapeType->TypeID(),c);
 			auto sPb = expected.add_shape();
 			sPb->set_type(shapeType->TypeID());
 			IOUtils::SaveCapsule(sPb->mutable_capsule(),
@@ -359,20 +360,20 @@ TEST_F(IOUtilsUTest,AntIO) {
 		EXPECT_TRUE(MessageEqual(a,expected));
 
 		EXPECT_THROW({
-				IOUtils::LoadAnt(*e,a);
+				IOUtils::LoadAnt(e,a);
 			},std::exception);
 
 		EXPECT_NO_THROW({
 				for( auto & i : dIdents ) {
-					e->Identifier().DeleteIdentification(i);
+					e->Identifier()->DeleteIdentification(i);
 				}
-				e->Identifier().DeleteAnt(dA->ID());
+				e->Identifier()->DeleteAnt(dA->ID());
 			});
 
-		IOUtils::LoadAnt(*e,a);
-		auto fi = e->Identifier().Ants().find(expected.id());
-		EXPECT_TRUE(fi != e->Identifier().Ants().cend());
-		if ( fi == e->Identifier().Ants().cend() ) {
+		IOUtils::LoadAnt(e,a);
+		auto fi = e->ConstIdentifier().Ants().find(expected.id());
+		EXPECT_TRUE(fi != e->ConstIdentifier().Ants().cend());
+		if ( fi == e->ConstIdentifier().Ants().cend() ) {
 			continue;
 		}
 		auto res = fi->second;
@@ -475,7 +476,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 
 	ePb.set_tagfamily(pb::TagFamily(1234));
 	EXPECT_THROW({
-			IOUtils::LoadExperiment(*e, ePb);
+			IOUtils::LoadExperiment(e, ePb);
 		},std::runtime_error);
 
 	TrackingDataDirectory::ConstPtr tdd;
@@ -529,7 +530,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	IOUtils::SaveExperiment(&ePb,*e);
 	EXPECT_TRUE(MessageEqual(ePb,expected));
 
-	IOUtils::LoadExperiment(*res,ePb);
+	IOUtils::LoadExperiment(res,ePb);
 	EXPECT_EQ(res->Author(),e->Author());
 	EXPECT_EQ(res->Name(),e->Name());
 	EXPECT_EQ(res->Comment(),e->Comment());
@@ -607,7 +608,7 @@ TEST_F(IOUtilsUTest,SpaceIO) {
 
 	IOUtils::SaveSpace(&s,dS);
 	EXPECT_TRUE(MessageEqual(s,expected));
-	IOUtils::LoadSpace(*e2,s);
+	IOUtils::LoadSpace(e2,s);
 	ASSERT_EQ(e2->Spaces().size(),1);
 	auto res = e2->Spaces().begin()->second;
 	EXPECT_EQ(res->SpaceID(),dS->SpaceID());

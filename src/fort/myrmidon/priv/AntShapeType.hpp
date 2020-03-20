@@ -3,6 +3,9 @@
 #include <memory>
 #include <string>
 
+#include "ForwardDeclaration.hpp"
+#include "ContiguousIDContainer.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -12,6 +15,7 @@ public:
 	typedef uint32_t                            ID;
 	typedef std::shared_ptr<AntShapeType>       Ptr;
 	typedef std::shared_ptr<const AntShapeType> ConstPtr;
+	typedef DenseMap<ID,Ptr>                    ByID;
 
 	AntShapeType(ID TypeID, const std::string & name);
 
@@ -25,6 +29,26 @@ private:
 	std::string d_name;
 };
 
+class AntShapeTypeContainer {
+public:
+	typedef std::shared_ptr<AntShapeTypeContainer>       Ptr;
+	typedef std::shared_ptr<const AntShapeTypeContainer> ConstPtr;
+
+	AntShapeType::Ptr Create(const std::string & name,
+	                         AntShapeType::ID typeID);
+
+	void Delete(AntShapeType::ID typeID);
+
+	AntShapeType::ByID::const_iterator Find(AntShapeType::ID typeID) const;
+
+	AntShapeType::ByID::const_iterator End() const;
+
+	size_t Count(AntShapeType::ID typeID) const;
+
+	const AntShapeType::ByID & Types() const;
+private:
+	AlmostContiguousIDContainer<AntShapeType::ID,AntShapeType::Ptr> d_container;
+};
 
 } // namespace priv
 } // namespace myrmidon

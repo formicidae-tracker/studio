@@ -52,22 +52,9 @@ public:
 
 	typedef std::function<void(const IdentificationPtr & )> OnPositionUpdateCallback;
 
-	// Creates a new Identifier
-	// @return a pointer to an Identifier
-	//
-	// Creates a new <priv::Identifier>. It has to be shared_ptr as
-	// <priv::identification> keeps a std::weak_ptr to this object. and the
-	static Ptr Create();
-
-
-	// For unit test purpose only
-	static Identifier Invalid();
+	Identifier();
 
 	virtual ~Identifier();
-
-	// A self-referencing pointer
-	//@return a pointer to itself.
-	Ptr Itself() const;
 
 	// A default asking for the next available ID
 	const static fort::myrmidon::Ant::ID NEXT_AVAILABLE_ID = 0;
@@ -79,7 +66,8 @@ public:
 	// <AlreadyExistingAnt> if the ID is already used. If
 	// NEXT_AVAILABLE_ID is used, a unique ID will be automatically
 	// chosen.
-	AntPtr CreateAnt(fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
+	AntPtr CreateAnt(const AntShapeTypeContainerConstPtr & experiment,
+	                 fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
 
 	// Deletes an Ant
 	// @ID the <priv::Ant> to delete
@@ -102,10 +90,11 @@ public:
 	// Adds a new Identification. It may throw
 	// <OverlappingIdentification> if any exists for the desired
 	// <priv::Ant> or <TagID>.
-	IdentificationPtr AddIdentification(fort::myrmidon::Ant::ID id,
-	                                    TagID tagValue,
-	                                    const Time::ConstPtr & start,
-	                                    const Time::ConstPtr & end);
+	static IdentificationPtr AddIdentification(const Identifier::Ptr & itself,
+	                                           fort::myrmidon::Ant::ID id,
+	                                           TagID tagValue,
+	                                           const Time::ConstPtr & start,
+	                                           const Time::ConstPtr & end);
 
 	// Removes an Identification
 	// @ident the <priv::Identification> to remove
@@ -215,7 +204,6 @@ private:
 	typedef std::set<AntPoseEstimateConstPtr,AntPoseEstimateComparator>     AntPoseEstimateList;
 	typedef std::map<TagID,AntPoseEstimateList>                             AntPoseEstimateByTagID;
 
-	Identifier();
 	Identifier(const Identifier&) = delete;
 	Identifier & operator=(const Identifier&) = delete;
 

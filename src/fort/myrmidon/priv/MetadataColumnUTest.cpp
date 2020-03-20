@@ -36,6 +36,8 @@ TEST_F(MetadataColumnUTest,ColumnAdditionDeletion) {
 	EXPECT_NO_THROW(bar = MetadataColumn::Manager::Create(manager,"bar",MetadataColumn::Type::Int););
 	EXPECT_NO_THROW(baz = MetadataColumn::Manager::Create(manager,"baz",MetadataColumn::Type::String););
 
+	EXPECT_EQ(manager->Columns().size(),3);
+
 	EXPECT_THROW({
 			manager->Delete("foobar");
 		},std::out_of_range);
@@ -44,10 +46,13 @@ TEST_F(MetadataColumnUTest,ColumnAdditionDeletion) {
 			manager->Delete("foo");
 		});
 
+	EXPECT_EQ(manager->Columns().size(),2);
+
 	EXPECT_THROW({
 			manager->Delete("foo");
 		},std::out_of_range);
 
+	EXPECT_EQ(manager->Columns().size(),2);
 }
 
 TEST_F(MetadataColumnUTest,DataTypeConversion) {
@@ -61,7 +66,15 @@ TEST_F(MetadataColumnUTest,DataTypeConversion) {
 	EXPECT_EQ(MetadataColumn::ToInt("dvwhidbqoedbqw  qiqw dlqwo "),0);
 	EXPECT_EQ(MetadataColumn::ToInt("123456"),123456);
 	EXPECT_EQ(MetadataColumn::ToInt("-123456"),-123456);
+
+	EXPECT_EQ(MetadataColumn::FromValue(true),"TRUE");
+	EXPECT_EQ(MetadataColumn::FromValue(false),"FALSE");
+
+	EXPECT_EQ(MetadataColumn::FromValue(0),"0");
+	EXPECT_EQ(MetadataColumn::FromValue(-12345),"-12345");
 }
+
+
 
 
 

@@ -1,14 +1,16 @@
 #include "IdentificationUTest.hpp"
 
 #include "Identification.hpp"
+#include "AntShapeType.hpp"
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
 void IdentificationUTest::SetUp() {
-	d_identifier = Identifier::Create();
-	d_ant = d_identifier->CreateAnt();
+	d_identifier = std::make_shared<Identifier>();
+
+	d_ant = d_identifier->CreateAnt(d_shapeTypes);
 	d_list.clear();
 
 	Time t;
@@ -125,14 +127,15 @@ TEST_F(IdentificationUTest,CanCheckOverlaps) {
 
 
 TEST_F(IdentificationUTest,TestIdentificationBoundary) {
-	auto identifier = Identifier::Create();
-	auto ant1 = identifier->CreateAnt();
-	auto ant2 = identifier->CreateAnt();
+	auto identifier = std::make_shared<Identifier>();
+	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
+	auto ant1 = identifier->CreateAnt(shapeTypes);
+	auto ant2 = identifier->CreateAnt(shapeTypes);
 	Identification::Ptr ant1ID1,ant2ID1,ant1ID2,ant2ID2;
-	ASSERT_NO_THROW({ant1ID1 = identifier->AddIdentification(ant1->ID(),0,NULL,NULL);});
+	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->ID(),0,NULL,NULL);});
 	// the two ant cannot share the same tag
-	ASSERT_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
-	ASSERT_NO_THROW({ant2ID1 = identifier->AddIdentification(ant2->ID(),1,NULL,NULL);});
+	ASSERT_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
+	ASSERT_NO_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->ID(),1,NULL,NULL);});
 	// we can always reduce the validity of ID1
 	auto swapTime = std::make_shared<Time>(Time::FromTimeT(0));
 
@@ -141,14 +144,16 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 		});
 	// overlaps with ant1ID1
 	ASSERT_THROW({
-			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			ant1ID2 = Identifier::AddIdentification(identifier,
+			                                        ant1->ID(),
 			                                        0,
 			                                        Time::ConstPtr(),
 			                                        Time::ConstPtr());
 		},OverlappingIdentification);
 	// overlaps with ant2ID1
 	ASSERT_THROW({
-			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			ant1ID2 = Identifier::AddIdentification(identifier,
+			                                        ant1->ID(),
 			                                        1,
 			                                        swapTime,
 			                                        Time::ConstPtr());
@@ -159,13 +164,15 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 
 	//works to swap the two id after frame a/10
 	ASSERT_NO_THROW({
-			ant1ID2 = identifier->AddIdentification(ant1->ID(),
+			ant1ID2 = Identifier::AddIdentification(identifier,
+			                                        ant1->ID(),
 			                                        1,
 			                                        swapTime,
 			                                        Time::ConstPtr());
 		});
 	ASSERT_NO_THROW({
-			ant2ID2 = identifier->AddIdentification(ant2->ID(),
+			ant2ID2 = Identifier::AddIdentification(identifier,
+			                                        ant2->ID(),
 			                                        0,
 			                                        swapTime,
 			                                        Time::ConstPtr());

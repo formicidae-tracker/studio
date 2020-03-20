@@ -61,8 +61,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_model->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
 	if ( d_experiment ) {
 		d_experiment->Identifier()
-			.SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
-			                              });
+			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
+			                               });
 	}
 
 	d_experiment = experiment;
@@ -73,14 +73,14 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		return;
 	}
 	d_experiment->Identifier()
-		.SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
-			                              qDebug() << "Got ant position update for " << ToQString(ident);
-			                              emit identificationAntPositionModified(ident);
-		                              });
+		->SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
+			                               qDebug() << "Got ant position update for " << ToQString(ident);
+			                               emit identificationAntPositionModified(ident);
+		                               });
 
 	//reorder ants
 	std::map<quint32,fmp::Ant::Ptr> ants;
-	for ( const auto & a : d_experiment->Identifier().Ants() ) {
+	for ( const auto & a : d_experiment->ConstIdentifier().Ants() ) {
 		ants.insert(a);
 	}
 
@@ -100,7 +100,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	fmp::Ant::Ptr ant;
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::CreateAnt()";
-		ant = d_experiment->Identifier().CreateAnt();
+		ant = d_experiment->Identifier()->CreateAnt(d_experiment->AntShapeTypesConstPtr());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Ant: " << e.what();
 		return fmp::Ant::Ptr();
@@ -125,7 +125,7 @@ void IdentifierBridge::deleteAnt(fm::Ant::ID AID) {
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteAnt("
 		         << fmp::Ant::FormatID(AID).c_str() << ")";
-		d_experiment->Identifier().DeleteAnt(AID);
+		d_experiment->Identifier()->DeleteAnt(AID);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(AID).c_str()
 		            << "': " << e.what();
@@ -159,7 +159,8 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 		         << "," << TID
 		         <<  "," << ToQString(start,"-")
 		         << "," << ToQString(end,"+") << ")";
-		identification = d_experiment->Identifier().AddIdentification(AID,TID,start,end);
+		identification = fmp::Identifier::AddIdentification(d_experiment->Identifier(),
+		                                                    AID,TID,start,end);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
 		            << "↤" << TID
@@ -188,7 +189,7 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteIdentification("
 		         << ToQString(identification) << ")";
-		d_experiment->Identifier().DeleteIdentification(identification);
+		d_experiment->Identifier()->DeleteIdentification(identification);
 	} catch (const std::exception & e ) {
 		std::ostringstream os;
 		os << *identification;

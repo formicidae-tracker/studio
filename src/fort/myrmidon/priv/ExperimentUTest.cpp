@@ -7,6 +7,7 @@
 #include <fort/myrmidon/priv/Identifier.hpp>
 #include <fort/myrmidon/priv/Space.hpp>
 #include <fort/myrmidon/priv/Measurement.hpp>
+#include <fort/myrmidon/priv/AntShapeType.hpp>
 #include <fort/myrmidon/UtilsUTest.hpp>
 #include <fstream>
 
@@ -201,17 +202,19 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_TRUE(listContains(goodDefault));
 	EXPECT_FALSE(listContains(defaultWithBadPath));
 
-	auto antBefore = e->Identifier().CreateAnt(0);
-	auto identBefore1 = e->Identifier().AddIdentification(antBefore->ID(),
-	                                                      1,
-	                                                      Time::ConstPtr(),
-	                                                      std::make_shared<Time>(foo0->EndDate()));
+	auto antBefore = e->Identifier()->CreateAnt(0);
+	auto identBefore1 = Identifier::AddIdentification(e->Identifier(),
+	                                                  antBefore->ID(),
+	                                                  1,
+	                                                  Time::ConstPtr(),
+	                                                  std::make_shared<Time>(foo0->EndDate()));
 	identBefore1->SetTagSize(2.0);
 
-	auto identBefore2 = e->Identifier().AddIdentification(antBefore->ID(),
-	                                                      0,
-	                                                      std::make_shared<Time>(foo1->StartDate()),
-	                                                      Time::ConstPtr());
+	auto identBefore2 = Identifier::AddIdentification(e->Identifier(),
+	                                                  antBefore->ID(),
+	                                                  0,
+	                                                  std::make_shared<Time>(foo1->StartDate()),
+	                                                  Time::ConstPtr());
 	identBefore2->SetTagSize(2.0);
 
 
@@ -262,16 +265,18 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	}
 
 	//Now we add a super Ant
-	auto antAfter = e->Identifier().CreateAnt(0);
-	auto identAfter1 = e->Identifier().AddIdentification(antAfter->ID(),
-	                                                     0,
-	                                                     Time::ConstPtr(),
-	                                                     std::make_shared<Time>(foo0->EndDate()));
+	auto antAfter = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),0);
+	auto identAfter1 = Identifier::AddIdentification(e->Identifier(),
+	                                                 antAfter->ID(),
+	                                                 0,
+	                                                 Time::ConstPtr(),
+	                                                 std::make_shared<Time>(foo0->EndDate()));
 
-	auto identAfter2 = e->Identifier().AddIdentification(antAfter->ID(),
-	                                                     1,
-	                                                     std::make_shared<Time>(foo1->StartDate()),
-	                                                     Time::ConstPtr());
+	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
+	                                                 antAfter->ID(),
+	                                                 1,
+	                                                 std::make_shared<Time>(foo1->StartDate()),
+	                                                 Time::ConstPtr());
 	e->SetFamily(tags::Family::Tag36ARTag);
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
@@ -307,11 +312,12 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		},Container::UnmanagedObject);
 
 
-	auto antLast = e->Identifier().CreateAnt();
-	e->Identifier().AddIdentification(antLast->ID(),
-	                                  22,
-	                                  Time::ConstPtr(),
-	                                  Time::ConstPtr());
+	auto antLast = e->Identifier()->CreateAnt(std::make_shared<AntShapeTypeContainer>());
+	Identifier::AddIdentification(e->Identifier(),
+	                              antLast->ID(),
+	                              22,
+	                              Time::ConstPtr(),
+	                              Time::ConstPtr());
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->ID(),

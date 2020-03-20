@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
+#include "AntShapeType.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -15,11 +16,13 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 	return os.str();
 }
 
-Ant::Ant(fort::myrmidon::Ant::ID ID)
+Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
+         fort::myrmidon::Ant::ID ID)
 	: d_ID(ID)
 	, d_IDStr(FormatID(ID))
 	, d_displayColor(Palette::Default().At(0) )
-	, d_displayState(DisplayState::VISIBLE) {
+	, d_displayState(DisplayState::VISIBLE)
+	, d_shapeTypes(shapeTypeContainer) {
 }
 
 Ant::~Ant() {
@@ -52,11 +55,14 @@ void Ant::ClearCapsules() {
 	d_capsules.clear();
 }
 
-void Ant::Accessor::AddCapsule(Ant & a, AntShapeTypeID typeID, const CapsulePtr & capsule) {
+void Ant::AddCapsule(AntShapeTypeID typeID, const CapsulePtr & capsule) {
+	if ( d_shapeTypes->Count(typeID) == 0 ) {
+		throw std::invalid_argument("Unknown AntShapeTypeID " + std::to_string(typeID));
+	}
 	if (!capsule) {
 		throw std::invalid_argument("No capsule");
 	}
-	a.d_capsules.push_back(std::make_pair(typeID,capsule));
+	d_capsules.push_back(std::make_pair(typeID,capsule));
 }
 
 

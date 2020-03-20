@@ -1,6 +1,7 @@
 #include "Identifier.hpp"
 
 #include "Ant.hpp"
+#include "Experiment.hpp"
 #include "DeletedReference.hpp"
 #include "AntPoseEstimate.hpp"
 
@@ -31,19 +32,9 @@ Identifier::Identifier()
 
 Identifier::~Identifier() {}
 
-Identifier::Ptr Identifier::Create() {
-    std::shared_ptr<Identifier> res(new Identifier());
-    res->d_itself = res;
-    return res;
-}
-
-Identifier Identifier::Invalid() {
-	return Identifier();
-}
-
-
-AntPtr Identifier::CreateAnt(fort::myrmidon::Ant::ID ID ) {
-	return CreateObject([](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(ID); },ID);
+AntPtr Identifier::CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
+                             fort::myrmidon::Ant::ID ID ) {
+	return CreateObject([&shapeTypes](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(shapeTypes,ID); },ID);
 }
 
 void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
@@ -63,30 +54,22 @@ const AntByID & Identifier::Ants() const {
 }
 
 
-Identifier::Ptr Identifier::Itself() const {
-	auto res = d_itself.lock();
 
-	if ( !res ) {
-		throw DeletedReference<Identifier>();
-	}
-	return res;
-}
-
-
-Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID ID,
+Identification::Ptr Identifier::AddIdentification(const Identifier::Ptr & itself,
+                                                  fort::myrmidon::Ant::ID ID,
                                                   TagID tagValue,
                                                   const Time::ConstPtr & start,
                                                   const Time::ConstPtr & end) {
-	auto fi = Ants().find(ID);
-	if ( fi == Ants().end() ) {
+	auto fi = itself->Ants().find(ID);
+	if ( fi == itself->Ants().end() ) {
 		throw UnmanagedObject(ID);
 	}
 	auto ant = fi->second;
 
-	auto res = Identification::Accessor::Create(tagValue,Itself(),ant);
+	auto res = Identification::Accessor::Create(tagValue,itself,ant);
 	Identification::Accessor::SetStart(*res,start);
 	Identification::Accessor::SetEnd(*res,end);
-	Identification::List current = d_identifications[tagValue];
+	Identification::List current = itself->d_identifications[tagValue];
 	current.push_back(res);
 
 	Identification::List antIdents = Ant::Accessor::Identifications(*ant);
@@ -94,10 +77,10 @@ Identification::Ptr Identifier::AddIdentification(fort::myrmidon::Ant::ID ID,
 
 	SortAndCheck(current,antIdents);
 
-	d_identifications[tagValue] = current;
+	itself->d_identifications[tagValue] = current;
 	Ant::Accessor::Identifications(*ant) = antIdents;
 
-	UpdateIdentificationAntPosition(res);
+	itself->UpdateIdentificationAntPosition(res);
 
 	return res;
 }

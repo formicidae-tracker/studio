@@ -34,11 +34,11 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 	                 },
 	                 [&measurements,&res,filename](const pb::FileLine & line) {
 		                 if (line.has_experiment() == true ) {
-			                 IOUtils::LoadExperiment(*res, line.experiment());
+			                 IOUtils::LoadExperiment(res, line.experiment());
 		                 }
 
 		                 if (line.has_antdata() == true ) {
-			                 IOUtils::LoadAnt(*res, line.antdata());
+			                 IOUtils::LoadAnt(res, line.antdata());
 		                 }
 
 		                 if (line.has_measurement() == true ) {
@@ -46,7 +46,7 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 		                 }
 
 		                 if (line.has_space() == true ) {
-			                 IOUtils::LoadSpace(*res,line.space());
+			                 IOUtils::LoadSpace(res,line.space());
 		                 }
 	                 });
 	for ( const auto & m : measurements ) {

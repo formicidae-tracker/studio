@@ -41,7 +41,7 @@ void IOUtils::SaveTime(pb::Time * pb,const Time & t) {
 
 
 
-void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
+void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
                                  const fort::myrmidon::pb::Identification & pb) {
 	Time::ConstPtr start,end;
 	if ( pb.has_start() ) {
@@ -51,7 +51,7 @@ void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
 		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
 	}
 
-	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
+	auto res = Identifier::AddIdentification(e->Identifier(),target->ID(),pb.id(),start,end);
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
@@ -124,15 +124,15 @@ pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
 }
 
 
-void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
-	auto ant = e.Identifier().CreateAnt(pb.id());
+void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntMetadata & pb) {
+	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),pb.id());
 
 	for ( const auto & ident : pb.identifications() ) {
 		LoadIdentification(e,ant,ident);
 	}
 
 	for ( const auto & s : pb.shape() ) {
-		e.AddCapsuleToAnt(ant,s.type(),LoadCapsule(s.capsule()));
+		ant->AddCapsule(s.type(),LoadCapsule(s.capsule()));
 	}
 
 	ant->SetDisplayColor(LoadColor(pb.color()));
@@ -262,11 +262,11 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	}
 }
 
-void IOUtils::LoadSpace(Experiment & e,
+void IOUtils::LoadSpace(const Experiment::Ptr & e,
                         const pb::Space & pb) {
-	auto s = e.CreateSpace(pb.name(),pb.id());
+	auto s = e->CreateSpace(pb.name(),pb.id());
 	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
-		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+		auto tdd = TrackingDataDirectory::Open(e->Basedir() / tddRelPath, e->Basedir());
 		s->AddTrackingDataDirectory(tdd);
 	}
 	for ( const auto & zPb : pb.zones() ) {
@@ -298,29 +298,29 @@ void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr 
 }
 
 
-void IOUtils::LoadExperiment(Experiment & e,
+void IOUtils::LoadExperiment(const Experiment::Ptr & e,
                              const pb::Experiment & pb) {
-	e.SetAuthor(pb.author());
-	e.SetName(pb.name());
-	e.SetComment(pb.comment());
-	e.SetFamily(LoadFamily(pb.tagfamily()));
-	e.SetThreshold(pb.threshold());
-	e.SetDefaultTagSize(pb.tagsize());
+	e->SetAuthor(pb.author());
+	e->SetName(pb.name());
+	e->SetComment(pb.comment());
+	e->SetFamily(LoadFamily(pb.tagfamily()));
+	e->SetThreshold(pb.threshold());
+	e->SetDefaultTagSize(pb.tagsize());
 
 	for (const auto & ct : pb.custommeasurementtypes()) {
 		if ( ct.id() == Measurement::HEAD_TAIL_TYPE ) {
-			auto fi = e.MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
-			if ( fi == e.MeasurementTypes().cend() ) {
+			auto fi = e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
+			if ( fi == e->MeasurementTypes().cend() ) {
 				throw std::logic_error("Experiment missing default MeasurementType::ID Measurement::HEAD_TAIL_TYPE");
 			}
 			fi->second->SetName(ct.name());
 		} else {
-			e.CreateMeasurementType(ct.name(),ct.id());
+			e->CreateMeasurementType(ct.name(),ct.id());
 		}
 	}
 
 	for (const auto & ast : pb.antshapetypes() ) {
-		e.CreateAntShapeType(ast.name(),ast.id());
+		e->CreateAntShapeType(ast.name(),ast.id());
 	}
 }
 

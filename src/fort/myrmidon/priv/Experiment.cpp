@@ -19,11 +19,12 @@ namespace priv {
 Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
-	, d_identifier(Identifier::Create())
+	, d_identifier(std::make_shared<fort::myrmidon::priv::Identifier>())
 	, d_universe(std::make_shared<Space::Universe>())
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
-	, d_defaultTagSize(1.0) {
+	, d_defaultTagSize(1.0)
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
 }
 
@@ -378,19 +379,17 @@ Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
 }
 
 AntShapeType::Ptr Experiment::CreateAntShapeType(const std::string & name,
-                                                 AntShapeTypeID TypeID) {
-	return d_antShapeTypes.CreateObject([&name](AntShapeTypeID ID) {
-		                                    return std::make_shared<AntShapeType>(ID,name);
-	                                    },TypeID);
+                                                 AntShapeTypeID typeID) {
+	return d_antShapeTypes->Create(name,typeID);
 }
 
 void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
-	auto fi  = d_antShapeTypes.Objects().find(typeID);
-	if ( fi == d_antShapeTypes.Objects().end() ) {
-		//will throw
-		d_antShapeTypes.DeleteObject(typeID);
-		return;
+	auto fi = d_antShapeTypes->Find(typeID);
+	if ( fi == d_antShapeTypes->End() ) {
+		// will throw
+		d_antShapeTypes->Delete(typeID);
 	}
+
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		for ( const auto & [type,c] : a->Capsules() ) {
 			if ( type == typeID ) {
@@ -402,23 +401,16 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
 			}
 		}
 	}
-	d_antShapeTypes.DeleteObject(typeID);
+	d_antShapeTypes->Delete(typeID);
 }
-
-void Experiment::AddCapsuleToAnt(const AntPtr & ant,
-                                 AntShapeTypeID typeID,
-                                 const CapsulePtr & capsule) {
-	if ( d_antShapeTypes.Objects().count(typeID) == 0 ) {
-		throw std::invalid_argument("Unknown shape type ID " + std::to_string(typeID));
-	}
-
-	Ant::Accessor::AddCapsule(*ant,typeID,capsule);
-}
-
 
 
 const AntShapeTypeByID & Experiment::AntShapeTypes() const {
-	return d_antShapeTypes.Objects();
+	return d_antShapeTypes->Types();
+}
+
+AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
+	return d_antShapeTypes;
 }
 
 
