@@ -1,18 +1,18 @@
-#include "MetadataColumnUTest.hpp"
+#include "AntMetadataUTest.hpp"
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-void MetadataColumnUTest::SetUp() {
+void AntMetadataUTest::SetUp() {
 	list =  std::make_shared<AntMetadata::UniqueColumnList>();
 }
-void MetadataColumnUTest::TearDown() {
+void AntMetadataUTest::TearDown() {
 	list.reset();
 }
 
 
-TEST_F(MetadataColumnUTest,ColumnHaveUniqueName) {
+TEST_F(AntMetadataUTest,ColumnHaveUniqueName) {
 	AntMetadata::Column::Ptr foo,bar,baz;
 	EXPECT_NO_THROW(foo = AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
 	EXPECT_NO_THROW(bar = AntMetadata::UniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
@@ -30,7 +30,7 @@ TEST_F(MetadataColumnUTest,ColumnHaveUniqueName) {
 	AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::String);
 }
 
-TEST_F(MetadataColumnUTest,ColumnAdditionDeletion) {
+TEST_F(AntMetadataUTest,ColumnAdditionDeletion) {
 	AntMetadata::Column::Ptr foo,bar,baz;
 	EXPECT_NO_THROW(foo = AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
 	EXPECT_NO_THROW(bar = AntMetadata::UniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
@@ -55,7 +55,7 @@ TEST_F(MetadataColumnUTest,ColumnAdditionDeletion) {
 	EXPECT_EQ(list->Columns().size(),2);
 }
 
-TEST_F(MetadataColumnUTest,DataTypeConversion) {
+TEST_F(AntMetadataUTest,DataTypeConversion) {
 	EXPECT_FALSE(AntMetadata::Column::ToBool("FALSE"));
 	EXPECT_FALSE(AntMetadata::Column::ToBool("FaLSe"));
 	EXPECT_FALSE(AntMetadata::Column::ToBool(""));

@@ -2,13 +2,13 @@
 
 #include <gtest/gtest.h>
 
-#include "MetadataColumn.hpp"
+#include "AntMetadata.hpp"
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class MetadataColumnUTest : public ::testing::Test {
+class AntMetadataUTest : public ::testing::Test {
 protected:
 	void SetUp();
 	void TearDown();

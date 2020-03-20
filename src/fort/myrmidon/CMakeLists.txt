@@ -75,7 +75,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Polygon.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
-                      priv/MetadataColumn.hpp
+                      priv/AntMetadata.hpp
                       priv/proto/FileReadWriter.hpp
                       priv/proto/ExperimentReadWriter.hpp
                       priv/proto/TDDCache.hpp
@@ -120,7 +120,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Polygon.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp
-                      priv/MetadataColumn.cpp
+                      priv/AntMetadata.cpp
                       priv/proto/FileReadWriter.cpp
                       priv/proto/ExperimentReadWriter.cpp
                       priv/proto/TDDCache.cpp
@@ -177,7 +177,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/CapsuleUTest.cpp
                     priv/PolygonUTest.cpp
                     priv/KDTreeUTest.cpp
-                    priv/MetadataColumnUTest.cpp
+                    priv/AntMetadataUTest.cpp
                     )
 
 
@@ -211,7 +211,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/CapsuleUTest.hpp
                     priv/PolygonUTest.hpp
                     priv/KDTreeUTest.hpp
-                    priv/MetadataColumnUTest.hpp
+                    priv/AntMetadataUTest.hpp
                     )
 
 add_library(fort-myrmidon SHARED ${SRC_FILES}
