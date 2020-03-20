@@ -5,73 +5,73 @@ namespace myrmidon {
 namespace priv {
 
 void MetadataColumnUTest::SetUp() {
-	manager =  std::make_shared<MetadataColumn::Manager>();
+	list =  std::make_shared<AntMetadata::UniqueColumnList>();
 }
 void MetadataColumnUTest::TearDown() {
-	manager.reset();
+	list.reset();
 }
 
 
 TEST_F(MetadataColumnUTest,ColumnHaveUniqueName) {
-	MetadataColumn::Ptr foo,bar,baz;
-	EXPECT_NO_THROW(foo = MetadataColumn::Manager::Create(manager,"foo",MetadataColumn::Type::Bool););
-	EXPECT_NO_THROW(bar = MetadataColumn::Manager::Create(manager,"bar",MetadataColumn::Type::Int););
-	EXPECT_NO_THROW(baz = MetadataColumn::Manager::Create(manager,"baz",MetadataColumn::Type::String););
+	AntMetadata::Column::Ptr foo,bar,baz;
+	EXPECT_NO_THROW(foo = AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
+	EXPECT_NO_THROW(bar = AntMetadata::UniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
+	EXPECT_NO_THROW(baz = AntMetadata::UniqueColumnList::Create(list,"baz",AntMetadata::Type::String););
 
 	EXPECT_THROW({
 	              foo->SetName("bar");
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			MetadataColumn::Manager::Create(manager,"foo",MetadataColumn::Type::Bool);
+			AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool);
 		},std::invalid_argument);
 
 	foo->SetName("foobar");
-	MetadataColumn::Manager::Create(manager,"foo",MetadataColumn::Type::String);
+	AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::String);
 }
 
 TEST_F(MetadataColumnUTest,ColumnAdditionDeletion) {
-	MetadataColumn::Ptr foo,bar,baz;
-	EXPECT_NO_THROW(foo = MetadataColumn::Manager::Create(manager,"foo",MetadataColumn::Type::Bool););
-	EXPECT_NO_THROW(bar = MetadataColumn::Manager::Create(manager,"bar",MetadataColumn::Type::Int););
-	EXPECT_NO_THROW(baz = MetadataColumn::Manager::Create(manager,"baz",MetadataColumn::Type::String););
+	AntMetadata::Column::Ptr foo,bar,baz;
+	EXPECT_NO_THROW(foo = AntMetadata::UniqueColumnList::Create(list,"foo",AntMetadata::Type::Bool););
+	EXPECT_NO_THROW(bar = AntMetadata::UniqueColumnList::Create(list,"bar",AntMetadata::Type::Int););
+	EXPECT_NO_THROW(baz = AntMetadata::UniqueColumnList::Create(list,"baz",AntMetadata::Type::String););
 
-	EXPECT_EQ(manager->Columns().size(),3);
+	EXPECT_EQ(list->Columns().size(),3);
 
 	EXPECT_THROW({
-			manager->Delete("foobar");
+			list->Delete("foobar");
 		},std::out_of_range);
 
 	EXPECT_NO_THROW({
-			manager->Delete("foo");
+			list->Delete("foo");
 		});
 
-	EXPECT_EQ(manager->Columns().size(),2);
+	EXPECT_EQ(list->Columns().size(),2);
 
 	EXPECT_THROW({
-			manager->Delete("foo");
+			list->Delete("foo");
 		},std::out_of_range);
 
-	EXPECT_EQ(manager->Columns().size(),2);
+	EXPECT_EQ(list->Columns().size(),2);
 }
 
 TEST_F(MetadataColumnUTest,DataTypeConversion) {
-	EXPECT_FALSE(MetadataColumn::ToBool("FALSE"));
-	EXPECT_FALSE(MetadataColumn::ToBool("FaLSe"));
-	EXPECT_FALSE(MetadataColumn::ToBool(""));
-	EXPECT_TRUE(MetadataColumn::ToBool("FALS"));
-	EXPECT_TRUE(MetadataColumn::ToBool("TRUE"));
+	EXPECT_FALSE(AntMetadata::Column::ToBool("FALSE"));
+	EXPECT_FALSE(AntMetadata::Column::ToBool("FaLSe"));
+	EXPECT_FALSE(AntMetadata::Column::ToBool(""));
+	EXPECT_TRUE(AntMetadata::Column::ToBool("FALS"));
+	EXPECT_TRUE(AntMetadata::Column::ToBool("TRUE"));
 
-	EXPECT_EQ(MetadataColumn::ToInt(""),0);
-	EXPECT_EQ(MetadataColumn::ToInt("dvwhidbqoedbqw  qiqw dlqwo "),0);
-	EXPECT_EQ(MetadataColumn::ToInt("123456"),123456);
-	EXPECT_EQ(MetadataColumn::ToInt("-123456"),-123456);
+	EXPECT_EQ(AntMetadata::Column::ToInt(""),0);
+	EXPECT_EQ(AntMetadata::Column::ToInt("dvwhidbqoedbqw  qiqw dlqwo "),0);
+	EXPECT_EQ(AntMetadata::Column::ToInt("123456"),123456);
+	EXPECT_EQ(AntMetadata::Column::ToInt("-123456"),-123456);
 
-	EXPECT_EQ(MetadataColumn::FromValue(true),"TRUE");
-	EXPECT_EQ(MetadataColumn::FromValue(false),"FALSE");
+	EXPECT_EQ(AntMetadata::Column::FromValue(true),"TRUE");
+	EXPECT_EQ(AntMetadata::Column::FromValue(false),"FALSE");
 
-	EXPECT_EQ(MetadataColumn::FromValue(0),"0");
-	EXPECT_EQ(MetadataColumn::FromValue(-12345),"-12345");
+	EXPECT_EQ(AntMetadata::Column::FromValue(0),"0");
+	EXPECT_EQ(AntMetadata::Column::FromValue(-12345),"-12345");
 }
 
 
