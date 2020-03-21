@@ -47,32 +47,34 @@ AntMetadata::Validity AntMetadata::Validate(const std::string & name) {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 }
 
-std::string AntMetadata::FromValue(bool value) {
-	return value ?  "TRUE" :  "FALSE";
-}
-
-std::string AntMetadata::FromValue(int32_t value) {
-	return std::to_string(value);
-}
-
-bool AntMetadata::ToBool(const std::string & value) {
-	std::string lowered(value);
-	std::transform(lowered.begin(),
-	               lowered.end(),
-	               lowered.begin(),
-	               [](unsigned char c ) -> unsigned char { return std::tolower(c);});
-	if ( value.empty() == true || lowered == "false" ) {
-		return false;
+bool AntMetadata::CheckType(Type type, const AntStaticValue & data) {
+	static std::vector<std::function<void (const AntStaticValue &)>> checkers =
+		{
+		 [](const AntStaticValue & data) { std::get<bool>(data); },
+		 [](const AntStaticValue & data) { std::get<int32_t>(data); },
+		 [](const AntStaticValue & data) { std::get<double>(data); },
+		 [](const AntStaticValue & data) { std::get<std::string>(data); },
+		 [](const AntStaticValue & data) { std::get<Time>(data); },
+		};
+	size_t idx = size_t(type);
+	if ( idx >= checkers.size() ) {
+		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
 	}
-	return true;
+	checkers[idx](data);
 }
 
-int32_t AntMetadata::ToInt(const std::string & value) {
-	try {
-		return std::stoi(value);
-	} catch ( const std::exception & e ) {
-		return 0;
+AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
+	static std::vector<std::function<AntStaticValue (const std::string &)>> converters =
+		{
+		 [](const std::string & ) ->  AntStaticValue {
+			 return false;
+		 },
+		};
+	size_t idx = size_t(type);
+	if ( idx >= converters.size() ) {
+		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
 	}
+	return converters[idx](value);
 }
 
 const std::string & AntMetadata::Column::Name() const {

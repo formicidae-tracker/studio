@@ -100,10 +100,17 @@ public:
 
 	void SetDisplayStatus(DisplayState s);
 
-	const std::string & GetValue(const std::string & name,
-	                             const Time & time);
+	const AntStaticValue & GetValue(const std::string & name,
+	                               const Time & time);
 
+	void SetValue(const std::string & name,
+	              const AntStaticValue & value,
+	              const Time::ConstPtr & time);
 
+	void DeleteValue(const std::string & name,
+	                 const Time::ConstPtr & time);
+
+	const AntDataMap & DataMap() const;
 
 
 	// C++ shenanigans

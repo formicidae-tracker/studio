@@ -4,6 +4,11 @@
 #include <cstdint>
 
 #include <tuple>
+#include <variant>
+#include <string>
+
+#include <unordered_map>
+#include <vector>
 
 #include <Eigen/Geometry>
 
@@ -27,6 +32,14 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 
 // AABB
 typedef Eigen::AlignedBox<double,2> AABB;
+
+
+typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
+
+typedef std::pair<Time::ConstPtr,AntStaticValue>   AntTimedValue;
+
+typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
+
 
 struct PositionedAnt {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW

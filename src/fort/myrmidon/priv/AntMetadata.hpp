@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 
+#include "Types.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -17,7 +19,9 @@ public:
 	enum class Type {
 	                 Bool = 0,
 	                 Int,
+	                 Double,
 	                 String,
+	                 Time,
 	};
 
 	enum class Validity {
@@ -49,13 +53,11 @@ public:
 
 	typedef std::map<std::string,Column::Ptr> ColumnByName;
 
-	static AntMetadata::Validity Validate(const std::string & name);
+	static AntMetadata::Validity Validate(const std::string & value);
 
-	static std::string FromValue(bool value);
-	static std::string FromValue(int32_t value);
+	static bool CheckType(Type type, const AntStaticValue & data);
 
-	static bool ToBool(const std::string & value);
-	static int32_t ToInt(const std::string & value);
+	static AntStaticValue FromString(Type type, const std::string & name);
 
 	static Column::Ptr Create(const Ptr & itself,
 	                          const std::string & name,
