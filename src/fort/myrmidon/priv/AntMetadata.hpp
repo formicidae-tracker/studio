@@ -53,6 +53,9 @@ public:
 
 	typedef std::map<std::string,Column::Ptr> ColumnByName;
 
+	typedef std::function<void (const std::string &, const std::string &)> NameChangeCallback;
+	typedef std::function<void (const std::string &, Type, Type)>          TypeChangeCallback;
+
 	static AntMetadata::Validity Validate(const std::string & value);
 
 	static bool CheckType(Type type, const AntStaticValue & data);
@@ -63,6 +66,11 @@ public:
 	                          const std::string & name,
 	                          AntMetadata::Type type);
 
+	AntMetadata();
+
+	AntMetadata(const NameChangeCallback & onNameChange,
+	            const TypeChangeCallback & onTypeChange);
+
 	size_t Count(const std::string & name) const;
 
 	void Delete(const std::string & columnName);
@@ -72,7 +80,9 @@ public:
 private:
 	void CheckName(const std::string & name) const;
 
-	ColumnByName d_columns;
+	ColumnByName       d_columns;
+	NameChangeCallback d_onNameChange;
+	TypeChangeCallback d_onTypeChange;
 };
 
 } // namespace priv

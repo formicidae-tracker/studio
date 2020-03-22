@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <sstream>
 
 namespace fort {
 namespace myrmidon {
@@ -33,6 +34,17 @@ void AntMetadata::Delete(const std::string & name) {
 		throw std::out_of_range("Unmanaged column '" + name + "'");
 	}
 	d_columns.erase(fi);
+}
+
+AntMetadata::AntMetadata()
+	: d_onNameChange([](const std::string &, const std::string) {} )
+	, d_onTypeChange([](const std::string &, Type, Type) {} ) {
+}
+
+AntMetadata::AntMetadata(const NameChangeCallback & onNameChange,
+                         const TypeChangeCallback & onTypeChange)
+	: d_onNameChange(onNameChange)
+	, d_onTypeChange(onTypeChange) {
 }
 
 const AntMetadata::ColumnByName & AntMetadata::Columns() const {
@@ -66,8 +78,26 @@ bool AntMetadata::CheckType(Type type, const AntStaticValue & data) {
 AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
 	static std::vector<std::function<AntStaticValue (const std::string &)>> converters =
 		{
-		 [](const std::string & ) ->  AntStaticValue {
-			 return false;
+		 [](const std::string & value ) ->  AntStaticValue {
+			 std::istringstream iss(value);
+			 bool res;
+			 iss >> std::boolalpha >> res;
+			 if ( iss.good() == false ) {
+				 throw std::invalid_argument("Invalid string '" + value + "' for AntMetadata::Value");
+			 }
+			 return res;
+		 },
+		 [](const std::string & value ) ->  AntStaticValue {
+			 return std::stoi(value);
+		 },
+		 [](const std::string & value ) ->  AntStaticValue {
+			 return std::stod(value);
+		 },
+		 [](const std::string & value ) ->  AntStaticValue {
+			 return value;
+		 },
+		 [](const std::string & value ) ->  AntStaticValue {
+			 return Time::Parse(value);
 		 },
 		};
 	size_t idx = size_t(type);
@@ -91,6 +121,7 @@ void AntMetadata::Column::SetName(const std::string & name) {
 	if ( fi == metadata->d_columns.end() ) {
 		throw std::logic_error("column '" + d_name + "' is not managed by its manager");
 	}
+	metadata->d_onNameChange(d_name,name);
 	metadata->d_columns.insert(std::make_pair(name,fi->second));
 	metadata->d_columns.erase(d_name);
 	d_name = name;
@@ -101,6 +132,13 @@ AntMetadata::Type AntMetadata::Column::MetadataType() const {
 }
 
 void AntMetadata::Column::SetMetadataType(AntMetadata::Type type){
+	auto metadata = d_metadata.lock();
+	if ( !metadata ) {
+		throw DeletedReference<AntMetadata>();
+	}
+
+	metadata->d_onTypeChange(d_name,d_type,type);
+
 	d_type = type;
 }
 

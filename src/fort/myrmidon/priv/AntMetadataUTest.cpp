@@ -1,5 +1,12 @@
 #include "AntMetadataUTest.hpp"
 
+#include <gmock/gmock.h>
+
+#include <fort/myrmidon/UtilsUTest.hpp>
+#include <fort/myrmidon/priv/DeletedReference.hpp>
+
+
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -38,6 +45,12 @@ TEST_F(AntMetadataUTest,ColumnAdditionDeletion) {
 
 	EXPECT_EQ(metadata->Columns().size(),3);
 
+	EXPECT_EQ(metadata->Count("foo"), 1);
+	EXPECT_EQ(metadata->Count("bar"), 1);
+	EXPECT_EQ(metadata->Count("baz"), 1);
+	EXPECT_EQ(metadata->Count("foobar"), 0);
+
+
 	EXPECT_THROW({
 			metadata->Delete("foobar");
 		},std::out_of_range);
@@ -46,6 +59,7 @@ TEST_F(AntMetadataUTest,ColumnAdditionDeletion) {
 			metadata->Delete("foo");
 		});
 
+	EXPECT_EQ(metadata->Count("foo"),0);
 	EXPECT_EQ(metadata->Columns().size(),2);
 
 	EXPECT_THROW({
@@ -86,9 +100,89 @@ TEST_F(AntMetadataUTest,DataTypeChecking) {
 	EXPECT_THROW(AntMetadata::CheckType(AntMetadata::Type::Time,std::string("foo")),std::bad_variant_access);
 	EXPECT_NO_THROW(AntMetadata::CheckType(AntMetadata::Type::Time,Time::FromTimeT(0)));
 
+	EXPECT_THROW(AntMetadata::CheckType(AntMetadata::Type(42),true),std::invalid_argument);
 }
 
 
+TEST_F(AntMetadataUTest,DataTypeStringConversion) {
+
+	EXPECT_NO_THROW({
+			EXPECT_TRUE(std::get<bool>(AntMetadata::FromString(AntMetadata::Type::Bool,"true")));
+		});
+	EXPECT_NO_THROW({
+			EXPECT_FALSE(std::get<bool>(AntMetadata::FromString(AntMetadata::Type::Bool,"false")));
+		});
+	EXPECT_THROW({AntMetadata::FromString(AntMetadata::Type::Bool,"");},std::invalid_argument);
+
+
+	EXPECT_NO_THROW({
+			EXPECT_EQ(std::get<int>(AntMetadata::FromString(AntMetadata::Type::Int,"-12345")),-12345);
+		});
+	EXPECT_THROW({AntMetadata::FromString(AntMetadata::Type::Int,"foo");},std::invalid_argument);
+
+
+	EXPECT_NO_THROW({
+			EXPECT_DOUBLE_EQ(std::get<double>(AntMetadata::FromString(AntMetadata::Type::Double,"0.69e-6")),0.69e-6);
+		});
+	EXPECT_THROW({AntMetadata::FromString(AntMetadata::Type::Double,"foo");},std::invalid_argument);
+
+	EXPECT_NO_THROW({
+			EXPECT_EQ(std::get<std::string>(AntMetadata::FromString(AntMetadata::Type::String,"foobar")),"foobar");
+		});
+
+	EXPECT_NO_THROW({
+			auto dateStr = "2019-11-02T23:46:23.000Z";
+			EXPECT_TRUE(TimeEqual(std::get<Time>(AntMetadata::FromString(AntMetadata::Type::Time,dateStr)),Time::Parse(dateStr)));
+		});
+	EXPECT_THROW({AntMetadata::FromString(AntMetadata::Type::Double,"foo");},std::invalid_argument);
+
+	EXPECT_THROW(AntMetadata::FromString(AntMetadata::Type(42),"foo"),std::invalid_argument);
+
+}
+
+
+TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
+	class MockAntMetadataCallback {
+	public:
+		MOCK_METHOD(void,OnNameChange,(const std::string &, const std::string),());
+		MOCK_METHOD(void,OnTypeChange,(const std::string &, AntMetadata::Type, AntMetadata::Type),());
+	};
+
+	MockAntMetadataCallback callbacks;
+	metadata = std::make_shared<AntMetadata>([&callbacks](const std::string & oldName,
+	                                                     const std::string & newName) {
+		                                         callbacks.OnNameChange(oldName,newName);
+	                                         },
+	                                         [&callbacks](const std::string & name,
+	                                                     AntMetadata::Type oldType,
+	                                                     AntMetadata::Type newType) {
+		                                         callbacks.OnTypeChange(name,oldType,newType);
+	                                         });
+
+
+	auto column = AntMetadata::Create(metadata,
+	                                  "foo",
+	                                  AntMetadata::Type::Bool);
+	EXPECT_CALL(callbacks,OnNameChange("foo","bar")).Times(1);
+	EXPECT_CALL(callbacks,OnTypeChange("bar",AntMetadata::Type::Bool,AntMetadata::Type::Int)).Times(1);
+	column->SetName("bar");
+	ASSERT_EQ(column->Name(),"bar");
+	column->SetMetadataType(AntMetadata::Type::Int);
+	ASSERT_EQ(column->MetadataType(),AntMetadata::Type::Int);
+
+
+	auto & columns = const_cast<AntMetadata::ColumnByName&>(metadata->Columns());
+	columns.insert(std::make_pair("baz",column));
+	columns.erase("bar");
+	EXPECT_THROW(column->SetName("foobar"),std::logic_error);
+
+	metadata.reset();
+
+	EXPECT_THROW(column->SetName("baz"),DeletedReference<AntMetadata>);
+	EXPECT_THROW(column->SetMetadataType(AntMetadata::Type::Bool),DeletedReference<AntMetadata>);
+	column.reset();
+
+}
 
 
 
