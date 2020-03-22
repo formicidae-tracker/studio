@@ -10,8 +10,6 @@
 
 #include "TimeMap.hpp"
 
-#include "ContiguousIDContainer.hpp"
-
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -112,7 +110,6 @@ public:
 
 	const AntDataMap & DataMap() const;
 
-
 	// C++ shenanigans
 	//
 	// C++ shenanigan class to give restricted unlimited access to the
@@ -129,6 +126,10 @@ private:
 	Ant & operator=(const Ant&) = delete;
 	Ant(const Ant&)  = delete;
 
+	void CompileData();
+
+	static std::vector<AntTimedValue>::iterator Find(const AntDataMap::iterator & iter,
+	                                                 const Time::ConstPtr & time);
 
 	fort::myrmidon::Ant::ID d_ID;
 	std::string             d_IDStr;
@@ -139,6 +140,9 @@ private:
 
 	AntShapeTypeContainerConstPtr d_shapeTypes;
 	AntMetadataConstPtr           d_metadata;
+
+	AntDataMap                          d_data;
+	TimeMap<std::string,AntStaticValue> d_compiledData;
 };
 
 } //namespace priv

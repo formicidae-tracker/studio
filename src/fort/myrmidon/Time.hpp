@@ -298,6 +298,8 @@ public:
 	// <this> and <t>. It could be negative.
 	Duration Sub(const Time & t) const;
 
+	int64_t WallSeconds() const;
+	int32_t WallNanos() const;
 
 	// The <MonoclockID> reserved for the current system
 	// `CLOCK_MONOTONIC`.

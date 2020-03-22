@@ -11,6 +11,9 @@ namespace priv {
 void IdentificationUTest::SetUp() {
 	d_identifier = std::make_shared<Identifier>();
 
+	d_shapeTypes = std::make_shared<AntShapeTypeContainer>();
+	d_metadata = std::make_shared<AntMetadata>();
+
 	d_ant = d_identifier->CreateAnt(d_shapeTypes,d_metadata);
 	d_list.clear();
 

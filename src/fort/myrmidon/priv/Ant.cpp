@@ -4,6 +4,8 @@
 #include <iomanip>
 
 #include "AntShapeType.hpp"
+#include "AntMetadata.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -25,6 +27,7 @@ Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
 	, d_displayState(DisplayState::VISIBLE)
 	, d_shapeTypes(shapeTypeContainer)
 	, d_metadata(metadata) {
+	CompileData();
 }
 
 Ant::~Ant() {
@@ -84,7 +87,99 @@ Ant::DisplayState Ant::DisplayStatus() const {
 	return d_displayState;
 }
 
+const AntStaticValue & Ant::GetValue(const std::string & name,
+                                     const Time & time) {
+	return d_compiledData.At(name,time);
+}
 
+std::vector<AntTimedValue>::iterator Ant::Find(const AntDataMap::iterator & iter,
+                                               const Time::ConstPtr & time) {
+	return std::find_if(iter->second.begin(),
+	                    iter->second.end(),
+	                    [time]( const AntTimedValue & tValue) -> bool {
+		                    if ( !time ) {
+			                    return !tValue.first;
+		                    }
+		                    if ( !tValue.first ) {
+			                    return false;
+		                    }
+		                    return time->Equals(*tValue.first);
+	                    });
+}
+
+
+void Ant::SetValue(const std::string & name,
+                   const AntStaticValue & value,
+                   const Time::ConstPtr & time) {
+	auto fi = d_metadata->Columns().find(name);
+	if ( fi == d_metadata->Columns().end() ) {
+		throw std::invalid_argument("Unknown value key '" + name + "'");
+	}
+	AntMetadata::CheckType(fi->second->MetadataType(),value);
+	auto vi = d_data.find(name);
+	if ( vi == d_data.end() ) {
+		auto res = d_data.insert(std::make_pair(name,std::vector<AntTimedValue>()));
+		vi = res.first;
+	}
+	auto ti = Find(vi,time);
+	if ( ti != vi->second.end() ) {
+		ti->second = value;
+	} else {
+		vi->second.push_back(std::make_pair(time,value));
+		std::sort(vi->second.begin(),
+		          vi->second.end(),
+		          [](const AntTimedValue & a, const AntTimedValue & b) {
+			          if ( !a.first ) {
+				          return true;
+			          }
+			          if ( !b.first ) {
+				          return false;
+			          }
+			          return a.first->Before(*b.first);
+		          });
+	}
+	CompileData();
+}
+
+void Ant::DeleteValue(const std::string & name,
+                      const Time::ConstPtr & time) {
+	auto vi = d_data.find(name);
+	if ( vi == d_data.end() ) {
+		throw std::out_of_range("No stored values for '" + name + "'");
+	}
+	auto ti = Find(vi,time);
+	if ( ti == vi->second.end() ) {
+		throw std::out_of_range("No stored values for '" + name + "' at requested time");
+	}
+	vi->second.erase(ti);
+	CompileData();
+}
+
+const AntDataMap & Ant::DataMap() const {
+	return d_data;
+}
+
+void Ant::CompileData() {
+	std::map<std::string,AntStaticValue> defaults;
+	for ( const auto & [name,column] : d_metadata->Columns() ) {
+		defaults.insert(std::make_pair(name,AntMetadata::DefaultValue(column->MetadataType())));
+	}
+	d_compiledData.Clear();
+
+	for ( const auto & [name,tValues] : d_data ) {
+		for ( const auto & [time,value] : tValues ) {
+			if ( !time ) {
+				defaults.erase(name);
+			}
+			d_compiledData.Insert(name,value,time);
+		}
+	}
+
+	for ( const auto & [name,defaultValue] : defaults ) {
+		d_compiledData.Insert(name,defaultValue,Time::ConstPtr());
+	}
+
+}
 
 } // namespace priv
 } // namespace myrmidon

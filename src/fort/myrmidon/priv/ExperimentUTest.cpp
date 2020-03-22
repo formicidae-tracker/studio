@@ -267,7 +267,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	}
 
 	//Now we add a super Ant
-	auto antAfter = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),0);
+	auto antAfter = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                           e->AntMetadataConstPtr());
 	auto identAfter1 = Identifier::AddIdentification(e->Identifier(),
 	                                                 antAfter->ID(),
 	                                                 0,

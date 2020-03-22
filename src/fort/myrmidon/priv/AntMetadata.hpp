@@ -58,9 +58,11 @@ public:
 
 	static AntMetadata::Validity Validate(Type type, const std::string & value);
 
-	static bool CheckType(Type type, const AntStaticValue & data);
+	static void CheckType(Type type, const AntStaticValue & data);
 
 	static AntStaticValue FromString(Type type, const std::string & name);
+
+	static AntStaticValue DefaultValue(Type type);
 
 	static Column::Ptr Create(const Ptr & itself,
 	                          const std::string & name,

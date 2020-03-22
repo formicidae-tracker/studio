@@ -26,6 +26,7 @@ AntMetadata::Column::Ptr AntMetadata::Create(const Ptr & itself,
 
 	auto res = std::make_shared<AntMetadata::Column>(itself,name,type);
 	itself->d_columns.insert(std::make_pair(name,res));
+	itself->d_onNameChange("",name);
 	return res;
 }
 
@@ -35,6 +36,7 @@ void AntMetadata::Delete(const std::string & name) {
 		throw std::out_of_range("Unmanaged column '" + name + "'");
 	}
 	d_columns.erase(fi);
+	d_onNameChange(name,"");
 }
 
 AntMetadata::AntMetadata()
@@ -115,7 +117,7 @@ AntMetadata::Validity AntMetadata::Validate(Type type, const std::string & value
 	return validators[idx](value);
 }
 
-bool AntMetadata::CheckType(Type type, const AntStaticValue & data) {
+void AntMetadata::CheckType(Type type, const AntStaticValue & data) {
 	static std::vector<std::function<void (const AntStaticValue &)>> checkers =
 		{
 		 [](const AntStaticValue & data) { std::get<bool>(data); },
@@ -162,6 +164,24 @@ AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
 	}
 	return converters[idx](value);
 }
+
+AntStaticValue AntMetadata::DefaultValue(Type type) {
+	static std::vector<AntStaticValue> defaults =
+		{
+		 false,
+		 0,
+		 0.0,
+		 std::string(""),
+		 Time(),
+		};
+	size_t idx = size_t(type);
+	if ( idx >= defaults.size() ) {
+		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
+	}
+	return defaults[idx];
+
+}
+
 
 const std::string & AntMetadata::Column::Name() const {
 	return d_name;

@@ -9,7 +9,8 @@
 
 #include <google/protobuf/util/time_util.h>
 
-using namespace fort::myrmidon;
+namespace fort {
+namespace myrmidon {
 
 using nanos = std::chrono::duration<uint64_t,std::nano>;
 
@@ -288,15 +289,30 @@ Time Time::Add(const Duration & d) const{
 }
 
 bool Time::After(const Time & t) const {
-	return Sub(t).Nanoseconds() > 0;
+	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
+		return d_mono > t.d_mono;
+	}
+	if ( d_wallSec == t.d_wallSec ) {
+		return d_wallNsec > t.d_wallNsec;
+	}
+	return d_wallSec > t.d_wallSec;
 }
 
 bool Time::Equals(const Time & t) const {
-	return Sub(t).Nanoseconds() == 0;
+	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
+		return d_mono == t.d_mono;
+	}
+	return d_wallSec == t.d_wallSec && t.d_wallNsec == t.d_wallNsec;
 }
 
 bool Time::Before(const Time & t) const {
-	return Sub(t).Nanoseconds() < 0;
+	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
+		return d_mono < t.d_mono;
+	}
+	if ( d_wallSec == t.d_wallSec ) {
+		return d_wallNsec < t.d_wallNsec;
+	}
+	return d_wallSec < t.d_wallSec;
 }
 
 Duration Time::Sub(const Time & t) const {
@@ -352,8 +368,20 @@ std::string Time::DebugString() const {
 	return os.str();
 }
 
+int64_t Time::WallSeconds() const {
+	return d_wallSec;
+}
+
+int32_t Time::WallNanos() const {
+	return d_wallNsec;
+}
+
+
+} // namespace myrmidon
+} // namespace fort
+
 std::ostream & operator<<(std::ostream & out,
-                          const Duration & d) {
+                          const fort::myrmidon::Duration & d) {
 
 	int64_t ns = d.Nanoseconds();
 	if ( ns == 0 ) {
@@ -370,20 +398,20 @@ std::ostream & operator<<(std::ostream & out,
 		ns = -ns;
 	}
 
-	if ( ns < Duration::Microsecond.Nanoseconds() ) {
+	if ( ns < fort::myrmidon::Duration::Microsecond.Nanoseconds() ) {
 		return out << sign << ns << "ns";
 	}
 
-	if ( ns < Duration::Millisecond.Nanoseconds() ) {
+	if ( ns < fort::myrmidon::Duration::Millisecond.Nanoseconds() ) {
 		return out << d.Microseconds() << "µs";
 	}
 
-	if ( ns < Duration::Second.Nanoseconds() ) {
+	if ( ns < fort::myrmidon::Duration::Second.Nanoseconds() ) {
 		return out << d.Milliseconds() << "ms";
 	}
 
 	int64_t minutes = ns / int64_t(60000000000LL);
-	double seconds = Duration(ns % 60000000000LL).Seconds();
+	double seconds = fort::myrmidon::Duration(ns % 60000000000LL).Seconds();
 
 	if ( minutes == 0 ) {
 		return out << d.Seconds() << "s";
@@ -411,7 +439,7 @@ std::ostream & operator<<(std::ostream & out,
 }
 
 
-std::ostream & operator<<(std::ostream & out, const Time::ConstPtr & t ) {
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::Time::ConstPtr & t ) {
 	if (!t) {
 		return out << "+-∞";
 	}
