@@ -154,6 +154,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     utils/NotYetImplementedUTest.cpp
                     priv/UtilsUTest.cpp
                     priv/DenseMapUTest.cpp
+                    priv/TimedMapUTest.cpp
                     priv/SpaceUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
@@ -188,6 +189,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
                     priv/UtilsUTest.hpp
                     priv/DenseMapUTest.hpp
+                    priv/TimedMapUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
