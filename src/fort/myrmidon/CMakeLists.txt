@@ -47,7 +47,8 @@ endforeach(f ${PROTO_HDR})
 include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_SOURCE_DIR}/src)
 
-set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
+set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
+                      priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
                       priv/DenseMap.hpp
@@ -95,7 +96,8 @@ set(HDR_PUBLIC_FILES Frame.hpp
                      Time.hpp
                      utils/FileSystem.hpp)
 
-set(SRC_PRIVATE_FILES priv/TimeValid.cpp
+set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
+                      priv/TimeValid.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
                       priv/DenseMap.cpp
@@ -239,7 +241,7 @@ add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
                                          ${COMMON_UTEST_HDR_FILES}
                                          ${PROTO_HDR}
                                          )
-target_link_libraries(myrmidon-utest-common gtest fort-myrmidon)
+target_link_libraries(myrmidon-utest-common gtest gmock fort-myrmidon)
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}

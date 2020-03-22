@@ -141,6 +141,37 @@ TEST_F(AntMetadataUTest,DataTypeStringConversion) {
 }
 
 
+TEST_F(AntMetadataUTest,DataTypeStringValidation) {
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Bool,"true"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Bool,"false"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Bool,"true2"),AntMetadata::Validity::Invalid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Bool,"tru"),AntMetadata::Validity::Intermediate);
+
+
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"123456"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"+123456"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"-123456"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"+"),AntMetadata::Validity::Intermediate);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"-"),AntMetadata::Validity::Intermediate);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Int,"foo"),AntMetadata::Validity::Invalid);
+
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"1.2345e-6"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"+123456"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"-1.234e-6"),AntMetadata::Validity::Valid);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"1.234e-"),AntMetadata::Validity::Intermediate);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"-"),AntMetadata::Validity::Intermediate);
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Double,"foo"),AntMetadata::Validity::Invalid);
+
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::String,"sdbi wi \n fo"),AntMetadata::Validity::Valid);
+
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Time,"2019-11-02T23:56:02.123456Z"),AntMetadata::Validity::Valid);
+
+	EXPECT_EQ(AntMetadata::Validate(AntMetadata::Type::Time,"<any-string>"),AntMetadata::Validity::Intermediate);
+
+	EXPECT_THROW(AntMetadata::Validate(AntMetadata::Type(42), ""),std::invalid_argument);
+}
+
+
 TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 	class MockAntMetadataCallback {
 	public:

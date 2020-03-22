@@ -2,6 +2,7 @@
 
 #include <fort/myrmidon/utils/NotYetImplemented.hpp>
 #include <fort/myrmidon/priv/DeletedReference.hpp>
+#include <fort/myrmidon/utils/StringManipulation.hpp>
 
 #include <stdexcept>
 #include <algorithm>
@@ -55,8 +56,63 @@ size_t AntMetadata::Count(const std::string & name) const {
 	return d_columns.count(name);
 }
 
-AntMetadata::Validity AntMetadata::Validate(const std::string & name) {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+
+AntMetadata::Validity AntMetadata::Validate(Type type, const std::string & value) {
+	std::vector<std::function< Validity (const std::string & value) > > validators =
+		{
+		 [](const std::string & value) {
+			 if ( value == "true" || value == "false" ) {
+				 return Validity::Valid;
+			 }
+			 if ( utils::HasPrefix("true",value) == true
+			      || utils::HasPrefix("false",value) == true ) {
+				 return Validity::Intermediate;
+			 }
+			 return Validity::Invalid;
+		 },
+		 [](const std::string & value) {
+			 try {
+				 std::stoi(value);
+				 return Validity::Valid;
+			 } catch ( const std::exception & e) {
+				 if ( value == "+" || value == "-" ) {
+					 return Validity::Intermediate;
+				 }
+			 }
+			 return Validity::Invalid;
+		 },
+		 [](const std::string & value) {
+			 try {
+				 size_t pos;
+				 std::stod(value,&pos);
+				 if ( pos == value.size() ) {
+					 return Validity::Valid;
+				 }
+				 return Validity::Intermediate;
+			 } catch ( const std::exception & e) {
+				 if ( value == "+" || value == "-" ) {
+					 return Validity::Intermediate;
+				 }
+			 }
+			 return Validity::Invalid;
+		 },
+		 [](const std::string & value) {
+			 return Validity::Valid;
+		 },
+		 [](const std::string & value) {
+			 try {
+				 Time::Parse(value);
+				 return Validity::Valid;
+			 } catch ( const std::exception & e ) {
+				 return Validity::Intermediate;
+			 }
+		 },
+		};
+	size_t idx = size_t(type);
+	if ( idx >= validators.size() ) {
+		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
+	}
+	return validators[idx](value);
 }
 
 bool AntMetadata::CheckType(Type type, const AntStaticValue & data) {

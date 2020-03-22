@@ -25,7 +25,7 @@ public:
 	};
 
 	enum class Validity {
-	                     Ok = 0,
+	                     Valid = 0,
 	                     Intermediate = 1,
 	                     Invalid = 2,
 	};
@@ -56,7 +56,7 @@ public:
 	typedef std::function<void (const std::string &, const std::string &)> NameChangeCallback;
 	typedef std::function<void (const std::string &, Type, Type)>          TypeChangeCallback;
 
-	static AntMetadata::Validity Validate(const std::string & value);
+	static AntMetadata::Validity Validate(Type type, const std::string & value);
 
 	static bool CheckType(Type type, const AntStaticValue & data);
 
