@@ -407,3 +407,6 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time::ConstPtr & t );
+
+bool operator== (const fort::myrmidon::Time & a,
+                 const fort::myrmidon::Time & b);

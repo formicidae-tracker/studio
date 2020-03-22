@@ -11,6 +11,7 @@
 
 #include "Space.hpp"
 #include "FrameReference.hpp"
+#include "AntMetadata.hpp"
 
 #include "ForwardDeclaration.hpp"
 #include "LocatableTypes.hpp"
@@ -234,7 +235,13 @@ public :
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
+
 	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+
+	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
+
+	void DeleteAntMetadataKey(const std::string & name);
+
 
 	// Computes all Measurement of a type for an Ant
 	//

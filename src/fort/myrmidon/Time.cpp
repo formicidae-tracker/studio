@@ -445,3 +445,8 @@ std::ostream & operator<<(std::ostream & out, const fort::myrmidon::Time::ConstP
 	}
 	return out << *t;
 }
+
+bool operator== (const fort::myrmidon::Time & a,
+                 const fort::myrmidon::Time & b) {
+	return a.Equals(b);
+}

@@ -419,6 +419,17 @@ fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() cons
 	return d_antMetadata;
 }
 
+AntMetadata::Column::Ptr
+Experiment::AddAntMetadataColumn(const std::string & name,
+                                 AntMetadata::Type type) {
+	return AntMetadata::Create(d_antMetadata,name,type);
+}
+
+void Experiment::DeleteAntMetadataKey(const std::string & name) {
+	d_antMetadata->Delete(name);
+}
+
+
 } //namespace priv
 } //namespace myrmidon
 } //namespace fort

@@ -124,7 +124,7 @@ pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
 }
 
 
-void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntMetadata & pb) {
+void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDescription & pb) {
 	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
 	                                      e->AntMetadataConstPtr(),
 	                                      pb.id());
@@ -139,9 +139,58 @@ void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntMeta
 
 	ant->SetDisplayColor(LoadColor(pb.color()));
 	ant->SetDisplayStatus(LoadAntDisplayState(pb.displaystate()));
+
+	for ( const auto & v : pb.namedvalues() ) {
+		Time::ConstPtr time;
+		if ( v.has_time() ) {
+			time = std::make_shared<Time>(Time::FromTimestamp(v.time()));
+		}
+		ant->SetValue(v.name(),LoadAntStaticValue(v.value()),time);
+	}
 }
 
-void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
+AntStaticValue IOUtils::LoadAntStaticValue(const pb::AntStaticValue & pb) {
+	switch(pb.type()) {
+	case 0:
+		return pb.boolvalue();
+	case 1:
+		return pb.intvalue();
+	case 2:
+		return pb.doublevalue();
+	case 3:
+		return pb.stringvalue();
+	case 4:
+		return Time::FromTimestamp(pb.timevalue());
+	default:
+		throw std::logic_error("Unknown type " + std::to_string(pb.type()));
+	}
+}
+
+void IOUtils::SaveAntStaticValue(pb::AntStaticValue * pb, const AntStaticValue & value) {
+	pb->Clear();
+	pb->set_type(pb::AntStaticValue_Type(value.index()));
+	switch ( value.index() ) {
+	case 0 :
+		pb->set_boolvalue(std::get<bool>(value));
+		break;
+	case 1:
+		pb->set_intvalue(std::get<int>(value));
+		break;
+	case 2:
+		pb->set_doublevalue(std::get<double>(value));
+		break;
+	case 3:
+		pb->set_stringvalue(std::get<std::string>(value));
+		break;
+	case 4:
+		std::get<Time>(value).ToTimestamp(pb->mutable_timevalue());
+		break;
+	default:
+		throw std::logic_error("Unknown AntStaticValue index " + std::to_string(value.index()));
+	}
+}
+
+void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr & ant) {
 	pb->Clear();
 	pb->set_id(ant->ID());
 
@@ -157,6 +206,17 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
 	pb->set_displaystate(SaveAntDisplayState(ant->DisplayStatus()));
+
+	for ( const auto & [name,tValues] : ant->DataMap() ) {
+		for ( const auto & [time, value] : tValues ) {
+			auto vPb = pb->add_namedvalues();
+			vPb->set_name(name);
+			if ( !time == false ) {
+				time->ToTimestamp(vPb->mutable_time());
+			}
+			SaveAntStaticValue(vPb->mutable_value(),value);
+		}
+	}
 }
 
 

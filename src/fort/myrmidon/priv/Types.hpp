@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fort/myrmidon/Time.hpp>
 
 #include <cstdint>
 
@@ -12,7 +13,6 @@
 
 #include <Eigen/Geometry>
 
-#include <fort/myrmidon/Time.hpp>
 
 namespace fort {
 namespace myrmidon {

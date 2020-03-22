@@ -28,19 +28,44 @@ enum AntDisplayState {
 	VISIBLE = 0;
 	HIDDEN  = 1;
 	SOLO    = 2;
-}
+};
 
 message AntShape {
 	Capsule capsule = 1;
 	uint32  type    = 2;
-}
+};
 
-message AntMetadata {
+
+
+message AntStaticValue {
+	enum Type {
+		BOOL   = 0;
+		INT    = 1;
+		DOUBLE = 2;
+		STRING = 3;
+		TIME   = 4;
+	};
+
+	Type                      type        = 1;
+	bool                      boolValue   = 2;
+	int32                     intValue    = 3;
+	double                    doubleValue = 4;
+	string                    stringValue = 5;
+	google.protobuf.Timestamp timeValue   = 6;
+};
+
+message AntNamedValue {
+	google.protobuf.Timestamp time  = 1;
+	AntStaticValue            value = 2;
+	string                    name  = 3;
+};
+
+message AntDescription {
 	int32                   ID              = 1;
 	repeated AntShape       shape           = 2;
 	repeated Identification identifications = 3;
 	Color                   color           = 4;
 	AntDisplayState         displayState    = 5;
 
-//	repeated Metadata       metadata        = 4;
+	repeated AntNamedValue  namedValues     = 6;
 };

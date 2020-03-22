@@ -37,8 +37,8 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 			                 IOUtils::LoadExperiment(res, line.experiment());
 		                 }
 
-		                 if (line.has_antdata() == true ) {
-			                 IOUtils::LoadAnt(res, line.antdata());
+		                 if (line.has_antdescription() == true ) {
+			                 IOUtils::LoadAnt(res, line.antdescription());
 		                 }
 
 		                 if (line.has_measurement() == true ) {
@@ -86,7 +86,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 
 	for (const auto & ID : antIDs) {
 		lines.push_back([&experiment,ID](pb::FileLine & line) {
-			                IOUtils::SaveAnt(line.mutable_antdata(),
+			                IOUtils::SaveAnt(line.mutable_antdescription(),
 			                                 experiment.ConstIdentifier().Ants().find(ID)->second);
 		                });
 	}

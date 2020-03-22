@@ -18,6 +18,7 @@
 #include <fort/myrmidon/priv/Circle.hpp>
 #include <fort/myrmidon/priv/Polygon.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
+#include <fort/myrmidon/priv/AntMetadata.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -279,7 +280,31 @@ TEST_F(IOUtilsUTest,ShapeIO) {
 }
 
 
+TEST_F(IOUtilsUTest,AntStaticValueIO) {
+	std::vector<AntStaticValue> testdata =
+		{
+		 false,
+		 true,
+		 0,
+		 42,
+		 0.0,
+		 42.0,
+		 std::string(""),
+		 std::string("some value"),
+		   Time(),
+		 Time::Parse("2019-11-02T23:46:32.123Z"),
+		};
 
+	for ( const auto & d : testdata ) {
+		pb::AntStaticValue pb,expected;
+		expected.set_type(pb::AntStaticValue_Type(d.index()));
+		IOUtils::SaveAntStaticValue(&pb,d);
+		EXPECT_EQ(pb.type(),expected.type());
+		auto res = IOUtils::LoadAntStaticValue(pb);
+		EXPECT_TRUE(AntStaticValueEqual(res,d));
+	}
+
+}
 
 TEST_F(IOUtilsUTest,AntIO) {
 	struct IdentificationData {
@@ -294,6 +319,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 		std::vector<CapsulePtr>         Capsules;
 		Color                           DisplayColor;
 		Ant::DisplayState               DisplayState;
+		AntDataMap                      DataMap;
 	};
 
 	std::vector<TestData> testdata
@@ -321,17 +347,34 @@ TEST_F(IOUtilsUTest,AntIO) {
 		    },
 		    {127,56,94},
 		    Ant::DisplayState::SOLO,
+		    {
+		     {"alive",
+		      {
+		       std::make_pair(Time::ConstPtr(),true),
+		       std::make_pair(std::make_shared<Time>(Time::FromTimeT(12)),
+		                      false),
+		      },
+		     },
+		     {
+		      "group",
+		      {
+		       std::make_pair(Time::ConstPtr(),std::string("nurse")),
+		      },
+		     },
+		    },
 		   },
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
+	e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+	e->AddAntMetadataColumn("group",AntMetadata::Type::String);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
 		                                     e->AntMetadataConstPtr());
 		std::vector<Identification::Ptr> dIdents;
 
-		pb::AntMetadata a,expected;
+		pb::AntDescription a,expected;
 		expected.set_id(dA->ID());
 		for(const auto & identData : d.IData ) {
 			auto ident = Identifier::AddIdentification(e->Identifier(),
@@ -355,6 +398,24 @@ TEST_F(IOUtilsUTest,AntIO) {
 		IOUtils::SaveColor(expected.mutable_color(),d.DisplayColor);
 		dA->SetDisplayStatus(d.DisplayState);
 		expected.set_displaystate(IOUtils::SaveAntDisplayState(d.DisplayState));
+
+		for ( const auto & [name,tValues] : d.DataMap) {
+			for ( const auto & [time,value] : tValues ) {
+				dA->SetValue(name,value,time);
+			}
+		}
+
+		for ( const auto & [name,tValues] : dA->DataMap() ) {
+			for ( const auto & [time,value] : tValues ) {
+				auto ev = expected.add_namedvalues();
+				ev->set_name(name);
+				IOUtils::SaveAntStaticValue(ev->mutable_value(),value);
+				if ( !time == false ) {
+					time->ToTimestamp(ev->mutable_time());
+				}
+			}
+		}
+
 
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
