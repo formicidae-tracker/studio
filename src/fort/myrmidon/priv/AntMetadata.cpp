@@ -26,7 +26,6 @@ AntMetadata::Column::Ptr AntMetadata::Create(const Ptr & itself,
 
 	auto res = std::make_shared<AntMetadata::Column>(itself,name,type);
 	itself->d_columns.insert(std::make_pair(name,res));
-	itself->d_onNameChange("",name);
 	return res;
 }
 
@@ -36,7 +35,6 @@ void AntMetadata::Delete(const std::string & name) {
 		throw std::out_of_range("Unmanaged column '" + name + "'");
 	}
 	d_columns.erase(fi);
-	d_onNameChange(name,"");
 }
 
 AntMetadata::AntMetadata()
@@ -197,9 +195,9 @@ void AntMetadata::Column::SetName(const std::string & name) {
 	if ( fi == metadata->d_columns.end() ) {
 		throw std::logic_error("column '" + d_name + "' is not managed by its manager");
 	}
-	metadata->d_onNameChange(d_name,name);
 	metadata->d_columns.insert(std::make_pair(name,fi->second));
 	metadata->d_columns.erase(d_name);
+	metadata->d_onNameChange(d_name,name);
 	d_name = name;
 }
 
@@ -212,7 +210,6 @@ void AntMetadata::Column::SetMetadataType(AntMetadata::Type type){
 	if ( !metadata ) {
 		throw DeletedReference<AntMetadata>();
 	}
-
 	metadata->d_onTypeChange(d_name,d_type,type);
 
 	d_type = type;

@@ -124,31 +124,6 @@ pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
 }
 
 
-void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDescription & pb) {
-	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
-	                                      e->AntMetadataConstPtr(),
-	                                      pb.id());
-
-	for ( const auto & ident : pb.identifications() ) {
-		LoadIdentification(e,ant,ident);
-	}
-
-	for ( const auto & s : pb.shape() ) {
-		ant->AddCapsule(s.type(),LoadCapsule(s.capsule()));
-	}
-
-	ant->SetDisplayColor(LoadColor(pb.color()));
-	ant->SetDisplayStatus(LoadAntDisplayState(pb.displaystate()));
-
-	for ( const auto & v : pb.namedvalues() ) {
-		Time::ConstPtr time;
-		if ( v.has_time() ) {
-			time = std::make_shared<Time>(Time::FromTimestamp(v.time()));
-		}
-		ant->SetValue(v.name(),LoadAntStaticValue(v.value()),time);
-	}
-}
-
 AntStaticValue IOUtils::LoadAntStaticValue(const pb::AntStaticValue & pb) {
 	switch(pb.type()) {
 	case 0:
@@ -188,6 +163,33 @@ void IOUtils::SaveAntStaticValue(pb::AntStaticValue * pb, const AntStaticValue &
 	default:
 		throw std::logic_error("Unknown AntStaticValue index " + std::to_string(value.index()));
 	}
+}
+
+void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDescription & pb) {
+	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+	                                      e->AntMetadataConstPtr(),
+	                                      pb.id());
+
+	for ( const auto & ident : pb.identifications() ) {
+		LoadIdentification(e,ant,ident);
+	}
+
+	for ( const auto & s : pb.shape() ) {
+		ant->AddCapsule(s.type(),LoadCapsule(s.capsule()));
+	}
+
+	ant->SetDisplayColor(LoadColor(pb.color()));
+	ant->SetDisplayStatus(LoadAntDisplayState(pb.displaystate()));
+
+	AntDataMap antData;
+	for ( const auto & v : pb.namedvalues() ) {
+		Time::ConstPtr time;
+		if ( v.has_time() ) {
+			time = std::make_shared<Time>(Time::FromTimestamp(v.time()));
+		}
+		antData[v.name()].push_back(std::make_pair(time,LoadAntStaticValue(v.value())));
+	}
+	ant->SetValues(antData);
 }
 
 void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr & ant) {

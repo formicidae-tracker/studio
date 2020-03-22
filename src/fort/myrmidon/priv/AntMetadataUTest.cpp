@@ -190,7 +190,6 @@ TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 		                                         callbacks.OnTypeChange(name,oldType,newType);
 	                                         });
 
-	EXPECT_CALL(callbacks,OnNameChange("","foo")).Times(1);
 
 	auto column = AntMetadata::Create(metadata,
 	                                  "foo",
@@ -202,9 +201,7 @@ TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 	column->SetMetadataType(AntMetadata::Type::Int);
 	ASSERT_EQ(column->MetadataType(),AntMetadata::Type::Int);
 
-	EXPECT_CALL(callbacks,OnNameChange("","foo")).Times(1);
 	auto toDel = AntMetadata::Create(metadata,"foo",AntMetadata::Type::Bool);
-	EXPECT_CALL(callbacks,OnNameChange("foo","")).Times(1);
 	metadata->Delete("foo");
 
 

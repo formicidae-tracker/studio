@@ -25,9 +25,41 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
-	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>())
-	, d_antMetadata( std::make_shared<AntMetadata>()) {
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
+
+	auto onNameChange =
+		[this](const std::string & oldName, const std::string & newName) {
+			for ( const auto & [aID,a] : d_identifier->Ants() ) {
+				if ( a->DataMap().count(oldName) == 0 ) {
+					continue;
+				}
+				AntDataMap map = a->DataMap();
+				map.insert(std::make_pair(newName,map.at(oldName)));
+				map.erase(oldName);
+				a->SetValues(map);
+			}
+		};
+
+	auto onTypeChange =
+		[this](const std::string & name,
+		       AntMetadata::Type oldType,
+		       AntMetadata::Type newType) {
+			if ( oldType == newType ) {
+				return;
+			}
+			for ( const auto & [aID,a] : d_identifier->Ants() ) {
+				if ( a->DataMap().count(name) == 1 ) {
+					throw std::runtime_error("Could not change type for column '" + name + "': ant " + Ant::FormatID(a->ID()) + " already contains data");
+				}
+			}
+		};
+
+
+
+
+	d_antMetadata = std::make_shared<AntMetadata>(onNameChange,
+	                                              onTypeChange);
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -422,11 +454,31 @@ fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() cons
 AntMetadata::Column::Ptr
 Experiment::AddAntMetadataColumn(const std::string & name,
                                  AntMetadata::Type type) {
-	return AntMetadata::Create(d_antMetadata,name,type);
+	auto res = AntMetadata::Create(d_antMetadata,name,type);
+
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		a->CompileData();
+	}
+
+	return res;
 }
 
 void Experiment::DeleteAntMetadataKey(const std::string & name) {
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		if ( a->DataMap().count(name) != 0 ) {
+			throw std::runtime_error("Cannot remove AntMetadataColumn '"
+			                         + name
+			                         + "': Ant "
+			                         + Ant::FormatID(aID)
+			                         + " contains data");
+		}
+	}
+
 	d_antMetadata->Delete(name);
+
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		a->CompileData();
+	}
 }
 
 

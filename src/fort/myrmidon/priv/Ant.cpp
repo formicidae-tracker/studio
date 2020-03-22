@@ -107,6 +107,15 @@ std::vector<AntTimedValue>::iterator Ant::Find(const AntDataMap::iterator & iter
 	                    });
 }
 
+bool Ant::CompareTime(const AntTimedValue & a, const AntTimedValue &b) {
+	if ( !a.first ) {
+		return true;
+	}
+	if ( !b.first ) {
+		return false;
+	}
+	return a.first->Before(*b.first);
+}
 
 void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
@@ -128,15 +137,17 @@ void Ant::SetValue(const std::string & name,
 		vi->second.push_back(std::make_pair(time,value));
 		std::sort(vi->second.begin(),
 		          vi->second.end(),
-		          [](const AntTimedValue & a, const AntTimedValue & b) {
-			          if ( !a.first ) {
-				          return true;
-			          }
-			          if ( !b.first ) {
-				          return false;
-			          }
-			          return a.first->Before(*b.first);
-		          });
+		          &CompareTime);
+	}
+	CompileData();
+}
+
+void Ant::SetValues(const AntDataMap & map) {
+	d_data = map;
+	for ( auto & [name,tValues] : d_data ) {
+		std::sort(tValues.begin(),
+		          tValues.end(),
+		          &CompareTime);
 	}
 	CompileData();
 }

@@ -105,10 +105,14 @@ public:
 	              const AntStaticValue & value,
 	              const Time::ConstPtr & time);
 
+	void SetValues(const AntDataMap & map);
+
 	void DeleteValue(const std::string & name,
 	                 const Time::ConstPtr & time);
 
 	const AntDataMap & DataMap() const;
+
+	void CompileData();
 
 	// C++ shenanigans
 	//
@@ -126,10 +130,11 @@ private:
 	Ant & operator=(const Ant&) = delete;
 	Ant(const Ant&)  = delete;
 
-	void CompileData();
 
 	static std::vector<AntTimedValue>::iterator Find(const AntDataMap::iterator & iter,
 	                                                 const Time::ConstPtr & time);
+
+	static bool CompareTime(const AntTimedValue & a, const AntTimedValue &b);
 
 	fort::myrmidon::Ant::ID d_ID;
 	std::string             d_IDStr;
