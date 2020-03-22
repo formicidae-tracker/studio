@@ -584,6 +584,14 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			st->set_id(3);
 			st->set_name("antenna-right");
 
+			e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+			auto c = expected.add_antmetadata();
+			c->set_name("alive");
+			c->set_type(pb::AntStaticValue_Type_BOOL);
+			e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+			c = expected.add_antmetadata();
+			c->set_name("group");
+			c->set_type(pb::AntStaticValue_Type_STRING);
 
 		});
 
@@ -599,6 +607,16 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
+	EXPECT_EQ(e->AntMetadataConstPtr()->Columns().size(),
+	          res->AntMetadataConstPtr()->Columns().size());
+	for ( const auto [name,column] : e->AntMetadataConstPtr()->Columns() ) {
+		auto ci = res->AntMetadataConstPtr()->Columns().find(name);
+		if ( ci == res->AntMetadataConstPtr()->Columns().cend() ) {
+			ADD_FAILURE() << "missing AntMetadataColumn '" << name << "'";
+		} else {
+			EXPECT_EQ(ci->second->MetadataType(),column->MetadataType());
+		}
+	}
 
 }
 

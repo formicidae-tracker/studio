@@ -5,12 +5,13 @@ package fort.myrmidon.pb;
 import "google/protobuf/timestamp.proto";
 import "TagFamily.proto";
 import "Measurement.proto";
-
+import "AntMetadata.proto";
 
 message AntShapeType {
 	uint32 ID   = 1;
 	string Name = 2;
 };
+
 
 message Experiment {
 	string    name      = 2;
@@ -23,4 +24,6 @@ message Experiment {
 	repeated MeasurementType customMeasurementTypes  = 21;
 
 	repeated AntShapeType antshapetypes              = 31;
+
+	repeated AntMetadataColumn antmetadata           = 41;
 };

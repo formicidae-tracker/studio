@@ -5,6 +5,7 @@ package fort.myrmidon.pb;
 import "google/protobuf/timestamp.proto";
 
 import "Shapes.proto";
+import "AntMetadata.proto";
 
 message Identification {
     int32                     ID      = 1;
@@ -35,24 +36,6 @@ message AntShape {
 	uint32  type    = 2;
 };
 
-
-
-message AntStaticValue {
-	enum Type {
-		BOOL   = 0;
-		INT    = 1;
-		DOUBLE = 2;
-		STRING = 3;
-		TIME   = 4;
-	};
-
-	Type                      type        = 1;
-	bool                      boolValue   = 2;
-	int32                     intValue    = 3;
-	double                    doubleValue = 4;
-	string                    stringValue = 5;
-	google.protobuf.Timestamp timeValue   = 6;
-};
 
 message AntNamedValue {
 	google.protobuf.Timestamp time  = 1;

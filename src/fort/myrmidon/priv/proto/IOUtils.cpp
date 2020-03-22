@@ -384,9 +384,11 @@ void IOUtils::LoadExperiment(const Experiment::Ptr & e,
 	for (const auto & ast : pb.antshapetypes() ) {
 		e->CreateAntShapeType(ast.name(),ast.id());
 	}
+
+	for (const auto & column : pb.antmetadata() ) {
+		e->AddAntMetadataColumn(column.name(),AntMetadata::Type(column.type()));
+	}
 }
-
-
 
 
 
@@ -412,6 +414,11 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 		stPb->set_name(shapeType->Name());
 	}
 
+	for ( const auto & [name,column] : e.AntMetadataConstPtr()->Columns() ) {
+		auto cPb = pb->add_antmetadata();
+		cPb->set_name(column->Name());
+		cPb->set_type(pb::AntStaticValue_Type(column->MetadataType()));
+	}
 
 }
 
