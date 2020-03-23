@@ -100,8 +100,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	QSignalSpy identificationDeleted(identifier,SIGNAL(identificationDeleted(fmp::Identification::ConstPtr)));
 
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
-			                                          experiment->AntMetadataConstPtr());
+			ant = experiment->CreateAnt();
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -162,8 +161,7 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 	QSignalSpy hiddenChanged(identifier,SIGNAL(numberHiddenAntChanged(quint32)));
 	QSignalSpy soloChanged(identifier,SIGNAL(numberSoloAntChanged(quint32)));
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
-			                                          experiment->AntMetadataConstPtr());
+			ant = experiment->CreateAnt();
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -306,8 +304,7 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
 
 	ASSERT_NO_THROW({
-			ant = experiment->Identifier()->CreateAnt(experiment->AntShapeTypesConstPtr(),
-			                                          experiment->AntMetadataConstPtr());
+			ant = experiment->CreateAnt();
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant);
@@ -357,12 +354,10 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 TEST_F(IdentifierUTest,AntSelection) {
 	fmp::Ant::ConstPtr ant[3];
 	QSignalSpy antSelected(identifier->selectedAnt(),SIGNAL(activated(bool)));
-	auto shapeTypes = std::make_shared<fmp::AntShapeTypeContainer>();
-	auto metadata = std::make_shared<fmp::AntMetadata>();
 	ASSERT_NO_THROW({
-			ant[0] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
-			ant[1] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
-			ant[2] = experiment->Identifier()->CreateAnt(shapeTypes,metadata);
+			ant[0] = experiment->CreateAnt();
+			ant[1] = experiment->CreateAnt();
+			ant[2] = experiment->CreateAnt();
 			identifier->setExperiment(experiment);
 		});
 	ASSERT_FALSE(!ant[0]);

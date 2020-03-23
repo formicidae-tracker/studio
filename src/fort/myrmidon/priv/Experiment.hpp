@@ -120,6 +120,9 @@ public :
 
 	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
+
+	AntPtr CreateAnt(fort::myrmidon::Ant::ID aID = 0);
+
 	// Accessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
@@ -240,7 +243,7 @@ public :
 
 	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
 
-	void DeleteAntMetadataKey(const std::string & name);
+	void DeleteAntMetadataColumn(const std::string & name);
 
 
 	// Computes all Measurement of a type for an Ant

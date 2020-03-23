@@ -99,9 +99,8 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	}
 	fmp::Ant::Ptr ant;
 	try {
-		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::CreateAnt()";
-		ant = d_experiment->Identifier()->CreateAnt(d_experiment->AntShapeTypesConstPtr(),
-		                                            d_experiment->AntMetadataConstPtr());
+		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Experiment::CreateAnt()";
+		ant = d_experiment->CreateAnt();
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Ant: " << e.what();
 		return fmp::Ant::Ptr();

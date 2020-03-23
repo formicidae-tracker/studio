@@ -166,9 +166,7 @@ void IOUtils::SaveAntStaticValue(pb::AntStaticValue * pb, const AntStaticValue &
 }
 
 void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDescription & pb) {
-	auto ant = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
-	                                      e->AntMetadataConstPtr(),
-	                                      pb.id());
+	auto ant = e->CreateAnt(pb.id());
 
 	for ( const auto & ident : pb.identifications() ) {
 		LoadIdentification(e,ant,ident);

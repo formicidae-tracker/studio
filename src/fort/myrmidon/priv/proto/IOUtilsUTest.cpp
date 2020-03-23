@@ -98,8 +98,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
-	auto a = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
-	                                    e->AntMetadataConstPtr());
+	auto a = e->CreateAnt();
 	for ( const auto & d : data ) {
 		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);

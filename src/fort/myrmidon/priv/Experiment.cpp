@@ -199,6 +199,11 @@ void Experiment::SetFamily(fort::tags::Family tf) {
 	d_family = tf;
 }
 
+Ant::Ptr Experiment::CreateAnt(fort::myrmidon::Ant::ID aID) {
+	return d_identifier->CreateAnt(d_antShapeTypes,
+	                               d_antMetadata,
+	                               aID);
+}
 
 void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	if ( d_measurementTypes.Objects().count(m->Type()) == 0 ) {
@@ -463,7 +468,7 @@ Experiment::AddAntMetadataColumn(const std::string & name,
 	return res;
 }
 
-void Experiment::DeleteAntMetadataKey(const std::string & name) {
+void Experiment::DeleteAntMetadataColumn(const std::string & name) {
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		if ( a->DataMap().count(name) != 0 ) {
 			throw std::runtime_error("Cannot remove AntMetadataColumn '"
