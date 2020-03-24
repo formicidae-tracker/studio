@@ -110,6 +110,8 @@ public:
 	void DeleteValue(const std::string & name,
 	                 const Time::ConstPtr & time);
 
+	AntStaticValue GetBaseValue(const std::string & name) const;
+
 	const AntDataMap & DataMap() const;
 
 	void CompileData();

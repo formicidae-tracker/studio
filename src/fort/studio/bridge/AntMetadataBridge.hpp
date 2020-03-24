@@ -23,6 +23,7 @@ public :
 
 	QAbstractItemModel * columnModel();
 	QAbstractItemModel * dataModel();
+	QAbstractItemModel * typeModel();
 
 signals:
 	void metadataColumnChanged(const QString & name, quint32 type);
@@ -31,11 +32,22 @@ signals:
 public slots:
 	void addMetadataColumn(const QString & name, quint32 type);
 	void removeMetadataColumn(const QString & name);
+
+	void onAntListModified();
+
+private slots:
+	void onColumnItemChanged(QStandardItem * item);
+	void rebuildDataModel();
+
 private:
 	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Column::Ptr & column);
+	QString findTypeName(fmp::AntMetadata::Type type);
+	QVariant findTypeDefaultValue(fmp::AntMetadata::Type type);
+
 
 
 	fmp::ExperimentPtr   d_experiment;
 	QStandardItemModel * d_columnModel;
-
+	QStandardItemModel * d_typeModel;
+	QStandardItemModel * d_dataModel;
 };

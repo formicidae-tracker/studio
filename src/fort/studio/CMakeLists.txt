@@ -38,7 +38,7 @@ set(SRC_FILES Format.cpp
 			  widget/AntEditorWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
-			  # QLongSpinBox.cpp
+			  widget/AntMetadataWidget.cpp
 			  widget/MainWindow.cpp
 			  )
 
@@ -80,6 +80,7 @@ set(HDR_FILES Format.hpp
 			  widget/AntEditorWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
+			  widget/AntMetadataWidget.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -98,6 +99,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
+             widget/AntMetadataWidget.ui
 			 )
 
 set(RCC_FILES )
@@ -110,6 +112,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/MeasurementUTest.cpp
                     utest/IdentifierUTest.cpp
                     utest/AntShapeTypeUTest.cpp
+                    utest/AntMetadataUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -118,6 +121,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/MeasurementUTest.hpp
                     utest/IdentifierUTest.hpp
                     utest/AntShapeTypeUTest.hpp
+                    utest/AntMetadataUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

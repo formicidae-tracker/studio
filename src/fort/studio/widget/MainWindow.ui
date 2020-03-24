@@ -24,7 +24,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -75,6 +75,11 @@
       <widget class="AntEditorWidget" name="shappingWidget">
        <attribute name="title">
         <string>Ant Editor</string>
+       </attribute>
+      </widget>
+      <widget class="UserDataWidget" name="userData">
+       <attribute name="title">
+        <string>Timed Data</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="exploreWidget">
@@ -414,6 +419,12 @@
    <class>AntEditorWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/AntEditorWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UserDataWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/UserDataWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

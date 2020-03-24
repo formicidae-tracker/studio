@@ -270,7 +270,6 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 	std::ofstream txtTouch( (basedir / "foo.txt").c_str() );
 }
 
-
 namespace fm=fort::myrmidon;
 
 // Called before any test activity starts.

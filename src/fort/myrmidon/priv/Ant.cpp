@@ -92,6 +92,19 @@ const AntStaticValue & Ant::GetValue(const std::string & name,
 	return d_compiledData.At(name,time);
 }
 
+AntStaticValue Ant::GetBaseValue(const std::string & name) const {
+	const auto & values = d_data.at(name);
+	auto it = std::find_if(values.cbegin(),
+	                       values.cend(),
+	                       [](const AntTimedValue & item ) {
+		                       return !item.first;
+	                       });
+	if ( it == values.cend() ) {
+		throw std::out_of_range("No base value for '" + name + "'");
+	}
+	return it->second;
+}
+
 std::vector<AntTimedValue>::iterator Ant::Find(const AntDataMap::iterator & iter,
                                                const Time::ConstPtr & time) {
 	return std::find_if(iter->second.begin(),
@@ -191,6 +204,7 @@ void Ant::CompileData() {
 	}
 
 }
+
 
 } // namespace priv
 } // namespace myrmidon

@@ -15,7 +15,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_identifier(new IdentifierBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
-	, d_antShapeTypes(new AntShapeTypeBridge(this)) {
+	, d_antShapeTypes(new AntShapeTypeBridge(this))
+	, d_antMetadata(new AntMetadataBridge(this)) {
 
 	connectModifications();
 
@@ -33,6 +34,16 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        d_measurements,
 	        &MeasurementBridge::onTDDDeleted);
+
+	connect(d_identifier,
+	        &IdentifierBridge::antCreated,
+	        d_antMetadata,
+	        &AntMetadataBridge::onAntListModified);
+
+	connect(d_identifier,
+	        &IdentifierBridge::antDeleted,
+	        d_antMetadata,
+	        &AntMetadataBridge::onAntListModified);
 
 }
 
@@ -140,6 +151,10 @@ AntShapeTypeBridge *  ExperimentBridge::antShapeTypes() const {
 	return d_antShapeTypes;
 }
 
+AntMetadataBridge *  ExperimentBridge::antMetadata() const {
+	return d_antMetadata;
+}
+
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -152,6 +167,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_globalProperties->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
 	d_antShapeTypes->setExperiment(experiment);
+	d_antMetadata->setExperiment(experiment);
 	setModified(false);
 	emit activated(d_experiment.get() != NULL);
 }
@@ -197,6 +213,11 @@ void ExperimentBridge::connectModifications() {
 
 	connect(d_antShapeTypes,
 	        &AntShapeTypeBridge::modified,
+	        this,
+	        &ExperimentBridge::onChildModified);
+
+	connect(d_antMetadata,
+	        &AntMetadataBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);
 
