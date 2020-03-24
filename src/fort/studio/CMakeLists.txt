@@ -39,6 +39,7 @@ set(SRC_FILES Format.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
 			  widget/AntMetadataWidget.cpp
+			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
 			  )
 
@@ -81,6 +82,7 @@ set(HDR_FILES Format.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
 			  widget/AntMetadataWidget.hpp
+			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -100,6 +102,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
+             widget/UserDataWidget.ui
 			 )
 
 set(RCC_FILES )
