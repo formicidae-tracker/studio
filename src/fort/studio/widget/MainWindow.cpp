@@ -112,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment);
 	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->userData->setup(d_experiment->antMetadata());
 
 	d_ui->shappingWidget->setEnabled(false);
 	connect(d_ui->workspaceSelector,

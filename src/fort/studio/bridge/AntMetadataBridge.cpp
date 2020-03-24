@@ -20,6 +20,12 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	        this,
 	        &AntMetadataBridge::onColumnItemChanged);
 
+	connect(d_dataModel,
+	        &QStandardItemModel::itemChanged,
+	        this,
+	        &AntMetadataBridge::onDataItemChanged);
+
+
 #define add_item_type(t,T) do {	  \
 		auto  item = new QStandardItem(#T); \
 		item->setData(quint32(fmp::AntMetadata::Type::T)); \
@@ -72,9 +78,12 @@ void AntMetadataBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		return;
 	}
 
+
 	for ( const auto & [name,column] : d_experiment->AntMetadataConstPtr()->Columns() ) {
 		d_columnModel->appendRow(buildColumn(column));
 	}
+
+	rebuildDataModel();
 
 	emit activated(true);
 }
@@ -275,25 +284,91 @@ void AntMetadataBridge::rebuildDataModel() {
 		antLabel->setData(antData);
 		QList<QStandardItem*> line = {antLabel};
 		for ( const auto & [name,column] : columns ) {
-			QVariant colData(int(column->MetadataType()));
-			bool isDefault = true;
-			fmp::AntStaticValue v;
-			try {
-				v = ant->GetBaseValue(name);
-				isDefault = false;
-			} catch ( const std::exception & e ) {
-				v = fmp::AntMetadata::DefaultValue(column->MetadataType());
-			}
-			auto item = new QStandardItem(std::visit([](auto && args){ return ToQString(args);},v));
+			auto colData = QVariant::fromValue(column);
+			auto item = new QStandardItem("");
 			item->setData(antData);
 			item->setData(colData,Qt::UserRole+2);
-			if ( isDefault == true ) {
-				item->setData(QColor(0,0,255),Qt::ForegroundRole);
-			}
+
+			setupItemFromValue(item,ant,column);
 			line.push_back(item);
 		}
 		d_dataModel->appendRow(line);
 
 	}
 	d_dataModel->sort(0,Qt::AscendingOrder);
+}
+
+
+
+void AntMetadataBridge::setupItemFromValue(QStandardItem * item,
+                                           const fmp::Ant::ConstPtr & ant,
+                                           const fmp::AntMetadata::Column::ConstPtr & column) {
+	bool isDefault = true;
+	fmp::AntStaticValue v;
+	try {
+		v = ant->GetBaseValue(column->Name());
+		isDefault = false;
+	} catch ( const std::exception & e ) {
+		v = fmp::AntMetadata::DefaultValue(column->MetadataType());
+	}
+	item->setText(std::visit([](auto && args){ return ToQString(args);},v));
+	if ( isDefault == true ) {
+		item->setData(QColor(0,0,255),Qt::ForegroundRole);
+	} else {
+		item->setData(QVariant(),Qt::ForegroundRole);
+	}
+}
+
+
+void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
+	auto ant = item->data(Qt::UserRole+1).value<fmp::Ant::Ptr>();
+	auto col = item->data(Qt::UserRole+2).value<fmp::AntMetadata::Column::Ptr>();
+
+	if ( !ant == true || !col == true ) {
+		return;
+	}
+
+	if ( item->text().isEmpty() == true ) {
+		auto map = ant->DataMap();
+		try {
+			auto & values = map.at(col->Name());
+			auto fi = std::find_if(values.begin(),
+			                       values.end(),
+			                       [] ( const fmp::AntTimedValue & v ) { return !v.first; });
+			if ( fi == values.end() ) {
+				return;
+			}
+			values.erase(fi);
+			ant->SetValues(map);
+
+			setModified(true);
+		} catch ( const std::exception & e ) {
+			qWarning() << "Could not set " << ToQString(fmp::Ant::FormatID(ant->ID()))
+			           << " column '" << ToQString(col->Name())
+			           << "' to default value: " << e.what();
+		}
+		setupItemFromValue(item,ant,col);
+		return;
+	}
+
+	try {
+		auto v = fmp::AntMetadata::FromString(col->MetadataType(),ToStdString(item->text()));
+		try {
+			auto actual = ant->GetBaseValue(col->Name());
+			if ( v == actual ) {
+				return;
+			}
+		} catch ( const std::exception & e) {
+		}
+
+		ant->SetValue(col->Name(),v,fm::Time::ConstPtr());
+
+		setModified(true);
+	} catch (const std::exception & e) {
+		qCritical() << "Could not set " << ToQString(fmp::Ant::FormatID(ant->ID()))
+		            << " column '" << ToQString(col->Name())
+		            << "' to '" << item->text()
+		            << "': " << e.what();
+	}
+	setupItemFromValue(item,ant,col);
 }

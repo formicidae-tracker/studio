@@ -99,6 +99,7 @@ set(HDR_PUBLIC_FILES Frame.hpp
 
 set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/TimeValid.cpp
+                      priv/Types.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
                       priv/DenseMap.cpp

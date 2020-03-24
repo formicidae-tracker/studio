@@ -37,6 +37,7 @@ public slots:
 
 private slots:
 	void onColumnItemChanged(QStandardItem * item);
+	void onDataItemChanged(QStandardItem * item);
 	void rebuildDataModel();
 
 private:
@@ -44,7 +45,12 @@ private:
 	QString findTypeName(fmp::AntMetadata::Type type);
 	QVariant findTypeDefaultValue(fmp::AntMetadata::Type type);
 
+	void setupItemFromValue(QStandardItem * item,
+	                        const fmp::Ant::ConstPtr & ant,
+	                        const fmp::AntMetadata::Column::ConstPtr & column);
 
+	QString textForValue(const fmp::Ant::ConstPtr & ant,
+	                     const fmp::AntMetadata::Column::ConstPtr & column);
 
 	fmp::ExperimentPtr   d_experiment;
 	QStandardItemModel * d_columnModel;
