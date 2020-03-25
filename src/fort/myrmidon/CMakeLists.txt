@@ -20,7 +20,7 @@ configure_file(config.h.in myrmidon-config.h)
 
 
 set(PROTO_FILES priv/proto/Experiment.proto
-                priv/proto/AntMetadata.proto
+                priv/proto/AntDescription.proto
                 priv/proto/Vector2d.proto
                 priv/proto/Shapes.proto
                 priv/proto/Time.proto
@@ -32,6 +32,7 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/Measurement.proto
                 priv/proto/Zone.proto
                 priv/proto/Space.proto
+                priv/proto/AntMetadata.proto
                 )
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
@@ -47,7 +48,8 @@ endforeach(f ${PROTO_HDR})
 include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_SOURCE_DIR}/src)
 
-set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
+set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
+                      priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
                       priv/DenseMap.hpp
@@ -75,7 +77,7 @@ set(HDR_PRIVATE_FILES priv/ForwardDeclaration.hpp
                       priv/Polygon.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
-                      priv/SnapshotCache.hpp
+                      priv/AntMetadata.hpp
                       priv/proto/FileReadWriter.hpp
                       priv/proto/ExperimentReadWriter.hpp
                       priv/proto/TDDCache.hpp
@@ -95,7 +97,9 @@ set(HDR_PUBLIC_FILES Frame.hpp
                      Time.hpp
                      utils/FileSystem.hpp)
 
-set(SRC_PRIVATE_FILES priv/TimeValid.cpp
+set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
+                      priv/TimeValid.cpp
+                      priv/Types.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
                       priv/DenseMap.cpp
@@ -120,7 +124,7 @@ set(SRC_PRIVATE_FILES priv/TimeValid.cpp
                       priv/Polygon.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp
-                      priv/SnapshotCache.cpp
+                      priv/AntMetadata.cpp
                       priv/proto/FileReadWriter.cpp
                       priv/proto/ExperimentReadWriter.cpp
                       priv/proto/TDDCache.cpp
@@ -152,6 +156,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     utils/NotYetImplementedUTest.cpp
                     priv/UtilsUTest.cpp
                     priv/DenseMapUTest.cpp
+                    priv/TimedMapUTest.cpp
                     priv/SpaceUTest.cpp
                     priv/ExperimentUTest.cpp
                     priv/TimeUtilsUTest.cpp
@@ -177,6 +182,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/CapsuleUTest.cpp
                     priv/PolygonUTest.cpp
                     priv/KDTreeUTest.cpp
+                    priv/AntMetadataUTest.cpp
                     )
 
 
@@ -185,6 +191,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
                     priv/UtilsUTest.hpp
                     priv/DenseMapUTest.hpp
+                    priv/TimedMapUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ExperimentUTest.hpp
                     priv/TimeUtilsUTest.hpp
@@ -210,6 +217,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/CapsuleUTest.hpp
                     priv/PolygonUTest.hpp
                     priv/KDTreeUTest.hpp
+                    priv/AntMetadataUTest.hpp
                     )
 
 add_library(fort-myrmidon SHARED ${SRC_FILES}
@@ -237,7 +245,7 @@ add_library(myrmidon-utest-common STATIC ${COMMON_UTEST_SRC_FILES}
                                          ${COMMON_UTEST_HDR_FILES}
                                          ${PROTO_HDR}
                                          )
-target_link_libraries(myrmidon-utest-common gtest fort-myrmidon)
+target_link_libraries(myrmidon-utest-common gtest gmock fort-myrmidon)
 
 add_executable(myrmidon-tests ${SRC_UTEST_FILES}
                               ${HDR_UTEST_FILES}

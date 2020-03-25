@@ -2,6 +2,9 @@
 
 #include "DenseMap.hpp"
 
+#include <set>
+#include <functional>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -10,7 +13,7 @@ namespace priv {
 template <typename TID,typename T>
 class AlmostContiguousIDContainer {
 public:
-	typedef DenseMap<TID,T> ObjectByID;
+	typedef DenseMap<TID,T>           ObjectByID;
 	typedef std::set<TID>             SetOfObjectID;
 	typedef std::function<T(TID)>     Creator;
 
@@ -65,6 +68,10 @@ public:
 
 	const ObjectByID & Objects() const {
 		return d_objects;
+	}
+
+	size_t Count(TID ID) const {
+		return d_objects.count(ID);
 	}
 
 	TID NextAvailableObjectID() {

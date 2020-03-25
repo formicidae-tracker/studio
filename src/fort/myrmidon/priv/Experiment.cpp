@@ -9,6 +9,7 @@
 #include "Identifier.hpp"
 #include "AntPoseEstimate.hpp"
 #include "AntShapeType.hpp"
+#include "AntMetadata.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
@@ -19,12 +20,54 @@ namespace priv {
 Experiment::Experiment(const fs::path & filepath )
 	: d_absoluteFilepath(fs::absolute(fs::weakly_canonical(filepath)))
 	, d_basedir(d_absoluteFilepath.parent_path())
-	, d_identifier(Identifier::Create())
+	, d_identifier(std::make_shared<fort::myrmidon::priv::Identifier>())
 	, d_universe(std::make_shared<Space::Universe>())
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
-	, d_defaultTagSize(1.0) {
+	, d_defaultTagSize(1.0)
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
+
+	auto onNameChange =
+		[this](const std::string & oldName, const std::string & newName) {
+			for ( const auto & [aID,a] : d_identifier->Ants() ) {
+				if ( a->DataMap().count(oldName) == 0 ) {
+					continue;
+				}
+				AntDataMap map = a->DataMap();
+				map.insert(std::make_pair(newName,map.at(oldName)));
+				map.erase(oldName);
+				a->SetValues(map);
+			}
+		};
+
+	auto onTypeChange =
+		[this](const std::string & name,
+		       AntMetadata::Type oldType,
+		       AntMetadata::Type newType) {
+			if ( oldType == newType ) {
+				return;
+			}
+			for ( const auto & [aID,a] : d_identifier->Ants() ) {
+				if ( a->DataMap().count(name) == 1 ) {
+					throw std::runtime_error("Could not change type for column '" + name + "': ant " + Ant::FormatID(a->ID()) + " already contains data");
+				}
+			}
+		};
+
+	auto onDefaultChange =
+		[this](const std::string & name,
+		       const AntStaticValue &,
+		       const AntStaticValue &) {
+			for ( const auto & [aID,ant] : d_identifier->Ants() ) {
+				ant->CompileData();
+			}
+		};
+
+
+	d_antMetadata = std::make_shared<AntMetadata>(onNameChange,
+	                                              onTypeChange,
+	                                              onDefaultChange);
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
@@ -164,6 +207,11 @@ void Experiment::SetFamily(fort::tags::Family tf) {
 	d_family = tf;
 }
 
+Ant::Ptr Experiment::CreateAnt(fort::myrmidon::Ant::ID aID) {
+	return d_identifier->CreateAnt(d_antShapeTypes,
+	                               d_antMetadata,
+	                               aID);
+}
 
 void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	if ( d_measurementTypes.Objects().count(m->Type()) == 0 ) {
@@ -378,19 +426,17 @@ Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
 }
 
 AntShapeType::Ptr Experiment::CreateAntShapeType(const std::string & name,
-                                                 AntShapeTypeID TypeID) {
-	return d_antShapeTypes.CreateObject([&name](AntShapeTypeID ID) {
-		                                    return std::make_shared<AntShapeType>(ID,name);
-	                                    },TypeID);
+                                                 AntShapeTypeID typeID) {
+	return d_antShapeTypes->Create(name,typeID);
 }
 
 void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
-	auto fi  = d_antShapeTypes.Objects().find(typeID);
-	if ( fi == d_antShapeTypes.Objects().end() ) {
-		//will throw
-		d_antShapeTypes.DeleteObject(typeID);
-		return;
+	auto fi = d_antShapeTypes->Find(typeID);
+	if ( fi == d_antShapeTypes->End() ) {
+		// will throw
+		d_antShapeTypes->Delete(typeID);
 	}
+
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		for ( const auto & [type,c] : a->Capsules() ) {
 			if ( type == typeID ) {
@@ -402,23 +448,50 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
 			}
 		}
 	}
-	d_antShapeTypes.DeleteObject(typeID);
+	d_antShapeTypes->Delete(typeID);
 }
-
-void Experiment::AddCapsuleToAnt(const AntPtr & ant,
-                                 AntShapeTypeID typeID,
-                                 const CapsulePtr & capsule) {
-	if ( d_antShapeTypes.Objects().count(typeID) == 0 ) {
-		throw std::invalid_argument("Unknown shape type ID " + std::to_string(typeID));
-	}
-
-	Ant::Accessor::AddCapsule(*ant,typeID,capsule);
-}
-
 
 
 const AntShapeTypeByID & Experiment::AntShapeTypes() const {
-	return d_antShapeTypes.Objects();
+	return d_antShapeTypes->Types();
+}
+
+AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
+	return d_antShapeTypes;
+}
+
+fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() const {
+	return d_antMetadata;
+}
+
+AntMetadata::Column::Ptr
+Experiment::AddAntMetadataColumn(const std::string & name,
+                                 AntMetadata::Type type) {
+	auto res = AntMetadata::Create(d_antMetadata,name,type);
+
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		a->CompileData();
+	}
+
+	return res;
+}
+
+void Experiment::DeleteAntMetadataColumn(const std::string & name) {
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		if ( a->DataMap().count(name) != 0 ) {
+			throw std::runtime_error("Cannot remove AntMetadataColumn '"
+			                         + name
+			                         + "': Ant "
+			                         + Ant::FormatID(aID)
+			                         + " contains data");
+		}
+	}
+
+	d_antMetadata->Delete(name);
+
+	for ( const auto & [aID,a] : d_identifier->Ants() ) {
+		a->CompileData();
+	}
 }
 
 

@@ -41,7 +41,7 @@ void IOUtils::SaveTime(pb::Time * pb,const Time & t) {
 
 
 
-void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
+void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
                                  const fort::myrmidon::pb::Identification & pb) {
 	Time::ConstPtr start,end;
 	if ( pb.has_start() ) {
@@ -51,7 +51,7 @@ void IOUtils::LoadIdentification(Experiment & e, const AntPtr & target,
 		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
 	}
 
-	auto res = e.Identifier().AddIdentification(target->ID(),pb.id(),start,end);
+	auto res = Identifier::AddIdentification(e->Identifier(),target->ID(),pb.id(),start,end);
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
@@ -124,22 +124,73 @@ pb::AntDisplayState  IOUtils::SaveAntDisplayState(Ant::DisplayState s) {
 }
 
 
-void IOUtils::LoadAnt(Experiment & e, const fort::myrmidon::pb::AntMetadata & pb) {
-	auto ant = e.Identifier().CreateAnt(pb.id());
+AntStaticValue IOUtils::LoadAntStaticValue(const pb::AntStaticValue & pb) {
+	switch(pb.type()) {
+	case 0:
+		return pb.boolvalue();
+	case 1:
+		return pb.intvalue();
+	case 2:
+		return pb.doublevalue();
+	case 3:
+		return pb.stringvalue();
+	case 4:
+		return Time::FromTimestamp(pb.timevalue());
+	default:
+		throw std::logic_error("Unknown type " + std::to_string(pb.type()));
+	}
+}
+
+void IOUtils::SaveAntStaticValue(pb::AntStaticValue * pb, const AntStaticValue & value) {
+	pb->Clear();
+	pb->set_type(pb::AntStaticValue_Type(value.index()));
+	switch ( value.index() ) {
+	case 0 :
+		pb->set_boolvalue(std::get<bool>(value));
+		break;
+	case 1:
+		pb->set_intvalue(std::get<int>(value));
+		break;
+	case 2:
+		pb->set_doublevalue(std::get<double>(value));
+		break;
+	case 3:
+		pb->set_stringvalue(std::get<std::string>(value));
+		break;
+	case 4:
+		std::get<Time>(value).ToTimestamp(pb->mutable_timevalue());
+		break;
+	default:
+		throw std::logic_error("Unknown AntStaticValue index " + std::to_string(value.index()));
+	}
+}
+
+void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDescription & pb) {
+	auto ant = e->CreateAnt(pb.id());
 
 	for ( const auto & ident : pb.identifications() ) {
 		LoadIdentification(e,ant,ident);
 	}
 
 	for ( const auto & s : pb.shape() ) {
-		e.AddCapsuleToAnt(ant,s.type(),LoadCapsule(s.capsule()));
+		ant->AddCapsule(s.type(),LoadCapsule(s.capsule()));
 	}
 
 	ant->SetDisplayColor(LoadColor(pb.color()));
 	ant->SetDisplayStatus(LoadAntDisplayState(pb.displaystate()));
+
+	AntDataMap antData;
+	for ( const auto & v : pb.namedvalues() ) {
+		Time::ConstPtr time;
+		if ( v.has_time() ) {
+			time = std::make_shared<Time>(Time::FromTimestamp(v.time()));
+		}
+		antData[v.name()].push_back(std::make_pair(time,LoadAntStaticValue(v.value())));
+	}
+	ant->SetValues(antData);
 }
 
-void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & ant) {
+void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr & ant) {
 	pb->Clear();
 	pb->set_id(ant->ID());
 
@@ -155,6 +206,17 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntMetadata * pb, const AntConstPtr & 
 
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
 	pb->set_displaystate(SaveAntDisplayState(ant->DisplayStatus()));
+
+	for ( const auto & [name,tValues] : ant->DataMap() ) {
+		for ( const auto & [time, value] : tValues ) {
+			auto vPb = pb->add_namedvalues();
+			vPb->set_name(name);
+			if ( !time == false ) {
+				time->ToTimestamp(vPb->mutable_time());
+			}
+			SaveAntStaticValue(vPb->mutable_value(),value);
+		}
+	}
 }
 
 
@@ -262,11 +324,11 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	}
 }
 
-void IOUtils::LoadSpace(Experiment & e,
+void IOUtils::LoadSpace(const Experiment::Ptr & e,
                         const pb::Space & pb) {
-	auto s = e.CreateSpace(pb.name(),pb.id());
+	auto s = e->CreateSpace(pb.name(),pb.id());
 	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
-		auto tdd = TrackingDataDirectory::Open(e.Basedir() / tddRelPath, e.Basedir());
+		auto tdd = TrackingDataDirectory::Open(e->Basedir() / tddRelPath, e->Basedir());
 		s->AddTrackingDataDirectory(tdd);
 	}
 	for ( const auto & zPb : pb.zones() ) {
@@ -298,33 +360,37 @@ void IOUtils::SaveMeasurement(pb::Measurement * pb, const Measurement::ConstPtr 
 }
 
 
-void IOUtils::LoadExperiment(Experiment & e,
+void IOUtils::LoadExperiment(const Experiment::Ptr & e,
                              const pb::Experiment & pb) {
-	e.SetAuthor(pb.author());
-	e.SetName(pb.name());
-	e.SetComment(pb.comment());
-	e.SetFamily(LoadFamily(pb.tagfamily()));
-	e.SetThreshold(pb.threshold());
-	e.SetDefaultTagSize(pb.tagsize());
+	e->SetAuthor(pb.author());
+	e->SetName(pb.name());
+	e->SetComment(pb.comment());
+	e->SetFamily(LoadFamily(pb.tagfamily()));
+	e->SetThreshold(pb.threshold());
+	e->SetDefaultTagSize(pb.tagsize());
 
 	for (const auto & ct : pb.custommeasurementtypes()) {
 		if ( ct.id() == Measurement::HEAD_TAIL_TYPE ) {
-			auto fi = e.MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
-			if ( fi == e.MeasurementTypes().cend() ) {
+			auto fi = e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE);
+			if ( fi == e->MeasurementTypes().cend() ) {
 				throw std::logic_error("Experiment missing default MeasurementType::ID Measurement::HEAD_TAIL_TYPE");
 			}
 			fi->second->SetName(ct.name());
 		} else {
-			e.CreateMeasurementType(ct.name(),ct.id());
+			e->CreateMeasurementType(ct.name(),ct.id());
 		}
 	}
 
 	for (const auto & ast : pb.antshapetypes() ) {
-		e.CreateAntShapeType(ast.name(),ast.id());
+		e->CreateAntShapeType(ast.name(),ast.id());
+	}
+
+	for (const auto & column : pb.antmetadata() ) {
+		auto defaultValue = LoadAntStaticValue(column.defaultvalue());
+		auto c = e->AddAntMetadataColumn(column.name(),AntMetadata::Type(column.defaultvalue().type()));
+		c->SetDefaultValue(defaultValue);
 	}
 }
-
-
 
 
 
@@ -350,6 +416,11 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 		stPb->set_name(shapeType->Name());
 	}
 
+	for ( const auto & [name,column] : e.AntMetadataConstPtr()->Columns() ) {
+		auto cPb = pb->add_antmetadata();
+		cPb->set_name(column->Name());
+		SaveAntStaticValue(cPb->mutable_defaultvalue(),column->DefaultValue());
+	}
 
 }
 

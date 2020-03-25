@@ -3,7 +3,7 @@
 #include <fort/tags/fort-tags.h>
 
 #include <fort/myrmidon/Time.pb.h>
-#include <fort/myrmidon/AntMetadata.pb.h>
+#include <fort/myrmidon/AntDescription.pb.h>
 #include <fort/myrmidon/Experiment.pb.h>
 #include <fort/myrmidon/TrackingDataDirectory.pb.h>
 #include <fort/myrmidon/TagCloseUpCache.pb.h>
@@ -80,7 +80,7 @@ public:
 	// @e the <priv::Experiment> that owns the <Identification> and the <priv::Ant>
 	// @a the <priv::Ant> the <Identification> points to.
 	// @pb the message to read from
-	static void LoadIdentification(Experiment & e,
+	static void LoadIdentification(const ExperimentPtr & e,
 	                               const priv::AntPtr & a,
 	                               const pb::Identification & pb);
 
@@ -101,17 +101,22 @@ public:
 	static pb::AntDisplayState  SaveAntDisplayState(Ant::DisplayState s);
 
 
+	static AntStaticValue LoadAntStaticValue(const pb::AntStaticValue & pb);
+
+	static void SaveAntStaticValue(pb::AntStaticValue * pb, const AntStaticValue & value);
+
+
 	// Loads an Ant from a protobuf message
 	//
 	// @e the <priv::Experiment> that will own the Ant
 	// @pb the serialized data
-	static void LoadAnt(Experiment & e, const pb::AntMetadata & pb);
+	static void LoadAnt(const ExperimentPtr & e, const pb::AntDescription & pb);
 
 	// Saves an Ant to a protobuf message
 	//
 	// @pb the message to save to
 	// @a the <priv::Ant> to save
-	static void SaveAnt(pb::AntMetadata * pb, const AntConstPtr & a);
+	static void SaveAnt(pb::AntDescription * pb, const AntConstPtr & a);
 
 	// Converts a Family from a protobuf enum
 	//
@@ -143,7 +148,7 @@ public:
 
 	static void SaveZone(pb::Zone * pb, const ZoneConstPtr & zone);
 
-	static void LoadSpace(Experiment & e,
+	static void LoadSpace(const ExperimentPtr & e,
 	                      const pb::Space & pb);
 
 	static void SaveSpace(pb::Space * pb,
@@ -154,7 +159,7 @@ public:
 	//
 	// @e the empty <priv::Experiment> to load data to
 	// @pb the <pb::Experiment> protobuf message to read from
-	static void LoadExperiment(Experiment & e,
+	static void LoadExperiment(const ExperimentPtr & e,
 	                           const pb::Experiment & pb);
 
 	// Saves an Experiment to a protobuf message

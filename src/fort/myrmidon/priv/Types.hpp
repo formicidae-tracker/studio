@@ -1,13 +1,18 @@
 #pragma once
 
+#include <fort/myrmidon/Time.hpp>
 
 #include <cstdint>
 
 #include <tuple>
+#include <variant>
+#include <string>
+
+#include <unordered_map>
+#include <vector>
 
 #include <Eigen/Geometry>
 
-#include <fort/myrmidon/Time.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -27,6 +32,14 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 
 // AABB
 typedef Eigen::AlignedBox<double,2> AABB;
+
+
+typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
+
+typedef std::pair<Time::ConstPtr,AntStaticValue>   AntTimedValue;
+
+typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
+
 
 struct PositionedAnt {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -50,3 +63,6 @@ struct IdentifiedFrame {
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::AntStaticValue &);

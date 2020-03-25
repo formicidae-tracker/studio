@@ -4,7 +4,7 @@ package fort.myrmidon.pb;
 
 import "Experiment.proto";
 import "TrackingDataDirectory.proto";
-import "AntMetadata.proto";
+import "AntDescription.proto";
 import "Measurement.proto";
 import "Space.proto";
 
@@ -15,8 +15,8 @@ message FileHeader {
 
 
 message FileLine {
-	Experiment            Experiment  = 1;
-	AntMetadata           AntData     = 2;
-	Measurement           measurement = 3;
-	Space                 space       = 4;
+	Experiment            Experiment     = 1;
+	AntDescription        AntDescription = 2;
+	Measurement           measurement    = 3;
+	Space                 space          = 4;
 };

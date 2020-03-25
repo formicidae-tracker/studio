@@ -18,6 +18,7 @@
 #include <fort/myrmidon/priv/Circle.hpp>
 #include <fort/myrmidon/priv/Polygon.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
+#include <fort/myrmidon/priv/AntMetadata.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -97,9 +98,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
-	auto a = e->Identifier().CreateAnt();
+	auto a = e->CreateAnt();
 	for ( const auto & d : data ) {
-		auto ident = e->Identifier().AddIdentification(a->ID(), d.Value, d.Start, d.End);
+		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
@@ -116,9 +117,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		IOUtils::SaveIdentification(&identPb, ident);
 		EXPECT_TRUE(MessageEqual(identPb,expected));
 
-		e->Identifier().DeleteIdentification(ident);
+		e->Identifier()->DeleteIdentification(ident);
 		ASSERT_TRUE(a->Identifications().empty());
-		IOUtils::LoadIdentification(*e,a,identPb);
+		IOUtils::LoadIdentification(e,a,identPb);
 
 		EXPECT_EQ(a->Identifications().size(),1);
 
@@ -141,7 +142,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_NO_THROW({
 				EXPECT_EQ(finalIdent->Target().get(),a.get());
 			});
-		e->Identifier().DeleteIdentification(finalIdent);
+		e->Identifier()->DeleteIdentification(finalIdent);
 	}
 }
 
@@ -278,7 +279,31 @@ TEST_F(IOUtilsUTest,ShapeIO) {
 }
 
 
+TEST_F(IOUtilsUTest,AntStaticValueIO) {
+	std::vector<AntStaticValue> testdata =
+		{
+		 false,
+		 true,
+		 0,
+		 42,
+		 0.0,
+		 42.0,
+		 std::string(""),
+		 std::string("some value"),
+		   Time(),
+		 Time::Parse("2019-11-02T23:46:32.123Z"),
+		};
 
+	for ( const auto & d : testdata ) {
+		pb::AntStaticValue pb,expected;
+		expected.set_type(pb::AntStaticValue_Type(d.index()));
+		IOUtils::SaveAntStaticValue(&pb,d);
+		EXPECT_EQ(pb.type(),expected.type());
+		auto res = IOUtils::LoadAntStaticValue(pb);
+		EXPECT_TRUE(AntStaticValueEqual(res,d));
+	}
+
+}
 
 TEST_F(IOUtilsUTest,AntIO) {
 	struct IdentificationData {
@@ -293,6 +318,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 		std::vector<CapsulePtr>         Capsules;
 		Color                           DisplayColor;
 		Ant::DisplayState               DisplayState;
+		AntDataMap                      DataMap;
 	};
 
 	std::vector<TestData> testdata
@@ -320,28 +346,47 @@ TEST_F(IOUtilsUTest,AntIO) {
 		    },
 		    {127,56,94},
 		    Ant::DisplayState::SOLO,
+		    {
+		     {"alive",
+		      {
+		       std::make_pair(Time::ConstPtr(),true),
+		       std::make_pair(std::make_shared<Time>(Time::FromTimeT(12)),
+		                      false),
+		      },
+		     },
+		     {
+		      "group",
+		      {
+		       std::make_pair(Time::ConstPtr(),std::string("nurse")),
+		      },
+		     },
+		    },
 		   },
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
+	e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+	e->AddAntMetadataColumn("group",AntMetadata::Type::String);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
-		auto dA = e->Identifier().CreateAnt();
+		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
+		                                     e->AntMetadataConstPtr());
 		std::vector<Identification::Ptr> dIdents;
 
-		pb::AntMetadata a,expected;
+		pb::AntDescription a,expected;
 		expected.set_id(dA->ID());
 		for(const auto & identData : d.IData ) {
-			auto ident  =e->Identifier().AddIdentification(dA->ID(),
-			                                               identData.Value,
-			                                               identData.Start,
-			                                               identData.End);
+			auto ident = Identifier::AddIdentification(e->Identifier(),
+			                                           dA->ID(),
+			                                           identData.Value,
+			                                           identData.Start,
+			                                           identData.End);
 			dIdents.push_back(ident);
 			IOUtils::SaveIdentification(expected.add_identifications(), ident);
 		}
 
 		for ( const auto & c : d.Capsules ) {
-			e->AddCapsuleToAnt(dA,shapeType->TypeID(),c);
+			dA->AddCapsule(shapeType->TypeID(),c);
 			auto sPb = expected.add_shape();
 			sPb->set_type(shapeType->TypeID());
 			IOUtils::SaveCapsule(sPb->mutable_capsule(),
@@ -353,26 +398,44 @@ TEST_F(IOUtilsUTest,AntIO) {
 		dA->SetDisplayStatus(d.DisplayState);
 		expected.set_displaystate(IOUtils::SaveAntDisplayState(d.DisplayState));
 
+		for ( const auto & [name,tValues] : d.DataMap) {
+			for ( const auto & [time,value] : tValues ) {
+				dA->SetValue(name,value,time);
+			}
+		}
+
+		for ( const auto & [name,tValues] : dA->DataMap() ) {
+			for ( const auto & [time,value] : tValues ) {
+				auto ev = expected.add_namedvalues();
+				ev->set_name(name);
+				IOUtils::SaveAntStaticValue(ev->mutable_value(),value);
+				if ( !time == false ) {
+					time->ToTimestamp(ev->mutable_time());
+				}
+			}
+		}
+
+
 		IOUtils::SaveAnt(&a,dA);
 		std::string differences;
 
 		EXPECT_TRUE(MessageEqual(a,expected));
 
 		EXPECT_THROW({
-				IOUtils::LoadAnt(*e,a);
+				IOUtils::LoadAnt(e,a);
 			},std::exception);
 
 		EXPECT_NO_THROW({
 				for( auto & i : dIdents ) {
-					e->Identifier().DeleteIdentification(i);
+					e->Identifier()->DeleteIdentification(i);
 				}
-				e->Identifier().DeleteAnt(dA->ID());
+				e->Identifier()->DeleteAnt(dA->ID());
 			});
 
-		IOUtils::LoadAnt(*e,a);
-		auto fi = e->Identifier().Ants().find(expected.id());
-		EXPECT_TRUE(fi != e->Identifier().Ants().cend());
-		if ( fi == e->Identifier().Ants().cend() ) {
+		IOUtils::LoadAnt(e,a);
+		auto fi = e->ConstIdentifier().Ants().find(expected.id());
+		EXPECT_TRUE(fi != e->ConstIdentifier().Ants().cend());
+		if ( fi == e->ConstIdentifier().Ants().cend() ) {
 			continue;
 		}
 		auto res = fi->second;
@@ -475,7 +538,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 
 	ePb.set_tagfamily(pb::TagFamily(1234));
 	EXPECT_THROW({
-			IOUtils::LoadExperiment(*e, ePb);
+			IOUtils::LoadExperiment(e, ePb);
 		},std::runtime_error);
 
 	TrackingDataDirectory::ConstPtr tdd;
@@ -520,6 +583,15 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			st->set_id(3);
 			st->set_name("antenna-right");
 
+			e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+			auto c = expected.add_antmetadata();
+			c->set_name("alive");
+			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(false));
+			e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+			c = expected.add_antmetadata();
+			c->set_name("group");
+			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(std::string()));
+
 
 		});
 
@@ -529,12 +601,22 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	IOUtils::SaveExperiment(&ePb,*e);
 	EXPECT_TRUE(MessageEqual(ePb,expected));
 
-	IOUtils::LoadExperiment(*res,ePb);
+	IOUtils::LoadExperiment(res,ePb);
 	EXPECT_EQ(res->Author(),e->Author());
 	EXPECT_EQ(res->Name(),e->Name());
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
+	EXPECT_EQ(e->AntMetadataConstPtr()->Columns().size(),
+	          res->AntMetadataConstPtr()->Columns().size());
+	for ( const auto [name,column] : e->AntMetadataConstPtr()->Columns() ) {
+		auto ci = res->AntMetadataConstPtr()->Columns().find(name);
+		if ( ci == res->AntMetadataConstPtr()->Columns().cend() ) {
+			ADD_FAILURE() << "missing AntMetadataColumn '" << name << "'";
+		} else {
+			EXPECT_EQ(ci->second->MetadataType(),column->MetadataType());
+		}
+	}
 
 }
 
@@ -607,7 +689,7 @@ TEST_F(IOUtilsUTest,SpaceIO) {
 
 	IOUtils::SaveSpace(&s,dS);
 	EXPECT_TRUE(MessageEqual(s,expected));
-	IOUtils::LoadSpace(*e2,s);
+	IOUtils::LoadSpace(e2,s);
 	ASSERT_EQ(e2->Spaces().size(),1);
 	auto res = e2->Spaces().begin()->second;
 	EXPECT_EQ(res->SpaceID(),dS->SpaceID());

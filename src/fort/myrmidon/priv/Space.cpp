@@ -1,6 +1,7 @@
 #include "Space.hpp"
 
 #include "TrackingDataDirectory.hpp"
+#include <fort/myrmidon/utils/StringManipulation.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -114,15 +115,9 @@ Space::Universe::TrackingDataDirectories() const {
 	return d_tddsByURI;
 }
 
-bool HasPrefix(const std::string & s, const std::string & prefix ) {
-	if (prefix.size() > s.size() ) {
-		return false;
-	}
-	return std::mismatch(prefix.begin(),prefix.end(),s.begin(),s.end()).first == prefix.end();
-}
 
 void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd) {
-	if ( HasPrefix(tdd->URI(),"spaces/") == true ) {
+	if ( utils::HasPrefix(tdd->URI(),"spaces/") == true ) {
 		throw std::runtime_error("Invalid TDD path '" + tdd->URI() + "': starts with 'spaces/'");
 	}
 

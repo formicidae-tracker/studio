@@ -85,3 +85,53 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 	}
 	return ::testing::AssertionFailure() << "unsupported shape type";
 }
+
+::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::priv::AntStaticValue &a,
+                                               const fort::myrmidon::priv::AntStaticValue &b) {
+	if ( a.index() != b.index() ) {
+		return ::testing::AssertionFailure() << "StaticValue Type differs a:" << a.index()
+		                                     << " b:" <<b.index();
+	}
+
+	switch( a.index() ) {
+	case 0:
+		if ( std::get<bool>(a) != std::get<bool>(b) ) {
+			return ::testing::AssertionFailure() << "a: " << std::boolalpha
+			                                     << std::get<bool>(a)
+			                                     << " b: " << std::get<bool>(b)
+			                                     << " differs!";
+		}
+		break;
+	case 1:
+		if ( std::get<int>(a) != std::get<int>(b) ) {
+			return ::testing::AssertionFailure() << "a:" <<  std::get<int>(a)
+			                                     << " b:" << std::get<int>(b)
+			                                     << " differs!";
+		}
+		break;
+	case 2:
+		if ( std::get<double>(a) != std::get<double>(b) ) {
+			return ::testing::AssertionFailure() << "a:" <<  std::get<double>(a)
+			                                     << " b:" << std::get<double>(b)
+			                                     << " differs!";
+		}
+		break;
+	case 3:
+		if ( std::get<std::string>(a) != std::get<std::string>(b) ) {
+			return ::testing::AssertionFailure() << "a:" <<  std::get<std::string>(a)
+			                                     << " b:" << std::get<std::string>(b)
+			                                     << " differs!";
+		}
+		break;
+	case 4:
+		if ( std::get<fort::myrmidon::Time>(a).Equals(std::get<fort::myrmidon::Time>(b)) == false ) {
+			return ::testing::AssertionFailure() << "a:" <<  std::get<fort::myrmidon::Time>(a)
+			                                     << " b:" << std::get<fort::myrmidon::Time>(b)
+			                                     << " differs!";
+		}
+		break;
+	default:
+		return ::testing::AssertionFailure() << "Unknown type index: " << a.index();
+	}
+	return ::testing::AssertionSuccess();
+}

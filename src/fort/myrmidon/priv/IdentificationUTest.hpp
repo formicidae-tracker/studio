@@ -20,7 +20,8 @@ protected:
 	fort::myrmidon::priv::Identifier::Ptr      d_identifier;
 	fort::myrmidon::priv::Ant::Ptr             d_ant;
 	fort::myrmidon::priv::Identification::List d_list;
-
+	AntShapeTypeContainerConstPtr              d_shapeTypes;
+	AntMetadataConstPtr                        d_metadata;
 };
 
 

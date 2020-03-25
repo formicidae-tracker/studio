@@ -8,9 +8,12 @@
 #include "Identification.hpp"
 #include "Color.hpp"
 
+#include "TimeMap.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
+
 
 // The Object of Interest of any Experiment
 //
@@ -42,7 +45,9 @@ public:
 	typedef std::vector<std::pair<AntShapeTypeID,CapsulePtr>> TypedCapsuleList;
 
 	// The Constructor for an Ant
-	Ant(fort::myrmidon::Ant::ID ID);
+	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
+	    const AntMetadataConstPtr & metadata,
+	    fort::myrmidon::Ant::ID ID);
 
 	// Its destructor
 	~Ant();
@@ -77,6 +82,7 @@ public:
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
 	static std::string FormatID(fort::myrmidon::Ant::ID ID);
 
+	void AddCapsule(AntShapeTypeID typeID, const CapsulePtr & capsule);
 
 	const TypedCapsuleList & Capsules() const;
 
@@ -92,6 +98,25 @@ public:
 
 	void SetDisplayStatus(DisplayState s);
 
+	const AntStaticValue & GetValue(const std::string & name,
+	                               const Time & time);
+
+	void SetValue(const std::string & name,
+	              const AntStaticValue & value,
+	              const Time::ConstPtr & time,
+	              bool noOverwrite = false);
+
+	void SetValues(const AntDataMap & map);
+
+	void DeleteValue(const std::string & name,
+	                 const Time::ConstPtr & time);
+
+	AntStaticValue GetBaseValue(const std::string & name) const;
+
+	const AntDataMap & DataMap() const;
+
+	void CompileData();
+
 	// C++ shenanigans
 	//
 	// C++ shenanigan class to give restricted unlimited access to the
@@ -99,11 +124,9 @@ public:
 	class Accessor {
 	private:
 		static Identification::List & Identifications(Ant & a);
-		static void AddCapsule(Ant & a, AntShapeTypeID TypeID,  const CapsulePtr & capsule);
 	public:
 		friend class Identifier;
 		friend class Identification;
-		friend class Experiment;
 	};
 
 private:
@@ -111,12 +134,23 @@ private:
 	Ant(const Ant&)  = delete;
 
 
+	static std::vector<AntTimedValue>::iterator Find(const AntDataMap::iterator & iter,
+	                                                 const Time::ConstPtr & time);
+
+	static bool CompareTime(const AntTimedValue & a, const AntTimedValue &b);
+
 	fort::myrmidon::Ant::ID d_ID;
 	std::string             d_IDStr;
 	Identification::List    d_identifications;
 	TypedCapsuleList        d_capsules;
 	Color                   d_displayColor;
 	DisplayState            d_displayState;
+
+	AntShapeTypeContainerConstPtr d_shapeTypes;
+	AntMetadataConstPtr           d_metadata;
+
+	AntDataMap                          d_data;
+	TimeMap<std::string,AntStaticValue> d_compiledData;
 };
 
 } //namespace priv

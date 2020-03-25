@@ -22,9 +22,70 @@
 
 QPointer<Logger> myLogger;
 
+
+VisibilityActionController::VisibilityActionController(QWidget * widget,
+                                                       QAction * action,
+                                                       QObject * parent)
+	: QObject(parent)
+	, d_widget(widget)
+	, d_action(action) {
+	if ( action == nullptr || widget == nullptr) {
+		return;
+	}
+	d_action->setCheckable(true);
+	d_action->setChecked(d_widget->isVisible());
+
+	d_widget->installEventFilter(this);
+
+	connect(d_action,
+	        &QAction::toggled,
+	        this,
+	        &VisibilityActionController::onActionToggled);
+}
+
+VisibilityActionController::~VisibilityActionController() {
+	if ( d_action == nullptr || d_widget == nullptr ) {
+		return;
+	}
+	// there are no clear order of deletion when child object are
+	// destroyed, so d_widget could be invalid. so no remobing it to
+	// avoid spurious segfault on exit.
+	// d_widget->removeEventFilter(this);
+}
+
+void VisibilityActionController::onActionToggled(bool checked) {
+	if ( d_widget == nullptr ) {
+		return;
+	}
+
+	if ( checked == true && d_widget->isVisible() == false ) {
+		d_widget->show();
+	}
+	if ( checked == false && d_widget->isVisible() == true ) {
+		d_widget->close();
+	}
+}
+
+
+bool VisibilityActionController::eventFilter(QObject * object, QEvent * event) {
+	auto widget = d_widget;
+	d_widget = nullptr;
+	if ( event->type() == QEvent::Close ) {
+		d_action->setChecked(false);
+	}
+	if ( event->type() == QEvent::Show ) {
+		d_action->setChecked(true);
+	}
+	d_widget = widget;
+	return false;
+}
+
+
 static void myLog(QtMsgType type, const QMessageLogContext &, const QString & msg) {
 	myLogger->logMessage(type,msg);
 }
+
+
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -54,6 +115,8 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment);
 	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->userData->setup(d_experiment->antMetadata());
+
 	d_ui->shappingWidget->setEnabled(false);
 	connect(d_ui->workspaceSelector,
 	        &QTabWidget::currentChanged,
@@ -75,7 +138,10 @@ MainWindow::MainWindow(QWidget *parent)
 		        setWindowTitle(tr("FORmicidae Tracker Studio - %1").arg(d_experiment->absoluteFilePath().c_str()));
 	        });
 
-    loadSettings();
+	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
+
+	loadSettings();
+
 }
 
 MainWindow::~MainWindow() {
