@@ -24,6 +24,7 @@ public :
 	QAbstractItemModel * columnModel();
 	QAbstractItemModel * dataModel();
 	QAbstractItemModel * typeModel();
+	QAbstractItemModel * timedChangeModel();
 
 signals:
 	void metadataColumnChanged(const QString & name, quint32 type);
@@ -34,6 +35,8 @@ public slots:
 	void removeMetadataColumn(const QString & name);
 
 	void onAntListModified();
+
+	void selectRow(int row);
 
 private slots:
 	void onColumnItemChanged(QStandardItem * item);
@@ -56,4 +59,5 @@ private:
 	QStandardItemModel * d_columnModel;
 	QStandardItemModel * d_typeModel;
 	QStandardItemModel * d_dataModel;
+	QStandardItemModel * d_timedChangeModel;
 };

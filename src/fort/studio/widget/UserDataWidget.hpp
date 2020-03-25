@@ -16,6 +16,9 @@ public:
 
 	void setup(AntMetadataBridge * metadata);
 
+private slots:
+	void on_tableView_activated(const QModelIndex & index);
+
 private:
 	Ui::UserDataWidget * d_ui;
 	AntMetadataBridge  * d_metadata;

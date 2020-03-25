@@ -21,5 +21,9 @@ void UserDataWidget::setup(AntMetadataBridge * metadata) {
 
 	d_ui->tableView->setModel(metadata->dataModel());
 	d_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+}
 
+
+void UserDataWidget::on_tableView_activated(const QModelIndex & index) {
+	d_metadata->selectRow(index.row());
 }

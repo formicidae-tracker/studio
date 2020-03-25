@@ -2,6 +2,7 @@
 
 #include <QStandardItemModel>
 #include <QDebug>
+#include <QSignalBlocker>
 
 #include <fort/myrmidon/priv/Experiment.hpp>
 #include <fort/myrmidon/priv/Identifier.hpp>
@@ -12,7 +13,8 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	: Bridge(parent)
 	, d_columnModel(new QStandardItemModel(this))
 	, d_typeModel(new QStandardItemModel(this))
-	, d_dataModel(new QStandardItemModel(this)) {
+	, d_dataModel(new QStandardItemModel(this))
+	, d_timedChangeModel(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::AntMetadata::Column::Ptr>();
 
 	connect(d_columnModel,
@@ -99,6 +101,11 @@ QAbstractItemModel * AntMetadataBridge::dataModel() {
 QAbstractItemModel * AntMetadataBridge::typeModel() {
 	return d_typeModel;
 }
+
+QAbstractItemModel * AntMetadataBridge::timedChangeModel() {
+	return d_timedChangeModel;
+}
+
 
 void AntMetadataBridge::addMetadataColumn(const QString & name, quint32 type) {
 	if ( !d_experiment ) {
@@ -327,31 +334,25 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 	if ( !ant == true || !col == true ) {
 		return;
 	}
-
+	QSignalBlocker blocker(this);
 	if ( item->text().isEmpty() == true ) {
-		auto map = ant->DataMap();
 		try {
-			auto & values = map.at(col->Name());
-			auto fi = std::find_if(values.begin(),
-			                       values.end(),
-			                       [] ( const fmp::AntTimedValue & v ) { return !v.first; });
-			if ( fi == values.end() ) {
-				return;
-			}
-			values.erase(fi);
-			ant->SetValues(map);
-
+			qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Ant::DeleteValue('"
+			         << ToQString(col->Name()) << "',0)";
+			ant->DeleteValue(col->Name(),fm::Time::ConstPtr());
 			setModified(true);
 		} catch ( const std::exception & e ) {
 			qWarning() << "Could not set " << ToQString(fmp::Ant::FormatID(ant->ID()))
 			           << " column '" << ToQString(col->Name())
 			           << "' to default value: " << e.what();
 		}
+		qInfo() << "Deleted base value for ant " << ToQString(fmp::Ant::FormatID(ant->ID()));
 		setupItemFromValue(item,ant,col);
 		return;
 	}
 
 	try {
+
 		auto v = fmp::AntMetadata::FromString(col->MetadataType(),ToStdString(item->text()));
 		try {
 			auto actual = ant->GetBaseValue(col->Name());
@@ -360,7 +361,9 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 			}
 		} catch ( const std::exception & e) {
 		}
-
+		qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Ant::SetValue('"
+		         << ToQString(col->Name()) << "',"
+		         << item->text() << ",0)";
 		ant->SetValue(col->Name(),v,fm::Time::ConstPtr());
 
 		setModified(true);
@@ -371,4 +374,10 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 		            << "': " << e.what();
 	}
 	setupItemFromValue(item,ant,col);
+	qInfo() << "Set base value for Ant " << ToQString(fmp::Ant::FormatID(ant->ID()))
+	        << " '" << ToQString(col->Name()) << "' to " << item->text();
+}
+
+
+void AntMetadataBridge::selectRow(int row) {
 }
