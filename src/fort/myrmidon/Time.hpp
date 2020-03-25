@@ -298,6 +298,8 @@ public:
 	// <this> and <t>. It could be negative.
 	Duration Sub(const Time & t) const;
 
+	int64_t WallSeconds() const;
+	int32_t WallNanos() const;
 
 	// The <MonoclockID> reserved for the current system
 	// `CLOCK_MONOTONIC`.
@@ -345,6 +347,10 @@ public:
 	// Helpers to convert (sec,nsec) to nsec. Throws <Overflow> on
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
+
+	bool operator == (const Time & other ) const  {
+		return Equals(other);
+	}
 
 	class Comparator {
 	public:
@@ -405,3 +411,6 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time::ConstPtr & t );
+
+bool operator== (const fort::myrmidon::Time & a,
+                 const fort::myrmidon::Time & b);

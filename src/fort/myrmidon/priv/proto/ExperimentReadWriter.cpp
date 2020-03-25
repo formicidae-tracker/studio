@@ -34,11 +34,11 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 	                 },
 	                 [&measurements,&res,filename](const pb::FileLine & line) {
 		                 if (line.has_experiment() == true ) {
-			                 IOUtils::LoadExperiment(*res, line.experiment());
+			                 IOUtils::LoadExperiment(res, line.experiment());
 		                 }
 
-		                 if (line.has_antdata() == true ) {
-			                 IOUtils::LoadAnt(*res, line.antdata());
+		                 if (line.has_antdescription() == true ) {
+			                 IOUtils::LoadAnt(res, line.antdescription());
 		                 }
 
 		                 if (line.has_measurement() == true ) {
@@ -46,7 +46,7 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 		                 }
 
 		                 if (line.has_space() == true ) {
-			                 IOUtils::LoadSpace(*res,line.space());
+			                 IOUtils::LoadSpace(res,line.space());
 		                 }
 	                 });
 	for ( const auto & m : measurements ) {
@@ -86,7 +86,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 
 	for (const auto & ID : antIDs) {
 		lines.push_back([&experiment,ID](pb::FileLine & line) {
-			                IOUtils::SaveAnt(line.mutable_antdata(),
+			                IOUtils::SaveAnt(line.mutable_antdescription(),
 			                                 experiment.ConstIdentifier().Ants().find(ID)->second);
 		                });
 	}

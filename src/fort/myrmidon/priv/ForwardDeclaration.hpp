@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include "DenseMap.hpp"
+#include "ContiguousIDContainer.hpp"
 
 #include <fort/myrmidon/Ant.hpp>
 
@@ -98,8 +99,11 @@ typedef uint32_t MeasurementTypeID;
 typedef DenseMap<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
 
 typedef uint32_t AntShapeTypeID;
-typedef DenseMap<AntShapeTypeID,AntShapeTypePtr> AntShapeTypeByID;
+typedef DenseMap<AntShapeTypeID,AntShapeTypePtr>                    AntShapeTypeByID;
 
+FORT_MYRMIDON_FDECLARE_CLASS(AntShapeTypeContainer)
+
+FORT_MYRMIDON_FDECLARE_CLASS(AntMetadata)
 
 } // namespace priv
 

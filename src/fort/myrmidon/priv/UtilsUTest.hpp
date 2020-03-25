@@ -5,7 +5,7 @@
 #include "Circle.hpp"
 #include "Capsule.hpp"
 #include "Polygon.hpp"
-
+#include "Types.hpp"
 
 ::testing::AssertionResult PolygonEqual(const fort::myrmidon::priv::Polygon::ConstPtr &a,
                                         const fort::myrmidon::priv::Polygon::ConstPtr &b);
@@ -21,3 +21,6 @@
 
 ::testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr &a,
                                       const fort::myrmidon::priv::Shape::ConstPtr &b);
+
+::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::priv::AntStaticValue &a,
+                                               const fort::myrmidon::priv::AntStaticValue &b);

@@ -153,7 +153,7 @@ void SelectedAntBridge::addCapsule(fmp::AntShapeTypeID typeID,const fmp::Capsule
 		         << "," << typeID
 		         << "," << ToQString(*capsule)
 		         << ")";
-		d_experiment->AddCapsuleToAnt(d_ant,typeID,capsule);
+		d_ant->AddCapsule(typeID,capsule);
 	} catch (const std::exception & e ) {
 		qCritical() << "Could not add Capsule of type " << typeID
 		            << " to Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))

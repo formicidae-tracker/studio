@@ -13,6 +13,7 @@ set(SRC_FILES Format.cpp
 			  bridge/ExperimentBridge.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
 			  bridge/AntShapeTypeBridge.cpp
+			  bridge/AntMetadataBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
@@ -37,7 +38,8 @@ set(SRC_FILES Format.cpp
 			  widget/AntEditorWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
-			  # QLongSpinBox.cpp
+			  widget/AntMetadataWidget.cpp
+			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
 			  )
 
@@ -54,6 +56,7 @@ set(HDR_FILES Format.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
 			  bridge/AntShapeTypeBridge.hpp
+			  bridge/AntMetadataBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
@@ -78,6 +81,8 @@ set(HDR_FILES Format.hpp
 			  widget/AntEditorWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
+			  widget/AntMetadataWidget.hpp
+			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
 			  )
 
@@ -96,6 +101,8 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
+             widget/AntMetadataWidget.ui
+             widget/UserDataWidget.ui
 			 )
 
 set(RCC_FILES )
@@ -108,6 +115,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/MeasurementUTest.cpp
                     utest/IdentifierUTest.cpp
                     utest/AntShapeTypeUTest.cpp
+                    utest/AntMetadataUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -116,6 +124,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/MeasurementUTest.hpp
                     utest/IdentifierUTest.hpp
                     utest/AntShapeTypeUTest.hpp
+                    utest/AntMetadataUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

@@ -12,6 +12,13 @@ inline std::string ToString(const T & t) {
 	return os.str();
 }
 
+template <>
+inline std::string ToString<bool>(const bool & t) {
+	std::ostringstream os;
+	os << std::boolalpha << t;
+	return os.str();
+}
+
 template <class T>
 std::string ToString(const std::shared_ptr<T> & ptr) {
 	return ToString(*ptr);

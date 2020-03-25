@@ -65,6 +65,8 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 		 controller->globalProperties(),
 		 controller->selectedAnt(),
 		 controller->selectedIdentification(),
+		 controller->antShapeTypes(),
+		 controller->antMetadata(),
 		};
 	size_t expected = 2;
 	for ( const auto & b : childs ) {

@@ -101,6 +101,22 @@ else(USE_CXX17_FS_LIBRARY)
 	set(MYRMIDON_USE_BOOST_FILESYSTEM 1)
 endif(USE_CXX17_FS_LIBRARY)
 
+
+check_cxx_source_compiles("#include <variant>
+
+int main() {
+	std::variant<int, double> v, w;
+	v = 0;
+	w = 12.0;
+	return std::get<int>(v);
+}
+"
+	HAS_STD_VARIANT)
+if ( NOT HAS_STD_VARIANT )
+	message(FATAL_ERROR "fort-myrmidon needs std::variant support: ${HAS_STD_VARIANT}")
+endif ( NOT HAS_STD_VARIANT )
+
+
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	include(CodeCoverage)
 

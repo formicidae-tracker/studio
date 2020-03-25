@@ -9,6 +9,7 @@
 #include "SelectedIdentificationBridge.hpp"
 #include "IdentifiedFrameConcurrentLoader.hpp"
 #include "AntShapeTypeBridge.hpp"
+#include "AntMetadataBridge.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -42,6 +43,7 @@ public:
 
 	AntShapeTypeBridge * antShapeTypes() const;
 
+	AntMetadataBridge * antMetadata() const;
 public slots:
 
 	bool save();
@@ -62,4 +64,5 @@ private:
 	GlobalPropertyBridge            * d_globalProperties;
 	IdentifiedFrameConcurrentLoader * d_identifiedFrameLoader;
 	AntShapeTypeBridge              * d_antShapeTypes;
+	AntMetadataBridge               * d_antMetadata;
 };

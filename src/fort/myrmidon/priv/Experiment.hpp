@@ -11,6 +11,7 @@
 
 #include "Space.hpp"
 #include "FrameReference.hpp"
+#include "AntMetadata.hpp"
 
 #include "ForwardDeclaration.hpp"
 #include "LocatableTypes.hpp"
@@ -119,17 +120,20 @@ public :
 
 	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
+
+	AntPtr CreateAnt(fort::myrmidon::Ant::ID aID = 0);
+
 	// Accessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
-	inline fort::myrmidon::priv::Identifier &  Identifier() {
-		return *d_identifier;
+	inline fort::myrmidon::priv::IdentifierPtr &  Identifier() {
+		return d_identifier;
 	}
 
 	// ConstAccessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
-	const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
+	inline const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
 		return *d_identifier;
 	}
 
@@ -232,10 +236,15 @@ public :
 
 	const AntShapeTypeByID & AntShapeTypes() const;
 
+	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
-	void AddCapsuleToAnt(const AntPtr & ant,
-	                     AntShapeTypeID typeID,
-	                     const CapsulePtr & capsule);
+
+	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+
+	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
+
+	void DeleteAntMetadataColumn(const std::string & name);
+
 
 	// Computes all Measurement of a type for an Ant
 	//
@@ -270,7 +279,7 @@ private:
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
 	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
-	typedef AlmostContiguousIDContainer<AntShapeTypeID,AntShapeTypePtr>       AntShapeTypeContainer;
+
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
@@ -284,6 +293,7 @@ private:
 	Space::Universe::Ptr d_universe;
 	IdentifierPtr        d_identifier;
 
+
 	std::string        d_name;
 	std::string        d_author;
 	std::string        d_comment;
@@ -294,7 +304,9 @@ private:
 	MeasurementByTagCloseUp  d_measurementByURI;
 	SortedMeasurement        d_measurements;
 	MeasurementTypeContainer d_measurementTypes;
-	AntShapeTypeContainer    d_antShapeTypes;
+
+	AntShapeTypeContainerPtr d_antShapeTypes;
+	AntMetadataPtr           d_antMetadata;
 };
 
 } //namespace priv

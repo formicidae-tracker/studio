@@ -270,7 +270,6 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 	std::ofstream txtTouch( (basedir / "foo.txt").c_str() );
 }
 
-
 namespace fm=fort::myrmidon;
 
 // Called before any test activity starts.
@@ -383,14 +382,14 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	l.release_space();
 
 	for (size_t i = 1; i <=3; ++i) {
-		fort::myrmidon::pb::AntMetadata a;
+		fort::myrmidon::pb::AntDescription a;
 		a.set_id(i);
 		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::Palette::Default().At(0));
-		l.set_allocated_antdata(&a);
+		l.set_allocated_antdescription(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant data " + std::to_string(i));
 		}
-		l.release_antdata();
+		l.release_antdescription();
 	}
 
 

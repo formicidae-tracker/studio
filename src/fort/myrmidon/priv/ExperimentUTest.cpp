@@ -7,12 +7,22 @@
 #include <fort/myrmidon/priv/Identifier.hpp>
 #include <fort/myrmidon/priv/Space.hpp>
 #include <fort/myrmidon/priv/Measurement.hpp>
+#include <fort/myrmidon/priv/AntShapeType.hpp>
 #include <fort/myrmidon/UtilsUTest.hpp>
 #include <fstream>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
+
+void ExperimentUTest::SetUp() {
+	e = Experiment::Create(TestSetup::Basedir() / "experiment-utest.myrmidon");
+}
+
+void ExperimentUTest::TearDown() {
+	e.reset();
+}
+
 
 typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
 
@@ -26,7 +36,7 @@ void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 
 TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
-		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
+		e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
 
 		ASSERT_FALSE(e->Spaces().empty());
@@ -47,7 +57,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 
 TEST_F(ExperimentUTest,IOTest) {
 	try{
-		auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
+		e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon" );
 		ASSERT_FALSE(e->Spaces().empty());
 		auto tdd = e->Spaces().begin()->second->TrackingDataDirectories();
 		ASSERT_EQ(tdd.size(),1);
@@ -102,7 +112,6 @@ void ListAllMeasurements(const Experiment::MeasurementByTagCloseUp & measurement
 }
 
 TEST_F(ExperimentUTest,MeasurementEndToEnd) {
-	ExperimentPtr e;
 	TrackingDataDirectory::ConstPtr foo0,foo1;
 	Space::Ptr s;
 	ASSERT_NO_THROW({
@@ -201,17 +210,19 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	EXPECT_TRUE(listContains(goodDefault));
 	EXPECT_FALSE(listContains(defaultWithBadPath));
 
-	auto antBefore = e->Identifier().CreateAnt(0);
-	auto identBefore1 = e->Identifier().AddIdentification(antBefore->ID(),
-	                                                      1,
-	                                                      Time::ConstPtr(),
-	                                                      std::make_shared<Time>(foo0->EndDate()));
+	auto antBefore = e->CreateAnt();
+	auto identBefore1 = Identifier::AddIdentification(e->Identifier(),
+	                                                  antBefore->ID(),
+	                                                  1,
+	                                                  Time::ConstPtr(),
+	                                                  std::make_shared<Time>(foo0->EndDate()));
 	identBefore1->SetTagSize(2.0);
 
-	auto identBefore2 = e->Identifier().AddIdentification(antBefore->ID(),
-	                                                      0,
-	                                                      std::make_shared<Time>(foo1->StartDate()),
-	                                                      Time::ConstPtr());
+	auto identBefore2 = Identifier::AddIdentification(e->Identifier(),
+	                                                  antBefore->ID(),
+	                                                  0,
+	                                                  std::make_shared<Time>(foo1->StartDate()),
+	                                                  Time::ConstPtr());
 	identBefore2->SetTagSize(2.0);
 
 
@@ -262,16 +273,18 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	}
 
 	//Now we add a super Ant
-	auto antAfter = e->Identifier().CreateAnt(0);
-	auto identAfter1 = e->Identifier().AddIdentification(antAfter->ID(),
-	                                                     0,
-	                                                     Time::ConstPtr(),
-	                                                     std::make_shared<Time>(foo0->EndDate()));
+	auto antAfter = e->CreateAnt();
+	auto identAfter1 = Identifier::AddIdentification(e->Identifier(),
+	                                                 antAfter->ID(),
+	                                                 0,
+	                                                 Time::ConstPtr(),
+	                                                 std::make_shared<Time>(foo0->EndDate()));
 
-	auto identAfter2 = e->Identifier().AddIdentification(antAfter->ID(),
-	                                                     1,
-	                                                     std::make_shared<Time>(foo1->StartDate()),
-	                                                     Time::ConstPtr());
+	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
+	                                                 antAfter->ID(),
+	                                                 1,
+	                                                 std::make_shared<Time>(foo1->StartDate()),
+	                                                 Time::ConstPtr());
 	e->SetFamily(tags::Family::Tag36ARTag);
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
@@ -307,11 +320,12 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		},Container::UnmanagedObject);
 
 
-	auto antLast = e->Identifier().CreateAnt();
-	e->Identifier().AddIdentification(antLast->ID(),
-	                                  22,
-	                                  Time::ConstPtr(),
-	                                  Time::ConstPtr());
+	auto antLast = e->CreateAnt();
+	Identifier::AddIdentification(e->Identifier(),
+	                              antLast->ID(),
+	                              22,
+	                              Time::ConstPtr(),
+	                              Time::ConstPtr());
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->ID(),
@@ -433,6 +447,38 @@ TEST_F(ExperimentUTest,CornerWidthRatioForFamilies) {
 		},std::invalid_argument);
 
 
+
+}
+
+TEST_F(ExperimentUTest,AntMetadataManipulation) {
+	auto alive = e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+	auto group = e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+	auto ant = e->CreateAnt();
+	ant->SetValue("group",std::string("nurse"),Time::ConstPtr());
+	//should throw because ant has a value
+	EXPECT_THROW(group->SetMetadataType(AntMetadata::Type::Int),std::runtime_error);
+	//OK to change a column without any values
+	EXPECT_NO_THROW(alive->SetMetadataType(AntMetadata::Type::Int));
+	// Adding a column marks adds a default value to all Ant immediatly
+	auto ageInDays = e->AddAntMetadataColumn("age",AntMetadata::Type::Double);
+	EXPECT_NO_THROW({
+			EXPECT_EQ(std::get<double>(ant->GetValue("age",Time())),0.0);
+		});
+	// always possible to change the column name, even if there are existing values
+	EXPECT_NO_THROW({
+			ageInDays->SetName("age-in-days");
+			group->SetName("social-group");
+		});
+	EXPECT_THROW(ant->GetValue("group",Time()),std::out_of_range);
+	EXPECT_THROW(ant->GetValue("age",Time()),std::out_of_range);
+	EXPECT_NO_THROW({
+			EXPECT_EQ(std::get<std::string>(ant->GetValue("social-group",Time())),"nurse");
+			EXPECT_EQ(std::get<double>(ant->GetValue("age-in-days",Time())),0.0);
+		});
+
+	EXPECT_THROW(e->DeleteAntMetadataColumn("social-group"),std::runtime_error);
+	EXPECT_NO_THROW(e->DeleteAntMetadataColumn("age-in-days"));
+	EXPECT_THROW(ant->GetValue("age-in-days",Time()),std::out_of_range);
 
 }
 

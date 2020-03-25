@@ -2,20 +2,18 @@
 
 #include <gtest/gtest.h>
 
-#include <fort/myrmidon/priv/ForwardDeclaration.hpp>
+#include "AntMetadata.hpp"
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class AntUTest : public ::testing::Test {
+class AntMetadataUTest : public ::testing::Test {
 protected:
 	void SetUp();
 	void TearDown();
 
-	AntShapeTypeContainerPtr shapeTypes;
-	AntMetadataPtr           antMetadata;
-	AntPtr                   ant;
+	AntMetadata::Ptr metadata;
 };
 
 } // namespace priv
