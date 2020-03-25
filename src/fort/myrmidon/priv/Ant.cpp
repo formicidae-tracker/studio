@@ -176,6 +176,10 @@ void Ant::DeleteValue(const std::string & name,
 		throw std::out_of_range("No stored values for '" + name + "' at requested time");
 	}
 	vi->second.erase(ti);
+	if ( vi->second.empty() ) {
+		d_data.erase(name);
+	}
+
 	CompileData();
 }
 
@@ -186,7 +190,7 @@ const AntDataMap & Ant::DataMap() const {
 void Ant::CompileData() {
 	std::map<std::string,AntStaticValue> defaults;
 	for ( const auto & [name,column] : d_metadata->Columns() ) {
-		defaults.insert(std::make_pair(name,AntMetadata::DefaultValue(column->MetadataType())));
+		defaults.insert(std::make_pair(name,column->DefaultValue()));
 	}
 	d_compiledData.Clear();
 

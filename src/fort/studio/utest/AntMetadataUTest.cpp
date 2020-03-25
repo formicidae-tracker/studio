@@ -52,37 +52,27 @@ TEST_F(AntMetadataUTest,TypeModel) {
 	          "Bool");
 	EXPECT_EQ(m->index(0,0).data(Qt::UserRole+1).toInt(),
 	          int(fmp::AntMetadata::Type::Bool));
-	EXPECT_EQ(m->index(0,0).data(Qt::UserRole+2).toBool(),
-	          std::get<bool>(fmp::AntMetadata::DefaultValue(fmp::AntMetadata::Type::Bool)));
 
 	EXPECT_EQ(ToStdString(m->index(1,0).data(Qt::DisplayRole).toString()),
 	          "Int");
 	EXPECT_EQ(m->index(1,0).data(Qt::UserRole+1).toInt(),
 	          int(fmp::AntMetadata::Type::Int));
-	EXPECT_EQ(m->index(1,0).data(Qt::UserRole+2).toInt(),
-	          std::get<int>(fmp::AntMetadata::DefaultValue(fmp::AntMetadata::Type::Int)));
 
 	EXPECT_EQ(ToStdString(m->index(2,0).data(Qt::DisplayRole).toString()),
 	          "Double");
 	EXPECT_EQ(m->index(2,0).data(Qt::UserRole+1).toInt(),
 	          int(fmp::AntMetadata::Type::Double));
-	EXPECT_EQ(m->index(2,0).data(Qt::UserRole+2).toDouble(),
-	          std::get<double>(fmp::AntMetadata::DefaultValue(fmp::AntMetadata::Type::Double)));
 
 
 	EXPECT_EQ(ToStdString(m->index(3,0).data(Qt::DisplayRole).toString()),
 	          "String");
 	EXPECT_EQ(m->index(3,0).data(Qt::UserRole+1).toInt(),
 	          int(fmp::AntMetadata::Type::String));
-	EXPECT_EQ(ToStdString(m->index(3,0).data(Qt::UserRole+2).toString()),
-	          std::get<std::string>(fmp::AntMetadata::DefaultValue(fmp::AntMetadata::Type::String)));
 
 	EXPECT_EQ(ToStdString(m->index(4,0).data(Qt::DisplayRole).toString()),
 	          "Time");
 	EXPECT_EQ(m->index(4,0).data(Qt::UserRole+1).toInt(),
 	          int(fmp::AntMetadata::Type::Time));
-	EXPECT_EQ(ToStdString(m->index(4,0).data(Qt::UserRole+2).toString()),
-	          ToStdString(ToQString(std::get<fm::Time>(fmp::AntMetadata::DefaultValue(fmp::AntMetadata::Type::Time)))));
 }
 
 TEST_F(AntMetadataUTest,ModificationTest) {

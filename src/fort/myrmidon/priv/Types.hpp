@@ -64,5 +64,5 @@ struct IdentifiedFrame {
 } // namespace myrmidon
 } // namespace fort
 
-bool operator==(const fort::myrmidon::priv::AntStaticValue & a,
-                const fort::myrmidon::priv::AntStaticValue & b);
+
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::AntStaticValue &);

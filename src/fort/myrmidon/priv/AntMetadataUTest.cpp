@@ -177,6 +177,7 @@ TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 	public:
 		MOCK_METHOD(void,OnNameChange,(const std::string &, const std::string),());
 		MOCK_METHOD(void,OnTypeChange,(const std::string &, AntMetadata::Type, AntMetadata::Type),());
+		MOCK_METHOD(void,OnDefaultChange,(const std::string &, const AntStaticValue &, const AntStaticValue&),());
 	};
 
 	MockAntMetadataCallback callbacks;
@@ -188,18 +189,29 @@ TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 	                                                     AntMetadata::Type oldType,
 	                                                     AntMetadata::Type newType) {
 		                                         callbacks.OnTypeChange(name,oldType,newType);
+	                                         },
+	                                         [&callbacks](const std::string & name,
+	                                                      const AntStaticValue & oldDefault,
+	                                                      const AntStaticValue & newDefault) {
+		                                         callbacks.OnDefaultChange(name,oldDefault,newDefault);
 	                                         });
 
 
 	auto column = AntMetadata::Create(metadata,
 	                                  "foo",
 	                                  AntMetadata::Type::Bool);
+	EXPECT_CALL(callbacks,OnDefaultChange("foo",AntStaticValue(false),AntStaticValue(true))).Times(1);
+	column->SetDefaultValue(true);
+
+
 	EXPECT_CALL(callbacks,OnNameChange("foo","bar")).Times(1);
 	EXPECT_CALL(callbacks,OnTypeChange("bar",AntMetadata::Type::Bool,AntMetadata::Type::Int)).Times(1);
+	EXPECT_CALL(callbacks,OnDefaultChange("bar",AntStaticValue(true),AntStaticValue(0))).Times(1);
 	column->SetName("bar");
 	ASSERT_EQ(column->Name(),"bar");
 	column->SetMetadataType(AntMetadata::Type::Int);
 	ASSERT_EQ(column->MetadataType(),AntMetadata::Type::Int);
+
 
 	auto toDel = AntMetadata::Create(metadata,"foo",AntMetadata::Type::Bool);
 	metadata->Delete("foo");
@@ -215,6 +227,36 @@ TEST_F(AntMetadataUTest,ColumnPropertyCallbacks) {
 	EXPECT_THROW(column->SetName("baz"),DeletedReference<AntMetadata>);
 	EXPECT_THROW(column->SetMetadataType(AntMetadata::Type::Bool),DeletedReference<AntMetadata>);
 	column.reset();
+
+}
+
+TEST_F(AntMetadataUTest,ColumnHaveDefaults) {
+	AntMetadata::Column::Ptr boolCol,intCol,doubleCol,stringCol,timeCol;
+	ASSERT_NO_THROW({
+			boolCol = AntMetadata::Create(metadata,"bool",AntMetadata::Type::Bool);
+			intCol = AntMetadata::Create(metadata,"int",AntMetadata::Type::Int);
+			doubleCol = AntMetadata::Create(metadata,"double",AntMetadata::Type::Double);
+			stringCol = AntMetadata::Create(metadata,"string",AntMetadata::Type::String);
+			timeCol = AntMetadata::Create(metadata,"timeCol",AntMetadata::Type::Time);
+		});
+
+	EXPECT_EQ(boolCol->DefaultValue(),AntStaticValue(false));
+	EXPECT_EQ(intCol->DefaultValue(),AntStaticValue(0));
+	EXPECT_EQ(doubleCol->DefaultValue(),AntStaticValue(0.0));
+	EXPECT_EQ(stringCol->DefaultValue(),AntStaticValue(std::string()));
+	EXPECT_EQ(timeCol->DefaultValue(),AntStaticValue(Time()));
+
+	EXPECT_THROW({
+			boolCol->SetDefaultValue(0.0);
+		},std::bad_variant_access);
+	EXPECT_NO_THROW({
+			boolCol->SetDefaultValue(true);
+		});
+	EXPECT_NO_THROW({
+			boolCol->SetMetadataType(AntMetadata::Type::Time);
+		});
+
+	EXPECT_EQ(boolCol->DefaultValue(),AntStaticValue(Time()));
 
 }
 

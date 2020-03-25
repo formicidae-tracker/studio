@@ -39,13 +39,16 @@ void AntMetadata::Delete(const std::string & name) {
 
 AntMetadata::AntMetadata()
 	: d_onNameChange([](const std::string &, const std::string) {} )
-	, d_onTypeChange([](const std::string &, Type, Type) {} ) {
+	, d_onTypeChange([](const std::string &, Type, Type) {} )
+	, d_onDefaultChange([](const std::string &, const AntStaticValue &, const AntStaticValue &) {} ) {
 }
 
 AntMetadata::AntMetadata(const NameChangeCallback & onNameChange,
-                         const TypeChangeCallback & onTypeChange)
+                         const TypeChangeCallback & onTypeChange,
+                         const DefaultChangeCallback & onDefaultChange )
 	: d_onNameChange(onNameChange)
-	, d_onTypeChange(onTypeChange) {
+	, d_onTypeChange(onTypeChange)
+	, d_onDefaultChange(onDefaultChange) {
 }
 
 const AntMetadata::ColumnByName & AntMetadata::Columns() const {
@@ -163,22 +166,6 @@ AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
 	return converters[idx](value);
 }
 
-AntStaticValue AntMetadata::DefaultValue(Type type) {
-	static std::vector<AntStaticValue> defaults =
-		{
-		 false,
-		 0,
-		 0.0,
-		 std::string(""),
-		 Time(),
-		};
-	size_t idx = size_t(type);
-	if ( idx >= defaults.size() ) {
-		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
-	}
-	return defaults[idx];
-
-}
 
 
 const std::string & AntMetadata::Column::Name() const {
@@ -206,13 +193,36 @@ AntMetadata::Type AntMetadata::Column::MetadataType() const {
 }
 
 void AntMetadata::Column::SetMetadataType(AntMetadata::Type type){
+	if ( type == d_type ) {
+		return;
+	}
 	auto metadata = d_metadata.lock();
 	if ( !metadata ) {
 		throw DeletedReference<AntMetadata>();
 	}
 	metadata->d_onTypeChange(d_name,d_type,type);
+	metadata->d_onDefaultChange(d_name,d_default,AntMetadata::DefaultValue(type));
 
 	d_type = type;
+	d_default = AntMetadata::DefaultValue(type);
+}
+
+AntStaticValue AntMetadata::DefaultValue(Type type) {
+	static std::vector<AntStaticValue> defaults =
+		{
+		 false,
+		 0,
+		 0.0,
+		 std::string(""),
+		 Time(),
+		};
+
+	size_t idx = size_t(type);
+	if ( idx >= defaults.size() ) {
+		throw std::invalid_argument("Unknown AntMetadata::Type value " + std::to_string(idx));
+	}
+
+	return defaults[idx];
 }
 
 AntMetadata::Column::Column(const std::weak_ptr<AntMetadata> & metadata,
@@ -220,8 +230,25 @@ AntMetadata::Column::Column(const std::weak_ptr<AntMetadata> & metadata,
                             AntMetadata::Type type)
 	: d_metadata(metadata)
 	, d_name(name)
-	, d_type(type) {
+	, d_type(type)
+	, d_default(AntMetadata::DefaultValue(type)) {
 }
+
+const AntStaticValue & AntMetadata::Column::DefaultValue() const {
+	return d_default;
+}
+
+void AntMetadata::Column::SetDefaultValue(const AntStaticValue & value) {
+	CheckType(d_type,value);
+	auto metadata = d_metadata.lock();
+	if ( !metadata ) {
+		throw DeletedReference<AntMetadata>();
+	}
+	metadata->d_onDefaultChange(d_name,d_default,value);
+
+	d_default = value;
+}
+
 
 } // namespace priv
 } // namespace myrmidon

@@ -22,6 +22,6 @@ message AntStaticValue {
 };
 
 message AntMetadataColumn {
-	string              name = 1;
-	AntStaticValue.Type type = 2;
+	string              name         = 1;
+	AntStaticValue      defaultvalue = 2;
 };

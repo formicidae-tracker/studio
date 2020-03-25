@@ -55,11 +55,19 @@ Experiment::Experiment(const fs::path & filepath )
 			}
 		};
 
-
+	auto onDefaultChange =
+		[this](const std::string & name,
+		       const AntStaticValue &,
+		       const AntStaticValue &) {
+			for ( const auto & [aID,ant] : d_identifier->Ants() ) {
+				ant->CompileData();
+			}
+		};
 
 
 	d_antMetadata = std::make_shared<AntMetadata>(onNameChange,
-	                                              onTypeChange);
+	                                              onTypeChange,
+	                                              onDefaultChange);
 }
 
 Experiment::Ptr Experiment::Create(const fs::path & filename) {

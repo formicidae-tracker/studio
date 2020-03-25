@@ -46,7 +46,6 @@ private slots:
 private:
 	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Column::Ptr & column);
 	QString findTypeName(fmp::AntMetadata::Type type);
-	QVariant findTypeDefaultValue(fmp::AntMetadata::Type type);
 
 	void setupItemFromValue(QStandardItem * item,
 	                        const fmp::Ant::ConstPtr & ant,

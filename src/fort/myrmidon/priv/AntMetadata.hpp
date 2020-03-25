@@ -45,24 +45,30 @@ public:
 
 		Type MetadataType() const;
 		void SetMetadataType(Type type);
+
+		const AntStaticValue & DefaultValue() const;
+		void SetDefaultValue( const AntStaticValue & value);
+
 	private:
 		std::weak_ptr<AntMetadata> d_metadata;
 		std::string                d_name;
 		Type                       d_type;
+		AntStaticValue             d_default;
 	};
 
 	typedef std::map<std::string,Column::Ptr> ColumnByName;
 
 	typedef std::function<void (const std::string &, const std::string &)> NameChangeCallback;
 	typedef std::function<void (const std::string &, Type, Type)>          TypeChangeCallback;
+	typedef std::function<void (const std::string &,
+	                            const AntStaticValue &,
+	                            const AntStaticValue &)>                   DefaultChangeCallback;
 
 	static AntMetadata::Validity Validate(Type type, const std::string & value);
 
 	static void CheckType(Type type, const AntStaticValue & data);
 
 	static AntStaticValue FromString(Type type, const std::string & name);
-
-	static AntStaticValue DefaultValue(Type type);
 
 	static Column::Ptr Create(const Ptr & itself,
 	                          const std::string & name,
@@ -71,7 +77,8 @@ public:
 	AntMetadata();
 
 	AntMetadata(const NameChangeCallback & onNameChange,
-	            const TypeChangeCallback & onTypeChange);
+	            const TypeChangeCallback & onTypeChange,
+	            const DefaultChangeCallback & onDefaultChange);
 
 	size_t Count(const std::string & name) const;
 
@@ -80,11 +87,14 @@ public:
 	const ColumnByName & Columns() const;
 
 private:
+	static AntStaticValue DefaultValue(Type type);
+
 	void CheckName(const std::string & name) const;
 
-	ColumnByName       d_columns;
-	NameChangeCallback d_onNameChange;
-	TypeChangeCallback d_onTypeChange;
+	ColumnByName          d_columns;
+	NameChangeCallback    d_onNameChange;
+	TypeChangeCallback    d_onTypeChange;
+	DefaultChangeCallback d_onDefaultChange;
 };
 
 } // namespace priv

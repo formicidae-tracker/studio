@@ -386,7 +386,9 @@ void IOUtils::LoadExperiment(const Experiment::Ptr & e,
 	}
 
 	for (const auto & column : pb.antmetadata() ) {
-		e->AddAntMetadataColumn(column.name(),AntMetadata::Type(column.type()));
+		auto defaultValue = LoadAntStaticValue(column.defaultvalue());
+		auto c = e->AddAntMetadataColumn(column.name(),AntMetadata::Type(column.defaultvalue().type()));
+		c->SetDefaultValue(defaultValue);
 	}
 }
 
@@ -417,7 +419,7 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	for ( const auto & [name,column] : e.AntMetadataConstPtr()->Columns() ) {
 		auto cPb = pb->add_antmetadata();
 		cPb->set_name(column->Name());
-		cPb->set_type(pb::AntStaticValue_Type(column->MetadataType()));
+		SaveAntStaticValue(cPb->mutable_defaultvalue(),column->DefaultValue());
 	}
 
 }

@@ -586,11 +586,12 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
 			auto c = expected.add_antmetadata();
 			c->set_name("alive");
-			c->set_type(pb::AntStaticValue_Type_BOOL);
+			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(false));
 			e->AddAntMetadataColumn("group",AntMetadata::Type::String);
 			c = expected.add_antmetadata();
 			c->set_name("group");
-			c->set_type(pb::AntStaticValue_Type_STRING);
+			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(std::string()));
+
 
 		});
 

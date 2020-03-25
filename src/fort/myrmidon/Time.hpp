@@ -348,6 +348,10 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
+	bool operator == (const Time & other ) const  {
+		return Equals(other);
+	}
+
 	class Comparator {
 	public:
 		bool operator()(const Time & a, const Time & b) const {
