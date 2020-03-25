@@ -103,7 +103,8 @@ public:
 
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
-	              const Time::ConstPtr & time);
+	              const Time::ConstPtr & time,
+	              bool noOverwrite = false);
 
 	void SetValues(const AntDataMap & map);
 

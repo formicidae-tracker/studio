@@ -17,7 +17,12 @@ public:
 	void setup(AntMetadataBridge * metadata);
 
 private slots:
-	void on_tableView_activated(const QModelIndex & index);
+	void on_dataView_activated(const QModelIndex & index);
+	void onAddButtonClicked();
+	void onRemoveButtonClicked();
+
+	void onSelectedAntID(quint32 ID);
+
 
 private:
 	Ui::UserDataWidget * d_ui;

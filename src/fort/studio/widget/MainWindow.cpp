@@ -47,7 +47,10 @@ VisibilityActionController::~VisibilityActionController() {
 	if ( d_action == nullptr || d_widget == nullptr ) {
 		return;
 	}
-	d_widget->removeEventFilter(this);
+	// there are no clear order of deletion when child object are
+	// destroyed, so d_widget could be invalid. so no remobing it to
+	// avoid spurious segfault on exit.
+	// d_widget->removeEventFilter(this);
 }
 
 void VisibilityActionController::onActionToggled(bool checked) {

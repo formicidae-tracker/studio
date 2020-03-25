@@ -132,7 +132,8 @@ bool Ant::CompareTime(const AntTimedValue & a, const AntTimedValue &b) {
 
 void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
-                   const Time::ConstPtr & time) {
+                   const Time::ConstPtr & time,
+                   bool noOverwrite) {
 	auto fi = d_metadata->Columns().find(name);
 	if ( fi == d_metadata->Columns().end() ) {
 		throw std::invalid_argument("Unknown value key '" + name + "'");
@@ -145,6 +146,9 @@ void Ant::SetValue(const std::string & name,
 	}
 	auto ti = Find(vi,time);
 	if ( ti != vi->second.end() ) {
+		if ( noOverwrite == true ) {
+			throw std::runtime_error("Will overwrite value");
+		}
 		ti->second = value;
 	} else {
 		vi->second.push_back(std::make_pair(time,value));
