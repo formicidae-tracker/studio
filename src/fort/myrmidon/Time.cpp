@@ -368,12 +368,8 @@ std::string Time::DebugString() const {
 	return os.str();
 }
 
-int64_t Time::WallSeconds() const {
-	return d_wallSec;
-}
-
-int32_t Time::WallNanos() const {
-	return d_wallNsec;
+Time::SortableKey Time::SortKey(const Time::ConstPtr & timePtr ) {
+	return !timePtr ? std::make_pair(std::numeric_limits<int64_t>::min(),std::numeric_limits<int32_t>::min()) : timePtr->SortKey();
 }
 
 

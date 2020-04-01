@@ -84,10 +84,6 @@ public:
 	static Duration Parse(const std::string & string);
 
 
-	bool operator==(const Duration & other) const {
-		return d_nanoseconds == other.d_nanoseconds;
-	}
-
 	// An Hour
 	const static Duration Hour;
 	// A Minute
@@ -118,6 +114,25 @@ public:
 		return -d_nanoseconds;
 	}
 
+	inline bool operator<( const Duration & other ) const {
+		return d_nanoseconds < other.d_nanoseconds;
+	}
+
+	inline bool operator<=( const Duration & other ) const {
+		return d_nanoseconds <= other.d_nanoseconds;
+	}
+
+	inline bool operator>( const Duration & other ) const {
+		return d_nanoseconds > other.d_nanoseconds;
+	}
+
+	inline bool operator>=( const Duration & other ) const {
+		return d_nanoseconds >= other.d_nanoseconds;
+	}
+
+	inline bool operator==( const Duration & other ) const {
+		return d_nanoseconds == other.d_nanoseconds;
+	}
 
 
 private:
@@ -165,8 +180,9 @@ private:
 // Every time are considered UTC.
 class Time {
 public:
-	typedef std::shared_ptr<Time> Ptr;
+	typedef std::shared_ptr<Time>       Ptr;
 	typedef std::shared_ptr<const Time> ConstPtr;
+	typedef std::pair<int64_t,int32_t>  SortableKey;
 
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
@@ -298,19 +314,9 @@ public:
 	// <this> and <t>. It could be negative.
 	Duration Sub(const Time & t) const;
 
-	int64_t WallSeconds() const;
-	int32_t WallNanos() const;
-
 	// The <MonoclockID> reserved for the current system
 	// `CLOCK_MONOTONIC`.
 	const static MonoclockID SYSTEM_MONOTONIC_CLOCK = 0;
-
-	// Number of nanoseconds in a second.
-	const static uint64_t NANOS_PER_SECOND = 1000000000ULL;
-	// Number of nanoseconds in a millisecond.
-	const static uint64_t NANOS_PER_MILLISECOND = 1000000ULL;
-	// Number of nanoseconds in a microsecond.
-	const static uint64_t NANOS_PER_MICROSECOND = 1000ULL;
 
 	// Reports the presence of a monotonic time value
 	// @true if <this> contains a monotonic clock value.
@@ -328,7 +334,6 @@ public:
 	// this <Time> has no monotonic clock value (see <HasMono>).
 	MonoclockID MonoID() const;
 
-
 	// Returns the monotonic value.
 	// @return the monotonic clock value.
 	//
@@ -337,7 +342,6 @@ public:
 	uint64_t MonotonicValue() const;
 
 	std::string DebugString() const;
-
 
 	// Helpers to convert (sec,nsec) to nsec
 	// @sec the amount of second
@@ -348,9 +352,31 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
-	bool operator == (const Time & other ) const  {
+	inline bool operator == (const Time & other ) const  {
 		return Equals(other);
 	}
+
+	inline bool operator < (const Time & other ) const  {
+		return Before(other);
+	}
+
+	inline bool operator <= (const Time & other ) const  {
+		return !other.Before(*this);
+	}
+
+	inline bool operator > (const Time & other ) const  {
+		return other.Before(*this);
+	}
+
+	inline bool operator >= (const Time & other ) const  {
+		return !Before(other);
+	}
+
+	inline SortableKey SortKey() const {
+		return std::make_pair(d_wallSec,d_wallNsec);
+	}
+
+	static SortableKey SortKey(const ConstPtr & timePtr);
 
 	class Comparator {
 	public:
@@ -360,6 +386,14 @@ public:
 	};
 
 private:
+
+	// Number of nanoseconds in a second.
+	const static uint64_t NANOS_PER_SECOND = 1000000000ULL;
+	// Number of nanoseconds in a millisecond.
+	const static uint64_t NANOS_PER_MILLISECOND = 1000000ULL;
+	// Number of nanoseconds in a microsecond.
+	const static uint64_t NANOS_PER_MICROSECOND = 1000ULL;
+
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
 

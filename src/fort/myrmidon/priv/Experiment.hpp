@@ -229,6 +229,17 @@ public :
 		double LengthMM;
 	};
 
+	// Computes all Measurement of a type for an Ant
+	//
+	// @result a vector that will be filled with the corresponding
+	//         <ComputedMeasurement>
+	// @AID the desired <Ant> designated by its <Ant::ID>
+	// @type the type of measurement we are looking for.
+	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+	                               myrmidon::Ant::ID AID,
+	                               MeasurementTypeID type) const;
+
+
 	AntShapeTypePtr CreateAntShapeType(const std::string & name,
 	                                   AntShapeTypeID TypeID = NEXT_AVAILABLE_ANT_SHAPE_TYPE_ID);
 
@@ -246,15 +257,6 @@ public :
 	void DeleteAntMetadataColumn(const std::string & name);
 
 
-	// Computes all Measurement of a type for an Ant
-	//
-	// @result a vector that will be filled with the corresponding
-	//         <ComputedMeasurement>
-	// @AID the desired <Ant> designated by its <Ant::ID>
-	// @type the type of measurement we are looking for.
-	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
-	                               myrmidon::Ant::ID AID,
-	                               MeasurementTypeID type) const;
 
 	// Computes the conventional ratio beween corner size and
 	// nominated tag file.
