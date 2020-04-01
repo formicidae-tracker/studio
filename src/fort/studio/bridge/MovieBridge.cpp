@@ -29,7 +29,7 @@ bool MovieBridge::isActive() const {
 	return !d_experiment == false;
 }
 
-const QAbstractItemModel * MovieBridge::movieModel() {
+QAbstractItemModel * MovieBridge::movieModel() {
 	return d_model;
 }
 
@@ -73,7 +73,7 @@ QList<QStandardItem*> MovieBridge::buildSpace(const fmp::SpaceConstPtr & space) 
 	const auto & tdds = space->TrackingDataDirectories();
 
 	if ( tdds.empty() == true ) {
-		return {nameItem};
+		return {nameItem,nullptr,nullptr};
 	}
 
 	auto startItem = new QStandardItem(ToQString(tdds.front()->StartDate()));
@@ -121,6 +121,8 @@ QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentCons
 	auto endItem = new QStandardItem(ToQString(end));
 	endItem->setEditable(false);
 	endItem->setData(ptrData,PtrRole);
+
+
 
 	return {nameItem,startItem,endItem};
 }

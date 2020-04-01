@@ -42,6 +42,7 @@ set(SRC_FILES Format.cpp
 			  widget/AntMetadataWidget.cpp
 			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
+			  widget/VisualizationWidget.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -86,6 +87,7 @@ set(HDR_FILES Format.hpp
 			  widget/AntMetadataWidget.hpp
 			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
+			  widget/VisualizationWidget.hpp
 			  )
 
 
@@ -105,6 +107,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
              widget/UserDataWidget.ui
+             widget/VisualizationWidget.ui
 			 )
 
 set(RCC_FILES )

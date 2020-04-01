@@ -19,7 +19,7 @@ public :
 
 	bool isActive() const override;
 
-	const QAbstractItemModel * movieModel();
+	QAbstractItemModel * movieModel();
 
 	fmp::MovieSegmentConstPtr movieSegment(const QModelIndex & index) const;
 
