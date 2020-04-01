@@ -11,6 +11,7 @@
 #include <fort/myrmidon/priv/Measurement.hpp>
 #include <fort/myrmidon/priv/Color.hpp>
 #include <fort/myrmidon/priv/AntMetadata.hpp>
+#include <fort/myrmidon/priv/MovieSegment.hpp>
 
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
@@ -30,3 +31,4 @@ Q_DECLARE_METATYPE(fm::Time::ConstPtr)
 Q_DECLARE_METATYPE(fmp::TagCloseUp::ConstPtr)
 Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
 Q_DECLARE_METATYPE(fmp::AntMetadata::Column::Ptr)
+Q_DECLARE_METATYPE(fmp::MovieSegment::ConstPtr)
