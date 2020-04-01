@@ -323,6 +323,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	LoadMovieSegments(moviesPaths,URI.generic_string(),movies);
 	for(const auto & m : movies) {
 		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI.generic_string(),0,Time())));
+		referenceCache->insert(std::make_pair(m->EndFrame(),FrameReference(URI.generic_string(),0,Time())));
 	}
 
 	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
