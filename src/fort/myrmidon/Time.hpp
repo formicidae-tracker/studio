@@ -98,19 +98,19 @@ public:
 	const static Duration Nanosecond;
 
 	// The addition operator
-	inline Duration operator+(const Duration & other) {
+	inline Duration operator+(const Duration & other) const {
 		return d_nanoseconds + other.d_nanoseconds;
 	}
 
-	inline Duration operator*(const fort::myrmidon::Duration & other) {
+	inline Duration operator*(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds * other.d_nanoseconds;
 	}
 
-	inline Duration operator-(const fort::myrmidon::Duration & other) {
+	inline Duration operator-(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds - other.d_nanoseconds;
 	}
 
-	inline Duration operator-() {
+	inline Duration operator-() const {
 		return -d_nanoseconds;
 	}
 
@@ -136,6 +136,7 @@ public:
 
 
 private:
+	friend class Time;
 	int64_t d_nanoseconds;
 };
 
@@ -293,6 +294,8 @@ public:
 	// @return a new <Time> distant by <d> from this <Time>
 	Time Add(const Duration & d) const;
 
+	Time Round(const Duration & d) const;
+
 	// Reports if this time is after t
 	// @t the <Time> to test against
 	// @return `true` if this <Time> is strictly after <t>
@@ -396,6 +399,7 @@ private:
 
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
+	Duration Reminder(const Duration & d) const;
 
 	const static uint32_t HAS_MONO_BIT = 0x80000000ULL;
 	int64_t     d_wallSec;
@@ -445,6 +449,3 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time::ConstPtr & t );
-
-bool operator== (const fort::myrmidon::Time & a,
-                 const fort::myrmidon::Time & b);

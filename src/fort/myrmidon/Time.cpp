@@ -288,6 +288,58 @@ Time Time::Add(const Duration & d) const{
 	return Time(d_wallSec + seconds, d_wallNsec + nanos ,mono,d_monoID);
 }
 
+
+
+
+Time Time::Round(const Duration & d) const {
+	auto res = * this;
+	res.d_mono = 0;
+	// strip mono data
+	if (d.d_nanoseconds < 0 ) {
+		return res;
+	}
+
+	auto r = Reminder(d);
+	if ( uint64_t(r.d_nanoseconds) + uint64_t(r.d_nanoseconds) < int64_t(d.d_nanoseconds) ) {
+		return res.Add(-r);
+	}
+	return res.Add(d-r);
+}
+
+bool IsPowerOf10(int64_t value) {
+	while( value > 9 && value % 10 == 0) {
+		value /= 10;
+	}
+	return value == 1;
+}
+
+
+Duration Time::Reminder(const Duration & d) const {
+	int64_t sec = d_wallSec;
+	int64_t nsec = d_wallNsec;
+	if ( sec < 0 ) {
+		sec = -sec;
+		nsec = -nsec;
+		if ( nsec < 0 ) {
+			nsec += NANOS_PER_SECOND;
+			sec--;
+		}
+	}
+
+	if ( d.d_nanoseconds % NANOS_PER_SECOND == 0) {
+		int64_t dSec = d.d_nanoseconds / NANOS_PER_SECOND;
+		return (sec % dSec) * NANOS_PER_SECOND + nsec;
+	}
+
+	// tests if we are a power of 10 of a nanoseconds and less than a second
+	if ( d.d_nanoseconds < NANOS_PER_SECOND && IsPowerOf10(d.d_nanoseconds) == true ) {
+		return nsec % d.d_nanoseconds;
+	}
+
+	throw std::runtime_error("This implementation only supports Duration that are multiple of a second or power of 10 of a nanosecond");
+}
+
+
 bool Time::After(const Time & t) const {
 	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
 		return d_mono > t.d_mono;
@@ -440,9 +492,4 @@ std::ostream & operator<<(std::ostream & out, const fort::myrmidon::Time::ConstP
 		return out << "+-∞";
 	}
 	return out << *t;
-}
-
-bool operator== (const fort::myrmidon::Time & a,
-                 const fort::myrmidon::Time & b) {
-	return a.Equals(b);
 }
