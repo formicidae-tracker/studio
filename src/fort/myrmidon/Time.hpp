@@ -102,34 +102,42 @@ public:
 		return d_nanoseconds + other.d_nanoseconds;
 	}
 
+	// Multiplication operator
 	inline Duration operator*(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds * other.d_nanoseconds;
 	}
 
+	// Soustraction operator
 	inline Duration operator-(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds - other.d_nanoseconds;
 	}
 
+	// Negation operator
 	inline Duration operator-() const {
 		return -d_nanoseconds;
 	}
 
+	// Less than operator
 	inline bool operator<( const Duration & other ) const {
 		return d_nanoseconds < other.d_nanoseconds;
 	}
 
+	// Less or equal operator
 	inline bool operator<=( const Duration & other ) const {
 		return d_nanoseconds <= other.d_nanoseconds;
 	}
 
+	// Greater than operator
 	inline bool operator>( const Duration & other ) const {
 		return d_nanoseconds > other.d_nanoseconds;
 	}
 
+	// Greate or equal operator
 	inline bool operator>=( const Duration & other ) const {
 		return d_nanoseconds >= other.d_nanoseconds;
 	}
 
+	// Equality operator
 	inline bool operator==( const Duration & other ) const {
 		return d_nanoseconds == other.d_nanoseconds;
 	}
@@ -181,8 +189,18 @@ private:
 // Every time are considered UTC.
 class Time {
 public:
+	// A pointer to a Time
 	typedef std::shared_ptr<Time>       Ptr;
+
+	// A const pointer to a Time
 	typedef std::shared_ptr<const Time> ConstPtr;
+
+	// An object optimized for std::map or std::set
+	//
+	// SortableKey is an object constructed from current <Time> to be
+	// used as a computationnaly efficient key in std::map or
+	// std::set. please note that this key has lost any monotonic
+	// information.
 	typedef std::pair<int64_t,int32_t>  SortableKey;
 
 	// Time values can overflow when performing operation on them.
@@ -294,6 +312,14 @@ public:
 	// @return a new <Time> distant by <d> from this <Time>
 	Time Add(const Duration & d) const;
 
+	// Rounds a Time to a Duration
+	// @d the <Duration> to round to.
+	// @return a new <Time> rounded to the wanted duration
+	//
+	// Rounds the <Time> to the halp-rounded up <Duration>
+	// d. Currently only multiple of <Duration::Second> and power of
+	// 10 of <Duration::Nanosecond> which are smaller than a second
+	// are supported.
 	Time Round(const Duration & d) const;
 
 	// Reports if this time is after t
@@ -355,30 +381,44 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
+
+	// Equal operator
 	inline bool operator == (const Time & other ) const  {
 		return Equals(other);
 	}
 
+	// Less than operator
 	inline bool operator < (const Time & other ) const  {
 		return Before(other);
 	}
 
+	// Less or equal operator
 	inline bool operator <= (const Time & other ) const  {
 		return !other.Before(*this);
 	}
 
+	// Greater than operator
 	inline bool operator > (const Time & other ) const  {
 		return other.Before(*this);
 	}
 
+	// Greate or equal operator
 	inline bool operator >= (const Time & other ) const  {
 		return !Before(other);
 	}
 
+	// Returns the SortableKey representing this Time
 	inline SortableKey SortKey() const {
 		return std::make_pair(d_wallSec,d_wallNsec);
 	}
 
+	// Returns a SortableKey representing a Time pointer
+	//
+	// Returns a <SortableKey> representing a pointer to a
+	// <Time>. Passing a nullptr to this function, will represent the
+	// smallest possible key possible, which is then mathematically
+	// equivalent to -∞ <Time> (no result of Time::Parse can represent
+	// this value).
 	static SortableKey SortKey(const ConstPtr & timePtr);
 
 	class Comparator {
