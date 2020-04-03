@@ -15,8 +15,10 @@ MovieBridge::MovieBridge(QObject * parent)
 	qRegisterMetaType<fmp::MovieSegment::ConstPtr>();
 }
 
+
 MovieBridge::~MovieBridge() {
 }
+
 
 void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	d_experiment = experiment;
@@ -25,13 +27,16 @@ void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	emit activated(isActive());
 }
 
+
 bool MovieBridge::isActive() const {
 	return !d_experiment == false;
 }
 
+
 QAbstractItemModel * MovieBridge::movieModel() {
 	return d_model;
 }
+
 
 fmp::MovieSegmentConstPtr MovieBridge::movieSegment(const QModelIndex & index) const {
 	auto item = d_model->itemFromIndex(index);
@@ -40,6 +45,7 @@ fmp::MovieSegmentConstPtr MovieBridge::movieSegment(const QModelIndex & index) c
 	}
 	return item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>();
 }
+
 
 void MovieBridge::onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
 	rebuildModel();
@@ -105,6 +111,8 @@ QList<QStandardItem*> MovieBridge::buildTDD(const fmp::TrackingDataDirectoryCons
 	}
 	return {nameItem,startItem,endItem};
 }
+
+
 QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentConstPtr & ms,
                                                      const fm::Time & start,
                                                      const fm::Time & end) {
@@ -121,8 +129,6 @@ QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentCons
 	auto endItem = new QStandardItem(ToQString(end));
 	endItem->setEditable(false);
 	endItem->setData(ptrData,PtrRole);
-
-
 
 	return {nameItem,startItem,endItem};
 }

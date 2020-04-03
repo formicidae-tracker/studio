@@ -19,6 +19,7 @@ set(SRC_FILES Format.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
 			  widget/base/QLongSpinBox.cpp
+			  widget/base/VideoPlayerControl.cpp
 			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
@@ -43,6 +44,7 @@ set(SRC_FILES Format.cpp
 			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
 			  widget/VisualizationWidget.cpp
+			  widget/TrackingMovieWidget.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -64,6 +66,7 @@ set(HDR_FILES Format.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
 			  widget/base/QLongSpinBox.hpp
+			  widget/base/VideoPlayerControl.hpp
 			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
@@ -88,6 +91,7 @@ set(HDR_FILES Format.hpp
 			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
 			  widget/VisualizationWidget.hpp
+			  widget/TrackingMovieWidget.hpp
 			  )
 
 
@@ -102,6 +106,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
+             widget/base/VideoPlayerControl.ui
              widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
@@ -110,7 +115,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/VisualizationWidget.ui
 			 )
 
-set(RCC_FILES )
+set(RCC_FILES resources/resources.qrc)
 
 
 set(SRC_UTEST_FILES utest/main.cpp

@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QOpenGLWidget" name="openGLWidget">
+    <widget class="TrackingMovieWidget" name="trackingMovieWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -25,11 +25,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="videoControl" native="true">
+    <widget class="VideoPlayerControl" name="videoControl" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
        <horstretch>0</horstretch>
-       <verstretch>1</verstretch>
+       <verstretch>0</verstretch>
       </sizepolicy>
      </property>
     </widget>
@@ -53,6 +53,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VideoPlayerControl</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/base/VideoPlayerControl.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TrackingMovieWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header location="global">fort/studio/widget/TrackingMovieWidget.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
