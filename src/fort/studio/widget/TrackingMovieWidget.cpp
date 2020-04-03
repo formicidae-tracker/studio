@@ -11,9 +11,9 @@
 TrackingMovieWidget::TrackingMovieWidget(QWidget * parent)
 	: QOpenGLWidget(parent) {
 	QSurfaceFormat format;
-	format.setVersion(3, 3);
+	format.setVersion(3, 2);
 	format.setProfile(QSurfaceFormat::CoreProfile);
-	setFormat(format);
+	//setFormat(format);
 }
 
 TrackingMovieWidget::~TrackingMovieWidget() {
@@ -116,8 +116,8 @@ void TrackingMovieWidget::initializeGL() {
 	static const GLfloat gVertexBufferData[]
 		= {
 		   -1.0f, -1.0f, 0.0f,
-		   0.0f,  1.0f, 0.0f,
 		   1.0f, -1.0f, 0.0f,
+		   0.0f,  1.0f, 0.0f,
 	};
 
 
@@ -125,7 +125,7 @@ void TrackingMovieWidget::initializeGL() {
 	f->glBindBuffer(GL_ARRAY_BUFFER, d_vboID);
 	f->glBufferData(GL_ARRAY_BUFFER, sizeof(gVertexBufferData), gVertexBufferData, GL_STATIC_DRAW);
 
-	f->glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	f->glClearColor(0.0f, 0.0f, 0.1f, 0.0f);
 
 }
 
@@ -135,7 +135,7 @@ void TrackingMovieWidget::paintGL() {
 
 	f->glBindFramebuffer(GL_FRAMEBUFFER, QOpenGLContext::currentContext()->defaultFramebufferObject());
 
-	f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	f->glClear(GL_COLOR_BUFFER_BIT);
 	f->glUseProgram(d_shadersID);
 
 	f->glEnableVertexAttribArray(0);
@@ -153,5 +153,4 @@ void TrackingMovieWidget::paintGL() {
 
 void TrackingMovieWidget::resizeGL(int w, int h) {
 	QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-	f->glViewport(0,0,w,h);
 }
