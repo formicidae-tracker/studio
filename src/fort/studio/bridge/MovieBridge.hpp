@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include "Bridge.hpp"
 
 #include <fort/studio/MyrmidonTypes.hpp>
@@ -21,7 +23,7 @@ public :
 
 	QAbstractItemModel * movieModel();
 
-	fmp::MovieSegmentConstPtr movieSegment(const QModelIndex & index) const;
+	std::tuple<fmp::MovieSegmentConstPtr,fm::Time,fm::Time> movieSegment(const QModelIndex & index) const;
 
 public slots:
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
@@ -30,6 +32,8 @@ public slots:
 private :
 	const static int PtrRole;
 	const static int IDRole;
+	const static int StartRole;
+	const static int EndRole;
 
 
 	static QList<QStandardItem*> buildSpace(const fmp::SpaceConstPtr & space);

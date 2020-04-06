@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="TrackingMovieWidget" name="trackingMovieWidget">
+    <widget class="TrackingVideoWidget" name="trackingVideoWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -61,9 +61,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>TrackingMovieWidget</class>
+   <class>TrackingVideoWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header location="global">fort/studio/widget/TrackingMovieWidget.hpp</header>
+   <header location="global">fort/studio/widget/TrackingVideoWidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

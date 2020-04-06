@@ -8,11 +8,14 @@
 
 const int MovieBridge::PtrRole = Qt::UserRole+1;
 const int MovieBridge::IDRole  = Qt::UserRole+2;
+const int MovieBridge::StartRole  = Qt::UserRole+3;
+const int MovieBridge::EndRole  = Qt::UserRole+4;
 
 MovieBridge::MovieBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::MovieSegment::ConstPtr>();
+	qRegisterMetaType<fm::Time>();
 }
 
 
@@ -38,12 +41,15 @@ QAbstractItemModel * MovieBridge::movieModel() {
 }
 
 
-fmp::MovieSegmentConstPtr MovieBridge::movieSegment(const QModelIndex & index) const {
+std::tuple<fmp::MovieSegmentConstPtr,fm::Time,fm::Time>
+MovieBridge::movieSegment(const QModelIndex & index) const {
 	auto item = d_model->itemFromIndex(index);
 	if ( item == nullptr ) {
-		return fmp::MovieSegment::ConstPtr();
+		return std::make_tuple(fmp::MovieSegment::ConstPtr(),fm::Time(),fm::Time());
 	}
-	return item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>();
+	return std::make_tuple(item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>(),
+	                       item->data(StartRole).value<fm::Time>(),
+	                       item->data(EndRole).value<fm::Time>());
 }
 
 
@@ -117,18 +123,23 @@ QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentCons
                                                      const fm::Time & start,
                                                      const fm::Time & end) {
 	auto ptrData = QVariant::fromValue(ms);
+	auto startData = QVariant::fromValue(start);
+	auto endData = QVariant::fromValue(end);
 	auto nameItem = new QStandardItem(QString("movies/%1").arg(ms->ID()));
-	nameItem->setEditable(false);
-	nameItem->setData(ptrData,PtrRole);
 	nameItem->setData(ToQString(ms->URI()),IDRole);
 
 	auto startItem = new QStandardItem(ToQString(start));
-	startItem->setEditable(false);
-	startItem->setData(ptrData,PtrRole);
 
 	auto endItem = new QStandardItem(ToQString(end));
-	endItem->setEditable(false);
-	endItem->setData(ptrData,PtrRole);
 
-	return {nameItem,startItem,endItem};
+	QList<QStandardItem*> res  = {nameItem,startItem,endItem};
+
+	for ( auto & i : res ) {
+		i->setEditable(false);
+		i->setData(ptrData,PtrRole);
+		i->setData(startData,StartRole);
+		i->setData(endData,EndRole);
+	}
+
+	return res;
 }

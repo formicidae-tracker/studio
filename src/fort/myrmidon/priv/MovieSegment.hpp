@@ -60,8 +60,6 @@ private:
 	MovieFrameID d_movieStart,d_movieEnd;
 	std::map<MovieFrameID,FrameID,std::greater<MovieFrameID> > d_byMovie;
 	std::map<FrameID,FrameID,std::greater<MovieFrameID> >      d_byTracking;
-
-
 };
 
 

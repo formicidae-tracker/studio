@@ -8,6 +8,7 @@ class VisualizationWidget;
 }
 
 class MovieBridge;
+class TrackingVideoPlayer;
 
 class VisualizationWidget : public QWidget {
 	Q_OBJECT
@@ -20,4 +21,5 @@ public:
 private:
 	Ui::VisualizationWidget * d_ui;
 	MovieBridge             * d_bridge;
+	TrackingVideoPlayer     * d_videoPlayer;
 };

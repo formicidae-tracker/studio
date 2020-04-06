@@ -44,7 +44,8 @@ set(SRC_FILES Format.cpp
 			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
 			  widget/VisualizationWidget.cpp
-			  widget/TrackingMovieWidget.cpp
+			  widget/TrackingVideoWidget.cpp
+			  widget/TrackingVideoPlayer.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -91,7 +92,9 @@ set(HDR_FILES Format.hpp
 			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
 			  widget/VisualizationWidget.hpp
-			  widget/TrackingMovieWidget.hpp
+			  widget/TrackingVideoFrame.hpp
+			  widget/TrackingVideoWidget.hpp
+			  widget/TrackingVideoPlayer.hpp
 			  )
 
 
