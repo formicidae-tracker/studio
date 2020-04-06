@@ -26,6 +26,6 @@ protected:
 private :
 	std::shared_ptr<QOpenGLFramebufferObject> d_fbo;
 	QOpenGLTextureBlitter                     d_blitter;
-	QOpenGLTexture                            d_texture;
-	quint32                                  d_triangle;
+	quint32                                   d_texture;
+	quint32                                   d_triangle;
 };

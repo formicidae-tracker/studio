@@ -22,19 +22,17 @@ TrackingVideoWidget::~TrackingVideoWidget() {
 	makeCurrent();
 	d_fbo.reset();
 	d_blitter.destroy();
-	d_texture.destroy();
 	doneCurrent();
 }
 
 
 void TrackingVideoWidget::initializeGL() {
 	d_blitter.create();
-	d_texture.create();
 
 	QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
 
-	f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	f->glClearColor(0.4f, 0.0f, 0.0f, 0.0f);
 
 	static const GLfloat g_vertex_buffer_data[] =
 		{
@@ -48,6 +46,7 @@ void TrackingVideoWidget::initializeGL() {
 	// Give our vertices to OpenGL.
 	f->glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+	f->glGenTextures(1,&d_texture);
 }
 
 void TrackingVideoWidget::paintGL() {
@@ -95,37 +94,35 @@ void TrackingVideoWidget::display(TrackingVideoFrame * frame) {
 	     || d_fbo->height() != frame->Height ) {
 		std::cerr << "Creating FBO" <<std::endl;
 		d_fbo = std::make_shared<QOpenGLFramebufferObject>(frame->Width,frame->Height);
+		std::cerr << "FBO valid:" << std::boolalpha << d_fbo->isValid() << std::endl;
 	}
 
 
-	if ( d_blitter.isCreated() == false ) {
-		std::cerr << "Blitter is not created" << std::endl;
-		return;
-	}
-
-
-
-	std::cerr << "Blitting texture from to internal FBO" << std::endl;
 	d_fbo->bind();
+	f->glViewport(0,0,d_fbo->width(),d_fbo->height());
+	f->glClear(GL_COLOR_BUFFER_BIT);
 
 	std::cerr << "Binding texture from buffer" << std::endl;
-	d_texture.bind();
-	frame->Buffer->bind();
-	f->glTexSubImage2D(GL_TEXTURE_2D, 0,0,0,frame->Width,frame->Height,GL_RGB,GL_UNSIGNED_BYTE,0);
-	d_texture.release();
+	std::cerr <<  std::boolalpha << frame->Buffer->bind() << std::endl;
+	f->glBindTexture(GL_TEXTURE_2D,d_texture);
+	f->glTexImage2D(GL_TEXTURE_2D,
+	                0,
+	                GL_RGB,
+	                frame->Width,
+	                frame->Height,
+	                0,
+	                GL_RGB,
+	                GL_UNSIGNED_BYTE,
+	                0);
 	frame->Buffer->release();
-
 
 	d_blitter.bind();
 	auto target = QOpenGLTextureBlitter::targetTransform(QRect(QPoint(0,0),d_fbo->size()),
 	                                                     QRect(QPoint(0,0),d_fbo->size()));
-	d_blitter.blit(d_texture.textureId(), target,QOpenGLTextureBlitter::OriginTopLeft);
+	d_blitter.blit(d_texture, target,QOpenGLTextureBlitter::OriginBottomLeft);
 	d_blitter.release();
 
-
-
 	//TODO: draw display data
-	f->glViewport(0,0,d_fbo->width(),d_fbo->height());
 	f->glEnableVertexAttribArray(0);
 
 	f->glBindBuffer(GL_ARRAY_BUFFER,d_triangle);
