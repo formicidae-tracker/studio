@@ -187,6 +187,7 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 	}
 
 	if ( seekID != d_currentSeekID ) {
+		emit displayVideoFrame(frame);
 		// we have seeked... reprocess the frame immediatly
 		if ( d_task != nullptr ) {
 			VIDEO_PLAYER_DEBUG(std::cerr << "Mismatching seekID " << seekID << " (expected:" << d_currentSeekID << "):  reprocessing frame "  << frame << std::endl);

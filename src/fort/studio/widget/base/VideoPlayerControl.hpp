@@ -36,7 +36,6 @@ private slots:
 
 	void on_stopButton_clicked();
 	void on_playButton_clicked();
-	void on_horizontalSlider_sliderMoved(int value);
 
 private:
 	static QString formatDuration(fm::Duration duration);

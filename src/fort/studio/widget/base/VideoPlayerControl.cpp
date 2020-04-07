@@ -49,13 +49,23 @@ void VideoPlayerControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::State
 		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
 		break;
 	}
+
+	connect(d_ui->horizontalSlider,
+	        &QAbstractSlider::sliderMoved,
+	        d_player,
+	        [this]( int value ) {
+		        d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
+	        },
+	        Qt::QueuedConnection);
 }
 
 void VideoPlayerControl::onPlayerPositionChanged(fm::Duration position) {
 	auto currentTime = d_player->start().Add(position);
 	d_ui->currentLabel->setText(ToQString(currentTime));
 	d_ui->remainingLabel->setText(formatDuration(position- d_player->duration()));
-	d_ui->horizontalSlider->setValue(position.Milliseconds());
+	if ( d_ui->horizontalSlider->isSliderDown() == false ) {
+		d_ui->horizontalSlider->setValue(position.Milliseconds());
+	}
 }
 
 void VideoPlayerControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration) {
@@ -89,9 +99,6 @@ void VideoPlayerControl::on_playButton_clicked() {
 	}
 }
 
-void VideoPlayerControl::on_horizontalSlider_sliderMoved(int value) {
-	d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
-}
 
 QString VideoPlayerControl::formatDuration(fm::Duration duration) {
 	QString format = "%1:%2:%3.%4";
