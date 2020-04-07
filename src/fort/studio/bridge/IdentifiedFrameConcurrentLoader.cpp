@@ -12,18 +12,10 @@
 
 IdentifiedFrameConcurrentLoader::IdentifiedFrameConcurrentLoader(QObject * parent)
 	: QObject(parent)
-	, d_done(true)
-	, d_futureWatcher(new QFutureWatcher<MappedResult>(this)) {
-	connect(d_futureWatcher,
-	        &QFutureWatcher<MappedResult>::finished,
-	        this,
-	        &IdentifiedFrameConcurrentLoader::onFinished);
+	, d_done(0)
+	, d_toDo(-1)
+	, d_currentLoading(-1) {
 
-	connect(d_futureWatcher,
-	        &QFutureWatcher<MappedResult>::resultReadyAt,
-	        this,
-	        &IdentifiedFrameConcurrentLoader::onResultReadyAt,
-	        Qt::QueuedConnection);
 }
 
 IdentifiedFrameConcurrentLoader::~IdentifiedFrameConcurrentLoader() {
@@ -31,7 +23,7 @@ IdentifiedFrameConcurrentLoader::~IdentifiedFrameConcurrentLoader() {
 
 
 bool IdentifiedFrameConcurrentLoader::isDone() const {
-	return d_done;
+	return d_done == d_toDo;
 }
 
 void IdentifiedFrameConcurrentLoader::setExperiment(const fmp::Experiment::ConstPtr & experiment) {
@@ -52,41 +44,6 @@ IdentifiedFrameConcurrentLoader::FrameAt(fmp::MovieFrameID movieID) const {
 }
 
 
-struct IdentifiedFrameComputer {
-	typedef IdentifiedFrameConcurrentLoader::MappedResult result_type;
-
-	IdentifiedFrameComputer(const fmp::IdentifierIF::ConstPtr & identifier,
-	                        const fmp::MovieSegment::ConstPtr & segment)
-		: d_identifier(identifier)
-		, d_segment(segment) {
-	}
-
-	IdentifiedFrameConcurrentLoader::MappedResult
-	operator()(const fmp::RawFrame::ConstPtr & rawFrame) {
-		if ( !rawFrame ) {
-			return std::make_pair(d_segment->EndMovieFrame()+1,
-			                      fmp::IdentifiedFrame::ConstPtr());
-		}
-		auto frameID = rawFrame->Frame().FID();
-		fmp::MovieFrameID movieID;
-
-		try {
-			movieID = d_segment->ToMovieFrameID(frameID);
-		} catch ( const std::exception & ) {
-			return std::make_pair(d_segment->EndMovieFrame()+1,
-			                      fmp::IdentifiedFrame::ConstPtr());
-		}
-
-		return std::make_pair(movieID,
-		                      rawFrame->IdentifyFrom(*d_identifier));
-	}
-
-private:
-	fmp::IdentifierIF::ConstPtr d_identifier;
-	fmp::MovieSegment::ConstPtr d_segment;
-};
-
-
 void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
@@ -98,19 +55,26 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 		            << " from TrackingDataDirectory " << ToQString(tdd->URI());
 		return;
 	}
+
 	clear();
 
-	setDone(false);
+
 	auto identifier = d_experiment->ConstIdentifier().Compile();
+	//Don't emit !!!
+	d_toDo = 0;
+
+	d_currentLoading = d_abordFlags.size();
+	size_t currentLoading = d_currentLoading;
+	d_abordFlags.push_back(std::make_shared<std::atomic<bool>>());
+	auto abordFlag = d_abordFlags.back();
+	abordFlag->store(false);
 
 	// frames are single threaded read and loaded in memory
 	auto load =
-		[tdd,segment,identifier,this]() {
-			QVector<fmp::RawFrame::ConstPtr> frames;
-			frames.reserve(segment->EndFrame() - segment->StartFrame());
+		[tdd,segment,identifier,abordFlag,currentLoading,this]() {
 			try {
 				auto start = tdd->FrameAt(segment->StartFrame());
-				while(true) {
+				while( abordFlag->load() != true ) {
 					if ( start == tdd->end() ) {
 						break;
 					}
@@ -122,61 +86,87 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 					if ( !rawFrame || rawFrame->Frame().FID() > segment->EndFrame() ) {
 						break;
 					}
-					frames.push_back(rawFrame);
+
+					setProgress(d_done,d_toDo+1);
+
+					auto loadFrame =
+						[rawFrame,identifier,segment,this] () -> ConcurrentResult {
+							if ( !rawFrame ) {
+								return std::make_pair(segment->EndMovieFrame()+1,
+								                      fmp::IdentifiedFrame::ConstPtr());
+							}
+							auto frameID = rawFrame->Frame().FID();
+							try {
+								auto movieID = segment->ToMovieFrameID(frameID);
+								return std::make_pair(movieID,
+								                      rawFrame->IdentifyFrom(*identifier));
+							} catch( const std::exception & ) {
+								return std::make_pair(segment->EndMovieFrame()+1,
+								                      fmp::IdentifiedFrame::ConstPtr());
+							}
+						};
+
+					QFuture<ConcurrentResult> future = QtConcurrent::run(loadFrame);
+					auto watcher = new QFutureWatcher<ConcurrentResult>();
+					connect(watcher,
+					        &QFutureWatcher<ConcurrentResult>::finished,
+					        this,
+					        [watcher,currentLoading,segment,this]() {
+						        auto res = watcher->result();
+						        watcher->deleteLater();
+
+						        if ( currentLoading != this->d_currentLoading ) {
+							        return;
+						        }
+
+						        setProgress(d_done+1,d_toDo);
+
+						        if ( res.first == segment->EndMovieFrame()+1 ) {
+							        return;
+						        }
+
+						        d_frames.insert(res.first,res.second);
+					        },
+					        Qt::QueuedConnection);
+					watcher->setFuture(future);
 					++start;
 				}
 			} catch ( const std::exception & e) {
 				qCritical() << "Could not extract tracking data for "
 				            << ToQString(segment->URI())
 				            << ": " << e.what();
-				setDone(true);
+				setProgress(d_toDo,d_toDo);
 				return;
 			}
-			// for each frame, concurrently Compute each IdentifiedFrame
-			auto future =
-				QtConcurrent::mapped(frames,
-				                     IdentifiedFrameComputer(identifier,
-				                                             segment));
-			d_futureWatcher->setFuture(future);
 		};
 
 	QtConcurrent::run(QThreadPool::globalInstance(),load);
 }
 
 void IdentifiedFrameConcurrentLoader::clear() {
-	d_futureWatcher->cancel();
-	disconnect(d_futureWatcher,
-	           &QFutureWatcher<MappedResult>::resultReadyAt,
-	           this,
-	           &IdentifiedFrameConcurrentLoader::onResultReadyAt);
-	d_futureWatcher->waitForFinished();
-	d_futureWatcher->setFuture(QFuture<MappedResult>());
+	abordCurrent();
 	d_frames.clear();
-	connect(d_futureWatcher,
-	        &QFutureWatcher<MappedResult>::resultReadyAt,
-	        this,
-	        &IdentifiedFrameConcurrentLoader::onResultReadyAt,
-	        Qt::QueuedConnection);
-
 }
 
-void IdentifiedFrameConcurrentLoader::setDone(bool done_) {
-	if ( done_ == d_done ) {
+
+void IdentifiedFrameConcurrentLoader::abordCurrent() {
+	if ( d_abordFlags.empty() == true || d_currentLoading != d_abordFlags.size()-1 ) {
 		return;
 	}
-	d_done = done_;
-	emit done(d_done);
+	d_abordFlags.back()->store(true);
+	d_currentLoading = -1;
 }
 
 
-void IdentifiedFrameConcurrentLoader::onResultReadyAt(int index) {
-	auto res = d_futureWatcher->resultAt(index);
-	if ( !res.second ) {
+void IdentifiedFrameConcurrentLoader::setProgress(int doneValue,int toDo) {
+	if ( d_done == doneValue && d_toDo == toDo ) {
 		return;
 	}
-	d_frames.insert(res.first,res.second);
-}
-
-void IdentifiedFrameConcurrentLoader::onFinished() {
-	setDone(true);
+	bool doneState = isDone();
+	d_done = doneValue;
+	d_toDo = toDo;
+	emit progressChanged(d_done,d_toDo);
+	if ( doneState != isDone() ) {
+		emit done(isDone());
+	}
 }

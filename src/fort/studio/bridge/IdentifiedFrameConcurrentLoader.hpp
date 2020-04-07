@@ -2,7 +2,9 @@
 
 #include <QObject>
 #include <QHash>
-#include <QFutureWatcher>
+
+#include <vector>
+#include <atomic>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 #include <fort/myrmidon/priv/Types.hpp>
@@ -28,23 +30,23 @@ public slots:
 	void loadMovieSegment(const fmp::TrackingDataDirectoryConstPtr & tdd,
 	                      const fmp::MovieSegmentConstPtr & segment);
 	void clear();
-signals:
-	void done(bool);
-private slots:
 
-	void onFinished();
-	void onResultReadyAt(int index);
+signals:
+	void progressChanged(int done,int toDo);
+	void done(bool);
 
 private :
-	friend class IdentifiedFrameComputer;
+	void abordCurrent();
+
+	void setProgress(int done,int toDo);
+
 	typedef QHash<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> FramesByMovieID;
-	typedef std::pair<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> MappedResult;
+	typedef std::pair<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> ConcurrentResult;
 
-	void setDone(bool done);
-
-	bool                    d_done;
 	fmp::ExperimentConstPtr d_experiment;
 	FramesByMovieID         d_frames;
+	int                     d_done,d_toDo;
 
-	QFutureWatcher<MappedResult> * d_futureWatcher;
+	std::vector<std::shared_ptr<std::atomic<bool>>> d_abordFlags;
+	size_t                                          d_currentLoading;
 };
