@@ -12,7 +12,12 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	, d_videoPlayer(new TrackingVideoPlayer(this)) {
 	d_ui->setupUi(this);
 
-	d_videoPlayer->setVideoOutput(d_ui->trackingVideoWidget);
+	connect(d_videoPlayer,
+	        &TrackingVideoPlayer::displayVideoFrame,
+	        d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::display);
+
+	d_ui->videoControl->setup(d_videoPlayer);
 
 }
 
@@ -38,6 +43,6 @@ void VisualizationWidget::setup(MovieBridge * bridge) {
 		        if ( !segment ) {
 			        return;
 		        }
-		        d_videoPlayer->setMovieSegment(segment,std::get<1>(segmentAndTime),std::get<2>(segmentAndTime));
+		        d_videoPlayer->setMovieSegment(segment,std::get<1>(segmentAndTime));
 	        });
 }

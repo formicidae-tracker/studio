@@ -14,8 +14,22 @@ TrackingVideoWidget::~TrackingVideoWidget() {
 }
 
 
-void TrackingVideoWidget::display(QImage image) {
-	d_image = image;
+void TrackingVideoWidget::display(TrackingVideoFrame frame) {
+	{
+		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
+		std::cerr << "Received frame:" << frame << std::endl;
+	}
+	if ( frame.Image == nullptr ) {
+		d_image = QImage(0,0);
+		update();
+		return;
+	}
+	d_image = *frame.Image;
+	QPainter painter(&d_image);
+	painter.setRenderHint(QPainter::Antialiasing,true);
+	if ( !frame.TrackingFrame == false ) {
+		paintIdentifiedAnt(&painter,frame.TrackingFrame);
+	}
 	update();
 }
 
@@ -31,4 +45,10 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	targetRect.translate(rect().center()-targetRect.center());
 
 	painter.drawImage(targetRect,d_image);
+}
+
+
+void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter,
+                                             const fmp::IdentifiedFrame::ConstPtr & frame) {
+
 }

@@ -37,6 +37,10 @@ public:
 	inline Duration(int64_t ns)
 		: d_nanoseconds(ns) {}
 
+	inline Duration()
+		: d_nanoseconds(0) {
+	}
+
 	// constructor from std::chrono::duration
 	// @T the type holding
 	template <typename T,typename U>

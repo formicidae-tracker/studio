@@ -44,6 +44,7 @@ set(SRC_FILES Format.cpp
 			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
 			  widget/VisualizationWidget.cpp
+			  widget/TrackingVideoFrame.cpp
 			  widget/TrackingVideoWidget.cpp
 			  widget/TrackingVideoPlayer.cpp
 			  )

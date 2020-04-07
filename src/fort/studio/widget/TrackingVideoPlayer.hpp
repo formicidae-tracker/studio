@@ -25,7 +25,7 @@ class TrackingVideoPlayer : public QObject {
 	Q_PROPERTY(State playbackState
 	           READ playbackState
 	           NOTIFY playbackStateChanged)
-	Q_PROPERTY(qint64 position
+	Q_PROPERTY(fm::Duration position
 	           READ position
 	           NOTIFY positionChanged);
 public:
@@ -38,28 +38,28 @@ public:
 	explicit TrackingVideoPlayer(QObject * parent = nullptr);
 	virtual ~TrackingVideoPlayer();
 
-	void setVideoOutput(TrackingVideoWidget * widget);
-
 	qreal playbackRate() const;
 
 	State playbackState() const;
 
-	qint64 position() const;
+	fm::Duration position() const;
 
+	fm::Duration duration() const;
+
+	fm::Time start() const;
 public slots:
 	void pause();
 	void play();
 	void stop();
 	void setMovieSegment(const fmp::MovieSegment::ConstPtr & segment,
-	                     const fm::Time & start,
-	                     const fm::Time & end);
+	                     const fm::Time & start);
 	void setPlaybackRate(qreal rate);
 
-	void setPosition(qint64 durationNS);
+	void setPosition(fm::Duration position);
 
 signals:
-	void durationChanged(fm::Time start,qint64 durationNS);
-	void positionChanged(qint64 nanoseconds);
+	void durationChanged(fm::Time start,fm::Duration duration);
+	void positionChanged(fm::Duration duration);
 
 	void playbackRateChanged(qreal rate);
 
@@ -67,21 +67,28 @@ signals:
 
 	void frameDone(QImage * image);
 
-	void displayVideoFrame(QImage image);
+	void displayVideoFrame(TrackingVideoFrame frame);
 private slots:
 	void onNewVideoFrame(TrackingVideoFrame frame);
 
+	void onTimerTimeout();
 private:
 	void stopAndWaitTask();
+
 
 	TrackingVideoPlayerTask   * d_task;
 	State                       d_state;
 	fmp::MovieSegment::ConstPtr d_segment;
 	qreal                       d_rate;
-	TrackingVideoWidget       * d_widget;
 	QThread                   * d_movieThread;
+	QTimer                    * d_timer;
+	fm::Time                    d_start;
+	fm::Duration                d_interval;
+	fm::Duration                d_position;
+	fm::Duration                d_duration;
 
-	std::map<fm::Duration,TrackingVideoFrame> d_frames;
+	bool                        d_displayNext;
+	std::vector<TrackingVideoFrame> d_frames;
 };
 
 
@@ -92,14 +99,17 @@ public:
 
 	virtual ~TrackingVideoPlayerTask();
 
-	quint64 numberFrame() const;
+
+	double fps() const;
+	qint64 numberOfFrame() const;
 
 	void startOn(QThread * thread);
 
 	void stop();
-	void waitFinished();
+	bool isDone();
+	void waitDone();
 
-	void setPosition(quint64 frameID);
+	void setPosition(fm::Duration);
 
 signals:
 	void newFrame(TrackingVideoFrame frame);

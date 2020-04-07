@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>695</width>
-    <height>82</height>
+    <height>86</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="remainingLable">
+      <widget class="QLabel" name="remainingLabel">
        <property name="text">
         <string>-00:00:00.000</string>
        </property>
@@ -53,7 +53,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-stop"/>
+        <iconset theme="media-playback-stop">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -63,7 +64,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-skip-backward"/>
+        <iconset theme="media-skip-backward">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -73,7 +75,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-seek-backward"/>
+        <iconset theme="media-seek-backward">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -83,7 +86,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-start"/>
+        <iconset theme="media-playback-start">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -93,7 +97,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-seek-forward"/>
+        <iconset theme="media-seek-forward">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -103,7 +108,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-skip-forward"/>
+        <iconset theme="media-skip-forward">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>

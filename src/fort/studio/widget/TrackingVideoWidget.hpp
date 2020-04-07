@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QWidget>
-#include <QImage>
 
+#include "TrackingVideoFrame.hpp"
 
 
 class TrackingVideoWidget : public QWidget {
@@ -11,11 +11,16 @@ public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
 	~TrackingVideoWidget();
 
+
 public slots:
-	void display(QImage image);
+	void display(TrackingVideoFrame image);
 
 protected:
 	void paintEvent(QPaintEvent * event) override;
+
+	void paintIdentifiedAnt(QPainter * painter,
+	                        const fmp::IdentifiedFrame::ConstPtr & frame);
+
 private:
 	QImage d_image;
 };
