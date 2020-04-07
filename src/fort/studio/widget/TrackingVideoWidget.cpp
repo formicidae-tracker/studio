@@ -15,11 +15,9 @@ TrackingVideoWidget::~TrackingVideoWidget() {
 
 
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "Received frame:" << frame << std::endl;
-	}
-	if ( frame.Image == nullptr ) {
+	VIDEO_PLAYER_DEBUG(std::cerr << "Received frame:" << frame << std::endl);
+
+	if ( !frame.Image ) {
 		d_image = QImage(0,0);
 		update();
 		return;

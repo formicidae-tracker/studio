@@ -4,10 +4,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QThread>
-
+#include <limits>
 
 #include <fort/studio/Format.hpp>
-
 
 #include "TrackingVideoWidget.hpp"
 
@@ -17,10 +16,12 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 	, d_state(State::Stopped)
 	, d_rate(1.0)
 	, d_movieThread(new QThread())
-	, d_timer(new QTimer(this)) {
+	, d_timer(new QTimer(this))
+	, d_currentTaskID(0) {
 	d_movieThread->start();
 	qRegisterMetaType<fm::Time>();
 	qRegisterMetaType<fm::Duration>();
+	qRegisterMetaType<size_t>();
 	qRegisterMetaType<TrackingVideoFrame>();
 
 	connect(d_timer,
@@ -30,7 +31,6 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 }
 
 TrackingVideoPlayer::~TrackingVideoPlayer() {
-	stopAndWaitTask();
 	d_movieThread->quit();
 	d_movieThread->wait();
 	d_movieThread->deleteLater();
@@ -56,47 +56,57 @@ fm::Time TrackingVideoPlayer::start() const {
 	return d_start;
 }
 
-std::mutex TrackingVideoFrame::debugMutex;
 
 void TrackingVideoPlayer::setMovieSegment(const fmp::MovieSegment::ConstPtr & segment,
                                           const fm::Time & start) {
-	stopAndWaitTask();
+	if ( !segment ) {
+		return;
+	}
 
+	if ( d_task != nullptr ) {
+		d_task->deleteLater();
+		d_task = nullptr;
+		d_frames.clear();
+		d_stagging.clear();
+	}
 	d_segment = segment;
 
 	try {
-		d_task = new TrackingVideoPlayerTask(d_segment);
+		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment);
+		d_currentSeekID = 0;
 		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
 		d_start = start;
 		d_duration = d_interval * d_task->numberOfFrame();
 		emit durationChanged(start,d_duration);
 		d_timer->setInterval(d_interval.Milliseconds() * d_rate);
 		d_position = 0;
+		emit positionChanged(d_position);
 		d_displayNext = true;
 	} catch ( const std::exception & e) {
 		qCritical() << "Got unexpected error: " << e.what();
 		d_task = nullptr;
 		return;
 	}
-	connect(d_task,&TrackingVideoPlayerTask::newFrame,
-	        this,&TrackingVideoPlayer::onNewVideoFrame);
-	connect(this,&TrackingVideoPlayer::frameDone,
-	        d_task,&TrackingVideoPlayerTask::onReleasedImage);
-	d_task->startOn(d_movieThread);
-}
 
-void TrackingVideoPlayer::stopAndWaitTask() {
-	if ( d_task == nullptr ) {
-		return;
+	std::vector<TrackingVideoFrame> frames;
+
+	for ( size_t i = 0; i < 3; ++i) {
+		TrackingVideoFrame f;
+		f.Image = d_task->allocate();
+		frames.push_back(f);
 	}
-	d_task->stop();
-	for ( const auto & frame : d_frames ) {
-		emit frameDone(frame.Image);
+
+	d_task->moveToThread(d_movieThread);
+	connect(d_movieThread,&QThread::finished,
+	        d_task,&QObject::deleteLater);
+
+	connect(d_task,&TrackingVideoPlayerTask::newFrame,
+	        this,&TrackingVideoPlayer::onNewVideoFrame,
+	        Qt::QueuedConnection);
+
+	for ( const auto & f : frames ) {
+		d_task->processNewFrame(f);
 	}
-	d_frames.clear();
-	d_task->waitDone();
-	delete d_task;
-	d_task = nullptr;
 }
 
 void TrackingVideoPlayer::pause() {
@@ -139,30 +149,72 @@ void TrackingVideoPlayer::setPlaybackRate(qreal rate) {
 }
 
 void TrackingVideoPlayer::setPosition(fm::Duration position) {
+	std::lock_guard<std::mutex> seekLock(d_seekMutex);
+	VIDEO_PLAYER_DEBUG(std::cerr << "[setPosition]: Thread is " << QThread::currentThread() << " myself is " << thread() << std::endl);
+
 	if ( d_task == nullptr ) {
 		return;
 	}
-	std::cerr << "Want position " << position << std::endl;
+	d_task->seek(++d_currentSeekID,position);
+	VIDEO_PLAYER_DEBUG(std::cerr << "Seeked to " << position << " seekID is " << d_currentSeekID << std::endl);
+
+	d_displayNext = true;
+	for ( auto & f : d_frames ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "Resending buffered frame " << f << std::endl);
+		d_task->processNewFrame(f);
+	}
+	d_frames.clear();
+
+	for ( auto & f : d_stagging ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "Resending stagged frame " << f << std::endl);
+		d_task->processNewFrame(f);
+	}
+	d_stagging.clear();
+
 }
 
-void TrackingVideoPlayer::onNewVideoFrame(TrackingVideoFrame frame) {
-	{
-			std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-			std::cerr << "New frame " << frame << std::endl;
+void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, TrackingVideoFrame frame) {
+	std::lock_guard<std::mutex> seekLock(d_seekMutex);
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "[onNewVideoFrame]: Thread is " << QThread::currentThread() << " myself is " << thread() << std::endl;
+			std::cerr << "Received from Task:" << taskID << " from seek " << seekID << " frame " << frame << std::endl;
+		});
+
+	if ( taskID != d_currentTaskID ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "Mismatching taskID "<< taskID << " (expected:" << d_currentTaskID << "): forgetting frame" << std::endl);
+		// this videoframe is from a dead task
+		return;
 	}
+
+	if ( seekID != d_currentSeekID ) {
+		// we have seeked... reprocess the frame immediatly
+		if ( d_task != nullptr ) {
+			VIDEO_PLAYER_DEBUG(std::cerr << "Mismatching seekID " << seekID << " (expected:" << d_currentSeekID << "):  reprocessing frame "  << frame << std::endl);
+			d_task->processNewFrame(frame);
+		}
+		return;
+	}
+
+	if ( frame.FrameID == std::numeric_limits<fmp::MovieFrameID>::max() ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "EOF: stagging frame " << frame << std::endl);
+		// no frame case at end of file.
+		d_stagging.push_back(frame);
+		return;
+	}
+
+	VIDEO_PLAYER_DEBUG(std::cerr << "Pushing frame " << frame << std::endl);
+
 	d_frames.push_back(frame);
 	if (d_displayNext == true ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "Displaying first frame " << frame << " size: " << d_frames.size() << std::endl);
 		d_displayNext = false;
 		d_position = d_frames.back().StartPos;
-		emit positionChanged(d_position);
 		emit displayVideoFrame(d_frames.back());
-
 	}
 }
 
-
+#ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 void printFrames (const std::vector<TrackingVideoFrame> & frames ) {
-
 	std::cerr << "Frames:{";
 	auto prefix = "";
 	for ( const auto & f : frames ) {
@@ -171,28 +223,24 @@ void printFrames (const std::vector<TrackingVideoFrame> & frames ) {
 	}
 	std::cerr << "}" << std::endl;
 }
+#endif
 
 void TrackingVideoPlayer::onTimerTimeout() {
 	d_position = d_position + d_interval;
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "Current position is " << d_position << std::endl;
-	}
+	VIDEO_PLAYER_DEBUG(std::cerr << "Current position is " << d_position << std::endl);
 	emit positionChanged(d_position);
 
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "=== BEFORE SORT ===" << std::endl;
-		printFrames(d_frames);
-	}
-
-
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "=== BEFORE SORT ===" << std::endl;
+			printFrames(d_frames);
+		});
 
 	std::sort(d_frames.begin(),
 	          d_frames.end(),
 	          [](const TrackingVideoFrame & a, const TrackingVideoFrame & b) {
 		          return a.StartPos < b.StartPos;
 	          });
+
 	std::vector<TrackingVideoFrame> deleted;
 	deleted.reserve(d_frames.size());
 	auto last = std::remove_if(d_frames.begin(),
@@ -205,33 +253,30 @@ void TrackingVideoPlayer::onTimerTimeout() {
 		                           return false;
 	                           });
 
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "=== BEFORE REMOVE ===" << std::endl;
-		printFrames(d_frames);
-		std::cerr << "=== WILL BE REMOVED ===" << std::endl;
-		printFrames(deleted);
-	}
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "=== BEFORE REMOVE ===" << std::endl;
+			printFrames(d_frames);
+			std::cerr << "=== WILL BE REMOVED ===" << std::endl;
+			printFrames(deleted);
+		});
 	d_frames.erase(last,d_frames.end());
 
 	//removes expired frames
 	for ( const auto & f: deleted ) {
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "Will release " << f << std::endl;
-		emit frameDone(f.Image);
+		VIDEO_PLAYER_DEBUG(std::cerr << "Will release " << f << std::endl);
+		if ( d_task != nullptr ) {
+			d_task->processNewFrame(f);
+		}
 	}
 
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "=== AFTER REMOVE ===" << std::endl;
-		printFrames(d_frames);
-	}
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "=== AFTER REMOVE ===" << std::endl;
+			printFrames(d_frames);
+		});
 
 	if ( d_frames.empty() == true ) {
-		if ( d_task != nullptr && d_task->isDone() == true ) {
-			TrackingVideoFrame blankFrame;
-			blankFrame.Image = nullptr;
-			emit displayVideoFrame(blankFrame);
+		if ( d_task != nullptr && d_stagging.empty() == false ) {
+			emit displayVideoFrame(TrackingVideoFrame());
 			stop();
 		}
 		return;
@@ -240,18 +285,17 @@ void TrackingVideoPlayer::onTimerTimeout() {
 	if ( d_frames.front().StartPos > d_position ) {
 		return;
 	}
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "Emitting frame:" << d_frames.front() << std::endl;
-	}
+
+	VIDEO_PLAYER_DEBUG(std::cerr << "Emitting frame:" << d_frames.front() << std::endl);
 	emit displayVideoFrame(d_frames.front());
 }
 
 
-TrackingVideoPlayerTask::TrackingVideoPlayerTask(const fmp::MovieSegment::ConstPtr & segment)
+TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID, const fmp::MovieSegment::ConstPtr & segment)
 	: QObject(nullptr)
 	, d_capture(segment->AbsoluteFilePath().c_str())
-	, d_done(false) {
+	, d_taskID(taskID)
+	, d_seekID(0) {
 	if ( d_capture.isOpened() == false ) {
 		throw std::runtime_error("Could not open '" + segment->AbsoluteFilePath().string() + "'");
 	}
@@ -259,13 +303,9 @@ TrackingVideoPlayerTask::TrackingVideoPlayerTask(const fmp::MovieSegment::ConstP
 	d_width = d_capture.get(cv::CAP_PROP_FRAME_WIDTH);
 	d_height = d_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
 
-	connect(this, &TrackingVideoPlayerTask::finished,
-	        [this]() {
-		        std::lock_guard<std::mutex> lock(d_mutex);
-		        d_done = true;
-		        d_condition.notify_all();
-	        });
+}
 
+TrackingVideoPlayerTask::~TrackingVideoPlayerTask() {
 }
 
 double TrackingVideoPlayerTask::fps() const {
@@ -276,87 +316,61 @@ qint64 TrackingVideoPlayerTask::numberOfFrame() const {
 	return d_capture.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
-void TrackingVideoPlayerTask::startOn(QThread * thread) {
-	connect(thread,&QThread::finished,
-	        this,&QObject::deleteLater);
-	this->moveToThread(thread);
-	metaObject()->invokeMethod(this,"start",Qt::QueuedConnection);
+void TrackingVideoPlayerTask::processNewFrame(TrackingVideoFrame frame) {
+	metaObject()->invokeMethod(this,"processNewFrameUnsafe",Qt::QueuedConnection,
+	                           Q_ARG(TrackingVideoFrame,frame));
 }
 
-TrackingVideoPlayerTask::~TrackingVideoPlayerTask() {
+void TrackingVideoPlayerTask::seek(size_t seekID, fm::Duration position) {
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "seek to " << seekID << " at " << position << std::endl;
+			std::cerr << "Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
+		});
+	metaObject()->invokeMethod(this,"seekUnsafe",Qt::BlockingQueuedConnection,
+	                           Q_ARG(size_t,seekID),
+	                           Q_ARG(fm::Duration,position));
 }
 
+void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "Processing Image " << frame.Image.get() << std::endl;
+			std::cerr << "Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
+		});
 
-
-bool TrackingVideoPlayerTask::isDone() {
-	std::lock_guard<std::mutex> lock(d_mutex);
-	return d_done;
-}
-
-void TrackingVideoPlayerTask::start() {
-	for ( size_t i = 0; i < 3; ++i ) {
-		d_images.push_back(QImage(d_width,d_height,QImage::Format_RGB888));
-	}
-
-	d_stopped.store(false);
-
-	for (auto & image : d_images) {
-		onReleasedImage(&image);
-	}
-}
-
-void printImages(const std::set<QImage*> images) {
-	std::cerr << "images: {";
-	auto prefix  = "";
-	for ( const auto i : images ) {
-		std::cerr << prefix << (void*)i;
-		prefix = ",";
-	}
-	std::cerr << "}" << std::endl;
-}
-void TrackingVideoPlayerTask::onReleasedImage(QImage *image) {
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		std::cerr << "Released " << image << std::endl;
-		printImages(d_waitingImages);
-	}
-	d_waitingImages.erase(image);
-	{
-		std::lock_guard<std::mutex> lock(TrackingVideoFrame::debugMutex);
-		printImages(d_waitingImages);
-	}
-	TrackingVideoFrame frame;
 	frame.FrameID = d_capture.get(cv::CAP_PROP_POS_FRAMES);
 	frame.StartPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond;
 
-	if ( d_stopped.load() == true || d_capture.grab() == false ) {
-		if ( d_waitingImages.empty() ) {
-			emit finished();
-		}
+	if ( d_capture.grab() == false ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "Could not capture Image " << frame.Image.get() << std::endl);
+
+		frame.FrameID = std::numeric_limits<fmp::MovieFrameID>::max();
+		emit newFrame(d_taskID,d_seekID,frame);
 		return;
 	}
 
-	frame.Image = image;
-
-	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(image->constBits()),image->bytesPerLine());
+	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(frame.Image->constBits()),frame.Image->bytesPerLine());
 	d_capture.retrieve(mat);
 
 	frame.EndPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond;
 
-	d_waitingImages.insert(image);
-	emit newFrame(frame);
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "emitting new Frame Image " << frame << " on seek " << d_seekID << std::endl;
+			std::cerr << "Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
+		});
+
+	emit newFrame(d_taskID,d_seekID,frame);
+}
+
+std::shared_ptr<QImage> TrackingVideoPlayerTask::allocate() const {
+	return std::make_shared<QImage>(d_width,d_height,QImage::Format_RGB888);
 }
 
 
-void TrackingVideoPlayerTask::waitDone() {
-	std::unique_lock<std::mutex> lock(d_mutex);
-	d_condition.wait(lock,[this]() { return d_done; });
-}
-
-void TrackingVideoPlayerTask::stop() {
-	d_stopped.store(true);
-}
-
-
-void TrackingVideoPlayerTask::seek(quint64 pos) {
+void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fm::Duration position) {
+	VIDEO_PLAYER_DEBUG({
+		std::cerr << "seek unsafe to " << seekID << " at " << position << std::endl;
+		std::cerr << "Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
+		});
+	d_seekID = seekID;
+	d_capture.set(cv::CAP_PROP_POS_MSEC,qint64(position.Milliseconds()));
 };

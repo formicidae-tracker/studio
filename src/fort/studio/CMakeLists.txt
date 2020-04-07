@@ -1,3 +1,10 @@
+option(DEBUG_VIDEO_PLAYER Off "Debugs the video player with expensive STDERR output")
+if(NOT DEBUG_VIDEO_PLAYER)
+	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")
+endif(NOT DEBUG_VIDEO_PLAYER)
+
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)

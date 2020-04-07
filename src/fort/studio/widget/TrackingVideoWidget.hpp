@@ -11,7 +11,6 @@ public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
 	~TrackingVideoWidget();
 
-
 public slots:
 	void display(TrackingVideoFrame image);
 

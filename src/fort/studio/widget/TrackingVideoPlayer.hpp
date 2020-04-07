@@ -53,6 +53,7 @@ public slots:
 	void stop();
 	void setMovieSegment(const fmp::MovieSegment::ConstPtr & segment,
 	                     const fm::Time & start);
+
 	void setPlaybackRate(qreal rate);
 
 	void setPosition(fm::Duration position);
@@ -65,16 +66,14 @@ signals:
 
 	void playbackStateChanged(State state);
 
-	void frameDone(QImage * image);
-
 	void displayVideoFrame(TrackingVideoFrame frame);
+
 private slots:
-	void onNewVideoFrame(TrackingVideoFrame frame);
+	void onNewVideoFrame(size_t taskID, size_t localIndex, TrackingVideoFrame frame);
 
 	void onTimerTimeout();
 private:
-	void stopAndWaitTask();
-
+	void sendToProcess(TrackingVideoFrame frame);
 
 	TrackingVideoPlayerTask   * d_task;
 	State                       d_state;
@@ -88,47 +87,41 @@ private:
 	fm::Duration                d_duration;
 
 	bool                        d_displayNext;
-	std::vector<TrackingVideoFrame> d_frames;
+
+	size_t                          d_currentTaskID;
+	size_t                          d_currentSeekID;
+	std::vector<TrackingVideoFrame> d_frames,d_stagging;
+	std::mutex                      d_seekMutex;
 };
 
 
 class TrackingVideoPlayerTask : public QObject {
 Q_OBJECT
 public:
-	explicit TrackingVideoPlayerTask(const fmp::MovieSegment::ConstPtr & segment);
+	explicit TrackingVideoPlayerTask(size_t taskID, const fmp::MovieSegment::ConstPtr & segment);
 
 	virtual ~TrackingVideoPlayerTask();
-
 
 	double fps() const;
 	qint64 numberOfFrame() const;
 
-	void startOn(QThread * thread);
+	std::shared_ptr<QImage> allocate() const;
 
-	void stop();
-	bool isDone();
-	void waitDone();
+	void processNewFrame(TrackingVideoFrame frame);
 
-	void setPosition(fm::Duration);
+	void seek(size_t seekID, fm::Duration);
 
 signals:
-	void newFrame(TrackingVideoFrame frame);
-	void finished();
-
-public slots:
-	void onReleasedImage(QImage * image);
+	void newFrame(size_t taskID, size_t seekID, TrackingVideoFrame frame);
 
 private slots:
-	void start();
-	void seek(quint64 pos);
+	void seekUnsafe(size_t seekID, fm::Duration);
+
+	void processNewFrameUnsafe(TrackingVideoFrame frame);
 
 private:
 	cv::VideoCapture        d_capture;
 	std::condition_variable d_condition;
-	std::mutex              d_mutex;
-	bool                    d_done;
-	std::atomic<bool>       d_stopped;
-	std::vector<QImage>     d_images;
-	std::set<QImage*>       d_waitingImages;
 	int                     d_width,d_height;
+	size_t                  d_taskID,d_seekID;
 };
