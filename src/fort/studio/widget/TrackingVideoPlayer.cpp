@@ -72,8 +72,7 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::MovieSegment::ConstPtr & se
 	emit durationChanged(start,end.Sub(start).Nanoseconds());
 
 	try {
-		d_task = new TrackingVideoPlayerTask(d_segment->AbsoluteFilePath().c_str(),
-		                                     d_widget->context());
+		d_task = new TrackingVideoPlayerTask(d_segment);
 	} catch ( const std::exception & e) {
 		qCritical() << "Got unexpected error: " << e.what();
 		d_task = nullptr;
@@ -82,7 +81,7 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::MovieSegment::ConstPtr & se
 	connect(d_task,&TrackingVideoPlayerTask::newFrame,
 	        this,&TrackingVideoPlayer::onNewVideoFrame);
 	connect(this,&TrackingVideoPlayer::frameDone,
-	        d_task,&TrackingVideoPlayerTask::onReleasedBuffer);
+	        d_task,&TrackingVideoPlayerTask::onReleasedImage);
 	d_task->startOn(d_movieThread);
 }
 
@@ -92,7 +91,7 @@ void TrackingVideoPlayer::stopAndWaitTask() {
 	}
 	d_task->stop();
 	for ( const auto & [time,frame] : d_frames ) {
-		emit frameDone(frame.Buffer);
+		emit frameDone(frame.Image);
 	}
 	d_frames.clear();
 	d_task->waitFinished();
@@ -136,34 +135,23 @@ void TrackingVideoPlayer::setPosition(qint64 nanoseconds) {
 }
 
 void TrackingVideoPlayer::onNewVideoFrame(TrackingVideoFrame frame) {
-	qWarning() << "Got frame " << frame.FrameID << " at " << ToQString(fm::Duration(frame.PositionMS * fm::Duration::Millisecond));
-	d_frames.insert(std::make_pair(frame.PositionMS * 1e6,frame));
-	emit displayVideoFrame(&((--d_frames.end())->second));
+	qWarning() << "Got frame " << frame.FrameID << " at " << ToQString(fm::Duration(frame.StartMS * fm::Duration::Millisecond));
+	d_frames.insert(std::make_pair(frame.StartMS * fm::Duration::Millisecond,frame));
+	emit displayVideoFrame(*(--d_frames.end())->second.Image);
 }
 
 
 
-TrackingVideoPlayerTask::TrackingVideoPlayerTask(const QString & path,
-                                                 QOpenGLContext * sharedContext)
+TrackingVideoPlayerTask::TrackingVideoPlayerTask(const fmp::MovieSegment::ConstPtr & segment)
 	: QObject(nullptr)
-	, d_capture(ToStdString(path))
-	, d_context(new QOpenGLContext(this))
-	, d_surface(new QOffscreenSurface(nullptr))
+	, d_capture(segment->AbsoluteFilePath().c_str())
 	, d_done(false) {
 	if ( d_capture.isOpened() == false ) {
-		throw std::runtime_error("Could not open '" + ToStdString(path) + "'");
+		throw std::runtime_error("Could not open '" + segment->AbsoluteFilePath().string() + "'");
 	}
-
-	d_surface->setFormat(sharedContext->format());
-	d_surface->create();
-
-	d_context->setFormat(sharedContext->format());
-	d_context->setShareContext(sharedContext);
-	d_context->create();
 
 	d_width = d_capture.get(cv::CAP_PROP_FRAME_WIDTH);
 	d_height = d_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
-
 
 	connect(this, &TrackingVideoPlayerTask::finished,
 	        [this]() {
@@ -178,70 +166,48 @@ void TrackingVideoPlayerTask::startOn(QThread * thread) {
 	connect(thread,&QThread::finished,
 	        this,&QObject::deleteLater);
 	this->moveToThread(thread);
-	d_context->moveToThread(thread);
 	metaObject()->invokeMethod(this,"start",Qt::QueuedConnection);
 }
 
 TrackingVideoPlayerTask::~TrackingVideoPlayerTask() {
-	delete d_surface;
 }
 
 void TrackingVideoPlayerTask::start() {
-	d_context->makeCurrent(d_surface);
 	for ( size_t i = 0; i < 3; ++i ) {
-		d_PBOs.push_back(QOpenGLBuffer(QOpenGLBuffer::PixelUnpackBuffer));
-		if ( d_PBOs.back().create() == false ) {
-			qCritical() << "Could not create PBO";
-		}
+		d_images.push_back(QImage(d_width,d_height,QImage::Format_RGB888));
 	}
-
-	d_context->doneCurrent();
 
 	d_stopped.store(false);
 
-	for (auto & fbo : d_PBOs) {
-		onReleasedBuffer(&fbo);
+	for (auto & image : d_images) {
+		onReleasedImage(&image);
 	}
 }
 
 
-void TrackingVideoPlayerTask::onReleasedBuffer(QOpenGLBuffer *pbo) {
-	std::cerr << "Got buffer " << (void*)pbo << std::endl;
-	d_waitingPBOs.erase(pbo);
+void TrackingVideoPlayerTask::onReleasedImage(QImage *image) {
+	d_waitingImages.erase(image);
 
 	TrackingVideoFrame frame;
 	frame.FrameID = d_capture.get(cv::CAP_PROP_POS_FRAMES);
-	frame.PositionMS = d_capture.get(cv::CAP_PROP_POS_MSEC);
+	frame.StartMS = d_capture.get(cv::CAP_PROP_POS_MSEC);
 
 	if ( d_stopped.load() == true || d_capture.grab() == false ) {
-		if ( d_waitingPBOs.empty() ) {
+		if ( d_waitingImages.empty() ) {
 			emit finished();
 		}
 		return;
 	}
 
+	frame.Image = image;
 
-	d_context->makeCurrent(d_surface);
-	if ( !pbo->bind() ) {
-		qCritical() << "Could not bind pbo";
-		d_context->doneCurrent();
-		return;
-	}
-
-	frame.Buffer = pbo;
-	frame.Width = d_width;
-	frame.Height = d_height;
-
-	pbo->allocate(3*d_width*d_height);
-	void * mapped = pbo->map(QOpenGLBuffer::ReadWrite);
-	cv::Mat mat(d_height,d_width,CV_8UC3,mapped);
+	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(image->constBits()));
 	d_capture.retrieve(mat);
-	pbo->unmap();
-	d_context->doneCurrent();
 
-	d_waitingPBOs.insert(pbo);
+	frame.EndMS = d_capture.get(cv::CAP_PROP_POS_MSEC);
+
+	d_waitingImages.insert(image);
 	emit newFrame(frame);
-
 }
 
 

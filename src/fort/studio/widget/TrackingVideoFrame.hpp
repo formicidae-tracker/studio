@@ -3,16 +3,15 @@
 #include <fort/myrmidon/priv/Types.hpp>
 
 #include <QObject>
+#include <QImage>
 
 namespace fmp = fort::myrmidon::priv;
 
-class QOpenGLBuffer;
 
 
 struct TrackingVideoFrame {
-	QOpenGLBuffer                * Buffer;
-	int                            Width,Height;
-	qint64                         PositionMS;
+	QImage                       * Image;
+	qint64                         StartMS,EndMS;
 	fmp::MovieFrameID              FrameID;
 	fmp::IdentifiedFrame::ConstPtr TrackingFrame;
 };

@@ -12,8 +12,6 @@
 
 #include "TrackingVideoFrame.hpp"
 
-class QOpenGLBuffer;
-
 class TrackingVideoWidget;
 class QThread;
 
@@ -67,9 +65,9 @@ signals:
 
 	void playbackStateChanged(State state);
 
-	void frameDone(QOpenGLBuffer * buffer);
+	void frameDone(QImage * image);
 
-	void displayVideoFrame(TrackingVideoFrame * frame);
+	void displayVideoFrame(QImage image);
 private slots:
 	void onNewVideoFrame(TrackingVideoFrame frame);
 
@@ -83,19 +81,14 @@ private:
 	TrackingVideoWidget       * d_widget;
 	QThread                   * d_movieThread;
 
-	std::map<qint64,TrackingVideoFrame> d_frames;
+	std::map<fm::Duration,TrackingVideoFrame> d_frames;
 };
-
-
-class QOpenGLContext;
-class QOffscreenSurface;
 
 
 class TrackingVideoPlayerTask : public QObject {
 Q_OBJECT
 public:
-	explicit TrackingVideoPlayerTask(const QString & path,
-	                                 QOpenGLContext * sharedContext);
+	explicit TrackingVideoPlayerTask(const fmp::MovieSegment::ConstPtr & segment);
 
 	virtual ~TrackingVideoPlayerTask();
 
@@ -113,23 +106,19 @@ signals:
 	void finished();
 
 public slots:
-
-	void onReleasedBuffer(QOpenGLBuffer *);
-
+	void onReleasedImage(QImage * image);
 
 private slots:
 	void start();
 	void seek(quint64 pos);
 
 private:
-	cv::VideoCapture    d_capture;
-	QOpenGLContext    * d_context;
-	QOffscreenSurface * d_surface;
+	cv::VideoCapture        d_capture;
 	std::condition_variable d_condition;
 	std::mutex              d_mutex;
 	bool                    d_done;
 	std::atomic<bool>       d_stopped;
-	std::vector<QOpenGLBuffer> d_PBOs;
-	std::set<QOpenGLBuffer*>   d_waitingPBOs;
-	int                        d_width,d_height;
+	std::vector<QImage>     d_images;
+	std::set<QImage*>       d_waitingImages;
+	int                     d_width,d_height;
 };

@@ -1,31 +1,21 @@
 #pragma once
 
-#include <QOpenGLWidget>
-#include <QOpenGLTextureBlitter>
-#include <QOpenGLTexture>
-#include <QOpenGLBuffer>
-#include <memory>
+#include <QWidget>
+#include <QImage>
 
-class TrackingVideoFrame;
-class QOpenGLFramebufferObject;
 
-class TrackingVideoWidget : public QOpenGLWidget {
+
+class TrackingVideoWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
 	~TrackingVideoWidget();
 
 public slots:
-	void display(TrackingVideoFrame * frame);
+	void display(QImage image);
 
 protected:
-	void initializeGL() override;
-	void paintGL() override;
-	void resizeGL(int w, int h) override;
-
-private :
-	std::shared_ptr<QOpenGLFramebufferObject> d_fbo;
-	QOpenGLTextureBlitter                     d_blitter;
-	quint32                                   d_texture;
-	quint32                                   d_triangle;
+	void paintEvent(QPaintEvent * event) override;
+private:
+	QImage d_image;
 };
