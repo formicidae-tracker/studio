@@ -201,7 +201,7 @@ void TrackingVideoPlayerTask::onReleasedImage(QImage *image) {
 
 	frame.Image = image;
 
-	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(image->constBits()));
+	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(image->constBits()),image->bytesPerLine());
 	d_capture.retrieve(mat);
 
 	frame.EndMS = d_capture.get(cv::CAP_PROP_POS_MSEC);
