@@ -14,7 +14,7 @@
 #include "Logger.hpp"
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
-#include <fort/studio/widget/base/ColorComboBox.hpp>
+
 #include <QToolBar>
 #include <QPushButton>
 

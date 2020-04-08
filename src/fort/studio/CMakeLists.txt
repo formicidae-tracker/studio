@@ -14,6 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
+              MyrmidonTypes.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
 			  bridge/MeasurementBridge.cpp

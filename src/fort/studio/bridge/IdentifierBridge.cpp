@@ -261,7 +261,7 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 
 QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	auto c = ant->DisplayColor();
-	return ColorComboBox::iconFromColor(ColorComboBox::fromMyrmidon(c));
+	return ColorComboBox::iconFromColor(Conversion::colorFromFM(c));
 }
 
 QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <QObject>
+#include <QColor>
+
 #include <fort/tags/fort-tags.h>
 #include <fort/myrmidon/priv/Ant.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
@@ -36,3 +40,9 @@ Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
 Q_DECLARE_METATYPE(fmp::AntMetadata::Column::Ptr)
 Q_DECLARE_METATYPE(fmp::MovieSegment::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Experiment::ConstPtr)
+
+
+class Conversion {
+public:
+	static QColor colorFromFM(const fmp::Color & color, int opacity = 255);
+};

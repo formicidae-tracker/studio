@@ -6,7 +6,6 @@
 
 #include <fort/studio/bridge/IdentifierBridge.hpp>
 
-#include <fort/studio/widget/base/ColorComboBox.hpp>
 
 #include <QPainter>
 
@@ -75,7 +74,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter,
 		     || a->DisplayStatus() == fmp::Ant::DisplayState::HIDDEN ) {
 			continue;
 		}
-		auto c = ColorComboBox::fromMyrmidon(a->DisplayColor());
+		auto c = Conversion::colorFromFM(a->DisplayColor(),150);
 		painter->setBrush(c);
 		painter->drawEllipse(QRectF(ratio * pa.Position.x() - ANT_HALF_SIZE,
 		                            ratio * pa.Position.y() - ANT_HALF_SIZE,
