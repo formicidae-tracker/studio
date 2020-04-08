@@ -9,13 +9,14 @@
 const int MovieBridge::PtrRole = Qt::UserRole+1;
 const int MovieBridge::IDRole  = Qt::UserRole+2;
 const int MovieBridge::StartRole  = Qt::UserRole+3;
-const int MovieBridge::EndRole  = Qt::UserRole+4;
+const int MovieBridge::TddRole  = Qt::UserRole+4;
 
 MovieBridge::MovieBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::MovieSegment::ConstPtr>();
 	qRegisterMetaType<fm::Time>();
+	qRegisterMetaType<fmp::TrackingDataDirectory::ConstPtr>();
 }
 
 
@@ -41,15 +42,15 @@ QAbstractItemModel * MovieBridge::movieModel() {
 }
 
 
-std::tuple<fmp::MovieSegmentConstPtr,fm::Time,fm::Time>
-MovieBridge::movieSegment(const QModelIndex & index) const {
+std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegment::ConstPtr,fm::Time>
+MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
 	auto item = d_model->itemFromIndex(index);
 	if ( item == nullptr ) {
-		return std::make_tuple(fmp::MovieSegment::ConstPtr(),fm::Time(),fm::Time());
+		return std::make_tuple(fmp::TrackingDataDirectory::ConstPtr(),fmp::MovieSegment::ConstPtr(),fm::Time());
 	}
-	return std::make_tuple(item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>(),
-	                       item->data(StartRole).value<fm::Time>(),
-	                       item->data(EndRole).value<fm::Time>());
+	return std::make_tuple(item->data(TddRole).value<fmp::TrackingDataDirectory::ConstPtr>(),
+	                       item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>(),
+	                       item->data(StartRole).value<fm::Time>());
 }
 
 
@@ -112,19 +113,20 @@ QList<QStandardItem*> MovieBridge::buildTDD(const fmp::TrackingDataDirectoryCons
 
 	for ( const auto & [ref,segment] : tdd->MovieSegments().Segments() ) {
 		auto endTime = tdd->FrameReferenceAt(segment->EndFrame()).Time();
-		nameItem->appendRow(buildMovieSegment(segment,ref.Time(),endTime));
+		nameItem->appendRow(buildMovieSegment(tdd,segment,ref.Time(),endTime));
 
 	}
 	return {nameItem,startItem,endItem};
 }
 
 
-QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentConstPtr & ms,
+QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+                                                     const fmp::MovieSegmentConstPtr & ms,
                                                      const fm::Time & start,
                                                      const fm::Time & end) {
 	auto ptrData = QVariant::fromValue(ms);
 	auto startData = QVariant::fromValue(start);
-	auto endData = QVariant::fromValue(end);
+	auto tddData = QVariant::fromValue(tdd);
 	auto nameItem = new QStandardItem(QString("movies/%1").arg(ms->ID()));
 	nameItem->setData(ToQString(ms->URI()),IDRole);
 
@@ -138,7 +140,7 @@ QList<QStandardItem*> MovieBridge::buildMovieSegment(const fmp::MovieSegmentCons
 		i->setEditable(false);
 		i->setData(ptrData,PtrRole);
 		i->setData(startData,StartRole);
-		i->setData(endData,EndRole);
+		i->setData(tddData,TddRole);
 	}
 
 	return res;

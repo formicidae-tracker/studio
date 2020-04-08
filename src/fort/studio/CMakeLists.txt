@@ -3,6 +3,10 @@ if(NOT DEBUG_VIDEO_PLAYER)
 	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")
 endif(NOT DEBUG_VIDEO_PLAYER)
 
+option(DEBUG_CONCURRENT_LOADER Off "Debugs the concurrent Frame loader with expensive output")
+if(NOT DEBUG_CONCURRENT_LOADER)
+	add_definitions("-DFORT_STUDIO_CONC_LOADER_NDEBUG=1")
+endif(NOT DEBUG_CONCURRENT_LOADER)
 
 
 set(CMAKE_AUTOMOC ON)

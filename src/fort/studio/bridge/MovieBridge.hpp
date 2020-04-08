@@ -23,7 +23,8 @@ public :
 
 	QAbstractItemModel * movieModel();
 
-	std::tuple<fmp::MovieSegmentConstPtr,fm::Time,fm::Time> movieSegment(const QModelIndex & index) const;
+	std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	tddAndMovieSegment(const QModelIndex & index) const;
 
 public slots:
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
@@ -33,12 +34,13 @@ private :
 	const static int PtrRole;
 	const static int IDRole;
 	const static int StartRole;
-	const static int EndRole;
+	const static int TddRole;
 
 
 	static QList<QStandardItem*> buildSpace(const fmp::SpaceConstPtr & space);
 	static QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
-	static QList<QStandardItem*> buildMovieSegment(const fmp::MovieSegmentConstPtr & ms,
+	static QList<QStandardItem*> buildMovieSegment(const fmp::TrackingDataDirectoryConstPtr & tdd,
+	                                               const fmp::MovieSegmentConstPtr & ms,
 	                                               const fm::Time & start,
 	                                               const fm::Time & end);
 

@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
 	        });
 	d_ui->workspaceSelector->setCurrentIndex(0);
 
-	d_ui->visualizeWidget->setup(d_experiment->movies());
+	d_ui->visualizeWidget->setup(d_experiment);
 
 	setWindowTitle(tr("FORmicidae Tracker Studio"));
 	connect(d_experiment,

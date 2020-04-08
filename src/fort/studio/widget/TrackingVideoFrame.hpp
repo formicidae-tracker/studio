@@ -19,7 +19,7 @@ namespace fm = fort::myrmidon;
 #ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 #include <mutex>
 #define VIDEO_PLAYER_DEBUG(statements) do {	  \
-		std::unique_lock_guard<std::mutex> debugLock(TrackingVideoFrame::debugMutex); \
+		std::lock_guard<std::mutex> debugLock(TrackingVideoFrame::debugMutex); \
 		statements; \
 	} while(0)
 #else

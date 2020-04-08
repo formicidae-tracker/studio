@@ -8,7 +8,7 @@ namespace Ui {
 class VisualizationWidget;
 }
 
-class MovieBridge;
+class ExperimentBridge;
 class TrackingVideoPlayer;
 
 class VisualizationWidget : public QWidget {
@@ -17,10 +17,9 @@ public:
 	explicit VisualizationWidget(QWidget *parent = 0);
 	~VisualizationWidget();
 
-	void setup(MovieBridge * bridge);
+	void setup(ExperimentBridge * experiment);
 
 private:
 	Ui::VisualizationWidget * d_ui;
-	MovieBridge             * d_bridge;
 	TrackingVideoPlayer     * d_videoPlayer;
 };

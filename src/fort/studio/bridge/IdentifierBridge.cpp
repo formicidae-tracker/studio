@@ -486,3 +486,15 @@ bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
 SelectedAntBridge * IdentifierBridge::selectedAnt() const {
 	return d_selectedAnt;
 }
+
+fmp::Ant::ConstPtr IdentifierBridge::ant(fm::Ant::ID aID) const {
+	if ( !d_experiment == true ) {
+		return fmp::Ant::ConstPtr();
+	}
+	const auto & ants = d_experiment->ConstIdentifier().Ants();
+	auto fi = ants.find(aID);
+	if ( fi == ants.cend() ) {
+		return fmp::Ant::ConstPtr();
+	}
+	return fi->second;
+}

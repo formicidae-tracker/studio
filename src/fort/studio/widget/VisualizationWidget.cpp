@@ -1,7 +1,7 @@
 #include "VisualizationWidget.hpp"
 #include "ui_VisualizationWidget.h"
 
-#include <fort/studio/bridge/MovieBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
 
 #include "TrackingVideoPlayer.hpp"
 
@@ -25,10 +25,12 @@ VisualizationWidget::~VisualizationWidget() {
 	delete d_ui;
 }
 
-void VisualizationWidget::setup(MovieBridge * bridge) {
-	d_ui->treeView->setModel(bridge->movieModel());
+void VisualizationWidget::setup(ExperimentBridge * experiment) {
+	auto movieBridge = experiment->movies();
+
+	d_ui->treeView->setModel(movieBridge->movieModel());
 	d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	connect(bridge->movieModel(),
+	connect(movieBridge->movieModel(),
 	        &QAbstractItemModel::rowsInserted,
 	        d_ui->treeView,
 	        &QTreeView::expandAll);
@@ -37,12 +39,14 @@ void VisualizationWidget::setup(MovieBridge * bridge) {
 
 	connect(d_ui->treeView,
 	        &QAbstractItemView::activated,
-	        [this,bridge] ( const QModelIndex & index ) {
-		        auto segmentAndTime = bridge->movieSegment(index);
-		        auto segment = std::get<0>(segmentAndTime);
-		        if ( !segment ) {
+	        [this,movieBridge] ( const QModelIndex & index ) {
+		        const auto & [tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
+		        if ( !segment == true || !tdd == true) {
 			        return;
 		        }
-		        d_videoPlayer->setMovieSegment(segment,std::get<1>(segmentAndTime));
+		        d_videoPlayer->setMovieSegment(tdd,segment,start);
 	        });
+
+	d_videoPlayer->setup(experiment->identifiedFrameLoader());
+	d_ui->trackingVideoWidget->setup(experiment->identifier());
 }

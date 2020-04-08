@@ -6,8 +6,7 @@
 #include <vector>
 #include <atomic>
 
-#include <fort/myrmidon/priv/ForwardDeclaration.hpp>
-#include <fort/myrmidon/priv/Types.hpp>
+#include <fort/studio/MyrmidonTypes.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -22,9 +21,11 @@ public:
 
 	bool isDone() const;
 
-	void setExperiment(const fmp::ExperimentConstPtr & experiment);
+	void setExperiment(const fmp::Experiment::ConstPtr & experiment);
 
 	const fmp::IdentifiedFrame::ConstPtr & FrameAt(fmp::MovieFrameID movieID) const;
+
+	void moveToThread(QThread * thread);
 
 public slots:
 	void loadMovieSegment(const fmp::TrackingDataDirectoryConstPtr & tdd,
@@ -35,10 +36,15 @@ signals:
 	void progressChanged(int done,int toDo);
 	void done(bool);
 
+private slots:
+	void setExperimentUnsafe(fmp::Experiment::ConstPtr experiment);
+	void addDone(int done);
+
 private :
 	void abordCurrent();
 
 	void setProgress(int done,int toDo);
+
 
 	typedef QHash<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> FramesByMovieID;
 	typedef std::pair<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> ConcurrentResult;
@@ -47,6 +53,7 @@ private :
 	FramesByMovieID         d_frames;
 	int                     d_done,d_toDo;
 
-	std::vector<std::shared_ptr<std::atomic<bool>>> d_abordFlags;
-	size_t                                          d_currentLoading;
+	std::shared_ptr<std::atomic<bool>> d_abordFlag;
+	size_t                             d_currentLoadingID;
+	Qt::ConnectionType                 d_connectionType;
 };

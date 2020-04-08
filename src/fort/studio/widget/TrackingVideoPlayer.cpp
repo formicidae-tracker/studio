@@ -7,6 +7,7 @@
 #include <limits>
 
 #include <fort/studio/Format.hpp>
+#include <fort/studio/bridge/IdentifiedFrameConcurrentLoader.hpp>
 
 #include "TrackingVideoWidget.hpp"
 
@@ -36,6 +37,15 @@ TrackingVideoPlayer::~TrackingVideoPlayer() {
 	d_movieThread->deleteLater();
 }
 
+void TrackingVideoPlayer::setup(IdentifiedFrameConcurrentLoader * loader) {
+	d_loader =  loader;
+	d_loader->setParent(nullptr);
+	connect(d_movieThread,&QThread::finished,
+	        d_loader,&QObject::deleteLater);
+	d_loader->IdentifiedFrameConcurrentLoader::moveToThread(d_movieThread);
+}
+
+
 TrackingVideoPlayer::State TrackingVideoPlayer::playbackState() const {
 	return d_state;
 }
@@ -56,35 +66,18 @@ fm::Time TrackingVideoPlayer::start() const {
 	return d_start;
 }
 
-
-void TrackingVideoPlayer::setMovieSegment(const fmp::MovieSegment::ConstPtr & segment,
-                                          const fm::Time & start) {
-	if ( !segment ) {
+void TrackingVideoPlayer::stopTask() {
+	if ( d_task == nullptr ) {
 		return;
 	}
+	d_task->deleteLater();
+	d_task = nullptr;
+	d_frames.clear();
+	d_stagging.clear();
+}
 
-	if ( d_task != nullptr ) {
-		d_task->deleteLater();
-		d_task = nullptr;
-		d_frames.clear();
-		d_stagging.clear();
-	}
-	d_segment = segment;
-
-	try {
-		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment);
-		d_currentSeekID = 0;
-		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
-		d_start = start;
-		d_duration = d_interval * d_task->numberOfFrame();
-		emit durationChanged(start,d_duration);
-		d_timer->setInterval(d_interval.Milliseconds() * d_rate);
-		d_position = 0;
-		emit positionChanged(d_position);
-		d_displayNext = true;
-	} catch ( const std::exception & e) {
-		qCritical() << "Got unexpected error: " << e.what();
-		d_task = nullptr;
+void TrackingVideoPlayer::bootstrapTask(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+	if ( d_task == nullptr ) {
 		return;
 	}
 
@@ -104,9 +97,43 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::MovieSegment::ConstPtr & se
 	        this,&TrackingVideoPlayer::onNewVideoFrame,
 	        Qt::QueuedConnection);
 
+	d_task->startLoadingFrom(tdd);
+
 	for ( const auto & f : frames ) {
 		d_task->processNewFrame(f);
 	}
+
+}
+
+void TrackingVideoPlayer::setMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+                                          const fmp::MovieSegment::ConstPtr & segment,
+                                          const fm::Time & start) {
+	if ( !segment ) {
+		return;
+	}
+
+	stopTask();
+
+	d_segment = segment;
+
+	try {
+		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment,d_loader);
+		d_currentSeekID = 0;
+		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
+		d_start = start;
+		d_duration = d_interval * d_task->numberOfFrame();
+		emit durationChanged(start,d_duration);
+		d_timer->setInterval(d_interval.Milliseconds() * d_rate);
+		d_position = 0;
+		emit positionChanged(d_position);
+		d_displayNext = true;
+	} catch ( const std::exception & e) {
+		qCritical() << "Got unexpected error: " << e.what();
+		d_task = nullptr;
+		return;
+	}
+
+	bootstrapTask(tdd);
 }
 
 void TrackingVideoPlayer::pause() {
@@ -133,6 +160,7 @@ void TrackingVideoPlayer::stop() {
 	}
 	d_state = State::Stopped;
 	d_timer->stop();
+	emit displayVideoFrame(TrackingVideoFrame());
 	emit playbackStateChanged(d_state);
 }
 
@@ -197,8 +225,8 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 	}
 
 	if ( frame.FrameID == std::numeric_limits<fmp::MovieFrameID>::max() ) {
-		VIDEO_PLAYER_DEBUG(std::cerr << "EOF: stagging frame " << frame << std::endl);
 		// no frame case at end of file.
+		VIDEO_PLAYER_DEBUG(std::cerr << "EOF: stagging frame " << frame << std::endl);
 		d_stagging.push_back(frame);
 		return;
 	}
@@ -211,6 +239,7 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 		d_displayNext = false;
 		d_position = d_frames.back().StartPos;
 		emit displayVideoFrame(d_frames.back());
+
 	}
 }
 
@@ -276,8 +305,7 @@ void TrackingVideoPlayer::onTimerTimeout() {
 		});
 
 	if ( d_frames.empty() == true ) {
-		if ( d_task != nullptr && d_stagging.empty() == false ) {
-			emit displayVideoFrame(TrackingVideoFrame());
+		if ( d_stagging.empty() == false ) {
 			stop();
 		}
 		return;
@@ -292,9 +320,13 @@ void TrackingVideoPlayer::onTimerTimeout() {
 }
 
 
-TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID, const fmp::MovieSegment::ConstPtr & segment)
+TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
+                                                 const fmp::MovieSegment::ConstPtr & segment,
+                                                 IdentifiedFrameConcurrentLoader * loader)
 	: QObject(nullptr)
+	, d_segment(segment)
 	, d_capture(segment->AbsoluteFilePath().c_str())
+	, d_loader(loader)
 	, d_taskID(taskID)
 	, d_seekID(0) {
 	if ( d_capture.isOpened() == false ) {
@@ -358,6 +390,7 @@ void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
 			std::cerr << "emitting new Frame Image " << frame << " on seek " << d_seekID << std::endl;
 			std::cerr << "Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
+	frame.TrackingFrame = d_loader->FrameAt(frame.FrameID);
 
 	emit newFrame(d_taskID,d_seekID,frame);
 }
@@ -375,3 +408,14 @@ void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fm::Duration position) {
 	d_seekID = seekID;
 	d_capture.set(cv::CAP_PROP_POS_MSEC,qint64(position.Milliseconds()));
 };
+
+void TrackingVideoPlayerTask::startLoadingFrom(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+	VIDEO_PLAYER_DEBUG(std::cerr << "startLoadingFrom" << std::endl);
+	metaObject()->invokeMethod(this,"startLoadingFromUnsafe",Qt::BlockingQueuedConnection,
+	                           Q_ARG(fmp::TrackingDataDirectory::ConstPtr,tdd));
+}
+
+void TrackingVideoPlayerTask::startLoadingFromUnsafe(fmp::TrackingDataDirectory::ConstPtr tdd) {
+	VIDEO_PLAYER_DEBUG(std::cerr << "startLoadingFromUnsafe" << std::endl);
+	d_loader->loadMovieSegment(tdd, d_segment);
+}

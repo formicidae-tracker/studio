@@ -12,6 +12,7 @@
 
 #include "TrackingVideoFrame.hpp"
 
+class IdentifiedFrameConcurrentLoader;
 class TrackingVideoWidget;
 class QThread;
 
@@ -38,6 +39,9 @@ public:
 	explicit TrackingVideoPlayer(QObject * parent = nullptr);
 	virtual ~TrackingVideoPlayer();
 
+
+	void setup(IdentifiedFrameConcurrentLoader * loader);
+
 	qreal playbackRate() const;
 
 	State playbackState() const;
@@ -51,7 +55,8 @@ public slots:
 	void pause();
 	void play();
 	void stop();
-	void setMovieSegment(const fmp::MovieSegment::ConstPtr & segment,
+	void setMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+	                     const fmp::MovieSegment::ConstPtr & segment,
 	                     const fm::Time & start);
 
 	void setPlaybackRate(qreal rate);
@@ -75,7 +80,12 @@ private slots:
 private:
 	void sendToProcess(TrackingVideoFrame frame);
 
-	TrackingVideoPlayerTask   * d_task;
+	void stopTask();
+	void bootstrapTask(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+
+	TrackingVideoPlayerTask             * d_task;
+	IdentifiedFrameConcurrentLoader     * d_loader;
+
 	State                       d_state;
 	fmp::MovieSegment::ConstPtr d_segment;
 	qreal                       d_rate;
@@ -98,7 +108,9 @@ private:
 class TrackingVideoPlayerTask : public QObject {
 Q_OBJECT
 public:
-	explicit TrackingVideoPlayerTask(size_t taskID, const fmp::MovieSegment::ConstPtr & segment);
+	explicit TrackingVideoPlayerTask(size_t taskID,
+	                                 const fmp::MovieSegment::ConstPtr & segment,
+	                                 IdentifiedFrameConcurrentLoader * loader);
 
 	virtual ~TrackingVideoPlayerTask();
 
@@ -106,6 +118,8 @@ public:
 	qint64 numberOfFrame() const;
 
 	std::shared_ptr<QImage> allocate() const;
+
+	void startLoadingFrom(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 
 	void processNewFrame(TrackingVideoFrame frame);
 
@@ -119,9 +133,12 @@ private slots:
 
 	void processNewFrameUnsafe(TrackingVideoFrame frame);
 
+	void startLoadingFromUnsafe(fmp::TrackingDataDirectory::ConstPtr tdd);
+
 private:
-	cv::VideoCapture        d_capture;
-	std::condition_variable d_condition;
-	int                     d_width,d_height;
-	size_t                  d_taskID,d_seekID;
+	fmp::MovieSegment::ConstPtr       d_segment;
+	cv::VideoCapture                  d_capture;
+	IdentifiedFrameConcurrentLoader * d_loader;
+	int                               d_width,d_height;
+	size_t                            d_taskID,d_seekID;
 };
