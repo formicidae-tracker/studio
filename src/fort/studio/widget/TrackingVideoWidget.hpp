@@ -26,6 +26,7 @@ protected:
 	                        int targetHeigth);
 
 private:
+
 	QImage d_image;
 	IdentifierBridge * d_identifier;
 };

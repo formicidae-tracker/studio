@@ -8,6 +8,12 @@ VideoPlayerControl::VideoPlayerControl(QWidget *parent)
 	, d_ui(new Ui::VideoPlayerControl)
 	, d_player(nullptr) {
 	d_ui->setupUi(this);
+
+	d_ui->comboBox->addItem("x 1.00",1.0);
+	d_ui->comboBox->addItem("x 1.50",1.5);
+	d_ui->comboBox->addItem("x 2.00",2.0);
+	d_ui->comboBox->addItem("x 4.00",4.0);
+	d_ui->comboBox->addItem("x 8.00",8.0);
 }
 
 VideoPlayerControl::~VideoPlayerControl(){
@@ -31,6 +37,20 @@ void VideoPlayerControl::setup(TrackingVideoPlayer * player) {
 	        this,
 	        &VideoPlayerControl::onPlayerPositionChanged);
 
+	connect(d_ui->horizontalSlider,
+	        &QAbstractSlider::sliderMoved,
+	        d_player,
+	        [this]( int value ) {
+		        d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
+	        },
+	        Qt::QueuedConnection);
+	connect(d_player,
+	        &TrackingVideoPlayer::seekReady,
+	        d_ui->horizontalSlider,
+	        &QWidget::setEnabled);
+	d_ui->horizontalSlider->setEnabled(d_player->isSeekReady());
+
+	onPlayerPlaybackRateChanged(d_player->playbackRate());
 }
 
 
@@ -49,14 +69,6 @@ void VideoPlayerControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::State
 		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
 		break;
 	}
-
-	connect(d_ui->horizontalSlider,
-	        &QAbstractSlider::sliderMoved,
-	        d_player,
-	        [this]( int value ) {
-		        d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
-	        },
-	        Qt::QueuedConnection);
 }
 
 void VideoPlayerControl::onPlayerPositionChanged(fm::Duration position) {
@@ -128,4 +140,22 @@ QString VideoPlayerControl::formatDuration(fm::Duration duration) {
 		.arg(minutes,2,10,QLatin1Char('0'))
 		.arg(seconds,2,10,QLatin1Char('0'))
 		.arg(int(duration.Milliseconds()),3,10,QLatin1Char('0'));
+}
+
+
+void VideoPlayerControl::on_comboBox_currentIndexChanged(int index) {
+	if ( index < 0 || d_player == nullptr ) {
+		return;
+	}
+	d_player->setPlaybackRate(d_ui->comboBox->currentData().toDouble());
+}
+
+void VideoPlayerControl::onPlayerPlaybackRateChanged(qreal rate) {
+	for( size_t i = 0 ; i < d_ui->comboBox->count(); ++i ) {
+		if ( d_ui->comboBox->itemData(i).toDouble() == rate ) {
+			d_ui->comboBox->setCurrentIndex(i);
+			return;
+		}
+	}
+	d_ui->comboBox->setCurrentIndex(-1);
 }

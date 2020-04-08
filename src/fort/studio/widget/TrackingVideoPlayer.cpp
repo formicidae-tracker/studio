@@ -18,7 +18,8 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 	, d_rate(1.0)
 	, d_movieThread(new QThread())
 	, d_timer(new QTimer(this))
-	, d_currentTaskID(0) {
+	, d_currentTaskID(0)
+	, d_seekReady(false) {
 	d_movieThread->start();
 	qRegisterMetaType<fm::Time>();
 	qRegisterMetaType<fm::Duration>();
@@ -29,6 +30,7 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 	        &QTimer::timeout,
 	        this,
 	        &TrackingVideoPlayer::onTimerTimeout);
+
 }
 
 TrackingVideoPlayer::~TrackingVideoPlayer() {
@@ -43,6 +45,17 @@ void TrackingVideoPlayer::setup(IdentifiedFrameConcurrentLoader * loader) {
 	connect(d_movieThread,&QThread::finished,
 	        d_loader,&QObject::deleteLater);
 	d_loader->IdentifiedFrameConcurrentLoader::moveToThread(d_movieThread);
+	connect(d_loader,
+	        &IdentifiedFrameConcurrentLoader::done,
+	        this,
+	        &TrackingVideoPlayer::setSeekReady,
+	        Qt::QueuedConnection);
+	setSeekReady(d_loader->isDone());
+
+}
+
+bool TrackingVideoPlayer::isSeekReady() const {
+	return d_seekReady;
 }
 
 
@@ -83,7 +96,7 @@ void TrackingVideoPlayer::bootstrapTask(const fmp::TrackingDataDirectory::ConstP
 
 	std::vector<TrackingVideoFrame> frames;
 
-	for ( size_t i = 0; i < 3; ++i) {
+	for ( size_t i = 0; i < BUFFER_SIZE; ++i) {
 		TrackingVideoFrame f;
 		f.Image = d_task->allocate();
 		frames.push_back(f);
@@ -123,7 +136,7 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::TrackingDataDirectory::Cons
 		d_start = start;
 		d_duration = d_interval * d_task->numberOfFrame();
 		emit durationChanged(start,d_duration);
-		d_timer->setInterval(d_interval.Milliseconds() * d_rate);
+		d_timer->setInterval(d_interval.Milliseconds() / d_rate);
 		d_position = 0;
 		emit positionChanged(d_position);
 		d_displayNext = true;
@@ -150,12 +163,12 @@ void TrackingVideoPlayer::play() {
 		return;
 	}
 	d_state = State::Playing;
-	d_timer->start(d_interval.Milliseconds() * d_rate);
+	d_timer->start(d_interval.Milliseconds() / d_rate);
 	emit playbackStateChanged(d_state);
 }
 
 void TrackingVideoPlayer::stop() {
-	if ( !d_segment || d_state != State::Playing ) {
+	if ( !d_segment || d_state == State::Stopped ) {
 		return;
 	}
 	d_state = State::Stopped;
@@ -171,13 +184,12 @@ void TrackingVideoPlayer::setPlaybackRate(qreal rate) {
 	}
 	d_rate = rate;
 	if ( d_interval.Nanoseconds() != 0 ) {
-		d_timer->setInterval(d_interval.Milliseconds() * d_rate);
+		d_timer->setInterval(d_interval.Milliseconds() / d_rate);
 	}
 	emit playbackRateChanged(rate);
 }
 
 void TrackingVideoPlayer::setPosition(fm::Duration position) {
-	std::lock_guard<std::mutex> seekLock(d_seekMutex);
 	VIDEO_PLAYER_DEBUG(std::cerr << "[setPosition]: Thread is " << QThread::currentThread() << " myself is " << thread() << std::endl);
 
 	if ( d_task == nullptr ) {
@@ -202,7 +214,6 @@ void TrackingVideoPlayer::setPosition(fm::Duration position) {
 }
 
 void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, TrackingVideoFrame frame) {
-	std::lock_guard<std::mutex> seekLock(d_seekMutex);
 	VIDEO_PLAYER_DEBUG({
 			std::cerr << "[onNewVideoFrame]: Thread is " << QThread::currentThread() << " myself is " << thread() << std::endl;
 			std::cerr << "Received from Task:" << taskID << " from seek " << seekID << " frame " << frame << std::endl;
@@ -232,6 +243,13 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 	}
 
 	VIDEO_PLAYER_DEBUG(std::cerr << "Pushing frame " << frame << std::endl);
+
+	if ( d_displayNext == false && frame.EndPos < d_position ) {
+		// already old, we discard it
+		d_task->processNewFrame(frame);
+		return;
+	}
+
 
 	d_frames.push_back(frame);
 	if (d_displayNext == true ) {
@@ -418,4 +436,12 @@ void TrackingVideoPlayerTask::startLoadingFrom(const fmp::TrackingDataDirectory:
 void TrackingVideoPlayerTask::startLoadingFromUnsafe(fmp::TrackingDataDirectory::ConstPtr tdd) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "startLoadingFromUnsafe" << std::endl);
 	d_loader->loadMovieSegment(tdd, d_segment);
+}
+
+void TrackingVideoPlayer::setSeekReady(bool ready) {
+	if ( ready == d_seekReady) {
+		return;
+	}
+	d_seekReady = ready;
+	emit seekReady(d_seekReady);
 }

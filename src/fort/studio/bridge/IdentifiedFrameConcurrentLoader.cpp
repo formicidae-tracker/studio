@@ -85,7 +85,6 @@ IdentifiedFrameConcurrentLoader::FrameAt(fmp::MovieFrameID movieID) const {
 }
 
 
-
 void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
@@ -114,7 +113,11 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 		// avoids deadlock on the global instance !!!
 		QThreadPool::globalInstance()->setMaxThreadCount(maxThreadCount);
 	}
-	CONC_LOADER_DEBUG(std::cerr << "Setting nbFrames to " << segment->EndFrame() - segment->StartFrame() + 1 << std::endl);
+	CONC_LOADER_DEBUG({
+			std::cerr << "Setting nbFrames to " << segment->EndFrame() - segment->StartFrame() + 1 << std::endl;
+			std::cerr << "Segment:[" << segment->StartFrame() << ";" << segment->EndFrame() << "]" << std::endl;
+			std::cerr << "TDD:[" << tdd->StartFrame() << ";" << tdd->EndFrame() << "]" << std::endl;
+		});
 	setProgress(0, segment->EndFrame() - segment->StartFrame() + 1);
 	// even if we take one of the thread to populate tge other, we
 	// make sure there could be one in the queue, but no more, to be

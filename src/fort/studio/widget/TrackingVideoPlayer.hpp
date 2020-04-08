@@ -51,6 +51,8 @@ public:
 	fm::Duration duration() const;
 
 	fm::Time start() const;
+
+	bool isSeekReady() const;
 public slots:
 	void pause();
 	void play();
@@ -64,6 +66,8 @@ public slots:
 	void setPosition(fm::Duration position);
 
 signals:
+	void seekReady(bool ready);
+
 	void durationChanged(fm::Time start,fm::Duration duration);
 	void positionChanged(fm::Duration duration);
 
@@ -77,7 +81,10 @@ private slots:
 	void onNewVideoFrame(size_t taskID, size_t localIndex, TrackingVideoFrame frame);
 
 	void onTimerTimeout();
+
+	void setSeekReady(bool value);
 private:
+	const static size_t BUFFER_SIZE = 3;
 	void sendToProcess(TrackingVideoFrame frame);
 
 	void stopTask();
@@ -101,7 +108,7 @@ private:
 	size_t                          d_currentTaskID;
 	size_t                          d_currentSeekID;
 	std::vector<TrackingVideoFrame> d_frames,d_stagging;
-	std::mutex                      d_seekMutex;
+	bool                            d_seekReady;
 };
 
 

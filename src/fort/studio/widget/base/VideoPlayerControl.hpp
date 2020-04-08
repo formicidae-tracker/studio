@@ -18,7 +18,6 @@ public:
 
 	void setup(TrackingVideoPlayer * player);
 
-
 signals:
 	void seek(fm::Duration duration);
 	void play();
@@ -31,11 +30,14 @@ signals:
 
 private slots:
 	void onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state);
+	void onPlayerPlaybackRateChanged(qreal rate);
+
 	void onPlayerPositionChanged(fm::Duration positionMS);
 	void onPlayerDurationChanged(const fm::Time & time, fm::Duration durationMS);
 
 	void on_stopButton_clicked();
 	void on_playButton_clicked();
+	void on_comboBox_currentIndexChanged(int);
 
 private:
 	static QString formatDuration(fm::Duration duration);
