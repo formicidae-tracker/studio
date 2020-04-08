@@ -19,7 +19,7 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 	, d_movieThread(new QThread())
 	, d_timer(new QTimer(this))
 	, d_currentTaskID(0)
-	, d_seekReady(false) {
+	, d_seekReady(true) {
 	d_movieThread->start();
 	qRegisterMetaType<fm::Time>();
 	qRegisterMetaType<fm::Duration>();
@@ -139,6 +139,7 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::TrackingDataDirectory::Cons
 		d_timer->setInterval(d_interval.Milliseconds() / d_rate);
 		d_position = 0;
 		emit positionChanged(d_position);
+		setSeekReady(false);
 		d_displayNext = true;
 	} catch ( const std::exception & e) {
 		qCritical() << "Got unexpected error: " << e.what();

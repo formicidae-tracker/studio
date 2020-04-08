@@ -32,14 +32,6 @@ IdentifiedFrameConcurrentLoader::IdentifiedFrameConcurrentLoader(QObject * paren
 	, d_currentLoadingID(-1)
 	, d_connectionType(Qt::QueuedConnection) {
 	qRegisterMetaType<fmp::Experiment::ConstPtr>();
-	connect(this,
-	        &IdentifiedFrameConcurrentLoader::done,
-	        this,
-	        [this]() {
-		        std::cerr << "DONE" << std::endl;
-	        },
-	        Qt::QueuedConnection);
-
 }
 
 IdentifiedFrameConcurrentLoader::~IdentifiedFrameConcurrentLoader() {

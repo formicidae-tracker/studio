@@ -18,6 +18,8 @@ public:
 public slots:
 	void display(TrackingVideoFrame image);
 
+	void hideLoadingBanner(bool hide);
+
 protected:
 	void paintEvent(QPaintEvent * event) override;
 
@@ -26,7 +28,7 @@ protected:
 	                        int targetHeigth);
 
 private:
-
-	QImage d_image;
+	QImage             d_image;
 	IdentifierBridge * d_identifier;
+	bool               d_hideLoadingBanner;
 };

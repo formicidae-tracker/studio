@@ -14,7 +14,8 @@
 TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	: QWidget(parent)
 	, d_image(0,0)
-	, d_identifier(nullptr) {
+	, d_identifier(nullptr)
+	, d_hideLoadingBanner(true) {
 }
 
 TrackingVideoWidget::~TrackingVideoWidget() {
@@ -50,6 +51,22 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	targetRect.translate(rect().center()-targetRect.center());
 
 	painter.drawImage(targetRect,d_image);
+
+	if ( d_hideLoadingBanner == false ) {
+		auto font = painter.font();
+		font.setPointSize(14);
+		painter.setFont(font);
+		painter.setBrush(QColor(255,255,255,150));
+		painter.setPen(Qt::NoPen);
+		auto rect = QRectF(0,0,width(),60);
+
+		painter.drawRect(rect);
+
+		painter.setPen(QColor(0,0,0));
+		painter.drawText(rect,
+		                 Qt::AlignCenter,
+		                 tr("Tracking Data Loading (available displayed, but seek disabled)"));
+	}
 }
 
 void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
@@ -82,4 +99,12 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter,
 		                            ANT_HALF_SIZE * 2.0));
 	}
 
+}
+
+void TrackingVideoWidget::hideLoadingBanner(bool hide) {
+	if ( hide == d_hideLoadingBanner ) {
+		return;
+	}
+	d_hideLoadingBanner = hide;
+	update();
 }
