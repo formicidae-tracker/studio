@@ -43,6 +43,8 @@ public:
 
 	SelectedAntBridge * selectedAnt() const;
 
+	fmp::Ant::ConstPtr ant(fm::Ant::ID aID) const;
+
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
 	void antDeleted(quint32);

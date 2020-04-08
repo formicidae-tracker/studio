@@ -19,6 +19,7 @@ public:
 	static void Save(const TrackingDataDirectory::ConstPtr & tdd);
 
 	const static std::string CACHE_FILENAME;
+	const static uint32_t CACHE_VERSION;
 };
 
 

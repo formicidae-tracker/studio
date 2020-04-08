@@ -8,7 +8,6 @@
 
 #include <fort/studio/Format.hpp>
 
-#include <fort/studio/widget/base/ColorComboBox.hpp>
 
 AntShapeTypeBridge::AntShapeTypeBridge(QObject * parent)
 	: Bridge(parent)
@@ -127,7 +126,7 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 	id->setEditable(false);
 	id->setData(data);
 	QPixmap pixmap(20,20);
-	pixmap.fill(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(shapeType->TypeID())));
+	pixmap.fill(Conversion::colorFromFM(fmp::Palette::Default().At(shapeType->TypeID())));
 	auto name = new QStandardItem(ToQString(shapeType->Name()));
 	name->setEditable(true);
 	name->setData(data);

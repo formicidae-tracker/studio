@@ -14,7 +14,7 @@
 #include "Logger.hpp"
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
-#include <fort/studio/widget/base/ColorComboBox.hpp>
+
 #include <QToolBar>
 #include <QPushButton>
 
@@ -128,6 +128,8 @@ MainWindow::MainWindow(QWidget *parent)
 	        });
 	d_ui->workspaceSelector->setCurrentIndex(0);
 
+	d_ui->visualizeWidget->setup(d_experiment);
+
 	setWindowTitle(tr("FORmicidae Tracker Studio"));
 	connect(d_experiment,
 	        &ExperimentBridge::activated,
@@ -139,6 +141,9 @@ MainWindow::MainWindow(QWidget *parent)
 	        });
 
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
+
+
+
 
 	loadSettings();
 

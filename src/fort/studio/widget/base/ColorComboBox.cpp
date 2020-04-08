@@ -2,6 +2,8 @@
 
 #include <fort/myrmidon/priv/Color.hpp>
 
+#include <fort/studio/MyrmidonTypes.hpp>
+
 #include <QColorDialog>
 
 ColorComboBox::ColorComboBox(QWidget * parent)
@@ -12,7 +14,7 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 	insertSeparator(count());
 	const auto & palette = fmp::Palette::Default();
 	for( size_t i = 0 ; i < palette.Size(); ++i ) {
-		auto color = fromMyrmidon(palette.At(i));
+		auto color = Conversion::colorFromFM(palette.At(i));
 		addItem(iconFromColor(color),
 		        tr("Color Blind Friendly %1").arg(i+1),
 		        color);
@@ -21,12 +23,6 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 	        this,
 	        &ColorComboBox::onActivated);
-}
-
-QColor ColorComboBox::fromMyrmidon(const fmp::Color & color) {
-	return QColor(std::get<0>(color),
-	              std::get<1>(color),
-	              std::get<2>(color));
 }
 
 QIcon ColorComboBox::iconFromColor(const QColor & color) {

@@ -15,7 +15,7 @@ namespace priv {
 namespace proto {
 
 const std::string TDDCache::CACHE_FILENAME = "myrmidon-tdd-pb.cache";
-
+const uint32_t TDDCache::CACHE_VERSION = 1;
 TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath ,
                                                const std::string & URI) {
 
@@ -31,6 +31,14 @@ TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath
 
 	ReadWriter::Read(cachePath,
 	                 [&start,&end,URI,monoID](const pb::TrackingDataDirectory & pb) {
+		                 if ( pb.cacheversion() != CACHE_VERSION) {
+			                 throw std::runtime_error("Cache file has wrong version '"
+			                                          + std::to_string(pb.cacheversion())
+			                                          + "' expected '"
+			                                          + std::to_string(CACHE_VERSION)
+			                                          + "'");
+		                 }
+
 		                 start = IOUtils::LoadFrameReference(pb.start(),URI,monoID);
 		                 end = IOUtils::LoadFrameReference(pb.end(),URI,monoID);
 	                 },
@@ -79,7 +87,7 @@ void TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
 	                            FrameReference(tdd->URI(),
 	                                           tdd->EndFrame(),
 	                                           tdd->EndDate()));
-
+	h.set_cacheversion(CACHE_VERSION);
 	std::vector<std::function<void (pb::TrackingDataDirectoryFileLine &)> > lines;
 
 	for ( const auto & ts : tdd->TrackingSegments().Segments() ) {

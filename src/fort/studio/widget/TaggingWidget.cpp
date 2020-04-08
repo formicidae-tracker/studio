@@ -15,7 +15,7 @@
 #include <fort/studio/Utils.hpp>
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
-#include <fort/studio/widget/base/ColorComboBox.hpp>
+
 
 
 TaggingWidget::TaggingWidget(QWidget *parent)
@@ -45,7 +45,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
             &VectorialView::zoomed,
             d_vectorialScene,
             &VectorialScene::onZoomed);
-    d_vectorialScene->setColor(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(fmp::Measurement::HEAD_TAIL_TYPE)));
+    d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(fmp::Measurement::HEAD_TAIL_TYPE)));
     connect(d_vectorialScene,
             &VectorialScene::vectorCreated,
             this,
@@ -374,7 +374,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	double squareness = d_tcu->Squareness();
 	const static double threshold = 0.95;
 	if ( squareness < threshold ) {
-		auto color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(5));
+		auto color = Conversion::colorFromFM(fmp::Palette::Default().At(5));
 		d_ui->vectorialView->setBannerMessage(tr("WARNING: Tag Squareness is Low (%1 < %2)").arg(squareness).arg(threshold),color);
 	} else {
 		d_ui->vectorialView->setBannerMessage("",QColor());

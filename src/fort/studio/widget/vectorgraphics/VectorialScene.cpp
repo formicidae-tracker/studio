@@ -12,11 +12,10 @@
 #include "Polygon.hpp"
 #include "Circle.hpp"
 
-#include <fort/studio/widget/base/ColorComboBox.hpp>
-
 #include <fort/myrmidon/priv/Capsule.hpp>
 #include <fort/studio/Utils.hpp>
 
+#include <fort/studio/MyrmidonTypes.hpp>
 
 VectorialScene::VectorialScene(QObject * parent)
 	: QGraphicsScene(parent)
@@ -26,7 +25,7 @@ VectorialScene::VectorialScene(QObject * parent)
 	, d_background(nullptr)
 	, d_staticPolygon(nullptr) {
 	setBackgroundPicture("");
-	d_color = ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(0));
+	d_color = Conversion::colorFromFM(fmp::Palette::Default().At(0));
 
 	d_editPressEH = [this](QGraphicsSceneMouseEvent *e) {
 		                QGraphicsScene::mousePressEvent(e);
