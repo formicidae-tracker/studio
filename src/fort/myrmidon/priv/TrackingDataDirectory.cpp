@@ -67,7 +67,7 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_uid(GetUID(d_absoluteFilePath))
-	, d_endIterator(ConstPtr(),endFrame)
+	, d_endIterator(ConstPtr(),endFrame+1)
 	, d_segments(si)
 	, d_movies(movies)
 	, d_referencesByFID(referenceCache) {
