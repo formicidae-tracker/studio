@@ -1,11 +1,11 @@
-#include "VideoPlayerControl.hpp"
-#include "ui_VideoPlayerControl.h"
+#include "TrackingVideoControl.hpp"
+#include "ui_TrackingVideoControl.h"
 
 #include <fort/studio/Format.hpp>
 
-VideoPlayerControl::VideoPlayerControl(QWidget *parent)
+TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	: QWidget(parent)
-	, d_ui(new Ui::VideoPlayerControl)
+	, d_ui(new Ui::TrackingVideoControl)
 	, d_player(nullptr) {
 	d_ui->setupUi(this);
 
@@ -16,28 +16,28 @@ VideoPlayerControl::VideoPlayerControl(QWidget *parent)
 	d_ui->comboBox->addItem("x 8.00",8.0);
 }
 
-VideoPlayerControl::~VideoPlayerControl(){
+TrackingVideoControl::~TrackingVideoControl(){
 	delete d_ui;
 }
 
 
-void VideoPlayerControl::setup(TrackingVideoPlayer * player) {
+void TrackingVideoControl::setup(TrackingVideoPlayer * player) {
 	d_player = player;
 	connect(player,
 	        &TrackingVideoPlayer::playbackStateChanged,
 	        this,
-	        &VideoPlayerControl::onPlayerPlaybackStateChanged);
+	        &TrackingVideoControl::onPlayerPlaybackStateChanged);
 	onPlayerPlaybackStateChanged(d_player->playbackState());
 	connect(player,
 	        &TrackingVideoPlayer::durationChanged,
 	        this,
-	        &VideoPlayerControl::onPlayerDurationChanged);
+	        &TrackingVideoControl::onPlayerDurationChanged);
 	connect(player,
 	        &TrackingVideoPlayer::positionChanged,
 	        this,
-	        &VideoPlayerControl::onPlayerPositionChanged);
+	        &TrackingVideoControl::onPlayerPositionChanged);
 
-	connect(d_ui->horizontalSlider,
+	connect(d_ui->positionSlider,
 	        &QAbstractSlider::sliderMoved,
 	        d_player,
 	        [this]( int value ) {
@@ -46,15 +46,15 @@ void VideoPlayerControl::setup(TrackingVideoPlayer * player) {
 	        Qt::QueuedConnection);
 	connect(d_player,
 	        &TrackingVideoPlayer::seekReady,
-	        d_ui->horizontalSlider,
+	        d_ui->positionSlider,
 	        &QWidget::setEnabled);
-	d_ui->horizontalSlider->setEnabled(d_player->isSeekReady());
+	d_ui->positionSlider->setEnabled(d_player->isSeekReady());
 
 	onPlayerPlaybackRateChanged(d_player->playbackRate());
 }
 
 
-void VideoPlayerControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state) {
+void TrackingVideoControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state) {
 	switch(state) {
 	case TrackingVideoPlayer::State::Playing:
 		d_ui->stopButton->setEnabled(true);
@@ -71,32 +71,32 @@ void VideoPlayerControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::State
 	}
 }
 
-void VideoPlayerControl::onPlayerPositionChanged(fm::Duration position) {
+void TrackingVideoControl::onPlayerPositionChanged(fm::Duration position) {
 	auto currentTime = d_player->start().Add(position);
 	d_ui->currentLabel->setText(ToQString(currentTime));
 	d_ui->remainingLabel->setText(formatDuration(position- d_player->duration()));
-	if ( d_ui->horizontalSlider->isSliderDown() == false ) {
-		d_ui->horizontalSlider->setValue(position.Milliseconds());
+	if ( d_ui->positionSlider->isSliderDown() == false ) {
+		d_ui->positionSlider->setValue(position.Milliseconds());
 	}
 }
 
-void VideoPlayerControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration) {
-	d_ui->horizontalSlider->setMinimum(0);
-	d_ui->horizontalSlider->setMaximum(duration.Milliseconds());
+void TrackingVideoControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration) {
+	d_ui->positionSlider->setMinimum(0);
+	d_ui->positionSlider->setMaximum(duration.Milliseconds());
 	if ( d_player != nullptr ) {
 		onPlayerPositionChanged(d_player->position());
 	}
 }
 
 
-void VideoPlayerControl::on_stopButton_clicked() {
+void TrackingVideoControl::on_stopButton_clicked() {
 	if ( d_player == nullptr ) {
 		return;
 	}
 	d_player->stop();
 }
 
-void VideoPlayerControl::on_playButton_clicked() {
+void TrackingVideoControl::on_playButton_clicked() {
 	if ( d_player == nullptr ) {
 		return;
 	}
@@ -112,7 +112,7 @@ void VideoPlayerControl::on_playButton_clicked() {
 }
 
 
-QString VideoPlayerControl::formatDuration(fm::Duration duration) {
+QString TrackingVideoControl::formatDuration(fm::Duration duration) {
 	QString format = "%1:%2:%3.%4";
 	if ( duration < 0 ) {
 		duration = -duration;
@@ -143,14 +143,14 @@ QString VideoPlayerControl::formatDuration(fm::Duration duration) {
 }
 
 
-void VideoPlayerControl::on_comboBox_currentIndexChanged(int index) {
+void TrackingVideoControl::on_comboBox_currentIndexChanged(int index) {
 	if ( index < 0 || d_player == nullptr ) {
 		return;
 	}
 	d_player->setPlaybackRate(d_ui->comboBox->currentData().toDouble());
 }
 
-void VideoPlayerControl::onPlayerPlaybackRateChanged(qreal rate) {
+void TrackingVideoControl::onPlayerPlaybackRateChanged(qreal rate) {
 	for( size_t i = 0 ; i < d_ui->comboBox->count(); ++i ) {
 		if ( d_ui->comboBox->itemData(i).toDouble() == rate ) {
 			d_ui->comboBox->setCurrentIndex(i);

@@ -14,16 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="VideoPlayerControl" name="videoControl" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="TrackingVideoWidget" name="trackingVideoWidget" native="true">
      <property name="sizePolicy">
@@ -34,7 +24,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="3">
+   <item row="0" column="1">
     <widget class="QTreeView" name="treeView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -44,13 +34,23 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="TrackingVideoControl" name="videoControl" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>VideoPlayerControl</class>
+   <class>TrackingVideoControl</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/base/VideoPlayerControl.hpp</header>
+   <header location="global">fort/studio/widget/TrackingVideoControl.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>

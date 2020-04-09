@@ -2,19 +2,19 @@
 
 #include <QWidget>
 
-#include <fort/studio/widget/TrackingVideoPlayer.hpp>
+#include "TrackingVideoPlayer.hpp"
 
 #include <fort/studio/MyrmidonTypes.hpp>
 
 namespace Ui {
-class VideoPlayerControl;
+class TrackingVideoControl;
 }
 
-class VideoPlayerControl : public QWidget {
+class TrackingVideoControl : public QWidget {
 	Q_OBJECT
 public:
-	explicit VideoPlayerControl(QWidget *parent = 0);
-	~VideoPlayerControl();
+	explicit TrackingVideoControl(QWidget *parent = 0);
+	~TrackingVideoControl();
 
 	void setup(TrackingVideoPlayer * player);
 
@@ -42,6 +42,6 @@ private slots:
 private:
 	static QString formatDuration(fm::Duration duration);
 
-	Ui::VideoPlayerControl * d_ui;
+	Ui::TrackingVideoControl * d_ui;
 	TrackingVideoPlayer    * d_player;
 };
