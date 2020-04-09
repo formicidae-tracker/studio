@@ -1,7 +1,7 @@
 #include "GlobalPropertyWidget.hpp"
 #include "ui_GlobalPropertyWidget.h"
 
-#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <QDoubleSpinBox>
 
 
@@ -22,7 +22,8 @@ GlobalPropertyWidget::~GlobalPropertyWidget() {
 	delete d_ui;
 }
 
-void GlobalPropertyWidget::setup(GlobalPropertyBridge *properties) {
+void GlobalPropertyWidget::setup(ExperimentBridge * experiment) {
+	auto properties = experiment->globalProperties();
 	connect(properties,
 	        &GlobalPropertyBridge::activated,
 	        d_ui->familySelector,
@@ -107,4 +108,9 @@ void GlobalPropertyWidget::setup(GlobalPropertyBridge *properties) {
 		        properties->setComment(d_ui->commentEdit->toPlainText(),true);
 	        });
 
+
+	connect(experiment->measurements(),
+	        &MeasurementBridge::progressChanged,
+	        [this](size_t done,size_t toDo) {
+	        });
 }

@@ -25,9 +25,6 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
 	d_ui->editButton->setCheckable(true);
 	d_ui->editButton->setChecked(true);
 
-	installEventFilter(this);
-	d_ui->treeView->installEventFilter(this);
-	d_ui->vectorialView->installEventFilter(this);
 
 
 	auto hHeader = d_ui->treeView->header();
@@ -769,26 +766,6 @@ void AntEditorWidget::rebuildCapsules() {
 	}
 }
 
-bool AntEditorWidget::eventFilter(QObject * obj, QEvent * event) {
-	if ( event->type() != QEvent::KeyPress ) {
-		return false;
-	}
-	auto keyEvent = static_cast<QKeyEvent*>(event);
-
-	if ( keyEvent->modifiers() == Qt::ShiftModifier ) {
-		if ( keyEvent->key() == Qt::Key_Down ) {
-			select(+1);
-			return true;
-		}
-		if ( keyEvent->key() == Qt::Key_Up ) {
-			select(-1);
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void AntEditorWidget::select(int increment) {
 	if ( d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false) {
@@ -818,3 +795,6 @@ void AntEditorWidget::select(int increment) {
 	on_treeView_activated(index);
 
 }
+
+void AntEditorWidget::nextCloseUp() { select(+1); }
+void AntEditorWidget::previousCloseUp() { select(-1); }

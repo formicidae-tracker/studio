@@ -20,6 +20,8 @@ namespace Ui {
 class TaggingWidget;
 }
 
+class QAction;
+
 class TaggingWidget : public QWidget {
     Q_OBJECT
 public:
@@ -29,11 +31,11 @@ public:
 
 	void setup(ExperimentBridge * experiment);
 
+	QAction * newAntFromTagAction() const;
+	QAction * addIdentificationToAntAction() const;
+	QAction * deletePoseEstimationAction() const;
 
 public slots:
-	void on_addIdentButton_clicked();
-	void on_newAntButton_clicked();
-	void on_deletePoseButton_clicked();
 
 	void on_treeView_activated(const QModelIndex & index);
 
@@ -52,12 +54,16 @@ public slots:
 	void previousTagCloseUp();
 
 private slots:
-	void updateButtonStates();
+	void addIdentification();
+	void newAnt();
+	void deletePose();
+
+
+	void updateActionStates();
 
 
 private:
 	void selectRow(int tagRow, int tcuRow);
-	bool eventFilter(QObject * obj, QEvent * event);
 
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;
@@ -66,4 +72,5 @@ private:
 	VectorialScene        * d_vectorialScene;
 	SelectedAntBridge     * d_selectedAnt;
 	fmp::TagCloseUpConstPtr d_tcu;
+	QAction               * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
 };

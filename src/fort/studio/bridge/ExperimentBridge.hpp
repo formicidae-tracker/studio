@@ -60,7 +60,7 @@ private:
 
 	void setExperiment(const fmp::Experiment::Ptr & );
 	void connectModifications();
-
+	void resetChildModified();
 
 	fmp::Experiment::Ptr              d_experiment;
 	UniverseBridge                  * d_universe;
