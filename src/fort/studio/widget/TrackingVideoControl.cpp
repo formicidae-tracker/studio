@@ -6,8 +6,6 @@
 
 #include <fort/studio/Format.hpp>
 
-#include <QDebug>
-
 TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TrackingVideoControl)
@@ -20,12 +18,6 @@ TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	d_ui->comboBox->addItem("x 2.00",2.0);
 	d_ui->comboBox->addItem("x 4.00",4.0);
 	d_ui->comboBox->addItem("x 8.00",8.0);
-
-	connect(this,
-	        &TrackingVideoControl::zoomFocusChanged,
-	        [this](quint32 antID,qreal zoom) {
-		        qWarning() << "Zoom on ant:" << antID << " value: " << zoom;
-	        });
 
 }
 

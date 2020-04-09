@@ -142,7 +142,7 @@ void TrackingVideoPlayer::setMovieSegment(const fmp::TrackingDataDirectory::Cons
 		setSeekReady(false);
 		d_displayNext = true;
 	} catch ( const std::exception & e) {
-		qCritical() << "Got unexpected error: " << e.what();
+		qCritical() << "Got unexpected error during loading: " << e.what();
 		d_task = nullptr;
 		return;
 	}

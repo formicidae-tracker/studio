@@ -9,12 +9,16 @@
 
 #include <QPainter>
 
+#include <QDebug>
 
 
 TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	: QWidget(parent)
 	, d_identifier(nullptr)
-	, d_hideLoadingBanner(true) {
+	, d_hideLoadingBanner(true)
+	, d_focusedAntID(0)
+	, d_zoom(1.0)
+	, d_lastFocus(0,0) {
 }
 
 TrackingVideoWidget::~TrackingVideoWidget() {
@@ -37,18 +41,44 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 
 	QImage image = *d_frame.Image;
 
+	if ( d_focusedAntID != 0 ) {
+		focusAnt(d_focusedAntID);
+	}
+
+	QRectF sourceRect(0,0,image.width(),image.height());
+	if ( d_zoom > 1.0 ) {
+		sourceRect.setSize(sourceRect.size()/d_zoom);
+		QPointF actualFocus = d_lastFocus;
+		if ( actualFocus.x() - sourceRect.width()/2.0 < 0 ) {
+			actualFocus.rx() = sourceRect.width()/2.0;
+		}
+		if (actualFocus.x() + sourceRect.width()/2.0 > image.width() ) {
+			actualFocus.rx() = image.width() - sourceRect.width() / 2.0;
+		}
+		if ( actualFocus.y() - sourceRect.height()/2.0 < 0 ) {
+			actualFocus.ry() = sourceRect.height()/2.0;
+		}
+		if (actualFocus.y() + sourceRect.height()/2.0 > image.height() ) {
+			actualFocus.ry() = image.height() - sourceRect.height() / 2.0;
+		}
+
+		sourceRect.translate(actualFocus - sourceRect.center());
+
+	}
+
 	if ( !d_frame.TrackingFrame == false && d_identifier != nullptr ) {
 		QPainter imagePainter(&image);
 		imagePainter.setRenderHint(QPainter::Antialiasing,true);
-		paintIdentifiedAnt(&imagePainter);
+		paintIdentifiedAnt(&imagePainter,sourceRect);
 	}
+
 
 	auto size = image.size();
 	size.scale(width(),height(),Qt::KeepAspectRatio);
 	QRect targetRect(QPoint(0,0),size);
 	targetRect.translate(rect().center()-targetRect.center());
 
-	painter.drawImage(targetRect,image);
+	painter.drawImage(targetRect,image,sourceRect);
 
 	if ( d_hideLoadingBanner == false ) {
 		auto font = painter.font();
@@ -79,7 +109,7 @@ void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
 
 
 
-void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter) {
+void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & focusRectangle) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
 	const auto & tFrame = d_frame.TrackingFrame;
 	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
@@ -111,4 +141,41 @@ void TrackingVideoWidget::hideLoadingBanner(bool hide) {
 	}
 	d_hideLoadingBanner = hide;
 	update();
+}
+
+
+void TrackingVideoWidget::setZoomFocus(quint32 antID,qreal value) {
+	if ( d_zoom == value && antID == d_focusedAntID ) {
+		return;
+	}
+
+	if ( antID != d_focusedAntID ) {
+		focusAnt(antID,true);
+	}
+
+	d_focusedAntID = antID;
+	d_zoom = std::max(1.0,value);
+
+	update();
+}
+
+
+void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
+	if ( !d_frame.Image == true || !d_frame.TrackingFrame ) {
+		if ( reset == true ) {
+			d_lastFocus == QPointF(0,0);
+		}
+		return;
+	}
+
+	for ( const auto & ap : d_frame.TrackingFrame->Positions ) {
+		if ( ap.ID == antID ) {
+			double ratio = double(d_frame.Image->height())/double(d_frame.TrackingFrame->Height);
+			d_lastFocus = QPointF(ratio * ap.Position.x(),ratio * ap.Position.y());
+			return;
+		}
+	}
+	if ( reset == true ) {
+		d_lastFocus = QPointF(0,0);
+	}
 }
