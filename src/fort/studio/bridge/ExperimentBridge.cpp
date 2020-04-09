@@ -95,6 +95,7 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Save('" << path << "')";
 		d_experiment->Save(path.toUtf8().constData());
 		setModified(false);
+		resetChildModified();
 		qInfo() << "Saved experiment to '" << path << "'";
 	} catch (const std::exception & e ) {
 		qCritical() << "Could not save experiment to '"
@@ -192,6 +193,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_antMetadata->setExperiment(experiment);
 	d_movies->setExperiment(experiment);
 	setModified(false);
+	resetChildModified();
 	emit activated(d_experiment.get() != NULL);
 }
 
@@ -249,5 +251,18 @@ void ExperimentBridge::connectModifications() {
 	        &MovieBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);
+
+}
+
+void ExperimentBridge::resetChildModified() {
+	d_universe->setModified(false);
+	d_measurements->setModified(false);
+	d_identifier->setModified(false);
+	d_identifier->selectedAnt()->setModified(false);
+	d_identifier->selectedAnt()->selectedIdentification()->setModified(false);
+	d_globalProperties->setModified(false);
+	d_antShapeTypes->setModified(false);
+	d_antMetadata->setModified(false);
+	d_movies->setModified(false);
 
 }
