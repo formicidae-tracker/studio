@@ -1,12 +1,18 @@
 #include "TrackingVideoControl.hpp"
 #include "ui_TrackingVideoControl.h"
 
+#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/SelectedAntBridge.hpp>
+
 #include <fort/studio/Format.hpp>
+
+#include <QDebug>
 
 TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TrackingVideoControl)
-	, d_player(nullptr) {
+	, d_player(nullptr)
+	, d_identifier(nullptr) {
 	d_ui->setupUi(this);
 
 	d_ui->comboBox->addItem("x 1.00",1.0);
@@ -14,14 +20,21 @@ TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	d_ui->comboBox->addItem("x 2.00",2.0);
 	d_ui->comboBox->addItem("x 4.00",4.0);
 	d_ui->comboBox->addItem("x 8.00",8.0);
+
+	connect(this,
+	        &TrackingVideoControl::zoomFocusChanged,
+	        [this](quint32 antID,qreal zoom) {
+		        qWarning() << "Zoom on ant:" << antID << " value: " << zoom;
+	        });
+
 }
 
 TrackingVideoControl::~TrackingVideoControl(){
 	delete d_ui;
 }
 
-
-void TrackingVideoControl::setup(TrackingVideoPlayer * player) {
+void TrackingVideoControl::setup(TrackingVideoPlayer * player,
+                                 IdentifierBridge * identifier) {
 	d_player = player;
 	connect(player,
 	        &TrackingVideoPlayer::playbackStateChanged,
@@ -51,6 +64,12 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player) {
 	d_ui->positionSlider->setEnabled(d_player->isSeekReady());
 
 	onPlayerPlaybackRateChanged(d_player->playbackRate());
+	d_identifier = identifier;
+	connect(d_identifier->selectedAnt(),
+	        &SelectedAntBridge::activated,
+	        this,
+	        &TrackingVideoControl::onAntSelection);
+	onAntSelection(d_identifier->selectedAnt()->isActive());
 }
 
 
@@ -158,4 +177,45 @@ void TrackingVideoControl::onPlayerPlaybackRateChanged(qreal rate) {
 		}
 	}
 	d_ui->comboBox->setCurrentIndex(-1);
+}
+
+
+void TrackingVideoControl::onAntSelection(bool selected) {
+	if ( selected == false ) {
+		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(0))));
+		d_ui->zoomCheckBox->setEnabled(false);
+		d_ui->zoomSlider->setEnabled(false);
+		emit zoomFocusChanged(0,1.0);
+	} else {
+		d_ui->zoomCheckBox->setEnabled(true);
+		auto antID = d_identifier->selectedAnt()->selectedID();
+		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(antID))));
+		d_ui->zoomSlider->setEnabled(true);
+		if ( d_ui->zoomCheckBox->checkState() == Qt::Checked) {
+			emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoomValue());
+		} else {
+			emit zoomFocusChanged(0,1.0);
+		}
+	}
+}
+
+
+void TrackingVideoControl::on_zoomCheckBox_stateChanged(int value) {
+	if ( value == Qt::Checked && d_identifier != nullptr ) {
+		emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoomValue());
+	} else {
+		emit zoomFocusChanged(0,1.0);
+	}
+}
+
+void TrackingVideoControl::on_zoomSlider_valueChanged(int value) {
+	auto zoom  = zoomValue();
+	d_ui->zoomLabel->setText(tr("%1%").arg(int(zoom* 100),5));
+	if ( d_identifier != nullptr && d_ui->zoomCheckBox->checkState() == Qt::Checked) {
+		emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoom);
+	}
+}
+
+qreal TrackingVideoControl::zoomValue() const {
+	return 1 + d_ui->zoomSlider->value();
 }

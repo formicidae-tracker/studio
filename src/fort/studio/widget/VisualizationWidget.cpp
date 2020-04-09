@@ -17,8 +17,6 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::display);
 
-	d_ui->videoControl->setup(d_videoPlayer);
-
 	connect(d_videoPlayer,
 	        &TrackingVideoPlayer::seekReady,
 	        d_ui->trackingVideoWidget,
@@ -53,4 +51,6 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
 	d_ui->trackingVideoWidget->setup(experiment->identifier());
+	d_ui->videoControl->setup(d_videoPlayer,experiment->identifier());
+
 }
