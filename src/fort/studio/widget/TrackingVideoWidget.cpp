@@ -137,10 +137,16 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 		     || a->DisplayStatus() == fmp::Ant::DisplayState::HIDDEN ) {
 			continue;
 		}
+		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
+
+		if ( focusRectangle.contains(correctedPos) == false ) {
+			continue;
+		}
+
 		auto c = Conversion::colorFromFM(a->DisplayColor(),150);
 		painter->setPen(Qt::NoPen);
 		painter->setBrush(c);
-		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
+
 
 		painter->translate(correctedPos);
 		painter->rotate(pa.Angle * 180.0 / M_PI);
