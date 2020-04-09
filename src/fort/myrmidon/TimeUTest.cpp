@@ -509,6 +509,11 @@ TEST_F(TimeUTest,Rounding) {
 	for ( const auto & f : faildata ) {
 		EXPECT_THROW(Time().Round(f),std::runtime_error);
 	}
+
+	auto now = Time::Now();
+	ASSERT_TRUE(now.HasMono());
+	EXPECT_FALSE(now.Round(Duration::Nanosecond).HasMono());
+
 }
 
 } // namespace myrmidon

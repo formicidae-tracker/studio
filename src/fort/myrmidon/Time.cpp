@@ -293,8 +293,9 @@ Time Time::Add(const Duration & d) const{
 
 Time Time::Round(const Duration & d) const {
 	auto res = * this;
-	res.d_mono = 0;
 	// strip mono data
+	res.d_mono = 0;
+	res.d_monoID = 0;
 	if (d.d_nanoseconds < 0 ) {
 		return res;
 	}
