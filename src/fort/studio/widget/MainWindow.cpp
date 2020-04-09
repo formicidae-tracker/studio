@@ -147,6 +147,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 	loadSettings();
 
+	d_ui->menuEdit->addAction(d_ui->visualizeWidget->copyCurrentTimeAction());
+
 }
 
 MainWindow::~MainWindow() {

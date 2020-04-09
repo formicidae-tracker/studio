@@ -19,7 +19,8 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	, d_showID(false)
 	, d_focusedAntID(0)
 	, d_zoom(1.0)
-	, d_lastFocus(0,0) {
+	, d_lastFocus(0,0)
+	, d_hasTrackingTime(false) {
 }
 
 TrackingVideoWidget::~TrackingVideoWidget() {
@@ -29,11 +30,11 @@ bool TrackingVideoWidget::showID() const {
 	return d_showID;
 }
 
-
-
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Received frame:" << frame << std::endl);
 	d_frame = frame;
+	setHasTrackingTime(!d_frame.TrackingFrame == false);
+
 	update();
 }
 
@@ -225,4 +226,24 @@ void TrackingVideoWidget::setShowID(bool show) {
 	d_showID = show;
 	update();
 	emit showIDChanged(show);
+}
+
+
+void TrackingVideoWidget::setHasTrackingTime(bool value) {
+	if ( value == d_hasTrackingTime ) {
+		return;
+	}
+	d_hasTrackingTime = value;
+	emit hasTrackingTimeChanged(value);
+}
+
+bool TrackingVideoWidget::hasTrackingTime() const {
+	return d_hasTrackingTime;
+}
+
+fm::Time TrackingVideoWidget::trackingTime() const {
+	if ( !d_frame.TrackingFrame == true ) {
+		return fm::Time();
+	}
+	return d_frame.TrackingFrame->FrameTime;
 }

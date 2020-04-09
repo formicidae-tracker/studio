@@ -5,11 +5,17 @@
 
 #include "TrackingVideoPlayer.hpp"
 
+#include <QAction>
+#include <QClipboard>
+
+#include <fort/studio/Format.hpp>
+
 
 VisualizationWidget::VisualizationWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::VisualizationWidget)
-	, d_videoPlayer(new TrackingVideoPlayer(this)) {
+	, d_videoPlayer(new TrackingVideoPlayer(this))
+	, d_copyTimeAction(new QAction(tr("Copy current Timestamp"),this)) {
 	d_ui->setupUi(this);
 
 	connect(d_videoPlayer,
@@ -21,6 +27,20 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        &TrackingVideoPlayer::seekReady,
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hideLoadingBanner);
+
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::hasTrackingTimeChanged,
+	        d_copyTimeAction,
+	        &QAction::setEnabled);
+
+	connect(d_copyTimeAction,
+	        &QAction::triggered,
+	        this,
+	        &VisualizationWidget::onCopyTimeActionTriggered);
+
+	d_copyTimeAction->setShortcut(QKeySequence(tr("Ctrl+Shift+C")));
+    d_copyTimeAction->setStatusTip(tr("Copy current Frame timestamp to clipboard"));
+    d_copyTimeAction->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 }
 
 VisualizationWidget::~VisualizationWidget() {
@@ -68,4 +88,17 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        d_ui->videoControl,
 	        &TrackingVideoControl::setShowID);
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
+}
+
+
+void VisualizationWidget::onCopyTimeActionTriggered() {
+	if ( d_ui->trackingVideoWidget->hasTrackingTime() == false ) {
+		return;
+	}
+	auto time = d_ui->trackingVideoWidget->trackingTime();
+	QApplication::clipboard()->setText(ToQString(time));
+}
+
+QAction * VisualizationWidget::copyCurrentTimeAction() const {
+	return d_copyTimeAction;
 }

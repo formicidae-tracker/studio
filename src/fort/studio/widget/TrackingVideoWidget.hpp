@@ -17,8 +17,14 @@ public:
 
 	bool showID() const;
 
+	fm::Time trackingTime() const;
+
+	bool hasTrackingTime() const;
+
 signals:
 	void showIDChanged(bool value);
+
+	void hasTrackingTimeChanged(bool value);
 
 public slots:
 	void display(TrackingVideoFrame image);
@@ -37,11 +43,13 @@ protected:
 private:
 	void focusAnt(quint32 antID, bool reset = false);
 
+	void setHasTrackingTime(bool value);
 
 	TrackingVideoFrame d_frame;
 	IdentifierBridge * d_identifier;
 	bool               d_hideLoadingBanner;
 	bool               d_showID;
+	bool               d_hasTrackingTime;
 	quint32            d_focusedAntID;
 	qreal              d_zoom;
 	QPointF            d_lastFocus;

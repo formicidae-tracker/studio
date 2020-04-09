@@ -4,6 +4,8 @@
 #include <QWidget>
 
 
+class QAction;
+
 namespace Ui {
 class VisualizationWidget;
 }
@@ -19,7 +21,13 @@ public:
 
 	void setup(ExperimentBridge * experiment);
 
+	QAction * copyCurrentTimeAction() const;
+
+private slots:
+	void onCopyTimeActionTriggered();
+
 private:
 	Ui::VisualizationWidget * d_ui;
 	TrackingVideoPlayer     * d_videoPlayer;
+	QAction                 * d_copyTimeAction;
 };
