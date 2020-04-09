@@ -31,7 +31,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 
 	d_newAntAction->setShortcut(QKeySequence(tr("Ctrl+A")));
 	d_addIdentificationAction->setShortcut(QKeySequence(tr("Ctrl+I")));
-	d_deletePoseAction->setShortcut(QKeySequence(tr("Ctrl+Shift+Del")));
+	d_deletePoseAction->setShortcut(QKeySequence(tr("Ctrl+Shift+D")));
 
 	connect(d_newAntAction,&QAction::triggered,
 	        this,&TaggingWidget::newAnt);
