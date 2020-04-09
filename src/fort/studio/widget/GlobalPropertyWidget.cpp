@@ -112,6 +112,5 @@ void GlobalPropertyWidget::setup(ExperimentBridge * experiment) {
 	connect(experiment->measurements(),
 	        &MeasurementBridge::progressChanged,
 	        [this](size_t done,size_t toDo) {
-		        d_ui->familySelector->setEnabled(done == toDo);
 	        });
 }

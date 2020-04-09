@@ -24,23 +24,39 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	, d_sortedModel ( new QSortFilterProxyModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
-	, d_vectorialScene(new VectorialScene) {
-	installEventFilter(this);
+	, d_vectorialScene(new VectorialScene)
+	, d_newAntAction(new QAction(tr("New Ant from Tag"),this))
+	, d_addIdentificationAction(new QAction(tr("Add Identification to Ant"),this))
+	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this)) {
+
+	d_newAntAction->setShortcut(QKeySequence(tr("Ctrl+A")));
+	d_addIdentificationAction->setShortcut(QKeySequence(tr("Ctrl+I")));
+	d_deletePoseAction->setShortcut(QKeySequence(tr("Ctrl+Shift+Del")));
+
+	connect(d_newAntAction,&QAction::triggered,
+	        this,&TaggingWidget::newAnt);
+
+	connect(d_addIdentificationAction,&QAction::triggered,
+	        this,&TaggingWidget::addIdentification);
+
+	connect(d_deletePoseAction,&QAction::triggered,
+	        this,&TaggingWidget::deletePose);
 
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
 
+	d_ui->newAntButton->setDefaultAction(d_newAntAction);
+	d_ui->addIdentButton->setDefaultAction(d_addIdentificationAction);
+	d_ui->deletePoseButton->setDefaultAction(d_deletePoseAction);
 
-    d_ui->treeView->installEventFilter(this);
+
     d_ui->treeView->setModel(d_sortedModel);
     d_ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    d_ui->vectorialView->installEventFilter(this);
     d_ui->vectorialView->setScene(d_vectorialScene);
     d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
-    d_vectorialScene->installEventFilter(d_ui->vectorialView);
     connect(d_ui->vectorialView,
             &VectorialView::zoomed,
             d_vectorialScene,
@@ -55,7 +71,7 @@ TaggingWidget::TaggingWidget(QWidget *parent)
             this,
             &TaggingWidget::onVectorRemoved);
 
-    updateButtonStates();
+    updateActionStates();
 }
 
 TaggingWidget::~TaggingWidget() {
@@ -122,8 +138,6 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	        [this](size_t done, size_t toDo) {
 		        d_ui->tagCloseUpLoadingProgress->setMaximum(toDo);
 		        d_ui->tagCloseUpLoadingProgress->setValue(done);
-		        d_ui->familySelector->setEnabled(done == toDo);
-		        d_ui->thresholdBox->setEnabled(done == toDo);
 	        });
 	d_measurements = measurements;
 
@@ -149,7 +163,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	connect(selectedAnt,
 	        &Bridge::activated,
 	        this,
-	        &TaggingWidget::updateButtonStates);
+	        &TaggingWidget::updateActionStates);
 	d_selectedAnt = selectedAnt;
 
 	d_ui->selectedAntIdentification->setup(experiment);
@@ -158,7 +172,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 }
 
 
-void TaggingWidget::on_addIdentButton_clicked() {
+void TaggingWidget::addIdentification() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -184,10 +198,10 @@ void TaggingWidget::on_addIdentButton_clicked() {
 	                                d_tcu->TagValue(),
 	                                start,end);
 
-	updateButtonStates();
+	updateActionStates();
 }
 
-void TaggingWidget::on_newAntButton_clicked() {
+void TaggingWidget::newAnt() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -209,10 +223,10 @@ void TaggingWidget::on_newAntButton_clicked() {
 	                                d_tcu->TagValue(),
 	                                start,end);
 
-	updateButtonStates();
+	updateActionStates();
 }
 
-void TaggingWidget::on_deletePoseButton_clicked() {
+void TaggingWidget::deletePose() {
 	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
 		return;
 	}
@@ -234,7 +248,7 @@ void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::Cons
 	d_vectorialScene->setPoseIndicator(QPointF(position.x(),
 	                                           position.y()),
 	                                   angle);
-	updateButtonStates();
+	updateActionStates();
 }
 
 
@@ -249,37 +263,6 @@ void TaggingWidget::on_treeView_activated(const QModelIndex & index) {
 	setTagCloseUp(tcu);
 }
 
-
-
-bool TaggingWidget::eventFilter(QObject * obj, QEvent * event) {
-	if ( event->type() != QEvent::KeyPress ) {
-		return false;
-	}
-	auto keyEvent = static_cast<QKeyEvent*>(event);
-	if ( keyEvent->modifiers() == Qt::ControlModifier ) {
-		if ( keyEvent->key() == Qt::Key_Down ) {
-			nextTag();
-			return true;
-		}
-		if ( keyEvent->key() == Qt::Key_Up ) {
-			previousTag();
-			return true;
-		}
-	}
-
-	if ( keyEvent->modifiers() == Qt::ShiftModifier ) {
-		if ( keyEvent->key() == Qt::Key_Down ) {
-			nextTagCloseUp();
-			return true;
-		}
-		if ( keyEvent->key() == Qt::Key_Up ) {
-			previousTagCloseUp();
-			return true;
-		}
-	}
-
-	return false;
-}
 
 void TaggingWidget::nextTag() {
 	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
@@ -368,7 +351,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
 		d_ui->vectorialView->setBannerMessage("",QColor());
-		updateButtonStates();
+		updateActionStates();
 		return;
 	}
 
@@ -417,7 +400,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	}
 
 	d_tcu = tcu;
-	updateButtonStates();
+	updateActionStates();
 }
 
 
@@ -437,7 +420,7 @@ void TaggingWidget::onVectorUpdated() {
 	                               fmp::Measurement::HEAD_TAIL_TYPE,
 	                               vector->startPos(),
 	                               vector->endPos());
-	updateButtonStates();
+	updateActionStates();
 }
 
 void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
@@ -455,7 +438,7 @@ void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 	        this,
 	        &TaggingWidget::onVectorUpdated);
 
-	updateButtonStates();
+	updateActionStates();
 
 }
 
@@ -471,32 +454,32 @@ void TaggingWidget::onVectorRemoved() {
 	}
 	d_measurements->deleteMeasurement(m->URI());
 	d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
-	updateButtonStates();
+	updateActionStates();
 }
 
 
-void TaggingWidget::updateButtonStates() {
+void TaggingWidget::updateActionStates() {
 	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
-		d_ui->newAntButton->setEnabled(false);
-		d_ui->addIdentButton->setEnabled(false);
-		d_ui->deletePoseButton->setEnabled(false);
+		d_newAntAction->setEnabled(false);
+		d_addIdentificationAction->setEnabled(false);
+		d_deletePoseAction->setEnabled(false);
 		return;
 	}
-	d_ui->deletePoseButton->setEnabled(true);
+	d_deletePoseAction->setEnabled(true);
 
 	auto ident = d_identifier->identify(d_tcu->TagValue(),d_tcu->Frame().Time());
 	if ( ident ) {
-		d_ui->newAntButton->setEnabled(false);
-		d_ui->addIdentButton->setEnabled(false);
+		d_newAntAction->setEnabled(false);
+		d_addIdentificationAction->setEnabled(false);
 		return;
 	}
-	d_ui->newAntButton->setEnabled(true);
+	d_newAntAction->setEnabled(true);
 
 	if ( d_selectedAnt->isActive() == false ) {
-		d_ui->addIdentButton->setEnabled(false);
+		d_addIdentificationAction->setEnabled(false);
 		return;
 	}
-	d_ui->addIdentButton->setEnabled(true);
+	d_addIdentificationAction->setEnabled(true);
 }
 
 void TaggingWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
@@ -506,5 +489,18 @@ void TaggingWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
 		return;
 	}
 	d_vectorialScene->clearPoseIndicator();
-	updateButtonStates();
+	updateActionStates();
+}
+
+
+QAction * TaggingWidget::newAntFromTagAction() const {
+	return d_newAntAction;
+}
+
+QAction * TaggingWidget::addIdentificationToAntAction() const {
+	return d_addIdentificationAction;
+}
+
+QAction * TaggingWidget::deletePoseEstimationAction() const {
+	return d_deletePoseAction;
 }

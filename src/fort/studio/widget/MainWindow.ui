@@ -131,6 +131,7 @@
     <addaction name="separator"/>
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -139,8 +140,19 @@
     <addaction name="actionHelpAbout"/>
     <addaction name="actionOnlineHelp"/>
    </widget>
+   <widget class="QMenu" name="menuMove">
+    <property name="title">
+     <string>Move</string>
+    </property>
+    <addaction name="actionNextCloseUp"/>
+    <addaction name="actionPreviousCloseUp"/>
+    <addaction name="separator"/>
+    <addaction name="actionNextTag"/>
+    <addaction name="actionPreviousTag"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuMove"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
@@ -387,6 +399,38 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionNextCloseUp">
+   <property name="text">
+    <string>Next Close Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
+   </property>
+  </action>
+  <action name="actionPreviousCloseUp">
+   <property name="text">
+    <string>Previous Close Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="actionNextTag">
+   <property name="text">
+    <string>Next Tag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
+   </property>
+  </action>
+  <action name="actionPreviousTag">
+   <property name="text">
+    <string>Previous Tag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
    </property>
   </action>
  </widget>
