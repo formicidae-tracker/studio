@@ -53,7 +53,6 @@ public:
 
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;
-		typedef std::shared_ptr<apriltag_detector_t> ATDetectorPtr;
 
 		Lister(const fs::path & absoluteBaseDir,
 		       tags::Family f,
@@ -69,7 +68,7 @@ public:
 		void UnsafeSaveCache();
 		void LoadCache();
 
-		ATDetectorPtr CreateDetector();
+		apriltag_detector_t * CreateDetector();
 
 		std::weak_ptr<Lister>  d_itself;
 		fs::path               d_absoluteBaseDir;
