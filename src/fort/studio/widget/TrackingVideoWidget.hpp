@@ -23,12 +23,10 @@ public slots:
 protected:
 	void paintEvent(QPaintEvent * event) override;
 
-	void paintIdentifiedAnt(QPainter * painter,
-	                        const fmp::IdentifiedFrame::ConstPtr & frame,
-	                        int targetHeigth);
+	void paintIdentifiedAnt(QPainter * painter);
 
 private:
-	QImage             d_image;
+	TrackingVideoFrame d_frame;
 	IdentifierBridge * d_identifier;
 	bool               d_hideLoadingBanner;
 };

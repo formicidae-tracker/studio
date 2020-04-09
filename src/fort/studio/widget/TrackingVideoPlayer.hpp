@@ -6,7 +6,7 @@
 
 #include <opencv2/videoio.hpp>
 
-#include <vector>
+#include <deque>
 #include <set>
 #include <condition_variable>
 
@@ -90,6 +90,8 @@ private:
 	void stopTask();
 	void bootstrapTask(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 
+	void displayVideoFrameImpl(const TrackingVideoFrame & frame);
+
 	TrackingVideoPlayerTask             * d_task;
 	IdentifiedFrameConcurrentLoader     * d_loader;
 
@@ -107,7 +109,8 @@ private:
 
 	size_t                          d_currentTaskID;
 	size_t                          d_currentSeekID;
-	std::vector<TrackingVideoFrame> d_frames,d_stagging;
+	std::deque<TrackingVideoFrame>  d_frames,d_stagging;
+	TrackingVideoFrame              d_displayed;
 	bool                            d_seekReady;
 };
 

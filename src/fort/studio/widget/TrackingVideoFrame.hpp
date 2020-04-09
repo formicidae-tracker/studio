@@ -27,6 +27,7 @@ namespace fm = fort::myrmidon;
 #endif
 
 struct TrackingVideoFrame {
+	TrackingVideoFrame();
 	std::shared_ptr<QImage>        Image;
 	fm::Duration                   StartPos,EndPos;
 	fmp::MovieFrameID              FrameID;

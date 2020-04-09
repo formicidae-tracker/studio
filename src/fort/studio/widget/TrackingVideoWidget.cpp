@@ -13,7 +13,6 @@
 
 TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	: QWidget(parent)
-	, d_image(0,0)
 	, d_identifier(nullptr)
 	, d_hideLoadingBanner(true) {
 }
@@ -21,36 +20,35 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 TrackingVideoWidget::~TrackingVideoWidget() {
 }
 
-
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
-	VIDEO_PLAYER_DEBUG(std::cerr << "Received frame:" << frame << std::endl);
-	if ( !frame.Image ) {
-		d_image = QImage(0,0);
-		update();
-		return;
-	}
-	d_image = *frame.Image;
-	QPainter painter(&d_image);
-	painter.setRenderHint(QPainter::Antialiasing,true);
-	if ( !frame.TrackingFrame == false || d_identifier == nullptr ) {
-		paintIdentifiedAnt(&painter,frame.TrackingFrame,frame.Image->height());
-	}
+	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Received frame:" << frame << std::endl);
+	d_frame = frame;
 	update();
 }
 
 void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
+	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Paint Event with frame:" << d_frame << std::endl);
+
 	QPainter painter(this);
 	painter.fillRect(rect(),QColor(0,0,0));
-	if ( d_image.isNull() == true ) {
+	if ( !d_frame.Image == true ) {
 		return;
 	}
 
-	auto size = d_image.size();
+	QImage image = *d_frame.Image;
+
+	if ( !d_frame.TrackingFrame == false && d_identifier != nullptr ) {
+		QPainter imagePainter(&image);
+		imagePainter.setRenderHint(QPainter::Antialiasing,true);
+		paintIdentifiedAnt(&imagePainter);
+	}
+
+	auto size = image.size();
 	size.scale(width(),height(),Qt::KeepAspectRatio);
 	QRect targetRect(QPoint(0,0),size);
 	targetRect.translate(rect().center()-targetRect.center());
 
-	painter.drawImage(targetRect,d_image);
+	painter.drawImage(targetRect,image);
 
 	if ( d_hideLoadingBanner == false ) {
 		auto font = painter.font();
@@ -71,20 +69,26 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 
 void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
 	d_identifier = identifier;
+
+	connect(d_identifier,
+	        &IdentifierBridge::antDisplayChanged,
+	        this,
+	        static_cast<void (QWidget::*)()>(&QWidget::update));
+
 }
 
 
 
-void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter,
-                                             const fmp::IdentifiedFrame::ConstPtr & frame,
-                                             int targetHeight) {
-	double ratio = double(targetHeight) / double(frame->Height);
+void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter) {
+	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
+	const auto & tFrame = d_frame.TrackingFrame;
+	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
 	const static double ANT_HALF_SIZE = 10.0;
 
 	painter->setPen(Qt::NoPen);
 
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
-	for ( const auto & pa : frame->Positions ) {
+	for ( const auto & pa : tFrame->Positions ) {
 		auto a = d_identifier->ant(pa.ID);
 		if ( !a
 		     || ( hasSolo == true && a->DisplayStatus() != fmp::Ant::DisplayState::SOLO)
