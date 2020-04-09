@@ -289,6 +289,9 @@
    <property name="toolTip">
     <string>Open Recent File 1</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+1</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -299,6 +302,9 @@
    </property>
    <property name="toolTip">
     <string>Open Recent File 2</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+2</string>
    </property>
    <property name="visible">
     <bool>false</bool>
@@ -311,6 +317,9 @@
    <property name="toolTip">
     <string>Open Recent File 3</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+3</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -322,6 +331,9 @@
    <property name="toolTip">
     <string>Open Recent File 4</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+4</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -332,6 +344,9 @@
    </property>
    <property name="toolTip">
     <string>Open Recent File 5</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+5</string>
    </property>
    <property name="visible">
     <bool>false</bool>
