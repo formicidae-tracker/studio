@@ -120,7 +120,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
 	const auto & tFrame = d_frame.TrackingFrame;
 	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
-	const static double ANT_HALF_SIZE = 10.0;
+	const static double ANT_HALF_SIZE = 8.0;
 
 	painter->setPen(Qt::NoPen);
 
@@ -141,11 +141,18 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 		painter->setBrush(c);
 		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
 
-		painter->drawEllipse(QRectF(correctedPos - QPointF(ANT_HALF_SIZE,ANT_HALF_SIZE),
+		painter->translate(correctedPos);
+		painter->rotate(pa.Angle * 180.0 / M_PI);
+
+		painter->drawEllipse(QRectF(-QPointF(ANT_HALF_SIZE,ANT_HALF_SIZE),
 		                            QSize(ANT_HALF_SIZE * 2.0,
 		                                  ANT_HALF_SIZE * 2.0)));
 
+		painter->drawEllipse(QRectF(QPointF(ANT_HALF_SIZE,-ANT_HALF_SIZE*0.6),
+		                            QSize(ANT_HALF_SIZE*1.2,
+		                                  ANT_HALF_SIZE*1.2)));
 
+		painter->resetTransform();
 
 
 		if ( d_showID == true ) {
