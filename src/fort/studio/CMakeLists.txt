@@ -31,7 +31,6 @@ set(SRC_FILES Format.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
 			  widget/base/QLongSpinBox.cpp
-			  widget/base/VideoPlayerControl.cpp
 			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
@@ -59,6 +58,7 @@ set(SRC_FILES Format.cpp
 			  widget/TrackingVideoFrame.cpp
 			  widget/TrackingVideoWidget.cpp
 			  widget/TrackingVideoPlayer.cpp
+			  widget/TrackingVideoControl.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -80,7 +80,6 @@ set(HDR_FILES Format.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
 			  widget/base/QLongSpinBox.hpp
-			  widget/base/VideoPlayerControl.hpp
 			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
@@ -108,6 +107,7 @@ set(HDR_FILES Format.hpp
 			  widget/TrackingVideoFrame.hpp
 			  widget/TrackingVideoWidget.hpp
 			  widget/TrackingVideoPlayer.hpp
+			  widget/TrackingVideoControl.hpp
 			  )
 
 
@@ -122,13 +122,13 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
-             widget/base/VideoPlayerControl.ui
              widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
              widget/UserDataWidget.ui
              widget/VisualizationWidget.ui
+             widget/TrackingVideoControl.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)
