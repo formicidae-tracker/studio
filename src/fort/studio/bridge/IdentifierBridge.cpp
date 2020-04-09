@@ -261,7 +261,7 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 
 QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	auto c = ant->DisplayColor();
-	return ColorComboBox::iconFromColor(ColorComboBox::fromMyrmidon(c));
+	return ColorComboBox::iconFromColor(Conversion::colorFromFM(c));
 }
 
 QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {
@@ -485,4 +485,16 @@ bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
 
 SelectedAntBridge * IdentifierBridge::selectedAnt() const {
 	return d_selectedAnt;
+}
+
+fmp::Ant::ConstPtr IdentifierBridge::ant(fm::Ant::ID aID) const {
+	if ( !d_experiment == true ) {
+		return fmp::Ant::ConstPtr();
+	}
+	const auto & ants = d_experiment->ConstIdentifier().Ants();
+	auto fi = ants.find(aID);
+	if ( fi == ants.cend() ) {
+		return fmp::Ant::ConstPtr();
+	}
+	return fi->second;
 }

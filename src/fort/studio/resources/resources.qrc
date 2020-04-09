@@ -1,0 +1,7 @@
+<!-- -*- mode: nxml -*- -->
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>movieTracking.vertexshader</file>
+	<file>movieTracking.fragmentshader</file>
+</qresource>
+</RCC>

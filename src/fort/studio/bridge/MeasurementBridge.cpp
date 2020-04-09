@@ -3,7 +3,6 @@
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
 #include <fort/studio/Format.hpp>
 
-#include <fort/studio/widget/base/ColorComboBox.hpp>
 
 #include <QtConcurrent>
 #include <QDebug>
@@ -497,7 +496,7 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	mtid->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
 	QPixmap icon(10,10);
-	icon.fill(ColorComboBox::fromMyrmidon(fmp::Palette::Default().At(type->MTID())));
+	icon.fill(Conversion::colorFromFM(fmp::Palette::Default().At(type->MTID())));
 	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);

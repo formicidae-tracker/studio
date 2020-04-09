@@ -14,7 +14,6 @@ class ColorComboBox : public QComboBox {
 	           READ color WRITE setColor
 	           NOTIFY colorChanged)
 public:
-	static QColor fromMyrmidon(const fmp::Color & color);
 	static QIcon  iconFromColor(const QColor & color);
 
 	ColorComboBox(QWidget * parent);

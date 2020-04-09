@@ -262,11 +262,9 @@ void TagCloseUp::Lister::LoadCache() {
 }
 
 
-std::shared_ptr<apriltag_detector_t>
+apriltag_detector_t *
 TagCloseUp::Lister::CreateDetector() {
-	std::shared_ptr<apriltag_detector_t>
-		detector(apriltag_detector_create(),
-		         apriltag_detector_destroy);
+	apriltag_detector_t * detector =  apriltag_detector_create();
 
 	detector->qtp.min_white_black_diff = d_threshold;
 
@@ -280,7 +278,6 @@ TagCloseUp::Lister::CreateDetector() {
 	detector->qtp.critical_rad = 10.0 * M_PI / 180.0;
 	detector->qtp.max_line_fit_mse = 10.0;
 	detector->qtp.deglitch = 0;
-
 	return detector;
 }
 
@@ -308,9 +305,9 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 	auto ref = d_resolver(FID);
 
 	std::vector<ConstPtr> tags;
-	auto detector = CreateDetector();
+	apriltag_detector_t * detector = CreateDetector();
 	auto family = LoadFamily(d_family);
-	apriltag_detector_add_family(detector.get(),family.get());
+	apriltag_detector_add_family(detector,family.get());
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
 
@@ -322,7 +319,7 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		 .buf = imgCv.data
 		};
 	zarray_t * detections
-		= apriltag_detector_detect(detector.get(),&img);
+		= apriltag_detector_detect(detector,&img);
 
 	apriltag_detection * d;
 
@@ -342,6 +339,8 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		d_cache.insert(std::make_pair(relativePath,tags));
 		d_cacheModified = true;
 	}
+
+	apriltag_detector_destroy(detector);
 
 	return tags;
 }

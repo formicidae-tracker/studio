@@ -4,8 +4,10 @@
 
 #include <google/protobuf/util/time_util.h>
 
-using namespace fort::myrmidon;
+#include "UtilsUTest.hpp"
 
+namespace fort {
+namespace myrmidon {
 
 TEST_F(TimeUTest,DurationCast) {
 	Duration b(std::chrono::hours(1));
@@ -416,3 +418,103 @@ TEST_F(TimeUTest,TimeFormat) {
 	}
 
 }
+
+
+TEST_F(TimeUTest,Rounding) {
+	struct TestData {
+		Time Value;
+		Duration Round;
+		Time Expected;
+	};
+
+	std::vector<TestData> testdata =
+		{
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  10 * Duration::Nanosecond,
+		  Time::Parse("2020-03-20T15:34:08.86512357Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  100 * Duration::Nanosecond,
+		  Time::Parse("2020-03-20T15:34:08.8651236Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  1 * Duration::Microsecond,
+		  Time::Parse("2020-03-20T15:34:08.865124Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  10 * Duration::Microsecond,
+		  Time::Parse("2020-03-20T15:34:08.86512Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  100 * Duration::Microsecond,
+		  Time::Parse("2020-03-20T15:34:08.8651Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  1 * Duration::Millisecond,
+		  Time::Parse("2020-03-20T15:34:08.865Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  10 * Duration::Millisecond,
+		  Time::Parse("2020-03-20T15:34:08.87Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  100 * Duration::Millisecond,
+		  Time::Parse("2020-03-20T15:34:08.9Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  Duration::Second,
+		  Time::Parse("2020-03-20T15:34:09Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  2*Duration::Second,
+		  Time::Parse("2020-03-20T15:34:08Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  Duration::Minute,
+		  Time::Parse("2020-03-20T15:34:00Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  Duration::Hour,
+		  Time::Parse("2020-03-20T16:00:00Z"),
+		 },
+		 {
+		  Time::Parse("2020-03-20T15:34:08.865123567Z"),
+		  24 *Duration::Hour,
+		  Time::Parse("2020-03-21T00:00:00Z"),
+		 },
+		};
+
+	for ( const auto & d : testdata ) {
+		EXPECT_TRUE(TimeEqual(d.Value.Round(d.Round),d.Expected));
+	}
+
+	std::vector<Duration> faildata =
+		{
+		 1 * Duration::Second + 1 * Duration::Millisecond,
+		 2 * Duration::Millisecond,
+		};
+
+	for ( const auto & f : faildata ) {
+		EXPECT_THROW(Time().Round(f),std::runtime_error);
+	}
+
+	auto now = Time::Now();
+	ASSERT_TRUE(now.HasMono());
+	EXPECT_FALSE(now.Round(Duration::Nanosecond).HasMono());
+
+}
+
+} // namespace myrmidon
+} // namespace fort

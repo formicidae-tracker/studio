@@ -2,7 +2,7 @@
 
 #include <fort/myrmidon/TestSetup.hpp>
 
-#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/widget/GlobalPropertyWidget.hpp>
 #include "ui_GlobalPropertyWidget.h"
 
@@ -125,11 +125,13 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 
 TEST_F(GlobalPropertyUTest,WidgetTest) {
 	fmp::Experiment::Ptr experiment;
-	GlobalPropertyBridge globalProperties(NULL);
+
+	ExperimentBridge experimentBridge(NULL);
 	GlobalPropertyWidget globalPropertiesWidget(NULL);
+	auto globalProperties = experimentBridge.globalProperties();
 	ASSERT_NO_THROW({
 			experiment = fmp::priv::Experiment::NewFile(TestSetup::Basedir() / "globalProperty.myrmidon");
-			globalPropertiesWidget.setup(&globalProperties);
+			globalPropertiesWidget.setup(&experimentBridge);
 		});
 
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->nameEdit->isEnabled());
@@ -153,7 +155,7 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	experiment->SetFamily(fort::tags::Family::Tag36h11);
 	experiment->SetDefaultTagSize(0.67);
 
-	globalProperties.setExperiment(experiment);
+	globalProperties->setExperiment(experiment);
 
 	EXPECT_TRUE(globalPropertiesWidget.d_ui->nameEdit->isEnabled());
 	EXPECT_EQ(globalPropertiesWidget.d_ui->nameEdit->text(),"foo");
@@ -171,21 +173,21 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_EQ(globalPropertiesWidget.d_ui->familySelector->currentIndex(),0);
 
 	QTest::keyClicks(globalPropertiesWidget.d_ui->nameEdit,"bar");
-	EXPECT_EQ(globalProperties.name(),"foobar");
+	EXPECT_EQ(globalProperties->name(),"foobar");
 
 	QTest::keyClicks(globalPropertiesWidget.d_ui->authorEdit,"b");
-	EXPECT_EQ(globalProperties.author(),"testsb");
+	EXPECT_EQ(globalProperties->author(),"testsb");
 
 	QTest::keyClick(globalPropertiesWidget.d_ui->tagSizeEdit,Qt::Key_Delete);
 	QTest::keyClicks(globalPropertiesWidget.d_ui->tagSizeEdit,"2");
-	EXPECT_EQ(globalProperties.tagSize(),2.67);
+	EXPECT_EQ(globalProperties->tagSize(),2.67);
 
 
 	QTest::keyClicks(globalPropertiesWidget.d_ui->commentEdit,"This is ");
-	EXPECT_EQ(std::string(globalProperties.comment().toUtf8().constData()),
+	EXPECT_EQ(std::string(globalProperties->comment().toUtf8().constData()),
 	          std::string("This is for tests"));
 
 	auto s = globalPropertiesWidget.d_ui->familySelector;
 	s->setCurrentIndex(1);
-	EXPECT_EQ(globalProperties.tagFamily(),fort::tags::Family::Tag36ARTag);
+	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Tag36ARTag);
 }

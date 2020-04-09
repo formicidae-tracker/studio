@@ -23,6 +23,10 @@ public:
 
 	void setup(ExperimentBridge * experiment);
 
+public slots:
+	void nextCloseUp();
+	void previousCloseUp();
+
 
 
 private slots:
@@ -63,6 +67,8 @@ private:
 	void buildCloseUpList();
 	void buildHeaders();
 
+	void select(int increment);
+
 	void clearScene();
 
 	quint32 typeFromComboBox() const;
@@ -85,8 +91,6 @@ private:
 
 	void setColorFromType(quint32 typeID);
 
-	bool eventFilter(QObject * obj, QEvent * event);
-	void select(int incremet);
 
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 

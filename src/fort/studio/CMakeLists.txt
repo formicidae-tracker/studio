@@ -1,8 +1,20 @@
+option(DEBUG_VIDEO_PLAYER Off "Debugs the video player with expensive STDERR output")
+if(NOT DEBUG_VIDEO_PLAYER)
+	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")
+endif(NOT DEBUG_VIDEO_PLAYER)
+
+option(DEBUG_CONCURRENT_LOADER Off "Debugs the concurrent Frame loader with expensive output")
+if(NOT DEBUG_CONCURRENT_LOADER)
+	add_definitions("-DFORT_STUDIO_CONC_LOADER_NDEBUG=1")
+endif(NOT DEBUG_CONCURRENT_LOADER)
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
+              MyrmidonTypes.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
 			  bridge/MeasurementBridge.cpp
@@ -14,6 +26,7 @@ set(SRC_FILES Format.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
 			  bridge/AntShapeTypeBridge.cpp
 			  bridge/AntMetadataBridge.cpp
+			  bridge/MovieBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
@@ -41,6 +54,11 @@ set(SRC_FILES Format.cpp
 			  widget/AntMetadataWidget.cpp
 			  widget/UserDataWidget.cpp
 			  widget/MainWindow.cpp
+			  widget/VisualizationWidget.cpp
+			  widget/TrackingVideoFrame.cpp
+			  widget/TrackingVideoWidget.cpp
+			  widget/TrackingVideoPlayer.cpp
+			  widget/TrackingVideoControl.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -57,6 +75,7 @@ set(HDR_FILES Format.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
 			  bridge/AntShapeTypeBridge.hpp
 			  bridge/AntMetadataBridge.hpp
+			  bridge/MovieBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
@@ -84,6 +103,11 @@ set(HDR_FILES Format.hpp
 			  widget/AntMetadataWidget.hpp
 			  widget/UserDataWidget.hpp
 			  widget/MainWindow.hpp
+			  widget/VisualizationWidget.hpp
+			  widget/TrackingVideoFrame.hpp
+			  widget/TrackingVideoWidget.hpp
+			  widget/TrackingVideoPlayer.hpp
+			  widget/TrackingVideoControl.hpp
 			  )
 
 
@@ -103,9 +127,11 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
              widget/UserDataWidget.ui
+             widget/VisualizationWidget.ui
+             widget/TrackingVideoControl.ui
 			 )
 
-set(RCC_FILES )
+set(RCC_FILES resources/resources.qrc)
 
 
 set(SRC_UTEST_FILES utest/main.cpp

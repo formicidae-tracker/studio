@@ -14,7 +14,7 @@
 #include "Logger.hpp"
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
-#include <fort/studio/widget/base/ColorComboBox.hpp>
+
 #include <QToolBar>
 #include <QPushButton>
 
@@ -92,7 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_ui(new Ui::MainWindow)
 	, d_experiment(new ExperimentBridge(this))
 	, d_logger( new Logger(this) )
-	, d_loggerWidget(NULL) {
+	, d_loggerWidget(nullptr)
+	, d_lastConnected(nullptr) {
 
 	d_ui->setupUi(this);
 
@@ -110,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent)
 	        this,
 	        &MainWindow::onExperimentActivated);
 
-	d_ui->globalProperties->setup(d_experiment->globalProperties());
+	d_ui->globalProperties->setup(d_experiment);
 	d_ui->universeEditor->setup(d_experiment->universe());
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment);
@@ -125,8 +126,12 @@ MainWindow::MainWindow(QWidget *parent)
 			        auto w = d_ui->workspaceSelector->widget(i);
 			        w->setEnabled(i == index);
 		        }
+		        setupMoveActions();
 	        });
+
 	d_ui->workspaceSelector->setCurrentIndex(0);
+
+	d_ui->visualizeWidget->setup(d_experiment);
 
 	setWindowTitle(tr("FORmicidae Tracker Studio"));
 	connect(d_experiment,
@@ -140,7 +145,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
 
+
+
+
 	loadSettings();
+
+	d_ui->menuEdit->addAction(d_ui->visualizeWidget->copyCurrentTimeAction());
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->taggingWidget->newAntFromTagAction());
+	d_ui->menuEdit->addAction(d_ui->taggingWidget->addIdentificationToAntAction());
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->taggingWidget->deletePoseEstimationAction());
+
+
 
 }
 
@@ -413,4 +430,75 @@ void MainWindow::on_actionShowLog_triggered() {
 
 void MainWindow::onLoggerWidgetDestroyed() {
 	d_loggerWidget = NULL;
+}
+
+
+void MainWindow::setupMoveActions() {
+	// VERY ugly implementation
+
+	QWidget * newConnected = nullptr;
+	if ( d_ui->shappingWidget->isEnabled() == true ) {
+		newConnected = d_ui->shappingWidget;
+	}
+
+	if ( d_ui->taggingWidget->isEnabled() == true ) {
+		newConnected = d_ui->taggingWidget;
+	}
+
+	if ( newConnected == d_lastConnected ) {
+		return;
+	}
+
+	if ( d_lastConnected == d_ui->taggingWidget ) {
+		disconnect(d_ui->actionNextTag,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::nextTag);
+		disconnect(d_ui->actionPreviousTag,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::previousTag);
+
+		disconnect(d_ui->actionNextCloseUp,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::nextTagCloseUp);
+		disconnect(d_ui->actionPreviousCloseUp,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::previousTagCloseUp);
+		d_ui->actionNextCloseUp->setEnabled(false);
+		d_ui->actionPreviousCloseUp->setEnabled(false);
+		d_ui->actionNextTag->setEnabled(false);
+		d_ui->actionPreviousTag->setEnabled(false);
+	}
+
+	if ( d_lastConnected == d_ui->shappingWidget ) {
+		disconnect(d_ui->actionNextCloseUp,&QAction::triggered,
+		           d_ui->shappingWidget,&AntEditorWidget::nextCloseUp);
+		disconnect(d_ui->actionPreviousCloseUp,&QAction::triggered,
+		           d_ui->shappingWidget,&AntEditorWidget::previousCloseUp);
+		d_ui->actionNextCloseUp->setEnabled(false);
+		d_ui->actionPreviousCloseUp->setEnabled(false);
+	}
+
+	d_lastConnected = newConnected;
+
+	if ( newConnected == d_ui->taggingWidget ) {
+		connect(d_ui->actionNextTag,&QAction::triggered,
+		        d_ui->taggingWidget,&TaggingWidget::nextTag);
+		connect(d_ui->actionPreviousTag,&QAction::triggered,
+		        d_ui->taggingWidget,&TaggingWidget::previousTag);
+
+		connect(d_ui->actionNextCloseUp,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::nextTagCloseUp);
+		connect(d_ui->actionPreviousCloseUp,&QAction::triggered,
+		           d_ui->taggingWidget,&TaggingWidget::previousTagCloseUp);
+		d_ui->actionNextCloseUp->setEnabled(true);
+		d_ui->actionPreviousCloseUp->setEnabled(true);
+		d_ui->actionNextTag->setEnabled(true);
+		d_ui->actionPreviousTag->setEnabled(true);
+	}
+
+	if ( newConnected == d_ui->shappingWidget ) {
+		connect(d_ui->actionNextCloseUp,&QAction::triggered,
+		        d_ui->shappingWidget,&AntEditorWidget::nextCloseUp);
+		connect(d_ui->actionPreviousCloseUp,&QAction::triggered,
+		        d_ui->shappingWidget,&AntEditorWidget::previousCloseUp);
+		d_ui->actionNextCloseUp->setEnabled(true);
+		d_ui->actionPreviousCloseUp->setEnabled(true);
+	}
+
 }

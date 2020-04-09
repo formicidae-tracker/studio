@@ -37,6 +37,10 @@ public:
 	inline Duration(int64_t ns)
 		: d_nanoseconds(ns) {}
 
+	inline Duration()
+		: d_nanoseconds(0) {
+	}
+
 	// constructor from std::chrono::duration
 	// @T the type holding
 	template <typename T,typename U>
@@ -84,10 +88,6 @@ public:
 	static Duration Parse(const std::string & string);
 
 
-	bool operator==(const Duration & other) const {
-		return d_nanoseconds == other.d_nanoseconds;
-	}
-
 	// An Hour
 	const static Duration Hour;
 	// A Minute
@@ -102,25 +102,53 @@ public:
 	const static Duration Nanosecond;
 
 	// The addition operator
-	inline Duration operator+(const Duration & other) {
+	inline Duration operator+(const Duration & other) const {
 		return d_nanoseconds + other.d_nanoseconds;
 	}
 
-	inline Duration operator*(const fort::myrmidon::Duration & other) {
+	// Multiplication operator
+	inline Duration operator*(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds * other.d_nanoseconds;
 	}
 
-	inline Duration operator-(const fort::myrmidon::Duration & other) {
+	// Soustraction operator
+	inline Duration operator-(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds - other.d_nanoseconds;
 	}
 
-	inline Duration operator-() {
+	// Negation operator
+	inline Duration operator-() const {
 		return -d_nanoseconds;
 	}
 
+	// Less than operator
+	inline bool operator<( const Duration & other ) const {
+		return d_nanoseconds < other.d_nanoseconds;
+	}
+
+	// Less or equal operator
+	inline bool operator<=( const Duration & other ) const {
+		return d_nanoseconds <= other.d_nanoseconds;
+	}
+
+	// Greater than operator
+	inline bool operator>( const Duration & other ) const {
+		return d_nanoseconds > other.d_nanoseconds;
+	}
+
+	// Greate or equal operator
+	inline bool operator>=( const Duration & other ) const {
+		return d_nanoseconds >= other.d_nanoseconds;
+	}
+
+	// Equality operator
+	inline bool operator==( const Duration & other ) const {
+		return d_nanoseconds == other.d_nanoseconds;
+	}
 
 
 private:
+	friend class Time;
 	int64_t d_nanoseconds;
 };
 
@@ -165,8 +193,19 @@ private:
 // Every time are considered UTC.
 class Time {
 public:
-	typedef std::shared_ptr<Time> Ptr;
+	// A pointer to a Time
+	typedef std::shared_ptr<Time>       Ptr;
+
+	// A const pointer to a Time
 	typedef std::shared_ptr<const Time> ConstPtr;
+
+	// An object optimized for std::map or std::set
+	//
+	// SortableKey is an object constructed from current <Time> to be
+	// used as a computationnaly efficient key in std::map or
+	// std::set. please note that this key has lost any monotonic
+	// information.
+	typedef std::pair<int64_t,int32_t>  SortableKey;
 
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
@@ -277,6 +316,16 @@ public:
 	// @return a new <Time> distant by <d> from this <Time>
 	Time Add(const Duration & d) const;
 
+	// Rounds a Time to a Duration
+	// @d the <Duration> to round to.
+	// @return a new <Time> rounded to the wanted duration
+	//
+	// Rounds the <Time> to the halp-rounded up <Duration>
+	// d. Currently only multiple of <Duration::Second> and power of
+	// 10 of <Duration::Nanosecond> which are smaller than a second
+	// are supported.
+	Time Round(const Duration & d) const;
+
 	// Reports if this time is after t
 	// @t the <Time> to test against
 	// @return `true` if this <Time> is strictly after <t>
@@ -298,19 +347,9 @@ public:
 	// <this> and <t>. It could be negative.
 	Duration Sub(const Time & t) const;
 
-	int64_t WallSeconds() const;
-	int32_t WallNanos() const;
-
 	// The <MonoclockID> reserved for the current system
 	// `CLOCK_MONOTONIC`.
 	const static MonoclockID SYSTEM_MONOTONIC_CLOCK = 0;
-
-	// Number of nanoseconds in a second.
-	const static uint64_t NANOS_PER_SECOND = 1000000000ULL;
-	// Number of nanoseconds in a millisecond.
-	const static uint64_t NANOS_PER_MILLISECOND = 1000000ULL;
-	// Number of nanoseconds in a microsecond.
-	const static uint64_t NANOS_PER_MICROSECOND = 1000ULL;
 
 	// Reports the presence of a monotonic time value
 	// @true if <this> contains a monotonic clock value.
@@ -328,7 +367,6 @@ public:
 	// this <Time> has no monotonic clock value (see <HasMono>).
 	MonoclockID MonoID() const;
 
-
 	// Returns the monotonic value.
 	// @return the monotonic clock value.
 	//
@@ -337,7 +375,6 @@ public:
 	uint64_t MonotonicValue() const;
 
 	std::string DebugString() const;
-
 
 	// Helpers to convert (sec,nsec) to nsec
 	// @sec the amount of second
@@ -348,9 +385,45 @@ public:
 	// overflow.
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
-	bool operator == (const Time & other ) const  {
+
+	// Equal operator
+	inline bool operator == (const Time & other ) const  {
 		return Equals(other);
 	}
+
+	// Less than operator
+	inline bool operator < (const Time & other ) const  {
+		return Before(other);
+	}
+
+	// Less or equal operator
+	inline bool operator <= (const Time & other ) const  {
+		return !other.Before(*this);
+	}
+
+	// Greater than operator
+	inline bool operator > (const Time & other ) const  {
+		return other.Before(*this);
+	}
+
+	// Greate or equal operator
+	inline bool operator >= (const Time & other ) const  {
+		return !Before(other);
+	}
+
+	// Returns the SortableKey representing this Time
+	inline SortableKey SortKey() const {
+		return std::make_pair(d_wallSec,d_wallNsec);
+	}
+
+	// Returns a SortableKey representing a Time pointer
+	//
+	// Returns a <SortableKey> representing a pointer to a
+	// <Time>. Passing a nullptr to this function, will represent the
+	// smallest possible key possible, which is then mathematically
+	// equivalent to -∞ <Time> (no result of Time::Parse can represent
+	// this value).
+	static SortableKey SortKey(const ConstPtr & timePtr);
 
 	class Comparator {
 	public:
@@ -360,8 +433,17 @@ public:
 	};
 
 private:
+
+	// Number of nanoseconds in a second.
+	const static uint64_t NANOS_PER_SECOND = 1000000000ULL;
+	// Number of nanoseconds in a millisecond.
+	const static uint64_t NANOS_PER_MILLISECOND = 1000000ULL;
+	// Number of nanoseconds in a microsecond.
+	const static uint64_t NANOS_PER_MICROSECOND = 1000ULL;
+
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
+	Duration Reminder(const Duration & d) const;
 
 	const static uint32_t HAS_MONO_BIT = 0x80000000ULL;
 	int64_t     d_wallSec;
@@ -411,6 +493,3 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time::ConstPtr & t );
-
-bool operator== (const fort::myrmidon::Time & a,
-                 const fort::myrmidon::Time & b);

@@ -67,7 +67,7 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_uid(GetUID(d_absoluteFilePath))
-	, d_endIterator(ConstPtr(),endFrame)
+	, d_endIterator(ConstPtr(),endFrame+1)
 	, d_segments(si)
 	, d_movies(movies)
 	, d_referencesByFID(referenceCache) {
@@ -323,6 +323,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	LoadMovieSegments(moviesPaths,URI.generic_string(),movies);
 	for(const auto & m : movies) {
 		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI.generic_string(),0,Time())));
+		referenceCache->insert(std::make_pair(m->EndFrame(),FrameReference(URI.generic_string(),0,Time())));
 	}
 
 	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");

@@ -58,7 +58,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-
+	void setupMoveActions();
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
 
@@ -76,4 +76,5 @@ private:
 	Logger              * d_logger;
 	LoggerWidget        * d_loggerWidget;
 	QtMessageHandler      d_handler;
+	QWidget             * d_lastConnected;
 };

@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 
-project(fort-studio VERSION 0.1.0
+project(fort-studio VERSION 0.1.1
                     LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
@@ -18,7 +18,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
-find_package(OpenCV REQUIRED core imgcodecs imgproc)
+find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
 find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
 

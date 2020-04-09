@@ -34,8 +34,9 @@ message MovieSegment {
 }
 
 message TrackingDataDirectory {
-	TimedFrame Start = 1;
-	TimedFrame End   = 2;
+	TimedFrame Start        = 1;
+	TimedFrame End          = 2;
+	uint32     CacheVersion = 3;
 }
 
 message TrackingDataDirectoryFileLine {

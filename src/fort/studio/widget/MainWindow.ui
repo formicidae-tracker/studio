@@ -24,7 +24,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -82,7 +82,7 @@
         <string>Timed Data</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="exploreWidget">
+      <widget class="VisualizationWidget" name="visualizeWidget">
        <attribute name="title">
         <string>Visualize</string>
        </attribute>
@@ -131,6 +131,7 @@
     <addaction name="separator"/>
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -139,8 +140,19 @@
     <addaction name="actionHelpAbout"/>
     <addaction name="actionOnlineHelp"/>
    </widget>
+   <widget class="QMenu" name="menuMove">
+    <property name="title">
+     <string>Move</string>
+    </property>
+    <addaction name="actionNextCloseUp"/>
+    <addaction name="actionPreviousCloseUp"/>
+    <addaction name="separator"/>
+    <addaction name="actionNextTag"/>
+    <addaction name="actionPreviousTag"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuMove"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
@@ -277,6 +289,9 @@
    <property name="toolTip">
     <string>Open Recent File 1</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+1</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -287,6 +302,9 @@
    </property>
    <property name="toolTip">
     <string>Open Recent File 2</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+2</string>
    </property>
    <property name="visible">
     <bool>false</bool>
@@ -299,6 +317,9 @@
    <property name="toolTip">
     <string>Open Recent File 3</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+3</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -310,6 +331,9 @@
    <property name="toolTip">
     <string>Open Recent File 4</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+4</string>
+   </property>
    <property name="visible">
     <bool>false</bool>
    </property>
@@ -320,6 +344,9 @@
    </property>
    <property name="toolTip">
     <string>Open Recent File 5</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+5</string>
    </property>
    <property name="visible">
     <bool>false</bool>
@@ -389,6 +416,38 @@
     <string>Ctrl+Shift+A</string>
    </property>
   </action>
+  <action name="actionNextCloseUp">
+   <property name="text">
+    <string>Next Close Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
+   </property>
+  </action>
+  <action name="actionPreviousCloseUp">
+   <property name="text">
+    <string>Previous Close Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="actionNextTag">
+   <property name="text">
+    <string>Next Tag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
+   </property>
+  </action>
+  <action name="actionPreviousTag">
+   <property name="text">
+    <string>Previous Tag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -425,6 +484,12 @@
    <class>UserDataWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/UserDataWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VisualizationWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/VisualizationWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
