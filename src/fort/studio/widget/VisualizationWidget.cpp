@@ -58,4 +58,14 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::setZoomFocus);
 
+	connect(d_ui->videoControl,
+	        &TrackingVideoControl::showID,
+	        d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::setShowID);
+
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::showIDChanged,
+	        d_ui->videoControl,
+	        &TrackingVideoControl::setShowID);
+	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
 }

@@ -211,3 +211,11 @@ void TrackingVideoControl::on_zoomSlider_valueChanged(int value) {
 qreal TrackingVideoControl::zoomValue() const {
 	return 1 + d_ui->zoomSlider->value();
 }
+
+void TrackingVideoControl::setShowID(bool value) {
+	d_ui->showCheckBox->setCheckState(value?Qt::Checked:Qt::Unchecked);
+}
+
+void TrackingVideoControl::on_showCheckBox_stateChanged(int value) {
+	emit showID(value == Qt::Checked);
+}

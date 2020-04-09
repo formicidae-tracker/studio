@@ -16,6 +16,7 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	: QWidget(parent)
 	, d_identifier(nullptr)
 	, d_hideLoadingBanner(true)
+	, d_showID(false)
 	, d_focusedAntID(0)
 	, d_zoom(1.0)
 	, d_lastFocus(0,0) {
@@ -23,6 +24,12 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 
 TrackingVideoWidget::~TrackingVideoWidget() {
 }
+
+bool TrackingVideoWidget::showID() const {
+	return d_showID;
+}
+
+
 
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Received frame:" << frame << std::endl);
@@ -117,6 +124,10 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 
 	painter->setPen(Qt::NoPen);
 
+	auto font = painter->font();
+	font.setPointSizeF(font.pointSizeF() * double(d_frame.Image->height()) / double(height()) * 0.6);
+	painter->setFont(font);
+	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
 	for ( const auto & pa : tFrame->Positions ) {
 		auto a = d_identifier->ant(pa.ID);
@@ -126,11 +137,30 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 			continue;
 		}
 		auto c = Conversion::colorFromFM(a->DisplayColor(),150);
+		painter->setPen(Qt::NoPen);
 		painter->setBrush(c);
-		painter->drawEllipse(QRectF(ratio * pa.Position.x() - ANT_HALF_SIZE,
-		                            ratio * pa.Position.y() - ANT_HALF_SIZE,
-		                            ANT_HALF_SIZE * 2.0,
-		                            ANT_HALF_SIZE * 2.0));
+		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
+
+		painter->drawEllipse(QRectF(correctedPos - QPointF(ANT_HALF_SIZE,ANT_HALF_SIZE),
+		                            QSize(ANT_HALF_SIZE * 2.0,
+		                                  ANT_HALF_SIZE * 2.0)));
+
+
+
+
+		if ( d_showID == true ) {
+
+			QString idStr = fmp::Ant::FormatID(pa.ID).c_str();
+			auto bRect = metrics.boundingRect(idStr);
+
+			bRect.translate((correctedPos + QPointF(-bRect.width()/2,bRect.height() + ANT_HALF_SIZE)).toPoint());
+
+			painter->setBrush(QColor(255,255,255,100));
+			painter->drawRect(bRect);
+
+			painter->setPen(Qt::black);
+			painter->drawText(bRect,Qt::AlignCenter,idStr);
+		}
 	}
 
 }
@@ -178,4 +208,14 @@ void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
 	if ( reset == true ) {
 		d_lastFocus = QPointF(0,0);
 	}
+}
+
+
+void TrackingVideoWidget::setShowID(bool show) {
+	if ( show == d_showID ) {
+		return;
+	}
+	d_showID = show;
+	update();
+	emit showIDChanged(show);
 }

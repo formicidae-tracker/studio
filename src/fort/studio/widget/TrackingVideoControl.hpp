@@ -21,6 +21,9 @@ public:
 	void setup(TrackingVideoPlayer * player,
 	           IdentifierBridge * identifier);
 
+
+
+
 signals:
 	void seek(fm::Duration duration);
 	void play();
@@ -32,6 +35,11 @@ signals:
 	void playbackSpeedChanged(qreal value);
 
 	void zoomFocusChanged(quint32 antID,qreal zoom);
+
+	void showID(bool value);
+
+public slots:
+	void setShowID(bool value);
 
 private slots:
 	void onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state);
@@ -48,6 +56,8 @@ private slots:
 
 	void on_zoomSlider_valueChanged(int value);
 	void on_zoomCheckBox_stateChanged(int value);
+
+	void on_showCheckBox_stateChanged(int value);
 
 private:
 	qreal zoomValue() const;
