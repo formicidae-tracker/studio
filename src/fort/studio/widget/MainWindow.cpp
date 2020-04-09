@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
 	        this,
 	        &MainWindow::onExperimentActivated);
 
-	d_ui->globalProperties->setup(d_experiment->globalProperties());
+	d_ui->globalProperties->setup(d_experiment);
 	d_ui->universeEditor->setup(d_experiment->universe());
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment);

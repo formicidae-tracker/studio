@@ -122,6 +122,8 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	        [this](size_t done, size_t toDo) {
 		        d_ui->tagCloseUpLoadingProgress->setMaximum(toDo);
 		        d_ui->tagCloseUpLoadingProgress->setValue(done);
+		        d_ui->familySelector->setEnabled(done == toDo);
+		        d_ui->thresholdBox->setEnabled(done == toDo);
 	        });
 	d_measurements = measurements;
 
@@ -151,6 +153,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	d_selectedAnt = selectedAnt;
 
 	d_ui->selectedAntIdentification->setup(experiment);
+
 
 }
 
