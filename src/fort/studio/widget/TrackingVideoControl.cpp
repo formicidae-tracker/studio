@@ -73,7 +73,7 @@ void TrackingVideoControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::Sta
 
 void TrackingVideoControl::onPlayerPositionChanged(fm::Duration position) {
 	auto currentTime = d_player->start().Add(position);
-	d_ui->currentLabel->setText(ToQString(currentTime));
+	d_ui->currentLabel->setText(ToQString(currentTime.Round(fm::Duration::Millisecond)));
 	d_ui->remainingLabel->setText(formatDuration(position- d_player->duration()));
 	if ( d_ui->positionSlider->isSliderDown() == false ) {
 		d_ui->positionSlider->setValue(position.Milliseconds());
