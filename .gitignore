@@ -1,3 +1,4 @@
 build/
+debug/
 /CMakeLists.txt.user
 *.autosave

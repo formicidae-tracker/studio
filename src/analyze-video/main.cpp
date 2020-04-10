@@ -6,6 +6,11 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
+#if  CV_MAJOR_VERSION >= 4
+#define CV_CAP_PROP_POS_FRAMES cv::CAP_PROP_POS_FRAMES
+#define CV_CAP_PROP_FRAME_COUNT cv::CAP_PROP_FRAME_COUNT
+#endif
+
 namespace fmp = fort::myrmidon::priv;
 
 typedef uint8_t fontchar[16];
