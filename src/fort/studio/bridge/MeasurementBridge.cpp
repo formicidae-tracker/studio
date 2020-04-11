@@ -182,7 +182,7 @@ void MeasurementBridge::startAll() {
 
 
 void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd) {
-	if ( !d_experiment ) {
+	if ( !d_experiment || d_experiment->Family() == fort::tags::Family::Undefined ) {
 		return;
 	}
 	if ( d_loaders.count(tdd->URI()) != 0 ) {

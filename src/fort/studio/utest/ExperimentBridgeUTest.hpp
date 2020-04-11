@@ -8,9 +8,7 @@ namespace fmp = fort::myrmidon::priv;
 
 class ExperimentBridgeUTest : public ::testing::Test {
 protected:
-	static void SetUpTestSuite();
-	static void TearDownTestSuite();
+	void SetUp();
 
-	static fmp::Experiment::Ptr s_experiment;
-
+	fs::path pathExisting;
 };
