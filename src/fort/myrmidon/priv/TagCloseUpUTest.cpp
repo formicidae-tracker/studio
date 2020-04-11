@@ -128,7 +128,16 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 		                return FrameReference("",0,Time());
 	                };
 
+
 	auto barAntDir = TestSetup::Basedir() / "bar.0000/ants";
+
+	EXPECT_THROW(TagCloseUp::Lister::Create(barAntDir,
+	                                        tags::Family::Undefined,
+	                                         80,
+	                                        resolver);,
+	             std::invalid_argument);
+
+
 	auto lister = TagCloseUp::Lister::Create(barAntDir,
 	                                         tags::Family::Tag36h11,
 	                                         80,

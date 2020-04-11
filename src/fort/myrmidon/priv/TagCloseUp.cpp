@@ -123,6 +123,9 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_threshold(threshold)
 	, d_resolver(resolver)
 	, d_parsed(0) {
+	if ( f == tags::Family::Undefined ) {
+		throw std::invalid_argument("Cannot list for undefined family tag");
+	}
 	try {
 		LoadCache();
 	} catch (const std::exception & e) {
