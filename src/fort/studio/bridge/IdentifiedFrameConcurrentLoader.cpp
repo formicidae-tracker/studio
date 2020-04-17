@@ -100,7 +100,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	abordFlag->store(false);
 
 	int maxThreadCount = QThreadPool::globalInstance()->maxThreadCount();
-	if ( maxThreadCount <= 0 ) {
+	if ( maxThreadCount < 2 ) {
+		qWarning() << "Increases the work thread to at least 2 from " << maxThreadCount;
 		maxThreadCount = 2;
 		// avoids deadlock on the global instance !!!
 		QThreadPool::globalInstance()->setMaxThreadCount(maxThreadCount);
