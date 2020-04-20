@@ -38,6 +38,12 @@ const std::string & FrameReference::ParentURI() const {
 	return d_parentURI;
 }
 
+bool FrameReference::operator<(const FrameReference & other) const {
+	if ( d_parentURI == other.d_parentURI ) {
+		return d_id < other.d_id;
+	}
+	return d_parentURI < other.d_parentURI;
+}
 
 } //namespace priv
 } //namespace myrmidon

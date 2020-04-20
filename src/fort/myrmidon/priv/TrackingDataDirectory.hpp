@@ -160,6 +160,8 @@ public:
 	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
 	                                               uint8_t threshold) const;
 
+	std::map<FrameReference,fs::path> FullFrames() const;
+
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
 
