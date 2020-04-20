@@ -2,6 +2,7 @@
 #include "ui_TaggingWidget.h"
 
 #include <QKeyEvent>
+#include <QClipboard>
 
 #include <QSortFilterProxyModel>
 
@@ -27,7 +28,8 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	, d_vectorialScene(new VectorialScene)
 	, d_newAntAction(new QAction(tr("New Ant from Tag"),this))
 	, d_addIdentificationAction(new QAction(tr("Add Identification to Ant"),this))
-	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this)) {
+	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this))
+	, d_copyTimeAction(nullptr) {
 
 	d_newAntAction->setShortcut(QKeySequence(tr("Ctrl+A")));
 	d_addIdentificationAction->setShortcut(QKeySequence(tr("Ctrl+I")));
@@ -352,10 +354,18 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		d_vectorialScene->clearStaticPolygon();
 		d_ui->vectorialView->setBannerMessage("",QColor());
 		updateActionStates();
+
+		if ( d_copyTimeAction != nullptr ) {
+			d_copyTimeAction->setEnabled(false);
+		}
 		return;
 	}
 
 	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
+
+	if ( d_copyTimeAction != nullptr ) {
+		d_copyTimeAction->setEnabled(true);
+	}
 
 	double squareness = d_tcu->Squareness();
 	const static double threshold = 0.95;
@@ -516,11 +526,17 @@ void TaggingWidget::SetUp(const NavigationAction & actions ) {
 	connect(actions.PreviousCloseUp,&QAction::triggered,
 	        this,&TaggingWidget::previousTagCloseUp);
 
+	connect(actions.CopyCurrentTime,&QAction::triggered,
+	        this,&TaggingWidget::onCopyTime);
+
+
 	actions.NextTag->setEnabled(true);
 	actions.PreviousTag->setEnabled(true);
 	actions.NextCloseUp->setEnabled(true);
 	actions.PreviousCloseUp->setEnabled(true);
 
+	actions.CopyCurrentTime->setEnabled(!d_tcu == false);
+	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
 void TaggingWidget::TearDown(const NavigationAction & actions ) {
@@ -533,8 +549,21 @@ void TaggingWidget::TearDown(const NavigationAction & actions ) {
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
 	           this,&TaggingWidget::previousTagCloseUp);
 
+	disconnect(actions.CopyCurrentTime,&QAction::triggered,
+	           this,&TaggingWidget::onCopyTime);
+
+
 	actions.NextTag->setEnabled(false);
 	actions.PreviousTag->setEnabled(false);
 	actions.NextCloseUp->setEnabled(false);
 	actions.PreviousCloseUp->setEnabled(false);
+	actions.CopyCurrentTime->setEnabled(false);
+	d_copyTimeAction = nullptr;
+}
+
+void TaggingWidget::onCopyTime() {
+	if ( !d_tcu ) {
+		return;
+	}
+	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
 }

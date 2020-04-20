@@ -30,7 +30,6 @@ public:
     explicit TaggingWidget(QWidget *parent = 0);
 	~TaggingWidget();
 
-
 	void setup(ExperimentBridge * experiment);
 
 	QAction * newAntFromTagAction() const;
@@ -38,7 +37,6 @@ public:
 	QAction * deletePoseEstimationAction() const;
 
 public slots:
-
 	void on_treeView_activated(const QModelIndex & index);
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
@@ -48,8 +46,6 @@ public slots:
 	void onVectorCreated(QSharedPointer<Vector> vector);
 	void onVectorRemoved();
 
-	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
-
 	void nextTag();
 	void nextTagCloseUp();
 	void previousTag();
@@ -58,9 +54,13 @@ protected:
 	void SetUp(const NavigationAction & actions ) override;
 	void TearDown(const NavigationAction & actions ) override;
 private slots:
+	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
+
 	void addIdentification();
 	void newAnt();
 	void deletePose();
+
+	void onCopyTime();
 
 
 	void updateActionStates();
@@ -77,4 +77,5 @@ private:
 	SelectedAntBridge     * d_selectedAnt;
 	fmp::TagCloseUpConstPtr d_tcu;
 	QAction               * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
+	QAction               * d_copyTimeAction;
 };
