@@ -40,6 +40,8 @@ Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
 Q_DECLARE_METATYPE(fmp::AntMetadata::Column::Ptr)
 Q_DECLARE_METATYPE(fmp::MovieSegment::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Experiment::ConstPtr)
+Q_DECLARE_METATYPE(fmp::Zone::Ptr)
+Q_DECLARE_METATYPE(fmp::Zone::Definition::Ptr)
 
 
 class Conversion {

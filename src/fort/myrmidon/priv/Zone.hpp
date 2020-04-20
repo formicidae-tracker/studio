@@ -74,6 +74,8 @@ public:
 
 	const Definition::List & Definitions() const;
 
+	void EraseDefinition(size_t index);
+
 	const std::string & Name() const;
 
 	const std::string & URI() const;

@@ -200,6 +200,14 @@ bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const
 	}
 }
 
+void Zone::EraseDefinition(size_t index) {
+	if ( index >= d_definitions.size() ) {
+		throw std::out_of_range(std::to_string(index) + " is out of range [0," + std::to_string(d_definitions.size()) + "[");
+	}
+	d_definitions.erase(d_definitions.begin() + index);
+}
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

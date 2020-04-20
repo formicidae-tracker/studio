@@ -27,6 +27,7 @@ set(SRC_FILES Format.cpp
 			  bridge/AntShapeTypeBridge.cpp
 			  bridge/AntMetadataBridge.cpp
 			  bridge/MovieBridge.cpp
+			  bridge/ZoneBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
@@ -78,6 +79,7 @@ set(HDR_FILES Format.hpp
 			  bridge/AntShapeTypeBridge.hpp
 			  bridge/AntMetadataBridge.hpp
 			  bridge/MovieBridge.hpp
+			  bridge/ZoneBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
