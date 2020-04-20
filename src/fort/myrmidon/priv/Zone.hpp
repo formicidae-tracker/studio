@@ -69,6 +69,9 @@ public:
 	                              const Time::ConstPtr & start,
 	                              const Time::ConstPtr & end);
 
+
+	bool NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const;
+
 	const Definition::List & Definitions() const;
 
 	const std::string & Name() const;
@@ -91,3 +94,7 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Zone::Definition & definition);

@@ -135,3 +135,13 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 	}
 	return ::testing::AssertionSuccess();
 }
+
+::testing::AssertionResult
+AABBAlmostEqual(const fort::myrmidon::priv::AABB & a,
+                const fort::myrmidon::priv::AABB & b) {
+	auto min = VectorAlmostEqual(a.min(),b.min());
+	if ( !min == true ) {
+		return min;
+	}
+	return VectorAlmostEqual(a.max(),b.max());
+}

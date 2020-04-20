@@ -1,5 +1,6 @@
 #include "Zone.hpp"
 
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
@@ -68,6 +69,12 @@ void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
 }
 
 void Zone::Definition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+	if ( !start == false && !end == false && end->Before(*start) ) {
+		std::ostringstream os;
+		os << "Invalid time range [" << *start << "," << *end << "]";
+		throw std::invalid_argument(os.str());
+	}
+
 	auto zone = d_zone.lock();
 	if ( !zone ) {
 		throw DeletedReference<Zone>();
@@ -142,6 +149,63 @@ Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
 	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(ZID)).generic_string() ) {
 }
 
+static bool TimePtrEqual(const Time::ConstPtr & a,
+                  const Time::ConstPtr & b) {
+	if ( !a ) {
+		return !b;
+	}
+	if ( !b ) {
+		return false;
+	}
+	return *a == *b;
+}
+
+
+
+bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const {
+	if ( d_definitions.empty() ) {
+		start.reset();
+		end.reset();
+		return true;
+	}
+	Time::ConstPtr lastEnd;
+	for ( const auto & def : d_definitions ) {
+		if ( TimePtrEqual(lastEnd,def->Start()) ) {
+			continue;
+		}
+
+		auto t = def->Start()->Add(-1);
+		try {
+			end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			return true;
+		} catch ( const std::invalid_argument &) {
+		}
+	}
+
+	if ( !d_definitions.back()->End() == true ) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+	auto t = *d_definitions.back()->End();
+	try {
+		end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		return true;
+	} catch ( const std::invalid_argument &) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Zone::Definition & definition) {
+	return out << "Zone::Definition";
+}
