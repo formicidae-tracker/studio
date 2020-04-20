@@ -56,6 +56,8 @@ private slots:
 	void onMeasurementModified(const fmp::MeasurementConstPtr &);
 	void onMeasurementDeleted(QString tcuURI, quint32 mtID);
 
+	void onCopyTime();
+
 protected:
 	void changeEvent(QEvent * event) override;
 
@@ -105,6 +107,9 @@ private:
 	fmp::TagCloseUp::ConstPtr   d_tcu;
 	VectorialScene            * d_vectorialScene;
 	Mode                        d_mode;
+
 	std::map<uint32_t,QSharedPointer<Vector> > d_vectors;
 	std::map<QSharedPointer<Capsule>,uint32_t> d_capsules;
+
+	QAction * d_copyTimeAction;
 };

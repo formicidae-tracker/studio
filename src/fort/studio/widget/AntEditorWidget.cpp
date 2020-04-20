@@ -13,11 +13,15 @@
 
 #include <fort/myrmidon/priv/Capsule.hpp>
 
+#include <QClipboard>
+
+
 AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::AntEditorWidget)
 	, d_closeUps(new QStandardItemModel(this) )
-	, d_vectorialScene( new VectorialScene(this) ) {
+	, d_vectorialScene( new VectorialScene(this) )
+	, d_copyTimeAction(nullptr){
 	d_ui->setupUi(this);
 	d_ui->treeView->setModel(d_closeUps);
 
@@ -449,6 +453,11 @@ void AntEditorWidget::setTagCloseUp(const fmp::TagCloseUp::ConstPtr & tcu) {
 	}
 	d_tcu = tcu;
 	clearScene();
+
+	if ( d_copyTimeAction != nullptr ) {
+		d_copyTimeAction->setEnabled(!d_tcu == false);
+	}
+
 	if (!d_tcu) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
@@ -805,9 +814,15 @@ void AntEditorWidget::SetUp(const NavigationAction & actions ) {
 	connect(actions.PreviousCloseUp,&QAction::triggered,
 	        this,&AntEditorWidget::previousCloseUp);
 
+
+	connect(actions.CopyCurrentTime,&QAction::triggered,
+	        this,&AntEditorWidget::onCopyTime);
+
 	actions.NextCloseUp->setEnabled(true);
 	actions.PreviousCloseUp->setEnabled(true);
 
+	actions.CopyCurrentTime->setEnabled(!d_tcu == false);
+	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
 void AntEditorWidget::TearDown(const NavigationAction & actions ) {
@@ -815,7 +830,21 @@ void AntEditorWidget::TearDown(const NavigationAction & actions ) {
 	           this,&AntEditorWidget::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
 	           this,&AntEditorWidget::previousCloseUp);
+	disconnect(actions.CopyCurrentTime,&QAction::triggered,
+	           this,&AntEditorWidget::onCopyTime);
 
 	actions.NextCloseUp->setEnabled(false);
 	actions.PreviousCloseUp->setEnabled(false);
+	actions.CopyCurrentTime->setEnabled(false);
+	d_copyTimeAction = nullptr;
+}
+
+
+void AntEditorWidget::onCopyTime() {
+	if ( !d_tcu == true ) {
+		return;
+	}
+
+	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
+
 }

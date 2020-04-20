@@ -349,23 +349,19 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		d_vectorialScene->deleteShape(v.staticCast<Shape>());
 	}
 	d_tcu = tcu;
+	if ( d_copyTimeAction != nullptr ) {
+		d_copyTimeAction->setEnabled( !d_tcu == false );
+	}
+
 	if ( !tcu ) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
 		d_ui->vectorialView->setBannerMessage("",QColor());
 		updateActionStates();
-
-		if ( d_copyTimeAction != nullptr ) {
-			d_copyTimeAction->setEnabled(false);
-		}
 		return;
 	}
 
 	qInfo() << "Loading " << ToQString(tcu->URI()) << " image " << ToQString(tcu->AbsoluteFilePath());
-
-	if ( d_copyTimeAction != nullptr ) {
-		d_copyTimeAction->setEnabled(true);
-	}
 
 	double squareness = d_tcu->Squareness();
 	const static double threshold = 0.95;
