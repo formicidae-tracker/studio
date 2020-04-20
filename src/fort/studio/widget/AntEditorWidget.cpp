@@ -29,8 +29,6 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
 	d_ui->editButton->setCheckable(true);
 	d_ui->editButton->setChecked(true);
 
-
-
 	auto hHeader = d_ui->treeView->header();
 	hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
