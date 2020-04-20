@@ -504,3 +504,37 @@ QAction * TaggingWidget::addIdentificationToAntAction() const {
 QAction * TaggingWidget::deletePoseEstimationAction() const {
 	return d_deletePoseAction;
 }
+
+
+void TaggingWidget::SetUp(const NavigationAction & actions ) {
+	connect(actions.NextTag,&QAction::triggered,
+	        this,&TaggingWidget::nextTag);
+	connect(actions.PreviousTag,&QAction::triggered,
+	        this,&TaggingWidget::previousTag);
+	connect(actions.NextCloseUp,&QAction::triggered,
+	        this,&TaggingWidget::nextTagCloseUp);
+	connect(actions.PreviousCloseUp,&QAction::triggered,
+	        this,&TaggingWidget::previousTagCloseUp);
+
+	actions.NextTag->setEnabled(true);
+	actions.PreviousTag->setEnabled(true);
+	actions.NextCloseUp->setEnabled(true);
+	actions.PreviousCloseUp->setEnabled(true);
+
+}
+
+void TaggingWidget::TearDown(const NavigationAction & actions ) {
+	disconnect(actions.NextTag,&QAction::triggered,
+	           this,&TaggingWidget::nextTag);
+	disconnect(actions.PreviousTag,&QAction::triggered,
+	           this,&TaggingWidget::previousTag);
+	disconnect(actions.NextCloseUp,&QAction::triggered,
+	           this,&TaggingWidget::nextTagCloseUp);
+	disconnect(actions.PreviousCloseUp,&QAction::triggered,
+	           this,&TaggingWidget::previousTagCloseUp);
+
+	actions.NextTag->setEnabled(false);
+	actions.PreviousTag->setEnabled(false);
+	actions.NextCloseUp->setEnabled(false);
+	actions.PreviousCloseUp->setEnabled(false);
+}

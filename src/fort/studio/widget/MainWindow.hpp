@@ -4,6 +4,8 @@
 
 #include <deque>
 
+#include "Navigatable.hpp"
+
 class ExperimentBridge;
 class Logger;
 class LoggerWidget;
@@ -76,5 +78,5 @@ private:
 	Logger              * d_logger;
 	LoggerWidget        * d_loggerWidget;
 	QtMessageHandler      d_handler;
-	QWidget             * d_lastConnected;
+	Navigatable         * d_lastNavigatable;
 };

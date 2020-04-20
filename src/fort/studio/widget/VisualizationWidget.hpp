@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+#include "Navigatable.hpp"
 
 class QAction;
 
@@ -13,21 +14,21 @@ class VisualizationWidget;
 class ExperimentBridge;
 class TrackingVideoPlayer;
 
-class VisualizationWidget : public QWidget {
+class VisualizationWidget : public QWidget , public Navigatable {
 	Q_OBJECT
 public:
 	explicit VisualizationWidget(QWidget *parent = 0);
 	~VisualizationWidget();
 
 	void setup(ExperimentBridge * experiment);
+protected:
+	void SetUp(const NavigationAction & actions) override;
+	void TearDown(const NavigationAction & actions) override;
 
-	QAction * copyCurrentTimeAction() const;
-
-private slots:
+private slots :
 	void onCopyTimeActionTriggered();
 
 private:
 	Ui::VisualizationWidget * d_ui;
 	TrackingVideoPlayer     * d_videoPlayer;
-	QAction                 * d_copyTimeAction;
 };

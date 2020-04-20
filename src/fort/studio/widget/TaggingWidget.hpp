@@ -5,6 +5,8 @@
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 
+#include "Navigatable.hpp"
+
 class ExperimentBridge;
 class GlobalPropertyBridge;
 class MeasurementBridge;
@@ -22,7 +24,7 @@ class TaggingWidget;
 
 class QAction;
 
-class TaggingWidget : public QWidget {
+class TaggingWidget : public QWidget, public Navigatable {
     Q_OBJECT
 public:
     explicit TaggingWidget(QWidget *parent = 0);
@@ -52,7 +54,9 @@ public slots:
 	void nextTagCloseUp();
 	void previousTag();
 	void previousTagCloseUp();
-
+protected:
+	void SetUp(const NavigationAction & actions ) override;
+	void TearDown(const NavigationAction & actions ) override;
 private slots:
 	void addIdentification();
 	void newAnt();

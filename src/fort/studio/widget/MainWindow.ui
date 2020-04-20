@@ -132,6 +132,7 @@
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
     <addaction name="separator"/>
+    <addaction name="actionCopyTimeFromFrame"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -446,6 +447,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Up</string>
+   </property>
+  </action>
+  <action name="actionCopyTimeFromFrame">
+   <property name="text">
+    <string>Copy current time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
  </widget>

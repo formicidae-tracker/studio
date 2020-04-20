@@ -7,6 +7,8 @@
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
+#include "Navigatable.hpp"
+
 namespace Ui {
 class AntEditorWidget;
 }
@@ -15,7 +17,7 @@ class ExperimentBridge;
 class QStandardItemModel;
 class VectorialScene;
 
-class AntEditorWidget : public QWidget {
+class AntEditorWidget : public QWidget, public Navigatable {
 	Q_OBJECT
 public:
 	explicit AntEditorWidget(QWidget *parent = 0);
@@ -56,6 +58,9 @@ private slots:
 
 protected:
 	void changeEvent(QEvent * event) override;
+
+	void SetUp(const NavigationAction & actions ) override;
+	void TearDown(const NavigationAction & actions ) override;
 private:
 
 
