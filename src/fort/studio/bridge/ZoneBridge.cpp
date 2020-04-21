@@ -52,8 +52,8 @@ void ZoneBridge::onTrackingDataDirectoryChange(const QString & uri) {
 }
 
 
-QStandardItem * ZoneBridge::getFirstColumn(QStandardItem * item) {
-	return d_spaceModel->itemFromIndex(d_spaceModel->sibling(item->row(),0,item->index()));
+QStandardItem * ZoneBridge::getSibling(QStandardItem * item, int column) {
+	return d_spaceModel->itemFromIndex(d_spaceModel->sibling(item->row(),column,item->index()));
 }
 
 void ZoneBridge::addItemAtIndex(const QModelIndex & index) {
@@ -62,7 +62,7 @@ void ZoneBridge::addItemAtIndex(const QModelIndex & index) {
 		return;
 	}
 	//selects the first column
-	item = getFirstColumn(item);
+	item = getSibling(item,0);
 	switch ( item->data(TypeRole).toInt() ) {
 	case SpaceType:
 		addZone(item);
@@ -84,7 +84,7 @@ void ZoneBridge::removeItemAtIndex(const QModelIndex & index) {
 		return;
 	}
 	//selects the first column
-	item = getFirstColumn(item);
+	item = getSibling(item,0);
 	switch ( item->data(TypeRole).toInt() ) {
 	case SpaceType:
 		return;
@@ -125,7 +125,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 	for ( const auto & definition : z->Definitions() ) {
 		zoneRootItem->appendRow(buildDefinition(definition));
 	}
-
+	getSibling(zoneRootItem,2)->setText(QString::number(zoneRootItem->rowCount()));
 }
 
 
@@ -149,8 +149,8 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 			break;
 		};
 	}
-
 	spaceRootItem->insertRow(insertionRow,buildZone(z));
+	getSibling(spaceRootItem,2)->setText(QString::number(spaceRootItem->rowCount()));
 	qInfo() << "Created zone " << spaceRootItem->data(Qt::DisplayRole).toInt()
 	        << "." << z->ZoneID() << "'" << ToQString(z->Name()) << "'";
 }
@@ -173,7 +173,7 @@ void ZoneBridge::removeZone(QStandardItem * zoneItem) {
 	}
 	setModified(true);
 	spaceItem->removeRows(zoneItem->row(),1);
-
+	getSibling(spaceItem,2)->setText(QString::number(spaceItem->rowCount()));
 }
 
 void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
@@ -192,6 +192,7 @@ void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
 	}
 	setModified(true);
 	zoneItem->removeRows(definitionItem->row(),1);
+	getSibling(zoneItem,2)->setText(QString::number(zoneItem->rowCount()));
 	qInfo() << "Removed Zone definition";
 }
 
@@ -256,7 +257,7 @@ bool ZoneBridge::canAddItemAt(const QModelIndex & index) {
 	if ( item == nullptr ) {
 		return false;
 	}
-	item = getFirstColumn(item);
+	item = getSibling(item,0);
 	fm::Time::ConstPtr start,end;
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
@@ -273,7 +274,7 @@ bool ZoneBridge::canRemoveItemAt(const QModelIndex & index) {
 	if ( item == nullptr ) {
 		return false;
 	}
-	item = getFirstColumn(item);
+	item = getSibling(item,0);
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
 		return false;

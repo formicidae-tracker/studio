@@ -42,7 +42,7 @@ inline std::string ToString(const fort::myrmidon::Time::ConstPtr & t, const std:
 		return prefix + "∞";
 	}
 	std::ostringstream os;
-	os << t->DebugString();
+	os << t;
 	return os.str();
 }
 

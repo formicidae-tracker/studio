@@ -63,6 +63,10 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	EXPECT_EQ(m->rowCount(m->index(0,0)),0);
 	EXPECT_EQ(m->rowCount(m->index(1,0)),0);
 
+	EXPECT_EQ(m->data(m->index(0,2),Qt::DisplayRole).toInt(),0);
+	EXPECT_EQ(m->data(m->index(1,2),Qt::DisplayRole).toInt(),0);
+
+
 
 	//will add a zone
 	EXPECT_TRUE(zones->canAddItemAt(m->index(0,1)));
@@ -72,6 +76,10 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(m->rowCount(m->index(0,0)),1);
 	EXPECT_EQ(m->rowCount(m->index(0,0,m->index(0,0))),1);
+	EXPECT_EQ(m->data(m->index(0,2),Qt::DisplayRole).toInt(),1);
+	EXPECT_EQ(m->data(m->index(0,2,m->index(0,0)),Qt::DisplayRole).toInt(),1);
+
+
 
 	zones->setExperiment(experiment);
 	EXPECT_FALSE(zones->isModified());
@@ -80,6 +88,7 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 
 	auto firstSpaceIndex= m->index(0,0);
 	auto firstZoneIndex = m->index(0,0,firstSpaceIndex);
+
 
 	EXPECT_TRUE(m->flags(m->index(0,1,firstSpaceIndex)) & Qt::ItemIsEditable != 0);
 	EXPECT_TRUE(m->flags(m->index(0,1,firstZoneIndex)) & Qt::ItemIsEditable != 0);
@@ -100,11 +109,13 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	firstSpaceIndex= m->index(0,0);
 	firstZoneIndex = m->index(0,0,firstSpaceIndex);
 
+
 	zones->addItemAtIndex(m->index(0,0,firstZoneIndex));
 	EXPECT_TRUE(zones->isModified());
 	EXPECT_EQ(modified.count(),5);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(m->rowCount(firstZoneIndex),2);
+	EXPECT_EQ(m->data(m->index(0,2,firstSpaceIndex),Qt::DisplayRole).toInt(),2);
 
 	zones->setExperiment(experiment);
 	EXPECT_FALSE(zones->isModified());
@@ -123,6 +134,7 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	EXPECT_EQ(modified.count(),7);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(m->rowCount(firstZoneIndex),1);
+	EXPECT_EQ(m->data(m->index(0,2,firstSpaceIndex),Qt::DisplayRole).toInt(),1);
 
 	zones->setExperiment(experiment);
 	EXPECT_FALSE(zones->isModified());
@@ -136,5 +148,6 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	EXPECT_EQ(modified.count(),9);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(m->rowCount(firstSpaceIndex),0);
+	EXPECT_EQ(m->data(m->index(0,2),Qt::DisplayRole).toInt(),0);
 
 }

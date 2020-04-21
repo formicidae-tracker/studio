@@ -71,7 +71,7 @@ private:
 	const static int ZoneType        = 2;
 	const static int DefinitionType  = 3;
 
-	QStandardItem * getFirstColumn(QStandardItem * item);
+	QStandardItem * getSibling(QStandardItem * item,int column);
 
 	void addZone(QStandardItem * spaceRootItem);
 	void addDefinition(QStandardItem * zoneRootItem);
