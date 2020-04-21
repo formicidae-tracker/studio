@@ -9,6 +9,7 @@
 class Handle;
 
 class Polygon : public Shape, public QGraphicsPolygonItem {
+	Q_OBJECT
 public:
 	Polygon(const QVector<QPointF> & points,
 	        QColor color,
