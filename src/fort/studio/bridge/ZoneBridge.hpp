@@ -40,6 +40,8 @@ public :
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
+	bool isActive() const override;
+
 	SpaceBridge * selectedSpace() const;
 
 	QAbstractItemModel * spaceModel() const;
@@ -58,6 +60,9 @@ public slots:
 	void rebuildSpaces();
 	void onTrackingDataDirectoryChange(const QString & uri);
 
+private slots:
+	void onItemChanged(QStandardItem * item);
+
 private:
 	const static int TypeRole;
 	const static int DataRole;
@@ -66,11 +71,16 @@ private:
 	const static int ZoneType        = 2;
 	const static int DefinitionType  = 3;
 
+	QStandardItem * getFirstColumn(QStandardItem * item);
+
 	void addZone(QStandardItem * spaceRootItem);
 	void addDefinition(QStandardItem * zoneRootItem);
 
 	void removeZone(QStandardItem * zoneItem);
 	void removeDefinition(QStandardItem * zoneItem);
+
+	void changeZoneName(QStandardItem * zoneNameItem);
+	void changeDefinitionTime(QStandardItem * definitionStartItem, bool start);
 
 	QList<QStandardItem*> buildSpace(const fmp::Space::Ptr & space) const;
 	QList<QStandardItem*> buildZone(const fmp::Zone::Ptr & zone) const;

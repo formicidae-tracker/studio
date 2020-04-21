@@ -36,9 +36,12 @@ TEST_F(ZoneUTest,GeometryHaveAABB) {
 }
 
 TEST_F(ZoneUTest,DefinitionOwnsGeometry) {
-	auto definition = zone->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>()),
+	auto definition = zone->AddDefinition({},
 	                                      Time::ConstPtr(),
 	                                      Time::ConstPtr());
+
+	// Even if we pass a nullptr, geometry is not null
+	ASSERT_FALSE(!definition->GetGeometry());
 
 	EXPECT_TRUE(definition->GetGeometry()->Shapes().empty());
 
@@ -47,6 +50,13 @@ TEST_F(ZoneUTest,DefinitionOwnsGeometry) {
 	          shapes);
 }
 
+TEST_F(ZoneUTest,ZoneCanBeRenamed) {
+	EXPECT_NO_THROW({
+			zone->SetName("foo");
+			zone->SetName("bar");
+			zone->SetName("");
+		});
+}
 
 TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 	auto geometry = std::make_shared<Zone::Geometry>(shapes);
@@ -109,6 +119,8 @@ TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 
 
 }
+
+
 
 
 } // namespace priv

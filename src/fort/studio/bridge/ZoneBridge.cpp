@@ -14,15 +14,23 @@ ZoneBridge::ZoneBridge(QObject * parent)
 	qRegisterMetaType<fmp::Space::Ptr>();
 	qRegisterMetaType<fmp::Zone::Ptr>();
 	qRegisterMetaType<fmp::Zone::Definition::Ptr>();
+
+	connect(d_spaceModel,&QStandardItemModel::itemChanged,
+	        this,&ZoneBridge::onItemChanged);
 }
 
 
 void ZoneBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
-
+	setModified(false);
 	rebuildSpaces();
 	emit activated(!d_experiment == false);
 }
+
+bool ZoneBridge::isActive() const{
+	return !d_experiment == false;
+}
+
 
 QAbstractItemModel * ZoneBridge::spaceModel() const {
 	return d_spaceModel;
@@ -44,13 +52,17 @@ void ZoneBridge::onTrackingDataDirectoryChange(const QString & uri) {
 }
 
 
+QStandardItem * ZoneBridge::getFirstColumn(QStandardItem * item) {
+	return d_spaceModel->itemFromIndex(d_spaceModel->sibling(item->row(),0,item->index()));
+}
+
 void ZoneBridge::addItemAtIndex(const QModelIndex & index) {
 	auto item = d_spaceModel->itemFromIndex(index);
 	if (item == nullptr ) {
 		return;
 	}
 	//selects the first column
-	item = item->parent()->child(item->row(),0);
+	item = getFirstColumn(item);
 	switch ( item->data(TypeRole).toInt() ) {
 	case SpaceType:
 		addZone(item);
@@ -72,7 +84,7 @@ void ZoneBridge::removeItemAtIndex(const QModelIndex & index) {
 		return;
 	}
 	//selects the first column
-	item = item->parent()->child(item->row());
+	item = getFirstColumn(item);
 	switch ( item->data(TypeRole).toInt() ) {
 	case SpaceType:
 		return;
@@ -80,7 +92,7 @@ void ZoneBridge::removeItemAtIndex(const QModelIndex & index) {
 		removeZone(item);
 		break;
 	case DefinitionType:
-		removeDefinition(item->parent());
+		removeDefinition(item);
 		break;
 	default:
 		break;
@@ -98,8 +110,8 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 
 	try {
 		qDebug() << "[ZoneBridge]: Calling fmp::Zone::AddDefinition({},"
-		         << ToQString(start) << ","
-		         << ToQString(end)
+		         << ToQString(start,"-") << ","
+		         << ToQString(end,"+")
 		         << ")";
 		z->AddDefinition(std::make_shared<fmp::Zone::Geometry>(std::vector<fmp::Shape::ConstPtr>()),
 		                 start,end);
@@ -123,7 +135,9 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Space::CreateZone('new-zone')";
 		z = spaceRootItem->data(DataRole).value<fmp::Space::Ptr>()->CreateZone(ToStdString(tr("new-zone")));
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Zone::AddDefinition({},nullptr,nullptr)";
-		z->AddDefinition({},fm::Time::ConstPtr(),fm::Time::ConstPtr());
+		z->AddDefinition({},
+		                 fm::Time::ConstPtr(),
+		                 fm::Time::ConstPtr());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Zone: " << e.what();
 		return;
@@ -165,7 +179,7 @@ void ZoneBridge::removeZone(QStandardItem * zoneItem) {
 void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
 	auto zoneItem = definitionItem->parent();
 	auto z = zoneItem->data(DataRole).value<fmp::Zone::Ptr>();
-	if (!z) {
+	if (!z == true ) {
 		return;
 	}
 	try {
@@ -224,8 +238,8 @@ QList<QStandardItem*> ZoneBridge::buildDefinition(const fmp::Zone::Definition::P
 	auto typeData = QVariant(DefinitionType);
 	auto data = QVariant::fromValue(definition);
 	QList<QStandardItem*> res;
-	res.push_back(new QStandardItem(ToQString(definition->Start())));
-	res.push_back(new QStandardItem(ToQString(definition->End())));
+	res.push_back(new QStandardItem(ToQString(definition->Start(),"-")));
+	res.push_back(new QStandardItem(ToQString(definition->End(),"+")));
 	res.push_back(new QStandardItem(QString::number(definition->GetGeometry()->Shapes().size())));
 	for ( const auto & i : res ) {
 		i->setEditable(true);
@@ -242,7 +256,7 @@ bool ZoneBridge::canAddItemAt(const QModelIndex & index) {
 	if ( item == nullptr ) {
 		return false;
 	}
-	item = item->parent()->child(item->row());
+	item = getFirstColumn(item);
 	fm::Time::ConstPtr start,end;
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
@@ -259,7 +273,7 @@ bool ZoneBridge::canRemoveItemAt(const QModelIndex & index) {
 	if ( item == nullptr ) {
 		return false;
 	}
-	item = item->parent()->child(item->row());
+	item = getFirstColumn(item);
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
 		return false;
@@ -267,4 +281,97 @@ bool ZoneBridge::canRemoveItemAt(const QModelIndex & index) {
 	case ZoneType:
 		return true;
 	}
+}
+
+
+void ZoneBridge::onItemChanged(QStandardItem * item) {
+	if (item->data(TypeRole).toInt() == ZoneType && item->column() == 1 ) {
+		changeZoneName(item);
+		return;
+	}
+
+	if (item->data(TypeRole).toInt() == DefinitionType) {
+		if ( item->column() == 0 ) {
+			changeDefinitionTime(item,true);
+			return;
+		}
+		if ( item->column() == 1 ) {
+			changeDefinitionTime(item,false);
+			return;
+		}
+	}
+}
+
+void ZoneBridge::changeZoneName(QStandardItem * zoneNameItem) {
+	auto z = zoneNameItem->data(DataRole).value<fmp::Zone::Ptr>();
+	std::string newName = ToStdString(zoneNameItem->text());
+	if ( !z == true || z->Name() == newName ) {
+		return;
+	}
+	auto oldName = ToQString(z->Name());
+	try {
+		qDebug() << "[ZoneBridge]: Calling fmp::Zone::SetName("
+		         << zoneNameItem->text()
+		         << ")";
+		z->SetName(newName);
+	} catch ( const std::exception & e) {
+		qCritical() << "Could not set Zone '" << oldName
+		            << "' name to " << zoneNameItem->text()
+		            << ": " << e.what();
+		zoneNameItem->setText(oldName);
+		return;
+	}
+
+	setModified(true);
+	qInfo() << "Changed zone name '" << oldName
+	        << "' to '" << zoneNameItem->text() << "'";
+}
+
+void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool start) {
+	auto d = definitionTimeItem->data(DataRole).value<fmp::Zone::Definition::Ptr>();
+	if ( !d == true  ) {
+		return;
+	}
+
+	auto prefix = start == true ? "-" : "+";
+	auto oldTime = start == true ? d->Start() : d->End();
+	auto oldTimeStr = ToQString(oldTime,prefix);
+	if ( oldTimeStr  == definitionTimeItem->text() ) {
+		return;
+	}
+
+	fm::Time::ConstPtr newTime;
+	if ( definitionTimeItem->text().isEmpty() == false ) {
+		try {
+			newTime = std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(definitionTimeItem->text())));
+		} catch ( const std::exception & e ) {
+			qCritical() << "Could not parse time " << definitionTimeItem->text();
+			definitionTimeItem->setText(oldTimeStr);
+			return;
+		}
+	}
+	auto newTimeStr = ToQString(newTime,prefix);
+
+	try {
+		if ( start == true ) {
+			qDebug() << "[ZoneBridge]: Calling fmp::Zone::Definition::SetStart("
+			         << newTimeStr
+			         << ")";
+			d->SetStart(newTime);
+		} else {
+			qDebug() << "[ZoneBridge]: Calling fmp::Zone::Definition::SetEnd("
+			         << newTimeStr
+			         << ")";
+			d->SetEnd(newTime);
+		}
+	} catch ( std::exception & e ) {
+		qCritical() << "Could not set Zone::Definition start/end to " << newTimeStr
+		            << ": " << e.what();
+		definitionTimeItem->setText(oldTimeStr);
+		return;
+	}
+
+	setModified(true);
+	definitionTimeItem->setText(newTimeStr);
+	qInfo() << "Set Zone::Definition start to " << newTimeStr;
 }

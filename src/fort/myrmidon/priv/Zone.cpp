@@ -107,7 +107,14 @@ Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
 	}
-	auto res = std::make_shared<Definition>(itself,geometry,start,end);
+	Definition::Ptr res;
+	if ( !geometry == true ) {
+	    res = std::make_shared<Definition>(itself,
+	                                       std::make_shared<Geometry>(std::vector<Shape::ConstPtr>()),
+	                                       start,end);
+	} else {
+		res = std::make_shared<Definition>(itself,geometry,start,end);
+	}
 	auto oldDefinitions = d_definitions;
 	d_definitions.push_back(res);
 	auto check = TimeValid::SortAndCheckOverlap(d_definitions.begin(),d_definitions.end());
@@ -207,6 +214,10 @@ void Zone::EraseDefinition(size_t index) {
 	d_definitions.erase(d_definitions.begin() + index);
 }
 
+
+void Zone::SetName(const std::string & name) {
+	d_name = name;
+}
 
 } // namespace priv
 } // namespace myrmidon

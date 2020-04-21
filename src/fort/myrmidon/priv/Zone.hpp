@@ -78,6 +78,8 @@ public:
 
 	const std::string & Name() const;
 
+	void SetName(const std::string & name);
+
 	const std::string & URI() const;
 
 	ID ZoneID() const;
