@@ -1,10 +1,11 @@
 #include "ZoningWidget.hpp"
 #include "ui_ZoningWidget.h"
 
-#include <fort/studio/bridge/ExperimentBridge.hpp>
-
 #include <QClipboard>
 
+#include <fort/studio/bridge/ExperimentBridge.hpp>
+
+#include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 
 #include <fort/studio/Format.hpp>
 
@@ -12,8 +13,18 @@
 ZoningWidget::ZoningWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::ZoningWidget)
-	, d_zones(nullptr) {
+	, d_zones(nullptr)
+	, d_vectorialScene(new VectorialScene(this)) {
 	d_ui->setupUi(this);
+
+
+	d_ui->vectorialView->setScene(d_vectorialScene);
+	d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
+    connect(d_ui->vectorialView,
+            &VectorialView::zoomed,
+            d_vectorialScene,
+            &VectorialScene::onZoomed);
+
 }
 
 ZoningWidget::~ZoningWidget() {
@@ -49,6 +60,14 @@ void ZoningWidget::display(const std::shared_ptr<ZoneBridge::FullFrame> & fullfr
 	if ( d_copyAction != nullptr ) {
 		d_copyAction->setEnabled(!fullframe == false);
 	}
+
+	if ( !d_fullframe == true ) {
+		d_vectorialScene->setBackgroundPicture("");
+		return;
+	}
+
+	d_vectorialScene->setBackgroundPicture(d_fullframe->AbsoluteFilePath);
+	d_ui->vectorialView->showEntireScene();
 }
 
 

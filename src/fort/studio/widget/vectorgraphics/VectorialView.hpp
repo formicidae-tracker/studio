@@ -11,6 +11,7 @@ public:
 
 public slots:
 	void resetZoom();
+	void showEntireScene();
 	void setBannerMessage(const QString & name,const QColor & color);
 signals:
 	void zoomed(double zoomFactor);

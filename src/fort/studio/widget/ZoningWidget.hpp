@@ -11,6 +11,8 @@ class ZoningWidget;
 }
 class ExperimentBridge;
 class QAction;
+class VectorialScene;
+
 class ZoningWidget : public QWidget , public Navigatable{
 	Q_OBJECT
 public:
@@ -40,4 +42,5 @@ private:
 
 	std::shared_ptr<ZoneBridge::FullFrame> d_fullframe;
 	QAction                              * d_copyAction;
+	VectorialScene                       * d_vectorialScene;
 };

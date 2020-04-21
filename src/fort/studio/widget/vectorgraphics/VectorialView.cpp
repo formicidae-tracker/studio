@@ -45,6 +45,17 @@ void VectorialView::resetZoom() {
 	emit zoomed(1.0);
 }
 
+void VectorialView::showEntireScene() {
+	if ( scene() == nullptr ) {
+		return;
+	}
+	auto mySize = viewport()->size();
+	auto target = scene()->sceneRect();
+	double factor = std::min(double(mySize.width())/target.width(),double(mySize.height())/target.height());
+	resetZoom();
+	zoom(factor);
+}
+
 void VectorialView::zoom(double factor) {
 	scale(factor, factor);
 	centerOn(d_targetScenePos);
@@ -72,7 +83,6 @@ bool VectorialView::eventFilter(QObject * object, QEvent * event) {
 	}
 	return false;
 }
-
 
 void VectorialView::drawForeground(QPainter *painter, const QRectF &rect) {
 	if ( d_bannerMessage.isEmpty() ) {
