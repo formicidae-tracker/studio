@@ -259,7 +259,7 @@ QList<QStandardItem*> ZoneBridge::buildSpace(const fmp::Space::Ptr & space) cons
 	auto typeData = QVariant(SpaceType);
 	auto data = QVariant::fromValue(space);
 	QList<QStandardItem*> res;
-	res.push_back(new QStandardItem(QString::number(space->SpaceID())));
+	res.push_back(new QStandardItem(space->URI().c_str()));
 	res.push_back(new QStandardItem(ToQString(space->Name())));
 	res.push_back(new QStandardItem(QString::number(space->Zones().size())));
 	for ( const auto & i : res ) {
@@ -277,7 +277,7 @@ QList<QStandardItem*> ZoneBridge::buildZone(const fmp::Zone::Ptr & zone) const {
 	auto typeData = QVariant(ZoneType);
 	auto data = QVariant::fromValue(zone);
 	QList<QStandardItem*> res;
-	res.push_back(new QStandardItem(QString::number(zone->ZoneID())));
+	res.push_back(new QStandardItem(zone->URI().c_str()));
 	res.push_back(new QStandardItem(ToQString(zone->Name())));
 	res.push_back(new QStandardItem(QString::number(zone->Definitions().size())));
 	for ( const auto & i : res ) {
@@ -498,10 +498,17 @@ void ZoneBridge::rebuildChildBridges() {
 		emit newZoneDefinitionBridge({});
 		return;
 	}
+	auto items = d_spaceModel->findItems(d_selectedSpace->URI().c_str());
+	if ( items.isEmpty() == true ) {
+		emit newZoneDefinitionBridge({});
+		return;
+	}
+	auto spaceRootItem = items[0];
 
 	auto addChildBridge
-		= [this]( const fmp::Zone::ConstPtr & zone,
-		          const fmp::Zone::Definition::Ptr & definition) {
+		= [this](const fmp::Zone::ConstPtr & zone,
+		         const fmp::Zone::Definition::Ptr & definition,
+		         QStandardItem * countItem) {
 			  auto c = std::make_shared<ZoneDefinitionBridge>(zone,definition);
 			  connect(c.get(),&Bridge::modified,
 			          this,[this](bool nowModified) {
@@ -509,20 +516,28 @@ void ZoneBridge::rebuildChildBridges() {
 					               setModified(true);
 				               }
 			               });
+			  connect(c.get(),&ZoneDefinitionBridge::countUpdated,
+			          this,
+			          [this,countItem](int count) {
+				          countItem->setText(QString::number(count));
+			          });
 			  d_childBridges.push_back(c);
 		  };
-
-	for ( const auto & [zID,zone] : d_selectedSpace->Zones() ) {
+	for( int i = 0; i < spaceRootItem->rowCount(); ++i) {
+		auto zoneRootItem = spaceRootItem->child(i,0);
+		auto zone = zoneRootItem->data(DataRole).value<fmp::Zone::Ptr>();
 		if ( !d_selectedTime == true ) {
 			if ( zone->Definitions().empty() == false
 			     && !zone->Definitions().front()->Start() == true ) {
-				addChildBridge(zone,zone->Definitions().front());
+				addChildBridge(zone,zone->Definitions().front(),zoneRootItem->child(0,2));
 			}
 			continue;
 		}
-		for ( const auto & d : zone->Definitions() ) {
+
+		for ( int j = 0; j < zoneRootItem->rowCount(); ++j ) {
+			auto d = zoneRootItem->child(j,0)->data(DataRole).value<fmp::Zone::Definition::Ptr>();
 			if ( d->IsValid(*d_selectedTime) == true ) {
-				addChildBridge(zone,d);
+				addChildBridge(zone,d,zoneRootItem->child(j,2));
 				break;
 			}
 		}
@@ -559,6 +574,7 @@ const fmp::Zone::Geometry & ZoneDefinitionBridge::geometry() const {
 void ZoneDefinitionBridge::setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes) {
 	d_definition->SetGeometry(std::make_shared<fmp::Zone::Geometry>(shapes));
 	setModified(true);
+	emit countUpdated(shapes.size());
 }
 
 const fmp::Zone & ZoneDefinitionBridge::zone() const {

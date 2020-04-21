@@ -23,6 +23,8 @@ public:
 	void setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes);
 
 	const fmp::Zone & zone() const;
+signals:
+	void countUpdated(int i);
 
 private:
 	fmp::Zone::Definition::Ptr d_definition;
