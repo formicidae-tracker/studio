@@ -58,6 +58,7 @@ public :
 signals:
 	void newZoneDefinitionBridge(QList<ZoneDefinitionBridge*>);
 
+	void definitionUpdated();
 public slots:
 	void addItemAtIndex(const QModelIndex & index);
 	void removeItemAtIndex(const QModelIndex & index);

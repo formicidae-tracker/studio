@@ -37,11 +37,24 @@ void ZonesEditorWidget::setup(ZoneBridge * zones) {
 		        d_zones->activateItem(index);
 	        });
 
+	connect(d_zones,&ZoneBridge::definitionUpdated,
+	        this,
+	        [this,sModel]() {
+		        if ( sModel->hasSelection() == false ) {
+			        d_ui->addButton->setEnabled(false);
+			        d_ui->removeButton->setEnabled(false);
+		        }
+		        auto index = sModel->selectedIndexes()[0];
+		        d_ui->addButton->setEnabled(d_zones->canAddItemAt(index));
+		        d_ui->removeButton->setEnabled(d_zones->canRemoveItemAt(index));
+	        });
+
 	connect(d_zones->spaceModel(), &QAbstractItemModel::rowsInserted,
 	        this,
 	        [this]() {
 		        d_ui->treeView->expandAll();
 	        });
+	d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 }
 

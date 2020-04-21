@@ -144,12 +144,19 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		return;
 	}
 
+	auto geometry = std::make_shared<const fmp::Zone::Geometry>(std::vector<fmp::Shape::ConstPtr>());
+	if ( !start == false ) {
+		geometry = z->AtTime(start->Add(-1));
+	} else if ( !end == false ) {
+		geometry = z->AtTime(end->Add(1));
+	}
+
 	try {
 		qDebug() << "[ZoneBridge]: Calling fmp::Zone::AddDefinition({},"
 		         << ToQString(start,"-") << ","
 		         << ToQString(end,"+")
 		         << ")";
-		z->AddDefinition(std::make_shared<fmp::Zone::Geometry>(std::vector<fmp::Shape::ConstPtr>()),
+		z->AddDefinition(geometry,
 		                 start,end);
 	} catch ( const std::exception & e) {
 		qCritical() << "Coul not create definition: " << e.what();
@@ -163,6 +170,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 	}
 	getSibling(zoneRootItem,2)->setText(QString::number(zoneRootItem->rowCount()));
 	rebuildChildBridges();
+	emit definitionUpdated();
 }
 
 
@@ -242,6 +250,7 @@ void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
 	getSibling(zoneItem,2)->setText(QString::number(zoneItem->rowCount()));
 	qInfo() << "Removed Zone definition";
 	rebuildChildBridges();
+	emit definitionUpdated();
 }
 
 
@@ -429,6 +438,7 @@ void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool s
 	definitionTimeItem->setText(newTimeStr);
 	qInfo() << "Set Zone::Definition start to " << newTimeStr;
 	rebuildChildBridges();
+	emit definitionUpdated();
 }
 
 
@@ -504,14 +514,12 @@ void ZoneBridge::rebuildChildBridges() {
 
 	for ( const auto & [zID,zone] : d_selectedSpace->Zones() ) {
 		if ( !d_selectedTime == true ) {
-			std::cerr << "Nothing selected" << std::endl;
 			if ( zone->Definitions().empty() == false
 			     && !zone->Definitions().front()->Start() == true ) {
 				addChildBridge(zone,zone->Definitions().front());
 			}
 			continue;
 		}
-		std::cerr << "testing with " << std::endl;
 		for ( const auto & d : zone->Definitions() ) {
 			if ( d->IsValid(*d_selectedTime) == true ) {
 				addChildBridge(zone,d);
