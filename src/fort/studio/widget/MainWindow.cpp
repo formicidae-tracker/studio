@@ -442,7 +442,7 @@ void MainWindow::setupMoveActions() {
 
 
 	if ( d_lastNavigatable != nullptr ) {
-		d_lastNavigatable->TearDown(actions);
+		d_lastNavigatable->tearDown(actions);
 		d_ui->actionNextTag->setEnabled(false);
 		d_ui->actionPreviousTag->setEnabled(false);
 		d_ui->actionNextCloseUp->setEnabled(false);
@@ -455,7 +455,7 @@ void MainWindow::setupMoveActions() {
 	if ( navigatable == nullptr ) {
 		return;
 	}
-	navigatable->SetUp(actions);
+	navigatable->setUp(actions);
 
 	d_lastNavigatable = navigatable;
 }

@@ -85,7 +85,7 @@ void VisualizationWidget::onCopyTimeActionTriggered() {
 	QApplication::clipboard()->setText(ToQString(time));
 }
 
-void VisualizationWidget::SetUp(const NavigationAction & actions) {
+void VisualizationWidget::setUp(const NavigationAction & actions) {
 	connect(d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hasTrackingTimeChanged,
 	        actions.CopyCurrentTime,
@@ -99,7 +99,7 @@ void VisualizationWidget::SetUp(const NavigationAction & actions) {
 	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 }
 
-void VisualizationWidget::TearDown(const NavigationAction & actions) {
+void VisualizationWidget::tearDown(const NavigationAction & actions) {
 	disconnect(d_ui->trackingVideoWidget,
 	           &TrackingVideoWidget::hasTrackingTimeChanged,
 	           actions.CopyCurrentTime,

@@ -10,28 +10,6 @@ class QAbstractItemModel;
 class QStandardItemModel;
 class QStandardItem;
 
-// class ZoneDefinitionBridge : public Bridge {
-// 	Bridge(QObject * parent);
-
-// 	void setZone(const fmp::Zone::Ptr & zone);
-
-
-// };
-
-class SpaceBridge : public Bridge {
-	Q_OBJECT
-public :
-	SpaceBridge(QObject * parent);
-
-	void setSpace(const fmp::Space::Ptr & space);
-
-	QAbstractItemModel * snapshotModel() const;
-	QAbstractItemModel * zoneModel() const;
-
-private:
-	QStandardItemModel  * d_snapshotModel;
-	fmp::Experiment::Ptr  d_experiment;
-};
 
 class ZoneBridge : public Bridge {
 	Q_OBJECT
@@ -42,15 +20,20 @@ public :
 
 	bool isActive() const override;
 
-	SpaceBridge * selectedSpace() const;
-
 	QAbstractItemModel * spaceModel() const;
+	QAbstractItemModel * zonesModel() const;
+	QAbstractItemModel * fullFrameModel() const;
 
 
 	bool canAddItemAt(const QModelIndex & index);
 	bool canRemoveItemAt(const QModelIndex & index);
 
+	struct FullFrame {
+		fmp::FrameReference Reference;
+		QString             AbsoluteFilePath;
+	};
 
+	std::pair<bool,FullFrame> fullFrameAtIndex(const QModelIndex & index) const;
 
 public slots:
 	void addItemAtIndex(const QModelIndex & index);
@@ -59,6 +42,8 @@ public slots:
 
 	void rebuildSpaces();
 	void onTrackingDataDirectoryChange(const QString & uri);
+
+	void activateItem(QModelIndex index);
 
 private slots:
 	void onItemChanged(QStandardItem * item);
@@ -70,6 +55,9 @@ private:
 	const static int SpaceType       = 1;
 	const static int ZoneType        = 2;
 	const static int DefinitionType  = 3;
+
+	void rebuildFullFrameModel();
+	void rebuildZoneModel();
 
 	QStandardItem * getSibling(QStandardItem * item,int column);
 
@@ -87,5 +75,8 @@ private:
 	QList<QStandardItem*> buildDefinition(const fmp::Zone::Definition::Ptr & pdefinition) const;
 
 	QStandardItemModel  * d_spaceModel;
+	QStandardItemModel  * d_fullFrameModel;
+	QStandardItemModel  * d_zoneModel;
 	fmp::Experiment::Ptr  d_experiment;
+	fmp::Space::Ptr       d_selectedSpace;
 };

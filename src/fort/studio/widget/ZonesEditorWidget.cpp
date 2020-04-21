@@ -29,10 +29,12 @@ void ZonesEditorWidget::setup(ZoneBridge * zones) {
 		        if ( sModel->hasSelection() == false ) {
 			        d_ui->addButton->setEnabled(false);
 			        d_ui->removeButton->setEnabled(false);
+			        d_zones->activateItem(QModelIndex());
 		        }
 		        auto index = sModel->selectedIndexes()[0];
 		        d_ui->addButton->setEnabled(d_zones->canAddItemAt(index));
 		        d_ui->removeButton->setEnabled(d_zones->canRemoveItemAt(index));
+		        d_zones->activateItem(index);
 	        });
 
 	connect(d_zones->spaceModel(), &QAbstractItemModel::rowsInserted,

@@ -8,12 +8,18 @@
 const int ZoneBridge::TypeRole = Qt::UserRole+1;
 const int ZoneBridge::DataRole = Qt::UserRole+2;
 
+Q_DECLARE_METATYPE(ZoneBridge::FullFrame)
+
 ZoneBridge::ZoneBridge(QObject * parent)
 	: Bridge(parent)
-	, d_spaceModel(new QStandardItemModel(this)) {
+	, d_spaceModel(new QStandardItemModel(this))
+	, d_fullFrameModel( new QStandardItemModel(this))
+	, d_zoneModel( new QStandardItemModel(this)) {
+
 	qRegisterMetaType<fmp::Space::Ptr>();
 	qRegisterMetaType<fmp::Zone::Ptr>();
 	qRegisterMetaType<fmp::Zone::Definition::Ptr>();
+	qRegisterMetaType<ZoneBridge::FullFrame>();
 
 	connect(d_spaceModel,&QStandardItemModel::itemChanged,
 	        this,&ZoneBridge::onItemChanged);
@@ -22,8 +28,12 @@ ZoneBridge::ZoneBridge(QObject * parent)
 
 void ZoneBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
+	d_selectedSpace.reset();
+
+
 	setModified(false);
 	rebuildSpaces();
+
 	emit activated(!d_experiment == false);
 }
 
@@ -36,9 +46,22 @@ QAbstractItemModel * ZoneBridge::spaceModel() const {
 	return d_spaceModel;
 }
 
+QAbstractItemModel * ZoneBridge::zonesModel() const {
+	return d_zoneModel;
+}
+
+QAbstractItemModel * ZoneBridge::fullFrameModel() const {
+	return d_fullFrameModel;
+}
+
+
 void ZoneBridge::rebuildSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
+	d_selectedSpace.reset();
+	rebuildFullFrameModel();
+	rebuildZoneModel();
+
 	if ( !d_experiment ) {
 		return;
 	}
@@ -47,8 +70,15 @@ void ZoneBridge::rebuildSpaces() {
 	}
 }
 
-
 void ZoneBridge::onTrackingDataDirectoryChange(const QString & uri) {
+	if ( !d_experiment == true || !d_selectedSpace == true) {
+		return;
+	}
+	auto located = d_experiment->LocateTrackingDataDirectory(ToStdString(uri));
+	if ( !located.first == true || located.first != d_selectedSpace ) {
+		return;
+	}
+	rebuildFullFrameModel();
 }
 
 
@@ -131,9 +161,13 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 
 void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 	fmp::Zone::Ptr z;
+	auto space = spaceRootItem->data(DataRole).value<fmp::Space::Ptr>();
+	if ( !space == true ) {
+		return;
+	}
 	try {
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Space::CreateZone('new-zone')";
-		z = spaceRootItem->data(DataRole).value<fmp::Space::Ptr>()->CreateZone(ToStdString(tr("new-zone")));
+		z = space->CreateZone(ToStdString(tr("new-zone")));
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Zone::AddDefinition({},nullptr,nullptr)";
 		z->AddDefinition({},
 		                 fm::Time::ConstPtr(),
@@ -153,6 +187,9 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 	getSibling(spaceRootItem,2)->setText(QString::number(spaceRootItem->rowCount()));
 	qInfo() << "Created zone " << spaceRootItem->data(Qt::DisplayRole).toInt()
 	        << "." << z->ZoneID() << "'" << ToQString(z->Name()) << "'";
+	if ( space == d_selectedSpace ) {
+		rebuildZoneModel();
+	}
 }
 
 void ZoneBridge::removeZone(QStandardItem * zoneItem) {
@@ -174,6 +211,9 @@ void ZoneBridge::removeZone(QStandardItem * zoneItem) {
 	setModified(true);
 	spaceItem->removeRows(zoneItem->row(),1);
 	getSibling(spaceItem,2)->setText(QString::number(spaceItem->rowCount()));
+	if (space == d_selectedSpace ) {
+		rebuildZoneModel();
+	}
 }
 
 void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
@@ -326,6 +366,11 @@ void ZoneBridge::changeZoneName(QStandardItem * zoneNameItem) {
 	setModified(true);
 	qInfo() << "Changed zone name '" << oldName
 	        << "' to '" << zoneNameItem->text() << "'";
+
+	auto space = getSibling(zoneNameItem,0)->parent()->data(DataRole).value<fmp::Space::Ptr>();
+	if ( !space == false && space == d_selectedSpace ) {
+		rebuildZoneModel();
+	}
 }
 
 void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool start) {
@@ -375,4 +420,73 @@ void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool s
 	setModified(true);
 	definitionTimeItem->setText(newTimeStr);
 	qInfo() << "Set Zone::Definition start to " << newTimeStr;
+}
+
+
+void ZoneBridge::activateItem(QModelIndex index) {
+	fmp::Space::Ptr newSpace;
+	if ( index.isValid() != false ){
+		index = d_spaceModel->sibling(index.row(),0,index);
+
+		while(index.parent().isValid() == true ) {
+			index = index.parent();
+		}
+		newSpace = d_spaceModel->itemFromIndex(index)->data(DataRole).value<fmp::Space::Ptr>();
+	}
+
+	if ( newSpace == d_selectedSpace ) {
+		return;
+	}
+	d_selectedSpace = newSpace;
+	rebuildFullFrameModel();
+	rebuildZoneModel();
+}
+
+
+void ZoneBridge::rebuildFullFrameModel() {
+	d_fullFrameModel->clear();
+	d_fullFrameModel->setHorizontalHeaderLabels({tr("URI")});
+
+	if ( !d_selectedSpace == true ) {
+		return;
+	}
+
+	for ( const auto & tdd : d_selectedSpace->TrackingDataDirectories() ) {
+		for ( const auto & [ref,path] : tdd->FullFrames() ) {
+			auto item = new QStandardItem(ref.URI().c_str());
+			item->setEditable(false);
+			item->setData(QVariant::fromValue(FullFrame{ref,path.c_str()}));
+			d_fullFrameModel->appendRow({item});
+		}
+
+	}
+
+}
+
+std::pair<bool,ZoneBridge::FullFrame> ZoneBridge::fullFrameAtIndex(const QModelIndex & index) const {
+	auto item = d_fullFrameModel->itemFromIndex(index);
+	if ( item == nullptr ) {
+		return std::make_pair(false,FullFrame());
+	}
+
+	return std::make_pair(true,item->data().value<FullFrame>());
+}
+
+void ZoneBridge::rebuildZoneModel() {
+	d_zoneModel->clear();
+
+	if ( !d_selectedSpace == true ) {
+		return;
+	}
+
+	for ( const auto [zID,zone] : d_selectedSpace->Zones() ) {
+		auto c = fmp::Palette::Default().At(zID);
+		auto item = new QStandardItem(ToQString(zone->Name()));
+		item->setEditable(false);
+		item->setIcon(Conversion::iconFromFM(c));
+		item->setData(Conversion::colorFromFM(c));
+		item->setData(zID,Qt::UserRole+1);
+		d_zoneModel->appendRow({item});
+	}
+
 }

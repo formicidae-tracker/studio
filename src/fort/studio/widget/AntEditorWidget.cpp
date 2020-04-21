@@ -806,7 +806,7 @@ void AntEditorWidget::select(int increment) {
 void AntEditorWidget::nextCloseUp() { select(+1); }
 void AntEditorWidget::previousCloseUp() { select(-1); }
 
-void AntEditorWidget::SetUp(const NavigationAction & actions ) {
+void AntEditorWidget::setUp(const NavigationAction & actions ) {
 	connect(actions.NextCloseUp,&QAction::triggered,
 	        this,&AntEditorWidget::nextCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
@@ -823,7 +823,7 @@ void AntEditorWidget::SetUp(const NavigationAction & actions ) {
 	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
-void AntEditorWidget::TearDown(const NavigationAction & actions ) {
+void AntEditorWidget::tearDown(const NavigationAction & actions ) {
 	disconnect(actions.NextCloseUp,&QAction::triggered,
 	           this,&AntEditorWidget::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,

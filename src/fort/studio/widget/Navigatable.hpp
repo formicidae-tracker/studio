@@ -14,7 +14,7 @@ struct NavigationAction {
 class Navigatable {
 public:
 
-	virtual void SetUp(const NavigationAction & actions) = 0;
-	virtual void TearDown(const NavigationAction & actions) = 0;
+	virtual void setUp(const NavigationAction & actions) = 0;
+	virtual void tearDown(const NavigationAction & actions) = 0;
 
 };

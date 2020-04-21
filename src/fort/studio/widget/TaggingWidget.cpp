@@ -512,7 +512,7 @@ QAction * TaggingWidget::deletePoseEstimationAction() const {
 }
 
 
-void TaggingWidget::SetUp(const NavigationAction & actions ) {
+void TaggingWidget::setUp(const NavigationAction & actions ) {
 	connect(actions.NextTag,&QAction::triggered,
 	        this,&TaggingWidget::nextTag);
 	connect(actions.PreviousTag,&QAction::triggered,
@@ -535,7 +535,7 @@ void TaggingWidget::SetUp(const NavigationAction & actions ) {
 	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
-void TaggingWidget::TearDown(const NavigationAction & actions ) {
+void TaggingWidget::tearDown(const NavigationAction & actions ) {
 	disconnect(actions.NextTag,&QAction::triggered,
 	           this,&TaggingWidget::nextTag);
 	disconnect(actions.PreviousTag,&QAction::triggered,

@@ -61,8 +61,8 @@ private slots:
 protected:
 	void changeEvent(QEvent * event) override;
 
-	void SetUp(const NavigationAction & actions ) override;
-	void TearDown(const NavigationAction & actions ) override;
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
 private:
 
 
