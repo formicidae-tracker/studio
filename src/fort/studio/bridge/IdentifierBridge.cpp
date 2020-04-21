@@ -4,7 +4,6 @@
 #include <QItemSelection>
 
 #include <fort/studio/Format.hpp>
-#include <fort/studio/widget/base/ColorComboBox.hpp>
 
 #include <fort/myrmidon/priv/Identifier.hpp>
 
@@ -261,7 +260,7 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 
 QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	auto c = ant->DisplayColor();
-	return ColorComboBox::iconFromColor(Conversion::colorFromFM(c));
+	return Conversion::iconFromFM(c);
 }
 
 QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {

@@ -125,12 +125,11 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 	auto id = new QStandardItem(QString::number(shapeType->TypeID()));
 	id->setEditable(false);
 	id->setData(data);
-	QPixmap pixmap(20,20);
-	pixmap.fill(Conversion::colorFromFM(fmp::Palette::Default().At(shapeType->TypeID())));
+	auto icon = Conversion::iconFromFM(fmp::Palette::Default().At(shapeType->TypeID()));
 	auto name = new QStandardItem(ToQString(shapeType->Name()));
 	name->setEditable(true);
 	name->setData(data);
-	name->setIcon(pixmap);
+	name->setIcon(icon);
 
 	return {name,id};
 }

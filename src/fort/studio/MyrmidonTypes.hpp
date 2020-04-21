@@ -3,6 +3,7 @@
 #include <string>
 #include <QObject>
 #include <QColor>
+#include <QIcon>
 
 #include <fort/tags/fort-tags.h>
 #include <fort/myrmidon/priv/Ant.hpp>
@@ -47,4 +48,5 @@ Q_DECLARE_METATYPE(fmp::Zone::Definition::Ptr)
 class Conversion {
 public:
 	static QColor colorFromFM(const fmp::Color & color, int opacity = 255);
+	static QIcon  iconFromFM(const fmp::Color & color);
 };

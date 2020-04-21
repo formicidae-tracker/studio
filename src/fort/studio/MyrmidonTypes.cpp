@@ -7,3 +7,9 @@ QColor Conversion::colorFromFM(const fmp::Color & color, int opacity) {
 	              std::get<2>(color),
 	              opacity);
 }
+
+QIcon Conversion::iconFromFM(const fmp::Color & color) {
+	QPixmap icon(15,15);
+	icon.fill(colorFromFM(color));
+	return icon;
+}
