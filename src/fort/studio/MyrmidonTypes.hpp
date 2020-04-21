@@ -49,4 +49,6 @@ class Conversion {
 public:
 	static QColor colorFromFM(const fmp::Color & color, int opacity = 255);
 	static QIcon  iconFromFM(const fmp::Color & color);
+	static QPointF fromEigen(const Eigen::Vector2d & p);
+	static Eigen::Vector2d toEigen(const QPointF  & p);
 };

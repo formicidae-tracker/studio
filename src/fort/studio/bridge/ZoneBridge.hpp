@@ -10,6 +10,25 @@ class QAbstractItemModel;
 class QStandardItemModel;
 class QStandardItem;
 
+class ZoneDefinitionBridge : public Bridge {
+	Q_OBJECT
+public:
+	ZoneDefinitionBridge(const fmp::Zone::ConstPtr & zone,
+	                     const fmp::Zone::Definition::Ptr & ptr);
+
+	bool isActive() const override;
+
+	const fmp::Zone::Geometry & geometry() const;
+
+	void setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes);
+
+	const fmp::Zone & zone() const;
+
+private:
+	fmp::Zone::Definition::Ptr d_definition;
+	fmp::Zone::ConstPtr        d_zone;
+};
+
 
 class ZoneBridge : public Bridge {
 	Q_OBJECT
@@ -21,9 +40,9 @@ public :
 	bool isActive() const override;
 
 	QAbstractItemModel * spaceModel() const;
-	QAbstractItemModel * zonesModel() const;
 	QAbstractItemModel * fullFrameModel() const;
 
+	void selectTime(const fm::Time & time);
 
 	bool canAddItemAt(const QModelIndex & index);
 	bool canRemoveItemAt(const QModelIndex & index);
@@ -34,6 +53,10 @@ public :
 	};
 
 	std::pair<bool,FullFrame> fullFrameAtIndex(const QModelIndex & index) const;
+
+
+signals:
+	void newZoneDefinitionBridge(QList<ZoneDefinitionBridge*>);
 
 public slots:
 	void addItemAtIndex(const QModelIndex & index);
@@ -57,7 +80,8 @@ private:
 	const static int DefinitionType  = 3;
 
 	void rebuildFullFrameModel();
-	void rebuildZoneModel();
+
+	void rebuildChildBridges();
 
 	QStandardItem * getSibling(QStandardItem * item,int column);
 
@@ -76,7 +100,9 @@ private:
 
 	QStandardItemModel  * d_spaceModel;
 	QStandardItemModel  * d_fullFrameModel;
-	QStandardItemModel  * d_zoneModel;
 	fmp::Experiment::Ptr  d_experiment;
 	fmp::Space::Ptr       d_selectedSpace;
+	fm::Time::ConstPtr    d_selectedTime;
+
+	std::vector<std::shared_ptr<ZoneDefinitionBridge>> d_childBridges;
 };

@@ -13,8 +13,7 @@ Q_DECLARE_METATYPE(ZoneBridge::FullFrame)
 ZoneBridge::ZoneBridge(QObject * parent)
 	: Bridge(parent)
 	, d_spaceModel(new QStandardItemModel(this))
-	, d_fullFrameModel( new QStandardItemModel(this))
-	, d_zoneModel( new QStandardItemModel(this)) {
+	, d_fullFrameModel( new QStandardItemModel(this)) {
 
 	qRegisterMetaType<fmp::Space::Ptr>();
 	qRegisterMetaType<fmp::Zone::Ptr>();
@@ -23,13 +22,23 @@ ZoneBridge::ZoneBridge(QObject * parent)
 
 	connect(d_spaceModel,&QStandardItemModel::itemChanged,
 	        this,&ZoneBridge::onItemChanged);
+
+	connect(this,&Bridge::modified,
+	        this,[this](bool isModified) {
+		             if ( isModified == true ) {
+			             return;
+		             }
+		             for ( const auto & c : d_childBridges ) {
+			             c->setModified(false);
+		             }
+	             });
 }
 
 
 void ZoneBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 	d_selectedSpace.reset();
-
+	d_selectedTime.reset();
 
 	setModified(false);
 	rebuildSpaces();
@@ -46,9 +55,6 @@ QAbstractItemModel * ZoneBridge::spaceModel() const {
 	return d_spaceModel;
 }
 
-QAbstractItemModel * ZoneBridge::zonesModel() const {
-	return d_zoneModel;
-}
 
 QAbstractItemModel * ZoneBridge::fullFrameModel() const {
 	return d_fullFrameModel;
@@ -59,9 +65,9 @@ void ZoneBridge::rebuildSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
 	d_selectedSpace.reset();
+	d_selectedTime.reset();
 	rebuildFullFrameModel();
-	rebuildZoneModel();
-
+	rebuildChildBridges();
 	if ( !d_experiment ) {
 		return;
 	}
@@ -156,6 +162,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		zoneRootItem->appendRow(buildDefinition(definition));
 	}
 	getSibling(zoneRootItem,2)->setText(QString::number(zoneRootItem->rowCount()));
+	rebuildChildBridges();
 }
 
 
@@ -188,7 +195,7 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 	qInfo() << "Created zone " << spaceRootItem->data(Qt::DisplayRole).toInt()
 	        << "." << z->ZoneID() << "'" << ToQString(z->Name()) << "'";
 	if ( space == d_selectedSpace ) {
-		rebuildZoneModel();
+		rebuildChildBridges();
 	}
 }
 
@@ -212,7 +219,7 @@ void ZoneBridge::removeZone(QStandardItem * zoneItem) {
 	spaceItem->removeRows(zoneItem->row(),1);
 	getSibling(spaceItem,2)->setText(QString::number(spaceItem->rowCount()));
 	if (space == d_selectedSpace ) {
-		rebuildZoneModel();
+		rebuildChildBridges();
 	}
 }
 
@@ -234,6 +241,7 @@ void ZoneBridge::removeDefinition(QStandardItem * definitionItem) {
 	zoneItem->removeRows(definitionItem->row(),1);
 	getSibling(zoneItem,2)->setText(QString::number(zoneItem->rowCount()));
 	qInfo() << "Removed Zone definition";
+	rebuildChildBridges();
 }
 
 
@@ -369,7 +377,7 @@ void ZoneBridge::changeZoneName(QStandardItem * zoneNameItem) {
 
 	auto space = getSibling(zoneNameItem,0)->parent()->data(DataRole).value<fmp::Space::Ptr>();
 	if ( !space == false && space == d_selectedSpace ) {
-		rebuildZoneModel();
+		rebuildChildBridges();
 	}
 }
 
@@ -420,6 +428,7 @@ void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool s
 	setModified(true);
 	definitionTimeItem->setText(newTimeStr);
 	qInfo() << "Set Zone::Definition start to " << newTimeStr;
+	rebuildChildBridges();
 }
 
 
@@ -439,7 +448,7 @@ void ZoneBridge::activateItem(QModelIndex index) {
 	}
 	d_selectedSpace = newSpace;
 	rebuildFullFrameModel();
-	rebuildZoneModel();
+	rebuildChildBridges();
 }
 
 
@@ -472,21 +481,79 @@ std::pair<bool,ZoneBridge::FullFrame> ZoneBridge::fullFrameAtIndex(const QModelI
 	return std::make_pair(true,item->data().value<FullFrame>());
 }
 
-void ZoneBridge::rebuildZoneModel() {
-	d_zoneModel->clear();
+void ZoneBridge::rebuildChildBridges() {
+	d_childBridges.clear();
 
 	if ( !d_selectedSpace == true ) {
+		emit newZoneDefinitionBridge({});
 		return;
 	}
 
-	for ( const auto [zID,zone] : d_selectedSpace->Zones() ) {
-		auto c = fmp::Palette::Default().At(zID);
-		auto item = new QStandardItem(ToQString(zone->Name()));
-		item->setEditable(false);
-		item->setIcon(Conversion::iconFromFM(c));
-		item->setData(Conversion::colorFromFM(c));
-		item->setData(zID,Qt::UserRole+1);
-		d_zoneModel->appendRow({item});
-	}
+	auto addChildBridge
+		= [this]( const fmp::Zone::ConstPtr & zone,
+		          const fmp::Zone::Definition::Ptr & definition) {
+			  auto c = std::make_shared<ZoneDefinitionBridge>(zone,definition);
+			  connect(c.get(),&Bridge::modified,
+			          this,[this](bool nowModified) {
+				               if ( nowModified == true ) {
+					               setModified(true);
+				               }
+			               });
+			  d_childBridges.push_back(c);
+		  };
 
+
+
+
+	for ( const auto & [zID,zone] : d_selectedSpace->Zones() ) {
+		if ( !d_selectedTime == true ) {
+			if ( zone->Definitions().empty() == false
+			     && !zone->Definitions().front()->Start() == true ) {
+				addChildBridge(zone,zone->Definitions().front());
+			}
+			continue;
+		}
+
+		for ( const auto & d : zone->Definitions() ) {
+			if ( d->IsValid(*d_selectedTime) == true ) {
+				addChildBridge(zone,d);
+				break;
+			}
+		}
+	}
+	QList<ZoneDefinitionBridge*> res;
+	res.reserve(d_childBridges.size());
+	for ( const auto & c : d_childBridges) {
+		res.push_back(c.get());
+	}
+	emit newZoneDefinitionBridge(res);
+}
+
+void ZoneBridge::selectTime(const fm::Time & time) {
+	d_selectedTime = std::make_shared<fm::Time>(time);
+}
+
+
+ZoneDefinitionBridge::ZoneDefinitionBridge(const fmp::Zone::ConstPtr & zone,
+                                           const fmp::Zone::Definition::Ptr & ptr)
+	: Bridge(nullptr)
+	, d_definition(ptr)
+	, d_zone(zone) {
+}
+
+bool ZoneDefinitionBridge::isActive() const {
+	return true;
+}
+
+const fmp::Zone::Geometry & ZoneDefinitionBridge::geometry() const {
+	return *d_definition->GetGeometry();
+}
+
+void ZoneDefinitionBridge::setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes) {
+	d_definition->SetGeometry(std::make_shared<fmp::Zone::Geometry>(shapes));
+	setModified(true);
+}
+
+const fmp::Zone & ZoneDefinitionBridge::zone() const {
+	return *d_zone;
 }

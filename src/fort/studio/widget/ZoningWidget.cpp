@@ -3,9 +3,16 @@
 
 #include <QClipboard>
 
+#include <fort/myrmidon/priv/Polygon.hpp>
+#include <fort/myrmidon/priv/Circle.hpp>
+#include <fort/myrmidon/priv/Capsule.hpp>
+
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
+#include <fort/studio/widget/vectorgraphics/Polygon.hpp>
+#include <fort/studio/widget/vectorgraphics/Circle.hpp>
+#include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
 #include <fort/studio/Format.hpp>
 
@@ -28,16 +35,16 @@ ZoningWidget::ZoningWidget(QWidget *parent)
 
     d_ui->editButton->setCheckable(true);
     connect(d_ui->editButton,&QToolButton::clicked,
-            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::Edit); });
+            this,[this](){ setSceneMode(VectorialScene::Mode::Edit); });
     d_ui->polygonButton->setCheckable(true);
     connect(d_ui->polygonButton,&QToolButton::clicked,
-            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertPolygon); });
+            this,[this](){ setSceneMode(VectorialScene::Mode::InsertPolygon); });
     d_ui->circleButton->setCheckable(true);
     connect(d_ui->circleButton,&QToolButton::clicked,
-            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertCircle); });
+            this,[this](){ setSceneMode(VectorialScene::Mode::InsertCircle); });
     d_ui->capsuleButton->setCheckable(true);
     connect(d_ui->capsuleButton,&QToolButton::clicked,
-            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertCapsule); });
+            this,[this](){ setSceneMode(VectorialScene::Mode::InsertCapsule); });
 
     d_ui->editButton->setChecked(Qt::Checked);
     connect(d_vectorialScene,&VectorialScene::modeChanged,
@@ -63,6 +70,22 @@ ZoningWidget::ZoningWidget(QWidget *parent)
 		                 break;
 	                 }
                  });
+
+
+    connect(d_vectorialScene,&VectorialScene::polygonCreated,
+            this,&ZoningWidget::onShapeCreated);
+    connect(d_vectorialScene,&VectorialScene::polygonRemoved,
+            this,&ZoningWidget::onShapeRemoved);
+
+    connect(d_vectorialScene,&VectorialScene::circleCreated,
+            this,&ZoningWidget::onShapeCreated);
+    connect(d_vectorialScene,&VectorialScene::circleRemoved,
+            this,&ZoningWidget::onShapeRemoved);
+
+    connect(d_vectorialScene,&VectorialScene::capsuleCreated,
+            this,&ZoningWidget::onShapeCreated);
+    connect(d_vectorialScene,&VectorialScene::capsuleRemoved,
+            this,&ZoningWidget::onShapeRemoved);
 
 
 }
@@ -91,8 +114,8 @@ void ZoningWidget::setup(ExperimentBridge * experiment) {
 			        display(std::make_shared<ZoneBridge::FullFrame>(f.second));
 		        }
 	        });
-
-	d_ui->comboBox->setModel(d_zones->zonesModel());
+	connect(d_zones,&ZoneBridge::newZoneDefinitionBridge,
+	        this,&ZoningWidget::onNewZoneDefinition);
 }
 
 
@@ -103,12 +126,17 @@ void ZoningWidget::display(const std::shared_ptr<ZoneBridge::FullFrame> & fullfr
 	}
 
 	if ( !d_fullframe == true ) {
+		d_vectorialScene->clearPolygons();
+		d_vectorialScene->clearCircles();
+		d_vectorialScene->clearCapsules();
 		d_vectorialScene->setBackgroundPicture("");
 		return;
 	}
 
 	d_vectorialScene->setBackgroundPicture(d_fullframe->AbsoluteFilePath);
 	d_ui->vectorialView->showEntireScene();
+
+	d_zones->selectTime(fullframe->Reference.Time());
 }
 
 
@@ -181,4 +209,169 @@ void ZoningWidget::select(int increment) {
 		return;
 	}
 	sModel->select(model->index(newRow,0),QItemSelectionModel::ClearAndSelect);
+}
+
+
+void ZoningWidget::onShapeCreated(QSharedPointer<Shape> shape) {
+	auto zoneID = currentZoneID();
+	auto fmShape = convertShape(shape);
+
+	if ( !d_fullframe == true
+	     || zoneID == 0
+	     || !fmShape == true) {
+		d_vectorialScene->deleteShape(shape);
+		return;
+	}
+
+	connect(shape.data(),&Shape::updated,
+	        this,[this,shape]{ rebuildGeometry(shape); });
+	d_shapes.insert(std::make_pair(shape,zoneID));
+
+	rebuildGeometry(shape);
+}
+
+void ZoningWidget::onShapeRemoved(QSharedPointer<Shape> shape) {
+	auto fi = d_shapes.find(shape);
+	if ( !d_fullframe == true
+	     || fi == d_shapes.end() ) {
+		return;
+	}
+	auto zID = fi->second;
+	d_shapes.erase(fi);
+	rebuildGeometry(zID);
+}
+
+
+void ZoningWidget::setSceneMode(VectorialScene::Mode mode) {
+	if ( !d_fullframe == true || d_ui->comboBox->count() == 0 ) {
+		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
+		return;
+	}
+	d_vectorialScene->setMode(mode);
+}
+
+
+void ZoningWidget::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
+	d_vectorialScene->clearCapsules();
+	d_vectorialScene->clearPolygons();
+	d_vectorialScene->clearCircles();
+
+	d_shapes.clear();
+	d_definitions.clear();
+
+	d_ui->comboBox->clear();
+
+	if ( bridges.isEmpty() == true ) {
+		setSceneMode(VectorialScene::Mode::Edit);
+		return;
+	}
+
+	for ( const auto & b : bridges ) {\
+		auto zID = b->zone().ZoneID();
+		d_definitions.insert(std::make_pair(zID,b));
+		auto colorFM = fmp::Palette::Default().At(zID);
+		auto color = Conversion::colorFromFM(colorFM);
+		d_ui->comboBox->addItem(Conversion::iconFromFM(colorFM),
+		                        ToQString(b->zone().Name()),
+		                        quint32(zID));
+
+		d_vectorialScene->setColor(color);
+		for ( const auto & s : b->geometry().Shapes() ) {
+			appendShape(s,zID);
+		}
+
+	}
+}
+
+
+void ZoningWidget::appendShape(const fmp::Shape::ConstPtr & s,
+                               fmp::Zone::ID zID) {
+	QSharedPointer<Shape> newShape;
+	if ( auto p = std::dynamic_pointer_cast<const fmp::Polygon>(s) ) {
+		if ( p->Size() > 2 ) {
+			QVector<QPointF> vertices;
+			for ( size_t i = 0; i < p->Size(); ++i ) {
+				vertices.push_back(Conversion::fromEigen(p->Vertex(i)));
+			}
+			vertices.push_back(Conversion::fromEigen(p->Vertex(0)));
+			newShape = d_vectorialScene->appendPolygon(vertices);
+		}
+	}
+
+	if ( auto c = std::dynamic_pointer_cast<const fmp::Circle>(s) ) {
+		newShape = d_vectorialScene->appendCircle(Conversion::fromEigen(c->Center()),c->Radius());
+	}
+
+	if ( auto c = std::dynamic_pointer_cast<const fmp::Capsule>(s) ) {
+		newShape = d_vectorialScene->appendCapsule(Conversion::fromEigen(c->C1()),
+		                                           Conversion::fromEigen(c->C2()),
+		                                           c->R1(),
+		                                           c->R2());
+	}
+
+	if ( !newShape ) {
+		return;
+	}
+
+	connect(newShape.data(),&Shape::updated,
+	        this,[this,newShape]{
+		             rebuildGeometry(newShape);
+	             });
+	d_shapes.insert(std::make_pair(newShape,zID));
+}
+
+
+void ZoningWidget::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
+	auto fi = d_shapes.find(shape);
+	if ( fi == d_shapes.end() ) {
+		return;
+	}
+
+	rebuildGeometry(fi->second);
+}
+
+void ZoningWidget::rebuildGeometry(fmp::Zone::ID zID ) {
+	auto fi = d_definitions.find(zID);
+	if ( fi == d_definitions.end()) {
+		return;
+	}
+	std::vector<fmp::Shape::ConstPtr> shapes;
+
+	for ( const auto & [shape,zID_] : d_shapes ) {
+		if ( zID != zID_) {
+			continue;
+		}
+		shapes.push_back(convertShape(shape));
+	}
+	fi->second->setGeometry(shapes);
+}
+
+fmp::Shape::ConstPtr ZoningWidget::convertShape(const QSharedPointer<Shape> & s) {
+	if ( auto p = s.dynamicCast<Polygon>() ) {
+		fmp::Vector2dList vertices;
+		for ( const auto & v : p->vertices() ) {
+			vertices.push_back(Conversion::toEigen(v));
+		}
+		return std::make_shared<fmp::Polygon>(vertices);
+	}
+
+	if ( auto c = s.dynamicCast<Circle>() ) {
+		return std::make_shared<fmp::Circle>(Conversion::toEigen(c->pos()),c->radius());
+	}
+
+	if ( auto c = s.dynamicCast<Capsule>() ) {
+		return std::make_shared<fmp::Capsule>(Conversion::toEigen(c->c1Pos()),
+		                                      Conversion::toEigen(c->c2Pos()),
+		                                      c->r1(),
+		                                      c->r2());
+	}
+
+	return fmp::Shape::ConstPtr();
+}
+
+fmp::Zone::ID ZoningWidget::currentZoneID() const {
+	if ( d_ui->comboBox->count() == 0 || d_ui->comboBox->currentIndex() < 0 ) {
+		return 0;
+	}
+	return d_ui->comboBox->currentData().toInt();
 }
