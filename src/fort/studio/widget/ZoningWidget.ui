@@ -24,22 +24,105 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="VectorialView" name="vectorialView">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>2</horstretch>
-       <verstretch>2</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" rowspan="2">
+   <item row="0" column="1" rowspan="3">
     <widget class="QListView" name="listView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>1</horstretch>
        <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <item>
+      <widget class="QToolButton" name="editButton">
+       <property name="text">
+        <string>edit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="polygonButton">
+       <property name="text">
+        <string>polygon</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="circleButton">
+       <property name="text">
+        <string>circle</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="capsuleButton">
+       <property name="text">
+        <string>capsule</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Zone:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="VectorialView" name="vectorialView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>2</horstretch>
+       <verstretch>2</verstretch>
       </sizepolicy>
      </property>
     </widget>

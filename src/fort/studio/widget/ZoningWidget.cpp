@@ -25,6 +25,46 @@ ZoningWidget::ZoningWidget(QWidget *parent)
             d_vectorialScene,
             &VectorialScene::onZoomed);
 
+
+    d_ui->editButton->setCheckable(true);
+    connect(d_ui->editButton,&QToolButton::clicked,
+            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::Edit); });
+    d_ui->polygonButton->setCheckable(true);
+    connect(d_ui->polygonButton,&QToolButton::clicked,
+            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertPolygon); });
+    d_ui->circleButton->setCheckable(true);
+    connect(d_ui->circleButton,&QToolButton::clicked,
+            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertCircle); });
+    d_ui->capsuleButton->setCheckable(true);
+    connect(d_ui->capsuleButton,&QToolButton::clicked,
+            this,[this](){ d_vectorialScene->setMode(VectorialScene::Mode::InsertCapsule); });
+
+    d_ui->editButton->setChecked(Qt::Checked);
+    connect(d_vectorialScene,&VectorialScene::modeChanged,
+            this,[this](VectorialScene::Mode mode) {
+	                 d_ui->editButton->setChecked(Qt::Unchecked);
+	                 d_ui->polygonButton->setChecked(Qt::Unchecked);
+	                 d_ui->circleButton->setChecked(Qt::Unchecked);
+	                 d_ui->capsuleButton->setChecked(Qt::Unchecked);
+	                 switch(mode) {
+	                 case VectorialScene::Mode::Edit:
+		                 d_ui->editButton->setChecked(Qt::Checked);
+		                 break;
+	                 case VectorialScene::Mode::InsertPolygon:
+		                 d_ui->polygonButton->setChecked(Qt::Checked);
+		                 break;
+	                 case VectorialScene::Mode::InsertCircle:
+		                 d_ui->circleButton->setChecked(Qt::Checked);
+		                 break;
+	                 case VectorialScene::Mode::InsertCapsule:
+		                 d_ui->capsuleButton->setChecked(Qt::Checked);
+		                 break;
+	                 default:
+		                 break;
+	                 }
+                 });
+
+
 }
 
 ZoningWidget::~ZoningWidget() {
@@ -52,6 +92,7 @@ void ZoningWidget::setup(ExperimentBridge * experiment) {
 		        }
 	        });
 
+	d_ui->comboBox->setModel(d_zones->zonesModel());
 }
 
 
