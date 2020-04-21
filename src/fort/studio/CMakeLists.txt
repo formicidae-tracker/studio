@@ -62,6 +62,7 @@ set(SRC_FILES Format.cpp
 			  widget/TrackingVideoPlayer.cpp
 			  widget/TrackingVideoControl.cpp
 			  widget/ZoningWidget.cpp
+			  widget/ZonesEditorWidget.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -114,6 +115,7 @@ set(HDR_FILES Format.hpp
 			  widget/TrackingVideoPlayer.hpp
 			  widget/TrackingVideoControl.hpp
 			  widget/ZoningWidget.hpp
+			  widget/ZonesEditorWidget.hpp
 			  )
 
 
@@ -136,6 +138,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/VisualizationWidget.ui
              widget/TrackingVideoControl.ui
              widget/ZoningWidget.ui
+             widget/ZonesEditorWidget.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)

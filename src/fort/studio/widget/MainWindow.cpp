@@ -116,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->antList->setup(d_experiment->identifier());
 	d_ui->taggingWidget->setup(d_experiment);
 	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->zoningWidget->setup(d_experiment);
 	d_ui->userData->setup(d_experiment->antMetadata());
 
 	d_ui->shappingWidget->setEnabled(false);
@@ -205,7 +206,6 @@ void MainWindow::on_actionOpen_triggered() {
 
 	pushRecent();
 }
-
 
 void MainWindow::on_actionQuit_triggered() {
 	this->close();
