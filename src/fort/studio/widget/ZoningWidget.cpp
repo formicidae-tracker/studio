@@ -48,28 +48,7 @@ ZoningWidget::ZoningWidget(QWidget *parent)
 
     d_ui->editButton->setChecked(Qt::Checked);
     connect(d_vectorialScene,&VectorialScene::modeChanged,
-            this,[this](VectorialScene::Mode mode) {
-	                 d_ui->editButton->setChecked(Qt::Unchecked);
-	                 d_ui->polygonButton->setChecked(Qt::Unchecked);
-	                 d_ui->circleButton->setChecked(Qt::Unchecked);
-	                 d_ui->capsuleButton->setChecked(Qt::Unchecked);
-	                 switch(mode) {
-	                 case VectorialScene::Mode::Edit:
-		                 d_ui->editButton->setChecked(Qt::Checked);
-		                 break;
-	                 case VectorialScene::Mode::InsertPolygon:
-		                 d_ui->polygonButton->setChecked(Qt::Checked);
-		                 break;
-	                 case VectorialScene::Mode::InsertCircle:
-		                 d_ui->circleButton->setChecked(Qt::Checked);
-		                 break;
-	                 case VectorialScene::Mode::InsertCapsule:
-		                 d_ui->capsuleButton->setChecked(Qt::Checked);
-		                 break;
-	                 default:
-		                 break;
-	                 }
-                 });
+            this,&ZoningWidget::onSceneModeChanged);
 
 
     connect(d_vectorialScene,&VectorialScene::polygonCreated,
@@ -245,8 +224,10 @@ void ZoningWidget::onShapeRemoved(QSharedPointer<Shape> shape) {
 void ZoningWidget::setSceneMode(VectorialScene::Mode mode) {
 	if ( !d_fullframe == true || d_ui->comboBox->count() == 0 ) {
 		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
+		onSceneModeChanged(VectorialScene::Mode::Edit);
 		return;
 	}
+	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(currentZoneID())));
 	d_vectorialScene->setMode(mode);
 }
 
@@ -374,4 +355,59 @@ fmp::Zone::ID ZoningWidget::currentZoneID() const {
 		return 0;
 	}
 	return d_ui->comboBox->currentData().toInt();
+}
+
+
+void ZoningWidget::onSceneModeChanged(VectorialScene::Mode mode) {
+	d_ui->editButton->setChecked(Qt::Unchecked);
+	d_ui->polygonButton->setChecked(Qt::Unchecked);
+	d_ui->circleButton->setChecked(Qt::Unchecked);
+	d_ui->capsuleButton->setChecked(Qt::Unchecked);
+	switch(mode) {
+	case VectorialScene::Mode::Edit:
+		d_ui->editButton->setChecked(Qt::Checked);
+		break;
+	case VectorialScene::Mode::InsertPolygon:
+		d_ui->polygonButton->setChecked(Qt::Checked);
+		break;
+	case VectorialScene::Mode::InsertCircle:
+		d_ui->circleButton->setChecked(Qt::Checked);
+		break;
+	case VectorialScene::Mode::InsertCapsule:
+		d_ui->capsuleButton->setChecked(Qt::Checked);
+		break;
+	default:
+		break;
+	}
+}
+
+
+void ZoningWidget::on_comboBox_currentIndexChanged(int) {
+	auto zID = currentZoneID();
+
+	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zID)));
+
+	for ( const auto item : d_vectorialScene->selectedItems() ) {
+		if ( auto v = dynamic_cast<Shape*>(item) ) {
+			changeShapeType(v,zID);
+		}
+	}
+}
+
+
+void ZoningWidget::changeShapeType(Shape * shape, fmp::Zone::ID zID) {
+	auto fi = std::find_if(d_shapes.begin(),
+	                       d_shapes.end(),
+	                       [shape](const std::pair<QSharedPointer<Shape>,fmp::Zone::ID> & iter ) -> bool {
+		                       return iter.first.data() == shape;
+	                       });
+	if ( fi == d_shapes.end() ) {
+		return;
+	}
+	auto oldZoneID = fi->second;
+	fi->second = zID;
+	fi->first->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zID)));
+	rebuildGeometry(zID);
+	rebuildGeometry(oldZoneID);
+
 }

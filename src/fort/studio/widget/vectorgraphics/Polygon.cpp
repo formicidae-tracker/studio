@@ -39,7 +39,7 @@ Polygon::Polygon(const QVector<QPointF> & points,
 Polygon::~Polygon() {
 }
 
-void Polygon::addToScene(QGraphicsScene * scene) {
+void Polygon::addToSceneProtected(QGraphicsScene * scene) {
 	scene->addItem(this);
 	for ( const auto & h : d_handles ){
 		h->addToScene(scene);
@@ -47,7 +47,7 @@ void Polygon::addToScene(QGraphicsScene * scene) {
 }
 
 
-void Polygon::removeFromScene(QGraphicsScene * scene) {
+void Polygon::removeFromSceneProtected(QGraphicsScene * scene) {
 	for ( const auto & h : d_handles ) {
 		scene->removeItem(h);
 		h->deleteLater();

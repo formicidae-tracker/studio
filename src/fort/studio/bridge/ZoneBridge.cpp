@@ -502,18 +502,16 @@ void ZoneBridge::rebuildChildBridges() {
 			  d_childBridges.push_back(c);
 		  };
 
-
-
-
 	for ( const auto & [zID,zone] : d_selectedSpace->Zones() ) {
 		if ( !d_selectedTime == true ) {
+			std::cerr << "Nothing selected" << std::endl;
 			if ( zone->Definitions().empty() == false
 			     && !zone->Definitions().front()->Start() == true ) {
 				addChildBridge(zone,zone->Definitions().front());
 			}
 			continue;
 		}
-
+		std::cerr << "testing with " << std::endl;
 		for ( const auto & d : zone->Definitions() ) {
 			if ( d->IsValid(*d_selectedTime) == true ) {
 				addChildBridge(zone,d);
@@ -531,6 +529,7 @@ void ZoneBridge::rebuildChildBridges() {
 
 void ZoneBridge::selectTime(const fm::Time & time) {
 	d_selectedTime = std::make_shared<fm::Time>(time);
+	rebuildChildBridges();
 }
 
 

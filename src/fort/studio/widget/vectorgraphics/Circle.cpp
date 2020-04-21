@@ -39,13 +39,13 @@ Circle::~Circle() {
 }
 
 
-void Circle::addToScene(QGraphicsScene * scene) {
+void Circle::addToSceneProtected(QGraphicsScene * scene) {
 	scene->addItem(this);
 	d_center->addToScene(scene);
 	d_radiusHandle->addToScene(scene);
 }
 
-void Circle::removeFromScene(QGraphicsScene * scene) {
+void Circle::removeFromSceneProtected(QGraphicsScene * scene) {
 	scene->removeItem(d_center);
 	scene->removeItem(d_radiusHandle);
 	scene->removeItem(this);

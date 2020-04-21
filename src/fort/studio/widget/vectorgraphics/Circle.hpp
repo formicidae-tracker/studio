@@ -19,8 +19,6 @@ public:
 	virtual ~Circle();
 
 
-	void addToScene(QGraphicsScene * scene) override;
-	void removeFromScene(QGraphicsScene * scene) override;
 
 	QPointF pos() const;
 
@@ -29,6 +27,9 @@ public:
 	void setRadiusFromPos(const QPointF & pos);
 
 protected:
+	void addToSceneProtected(QGraphicsScene * scene) override;
+	void removeFromSceneProtected(QGraphicsScene * scene) override;
+
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;

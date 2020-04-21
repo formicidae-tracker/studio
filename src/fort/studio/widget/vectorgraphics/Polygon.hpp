@@ -17,8 +17,6 @@ public:
 
 	virtual ~Polygon();
 
-	void addToScene(QGraphicsScene * scene) override;
-	void removeFromScene(QGraphicsScene * scene) override;
 
 	QVector<QPointF> vertices() const;
 
@@ -27,6 +25,9 @@ public:
 	void close();
 
 protected:
+	void addToSceneProtected(QGraphicsScene * scene) override;
+	void removeFromSceneProtected(QGraphicsScene * scene) override;
+
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;

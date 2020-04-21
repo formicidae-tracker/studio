@@ -35,12 +35,15 @@ private slots:
 
 	void onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges);
 
+	void onSceneModeChanged(VectorialScene::Mode mode);
 
 	void setSceneMode(VectorialScene::Mode mode);
 
 	void onShapeCreated(QSharedPointer<Shape> shape);
 	void onShapeRemoved(QSharedPointer<Shape> shape);
 
+
+	void on_comboBox_currentIndexChanged(int);
 
 private:
 	void display(const std::shared_ptr<ZoneBridge::FullFrame> & fullframe);
@@ -58,6 +61,9 @@ private:
 	fmp::Zone::ID currentZoneID() const;
 
 	static fmp::Shape::ConstPtr convertShape(const QSharedPointer<Shape> & s);
+
+	void changeShapeType(Shape * shape, fmp::Zone::ID zID);
+
 
 	std::shared_ptr<ZoneBridge::FullFrame> d_fullframe;
 	QAction                              * d_copyAction;
