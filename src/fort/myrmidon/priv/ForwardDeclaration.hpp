@@ -105,6 +105,10 @@ FORT_MYRMIDON_FDECLARE_CLASS(AntShapeTypeContainer)
 
 FORT_MYRMIDON_FDECLARE_CLASS(AntMetadata)
 
+// Forward declaration for a <priv::InteractionSolver>
+FORT_MYRMIDON_FDECLARE_CLASS(InteractionSolver)
+
+
 } // namespace priv
 
 } // namespace myrmidon

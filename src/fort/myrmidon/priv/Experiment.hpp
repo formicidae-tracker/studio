@@ -261,6 +261,8 @@ public :
 	                   bool scaleToSize,
 	                   bool overwriteShapes);
 
+	InteractionSolverConstPtr CompileInteractionSolver() const;
+
 
 	// Computes the conventional ratio beween corner size and
 	// nominated tag file.

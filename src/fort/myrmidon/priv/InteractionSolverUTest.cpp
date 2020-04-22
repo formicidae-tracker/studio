@@ -131,8 +131,6 @@ void InteractionSolverUTest::SetUpTestSuite() {
 }
 
 
-
-
 InteractionFrame::ConstPtr InteractionSolverUTest::NaiveInteractions() {
 	std::unordered_map<Zone::ID,std::vector<PositionedAnt> > locatedAnt;
 	for ( const auto & p : frame->Positions ) {
@@ -191,10 +189,10 @@ TEST_F(InteractionSolverUTest,TestE2E) {
 	                                                  ants);
 	InteractionFrame::ConstPtr res;
 	EXPECT_THROW({
-			res = solver->ComputeInteraction(2,frame);
+			res = solver->ComputeInteractions(2,frame);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
-			res = solver->ComputeInteraction(1,frame);
+			res = solver->ComputeInteractions(1,frame);
 		});
 	for ( const auto & inter : interactions->Interactions ) {
 		auto fi = std::find_if(res->Interactions.begin(),

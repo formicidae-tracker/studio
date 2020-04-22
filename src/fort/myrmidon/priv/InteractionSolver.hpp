@@ -19,8 +19,9 @@ public:
 	InteractionSolver(const SpaceByID & spaces,
 	                  const AntByID & ants);
 
-	InteractionFrame::ConstPtr ComputeInteraction(SpaceID spaceID,
-	                                              const IdentifiedFrame::ConstPtr & frame) const;
+	InteractionFrame::ConstPtr
+	ComputeInteractions(SpaceID spaceID,
+	                    const IdentifiedFrame::ConstPtr & frame) const;
 private:
 	typedef DenseMap<fort::myrmidon::Ant::ID,Ant::TypedCapsuleList>  AntGeometriesByID;
 	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
@@ -32,8 +33,8 @@ private:
 	                SpaceID spaceID,
 	                const IdentifiedFrame::ConstPtr & frame) const;
 
-	void ComputeInteraction(std::vector<Interaction> &  result,
-	                        const std::vector<PositionedAnt> & ants) const;
+	void ComputeInteractions(std::vector<Interaction> &  result,
+	                         const std::vector<PositionedAnt> & ants) const;
 
 	AntGeometriesByID   d_antGeometries;
 	GeometriesBySpaceID d_spaceGeometries;

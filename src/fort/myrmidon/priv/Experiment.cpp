@@ -11,6 +11,7 @@
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
 #include "Capsule.hpp"
+#include "InteractionSolver.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
@@ -551,6 +552,10 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 	}
 }
 
+InteractionSolver::ConstPtr Experiment::CompileInteractionSolver() const {
+	return std::make_shared<InteractionSolver>(d_universe->Spaces(),
+	                                           d_identifier->Ants());
+}
 
 } //namespace priv
 } //namespace myrmidon

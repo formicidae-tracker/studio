@@ -37,14 +37,15 @@ InteractionSolver::InteractionSolver(const SpaceByID & spaces,
 	}
 }
 
-InteractionFrame::ConstPtr InteractionSolver::ComputeInteraction(SpaceID spaceID,
-                                                                 const IdentifiedFrame::ConstPtr & frame) const {
+InteractionFrame::ConstPtr
+InteractionSolver::ComputeInteractions(SpaceID spaceID,
+                                       const IdentifiedFrame::ConstPtr & frame) const {
 	LocatedAnts locatedAnts;
 	LocateAnts(locatedAnts,spaceID,frame);
 	auto res = std::make_shared<InteractionFrame>();
 	res->FrameTime = frame->FrameTime;
 	for ( const auto & [zID,ants] : locatedAnts ) {
-		ComputeInteraction(res->Interactions,ants);
+		ComputeInteractions(res->Interactions,ants);
 	}
 	return res;
 }
@@ -85,8 +86,8 @@ void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
 }
 
 
-void InteractionSolver::ComputeInteraction(std::vector<Interaction> &  result,
-                                           const std::vector<PositionedAnt> & ants) const {
+void InteractionSolver::ComputeInteractions(std::vector<Interaction> &  result,
+                                            const std::vector<PositionedAnt> & ants) const {
 
 	//first-pass we compute possible interactions
 	struct AntTypedCapsule  {

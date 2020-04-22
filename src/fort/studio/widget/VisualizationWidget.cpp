@@ -48,11 +48,11 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	connect(d_ui->treeView,
 	        &QAbstractItemView::activated,
 	        [this,movieBridge] ( const QModelIndex & index ) {
-		        const auto & [tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
-		        if ( !segment == true || !tdd == true) {
+		        const auto & [spaceID,tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
+		        if ( !segment == true || !tdd == true || spaceID == 0) {
 			        return;
 		        }
-		        d_videoPlayer->setMovieSegment(tdd,segment,start);
+		        d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
 	        });
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
