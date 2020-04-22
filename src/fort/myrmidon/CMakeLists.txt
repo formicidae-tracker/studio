@@ -88,6 +88,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/Measurement.hpp
                       priv/KDTree.hpp
                       priv/KDTree.impl.hpp
+                      priv/InteractionSolver.hpp
                       )
 
 
@@ -134,6 +135,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
                       priv/KDTree.cpp
+                      priv/InteractionSolver.cpp
                       )
 
 set(SRC_FILES Frame.cpp
@@ -184,6 +186,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/PolygonUTest.cpp
                     priv/KDTreeUTest.cpp
                     priv/AntMetadataUTest.cpp
+                    priv/InteractionSolverUTest.cpp
                     )
 
 
@@ -220,6 +223,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/PolygonUTest.hpp
                     priv/KDTreeUTest.hpp
                     priv/AntMetadataUTest.hpp
+                    priv/InteractionSolverUTest.hpp
                     )
 
 add_library(fort-myrmidon SHARED ${SRC_FILES}

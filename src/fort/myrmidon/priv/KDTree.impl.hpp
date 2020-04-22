@@ -229,7 +229,8 @@ KDTree<T,Scalar,AmbientDim>::ComputeCollisionForNode(const typename Node::Ptr & 
 
 	// test if I collide with any possible nodes
 	for ( const auto & n : possible ) {
-		if ( node->ObjectVolume.intersects(n->ObjectVolume) ) {
+		if ( node->Object != n->Object
+		     && node->ObjectVolume.intersects(n->ObjectVolume) ) {
 			if ( n->Object < node->Object ) {
 				output = std::make_pair(n->Object,node->Object);
 			} else if ( n->Object > node->Object) {

@@ -34,6 +34,19 @@ const std::vector<AABB> & Zone::Geometry::IndividualAABB() const {
 	return d_AABBs;
 }
 
+bool Zone::Geometry::Contains(const Eigen::Vector2d & point ) const {
+	if ( d_globalAABB.contains(point) == false ) {
+		return false;
+	}
+	auto fi = std::find_if(d_shapes.begin(),
+	                       d_shapes.end(),
+	                       [&point](const Shape::ConstPtr & s ) {
+		                       return s->Contains(point);
+	                       });
+	return fi != d_shapes.end();
+
+}
+
 Zone::Definition::Definition(const Zone::Ptr & zone,
                              Geometry::ConstPtr geometry,
                              const Time::ConstPtr & start,

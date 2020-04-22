@@ -28,6 +28,8 @@ public:
 		const AABB & GlobalAABB() const;
 		const std::vector<AABB> & IndividualAABB() const;
 
+		bool Contains(const Eigen::Vector2d & point ) const;
+
 	private:
 		std::vector<AABB>            d_AABBs;
 		AABB                         d_globalAABB;
