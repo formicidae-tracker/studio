@@ -10,6 +10,7 @@
 #include "AntPoseEstimate.hpp"
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
+#include "Capsule.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
@@ -491,6 +492,62 @@ void Experiment::DeleteAntMetadataColumn(const std::string & name) {
 
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		a->CompileData();
+	}
+}
+
+
+void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
+                               bool scaleToSize,
+                               bool overwriteShapes) {
+	auto sourceIt = d_identifier->Ants().find(sourceAntID);
+	if ( sourceIt == d_identifier->Ants().cend() ) {
+		throw std::invalid_argument("Cannot find and " + Ant::FormatID(sourceAntID) );
+	}
+
+	auto source = sourceIt->second;
+	if ( source->Capsules().empty() && overwriteShapes == false ) {
+		return;
+	}
+
+	auto computeSize =
+		[this](fort::myrmidon::Ant::ID antID) -> double {
+			std::vector<ComputedMeasurement> measurements;
+			try {
+				ComputeMeasurementsForAnt(measurements,antID,Measurement::HEAD_TAIL_TYPE);
+			} catch ( const std::exception & e ) {
+				return 0.0;
+			}
+			double res = 0.0;
+			for ( const auto & m : measurements ) {
+				res += m.LengthMM / measurements.size();
+			}
+			return res;
+		};
+
+	double baseSize = computeSize(sourceAntID);
+	if ( baseSize == 0.0 && scaleToSize == true ) {
+		throw std::runtime_error("Ant " + Ant::FormatID(sourceAntID) + " has a size of zero");
+	}
+	for ( const auto & [aID,ant] : d_identifier->Ants() ) {
+		if ( aID == sourceAntID
+		     || (overwriteShapes == false && ant->Capsules().empty() == false) ) {
+			continue;
+		}
+		ant->ClearCapsules();
+		double scale = 1.0;
+		if ( scaleToSize == true ) {
+			double antSize = computeSize(aID);
+			if ( antSize > 0.0 ) {
+				scale = antSize / baseSize;
+			}
+		}
+		for ( const auto & [typeID,sourceCapsule] : source->Capsules() ) {
+			auto destCapsule = std::make_shared<Capsule>(scale * sourceCapsule->C1(),
+			                                             scale * sourceCapsule->C2(),
+			                                             scale * sourceCapsule->R1(),
+			                                             scale * sourceCapsule->R2());
+			ant->AddCapsule(typeID,destCapsule);
+		}
 	}
 }
 

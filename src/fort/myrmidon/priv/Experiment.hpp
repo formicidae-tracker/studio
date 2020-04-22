@@ -257,6 +257,10 @@ public :
 	void DeleteAntMetadataColumn(const std::string & name);
 
 
+	void CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
+	                   bool scaleToSize,
+	                   bool overwriteShapes);
+
 
 	// Computes the conventional ratio beween corner size and
 	// nominated tag file.
