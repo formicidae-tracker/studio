@@ -20,8 +20,6 @@ public:
 	virtual ~Vector();
 
 
-	void addToScene(QGraphicsScene * scene) override;
-	void removeFromScene(QGraphicsScene * scene) override;
 
 
 	QPointF startPos() const;
@@ -31,6 +29,9 @@ public:
 	void setEndPos(const QPointF & pos);
 
 protected:
+	void addToSceneProtected(QGraphicsScene * scene) override;
+	void removeFromSceneProtected(QGraphicsScene * scene) override;
+
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;

@@ -9,6 +9,7 @@
 #include <fort/myrmidon/priv/MovieSegment.hpp>
 #include <fort/myrmidon/priv/RawFrame.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
+#include <fort/myrmidon/priv/InteractionSolver.hpp>
 
 #ifdef NDEBUG
 #define FORT_STUDIO_CONC_LOADER_NDEBUG 1
@@ -67,7 +68,7 @@ void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::Const
 }
 
 const fmp::IdentifiedFrame::ConstPtr &
-IdentifiedFrameConcurrentLoader::FrameAt(fmp::MovieFrameID movieID) const {
+IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
 	static fmp::IdentifiedFrame::ConstPtr empty;
 	auto fi = d_frames.find(movieID);
 	if ( fi == d_frames.cend() ) {
@@ -76,8 +77,18 @@ IdentifiedFrameConcurrentLoader::FrameAt(fmp::MovieFrameID movieID) const {
 	return fi.value();
 }
 
+const fmp::InteractionFrame::ConstPtr &
+IdentifiedFrameConcurrentLoader::interactionAt(fmp::MovieFrameID movieID) const {
+	static fmp::InteractionFrame::ConstPtr empty;
+	auto fi = d_interactions.find(movieID);
+	if ( fi == d_interactions.cend() ) {
+		return empty;
+	}
+	return fi.value();
+}
 
-void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
+                                                       const fmp::TrackingDataDirectory::ConstPtr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
 		return;
@@ -92,6 +103,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	clear();
 
 	auto identifier = d_experiment->ConstIdentifier().Compile();
+	auto solver = d_experiment->CompileInteractionSolver();
 
 	size_t currentLoadingID = ++d_currentLoadingID;
 
@@ -100,7 +112,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	abordFlag->store(false);
 
 	int maxThreadCount = QThreadPool::globalInstance()->maxThreadCount();
-	if ( maxThreadCount <= 0 ) {
+	if ( maxThreadCount < 2 ) {
+		qWarning() << "Increases the work thread to at least 2 from " << maxThreadCount;
 		maxThreadCount = 2;
 		// avoids deadlock on the global instance !!!
 		QThreadPool::globalInstance()->setMaxThreadCount(maxThreadCount);
@@ -118,7 +131,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	// frames are single threaded read and loaded in memory, and we
 	// spawn instance to compute them.
 	auto load =
-		[tdd,segment,identifier,abordFlag,currentLoadingID,sem,this]() {
+		[tdd,segment,identifier,solver,abordFlag,currentLoadingID,sem,spaceID,this]() {
 			try {
 				auto start = tdd->FrameAt(segment->StartFrame());
 				auto lastFrame = segment->StartFrame() - 1;
@@ -148,15 +161,19 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 					lastFrame = frameID;
 
 					auto loadFrame =
-						[rawFrame,identifier,segment,frameID,this] () -> ConcurrentResult {
+						[rawFrame,identifier,solver,spaceID,segment,frameID,this] () -> ConcurrentResult {
 							CONC_LOADER_DEBUG(std::cerr << "Processing " << rawFrame->Frame().FID() << std::endl);
 							try {
 								auto movieID = segment->ToMovieFrameID(frameID);
-								return std::make_pair(movieID,
-								                      rawFrame->IdentifyFrom(*identifier));
+								auto identified = rawFrame->IdentifyFrom(*identifier);
+								auto interactions = solver->ComputeInteractions(spaceID,identified);
+								return std::make_tuple(movieID,
+								                       identified,
+								                       interactions);
 							} catch( const std::exception & ) {
-								return std::make_pair(segment->EndMovieFrame()+1,
-								                      fmp::IdentifiedFrame::ConstPtr());
+								return std::make_tuple(segment->EndMovieFrame()+1,
+								                       fmp::IdentifiedFrame::ConstPtr(),
+								                       fmp::InteractionFrame::ConstPtr());
 							}
 						};
 					CONC_LOADER_DEBUG(std::cerr << "Spawning " << frameID << std::endl);
@@ -184,12 +201,13 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 
 						        addDone(1);
 
-						        if ( res.first == segment->EndMovieFrame()+1 ) {
+						        if ( std::get<0>(res) == segment->EndMovieFrame()+1 ) {
 							        // no result for that computation
 							        return;
 						        }
 
-						        d_frames.insert(res.first,res.second);
+						        d_frames.insert(std::get<0>(res),std::get<1>(res));
+						        d_interactions.insert(std::get<0>(res),std::get<2>(res));
 					        },
 					        Qt::QueuedConnection);
 					watcher->setFuture(future);
@@ -210,6 +228,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 void IdentifiedFrameConcurrentLoader::clear() {
 	abordCurrent();
 	d_frames.clear();
+	d_interactions.clear();
 }
 
 

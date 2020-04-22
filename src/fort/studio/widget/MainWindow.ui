@@ -24,7 +24,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -75,6 +75,11 @@
       <widget class="AntEditorWidget" name="shappingWidget">
        <attribute name="title">
         <string>Ant Editor</string>
+       </attribute>
+      </widget>
+      <widget class="ZoningWidget" name="zoningWidget">
+       <attribute name="title">
+        <string>Zoning</string>
        </attribute>
       </widget>
       <widget class="UserDataWidget" name="userData">
@@ -132,6 +137,7 @@
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
     <addaction name="separator"/>
+    <addaction name="actionCopyTimeFromFrame"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -448,6 +454,14 @@
     <string>Ctrl+Up</string>
    </property>
   </action>
+  <action name="actionCopyTimeFromFrame">
+   <property name="text">
+    <string>Copy current time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -490,6 +504,12 @@
    <class>VisualizationWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/VisualizationWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZoningWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/ZoningWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

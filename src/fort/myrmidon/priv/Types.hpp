@@ -60,6 +60,21 @@ struct IdentifiedFrame {
 };
 
 
+typedef std::pair<uint32_t,uint32_t> InteractionType;
+typedef std::pair<uint32_t,uint32_t> InteractionID;
+
+struct Interaction {
+	InteractionID                IDs;
+	std::vector<InteractionType> InteractionTypes;
+};
+
+struct InteractionFrame {
+	typedef std::shared_ptr<const InteractionFrame> ConstPtr;
+	Time                     FrameTime;
+	std::vector<Interaction> Interactions;
+};
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

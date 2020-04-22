@@ -38,9 +38,56 @@ The latter aims to provide an user friendly API to help researcher focus more on
 
 ## Getting Started
 
+### Installation from Debian packages (Ubuntu 18.04)
+
+For ubuntu 18.04 based distribution, you can use the debian package repository hosted at https://packages.tuleu.science .
+
+* NOTE: Only bionic based distribution and their derivative such as Mint Tina are supported at this moment *
+
+#### Add packages.tuleu.science repository to your sources
+
+*NOTE: this step is only required once, and may produce errors if runned a second time* 
+
+Add the repository public key to your apt keyring. *You will be prompted for your password*
+```bash
+wget -O - https://packages.tuleu.science/pubkey.gpg | sudo apt-key add -
+```
+
+Append the reporsitory to your sources. *Please only run this command once and use a text editor on* `/etc/apt/sources.list.d/packages.tuleu.science.list` *if you need to correct any error* 
+
+```bash
+echo "deb https://packages.tuleu.science/ubuntu bionic main" | sudo tee /etc/apt/sources.list.d/packages.tuleu.science.list
+```
+
+#### Install/Update FORT Studio
+
+Simply use the usual commands :
+
+* Installation: 
+```bash
+sudo apt update
+sudo apt install fort-studio
+```
+* Update :
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+#### Available packages:
+
+Here are some of the provided packages you can install on your system:
+
+* `fort-studio` : the FORT Studio graphical interface
+* `libfort-myrmidon-dev` : the myrmidon public API development file
+* `libfort-hermes-cpp-dev` : API to directly read tracking data frame in C++ from the network or from `.hermes`, not recommended for end-user
+* `libfort-hermes-dev` : C binding to `libfort-hermes-cpp-dev`
+
+### Instalation from sources
+
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. As this stade of the project no release and binary distribution is yet available.
 
-### Prerequesites
+#### Prerequesites
 
 *At this moment, this project was only tested on Ubuntu 18.04 and Debian 10 using the default gcc compiler provided by these distributions*
 
@@ -69,7 +116,7 @@ sudo apt update
 sudo apt install cmake libprotobuf-dev protobuf-compiler libboost-dev libboost-filesystem-dev
 ```
 
-### Installing
+#### Installing from sources
 
 Download the latest sources and compile them with cmake:
 
@@ -82,7 +129,7 @@ cmake ../
 make
 ```
 
-## Running the unit tests
+#### Running the unit tests
 
 Unit tests for the myrmidon API are runned through gtest, which is automatically downloaded by the cmake build process. A `check` target that will build the tests and run them is also created.
 
@@ -90,17 +137,13 @@ Unit tests for the myrmidon API are runned through gtest, which is automatically
 make check
 ```
 
-## Distribution
-
-No binary package/ distribution is available at the moment.
-
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
 ## Roadmap
 
-The roadmap is managed using GitHub's [project](https://github.com/formicidae-tracker/studio/projects).
+The roadmap is managed using GitHub's [project](https://github.com/formicidae-tracker/studio/projects). The ROADMAP.md file is a convenience file for the survey form.
 
 ## Versioning
 
@@ -115,10 +158,6 @@ See also the list of [contributors](https://github.com/formicidae-tracker/studio
 ## License
 
 This project is licensed under the GNU Lesser General Public License v3.0 or later - see the [COPYING.LESSER](COPYING.LESSER) file for details
-
-## Acknowledgments
-
-
 
 
 

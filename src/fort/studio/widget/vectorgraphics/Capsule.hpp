@@ -20,8 +20,6 @@ public:
 
 	virtual ~Capsule();
 
-	void addToScene(QGraphicsScene * scene) override;
-	void removeFromScene(QGraphicsScene * scene) override;
 
 	void setC2AndRadiusFromPos(const QPointF & pos);
 
@@ -32,6 +30,10 @@ public:
 	qreal r2() const;
 
 protected:
+	void addToSceneProtected(QGraphicsScene * scene) override;
+	void removeFromSceneProtected(QGraphicsScene * scene) override;
+
+
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;

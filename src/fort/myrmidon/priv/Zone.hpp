@@ -28,6 +28,8 @@ public:
 		const AABB & GlobalAABB() const;
 		const std::vector<AABB> & IndividualAABB() const;
 
+		bool Contains(const Eigen::Vector2d & point ) const;
+
 	private:
 		std::vector<AABB>            d_AABBs;
 		AABB                         d_globalAABB;
@@ -69,9 +71,16 @@ public:
 	                              const Time::ConstPtr & start,
 	                              const Time::ConstPtr & end);
 
+
+	bool NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const;
+
 	const Definition::List & Definitions() const;
 
+	void EraseDefinition(size_t index);
+
 	const std::string & Name() const;
+
+	void SetName(const std::string & name);
 
 	const std::string & URI() const;
 
@@ -91,3 +100,7 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Zone::Definition & definition);

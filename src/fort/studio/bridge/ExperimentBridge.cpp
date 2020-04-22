@@ -8,6 +8,7 @@
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
+
 ExperimentBridge::ExperimentBridge(QObject * parent)
 	: Bridge(parent)
 	, d_universe(new UniverseBridge(this))
@@ -17,7 +18,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
 	, d_antMetadata(new AntMetadataBridge(this))
-	, d_movies(new MovieBridge(this)) {
+	, d_movies(new MovieBridge(this))
+	, d_zones(new ZoneBridge(this)) {
 
 	connectModifications();
 
@@ -63,7 +65,29 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        d_movies,
 	        &MovieBridge::onTrackingDataDirectoryDeleted);
 
+	connect(d_universe,&UniverseBridge::spaceDeleted,
+	        d_zones,&ZoneBridge::rebuildSpaces);
+
+	connect(d_universe,&UniverseBridge::spaceAdded,
+	        d_zones,&ZoneBridge::rebuildSpaces);
+
+	connect(d_universe,&UniverseBridge::spaceChanged,
+	        d_zones,&ZoneBridge::rebuildSpaces);
+
+	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        d_zones,
+	        [this](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
+	        });
+
+	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
+
+
 }
+
 
 bool ExperimentBridge::isActive() const {
 	return d_experiment.get() != NULL;
@@ -178,6 +202,10 @@ MovieBridge *  ExperimentBridge::movies() const {
 	return d_movies;
 }
 
+ZoneBridge * ExperimentBridge::zones() const {
+	return d_zones;
+}
+
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -192,6 +220,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_antShapeTypes->setExperiment(experiment);
 	d_antMetadata->setExperiment(experiment);
 	d_movies->setExperiment(experiment);
+	d_zones->setExperiment(experiment);
 	setModified(false);
 	resetChildModified();
 	emit activated(d_experiment.get() != NULL);
@@ -207,50 +236,37 @@ void ExperimentBridge::onChildModified(bool modified) {
 
 void ExperimentBridge::connectModifications() {
 
-	connect(d_universe,
-	        &UniverseBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_universe,&UniverseBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_measurements,
-	        &MeasurementBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_measurements,&MeasurementBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_identifier,
-	        &IdentifierBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_identifier,&IdentifierBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_globalProperties,
-	        &GlobalPropertyBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_globalProperties,&GlobalPropertyBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_identifier->selectedAnt(),
-	        &SelectedAntBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_identifier->selectedAnt(),&SelectedAntBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
 	connect(d_identifier->selectedAnt()->selectedIdentification(),
 	        &SelectedIdentificationBridge::modified,
 	        this,
 	        &ExperimentBridge::onChildModified);
 
-	connect(d_antShapeTypes,
-	        &AntShapeTypeBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_antShapeTypes,&AntShapeTypeBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_antMetadata,
-	        &AntMetadataBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_antMetadata,&AntMetadataBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_movies,
-	        &MovieBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
+	connect(d_movies,&MovieBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
+
+	connect(d_zones,&ZoneBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
 }
 
@@ -264,5 +280,5 @@ void ExperimentBridge::resetChildModified() {
 	d_antShapeTypes->setModified(false);
 	d_antMetadata->setModified(false);
 	d_movies->setModified(false);
-
+	d_zones->setModified(false);
 }

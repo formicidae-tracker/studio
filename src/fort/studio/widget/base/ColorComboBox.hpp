@@ -14,8 +14,6 @@ class ColorComboBox : public QComboBox {
 	           READ color WRITE setColor
 	           NOTIFY colorChanged)
 public:
-	static QIcon  iconFromColor(const QColor & color);
-
 	ColorComboBox(QWidget * parent);
 
 	const QColor & color() const;

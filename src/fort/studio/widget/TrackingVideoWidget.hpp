@@ -8,6 +8,15 @@ class IdentifierBridge;
 
 class TrackingVideoWidget : public QWidget {
 	Q_OBJECT
+	Q_PROPERTY(bool showID
+	           READ showID
+	           WRITE setShowID
+	           NOTIFY showIDChanged);
+	Q_PROPERTY(bool showInteractions
+	           READ showInteractions
+	           WRITE setShowInteractions
+	           NOTIFY showInteractionsChanged);
+
 public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
 	~TrackingVideoWidget();
@@ -17,12 +26,16 @@ public:
 
 	bool showID() const;
 
+	bool showInteractions() const;
+
+
 	fm::Time trackingTime() const;
 
 	bool hasTrackingTime() const;
 
 signals:
 	void showIDChanged(bool value);
+	void showInteractionsChanged(bool value);
 
 	void hasTrackingTimeChanged(bool value);
 
@@ -34,6 +47,7 @@ public slots:
 	void setZoomFocus(quint32 antID,qreal value);
 
 	void setShowID(bool show);
+	void setShowInteractions(bool show);
 
 protected:
 	void paintEvent(QPaintEvent * event) override;
@@ -49,6 +63,7 @@ private:
 	IdentifierBridge * d_identifier;
 	bool               d_hideLoadingBanner;
 	bool               d_showID;
+	bool               d_showInteractions;
 	bool               d_hasTrackingTime;
 	quint32            d_focusedAntID;
 	qreal              d_zoom;

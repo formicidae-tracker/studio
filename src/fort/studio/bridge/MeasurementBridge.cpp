@@ -182,7 +182,7 @@ void MeasurementBridge::startAll() {
 
 
 void MeasurementBridge::startOne(const fmp::TrackingDataDirectoryConstPtr & tdd) {
-	if ( !d_experiment ) {
+	if ( !d_experiment || d_experiment->Family() == fort::tags::Family::Undefined ) {
 		return;
 	}
 	if ( d_loaders.count(tdd->URI()) != 0 ) {
@@ -495,8 +495,7 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	mtid->setEditable(false);
 	mtid->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
-	QPixmap icon(10,10);
-	icon.fill(Conversion::colorFromFM(fmp::Palette::Default().At(type->MTID())));
+	auto icon = Conversion::iconFromFM(fmp::Palette::Default().At(type->MTID()));
 	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);

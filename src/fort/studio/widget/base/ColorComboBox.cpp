@@ -15,7 +15,7 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 	const auto & palette = fmp::Palette::Default();
 	for( size_t i = 0 ; i < palette.Size(); ++i ) {
 		auto color = Conversion::colorFromFM(palette.At(i));
-		addItem(iconFromColor(color),
+		addItem(Conversion::iconFromFM(palette.At(i)),
 		        tr("Color Blind Friendly %1").arg(i+1),
 		        color);
 	}
@@ -25,11 +25,6 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 	        &ColorComboBox::onActivated);
 }
 
-QIcon ColorComboBox::iconFromColor(const QColor & color) {
-	QPixmap icon(15,15);
-	icon.fill(color);
-	return icon;
-}
 
 
 const QColor & ColorComboBox::color() const {

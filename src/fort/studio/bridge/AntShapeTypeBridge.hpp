@@ -16,11 +16,15 @@ public :
 	explicit AntShapeTypeBridge(QObject * parent = nullptr);
 	virtual ~AntShapeTypeBridge();
 
+	typedef std::map<fmp::AntShapeType::ID,fmp::AntShapeType::ConstPtr> AntShapeTypesByID;
+
 	void setExperiment(const fmp::ExperimentPtr & experiment);
 
 	QAbstractItemModel * shapeModel() const;
 
 	bool isActive() const override;
+
+	AntShapeTypesByID types() const;
 
 public slots:
 	void addType(const QString & name);

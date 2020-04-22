@@ -5,6 +5,8 @@
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 
+#include "Navigatable.hpp"
+
 class ExperimentBridge;
 class GlobalPropertyBridge;
 class MeasurementBridge;
@@ -22,12 +24,11 @@ class TaggingWidget;
 
 class QAction;
 
-class TaggingWidget : public QWidget {
+class TaggingWidget : public QWidget, public Navigatable {
     Q_OBJECT
 public:
     explicit TaggingWidget(QWidget *parent = 0);
 	~TaggingWidget();
-
 
 	void setup(ExperimentBridge * experiment);
 
@@ -36,7 +37,6 @@ public:
 	QAction * deletePoseEstimationAction() const;
 
 public slots:
-
 	void on_treeView_activated(const QModelIndex & index);
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
@@ -46,17 +46,21 @@ public slots:
 	void onVectorCreated(QSharedPointer<Vector> vector);
 	void onVectorRemoved();
 
-	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
-
 	void nextTag();
 	void nextTagCloseUp();
 	void previousTag();
 	void previousTagCloseUp();
-
+protected:
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
 private slots:
+	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
+
 	void addIdentification();
 	void newAnt();
 	void deletePose();
+
+	void onCopyTime();
 
 
 	void updateActionStates();
@@ -73,4 +77,5 @@ private:
 	SelectedAntBridge     * d_selectedAnt;
 	fmp::TagCloseUpConstPtr d_tcu;
 	QAction               * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
+	QAction               * d_copyTimeAction;
 };

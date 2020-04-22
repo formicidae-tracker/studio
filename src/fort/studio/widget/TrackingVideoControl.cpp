@@ -216,6 +216,15 @@ void TrackingVideoControl::setShowID(bool value) {
 	d_ui->showCheckBox->setCheckState(value?Qt::Checked:Qt::Unchecked);
 }
 
+void TrackingVideoControl::setShowInteractions(bool value) {
+	d_ui->showInteractionsBox->setCheckState(value?Qt::Checked:Qt::Unchecked);
+}
+
+
 void TrackingVideoControl::on_showCheckBox_stateChanged(int value) {
 	emit showID(value == Qt::Checked);
+}
+
+void TrackingVideoControl::on_showInteractionsBox_stateChanged(int value) {
+	emit showInteractions(value == Qt::Checked);
 }

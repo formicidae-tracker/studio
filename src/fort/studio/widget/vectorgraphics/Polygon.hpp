@@ -9,6 +9,7 @@
 class Handle;
 
 class Polygon : public Shape, public QGraphicsPolygonItem {
+	Q_OBJECT
 public:
 	Polygon(const QVector<QPointF> & points,
 	        QColor color,
@@ -16,8 +17,6 @@ public:
 
 	virtual ~Polygon();
 
-	void addToScene(QGraphicsScene * scene) override;
-	void removeFromScene(QGraphicsScene * scene) override;
 
 	QVector<QPointF> vertices() const;
 
@@ -26,6 +25,9 @@ public:
 	void close();
 
 protected:
+	void addToSceneProtected(QGraphicsScene * scene) override;
+	void removeFromSceneProtected(QGraphicsScene * scene) override;
+
 	void paint(QPainter * painter,
 	           const QStyleOptionGraphicsItem * option,
 	           QWidget * widget) override;

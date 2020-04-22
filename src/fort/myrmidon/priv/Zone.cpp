@@ -1,5 +1,6 @@
 #include "Zone.hpp"
 
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
@@ -31,6 +32,19 @@ const AABB & Zone::Geometry::GlobalAABB() const {
 
 const std::vector<AABB> & Zone::Geometry::IndividualAABB() const {
 	return d_AABBs;
+}
+
+bool Zone::Geometry::Contains(const Eigen::Vector2d & point ) const {
+	if ( d_globalAABB.contains(point) == false ) {
+		return false;
+	}
+	auto fi = std::find_if(d_shapes.begin(),
+	                       d_shapes.end(),
+	                       [&point](const Shape::ConstPtr & s ) {
+		                       return s->Contains(point);
+	                       });
+	return fi != d_shapes.end();
+
 }
 
 Zone::Definition::Definition(const Zone::Ptr & zone,
@@ -68,6 +82,12 @@ void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
 }
 
 void Zone::Definition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+	if ( !start == false && !end == false && end->Before(*start) ) {
+		std::ostringstream os;
+		os << "Invalid time range [" << *start << "," << *end << "]";
+		throw std::invalid_argument(os.str());
+	}
+
 	auto zone = d_zone.lock();
 	if ( !zone ) {
 		throw DeletedReference<Zone>();
@@ -100,7 +120,14 @@ Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
 	}
-	auto res = std::make_shared<Definition>(itself,geometry,start,end);
+	Definition::Ptr res;
+	if ( !geometry == true ) {
+	    res = std::make_shared<Definition>(itself,
+	                                       std::make_shared<Geometry>(std::vector<Shape::ConstPtr>()),
+	                                       start,end);
+	} else {
+		res = std::make_shared<Definition>(itself,geometry,start,end);
+	}
 	auto oldDefinitions = d_definitions;
 	d_definitions.push_back(res);
 	auto check = TimeValid::SortAndCheckOverlap(d_definitions.begin(),d_definitions.end());
@@ -142,6 +169,75 @@ Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
 	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(ZID)).generic_string() ) {
 }
 
+static bool TimePtrEqual(const Time::ConstPtr & a,
+                  const Time::ConstPtr & b) {
+	if ( !a ) {
+		return !b;
+	}
+	if ( !b ) {
+		return false;
+	}
+	return *a == *b;
+}
+
+
+
+bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const {
+	if ( d_definitions.empty() ) {
+		start.reset();
+		end.reset();
+		return true;
+	}
+	Time::ConstPtr lastEnd;
+	for ( const auto & def : d_definitions ) {
+		if ( TimePtrEqual(lastEnd,def->Start()) ) {
+			continue;
+		}
+
+		auto t = def->Start()->Add(-1);
+		try {
+			end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			return true;
+		} catch ( const std::invalid_argument &) {
+		}
+	}
+
+	if ( !d_definitions.back()->End() == true ) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+	auto t = *d_definitions.back()->End();
+	try {
+		end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		return true;
+	} catch ( const std::invalid_argument &) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+}
+
+void Zone::EraseDefinition(size_t index) {
+	if ( index >= d_definitions.size() ) {
+		throw std::out_of_range(std::to_string(index) + " is out of range [0," + std::to_string(d_definitions.size()) + "[");
+	}
+	d_definitions.erase(d_definitions.begin() + index);
+}
+
+
+void Zone::SetName(const std::string & name) {
+	d_name = name;
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Zone::Definition & definition) {
+	return out << "Zone::Definition";
+}

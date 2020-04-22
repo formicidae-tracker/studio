@@ -24,10 +24,17 @@ std::string ToString(const std::shared_ptr<T> & ptr) {
 	return ToString(*ptr);
 };
 
+
 template <typename T>
 inline QString ToQString(const T & t) {
 	return ToString(t).c_str();
 }
+
+template <>
+QString ToQString<fort::myrmidon::Time::Ptr>(const fort::myrmidon::Time::Ptr &) = delete;
+
+template <>
+QString ToQString<fort::myrmidon::Time::ConstPtr>(const fort::myrmidon::Time::ConstPtr &) = delete;
 
 
 inline std::string ToString(const fort::myrmidon::Time::ConstPtr & t, const std::string & prefix) {
@@ -35,7 +42,7 @@ inline std::string ToString(const fort::myrmidon::Time::ConstPtr & t, const std:
 		return prefix + "∞";
 	}
 	std::ostringstream os;
-	os << t->DebugString();
+	os << t;
 	return os.str();
 }
 

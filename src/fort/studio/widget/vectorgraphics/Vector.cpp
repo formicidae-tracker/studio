@@ -53,13 +53,13 @@ Vector::Vector(qreal ax, qreal ay,
 Vector::~Vector() {
 }
 
-void Vector::addToScene(QGraphicsScene * scene) {
+void Vector::addToSceneProtected(QGraphicsScene * scene) {
 	scene->addItem(this);
 	scene->addItem(d_start);
 	scene->addItem(d_end);
 }
 
-void Vector::removeFromScene(QGraphicsScene * scene) {
+void Vector::removeFromSceneProtected(QGraphicsScene * scene) {
 	scene->removeItem(d_end);
 	scene->removeItem(d_start);
 	scene->removeItem(this);

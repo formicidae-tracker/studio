@@ -14,8 +14,7 @@
 VisualizationWidget::VisualizationWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::VisualizationWidget)
-	, d_videoPlayer(new TrackingVideoPlayer(this))
-	, d_copyTimeAction(new QAction(tr("Copy current Timestamp"),this)) {
+	, d_videoPlayer(new TrackingVideoPlayer(this)) {
 	d_ui->setupUi(this);
 
 	connect(d_videoPlayer,
@@ -28,19 +27,6 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hideLoadingBanner);
 
-	connect(d_ui->trackingVideoWidget,
-	        &TrackingVideoWidget::hasTrackingTimeChanged,
-	        d_copyTimeAction,
-	        &QAction::setEnabled);
-
-	connect(d_copyTimeAction,
-	        &QAction::triggered,
-	        this,
-	        &VisualizationWidget::onCopyTimeActionTriggered);
-
-	d_copyTimeAction->setShortcut(QKeySequence(tr("Ctrl+Shift+C")));
-    d_copyTimeAction->setStatusTip(tr("Copy current Frame timestamp to clipboard"));
-    d_copyTimeAction->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 }
 
 VisualizationWidget::~VisualizationWidget() {
@@ -62,11 +48,11 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	connect(d_ui->treeView,
 	        &QAbstractItemView::activated,
 	        [this,movieBridge] ( const QModelIndex & index ) {
-		        const auto & [tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
-		        if ( !segment == true || !tdd == true) {
+		        const auto & [spaceID,tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
+		        if ( !segment == true || !tdd == true || spaceID == 0) {
 			        return;
 		        }
-		        d_videoPlayer->setMovieSegment(tdd,segment,start);
+		        d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
 	        });
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
@@ -87,6 +73,17 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        &TrackingVideoWidget::showIDChanged,
 	        d_ui->videoControl,
 	        &TrackingVideoControl::setShowID);
+
+	connect(d_ui->videoControl,
+	        &TrackingVideoControl::showInteractions,
+	        d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::setShowInteractions);
+
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::showInteractionsChanged,
+	        d_ui->videoControl,
+	        &TrackingVideoControl::setShowInteractions);
+
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
 }
 
@@ -99,6 +96,29 @@ void VisualizationWidget::onCopyTimeActionTriggered() {
 	QApplication::clipboard()->setText(ToQString(time));
 }
 
-QAction * VisualizationWidget::copyCurrentTimeAction() const {
-	return d_copyTimeAction;
+void VisualizationWidget::setUp(const NavigationAction & actions) {
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::hasTrackingTimeChanged,
+	        actions.CopyCurrentTime,
+	        &QAction::setEnabled);
+
+	connect(actions.CopyCurrentTime,
+	        &QAction::triggered,
+	        this,
+	        &VisualizationWidget::onCopyTimeActionTriggered);
+
+	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
+}
+
+void VisualizationWidget::tearDown(const NavigationAction & actions) {
+	disconnect(d_ui->trackingVideoWidget,
+	           &TrackingVideoWidget::hasTrackingTimeChanged,
+	           actions.CopyCurrentTime,
+	           &QAction::setEnabled);
+
+	disconnect(actions.CopyCurrentTime,
+	           &QAction::triggered,
+	           this,
+	           &VisualizationWidget::onCopyTimeActionTriggered);
+	actions.CopyCurrentTime->setEnabled(false);
 }

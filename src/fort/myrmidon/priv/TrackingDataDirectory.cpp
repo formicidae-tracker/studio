@@ -527,6 +527,21 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 	                                  });
 }
 
+
+std::map<FrameReference,fs::path>
+TrackingDataDirectory::FullFrames() const {
+	std::map<FrameReference,fs::path> res;
+
+	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / "ants");
+	for(const auto & [FID,fileAndFilter] : listing) {
+		if ( !fileAndFilter.second == true ) {
+			res.insert(std::make_pair(FrameReferenceAt(FID),fileAndFilter.first));
+		}
+	}
+
+	return res;
+}
+
 }
 }
 }

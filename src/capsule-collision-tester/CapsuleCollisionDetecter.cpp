@@ -6,6 +6,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+typedef Eigen::AlignedBox<double,2> AABB;
+
 CapsuleCollisionDetecter::CapsuleCollisionDetecter(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::CapsuleCollisionDetecter)
@@ -24,8 +26,8 @@ CapsuleCollisionDetecter::CapsuleCollisionDetecter(QWidget *parent)
 
 	for ( const auto & spinBox : spinBoxes ) {
 		spinBox->setSingleStep(0.1);
-		spinBox->setMinimum(-2.0);
-		spinBox->setMaximum(2.0);
+		spinBox->setMinimum(-7000.0);
+		spinBox->setMaximum(7000.0);
 		connect(spinBox,
 		        static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
 		        this,
@@ -59,6 +61,11 @@ void CapsuleCollisionDetecter::onAnyValueChanged() {
 	bC1 *= SCALE;
 	bC2 *= SCALE;
 
+	AABB aabb(aC1 - Eigen::Vector2d(aR1,aR1),aC1 + Eigen::Vector2d(aR1,aR1));
+	aabb = aabb.extend(AABB(aC2 - Eigen::Vector2d(aR2,aR2),aC2 + Eigen::Vector2d(aR2,aR2)));
+	aabb = aabb.extend(AABB(bC1 - Eigen::Vector2d(aR1,aR1),bC1 + Eigen::Vector2d(bR1,aR1)));
+	aabb = aabb.extend(AABB(bC2 - Eigen::Vector2d(bR2,bR2),bC2 + Eigen::Vector2d(bR2,bR2)));
+	auto size = aabb.max()-aabb.min();
 
 	Eigen::Vector2d aCC(aC2 - aC1);
 	Eigen::Vector2d bCC(bC2 - bC1);
@@ -69,9 +76,9 @@ void CapsuleCollisionDetecter::onAnyValueChanged() {
 	QPen none;
 	none.setWidth(0);
 	QPen thick;
-	thick.setWidth(1);
+	thick.setWidth(size.mean()/100);
 	QPen fine;
-	fine.setWidth(0.5);
+	fine.setWidth(size.mean()/200);
 
 
 	auto drawPoint =
@@ -175,24 +182,16 @@ void CapsuleCollisionDetecter::onAnyValueChanged() {
 		drawColor = QColor(255,0,255);
 	}
 	QPen capsulePen;
-	capsulePen.setWidth(1);
+	capsulePen.setWidth(thick.width());
 	capsulePen.setColor(drawColor);
 
 	drawCapsule(aC1,aC2,aR1,aR2,capsulePen);
 	drawCapsule(bC1,bC2,bR1,bR2,capsulePen);
 
 
+	QRectF roi(aabb.min().x(),aabb.min().y(),size.x(),size.y());
 
-
-
-	static bool once = true;
-	if ( once == true ) {
-		double scaleRatio = 2.0;
-		d_ui->graphicsView->scale(scaleRatio,scaleRatio);
-		once = false;
-	} else {
-		d_ui->graphicsView->fitInView(d_scene->sceneRect(),Qt::KeepAspectRatio);
-	}
+	d_ui->graphicsView->fitInView(roi,Qt::KeepAspectRatio);
 
 
 

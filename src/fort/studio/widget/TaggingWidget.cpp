@@ -2,6 +2,7 @@
 #include "ui_TaggingWidget.h"
 
 #include <QKeyEvent>
+#include <QClipboard>
 
 #include <QSortFilterProxyModel>
 
@@ -27,7 +28,8 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	, d_vectorialScene(new VectorialScene)
 	, d_newAntAction(new QAction(tr("New Ant from Tag"),this))
 	, d_addIdentificationAction(new QAction(tr("Add Identification to Ant"),this))
-	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this)) {
+	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this))
+	, d_copyTimeAction(nullptr) {
 
 	d_newAntAction->setShortcut(QKeySequence(tr("Ctrl+A")));
 	d_addIdentificationAction->setShortcut(QKeySequence(tr("Ctrl+I")));
@@ -347,6 +349,10 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		d_vectorialScene->deleteShape(v.staticCast<Shape>());
 	}
 	d_tcu = tcu;
+	if ( d_copyTimeAction != nullptr ) {
+		d_copyTimeAction->setEnabled( !d_tcu == false );
+	}
+
 	if ( !tcu ) {
 		d_vectorialScene->setBackgroundPicture("");
 		d_vectorialScene->clearStaticPolygon();
@@ -503,4 +509,57 @@ QAction * TaggingWidget::addIdentificationToAntAction() const {
 
 QAction * TaggingWidget::deletePoseEstimationAction() const {
 	return d_deletePoseAction;
+}
+
+
+void TaggingWidget::setUp(const NavigationAction & actions ) {
+	connect(actions.NextTag,&QAction::triggered,
+	        this,&TaggingWidget::nextTag);
+	connect(actions.PreviousTag,&QAction::triggered,
+	        this,&TaggingWidget::previousTag);
+	connect(actions.NextCloseUp,&QAction::triggered,
+	        this,&TaggingWidget::nextTagCloseUp);
+	connect(actions.PreviousCloseUp,&QAction::triggered,
+	        this,&TaggingWidget::previousTagCloseUp);
+
+	connect(actions.CopyCurrentTime,&QAction::triggered,
+	        this,&TaggingWidget::onCopyTime);
+
+
+	actions.NextTag->setEnabled(true);
+	actions.PreviousTag->setEnabled(true);
+	actions.NextCloseUp->setEnabled(true);
+	actions.PreviousCloseUp->setEnabled(true);
+
+	actions.CopyCurrentTime->setEnabled(!d_tcu == false);
+	d_copyTimeAction = actions.CopyCurrentTime;
+}
+
+void TaggingWidget::tearDown(const NavigationAction & actions ) {
+	disconnect(actions.NextTag,&QAction::triggered,
+	           this,&TaggingWidget::nextTag);
+	disconnect(actions.PreviousTag,&QAction::triggered,
+	           this,&TaggingWidget::previousTag);
+	disconnect(actions.NextCloseUp,&QAction::triggered,
+	           this,&TaggingWidget::nextTagCloseUp);
+	disconnect(actions.PreviousCloseUp,&QAction::triggered,
+	           this,&TaggingWidget::previousTagCloseUp);
+
+	disconnect(actions.CopyCurrentTime,&QAction::triggered,
+	           this,&TaggingWidget::onCopyTime);
+
+
+	actions.NextTag->setEnabled(false);
+	actions.PreviousTag->setEnabled(false);
+	actions.NextCloseUp->setEnabled(false);
+	actions.PreviousCloseUp->setEnabled(false);
+	actions.CopyCurrentTime->setEnabled(false);
+	d_copyTimeAction = nullptr;
+}
+
+void TaggingWidget::onCopyTime() {
+	if ( !d_tcu ) {
+		return;
+	}
+	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
 }

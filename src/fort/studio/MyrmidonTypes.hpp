@@ -3,6 +3,7 @@
 #include <string>
 #include <QObject>
 #include <QColor>
+#include <QIcon>
 
 #include <fort/tags/fort-tags.h>
 #include <fort/myrmidon/priv/Ant.hpp>
@@ -40,9 +41,14 @@ Q_DECLARE_METATYPE(fmp::MeasurementType::Ptr)
 Q_DECLARE_METATYPE(fmp::AntMetadata::Column::Ptr)
 Q_DECLARE_METATYPE(fmp::MovieSegment::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Experiment::ConstPtr)
+Q_DECLARE_METATYPE(fmp::Zone::Ptr)
+Q_DECLARE_METATYPE(fmp::Zone::Definition::Ptr)
 
 
 class Conversion {
 public:
 	static QColor colorFromFM(const fmp::Color & color, int opacity = 255);
+	static QIcon  iconFromFM(const fmp::Color & color);
+	static QPointF fromEigen(const Eigen::Vector2d & p);
+	static Eigen::Vector2d toEigen(const QPointF  & p);
 };

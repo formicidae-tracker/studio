@@ -62,7 +62,7 @@ Capsule::~Capsule() {
 }
 
 
-void Capsule::addToScene(QGraphicsScene * scene) {
+void Capsule::addToSceneProtected(QGraphicsScene * scene) {
 	scene->addItem(this);
 	d_c1->addToScene(scene);
 	d_c2->addToScene(scene);
@@ -70,7 +70,7 @@ void Capsule::addToScene(QGraphicsScene * scene) {
 	d_r2->addToScene(scene);
 }
 
-void Capsule::removeFromScene(QGraphicsScene * scene) {
+void Capsule::removeFromSceneProtected(QGraphicsScene * scene) {
 	scene->removeItem(d_r2);
 	scene->removeItem(d_r1);
 	scene->removeItem(d_c2);
