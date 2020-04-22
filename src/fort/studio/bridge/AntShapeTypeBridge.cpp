@@ -133,3 +133,12 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 
 	return {name,id};
 }
+
+
+AntShapeTypeBridge::AntShapeTypesByID AntShapeTypeBridge::types() const {
+	AntShapeTypesByID res;
+	for ( const auto & [ stID,type ] : d_experiment->AntShapeTypes() ) {
+		res.insert(std::make_pair(stID,type));
+	}
+	return res;
+}

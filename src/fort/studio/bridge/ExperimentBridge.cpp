@@ -8,6 +8,7 @@
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
+
 ExperimentBridge::ExperimentBridge(QObject * parent)
 	: Bridge(parent)
 	, d_universe(new UniverseBridge(this))
@@ -86,6 +87,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 
 
 }
+
 
 bool ExperimentBridge::isActive() const {
 	return d_experiment.get() != NULL;

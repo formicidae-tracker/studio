@@ -61,6 +61,8 @@ private slots:
 
 	void onCopyTime();
 
+	void onCloneShapeActionTriggered();
+
 protected:
 	void changeEvent(QEvent * event) override;
 

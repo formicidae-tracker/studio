@@ -63,6 +63,7 @@ set(SRC_FILES Format.cpp
 			  widget/TrackingVideoControl.cpp
 			  widget/ZoningWidget.cpp
 			  widget/ZonesEditorWidget.cpp
+			  widget/CloneShapeDialog.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -116,6 +117,7 @@ set(HDR_FILES Format.hpp
 			  widget/TrackingVideoControl.hpp
 			  widget/ZoningWidget.hpp
 			  widget/ZonesEditorWidget.hpp
+			  widget/CloneShapeDialog.hpp
 			  )
 
 
@@ -139,6 +141,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/TrackingVideoControl.ui
              widget/ZoningWidget.ui
              widget/ZonesEditorWidget.ui
+             widget/CloneShapeDialog.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)

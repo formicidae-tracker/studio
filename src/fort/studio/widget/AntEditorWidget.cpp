@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
+#include <fort/studio/widget/CloneShapeDialog.hpp>
 
 
 #include <fort/studio/Utils.hpp>
@@ -76,6 +77,8 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
 
     d_cloneShapeAction->setWhatsThis(tr("Clone current shape to other ants"));
     d_cloneShapeAction->setEnabled(false);
+    connect(d_cloneShapeAction,&QAction::triggered,
+            this,&AntEditorWidget::onCloneShapeActionTriggered);
 }
 
 AntEditorWidget::~AntEditorWidget() {
@@ -873,4 +876,20 @@ void AntEditorWidget::updateCloneAction() {
 
 QAction * AntEditorWidget::cloneAntShapeAction() const {
 	return d_cloneShapeAction;
+}
+
+void AntEditorWidget::onCloneShapeActionTriggered() {
+	if ( d_experiment == nullptr ) {
+		return;
+	}
+	auto opts = CloneShapeDialog::get(d_experiment,
+	                                  this);
+
+	if ( !opts == true ) {
+		qWarning() << "Not cloning ants";
+		return;
+	}
+
+	d_experiment->selectedAnt()->cloneShape(opts->ScaleToSize,opts->OverwriteShapes);
+
 }
