@@ -120,6 +120,7 @@ void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
 void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & focusRectangle) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
 	const auto & tFrame = d_frame.TrackingFrame;
+	const auto & iFrame = d_frame.InteractionFrame;
 	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
 	const static double ANT_HALF_SIZE = 8.0;
 
@@ -130,6 +131,42 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	painter->setFont(font);
 	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
+
+
+
+	if ( !iFrame == false ) {
+		fmp::DenseMap<quint32,fmp::PositionedAnt> positions;
+		for ( const auto & pa : tFrame->Positions ) {
+			positions.insert(std::make_pair(pa.ID,pa));
+		}
+
+		for ( const auto & interaction : iFrame->Interactions ) {
+			auto a = d_identifier->ant(interaction.IDs.first);
+			auto b = d_identifier->ant(interaction.IDs.second);
+
+			if ( !a || !b
+			     || ( hasSolo == true
+			          && a->DisplayStatus() != fmp::Ant::DisplayState::SOLO
+			          && b->DisplayStatus() != fmp::Ant::DisplayState::SOLO) ) {
+				continue;
+			}
+
+			auto aPos = Conversion::fromEigen(ratio * positions.at(a->ID()).Position);
+			auto bPos = Conversion::fromEigen(ratio * positions.at(b->ID()).Position);
+
+			if ( focusRectangle.contains(aPos) == false
+			     && focusRectangle.contains(bPos) == false ) {
+				continue;
+			}
+			auto c = Conversion::colorFromFM(a->DisplayColor(),150);
+			painter->setPen(QPen(c,3));
+
+			painter->drawLine(aPos,bPos);
+
+		}
+	}
+
+
 	for ( const auto & pa : tFrame->Positions ) {
 		auto a = d_identifier->ant(pa.ID);
 		if ( !a
@@ -137,7 +174,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 		     || a->DisplayStatus() == fmp::Ant::DisplayState::HIDDEN ) {
 			continue;
 		}
-		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
+		auto correctedPos = Conversion::fromEigen(ratio * pa.Position);
 
 		if ( focusRectangle.contains(correctedPos) == false ) {
 			continue;
