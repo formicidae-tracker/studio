@@ -1,6 +1,7 @@
-fort-studio (0.2.0-0ubuntu1~dev1) bionic; urgency=medium
+fort-studio (0.2.0-0ubuntu1) bionic; urgency=medium
 
   * new upstream release v0.2.0
+  * Sets the right cmake build type
 
  -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Wed, 22 Apr 2020 20:45:44 +0200
 
