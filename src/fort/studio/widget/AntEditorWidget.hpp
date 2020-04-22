@@ -25,6 +25,9 @@ public:
 
 	void setup(ExperimentBridge * experiment);
 
+
+	QAction * cloneAntShapeAction() const;
+
 public slots:
 	void nextCloseUp();
 	void previousCloseUp();
@@ -98,6 +101,7 @@ private:
 
 	void setColorFromType(quint32 typeID);
 
+	void updateCloneAction();
 
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
@@ -112,4 +116,5 @@ private:
 	std::map<QSharedPointer<Capsule>,uint32_t> d_capsules;
 
 	QAction * d_copyTimeAction;
+	QAction * d_cloneShapeAction;
 };

@@ -43,6 +43,8 @@ public slots:
 	void addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule);
 	void clearCapsules();
 
+	void cloneShape(bool scaleToSize, bool overwriteShape);
+
 private:
 	void rebuildIdentificationModel();
 

@@ -19,9 +19,11 @@
 AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::AntEditorWidget)
+	, d_experiment(nullptr)
 	, d_closeUps(new QStandardItemModel(this) )
 	, d_vectorialScene( new VectorialScene(this) )
-	, d_copyTimeAction(nullptr){
+	, d_copyTimeAction(nullptr)
+	, d_cloneShapeAction( new QAction(tr("Clone Current Ant Shape"),this) ){
 	d_ui->setupUi(this);
 	d_ui->treeView->setModel(d_closeUps);
 
@@ -71,6 +73,9 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
             d_vectorialScene,
             &VectorialScene::onZoomed);
 
+
+    d_cloneShapeAction->setWhatsThis(tr("Clone current shape to other ants"));
+    d_cloneShapeAction->setEnabled(false);
 }
 
 AntEditorWidget::~AntEditorWidget() {
@@ -130,7 +135,7 @@ void AntEditorWidget::setup(ExperimentBridge * experiment) {
 	        this,
 	        &AntEditorWidget::onMeasurementDeleted);
 
-
+	updateCloneAction();
 }
 
 void  AntEditorWidget::on_toolBox_currentChanged(int index) {
@@ -144,6 +149,7 @@ void  AntEditorWidget::on_toolBox_currentChanged(int index) {
 	default:
 		qWarning() << "Inconsistent tab size for AntEditorWidget";
 	}
+	updateCloneAction();
 }
 
 
@@ -253,6 +259,7 @@ void AntEditorWidget::onAntSelected(bool antSelected) {
 		return;
 	}
 	buildCloseUpList();
+	updateCloneAction();
 
 	auto ant = d_closeUps->itemFromIndex(d_closeUps->index(0,0));
 	if ( ant == nullptr || ant->rowCount() == 0) {
@@ -282,6 +289,7 @@ void AntEditorWidget::changeEvent(QEvent * event)  {
 	QWidget::changeEvent(event);
 	if ( event->type() == QEvent::EnabledChange && isEnabled() == true ) {
 		buildCloseUpList();
+		updateCloneAction();
 	}
 }
 
@@ -759,6 +767,8 @@ fmp::CapsulePtr AntEditorWidget::capsuleFromScene(const QSharedPointer<Capsule> 
 }
 
 void AntEditorWidget::rebuildCapsules() {
+	updateCloneAction();
+
 	if ( d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false ){
 		return;
@@ -845,4 +855,22 @@ void AntEditorWidget::onCopyTime() {
 
 	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
 
+}
+
+void AntEditorWidget::updateCloneAction() {
+	if ( this->isEnabled() == false
+	     || d_experiment == nullptr
+	     || d_experiment->selectedAnt()->isActive() == false
+	     || !d_tcu == true
+	     || d_mode != Mode::Shape ) {
+		d_cloneShapeAction->setEnabled(false);
+		return;
+	}
+
+	auto selectedAnt = d_experiment->selectedAnt();
+	d_cloneShapeAction->setEnabled(selectedAnt->capsules().empty() == false);
+}
+
+QAction * AntEditorWidget::cloneAntShapeAction() const {
+	return d_cloneShapeAction;
 }

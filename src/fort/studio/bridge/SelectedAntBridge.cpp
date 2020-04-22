@@ -194,3 +194,25 @@ std::vector<fmp::Identification::ConstPtr> SelectedAntBridge::identifications() 
 	}
 	return res;
 }
+
+void SelectedAntBridge::cloneShape(bool scaleToSize, bool overwriteShape) {
+	if ( !d_ant == true || !d_experiment == true ) {
+		return;
+	}
+
+	try {
+		qDebug() << "[SelectedAntBridge]: Calling fmp::Experiment::CloneAntShape("
+		         << d_ant->FormattedID().c_str() << ","
+		         << scaleToSize << ","
+		         << overwriteShape << ")";
+		d_experiment->CloneAntShape(d_ant->ID(),
+		                            scaleToSize,
+		                            overwriteShape);
+	} catch ( const std::exception & e ) {
+		qCritical() << "Could not clone Ant shape " << e.what();
+		return;
+	}
+	qInfo() << "Cloned Ant's " << d_ant->FormattedID().c_str() << " Shape.";
+	setModified(true);
+
+}

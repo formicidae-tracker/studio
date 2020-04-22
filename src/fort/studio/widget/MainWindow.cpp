@@ -155,7 +155,8 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->menuEdit->addAction(d_ui->taggingWidget->addIdentificationToAntAction());
 	d_ui->menuEdit->addSeparator();
 	d_ui->menuEdit->addAction(d_ui->taggingWidget->deletePoseEstimationAction());
-
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->shappingWidget->cloneAntShapeAction());
 
 
 }
