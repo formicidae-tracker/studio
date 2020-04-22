@@ -17,6 +17,7 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	, d_identifier(nullptr)
 	, d_hideLoadingBanner(true)
 	, d_showID(false)
+	, d_showInteractions(false)
 	, d_focusedAntID(0)
 	, d_zoom(1.0)
 	, d_lastFocus(0,0)
@@ -29,6 +30,11 @@ TrackingVideoWidget::~TrackingVideoWidget() {
 bool TrackingVideoWidget::showID() const {
 	return d_showID;
 }
+
+bool TrackingVideoWidget::showInteractions() const {
+	return d_showInteractions;
+}
+
 
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Received frame:" << frame << std::endl);
@@ -132,9 +138,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
 
-
-
-	if ( !iFrame == false ) {
+	if ( !iFrame == false && d_showInteractions == true ) {
 		fmp::DenseMap<quint32,fmp::PositionedAnt> positions;
 		for ( const auto & pa : tFrame->Positions ) {
 			positions.insert(std::make_pair(pa.ID,pa));
@@ -269,6 +273,15 @@ void TrackingVideoWidget::setShowID(bool show) {
 	d_showID = show;
 	update();
 	emit showIDChanged(show);
+}
+
+void TrackingVideoWidget::setShowInteractions(bool show) {
+	if ( show == d_showInteractions ) {
+		return;
+	}
+	d_showInteractions = show;
+	update();
+	emit showInteractionsChanged(show);
 }
 
 

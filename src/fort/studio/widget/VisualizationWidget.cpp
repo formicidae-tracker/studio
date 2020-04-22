@@ -73,6 +73,17 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        &TrackingVideoWidget::showIDChanged,
 	        d_ui->videoControl,
 	        &TrackingVideoControl::setShowID);
+
+	connect(d_ui->videoControl,
+	        &TrackingVideoControl::showInteractions,
+	        d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::setShowInteractions);
+
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::showInteractionsChanged,
+	        d_ui->videoControl,
+	        &TrackingVideoControl::setShowInteractions);
+
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
 }
 
