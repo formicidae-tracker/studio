@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <QWidget>
 
 #include "Navigatable.hpp"
@@ -21,14 +20,22 @@ public:
 	~VisualizationWidget();
 
 	void setup(ExperimentBridge * experiment);
+
+	QAction * jumpToTimeAction() const;
+
 protected:
 	void setUp(const NavigationAction & actions) override;
 	void tearDown(const NavigationAction & actions) override;
 
+
+
 private slots :
 	void onCopyTimeActionTriggered();
 
+	void jumpToTime();
 private:
+	ExperimentBridge        * d_experiment;
 	Ui::VisualizationWidget * d_ui;
 	TrackingVideoPlayer     * d_videoPlayer;
+	QAction                 * d_jumpToTimeAction;
 };

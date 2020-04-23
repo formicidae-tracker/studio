@@ -11,3 +11,11 @@ std::ostream & operator<<(std::ostream & out, const TrackingVideoFrame & f) {
 #ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 std::mutex TrackingVideoFrame::debugMutex;
 #endif
+
+
+bool TrackingVideoFrame::Contains(quint32 antID) const {
+	if ( !TrackingFrame == true ) {
+		return false;
+	}
+	return TrackingFrame->Contains(antID);
+}

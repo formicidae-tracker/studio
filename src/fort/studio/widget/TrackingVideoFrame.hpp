@@ -36,6 +36,7 @@ struct TrackingVideoFrame {
 #ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 	static std::mutex debugMutex;
 #endif
+	bool Contains(quint32 antID) const;
 };
 
 

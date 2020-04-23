@@ -24,7 +24,6 @@ MovieBridge::MovieBridge(QObject * parent)
 MovieBridge::~MovieBridge() {
 }
 
-
 void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	d_experiment = experiment;
 
@@ -32,16 +31,13 @@ void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	emit activated(isActive());
 }
 
-
 bool MovieBridge::isActive() const {
 	return !d_experiment == false;
 }
 
-
 QAbstractItemModel * MovieBridge::movieModel() {
 	return d_model;
 }
-
 
 std::tuple<quint32,fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegment::ConstPtr,fm::Time>
 MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
@@ -53,6 +49,34 @@ MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
 	                       item->data(TddRole).value<fmp::TrackingDataDirectory::ConstPtr>(),
 	                       item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>(),
 	                       item->data(StartRole).value<fm::Time>());
+}
+
+std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
+	auto fi = d_experiment->Spaces().find(spaceID);
+	if ( fi == d_experiment->Spaces().end() ) {
+		return std::make_tuple(nullptr,nullptr,fm::Time());
+	}
+	const auto & tdds = fi->second->TrackingDataDirectories();
+
+	auto tddi = std::find_if(tdds.begin(),
+	                         tdds.end(),
+	                         [&time](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+		                         return tdd->IsValid(time);
+	                         });
+	if ( tddi == tdds.end() ) {
+		return std::make_tuple(nullptr,nullptr,fm::Time());
+	}
+
+	const auto & tdd = *tddi;
+
+	try {
+		const auto & segment = tdd->MovieSegments().Find(time);
+		auto start = tdd->FrameReferenceAt(segment->StartFrame()).Time();
+		return std::make_tuple(tdd,segment,start);
+	} catch ( const std::exception & e ) {
+	}
+	return std::make_tuple(nullptr,nullptr,fm::Time());
 }
 
 

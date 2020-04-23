@@ -70,21 +70,21 @@ void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::Const
 const fmp::IdentifiedFrame::ConstPtr &
 IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
 	static fmp::IdentifiedFrame::ConstPtr empty;
-	auto fi = d_frames.find(movieID);
+	auto fi = d_frames.find(movieID+1);
 	if ( fi == d_frames.cend() ) {
 		return empty;
 	}
-	return fi.value();
+	return fi->second;
 }
 
 const fmp::InteractionFrame::ConstPtr &
 IdentifiedFrameConcurrentLoader::interactionAt(fmp::MovieFrameID movieID) const {
 	static fmp::InteractionFrame::ConstPtr empty;
-	auto fi = d_interactions.find(movieID);
+	auto fi = d_interactions.find(movieID+1);
 	if ( fi == d_interactions.cend() ) {
 		return empty;
 	}
-	return fi.value();
+	return fi->second;
 }
 
 void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
@@ -101,7 +101,6 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 	}
 
 	clear();
-
 	auto identifier = d_experiment->ConstIdentifier().Compile();
 	auto solver = d_experiment->CompileInteractionSolver();
 
@@ -206,8 +205,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 							        return;
 						        }
 
-						        d_frames.insert(std::get<0>(res),std::get<1>(res));
-						        d_interactions.insert(std::get<0>(res),std::get<2>(res));
+						        d_frames.insert(std::make_pair(std::get<0>(res)+1,std::get<1>(res)));
+						        d_interactions.insert(std::make_pair(std::get<0>(res)+1,std::get<2>(res)));
 					        },
 					        Qt::QueuedConnection);
 					watcher->setFuture(future);
@@ -261,4 +260,34 @@ void IdentifiedFrameConcurrentLoader::setProgress(int doneValue,int toDo) {
 
 void IdentifiedFrameConcurrentLoader::addDone(int done) {
 	setProgress(d_done + done,d_toDo);
+}
+
+quint64 IdentifiedFrameConcurrentLoader::findAnt(quint32 antID,
+                                                 quint64 frameID,
+                                                 int direction) {
+	auto fi = d_frames.find(frameID + 1);
+	if ( d_done == false || fi == d_frames.end() ) {
+		return std::numeric_limits<quint64>::max();
+	}
+
+
+	if ( direction > 0 ) {
+		for ( ; fi != d_frames.end(); ++fi ) {
+			if( fi->second->Contains(antID) == true ) {
+				return fi->first - 1;
+			}
+		}
+		return std::numeric_limits<quint64>::max();
+	}
+
+
+	for ( ; fi != d_frames.begin(); --fi) {
+		if( fi->second->Contains(antID) == true ) {
+			return fi->first - 1;
+		}
+	}
+	if ( fi->second->Contains(antID) == true ) {
+		return fi->first - 1;
+	}
+	return std::numeric_limits<quint64>::max();
 }

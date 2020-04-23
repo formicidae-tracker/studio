@@ -27,6 +27,7 @@ public:
 	const fmp::IdentifiedFrame::ConstPtr & frameAt(fmp::MovieFrameID movieID) const;
 	const fmp::InteractionFrame::ConstPtr & interactionAt(fmp::MovieFrameID movieID) const;
 
+
 	void moveToThread(QThread * thread);
 
 public slots:
@@ -35,6 +36,9 @@ public slots:
 	                      const fmp::MovieSegmentConstPtr & segment);
 	void clear();
 
+	quint64 findAnt(quint32 antID,
+	                quint64 frameID,
+	                int direction);
 signals:
 	void progressChanged(int done,int toDo);
 	void done(bool);
@@ -49,8 +53,8 @@ private :
 	void setProgress(int done,int toDo);
 
 
-	typedef QHash<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr>  FramesByMovieID;
-	typedef QHash<fmp::MovieFrameID,fmp::InteractionFrame::ConstPtr> InteractionsByMovieID;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr>  FramesByMovieID;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fmp::InteractionFrame::ConstPtr> InteractionsByMovieID;
 	typedef std::tuple<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr,fmp::InteractionFrame::ConstPtr> ConcurrentResult;
 
 	fmp::ExperimentConstPtr d_experiment;

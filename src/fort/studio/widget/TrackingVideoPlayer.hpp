@@ -29,6 +29,10 @@ class TrackingVideoPlayer : public QObject {
 	Q_PROPERTY(fm::Duration position
 	           READ position
 	           NOTIFY positionChanged);
+	Q_PROPERTY(bool scrollMode
+	           READ scrollMode
+	           WRITE setScrollMode);
+
 public:
 	enum class State {
 		Stopped = 0,
@@ -53,7 +57,14 @@ public:
 	fm::Time start() const;
 
 	bool isSeekReady() const;
+
+	bool scrollMode() const;
+
+	const fmp::MovieSegment::ConstPtr & currentSegment() const;
+
 public slots:
+
+	void togglePlayPause();
 	void pause();
 	void play();
 	void stop();
@@ -65,6 +76,18 @@ public slots:
 	void setPlaybackRate(qreal rate);
 
 	void setPosition(fm::Duration position);
+
+	void jumpNextFrame();
+	void jumpPrevFrame();
+
+	void skipDuration(fm::Duration duration);
+
+	void setTime(const fm::Time & time);
+
+	void setScrollMode(bool scrollMode);
+
+	void jumpNextVisible(fm::Ant::ID antID, bool backward);
+
 
 signals:
 	void seekReady(bool ready);
@@ -108,6 +131,7 @@ private:
 	fm::Duration                d_duration;
 
 	bool                        d_displayNext;
+	bool                        d_scrollMode;
 
 	size_t                          d_currentTaskID;
 	size_t                          d_currentSeekID;

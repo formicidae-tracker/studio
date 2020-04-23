@@ -26,6 +26,9 @@ public :
 	std::tuple<quint32,fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
 	tddAndMovieSegment(const QModelIndex & index) const;
 
+	std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	findTime(fmp::SpaceID spaceID, const fm::Time & time);
+
 public slots:
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
 	void onTrackingDataDirectoryDeleted(const QString & URI);
