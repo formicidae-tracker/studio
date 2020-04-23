@@ -68,6 +68,17 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 	        this,
 	        &TrackingVideoControl::onAntSelection);
 	onAntSelection(d_identifier->selectedAnt()->isActive());
+
+	connect(d_ui->seekForwardButton,&QToolButton::clicked,
+	        d_player,[this]() {
+		        d_player->skipDuration(10*fm::Duration::Second);
+	        },Qt::QueuedConnection);
+
+	connect(d_ui->seekBackwardButton,&QToolButton::clicked,
+	        d_player,[this]() {
+		        d_player->skipDuration(-10*fm::Duration::Second);
+	        },Qt::QueuedConnection);
+
 }
 
 
