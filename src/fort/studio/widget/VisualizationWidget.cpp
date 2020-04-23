@@ -6,6 +6,7 @@
 #include "TrackingVideoPlayer.hpp"
 
 #include <QAction>
+#include <QShortcut>
 #include <QClipboard>
 
 #include <fort/studio/Format.hpp>
@@ -16,6 +17,8 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	, d_ui(new Ui::VisualizationWidget)
 	, d_videoPlayer(new TrackingVideoPlayer(this)) {
 	d_ui->setupUi(this);
+
+	auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
 
 	connect(d_videoPlayer,
 	        &TrackingVideoPlayer::displayVideoFrame,
@@ -30,6 +33,8 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	connect(d_ui->trackingVideoWidget,&TrackingVideoWidget::togglePlayPause,
 	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
 
+	connect(togglePlayPauseShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
 
 }
 
