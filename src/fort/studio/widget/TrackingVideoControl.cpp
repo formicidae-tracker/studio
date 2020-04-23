@@ -79,6 +79,18 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 		        d_player->skipDuration(-10*fm::Duration::Second);
 	        },Qt::QueuedConnection);
 
+	connect(d_ui->skipForwardButton,&QToolButton::clicked,
+	        d_player,[this]() {
+		        d_player->jumpNextVisible(d_identifier->selectedAnt()->selectedID(),
+		                                  false);
+	        });
+
+	connect(d_ui->skipBackwardButton,&QToolButton::clicked,
+	        d_player,[this]() {
+		        d_player->jumpNextVisible(d_identifier->selectedAnt()->selectedID(),
+		                                  true);
+	        });
+
 }
 
 
@@ -194,12 +206,17 @@ void TrackingVideoControl::onAntSelection(bool selected) {
 		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(0))));
 		d_ui->zoomCheckBox->setEnabled(false);
 		d_ui->zoomSlider->setEnabled(false);
+		d_ui->skipForwardButton->setEnabled(false);
+		d_ui->skipBackwardButton->setEnabled(false);
 		emit zoomFocusChanged(0,1.0);
 	} else {
 		d_ui->zoomCheckBox->setEnabled(true);
 		auto antID = d_identifier->selectedAnt()->selectedID();
 		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(antID))));
 		d_ui->zoomSlider->setEnabled(true);
+		d_ui->skipForwardButton->setEnabled(true);
+		d_ui->skipBackwardButton->setEnabled(true);
+
 		if ( d_ui->zoomCheckBox->checkState() == Qt::Checked) {
 			emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoomValue());
 		} else {

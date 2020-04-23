@@ -85,6 +85,10 @@ public slots:
 	void setTime(const fm::Time & time);
 
 	void setScrollMode(bool scrollMode);
+
+	void jumpNextVisible(fm::Ant::ID antID, bool backward);
+
+
 signals:
 	void seekReady(bool ready);
 

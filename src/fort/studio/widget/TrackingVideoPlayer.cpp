@@ -52,7 +52,6 @@ void TrackingVideoPlayer::setup(IdentifiedFrameConcurrentLoader * loader) {
 	        &TrackingVideoPlayer::setSeekReady,
 	        Qt::QueuedConnection);
 	setSeekReady(d_loader->isDone());
-
 }
 
 bool TrackingVideoPlayer::isSeekReady() const {
@@ -406,6 +405,37 @@ const fmp::MovieSegment::ConstPtr & TrackingVideoPlayer::currentSegment() const 
 	return d_segment;
 }
 
+
+void TrackingVideoPlayer::setSeekReady(bool ready) {
+	if ( ready == d_seekReady) {
+		return;
+	}
+	d_seekReady = ready;
+	emit seekReady(d_seekReady);
+}
+
+
+void TrackingVideoPlayer::jumpNextVisible(fm::Ant::ID antID, bool backward) {
+	if ( d_task == nullptr
+	     || d_seekReady == false
+	     || d_displayed.Contains(antID) == true ) {
+		return;
+	}
+
+	quint64 frame;
+
+	metaObject()->invokeMethod(d_loader,"findAnt",Qt::BlockingQueuedConnection,
+	                           Q_RETURN_ARG(quint64,frame),
+	                           Q_ARG(quint32,antID),
+	                           Q_ARG(quint64,d_displayed.FrameID),
+	                           Q_ARG(int,backward == true ? -1 : 1));
+
+	if ( frame > d_segment->EndMovieFrame() ) {
+		return;
+	}
+	setPosition(d_interval * (frame-d_segment->StartMovieFrame()));
+}
+
 TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
                                                  const fmp::MovieSegment::ConstPtr & segment,
                                                  IdentifiedFrameConcurrentLoader * loader)
@@ -507,12 +537,4 @@ void TrackingVideoPlayerTask::startLoadingFromUnsafe(quint32 spaceID,
                                                      fmp::TrackingDataDirectory::ConstPtr tdd) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[task] startLoadingFromUnsafe" << std::endl);
 	d_loader->loadMovieSegment(spaceID,tdd, d_segment);
-}
-
-void TrackingVideoPlayer::setSeekReady(bool ready) {
-	if ( ready == d_seekReady) {
-		return;
-	}
-	d_seekReady = ready;
-	emit seekReady(d_seekReady);
 }

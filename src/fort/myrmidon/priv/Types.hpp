@@ -57,6 +57,7 @@ struct IdentifiedFrame {
 	size_t            Height;
 	size_t            Width;
 	PositionedAntList Positions;
+	bool Contains(uint64_t antID) const;
 };
 
 

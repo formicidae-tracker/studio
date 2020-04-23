@@ -24,7 +24,6 @@ MovieBridge::MovieBridge(QObject * parent)
 MovieBridge::~MovieBridge() {
 }
 
-
 void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	d_experiment = experiment;
 
@@ -32,16 +31,13 @@ void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
 	emit activated(isActive());
 }
 
-
 bool MovieBridge::isActive() const {
 	return !d_experiment == false;
 }
 
-
 QAbstractItemModel * MovieBridge::movieModel() {
 	return d_model;
 }
-
 
 std::tuple<quint32,fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegment::ConstPtr,fm::Time>
 MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
@@ -82,7 +78,6 @@ MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
 	}
 	return std::make_tuple(nullptr,nullptr,fm::Time());
 }
-
 
 
 void MovieBridge::onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
