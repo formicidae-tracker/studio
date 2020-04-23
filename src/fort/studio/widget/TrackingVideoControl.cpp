@@ -42,13 +42,19 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 	        this,
 	        &TrackingVideoControl::onPlayerPositionChanged);
 
-	connect(d_ui->positionSlider,
-	        &QAbstractSlider::sliderMoved,
-	        d_player,
-	        [this]( int value ) {
+	connect(d_ui->positionSlider,&QAbstractSlider::sliderPressed,
+	        d_player,[this]() { d_player->setScrollMode(true); });
+
+	connect(d_ui->positionSlider,&QAbstractSlider::sliderReleased,
+	        d_player,[this]() { d_player->setScrollMode(false); });
+
+	connect(d_ui->positionSlider,&QAbstractSlider::sliderMoved,
+	        d_player,[this]( int value ) {
 		        d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
 	        },
 	        Qt::QueuedConnection);
+
+
 	connect(d_player,
 	        &TrackingVideoPlayer::seekReady,
 	        d_ui->positionSlider,

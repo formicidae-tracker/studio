@@ -19,6 +19,21 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	d_ui->setupUi(this);
 
 	auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
+	auto nextFrameShortcut = new QShortcut(tr("."),this);
+	auto prevFrameShortcut = new QShortcut(tr(","),this);
+
+	auto skipForwardSmallShortcut = new QShortcut(tr("L"),this);
+	auto skipBackwardSmallShortcut = new QShortcut(tr("J"),this);
+
+	auto skipForwardMediumShortcut = new QShortcut(tr("Shift+L"),this);
+	auto skipBackwardMediumShortcut = new QShortcut(tr("Shift+J"),this);
+
+	auto skipForwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+L"),this);
+	auto skipBackwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+J"),this);
+
+	static fm::Duration small = 10 * fm::Duration::Second;
+	static fm::Duration medium = 1 * fm::Duration::Minute;
+	static fm::Duration large = 10 * fm::Duration::Minute;
 
 	connect(d_videoPlayer,
 	        &TrackingVideoPlayer::displayVideoFrame,
@@ -35,6 +50,43 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 
 	connect(togglePlayPauseShortcut,&QShortcut::activated,
 	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
+
+	connect(nextFrameShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::jumpNextFrame);
+
+	connect(prevFrameShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::jumpPrevFrame);
+
+	connect(skipForwardSmallShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(small);
+	             });
+
+	connect(skipBackwardSmallShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-small);
+	             });
+
+	connect(skipForwardMediumShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(medium);
+	             });
+
+	connect(skipBackwardMediumShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-medium);
+	             });
+
+	connect(skipForwardLargeShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(large);
+	             });
+
+	connect(skipBackwardLargeShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-large);
+	             });
+
 
 }
 
