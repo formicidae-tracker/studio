@@ -54,6 +54,7 @@ public:
 
 	bool isSeekReady() const;
 public slots:
+	void togglePlayPause();
 	void pause();
 	void play();
 	void stop();

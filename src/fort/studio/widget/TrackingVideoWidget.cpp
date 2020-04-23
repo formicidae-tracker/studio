@@ -8,6 +8,7 @@
 
 
 #include <QPainter>
+#include <QMouseEvent>
 
 #include <QDebug>
 
@@ -302,4 +303,22 @@ fm::Time TrackingVideoWidget::trackingTime() const {
 		return fm::Time();
 	}
 	return d_frame.TrackingFrame->FrameTime;
+}
+
+
+void TrackingVideoWidget::mousePressEvent(QMouseEvent * event) {
+	if ( event->button() == Qt::LeftButton ) {
+		emit togglePlayPause();
+	}
+	event->accept();
+}
+
+void TrackingVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
+	if ( event->button() == Qt::LeftButton ) {
+		// qInfo() << "Fullscreen is not implemented";
+
+		// //we already received a click so we toggle again
+		emit togglePlayPause();
+	}
+	event->accept();
 }

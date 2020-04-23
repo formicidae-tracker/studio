@@ -39,6 +39,7 @@ signals:
 
 	void hasTrackingTimeChanged(bool value);
 
+	void togglePlayPause();
 public slots:
 	void display(TrackingVideoFrame image);
 
@@ -53,6 +54,9 @@ protected:
 	void paintEvent(QPaintEvent * event) override;
 
 	void paintIdentifiedAnt(QPainter * painter, const QRectF & focusRectangle);
+
+	void mousePressEvent(QMouseEvent * event) override;
+	void mouseDoubleClickEvent(QMouseEvent * event) override;
 
 private:
 	void focusAnt(quint32 antID, bool reset = false);

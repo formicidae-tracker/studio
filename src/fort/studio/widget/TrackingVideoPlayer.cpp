@@ -348,6 +348,18 @@ void TrackingVideoPlayer::displayVideoFrameImpl(const TrackingVideoFrame & frame
 	emit displayVideoFrame(d_displayed);
 }
 
+void TrackingVideoPlayer::togglePlayPause() {
+	switch(d_state) {
+	case State::Playing:
+		pause();
+		break;
+	case State::Paused:
+	case State::Stopped:
+		play();
+		break;
+	}
+}
+
 TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
                                                  const fmp::MovieSegment::ConstPtr & segment,
                                                  IdentifiedFrameConcurrentLoader * loader)

@@ -27,6 +27,10 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hideLoadingBanner);
 
+	connect(d_ui->trackingVideoWidget,&TrackingVideoWidget::togglePlayPause,
+	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
+
+
 }
 
 VisualizationWidget::~VisualizationWidget() {
