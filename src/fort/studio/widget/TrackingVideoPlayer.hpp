@@ -60,6 +60,8 @@ public:
 
 	bool scrollMode() const;
 
+	const fmp::MovieSegment::ConstPtr & currentSegment() const;
+
 public slots:
 
 	void togglePlayPause();
@@ -79,6 +81,8 @@ public slots:
 	void jumpPrevFrame();
 
 	void skipDuration(fm::Duration duration);
+
+	void setTime(const fm::Time & time);
 
 	void setScrollMode(bool scrollMode);
 signals:

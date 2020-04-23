@@ -158,6 +158,8 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->menuEdit->addSeparator();
 	d_ui->menuEdit->addAction(d_ui->shappingWidget->cloneAntShapeAction());
 
+	d_ui->menuMove->addSeparator();
+	d_ui->menuMove->addAction(d_ui->visualizeWidget->jumpToTimeAction());
 
 }
 
@@ -433,6 +435,9 @@ void MainWindow::onLoggerWidgetDestroyed() {
 
 
 void MainWindow::setupMoveActions() {
+	auto jumpTimeAction = d_ui->visualizeWidget->jumpToTimeAction();
+	jumpTimeAction->setEnabled(d_ui->workspaceSelector->currentWidget() == d_ui->visualizeWidget);
+
 	NavigationAction actions {
 	                          .NextTag = d_ui->actionNextTag,
 	                          .PreviousTag = d_ui->actionPreviousTag,

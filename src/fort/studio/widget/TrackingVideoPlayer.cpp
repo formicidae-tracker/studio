@@ -386,12 +386,24 @@ void TrackingVideoPlayer::skipDuration(fm::Duration duration) {
 	setPosition(d_position + duration);
 }
 
+void TrackingVideoPlayer::setTime(const fm::Time & time) {
+	if ( d_task == nullptr ) {
+		return;
+	}
+	auto actualTime = std::clamp(time,d_start,d_start.Add(d_duration));
+	setPosition(time.Sub(d_start));
+}
+
 bool TrackingVideoPlayer::scrollMode() const {
 	return d_scrollMode;
 }
 
 void TrackingVideoPlayer::setScrollMode(bool scrollMode) {
 	d_scrollMode = scrollMode;
+}
+
+const fmp::MovieSegment::ConstPtr & TrackingVideoPlayer::currentSegment() const {
+	return d_segment;
 }
 
 TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,

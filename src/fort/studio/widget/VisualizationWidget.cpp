@@ -8,15 +8,26 @@
 #include <QAction>
 #include <QShortcut>
 #include <QClipboard>
+#include <QDialog>
+#include <QFormLayout>
+#include <QDialogButtonBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QAbstractButton>
 
 #include <fort/studio/Format.hpp>
 
 
 VisualizationWidget::VisualizationWidget(QWidget *parent)
 	: QWidget(parent)
+	, d_experiment(nullptr)
 	, d_ui(new Ui::VisualizationWidget)
-	, d_videoPlayer(new TrackingVideoPlayer(this)) {
+	, d_videoPlayer(new TrackingVideoPlayer(this))
+	, d_jumpToTimeAction( new QAction(tr("Jump to Time"),this)) {
 	d_ui->setupUi(this);
+
+	d_jumpToTimeAction->setToolTip(tr("Jump current movie to time"));
+	d_jumpToTimeAction->setShortcut(tr("Ctrl+T"));
 
 	auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
 	auto nextFrameShortcut = new QShortcut(tr("."),this);
@@ -95,6 +106,7 @@ VisualizationWidget::~VisualizationWidget() {
 }
 
 void VisualizationWidget::setup(ExperimentBridge * experiment) {
+	d_experiment = experiment;
 	auto movieBridge = experiment->movies();
 
 	d_ui->treeView->setModel(movieBridge->movieModel());
@@ -114,6 +126,7 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 			        return;
 		        }
 		        d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
+		        d_videoPlayer->play();
 	        });
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
@@ -146,6 +159,10 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        &TrackingVideoControl::setShowInteractions);
 
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
+
+	connect(d_jumpToTimeAction,&QAction::triggered,
+	        this,&VisualizationWidget::jumpToTime);
+
 }
 
 
@@ -182,4 +199,92 @@ void VisualizationWidget::tearDown(const NavigationAction & actions) {
 	           this,
 	           &VisualizationWidget::onCopyTimeActionTriggered);
 	actions.CopyCurrentTime->setEnabled(false);
+}
+
+QAction * VisualizationWidget::jumpToTimeAction() const {
+	return d_jumpToTimeAction;
+}
+
+
+void VisualizationWidget::jumpToTime() {
+	if ( d_experiment == nullptr || d_experiment->isActive() == false ) {
+		return;
+	}
+    QDialog dialog(this);
+    dialog.setMinimumWidth(400);
+    dialog.setWindowModality(Qt::ApplicationModal);
+
+    auto layout = new QFormLayout(&dialog);
+    dialog.setLayout(layout);
+
+    auto spaceCombo = new QComboBox(&dialog);
+    for ( const auto & [spaceID,spaceName] : d_experiment->universe()->spaceNamesByID() ) {
+	    spaceCombo->addItem(spaceName,spaceID);
+    }
+    layout->addRow(tr("Space:"),spaceCombo);
+
+    auto lineEdit = new QLineEdit(&dialog);
+    auto warning = lineEdit->addAction(QIcon::fromTheme("dialog-warning"),QLineEdit::TrailingPosition);
+    warning->setVisible(false);
+    layout->addRow(tr("Time:"),lineEdit);
+
+
+    auto buttonBox = new QDialogButtonBox(&dialog);
+
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    auto okButton = buttonBox->buttons()[0];
+    okButton->setEnabled(false);
+    layout->addRow(buttonBox);
+    connect(buttonBox,&QDialogButtonBox::accepted,
+            &dialog,&QDialog::accept);
+    connect(buttonBox,&QDialogButtonBox::rejected,
+            &dialog,&QDialog::reject);
+
+    connect(lineEdit,&QLineEdit::editingFinished,
+            &dialog,[lineEdit,warning,okButton,&dialog](){
+	                    try {
+		                    fm::Time::Parse(ToStdString(lineEdit->text()));
+		                    okButton->setEnabled(true);
+		                    warning->setVisible(false);
+	                    } catch ( const std::exception & e) {
+		                    okButton->setEnabled(false);
+		                    warning->setVisible(true);
+	                    }
+                    });
+
+    QEventLoop loop;
+    connect(&dialog,&QDialog::finished,
+            &loop,&QEventLoop::quit);
+
+    dialog.open();
+    loop.exec();
+
+    if ( dialog.result() == QDialog::Rejected
+         || lineEdit->text().isEmpty() == true ) {
+	    return;
+    }
+
+    fm::Time wanted;
+    try {
+	    wanted = fm::Time::Parse(ToStdString(lineEdit->text()));
+    } catch (  const std::exception & e ) {
+	    return;
+    }
+    auto spaceID = spaceCombo->currentData().toInt();
+    auto [tdd,segment,start] = d_experiment->movies()->findTime(spaceID,
+                                                                wanted);
+
+    if ( !tdd || !segment ) {
+	    qCritical() << "Could not find time " << ToQString(wanted) << " in space "
+	                << spaceCombo->currentText();
+	    return;
+    }
+
+    d_videoPlayer->pause();
+    const auto & currentSegment = d_videoPlayer->currentSegment();
+    if ( !currentSegment == true ||
+         currentSegment->URI() != segment->URI() ) {
+	    d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
+    }
+    d_videoPlayer->setTime(wanted);
 }
