@@ -542,6 +542,18 @@ TrackingDataDirectory::FullFrames() const {
 	return res;
 }
 
+std::vector<TagStatisticsLister::Loader>
+TrackingDataDirectory::StatisticsLoader() {
+	std::vector<TagStatisticsLister::Loader> res;
+	res.reserve(d_segments->Segments().size());
+	for ( const auto & [ref,segment] : d_segments->Segments() ) {
+		std::string filepath = fs::path(segment).string();
+		res.push_back([filepath] () { return TagStatisticsLister::BuildStats(filepath); });
+	}
+	return res;
+}
+
+
 }
 }
 }

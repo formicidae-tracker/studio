@@ -14,6 +14,8 @@
 #include "MovieSegment.hpp"
 #include "FrameReference.hpp"
 #include "TagCloseUp.hpp"
+#include "TagStatisticsLister.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -162,6 +164,7 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
+	std::vector<TagStatisticsLister::Loader> StatisticsLoader();
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
