@@ -19,7 +19,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
 	, d_antMetadata(new AntMetadataBridge(this))
 	, d_movies(new MovieBridge(this))
-	, d_zones(new ZoneBridge(this)) {
+	, d_zones(new ZoneBridge(this))
+	, d_statistics(new StatisticsBridge(this)) {
 
 	connectModifications();
 
@@ -85,6 +86,11 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
 
+	connect(d_universe,&UniverseBridge::trackingDataDirectoryAdded,
+	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryAdded);
+
+	connect(d_universe,&UniverseBridge::trackingDataDirectoryDeleted,
+	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 
 }
 
@@ -206,6 +212,10 @@ ZoneBridge * ExperimentBridge::zones() const {
 	return d_zones;
 }
 
+StatisticsBridge * ExperimentBridge::statistics() const {
+	return d_statistics;
+}
+
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -221,6 +231,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_antMetadata->setExperiment(experiment);
 	d_movies->setExperiment(experiment);
 	d_zones->setExperiment(experiment);
+	d_statistics->setExperiment(experiment);
 	setModified(false);
 	resetChildModified();
 	emit activated(d_experiment.get() != NULL);
@@ -268,6 +279,9 @@ void ExperimentBridge::connectModifications() {
 	connect(d_zones,&ZoneBridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
+	connect(d_statistics,&StatisticsBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
+
 }
 
 void ExperimentBridge::resetChildModified() {
@@ -281,4 +295,5 @@ void ExperimentBridge::resetChildModified() {
 	d_antMetadata->setModified(false);
 	d_movies->setModified(false);
 	d_zones->setModified(false);
+	d_statistics->setModified(false);
 }

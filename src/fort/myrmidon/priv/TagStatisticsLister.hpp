@@ -53,26 +53,43 @@ public:
 	static TimedStats BuildStats(const std::string & hermesFile);
 
 	template <typename InputIter>
-	inline static Stats Merge(const InputIter & begin, const InputIter & end) {
+	inline static Stats MergeTimed(const InputIter & begin, const InputIter & end) {
 		if ( begin == end ) {
-			return std::make_pair(Time(),Stats());
+			return Stats();
 		}
 		std::sort(begin,end,
 		          []( const TimedStats &  a, const TimedStats & b) {
 			          return a.Start < b.Start;
 		          });
-		auto & res = begin;
+		auto res = *begin;
 		for ( auto iter = begin + 1;
 		      iter != end;
 		      ++iter ) {
-			Merge(res,iter);
+			Merge(res,*iter);
 		}
-		return res->TagStats;
+		return res.TagStats;
 	}
+
+	template <typename InputIter>
+	inline static Stats MergeSpaced(const InputIter & begin,
+	                  const InputIter & end) {
+		if ( begin == end ) {
+			return Stats();
+		}
+		auto res = *begin;
+		for ( auto iter = begin + 1; iter != end; ++iter ) {
+			Merge(res,*iter);
+		}
+		return res;
+	}
+
 private:
 	static void Merge(TimedStats & stats, const TimedStats & other);
-	static void  Merge(TagStatistics & old, const Time & oldEnd,
-	                   const TagStatistics & newer, const Time & newerStart);
+	static void Merge(Stats & stats, const Stats & other);
+	static TagStatistics MergeTimed(const TagStatistics & old, const Time & oldEnd,
+	                                const TagStatistics & newer, const Time & newerStart);
+
+	static TagStatistics MergeSpaced(TagStatistics & a, TagStatistics & b);
 
 };
 

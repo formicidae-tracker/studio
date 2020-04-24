@@ -543,7 +543,7 @@ TrackingDataDirectory::FullFrames() const {
 }
 
 std::vector<TagStatisticsLister::Loader>
-TrackingDataDirectory::StatisticsLoader() {
+TrackingDataDirectory::StatisticsLoader() const {
 	std::vector<TagStatisticsLister::Loader> res;
 	res.reserve(d_segments->Segments().size());
 	for ( const auto & [ref,segment] : d_segments->Segments() ) {

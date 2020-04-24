@@ -138,13 +138,26 @@ void TagStatisticsLister::Merge(TimedStats & stats, const TimedStats & other) {
 		if ( fi == stats.TagStats.end() ) {
 			stats.TagStats.insert(std::make_pair(tagID,tagStats));
 		} else {
-			Merge(*(fi->second),stats.End,*tagStats,other.Start);
+			*(fi->second) = MergeTimed(*(fi->second),stats.End,*tagStats,other.Start);
 		}
 	}
 	stats.End = other.End;
 }
 
-void TagStatisticsLister::Merge(TagStatistics & old, const Time & oldEnd,
+void TagStatisticsLister::Merge(Stats & stats, const Stats & other) {
+	for ( const auto & [tagID,tagStats] : other ) {
+		auto fi = stats.find(tagID);
+		if ( fi == stats.end() ) {
+			stats.insert(std::make_pair(tagID,tagStats));
+		} else {
+			*(fi->second) = MergeSpaced(*(fi->second),*tagStats);
+		}
+	}
+}
+
+
+TagStatistics
+TagStatisticsLister::MergeTimed(const TagStatistics & old, const Time & oldEnd,
                                 const TagStatistics & newer, const Time & newerStart) {
 	if ( old.ID != newer.ID ) {
 		throw std::invalid_argument("Mismatched ID "
@@ -156,22 +169,35 @@ void TagStatisticsLister::Merge(TagStatistics & old, const Time & oldEnd,
 	if ( oldEnd < newerStart ) {
 		throw std::runtime_error("Older statistics must happen after newer one");
 	}
-
-	old.Counts += newer.Counts;
+	TagStatistics res(old);
+	res.Counts += newer.Counts;
 	bool computeNew = false;
 	if ( newer.FirstSeen > newerStart ) {
-		old.Counts(TagStatistics::ComputeGap(newerStart,newer.FirstSeen)) -= 1;
+		res.Counts(TagStatistics::ComputeGap(newerStart,newer.FirstSeen)) -= 1;
 		computeNew = true;
 	}
-	if ( old.LastSeen < oldEnd ) {
-		old.Counts(TagStatistics::ComputeGap(old.LastSeen,oldEnd)) -= 1;
+	if ( res.LastSeen < oldEnd ) {
+		res.Counts(TagStatistics::ComputeGap(old.LastSeen,oldEnd)) -= 1;
 		computeNew = true;
 	}
 	if ( computeNew ==  true ) {
-		old.Counts(TagStatistics::ComputeGap(old.LastSeen,newer.FirstSeen)) += 1;
+		res.Counts(TagStatistics::ComputeGap(old.LastSeen,newer.FirstSeen)) += 1;
 	}
 
-	old.LastSeen = newer.LastSeen;
+	res.LastSeen = newer.LastSeen;
+}
+
+TagStatistics TagStatisticsLister::MergeSpaced(TagStatistics & a, TagStatistics & b) {
+	if ( a.ID == b.ID ) {
+		throw std::invalid_argument("Mismatched ID "
+		                            + std::to_string(a.ID)
+		                            + " (expected:" + std::to_string(b.ID) + ")");
+	}
+	TagStatistics res(a);
+	res.Counts += b.Counts;
+	res.LastSeen = std::max(a.LastSeen,b.LastSeen);
+	res.FirstSeen = std::min(a.FirstSeen,b.FirstSeen);
+	return res;
 }
 
 

@@ -161,6 +161,8 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->menuMove->addSeparator();
 	d_ui->menuMove->addAction(d_ui->visualizeWidget->jumpToTimeAction());
 
+	d_ui->statsView->setModel(d_experiment->statistics()->stats());
+
 }
 
 MainWindow::~MainWindow() {

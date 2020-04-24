@@ -164,7 +164,7 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
-	std::vector<TagStatisticsLister::Loader> StatisticsLoader();
+	std::vector<TagStatisticsLister::Loader> StatisticsLoader() const;
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
