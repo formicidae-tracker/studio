@@ -96,16 +96,17 @@ TagStatisticsLister::TimedStats TagStatisticsLister::BuildStats(const std::strin
 		res.End = currentTime;
 
 		for ( const auto & tag : ro.tags() ) {
-			if ( stats.count(tag.id()) == 0 ) {
-				lastSeens.insert(std::make_pair(tag.id(),LastSeen{current,currentTime}));
+			auto key = tag.id() + 1;
+			if ( stats.count(key) == 0 ) {
+				lastSeens.insert(std::make_pair(key,LastSeen{current,currentTime}));
 				auto tagStats = std::make_shared<TagStatistics>(tag.id(),currentTime);
-				if ( currentTime.After(res.Start) ) {
+				if ( currentTime > res.Start ) {
 					tagStats->UpdateGaps(res.Start,currentTime);
 				}
-				stats.insert(std::make_pair(tag.id(),tagStats));
+				stats.insert(std::make_pair(key,tagStats));
 			} else {
-				auto & last = lastSeens.at(tag.id());
-				auto & tagStats = stats.at(tag.id());
+				auto & last = lastSeens.at(key);
+				auto & tagStats = stats.at(key);
 				if ( last.FID == current ) {
 					tagStats->Counts(TagStatistics::CountHeader::MULTIPLE_SEEN) += 1;
 				} else {
@@ -130,7 +131,7 @@ void TagStatistics::UpdateGaps(const Time & lastSeen, const Time & currentTime) 
 }
 
 void TagStatisticsLister::Merge(TimedStats & stats, const TimedStats & other) {
-	if ( other.Start < stats.End ) {
+	if ( stats.End > other.Start ) {
 		throw std::runtime_error("Could ony merge time-upward");
 	}
 	for ( const auto & [tagID,tagStats] : other.TagStats ) {
@@ -166,7 +167,7 @@ TagStatisticsLister::MergeTimed(const TagStatistics & old, const Time & oldEnd,
 	}
 
 
-	if ( oldEnd < newerStart ) {
+	if ( oldEnd > newerStart ) {
 		throw std::runtime_error("Older statistics must happen after newer one");
 	}
 	TagStatistics res(old);
@@ -185,6 +186,7 @@ TagStatisticsLister::MergeTimed(const TagStatistics & old, const Time & oldEnd,
 	}
 
 	res.LastSeen = newer.LastSeen;
+	return res;
 }
 
 TagStatistics TagStatisticsLister::MergeSpaced(TagStatistics & a, TagStatistics & b) {
@@ -195,8 +197,8 @@ TagStatistics TagStatisticsLister::MergeSpaced(TagStatistics & a, TagStatistics 
 	}
 	TagStatistics res(a);
 	res.Counts += b.Counts;
-	res.LastSeen = std::max(a.LastSeen,b.LastSeen);
-	res.FirstSeen = std::min(a.FirstSeen,b.FirstSeen);
+	res.LastSeen = a.LastSeen > b.LastSeen ? a.LastSeen : b.LastSeen;
+	res.FirstSeen = a.FirstSeen < b.FirstSeen ? a.FirstSeen : b.FirstSeen;
 	return res;
 }
 

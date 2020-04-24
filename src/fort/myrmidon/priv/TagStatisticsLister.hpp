@@ -61,7 +61,7 @@ public:
 		          []( const TimedStats &  a, const TimedStats & b) {
 			          return a.Start < b.Start;
 		          });
-		auto res = *begin;
+		TimedStats res = *begin;
 		for ( auto iter = begin + 1;
 		      iter != end;
 		      ++iter ) {

@@ -8,13 +8,11 @@
 StatisticsBridge::StatisticsBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
-
+	rebuildModel();
 }
 
 StatisticsBridge::~StatisticsBridge() {
-	std::cerr << "Coucou" << std::endl;
 	for ( auto & [tddURI,watcher] : d_watchers ) {
-		std::cerr << "cancelling " << watcher << std::boolalpha << " " << watcher->isFinished() << std::endl;
 		watcher->cancel();
 		watcher->waitForFinished();
 	}
@@ -51,23 +49,20 @@ void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::
 	d_stats.insert(std::make_pair(uri,Stats()));
 	auto watcher = d_watchers.at(uri);
 	connect(watcher,&QFutureWatcher<TimedStats>::finished,
-	        this,[this,watcher,uri] () {
-		             if ( watcher->isCanceled() == true || d_stats.count(uri) == 0 ) {
-			             return;
-		             }
-		             std::vector<TimedStats> stats;
-		             stats.reserve(watcher->progressMaximum());
-		             for ( int i = 0; i < watcher->progressMaximum(); ++i ) {
-			             stats.push_back(watcher->resultAt(i));
-		             }
-		             d_stats.at(uri) = fmp::TagStatisticsLister::MergeTimed(stats.begin(),stats.end());
-		             rebuildModel();
-	             },
+	        this,
+	        [this,watcher,uri] () {
+		        if ( watcher->isCanceled() == true || d_stats.count(uri) == 0 ) {
+			        return;
+		        }
+		        std::vector<TimedStats> stats;
+		        stats.reserve(watcher->progressMaximum());
+		        for ( int i = 0; i < watcher->progressMaximum(); ++i ) {
+			        stats.push_back(watcher->resultAt(i));
+		        }
+		        d_stats.at(uri) = fmp::TagStatisticsLister::MergeTimed(stats.begin(),stats.end());
+		        rebuildModel();
+	        },
 	        Qt::QueuedConnection);
-	connect(watcher,&QFutureWatcher<TimedStats>::resultReadyAt,
-	        this,[](int index) {
-		             std::cerr << "Result ready at " << index << std::endl;
-	             },Qt::QueuedConnection);
 
 	const auto & segments = tdd->TrackingSegments().Segments();
 	d_files[uri].reserve(segments.size());
@@ -98,12 +93,15 @@ void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
 
 
 StatisticsBridge::TimedStats StatisticsBridge::Load(QString filepath) {
-	static std::mutex mutex;
-	{
-		std::lock_guard<std::mutex> lock(mutex);
-		std::cerr << "Spawning " << ToStdString(filepath) << std::endl;
+	try {
+		auto res = fmp::TagStatisticsLister::BuildStats(ToStdString(filepath));
+		return res;
+	} catch ( const std::exception & e) {
+		qWarning() << "Could not build statistics for "
+		           << filepath
+		           << ": " << e.what();
 	}
-	return fmp::TagStatisticsLister::BuildStats(ToStdString(filepath));
+	return TimedStats();
 }
 
 void StatisticsBridge::rebuildModel() {
@@ -115,6 +113,13 @@ void StatisticsBridge::rebuildModel() {
 	                                    tr("Gap <1m"),tr("Gap <10m"),
 	                                    tr("Gap <1h"), tr("Gap <10h"),
 	                                    tr("Gap >=10h")});
+	if ( !d_experiment == true ) {
+		return;
+	}
+
+	static std::mutex mutex;
+	std::lock_guard<std::mutex> lock(mutex);
+
 	std::vector<Stats> spaceStats;
 	for ( const auto & [spaceID,space] : d_experiment->Spaces() ) {
 		spaceStats.reserve(spaceStats.size() + space->TrackingDataDirectories().size());
@@ -128,15 +133,21 @@ void StatisticsBridge::rebuildModel() {
 		}
 
 	}
+
 	auto stats = fmp::TagStatisticsLister::MergeSpaced(spaceStats.begin(),spaceStats.end());
 
 	for ( const auto & [tagID,tagStats] : stats ) {
 		QList<QStandardItem*> row;
-		row.push_back(new QStandardItem(QString::number(tagID)));
+		row.push_back(new QStandardItem(QString::number(tagStats->ID)));
+		row.back()->setData(tagStats->ID);
 		row.push_back(new QStandardItem(ToQString(tagStats->FirstSeen)));
+		row.back()->setData(ToQString(tagStats->FirstSeen));
 		row.push_back(new QStandardItem(ToQString(tagStats->LastSeen)));
+		row.back()->setData(ToQString(tagStats->LastSeen));
 		for ( int i = 0; i < 10; ++i) {
 			row.push_back(new QStandardItem(QString::number(tagStats->Counts(i))));
+			row.back()->setData(quint64(tagStats->Counts(i)));
+
 		}
 		for ( const auto & i : row ) {
 			i->setEditable(false);
