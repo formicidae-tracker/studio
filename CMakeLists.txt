@@ -34,7 +34,7 @@ FetchContent_Declare(fort-tags
 
 FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
-                     GIT_TAG        v0.3.0)
+                     GIT_TAG        v0.4.0)
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)

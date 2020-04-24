@@ -162,6 +162,7 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
+
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
 

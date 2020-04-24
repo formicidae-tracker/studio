@@ -76,6 +76,8 @@ struct InteractionFrame {
 };
 
 
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

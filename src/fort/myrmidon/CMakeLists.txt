@@ -89,6 +89,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/KDTree.hpp
                       priv/KDTree.impl.hpp
                       priv/InteractionSolver.hpp
+                      priv/TagStatisticsLister.hpp
                       )
 
 
@@ -136,6 +137,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/Measurement.cpp
                       priv/KDTree.cpp
                       priv/InteractionSolver.cpp
+                      priv/TagStatisticsLister.cpp
                       )
 
 set(SRC_FILES Frame.cpp
