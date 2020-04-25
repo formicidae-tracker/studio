@@ -33,7 +33,9 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/Zone.proto
                 priv/proto/Space.proto
                 priv/proto/AntMetadata.proto
+                priv/proto/TagStatisticsCache.proto
                 )
+
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 

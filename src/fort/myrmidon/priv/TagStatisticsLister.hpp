@@ -30,7 +30,7 @@ struct TagStatistics {
 		GAP_10M           = 6,
 		GAP_1H            = 7,
 		GAP_10H           = 8,
-		GAP_MORE_THAN_10H = 9,
+		GAP_MORE          = 9,
 	};
 
 	void UpdateGaps(const Time & lastSeen, const Time & currentTime);

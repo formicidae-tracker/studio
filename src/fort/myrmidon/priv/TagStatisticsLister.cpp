@@ -3,6 +3,11 @@
 #include <fort/hermes/FileContext.h>
 #include <fort/hermes/Error.h>
 
+#include <fort/myrmidon/priv/proto/FileReadWriter.hpp>
+
+#include <fort/myrmidon/TagStatisticsCache.pb.h>
+
+
 #include "TimeUtils.hpp"
 
 namespace fort {
@@ -52,11 +57,102 @@ TagStatistics::CountHeader TagStatistics::ComputeGap(const Time & lastSeen, cons
 		return GAP_10H;
 	}
 
-	return GAP_MORE_THAN_10H;
+	return GAP_MORE;
+}
+
+static int CURRENT_CACHE_VERSION = 1;
+
+typedef proto::FileReadWriter<pb::TagStatisticsCacheHeader,
+                              pb::TagStatistics> RW;
+
+fs::path cacheFilePath(const std::string & hermesFile ) {
+	return fs::path(hermesFile).replace_extension(".statcache");
+}
+
+TagStatistics::Ptr LoadStatistics(const pb::TagStatistics & pb) {
+	auto start = Time::FromTimestamp(pb.firstseen());
+	auto end = Time::FromTimestamp(pb.lastseen());
+
+	auto res = std::make_shared<TagStatistics>(pb.id(),start);
+	res->LastSeen = end;
+	res->Counts << pb.totalseen(),
+		pb.multipleseen(),
+		pb.gap500ms(),
+		pb.gap1s(),
+		pb.gap10s(),
+		pb.gap1m(),
+		pb.gap10m(),
+		pb.gap1h(),
+		pb.gap10h(),
+		pb.gapmore();
+	return res;
+}
+
+void SaveStatistics(pb::TagStatistics * pb, const TagStatistics::ConstPtr & tagStats) {
+	pb->set_id(tagStats->ID);
+	tagStats->FirstSeen.ToTimestamp(pb->mutable_firstseen());
+	tagStats->LastSeen.ToTimestamp(pb->mutable_lastseen());
+	pb->set_totalseen(tagStats->Counts(TagStatistics::TOTAL_SEEN));
+	pb->set_multipleseen(tagStats->Counts(TagStatistics::MULTIPLE_SEEN));
+	pb->set_gap500ms(tagStats->Counts(TagStatistics::GAP_500MS));
+	pb->set_gap1s(tagStats->Counts(TagStatistics::GAP_1S));
+	pb->set_gap10s(tagStats->Counts(TagStatistics::GAP_10S));
+	pb->set_gap1m(tagStats->Counts(TagStatistics::GAP_1M));
+	pb->set_gap10m(tagStats->Counts(TagStatistics::GAP_10M));
+	pb->set_gap1h(tagStats->Counts(TagStatistics::GAP_1H));
+	pb->set_gap10h(tagStats->Counts(TagStatistics::GAP_10H));
+	pb->set_gapmore(tagStats->Counts(TagStatistics::GAP_MORE));
+}
+
+
+TagStatisticsLister::TimedStats loadFromCache(const std::string & hermesFile) {
+
+	TagStatisticsLister::TimedStats res;
+	RW::Read(cacheFilePath(hermesFile),
+	         [&res](const pb::TagStatisticsCacheHeader & pb) {
+		         if ( pb.version() != CURRENT_CACHE_VERSION) {
+			         throw std::runtime_error("Mismatched cache version "
+			                                  + std::to_string(pb.version())
+			                                  + " (expected:"
+			                                  + std::to_string(CURRENT_CACHE_VERSION));
+		         }
+		         if ( pb.has_start() == false || pb.has_end() == false ){
+			         throw std::runtime_error("Missing start or end time");
+		         }
+
+		         res.Start = Time::FromTimestamp(pb.start());
+		         res.End = Time::FromTimestamp(pb.end());
+	         },
+	         [&res] ( const pb::TagStatistics & pb) {
+		         res.TagStats.insert(std::make_pair(pb.id()+1,LoadStatistics(pb)));
+	         });
+	return res;
+}
+
+void saveToCache(const std::string & hermesFile, const TagStatisticsLister::TimedStats & stats) {
+	pb::TagStatisticsCacheHeader h;
+	h.set_version(CURRENT_CACHE_VERSION);
+	stats.Start.ToTimestamp(h.mutable_start());
+	stats.End.ToTimestamp(h.mutable_end());
+	std::vector<RW::LineWriter> lines;
+	for ( const auto & [tagID,tagStats] : stats.TagStats ) {
+		lines.push_back([&tagStats](pb::TagStatistics & line) {
+			                SaveStatistics(&line,tagStats);
+		                });
+	}
+	RW::Write(cacheFilePath(hermesFile),
+	          h,
+	          lines);
 }
 
 
 TagStatisticsLister::TimedStats TagStatisticsLister::BuildStats(const std::string & hermesFile) {
+	try {
+		return loadFromCache(hermesFile);
+	} catch ( const std::exception & ) {
+
+	}
+
 	TimedStats res;
 
 	auto & stats = res.TagStats;
@@ -79,6 +175,12 @@ TagStatisticsLister::TimedStats TagStatisticsLister::BuildStats(const std::strin
 				if ( last.FrameTime < res.End ) {
 					stats.at(tagID)->UpdateGaps(last.FrameTime,res.End);
 				}
+			}
+
+			try {
+				saveToCache(hermesFile,res);
+			} catch ( const std::exception & ) {
+
 			}
 			return res;
 		} catch ( const std::exception & e ) {
