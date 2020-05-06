@@ -292,7 +292,7 @@ TagStatistics::MergeTimed(const TagStatistics & old, const Time & oldEnd,
 }
 
 TagStatistics TagStatistics::MergeSpaced(TagStatistics & a, TagStatistics & b) {
-	if ( a.ID == b.ID ) {
+	if ( a.ID != b.ID ) {
 		throw std::invalid_argument("Mismatched ID "
 		                            + std::to_string(a.ID)
 		                            + " (expected:" + std::to_string(b.ID) + ")");

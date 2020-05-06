@@ -547,7 +547,7 @@ TrackingDataDirectory::StatisticsLoader() const {
 	std::vector<TagStatistics::Loader> res;
 	res.reserve(d_segments->Segments().size());
 	for ( const auto & [ref,segment] : d_segments->Segments() ) {
-		std::string filepath = fs::path(segment).string();
+		std::string filepath = (AbsoluteFilePath() / segment).string();
 		res.push_back([filepath] () { return TagStatistics::BuildStats(filepath); });
 	}
 	return res;
