@@ -76,6 +76,8 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		Time::ConstPtr Start,End;
 		double         TagSize;
 		TagID          Value;
+		bool           HasPose;
+		Eigen::Vector3d Pose;
 	};
 
 	std::vector<TestData> data
@@ -83,18 +85,32 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
 		    0.0,
-		    123
+		    123,
+		    false,
+		    Eigen::Vector3d()
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
 		    2.3,
-		    23
+		    23,
+		    false,
+		    Eigen::Vector3d()
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
 		    0.0,
-		    34
+		    34,
+		    false,
+		    Eigen::Vector3d()
 		   },
+		   {
+		    Time::ConstPtr(),Time::ConstPtr(),
+		    0.0,
+		    123,
+		    true,
+		    Eigen::Vector3d(1,2,0.15)
+		   },
+
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
@@ -111,6 +127,14 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		if ( d.End ) {
 			d.End->ToTimestamp(expected.mutable_end());
 		}
+		if ( d.HasPose ) {
+			ident->SetUserDefinedAntPose(d.Pose.block<2,1>(0,0),d.Pose.z());
+			auto e = expected.mutable_userdefinedpose();
+			IOUtils::SaveVector(e->mutable_position(),d.Pose.block<2,1>(0,0));
+			e->set_angle(d.Pose.z());
+		}
+
+
 		expected.set_id(d.Value);
 		expected.set_tagsize(d.TagSize);
 
@@ -131,9 +155,16 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_EQ(!finalIdent->Start(),!d.Start);
 		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
 		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
-		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
+		if ( d.HasPose == false ) {
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
+			EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
+		} else {
+			EXPECT_TRUE(VectorAlmostEqual(finalIdent->AntPosition(),
+			                              d.Pose.block<2,1>(0,0)));
+			EXPECT_DOUBLE_EQ(finalIdent->AntAngle(),d.Pose.z());
+		}
+
 		if ( d.TagSize == 0.0 ) {
 			EXPECT_TRUE(finalIdent->UseDefaultTagSize());
 		} else {
