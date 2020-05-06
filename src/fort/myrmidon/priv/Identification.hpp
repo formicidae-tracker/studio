@@ -134,6 +134,12 @@ public:
 	// destroyed.
 	IdentifierPtr ParentIdentifier() const;
 
+	inline bool HasUserDefinedAntPose() const {
+		return d_userDefinedPose;
+	}
+
+	void SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle);
+	void ReselaseUserDefinedAntPose() ;
 
 	class Accessor {
 	private:
@@ -144,7 +150,9 @@ public:
 		                     const Time::ConstPtr & start);
 		static void SetEnd(Identification & identification,
 		                   const Time::ConstPtr & end);
-
+		static void SetAntPosition(Identification & identification,
+		                           const Eigen::Vector2d& position,
+		                           double angle);
 	public:
 		friend class Identifier;
 		friend class IdentificationUTest;
@@ -168,8 +176,6 @@ private:
 
 	void SetBound(const Time::ConstPtr & start,
 	              const Time::ConstPtr & end);
-	friend class Ant;
-	friend class Identifier;
 	friend class IdentificationUTest;
 
 	Isometry2Dd               d_antToTag;
@@ -178,7 +184,7 @@ private:
 	double                    d_tagSize;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
-
+	bool                      d_userDefinedPose;
 };
 
 // An std::exception when tow Identification overlaps in time.

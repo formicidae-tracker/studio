@@ -16,7 +16,8 @@ Identification::Identification(TagID tagValue,
 	, d_tagValue(tagValue)
 	, d_target(target)
 	, d_identifier(identifier)
-	, d_tagSize(DEFAULT_TAG_SIZE) {
+	, d_tagSize(DEFAULT_TAG_SIZE)
+	, d_userDefinedPose(false) {
 }
 
 Time::ConstPtr Identification::Start() const {
@@ -86,6 +87,12 @@ void Identification::Accessor::SetEnd(Identification & identification,
 	identification.d_end = end;
 }
 
+void Identification::Accessor::SetAntPosition(Identification & identification,
+                                              const Eigen::Vector2d& position,
+                                              double angle) {
+	identification.SetAntPosition(position,angle);
+}
+
 
 void Identification::SetAntPosition(const Eigen::Vector2d & position, double angle) {
 	d_antToTag = Isometry2Dd(angle,position);
@@ -140,6 +147,18 @@ void Identification::ComputePositionFromTag(Eigen::Vector2d & position,
 	auto antToOrig = tagToOrig * d_antToTag;
 	position = antToOrig.translation();
 	angle = antToOrig.angle();
+}
+
+
+void Identification::SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle) {
+	d_userDefinedPose = true;
+	SetAntPosition(antPosition,antAngle);
+}
+
+void Identification::ReselaseUserDefinedAntPose() {
+	auto identifier = ParentIdentifier();
+	d_userDefinedPose = false;
+	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,this);
 }
 
 

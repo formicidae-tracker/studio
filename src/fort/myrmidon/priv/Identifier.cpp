@@ -265,6 +265,9 @@ void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
 
 
 void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
+	if ( identification->HasUserDefinedAntPose() == true ) {
+		return;
+	}
 	std::vector<AntPoseEstimateConstPtr> matched;
 	auto & APEs = d_tagPoseEstimates[identification->TagValue()];
 	matched.reserve(APEs.size());
@@ -281,7 +284,7 @@ void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & ide
 	double newAngle;
 	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
 	if ( newPosition != identification->AntPosition() || newAngle != identification->AntAngle() ) {
-		identification->SetAntPosition(newPosition,newAngle);
+		Identification::Accessor::SetAntPosition(*identification,newPosition,newAngle);
 		d_callback(identification);
 	}
 }
