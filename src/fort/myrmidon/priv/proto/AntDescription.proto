@@ -6,12 +6,19 @@ import "google/protobuf/timestamp.proto";
 
 import "Shapes.proto";
 import "AntMetadata.proto";
+import "Vector2d.proto";
+
+message UserDefinedPose {
+	Vector2d position = 1;
+	double   angle    = 2;
+}
 
 message Identification {
-    int32                     ID      = 1;
-	google.protobuf.Timestamp Start   = 2;
-	google.protobuf.Timestamp End     = 3;
-	double                    TagSize = 4;
+    int32                     ID              = 1;
+	google.protobuf.Timestamp Start           = 2;
+	google.protobuf.Timestamp End             = 3;
+	double                    TagSize         = 4;
+	UserDefinedPose           userdefinedpose = 5;
 };
 
 // message Metadata {

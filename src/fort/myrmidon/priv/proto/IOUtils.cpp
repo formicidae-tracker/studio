@@ -57,6 +57,13 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 	} else {
 		res->SetTagSize(Identification::DEFAULT_TAG_SIZE);
 	}
+
+	if ( pb.has_userdefinedpose() ) {
+		Eigen::Vector2d antPosition;
+		LoadVector(antPosition,pb.userdefinedpose().position());
+		res->SetUserDefinedAntPose(antPosition,
+		                           pb.userdefinedpose().angle());
+	}
 }
 
 void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
@@ -71,6 +78,12 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 	pb->set_id(ident->TagValue());
 	if ( ident->UseDefaultTagSize() == false ) {
 		pb->set_tagsize(ident->TagSize());
+	}
+
+	if ( ident->HasUserDefinedAntPose() == true ) {
+		auto udpPb = pb->mutable_userdefinedpose();
+		SaveVector(udpPb->mutable_position(),ident->AntPosition());
+		udpPb->set_angle(ident->AntAngle());
 	}
 }
 
