@@ -280,6 +280,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	                                                 Time::ConstPtr(),
 	                                                 std::make_shared<Time>(foo0->EndDate()));
 
+
+
 	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
 	                                                 antAfter->ID(),
 	                                                 1,
@@ -289,6 +291,20 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
 	                              Eigen::Vector2d(6.0,0.0)));
+
+	EXPECT_FALSE(identAfter1->HasUserDefinedAntPose());
+	identAfter1->SetUserDefinedAntPose(Eigen::Vector2d(2,3),0.13);
+	EXPECT_TRUE(identAfter1->HasUserDefinedAntPose());
+	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
+	                        Eigen::Vector2d(2,3)));
+	EXPECT_EQ(identAfter1->AntAngle(),0.13);
+	identAfter1->ClearUserDefinedAntPose();
+	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
+	                              Eigen::Vector2d(6.0,0.0)));
+
+	EXPECT_FALSE(identAfter1->HasUserDefinedAntPose());
+
+
 
 	std::vector<Experiment::ComputedMeasurement> measurements;
 	e->ComputeMeasurementsForAnt(measurements,
@@ -302,6 +318,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_TRUE(VectorAlmostEqual(identBefore1->AntPosition(),
 	                              Eigen::Vector2d(6.0,0.0)));
+
 
 
 	e->ComputeMeasurementsForAnt(measurements,

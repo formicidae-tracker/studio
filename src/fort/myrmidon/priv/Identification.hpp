@@ -139,7 +139,7 @@ public:
 	}
 
 	void SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle);
-	void ReselaseUserDefinedAntPose() ;
+	void ClearUserDefinedAntPose();
 
 	class Accessor {
 	private:

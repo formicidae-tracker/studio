@@ -155,7 +155,7 @@ void Identification::SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, 
 	SetAntPosition(antPosition,antAngle);
 }
 
-void Identification::ReselaseUserDefinedAntPose() {
+void Identification::ClearUserDefinedAntPose() {
 	auto identifier = ParentIdentifier();
 	d_userDefinedPose = false;
 	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,this);
