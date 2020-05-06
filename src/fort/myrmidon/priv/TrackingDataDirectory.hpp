@@ -14,7 +14,7 @@
 #include "MovieSegment.hpp"
 #include "FrameReference.hpp"
 #include "TagCloseUp.hpp"
-#include "TagStatisticsLister.hpp"
+#include "TagStatistics.hpp"
 
 
 namespace fort {
@@ -164,7 +164,7 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
-	std::vector<TagStatisticsLister::Loader> StatisticsLoader() const;
+	std::vector<TagStatistics::Loader> StatisticsLoader() const;
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;

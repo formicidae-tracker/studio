@@ -9,14 +9,23 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-struct TagStatistics {
+class TagStatistics {
+public:
 	typedef std::shared_ptr<const TagStatistics> ConstPtr;
 	typedef std::shared_ptr<TagStatistics>       Ptr;
+	typedef DenseMap<TagID,TagStatistics::Ptr>   ByTagID;
+
+	struct  Timed {
+		ByTagID TagStats;
+		Time  Start,End;
+	};
+
+
+
 	TagID    ID;
 	Time     FirstSeen,LastSeen;
 
 	TagStatistics(TagID tagID,const Time & firstTime);
-
 
 	Eigen::Matrix<uint64_t,Eigen::Dynamic,1> Counts;
 
@@ -37,31 +46,21 @@ struct TagStatistics {
 
 	static CountHeader ComputeGap(const Time & lastSeen, const Time & currentTime);
 
-};
 
+	typedef std::function<Timed ()> Loader;
 
-class TagStatisticsLister {
-public:
-	typedef DenseMap<TagID,TagStatistics::Ptr> Stats;
-	struct  TimedStats {
-		Stats TagStats;
-		Time  Start,End;
-	};
-
-	typedef std::function<TimedStats ()> Loader;
-
-	static TimedStats BuildStats(const std::string & hermesFile);
+	static Timed BuildStats(const std::string & hermesFile);
 
 	template <typename InputIter>
-	inline static Stats MergeTimed(const InputIter & begin, const InputIter & end) {
+	inline static ByTagID MergeTimed(const InputIter & begin, const InputIter & end) {
 		if ( begin == end ) {
-			return Stats();
+			return ByTagID();
 		}
 		std::sort(begin,end,
-		          []( const TimedStats &  a, const TimedStats & b) {
+		          []( const Timed &  a, const Timed & b) {
 			          return a.Start < b.Start;
 		          });
-		TimedStats res = *begin;
+		Timed res = *begin;
 		for ( auto iter = begin + 1;
 		      iter != end;
 		      ++iter ) {
@@ -71,10 +70,10 @@ public:
 	}
 
 	template <typename InputIter>
-	inline static Stats MergeSpaced(const InputIter & begin,
+	inline static ByTagID MergeSpaced(const InputIter & begin,
 	                  const InputIter & end) {
 		if ( begin == end ) {
-			return Stats();
+			return ByTagID();
 		}
 		auto res = *begin;
 		for ( auto iter = begin + 1; iter != end; ++iter ) {
@@ -84,8 +83,8 @@ public:
 	}
 
 private:
-	static void Merge(TimedStats & stats, const TimedStats & other);
-	static void Merge(Stats & stats, const Stats & other);
+	static void Merge(Timed & stats, const Timed & other);
+	static void Merge(ByTagID & stats, const ByTagID & other);
 	static TagStatistics MergeTimed(const TagStatistics & old, const Time & oldEnd,
 	                                const TagStatistics & newer, const Time & newerStart);
 

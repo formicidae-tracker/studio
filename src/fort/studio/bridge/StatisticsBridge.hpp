@@ -28,9 +28,9 @@ public slots:
 	void onTrackingDataDirectoryDeleted(QString tddURI);
 
 private:
-	typedef fmp::TagStatisticsLister::Stats      Stats;
-	typedef fmp::TagStatisticsLister::TimedStats TimedStats;
-	typedef std::map<QString,Stats>                  StatsByTddURI;
+	typedef fmp::TagStatistics::ByTagID                    Stats;
+	typedef fmp::TagStatistics::Timed                      TimedStats;
+	typedef std::map<QString,Stats>                        StatsByTddURI;
 	typedef std::map<QString,QFutureWatcher<TimedStats>* > Watchers;
 	typedef std::map<QString,std::vector<QString>>         Files;
 	static TimedStats Load(QString data);

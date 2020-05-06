@@ -1,4 +1,4 @@
-#include "TagStatisticsLister.hpp"
+#include "TagStatistics.hpp"
 
 #include <fort/hermes/FileContext.h>
 #include <fort/hermes/Error.h>
@@ -105,9 +105,9 @@ void SaveStatistics(pb::TagStatistics * pb, const TagStatistics::ConstPtr & tagS
 }
 
 
-TagStatisticsLister::TimedStats loadFromCache(const std::string & hermesFile) {
+TagStatistics::Timed loadFromCache(const std::string & hermesFile) {
 
-	TagStatisticsLister::TimedStats res;
+	TagStatistics::Timed res;
 	RW::Read(cacheFilePath(hermesFile),
 	         [&res](const pb::TagStatisticsCacheHeader & pb) {
 		         if ( pb.version() != CURRENT_CACHE_VERSION) {
@@ -129,7 +129,7 @@ TagStatisticsLister::TimedStats loadFromCache(const std::string & hermesFile) {
 	return res;
 }
 
-void saveToCache(const std::string & hermesFile, const TagStatisticsLister::TimedStats & stats) {
+void saveToCache(const std::string & hermesFile, const TagStatistics::Timed & stats) {
 	pb::TagStatisticsCacheHeader h;
 	h.set_version(CURRENT_CACHE_VERSION);
 	stats.Start.ToTimestamp(h.mutable_start());
@@ -146,14 +146,14 @@ void saveToCache(const std::string & hermesFile, const TagStatisticsLister::Time
 }
 
 
-TagStatisticsLister::TimedStats TagStatisticsLister::BuildStats(const std::string & hermesFile) {
+TagStatistics::Timed TagStatistics::BuildStats(const std::string & hermesFile) {
 	try {
 		return loadFromCache(hermesFile);
 	} catch ( const std::exception & ) {
 
 	}
 
-	TimedStats res;
+	Timed res;
 
 	auto & stats = res.TagStats;
 	hermes::FileContext file(hermesFile,false);
@@ -232,7 +232,7 @@ void TagStatistics::UpdateGaps(const Time & lastSeen, const Time & currentTime) 
 	Counts(gap) += 1;
 }
 
-void TagStatisticsLister::Merge(TimedStats & stats, const TimedStats & other) {
+void TagStatistics::Merge(Timed & stats, const Timed & other) {
 	if ( stats.End > other.Start ) {
 		throw std::runtime_error("Could ony merge time-upward");
 	}
@@ -247,7 +247,7 @@ void TagStatisticsLister::Merge(TimedStats & stats, const TimedStats & other) {
 	stats.End = other.End;
 }
 
-void TagStatisticsLister::Merge(Stats & stats, const Stats & other) {
+void TagStatistics::Merge(ByTagID & stats, const ByTagID & other) {
 	for ( const auto & [tagID,tagStats] : other ) {
 		auto fi = stats.find(tagID);
 		if ( fi == stats.end() ) {
@@ -260,8 +260,8 @@ void TagStatisticsLister::Merge(Stats & stats, const Stats & other) {
 
 
 TagStatistics
-TagStatisticsLister::MergeTimed(const TagStatistics & old, const Time & oldEnd,
-                                const TagStatistics & newer, const Time & newerStart) {
+TagStatistics::MergeTimed(const TagStatistics & old, const Time & oldEnd,
+                          const TagStatistics & newer, const Time & newerStart) {
 	if ( old.ID != newer.ID ) {
 		throw std::invalid_argument("Mismatched ID "
 		                            + std::to_string(newer.ID)
@@ -291,7 +291,7 @@ TagStatisticsLister::MergeTimed(const TagStatistics & old, const Time & oldEnd,
 	return res;
 }
 
-TagStatistics TagStatisticsLister::MergeSpaced(TagStatistics & a, TagStatistics & b) {
+TagStatistics TagStatistics::MergeSpaced(TagStatistics & a, TagStatistics & b) {
 	if ( a.ID == b.ID ) {
 		throw std::invalid_argument("Mismatched ID "
 		                            + std::to_string(a.ID)

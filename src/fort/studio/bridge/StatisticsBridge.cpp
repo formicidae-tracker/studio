@@ -59,7 +59,7 @@ void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::
 		        for ( int i = 0; i < watcher->progressMaximum(); ++i ) {
 			        stats.push_back(watcher->resultAt(i));
 		        }
-		        d_stats.at(uri) = fmp::TagStatisticsLister::MergeTimed(stats.begin(),stats.end());
+		        d_stats.at(uri) = fmp::TagStatistics::MergeTimed(stats.begin(),stats.end());
 		        rebuildModel();
 	        },
 	        Qt::QueuedConnection);
@@ -94,7 +94,7 @@ void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
 
 StatisticsBridge::TimedStats StatisticsBridge::Load(QString filepath) {
 	try {
-		auto res = fmp::TagStatisticsLister::BuildStats(ToStdString(filepath));
+		auto res = fmp::TagStatistics::BuildStats(ToStdString(filepath));
 		return res;
 	} catch ( const std::exception & e) {
 		qWarning() << "Could not build statistics for "
@@ -134,7 +134,7 @@ void StatisticsBridge::rebuildModel() {
 
 	}
 
-	auto stats = fmp::TagStatisticsLister::MergeSpaced(spaceStats.begin(),spaceStats.end());
+	auto stats = fmp::TagStatistics::MergeSpaced(spaceStats.begin(),spaceStats.end());
 
 	for ( const auto & [tagID,tagStats] : stats ) {
 		QList<QStandardItem*> row;
