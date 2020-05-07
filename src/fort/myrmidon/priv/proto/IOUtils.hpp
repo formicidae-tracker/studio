@@ -152,7 +152,7 @@ public:
 	                      const pb::Space & pb);
 
 	static void SaveSpace(pb::Space * pb,
-	                      const SpacePtr & space);
+	                      const SpaceConstPtr & space);
 
 
 	// Loads an Experiment from a protobuf message

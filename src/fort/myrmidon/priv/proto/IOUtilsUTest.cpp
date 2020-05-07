@@ -464,9 +464,9 @@ TEST_F(IOUtilsUTest,AntIO) {
 			});
 
 		IOUtils::LoadAnt(e,a);
-		auto fi = e->ConstIdentifier().Ants().find(expected.id());
-		EXPECT_TRUE(fi != e->ConstIdentifier().Ants().cend());
-		if ( fi == e->ConstIdentifier().Ants().cend() ) {
+		auto fi = e->CIdentifier().CAnts().find(expected.id());
+		EXPECT_TRUE(fi != e->CIdentifier().CAnts().cend());
+		if ( fi == e->CIdentifier().CAnts().cend() ) {
 			continue;
 		}
 		auto res = fi->second;

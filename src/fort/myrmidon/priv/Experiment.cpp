@@ -111,8 +111,12 @@ void Experiment::DeleteSpace(Space::ID ID) {
 	d_universe->DeleteSpace(ID);
 }
 
-const SpaceByID & Experiment::Spaces() const {
+const SpaceByID & Experiment::Spaces() {
 	return d_universe->Spaces();
+}
+
+const ConstSpaceByID & Experiment::CSpaces() const {
+	return d_universe->CSpaces();
 }
 
 const Space::Universe::TrackingDataDirectoryByURI &
@@ -351,7 +355,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
                                            MeasurementType::ID type) const {
 	auto afi = d_identifier->Ants().find(AID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr>::UnmanagedObject(AID);
+		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(AID);
 	}
 
 	double cornerWidthRatio = CornerWidthRatio(d_family);
@@ -414,18 +418,33 @@ void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
 	d_measurementTypes.DeleteObject(MTID);
 }
 
-const MeasurementTypeByID & Experiment::MeasurementTypes() const {
+const MeasurementTypeByID & Experiment::MeasurementTypes() {
 	return d_measurementTypes.Objects();
 }
 
+const ConstMeasurementTypeByID & Experiment::CMeasurementTypes() const {
+	return d_measurementTypes.CObjects();
+}
+
+std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+Experiment::CLocateTrackingDataDirectory(const std::string & tddURI) const {
+	return d_universe->CLocateTrackingDataDirectory(tddURI);
+}
+
 std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
+Experiment::LocateTrackingDataDirectory(const std::string & tddURI) {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }
 
-Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
+
+Space::ConstPtr Experiment::CLocateSpace(const std::string & spaceName) const {
+	return d_universe->CLocateSpace(spaceName);
+}
+
+Space::Ptr Experiment::LocateSpace(const std::string & spaceName) {
 	return d_universe->LocateSpace(spaceName);
 }
+
 
 AntShapeType::Ptr Experiment::CreateAntShapeType(const std::string & name,
                                                  AntShapeTypeID typeID) {
@@ -454,8 +473,12 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
 }
 
 
-const AntShapeTypeByID & Experiment::AntShapeTypes() const {
+const AntShapeTypeByID & Experiment::AntShapeTypes() {
 	return d_antShapeTypes->Types();
+}
+
+const ConstAntShapeTypeByID & Experiment::CAntShapeTypes() const {
+	return d_antShapeTypes->CTypes();
 }
 
 AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {

@@ -83,23 +83,33 @@ FORT_MYRMIDON_FDECLARE_CLASS(AntShapeType)
 
 // A Map of <Ant> identified by their <Ant::ID>
 typedef DenseMap<fort::myrmidon::Ant::ID,AntPtr> AntByID;
+typedef DenseMap<fort::myrmidon::Ant::ID,AntConstPtr> ConstAntByID;
 
 // A List of <Identification>
 typedef std::vector<IdentificationPtr>  IdentificationList;
+typedef std::vector<IdentificationPtr>  IdentificationConstList;
 
-typedef uint32_t                   SpaceID;
-typedef DenseMap<SpaceID,SpacePtr> SpaceByID;
+typedef uint32_t                        SpaceID;
+typedef DenseMap<SpaceID,SpacePtr>      SpaceByID;
+typedef DenseMap<SpaceID,SpaceConstPtr> ConstSpaceByID;
 
-typedef uint32_t                   ZoneID;
-typedef DenseMap<ZoneID,ZonePtr> ZoneByID;
+typedef uint32_t                      ZoneID;
+typedef DenseMap<ZoneID,ZonePtr>      ZoneByID;
+typedef DenseMap<ZoneID,ZoneConstPtr> ConstZoneByID;
+
 
 // Forward declaration of <priv::MeasurementType::ID>
 typedef uint32_t MeasurementTypeID;
 // Maps the <MeasurementType> by their <MeasurementType::ID>
-typedef DenseMap<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeByID;
+typedef DenseMap<MeasurementTypeID,MeasurementTypePtr>      MeasurementTypeByID;
+// Maps the <MeasurementType> by their <MeasurementType::ID>
+typedef DenseMap<MeasurementTypeID,MeasurementTypeConstPtr> ConstMeasurementTypeByID;
+
+
 
 typedef uint32_t AntShapeTypeID;
 typedef DenseMap<AntShapeTypeID,AntShapeTypePtr>                    AntShapeTypeByID;
+typedef DenseMap<AntShapeTypeID,AntShapeTypeConstPtr>                    ConstAntShapeTypeByID;
 
 FORT_MYRMIDON_FDECLARE_CLASS(AntShapeTypeContainer)
 

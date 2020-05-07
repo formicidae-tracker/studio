@@ -24,7 +24,7 @@ void ExperimentUTest::TearDown() {
 }
 
 
-typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr> Container;
+typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant> Container;
 
 void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data.clear();
@@ -63,10 +63,10 @@ TEST_F(ExperimentUTest,IOTest) {
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
 		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
-		ASSERT_EQ(e->ConstIdentifier().Ants().size(),3);
-		EXPECT_EQ(e->ConstIdentifier().Ants().find(1)->second->ID(),1);
-		EXPECT_EQ(e->ConstIdentifier().Ants().find(2)->second->ID(),2);
-		EXPECT_EQ(e->ConstIdentifier().Ants().find(3)->second->ID(),3);
+		ASSERT_EQ(e->CIdentifier().CAnts().size(),3);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(1)->second->ID(),1);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(2)->second->ID(),2);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(3)->second->ID(),3);
 		EXPECT_EQ(e->AbsoluteFilePath(),TestSetup::Basedir() / "test.myrmidon");
 		EXPECT_EQ(e->Basedir(), TestSetup::Basedir());
 

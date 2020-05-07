@@ -32,7 +32,7 @@ class IdentifierIF {
 public:
 	typedef std::shared_ptr<IdentifierIF>       Ptr;
 	typedef std::shared_ptr<const IdentifierIF> ConstPtr;
-	virtual IdentificationPtr Identify(TagID tagID, const Time & time) const = 0;
+	virtual IdentificationConstPtr Identify(TagID tagID, const Time & time) const = 0;
 };
 
 
@@ -44,7 +44,7 @@ public:
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
+class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
@@ -80,7 +80,12 @@ public:
 
 	// Gets the Ants in the Identifier
 	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
-	const AntByID & Ants() const;
+	const AntByID & Ants();
+
+	// Gets the Ants in the Identifier
+	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
+	const ConstAntByID & CAnts() const;
+
 
 	// Adds a new Identification
 	// @id the targeted <priv::Ant>
@@ -137,7 +142,7 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(TagID tag,const Time & frame) const override;
+	IdentificationConstPtr Identify(TagID tag,const Time & frame) const override;
 
 
 	// Return the first next frame if any where tag is not used
@@ -181,10 +186,10 @@ public:
 		Compiled(const std::unordered_map<TagID,IdentificationList> & identification);
 		virtual ~Compiled();
 
-		IdentificationPtr Identify(TagID tagID, const Time & time) const override;
+		IdentificationConstPtr Identify(TagID tagID, const Time & time) const override;
 
 	private:
-		typedef DenseMap<TagID,IdentificationList> IdentificationsByTagID;
+		typedef DenseMap<TagID,IdentificationConstList> IdentificationsByTagID;
 		IdentificationsByTagID d_identifications;
 	};
 

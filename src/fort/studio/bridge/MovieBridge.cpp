@@ -53,8 +53,8 @@ MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
 
 std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
 MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
-	auto fi = d_experiment->Spaces().find(spaceID);
-	if ( fi == d_experiment->Spaces().end() ) {
+	auto fi = d_experiment->CSpaces().find(spaceID);
+	if ( fi == d_experiment->CSpaces().end() ) {
 		return std::make_tuple(nullptr,nullptr,fm::Time());
 	}
 	const auto & tdds = fi->second->TrackingDataDirectories();
@@ -97,7 +97,7 @@ void MovieBridge::rebuildModel() {
 		return;
 	}
 
-	for ( const auto & [spaceID,space] : d_experiment->Spaces() ) {
+	for ( const auto & [spaceID,space] : d_experiment->CSpaces() ) {
 		d_model->appendRow(buildSpace(space));
 	}
 }

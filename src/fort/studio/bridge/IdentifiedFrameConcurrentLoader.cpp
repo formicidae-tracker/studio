@@ -101,7 +101,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 	}
 
 	clear();
-	auto identifier = d_experiment->ConstIdentifier().Compile();
+	auto identifier = d_experiment->CIdentifier().Compile();
 	auto solver = d_experiment->CompileInteractionSolver();
 
 	size_t currentLoadingID = ++d_currentLoadingID;

@@ -114,21 +114,28 @@ public:
 
 		void DeleteTrackingDataDirectory(const std::string & URI);
 
-		const SpaceByID & Spaces() const;
+		const ConstSpaceByID & CSpaces() const;
+		const SpaceByID & Spaces();
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
-		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-		LocateTrackingDataDirectory(const std::string & tddURI) const;
+		std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+		CLocateTrackingDataDirectory(const std::string & tddURI) const;
 
-		Space::Ptr LocateSpace(const std::string & spaceName) const;
+		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+		LocateTrackingDataDirectory(const std::string & tddURI);
+
+
+		Space::ConstPtr CLocateSpace(const std::string & spaceName) const;
+
+		Space::Ptr LocateSpace(const std::string & spaceName);
 
 
 
 	private:
 		friend class Space;
 
-		AlmostContiguousIDContainer<Space::ID,Space::Ptr> d_spaces;
+		AlmostContiguousIDContainer<Space::ID,Space> d_spaces;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
@@ -149,7 +156,8 @@ public:
 
 	void DeleteZone(Zone::ID ID);
 
-	const ZoneByID & Zones() const;
+	const ConstZoneByID & CZones() const;
+	const ZoneByID & Zones();
 
 	Space::ID SpaceID() const;
 
@@ -169,7 +177,7 @@ private :
 
 	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
 
-	AlmostContiguousIDContainer<Zone::ID,Zone::Ptr> d_zones;
+	AlmostContiguousIDContainer<Zone::ID,Zone> d_zones;
 };
 
 

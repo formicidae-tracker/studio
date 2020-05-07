@@ -79,7 +79,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 
 	//reorder ants
 	std::map<quint32,fmp::Ant::Ptr> ants;
-	for ( const auto & a : d_experiment->ConstIdentifier().Ants() ) {
+	for ( const auto & a : d_experiment->Identifier()->Ants() ) {
 		ants.insert(a);
 	}
 
@@ -469,7 +469,7 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 	if ( !d_experiment ) {
 		return fmp::Identification::ConstPtr();
 	}
-	return d_experiment->ConstIdentifier().Identify(tagID,time);
+	return d_experiment->CIdentifier().Identify(tagID,time);
 }
 
 
@@ -479,7 +479,7 @@ bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
 	if ( !d_experiment ) {
 		return false;
 	}
-	return d_experiment->ConstIdentifier().FreeRangeContaining(start,end,tagID,time);
+	return d_experiment->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 
 SelectedAntBridge * IdentifierBridge::selectedAnt() const {
@@ -490,7 +490,7 @@ fmp::Ant::ConstPtr IdentifierBridge::ant(fm::Ant::ID aID) const {
 	if ( !d_experiment == true ) {
 		return fmp::Ant::ConstPtr();
 	}
-	const auto & ants = d_experiment->ConstIdentifier().Ants();
+	const auto & ants = d_experiment->CIdentifier().CAnts();
 	auto fi = ants.find(aID);
 	if ( fi == ants.cend() ) {
 		return fmp::Ant::ConstPtr();

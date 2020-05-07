@@ -69,14 +69,14 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 		                IOUtils::SaveExperiment(line.mutable_experiment(),experiment);
 	                });
 
-	for ( const auto & [spaceID,space] : experiment.Spaces() ) {
+	for ( const auto & [spaceID,space] : experiment.CSpaces() ) {
 		lines.push_back([space](pb::FileLine & line) {
 			                IOUtils::SaveSpace(line.mutable_space(),space);
 		                });
 	}
 
 	std::vector<fort::myrmidon::Ant::ID> antIDs;
-	for (const auto & [ID,a] : experiment.ConstIdentifier().Ants() ) {
+	for (const auto & [ID,a] : experiment.CIdentifier().CAnts() ) {
 		antIDs.push_back(ID);
 	}
 	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
@@ -87,7 +87,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 	for (const auto & ID : antIDs) {
 		lines.push_back([&experiment,ID](pb::FileLine & line) {
 			                IOUtils::SaveAnt(line.mutable_antdescription(),
-			                                 experiment.ConstIdentifier().Ants().find(ID)->second);
+			                                 experiment.CIdentifier().CAnts().find(ID)->second);
 		                });
 	}
 

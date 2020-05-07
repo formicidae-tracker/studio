@@ -16,6 +16,7 @@ public:
 	typedef std::shared_ptr<AntShapeType>       Ptr;
 	typedef std::shared_ptr<const AntShapeType> ConstPtr;
 	typedef DenseMap<ID,Ptr>                    ByID;
+	typedef DenseMap<ID,ConstPtr>               ConstByID;
 
 	AntShapeType(ID TypeID, const std::string & name);
 
@@ -39,15 +40,16 @@ public:
 
 	void Delete(AntShapeType::ID typeID);
 
-	AntShapeType::ByID::const_iterator Find(AntShapeType::ID typeID) const;
+	AntShapeType::ConstByID::const_iterator Find(AntShapeType::ID typeID) const;
 
-	AntShapeType::ByID::const_iterator End() const;
+	AntShapeType::ConstByID::const_iterator End() const;
 
 	size_t Count(AntShapeType::ID typeID) const;
 
-	const AntShapeType::ByID & Types() const;
+	const AntShapeType::ByID & Types();
+	const AntShapeType::ConstByID & CTypes() const;
 private:
-	AlmostContiguousIDContainer<AntShapeType::ID,AntShapeType::Ptr> d_container;
+	AlmostContiguousIDContainer<AntShapeType::ID,AntShapeType> d_container;
 };
 
 } // namespace priv

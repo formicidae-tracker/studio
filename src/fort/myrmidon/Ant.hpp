@@ -1,15 +1,12 @@
 #pragma once
 
-
 #include <Eigen/StdVector>
 #include <Eigen/Core>
 
 #include <memory>
 
 namespace fort {
-
 namespace myrmidon {
-
 
 class Metadata;
 
@@ -30,5 +27,4 @@ private:
 
 
 } // namespace myrmidon
-
 } //namespace fort

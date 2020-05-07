@@ -50,8 +50,13 @@ void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
 }
 
 
-const AntByID & Identifier::Ants() const {
+const AntByID & Identifier::Ants() {
 	return Objects();
+}
+
+
+const ConstAntByID & Identifier::CAnts() const {
+	return CObjects();
 }
 
 
@@ -174,7 +179,7 @@ void Identifier::SortAndCheck(IdentificationList & tagSiblings,
 
 }
 
-Identification::Ptr Identifier::Identify(TagID tag,const Time & t) const {
+Identification::ConstPtr Identifier::Identify(TagID tag,const Time & t) const {
 	auto fi = d_identifications.find(tag);
 	if ( fi == d_identifications.end()) {
 		return Identification::Ptr();
@@ -243,7 +248,7 @@ void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
 	fi->second.erase(ape);
 	fi->second.insert(ape);
 
-	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	auto identification = std::const_pointer_cast<Identification>(Identify(ape->TargetTagID(),ape->Reference().Time()));
 	if (!identification) {
 		return;
 	}
@@ -256,7 +261,7 @@ void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
 		return;
 	}
 	fi->second.erase(ape);
-	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	auto identification = std::const_pointer_cast<Identification>(Identify(ape->TargetTagID(),ape->Reference().Time()));
 	if ( !identification ) {
 		return;
 	}
@@ -303,7 +308,7 @@ Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identif
 Identifier::Compiled::~Compiled() {
 }
 
-Identification::Ptr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
+Identification::ConstPtr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
 	try {
 		for ( const auto & i : d_identifications.at(tagID+1) ) {
 			if ( i->IsValid(time) == true ) {

@@ -121,7 +121,7 @@ void StatisticsBridge::rebuildModel() {
 	std::lock_guard<std::mutex> lock(mutex);
 
 	std::vector<Stats> spaceStats;
-	for ( const auto & [spaceID,space] : d_experiment->Spaces() ) {
+	for ( const auto & [spaceID,space] : d_experiment->CSpaces() ) {
 		spaceStats.reserve(spaceStats.size() + space->TrackingDataDirectories().size());
 		for ( const auto & tdd : space->TrackingDataDirectories() ) {
 			QString uri = tdd->URI().c_str();

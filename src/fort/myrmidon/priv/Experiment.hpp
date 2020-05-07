@@ -39,10 +39,7 @@ using namespace fort::myrmidon;
 // to anlayse several of them in the same program.
 class Experiment : public FileSystemLocatable {
 public :
-
-
-	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
-
+	typedef std::map<uint32_t,MeasurementConstPtr>        MeasurementByType;
 	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
 
 
@@ -107,7 +104,8 @@ public :
 
 	void DeleteSpace(Space::ID spaceID);
 
-	const SpaceByID & Spaces() const;
+	const SpaceByID & Spaces();
+	const ConstSpaceByID & CSpaces() const;
 
 	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
@@ -116,9 +114,16 @@ public :
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
 	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-	LocateTrackingDataDirectory(const std::string & tddURI) const;
+	LocateTrackingDataDirectory(const std::string & tddURI);
 
-	Space::Ptr LocateSpace(const std::string & spaceName) const;
+
+	std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+	CLocateTrackingDataDirectory(const std::string & tddURI) const;
+
+
+	Space::ConstPtr CLocateSpace(const std::string & spaceName) const;
+
+	Space::Ptr LocateSpace(const std::string & spaceName);
 
 
 	AntPtr CreateAnt(fort::myrmidon::Ant::ID aID = 0);
@@ -133,7 +138,7 @@ public :
 	// ConstAccessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
-	inline const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
+	inline const fort::myrmidon::priv::Identifier & CIdentifier() const {
 		return *d_identifier;
 	}
 
@@ -203,7 +208,9 @@ public :
 
 	void DeleteMeasurementType(MeasurementTypeID MTID);
 
-	const MeasurementTypeByID & MeasurementTypes() const;
+	const ConstMeasurementTypeByID & CMeasurementTypes() const;
+
+	const MeasurementTypeByID & MeasurementTypes();
 
 	// Adds or modifies a Measurement
 	//
@@ -245,7 +252,9 @@ public :
 
 	void DeleteAntShapeType(AntShapeTypeID TypeID);
 
-	const AntShapeTypeByID & AntShapeTypes() const;
+	const ConstAntShapeTypeByID & CAntShapeTypes() const;
+
+	const AntShapeTypeByID & AntShapeTypes();
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
@@ -286,7 +295,7 @@ private:
 	                                   std::map<Time,
 	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
 
-	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
+	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementType> MeasurementTypeContainer;
 
 
 	Experiment & operator=(const Experiment&) = delete;
