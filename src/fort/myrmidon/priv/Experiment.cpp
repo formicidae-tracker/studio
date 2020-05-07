@@ -15,6 +15,8 @@
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
+#include <boost/interprocess/sync/file_lock.hpp>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -72,8 +74,49 @@ Experiment::Experiment(const fs::path & filepath )
 	                                              onDefaultChange);
 }
 
+class ExperimentLock {
+public:
+	typedef std::shared_ptr<ExperimentLock>          Ptr;
+	typedef boost::interprocess::file_lock FileLock;;
+	ExperimentLock(const std::string & filepath, bool shared)
+		: d_shared(shared) {
+		try {
+			d_lock = FileLock(filepath.c_str());
+		} catch ( const std::exception & e ) {
+			throw std::runtime_error("Could not create file lock on '"
+			                         + filepath
+			                         + "': '"
+			                         + e.what());
+		}
+		if ( d_shared == true ) {
+			if ( d_lock.try_lock_sharable() == false ) {
+				throw std::runtime_error("Could not lock '"
+				                         + filepath
+				                         + "' for read access: another program locked it for writing");
+			}
+		} else if ( d_lock.try_lock() == false ) {
+			throw std::runtime_error("Could not lock '"
+			                         + filepath
+			                         + "' for write access: another program locked it for reading or writing");
+		}
+	}
+
+	~ExperimentLock() {
+		if ( d_shared == true ) {
+			d_lock.unlock_sharable();
+		} else {
+			d_lock.unlock();
+		}
+	}
+
+private:
+	FileLock d_lock;
+	bool     d_shared;
+};
+
+
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
-	return Experiment::Ptr(new Experiment(filename));
+	return std::shared_ptr<Experiment>(new Experiment(filename));
 }
 
 Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
@@ -87,10 +130,21 @@ Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 	return res;
 }
 
-
 Experiment::Ptr Experiment::Open(const fs::path & filepath) {
-	return ExperimentReadWriter::Open(filepath);
+	auto lock = std::make_shared<ExperimentLock>(filepath.string(),false);
+	auto res =  ExperimentReadWriter::Open(filepath);
+	res->d_lock = lock;
+	return res;
 }
+
+
+Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
+	auto lock = std::make_shared<ExperimentLock>(filepath.string(),true);
+	auto res = ExperimentReadWriter::Open(filepath);
+	res->d_lock = lock;
+	return res;
+}
+
 
 void Experiment::Save(const fs::path & filepath) const {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
@@ -100,7 +154,15 @@ void Experiment::Save(const fs::path & filepath) const {
 		throw std::runtime_error("Changing experiment file directory is not yet supported");
 	}
 
+	// touch file before locking
+	{
+		std::ofstream touching;
+		touching.open(filepath.string(),std::ios_base::app);
+	}
+
+	auto lock = std::make_shared<ExperimentLock>(filepath.string(),false);
 	ExperimentReadWriter::Save(*this,filepath);
+	const_cast<Experiment*>(this)->d_lock = lock;
 }
 
 Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {

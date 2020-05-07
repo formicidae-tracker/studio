@@ -20,6 +20,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+class ExperimentLock;
+
 
 using namespace fort::myrmidon;
 
@@ -54,6 +56,13 @@ public :
 	// @filename the fs::path to the ".myrmidon" file
 	// @return a <Ptr> to the <Experiment>.
 	static Ptr Open(const fs::path & filename);
+
+
+	// Opens an existing experiment given its fs::path
+	// @filename the fs::path to the ".myrmidon" file
+	// @return a <Ptr> to the <Experiment>.
+	static ConstPtr OpenReadOnly(const fs::path & filename);
+
 
 	// Creates a new <Experiment> given a fs::path
 	// @filename the fs::path to the ".myrmidon" file
@@ -299,7 +308,6 @@ private:
 
 	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementType> MeasurementTypeContainer;
 
-
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
 
@@ -326,6 +334,7 @@ private:
 
 	AntShapeTypeContainerPtr             d_antShapeTypes;
 	fort::myrmidon::priv::AntMetadataPtr d_antMetadata;
+	std::shared_ptr<ExperimentLock>      d_lock;
 };
 
 } //namespace priv
