@@ -59,13 +59,13 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 		emit activated(false);
 		return;
 	}
-	qInfo() << "Selected Ant " << fmp::Ant::FormatID(ant->ID()).c_str();
+	qInfo() << "Selected Ant " << ant->FormattedID().c_str();
 	rebuildIdentificationModel();
 	emit activated(true);
 }
 
 void SelectedAntBridge::onIdentificationModified(const fmp::Identification::ConstPtr & ident) {
-	if ( !d_ant || !ident || ident->Target()->ID() != d_ant->ID() ) {
+	if ( !d_ant || !ident || ident->Target()->AntID() != d_ant->AntID() ) {
 		return;
 	}
 	rebuildIdentificationModel();
@@ -115,11 +115,11 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 }
 
 
-fm::Ant::ID SelectedAntBridge::selectedID() const {
+fmp::AntID SelectedAntBridge::selectedID() const {
 	if ( !d_ant ) {
 		return 0;
 	}
-	return d_ant->ID();
+	return d_ant->AntID();
 }
 
 
@@ -149,14 +149,14 @@ void SelectedAntBridge::addCapsule(fmp::AntShapeTypeID typeID,const fmp::Capsule
 	}
 	try {
 		qDebug() << "[SelectedAntBridge]: Calling fmp::Experiment::AddCapsuleToAnt("
-		         << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		         << d_ant->FormattedID().c_str()
 		         << "," << typeID
 		         << "," << ToQString(*capsule)
 		         << ")";
 		d_ant->AddCapsule(typeID,capsule);
 	} catch (const std::exception & e ) {
 		qCritical() << "Could not add Capsule of type " << typeID
-		            << " to Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		            << " to Ant " << d_ant->FormattedID().c_str()
 		            << ": " << e.what();
 		return;
 	}
@@ -170,12 +170,12 @@ void SelectedAntBridge::clearCapsules() {
 
 	try {
 		qDebug() << "[SelectedAntBridge]: Calling fmp::Ant("
-		         << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		         << d_ant->FormattedID().c_str()
 		         << ")::DeleteCapsules()";
 		d_ant->ClearCapsules();
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not remove Capsules "
-		            << " from Ant " << ToQString(fmp::Ant::FormatID(d_ant->ID()))
+		            << " from Ant " << d_ant->FormattedID().c_str()
 		            << ": " << e.what();
 		return;
 	}
@@ -205,7 +205,7 @@ void SelectedAntBridge::cloneShape(bool scaleToSize, bool overwriteShape) {
 		         << d_ant->FormattedID().c_str() << ","
 		         << scaleToSize << ","
 		         << overwriteShape << ")";
-		d_experiment->CloneAntShape(d_ant->ID(),
+		d_experiment->CloneAntShape(d_ant->AntID(),
 		                            scaleToSize,
 		                            overwriteShape);
 	} catch ( const std::exception & e ) {

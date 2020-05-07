@@ -51,7 +51,7 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
 	}
 
-	auto res = Identifier::AddIdentification(e->Identifier(),target->ID(),pb.id(),start,end);
+	auto res = Identifier::AddIdentification(e->Identifier(),target->AntID(),pb.id(),start,end);
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
@@ -205,7 +205,7 @@ void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDesc
 
 void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr & ant) {
 	pb->Clear();
-	pb->set_id(ant->ID());
+	pb->set_id(ant->AntID());
 
 	for ( const auto & ident : ant->CIdentifications() ) {
 		SaveIdentification(pb->add_identifications(),ident);

@@ -55,7 +55,6 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
                       priv/DenseMap.hpp
-                      priv/Color.hpp
                       priv/Space.hpp
                       priv/Zone.hpp
                       priv/Experiment.hpp
@@ -95,7 +94,9 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       )
 
 
-set(HDR_PUBLIC_FILES Frame.hpp
+set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
+                     Types.hpp
+                     Color.hpp
                      Experiment.hpp
                      Ant.hpp
                      Time.hpp
@@ -107,7 +108,6 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
                       priv/DenseMap.cpp
-                      priv/Color.cpp
                       priv/Space.cpp
                       priv/Zone.cpp
                       priv/Experiment.cpp
@@ -142,8 +142,10 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/TagStatistics.cpp
                       )
 
-set(SRC_FILES Frame.cpp
-	          Experiment.cpp
+set(SRC_FILES ForwardDeclaration.cpp
+              Types.cpp
+              Color.cpp
+              Experiment.cpp
 	          Ant.cpp
 	          Time.cpp
 	          )

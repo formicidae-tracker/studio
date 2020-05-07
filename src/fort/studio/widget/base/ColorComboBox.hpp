@@ -3,10 +3,6 @@
 #include <QComboBox>
 #include <QColor>
 
-#include <fort/myrmidon/priv/Color.hpp>
-
-
-namespace fmp = fort::myrmidon::priv;
 
 class ColorComboBox : public QComboBox {
 	Q_OBJECT

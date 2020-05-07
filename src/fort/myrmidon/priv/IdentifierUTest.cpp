@@ -27,7 +27,7 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 
 		for(size_t ii = 0; ii < toCreate; ++ii) {
 			auto ant = i->CreateAnt(shapeTypes,metadata);
-			ASSERT_EQ(ant->ID(),i->Ants().size());
+			ASSERT_EQ(ant->AntID(),i->Ants().size());
 		}
 		ASSERT_EQ(i->Ants().size(),startSize + toCreate);
 
@@ -35,13 +35,13 @@ TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 		i->DeleteAnt(startSize+3);
 
 		auto ant = i->CreateAnt(shapeTypes,metadata);
-		ASSERT_EQ(ant->ID(),startSize+1);
+		ASSERT_EQ(ant->AntID(),startSize+1);
 
 		ant = i->CreateAnt(shapeTypes,metadata);
-		ASSERT_EQ(ant->ID(),startSize+3);
+		ASSERT_EQ(ant->AntID(),startSize+3);
 
 		ant = i->CreateAnt(shapeTypes,metadata);
-		ASSERT_EQ(ant->ID(),i->Ants().size());
+		ASSERT_EQ(ant->AntID(),i->Ants().size());
 
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
@@ -63,22 +63,22 @@ TEST_F(IdentifierUTest,AntsCanBeDeleted) {
 		});
 
 	EXPECT_THROW({
-			i->DeleteAnt(a->ID()+1);
+			i->DeleteAnt(a->AntID()+1);
 		}, Container::UnmanagedObject);
 
 	IdentificationPtr ident;
 	EXPECT_NO_THROW({
-			ident = Identifier::AddIdentification(i,a->ID(), 123, Time::ConstPtr(), Time::ConstPtr());
+			ident = Identifier::AddIdentification(i,a->AntID(), 123, Time::ConstPtr(), Time::ConstPtr());
 		});
 
 	EXPECT_THROW({
-			i->DeleteAnt(a->ID());
+			i->DeleteAnt(a->AntID());
 		}, std::logic_error);
 
 
 	EXPECT_NO_THROW({
 			i->DeleteIdentification(ident);
-			i->DeleteAnt(a->ID());
+			i->DeleteAnt(a->AntID());
 		});
 }
 
@@ -89,15 +89,15 @@ TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 	auto metadata = std::make_shared<AntMetadata>();
 	auto a = i->CreateAnt(shapeTypes,metadata);
 	EXPECT_THROW({
-			Identifier::AddIdentification(i,a->ID()+1,123,Time::ConstPtr(),Time::ConstPtr());
+			Identifier::AddIdentification(i,a->AntID()+1,123,Time::ConstPtr(),Time::ConstPtr());
 		},Container::UnmanagedObject);
 
 	IdentificationPtr ident1,ident2;
-	EXPECT_NO_THROW(ident1 = Identifier::AddIdentification(i,a->ID(),123,Time::ConstPtr(),Time::ConstPtr()));
+	EXPECT_NO_THROW(ident1 = Identifier::AddIdentification(i,a->AntID(),123,Time::ConstPtr(),Time::ConstPtr()));
 
 	auto ii = std::make_shared<Identifier>();
 	auto aa = ii->CreateAnt(shapeTypes,metadata);
-	ident2 = Identifier::AddIdentification(ii,aa->ID(),124,Time::ConstPtr(),Time::ConstPtr());
+	ident2 = Identifier::AddIdentification(ii,aa->AntID(),124,Time::ConstPtr(),Time::ConstPtr());
 
 	EXPECT_THROW({
 			i->DeleteIdentification(ident2);
@@ -116,7 +116,7 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 	auto start = std::make_shared<const Time>(Time::Parse("2019-11-02T22:00:20.021+01:00"));
 	auto end = std::make_shared<const Time>(Time::Parse("2019-11-02T22:30:25.863+01:00"));
 	auto secondStart = std::make_shared<const Time>(Time::Parse("2019-11-02T22:34:25.412+01:00"));
-	auto ident = Identifier::AddIdentification(i,a->ID(),123,start,end);
+	auto ident = Identifier::AddIdentification(i,a->AntID(),123,start,end);
 
 	EXPECT_EQ(i->UseCount(123),1);
 	EXPECT_EQ(i->UseCount(124),0);
@@ -144,7 +144,7 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 	EXPECT_EQ(i->LowerUnidentifiedBound(123,start->Add(-1)),Time::ConstPtr());
 
 	EXPECT_NO_THROW({
-			Identifier::AddIdentification(i,a->ID(),123,secondStart,Time::ConstPtr());
+			Identifier::AddIdentification(i,a->AntID(),123,secondStart,Time::ConstPtr());
 		});
 
 
@@ -189,7 +189,7 @@ TEST_F(IdentifierUTest,Compilation) {
 			tags.insert(tagID);
 			auto end = std::make_shared<Time>(t);
 			Identifier::AddIdentification(identifier,
-			                              a->ID(),tagID,
+			                              a->AntID(),tagID,
 			                              lastTime,
 			                              end);
 			lastTime = end;
@@ -198,7 +198,7 @@ TEST_F(IdentifierUTest,Compilation) {
 		auto tagID = NB_ANTS * a->Identifications().size() + i;
 		tags.insert(tagID);
 		Identifier::AddIdentification(identifier,
-		                              a->ID(),
+		                              a->AntID(),
 		                              tagID,
 		                              lastTime,Time::ConstPtr());
 	}
@@ -229,16 +229,16 @@ TEST_F(IdentifierUTest,Compilation) {
 				if ( !res ) {
 					return ::testing::AssertionFailure()
 						<< "tag " << t << " should have been identified to "
-						<< expected->Target()->ID() << " idents: "
+						<< expected->Target()->AntID() << " idents: "
 						<< expected->Target()->Identifications().size();
 
 				}
 
-				if ( res->Target()->ID() != expected->Target()->ID() ) {
+				if ( res->Target()->AntID() != expected->Target()->AntID() ) {
 					return ::testing::AssertionFailure()
 						<< "Got identification target mismatch, expected: "
-						<< expected->Target()->ID()
-						<< " got: " << res->Target()->ID();
+						<< expected->Target()->AntID()
+						<< " got: " << res->Target()->AntID();
 
 				}
 				flatTimes.push_back(middle.Sub(start));

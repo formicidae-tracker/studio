@@ -374,11 +374,11 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 			ant->DeleteValue(col->Name(),fm::Time::ConstPtr());
 			setModified(true);
 		} catch ( const std::exception & e ) {
-			qWarning() << "Could not set " << ToQString(fmp::Ant::FormatID(ant->ID()))
+			qWarning() << "Could not set " << ant->FormattedID().c_str()
 			           << " column '" << ToQString(col->Name())
 			           << "' to default value: " << e.what();
 		}
-		qInfo() << "Deleted base value for ant " << ToQString(fmp::Ant::FormatID(ant->ID()));
+		qInfo() << "Deleted base value for ant " << ant->FormattedID().c_str();
 		QSignalBlocker blocker(d_dataModel);
 		setupItemFromValue(item,ant,col);
 		return;
@@ -400,14 +400,14 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 
 		setModified(true);
 	} catch (const std::exception & e) {
-		qCritical() << "Could not set " << ToQString(fmp::Ant::FormatID(ant->ID()))
+		qCritical() << "Could not set " << ant->FormattedID().c_str()
 		            << " column '" << ToQString(col->Name())
 		            << "' to '" << item->text()
 		            << "': " << e.what();
 	}
 	QSignalBlocker blocker(d_dataModel);
 	setupItemFromValue(item,ant,col);
-	qInfo() << "Set base value for Ant " << ToQString(fmp::Ant::FormatID(ant->ID()))
+	qInfo() << "Set base value for Ant " << ant->FormattedID().c_str()
 	        << " '" << ToQString(col->Name()) << "' to " << item->text();
 }
 
@@ -427,7 +427,7 @@ void AntMetadataBridge::selectRow(int row) {
 		return;
 	}
 
-	setSelectedAntID(ant->ID());
+	setSelectedAntID(ant->AntID());
 
 	for ( const auto & [name,tValues] : ant->DataMap() ) {
 		fmp::AntMetadata::Column::Ptr column;
@@ -547,7 +547,7 @@ void AntMetadataBridge::removeTimedChange(const QModelIndex & index) {
 	if ( !ant || index.row() >= d_timedChangeModel->rowCount() ) {
 		return;
 	}
-	auto antLabel = ToQString(fmp::Ant::FormatID(ant->ID()));
+	auto antLabel = ToQString(ant->FormattedID());
 	auto name = d_timedChangeModel->index(index.row(),0).data(Qt::DisplayRole).toString();
 	auto timeStr = d_timedChangeModel->index(index.row(),1).data(Qt::DisplayRole).toString();
 	fm::Time::ConstPtr time;

@@ -75,7 +75,7 @@ IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier
 			continue;
 		}
 		identification->ComputePositionFromTag(position,angle,Eigen::Vector2d(t.x(),t.y()),t.theta());
-		res->Positions.push_back({position,angle,identification->Target()->ID()});
+		res->Positions.push_back({position,angle,identification->Target()->AntID()});
 
 	}
 	return res;

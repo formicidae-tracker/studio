@@ -11,7 +11,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
+std::string Ant::FormatID(ID ID) {
 	std::ostringstream os;
 	os << "0x" << std::setw(4) << std::setfill('0') << std::hex
 	   << std::uppercase << ID;
@@ -20,9 +20,8 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 
 Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
          const AntMetadataConstPtr & metadata,
-         fort::myrmidon::Ant::ID ID)
+         ID ID)
 	: d_ID(ID)
-	, d_IDStr(FormatID(ID))
 	, d_displayColor(Palette::Default().At(0) )
 	, d_displayState(DisplayState::VISIBLE)
 	, d_shapeTypes(shapeTypeContainer)

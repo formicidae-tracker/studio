@@ -23,7 +23,7 @@ public:
 	ComputeInteractions(SpaceID spaceID,
 	                    const IdentifiedFrame::ConstPtr & frame) const;
 private:
-	typedef DenseMap<fort::myrmidon::Ant::ID,Ant::TypedCapsuleList>  AntGeometriesByID;
+	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
 	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
 	typedef DenseMap<SpaceID,TimedZoneGeometries>                    GeometriesBySpaceID;
 	typedef DenseMap<SpaceID,std::vector<ZoneID>>                    ZoneIDsBySpaceID;

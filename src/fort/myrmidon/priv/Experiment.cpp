@@ -56,7 +56,7 @@ Experiment::Experiment(const fs::path & filepath )
 			}
 			for ( const auto & [aID,a] : d_identifier->Ants() ) {
 				if ( a->DataMap().count(name) == 1 ) {
-					throw std::runtime_error("Could not change type for column '" + name + "': ant " + Ant::FormatID(a->ID()) + " already contains data");
+					throw std::runtime_error("Could not change type for column '" + name + "': ant " + a->FormattedID() + " already contains data");
 				}
 			}
 		};

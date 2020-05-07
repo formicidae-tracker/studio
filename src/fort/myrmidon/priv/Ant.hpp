@@ -1,12 +1,14 @@
 #pragma once
 
 #include <memory>
-#include <fort/myrmidon/utils/FileSystem.hpp>
 
 #include <fort/myrmidon/Ant.hpp>
+#include <fort/myrmidon/Color.hpp>
+
+#include <fort/myrmidon/utils/FileSystem.hpp>
+
 
 #include "Identification.hpp"
-#include "Color.hpp"
 
 #include "TimeMap.hpp"
 
@@ -31,15 +33,16 @@ namespace priv {
 // this.
 class Ant {
 public:
-	enum class DisplayState {
-		VISIBLE = 0,
-		HIDDEN  = 1,
-		SOLO    = 2
-	};
+	// The display state of an Ant
+	typedef fort::myrmidon::Ant::DisplayState DisplayState;
+
 	// A pointer to an Ant
-	typedef std::shared_ptr<Ant> Ptr;
+	typedef std::shared_ptr<Ant>       Ptr;
 	// A pointer to an Ant
 	typedef std::shared_ptr<const Ant> ConstPtr;
+
+	// An ID designating an Ant
+	typedef fort::myrmidon::Ant::ID    ID;
 
 	// A List of shape
 	typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>> TypedCapsuleList;
@@ -47,7 +50,7 @@ public:
 	// The Constructor for an Ant
 	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
 	    const AntMetadataConstPtr & metadata,
-	    fort::myrmidon::Ant::ID ID);
+	    AntID ID);
 
 	// Its destructor
 	~Ant();
@@ -75,21 +78,21 @@ public:
 	// by an Unique ID.
 	//
 	// @return the unique ID of the Ant
-	fort::myrmidon::Ant::ID ID() const {
+	inline ID AntID() const {
 		return d_ID;
 	}
 
 	// Get a formatted ID.
 	//
 	// @return a string in the format "0xabcd"
-	const std::string & FormattedID() const {
-		return d_IDStr;
+	inline std::string FormattedID() const {
+		return FormatID(d_ID);
 	}
 
 	// Formats an Ant::ID to "0xabcd"
 	//
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
-	static std::string FormatID(fort::myrmidon::Ant::ID ID);
+	static std::string FormatID(ID ID);
 
 	void AddCapsule(AntShapeTypeID typeID, const CapsulePtr & capsule);
 
@@ -150,8 +153,7 @@ private:
 
 	static bool CompareTime(const AntTimedValue & a, const AntTimedValue &b);
 
-	fort::myrmidon::Ant::ID d_ID;
-	std::string             d_IDStr;
+	ID                      d_ID;
 	Identification::List    d_identifications;
 	TypedCapsuleList        d_capsules;
 	Color                   d_displayColor;

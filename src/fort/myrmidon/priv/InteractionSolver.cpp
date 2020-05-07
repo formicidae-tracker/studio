@@ -91,17 +91,17 @@ void InteractionSolver::ComputeInteractions(std::vector<Interaction> &  result,
 
 	//first-pass we compute possible interactions
 	struct AntTypedCapsule  {
-		Capsule::ConstPtr       C;
-		fort::myrmidon::Ant::ID AntID;
-		AntShapeType::ID        TypeID;
+		Capsule::ConstPtr C;
+		AntID             ID;
+		AntShapeType::ID  TypeID;
 		inline bool operator<( const AntTypedCapsule & other ) {
-			return AntID < other.AntID;
+			return ID < other.ID;
 		}
 		inline bool operator>( const AntTypedCapsule & other ) {
-			return AntID > other.AntID;
+			return ID > other.ID;
 		}
 		inline bool operator!=( const AntTypedCapsule & other ) {
-			return AntID != other.AntID;
+			return ID != other.ID;
 		}
 	};
 	typedef KDTree<AntTypedCapsule,double,2> KDT;
@@ -118,7 +118,7 @@ void InteractionSolver::ComputeInteractions(std::vector<Interaction> &  result,
 		for ( const auto & [typeID,c] : fiGeom->second ) {
 			auto data =
 				AntTypedCapsule { .C = std::make_shared<Capsule>(c->Transform(antToOrig)),
-				                  .AntID = uint32_t(ant.ID),
+				                  .ID = uint32_t(ant.ID),
 				                  .TypeID = typeID,
 			};
 			nodes.push_back({.Object = data, .Volume = data.C->ComputeAABB() });
@@ -133,7 +133,7 @@ void InteractionSolver::ComputeInteractions(std::vector<Interaction> &  result,
 	std::map<InteractionID,std::vector<InteractionType> > res;
 	for ( const auto & coarse : possibleCollisions ) {
 		if ( coarse.first.C->Intersects(*coarse.second.C) == true ) {
-			InteractionID ID = std::make_pair(coarse.first.AntID,coarse.second.AntID);
+			InteractionID ID = std::make_pair(coarse.first.ID,coarse.second.ID);
 			InteractionType type = std::make_pair(coarse.first.TypeID,coarse.second.TypeID);
 			res[ID].push_back(type);
 		}

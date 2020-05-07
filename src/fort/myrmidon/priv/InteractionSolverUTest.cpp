@@ -100,11 +100,11 @@ void InteractionSolverUTest::SetUpTestSuite() {
 		                                            Eigen::Vector2d(60,-50),
 		                                            25,40));
 
-		ants.insert(std::make_pair(ant->ID(),ant));
+		ants.insert(std::make_pair(ant->AntID(),ant));
 
 		identifiedFrame->Positions.push_back(PositionedAnt{.Position = Eigen::Vector2d(xPos(e1),yPos(e1)),
 		                                                   .Angle = angle(e1),
-		                                                   .ID = ant->ID(),
+		                                                   .ID = ant->AntID(),
 
 			});
 	}

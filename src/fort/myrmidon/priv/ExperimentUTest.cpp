@@ -86,9 +86,9 @@ TEST_F(ExperimentUTest,IOTest) {
 		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
 		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
 		ASSERT_EQ(e->CIdentifier().CAnts().size(),3);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(1)->second->ID(),1);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(2)->second->ID(),2);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(3)->second->ID(),3);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(1)->second->AntID(),1);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(2)->second->AntID(),2);
+		EXPECT_EQ(e->CIdentifier().CAnts().find(3)->second->AntID(),3);
 		EXPECT_EQ(e->AbsoluteFilePath(),TestSetup::Basedir() / "test.myrmidon");
 		EXPECT_EQ(e->Basedir(), TestSetup::Basedir());
 
@@ -234,14 +234,14 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	auto antBefore = e->CreateAnt();
 	auto identBefore1 = Identifier::AddIdentification(e->Identifier(),
-	                                                  antBefore->ID(),
+	                                                  antBefore->AntID(),
 	                                                  1,
 	                                                  Time::ConstPtr(),
 	                                                  std::make_shared<Time>(foo0->EndDate()));
 	identBefore1->SetTagSize(2.0);
 
 	auto identBefore2 = Identifier::AddIdentification(e->Identifier(),
-	                                                  antBefore->ID(),
+	                                                  antBefore->AntID(),
 	                                                  0,
 	                                                  std::make_shared<Time>(foo1->StartDate()),
 	                                                  Time::ConstPtr());
@@ -297,7 +297,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	//Now we add a super Ant
 	auto antAfter = e->CreateAnt();
 	auto identAfter1 = Identifier::AddIdentification(e->Identifier(),
-	                                                 antAfter->ID(),
+	                                                 antAfter->AntID(),
 	                                                 0,
 	                                                 Time::ConstPtr(),
 	                                                 std::make_shared<Time>(foo0->EndDate()));
@@ -305,7 +305,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 
 	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
-	                                                 antAfter->ID(),
+	                                                 antAfter->AntID(),
 	                                                 1,
 	                                                 std::make_shared<Time>(foo1->StartDate()),
 	                                                 Time::ConstPtr());
@@ -330,7 +330,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	std::vector<Experiment::ComputedMeasurement> measurements;
 	e->ComputeMeasurementsForAnt(measurements,
-	                             antAfter->ID(),
+	                             antAfter->AntID(),
 	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
@@ -344,7 +344,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 
 	e->ComputeMeasurementsForAnt(measurements,
-	                             antBefore->ID(),
+	                             antBefore->AntID(),
 	                             1);
 
 	EXPECT_EQ(measurements.size(), 4);
@@ -354,25 +354,25 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			e->ComputeMeasurementsForAnt(measurements,
-			                             antAfter->ID() + 100,
+			                             antAfter->AntID() + 100,
 			                             1);
 		},Container::UnmanagedObject);
 
 
 	auto antLast = e->CreateAnt();
 	Identifier::AddIdentification(e->Identifier(),
-	                              antLast->ID(),
+	                              antLast->AntID(),
 	                              22,
 	                              Time::ConstPtr(),
 	                              Time::ConstPtr());
 
 	e->ComputeMeasurementsForAnt(measurements,
-	                             antAfter->ID(),
+	                             antAfter->AntID(),
 	                             4);
 	EXPECT_EQ(measurements.size(),0);
 
 	e->ComputeMeasurementsForAnt(measurements,
-	                             antLast->ID(),
+	                             antLast->AntID(),
 	                             1);
 	EXPECT_EQ(measurements.size(),0);
 

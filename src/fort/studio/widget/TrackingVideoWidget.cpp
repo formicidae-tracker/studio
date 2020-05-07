@@ -156,8 +156,8 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 				continue;
 			}
 
-			auto aPos = Conversion::fromEigen(ratio * positions.at(a->ID()).Position);
-			auto bPos = Conversion::fromEigen(ratio * positions.at(b->ID()).Position);
+			auto aPos = Conversion::fromEigen(ratio * positions.at(a->AntID()).Position);
+			auto bPos = Conversion::fromEigen(ratio * positions.at(b->AntID()).Position);
 
 			if ( focusRectangle.contains(aPos) == false
 			     && focusRectangle.contains(bPos) == false ) {

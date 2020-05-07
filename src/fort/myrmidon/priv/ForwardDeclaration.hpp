@@ -5,8 +5,7 @@
 #include "DenseMap.hpp"
 #include "ContiguousIDContainer.hpp"
 
-#include <fort/myrmidon/Ant.hpp>
-
+#include "Types.hpp"
 
 #define FORT_MYRMIDON_FDECLARE_CLASS(ClassName) \
 	class ClassName; \
@@ -82,8 +81,11 @@ FORT_MYRMIDON_FDECLARE_CLASS(AntShapeType)
 
 
 // A Map of <Ant> identified by their <Ant::ID>
-typedef DenseMap<fort::myrmidon::Ant::ID,AntPtr> AntByID;
-typedef DenseMap<fort::myrmidon::Ant::ID,AntConstPtr> ConstAntByID;
+
+// The ID for an Ant
+typedef uint32_t AntID;
+typedef DenseMap<AntID,AntPtr> AntByID;
+typedef DenseMap<AntID,AntConstPtr> ConstAntByID;
 
 // A List of <Identification>
 typedef std::vector<IdentificationPtr>  IdentificationList;

@@ -5,9 +5,6 @@
 
 namespace fort {
 namespace myrmidon {
-namespace priv {
-
-typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 
 class DefaultPalette : public Palette {
 	std::vector<Color> d_colors;
@@ -43,13 +40,12 @@ const Palette & Palette::Default() {
 	return defaultPalette;
 }
 
-} // namespace priv
 } // namespace myrmidon
 } // namespace fort
 
 
 std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::priv::Color & color) {
+                          const fort::myrmidon::Color & color) {
 	auto flags = out.flags();
 	out << "#"
 	    << std::hex << int(std::get<0>(color))

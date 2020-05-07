@@ -4,7 +4,6 @@
 
 namespace fort {
 namespace myrmidon {
-namespace priv {
 
 typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 
@@ -19,10 +18,9 @@ public:
 
 
 
-} // namespace priv
 } // namespace myrmidon
 } // namespace fort
 
 
 std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::priv::Color & color);
+                          const fort::myrmidon::Color & color);

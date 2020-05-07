@@ -172,7 +172,7 @@ std::ostream & operator<<(std::ostream & out,
 	out << "Identification{ID:"
 	    << a.TagValue()
 	    << "↦"
-	    << a.Target()->ID()
+	    << a.Target()->AntID()
 	    << ", From:'";
 	if (a.Start()) {
 		out << a.Start()->DebugString();

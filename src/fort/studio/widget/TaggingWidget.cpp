@@ -221,7 +221,7 @@ void TaggingWidget::newAnt() {
 
 
 	auto a = d_identifier->createAnt();
-	d_identifier->addIdentification(a->ID(),
+	d_identifier->addIdentification(a->AntID(),
 	                                d_tcu->TagValue(),
 	                                start,end);
 

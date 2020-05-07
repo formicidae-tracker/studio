@@ -114,8 +114,8 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 	}
 
 	auto ant = ident->Target();
-	if ( Ants().find(ant->ID()) == Ants().end() ) {
-		throw UnmanagedObject(ant->ID());
+	if ( Ants().find(ant->AntID()) == Ants().end() ) {
+		throw UnmanagedObject(ant->AntID());
 	}
 
 	auto toEraseAnt = ant->Identifications().begin();

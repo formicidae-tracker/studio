@@ -4,7 +4,6 @@
 
 #include <fort/tags/fort-tags.h>
 
-#include <fort/myrmidon/Ant.hpp>
 #include <fort/myrmidon/Time.hpp>
 #include <fort/myrmidon/utils/FileSystem.hpp>
 
@@ -135,7 +134,7 @@ public :
 	Space::Ptr LocateSpace(const std::string & spaceName);
 
 
-	AntPtr CreateAnt(fort::myrmidon::Ant::ID aID = 0);
+	AntPtr CreateAnt(AntID aID = 0);
 
 	// Accessor to the underlying Identifier
 	//
@@ -252,7 +251,7 @@ public :
 	// @AID the desired <Ant> designated by its <Ant::ID>
 	// @type the type of measurement we are looking for.
 	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
-	                               myrmidon::Ant::ID AID,
+	                               AntID AID,
 	                               MeasurementTypeID type) const;
 
 
@@ -277,7 +276,7 @@ public :
 	void DeleteAntMetadataColumn(const std::string & name);
 
 
-	void CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
+	void CloneAntShape(AntID sourceAntID,
 	                   bool scaleToSize,
 	                   bool overwriteShapes);
 

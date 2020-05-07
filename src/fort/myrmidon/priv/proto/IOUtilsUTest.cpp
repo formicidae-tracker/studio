@@ -116,7 +116,7 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
 	auto a = e->CreateAnt();
 	for ( const auto & d : data ) {
-		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
+		auto ident = Identifier::AddIdentification(e->Identifier(),a->AntID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
@@ -405,10 +405,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntDescription a,expected;
-		expected.set_id(dA->ID());
+		expected.set_id(dA->AntID());
 		for(const auto & identData : d.IData ) {
 			auto ident = Identifier::AddIdentification(e->Identifier(),
-			                                           dA->ID(),
+			                                           dA->AntID(),
 			                                           identData.Value,
 			                                           identData.Start,
 			                                           identData.End);
@@ -460,7 +460,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 				for( auto & i : dIdents ) {
 					e->Identifier()->DeleteIdentification(i);
 				}
-				e->Identifier()->DeleteAnt(dA->ID());
+				e->Identifier()->DeleteAnt(dA->AntID());
 			});
 
 		IOUtils::LoadAnt(e,a);
@@ -470,7 +470,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			continue;
 		}
 		auto res = fi->second;
-		EXPECT_EQ(res->ID(),expected.id());
+		EXPECT_EQ(res->AntID(),expected.id());
 		EXPECT_EQ(res->CIdentifications().size(),dIdents.size());
 		for(size_t i = 0 ;
 		    i < std::min(res->CIdentifications().size(),dIdents.size());
@@ -482,7 +482,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
 			EXPECT_TRUE(VectorAlmostEqual(ii->AntPosition(),ie->AntPosition()));
 			EXPECT_NEAR(ii->AntAngle(),ie->AntAngle(),M_PI/100000.0);
-			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
+			EXPECT_EQ(ii->Target()->AntID(),ie->Target()->AntID());
 
 		}
 

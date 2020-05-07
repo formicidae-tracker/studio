@@ -137,10 +137,10 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	auto ant1 = identifier->CreateAnt(shapeTypes,metadata);
 	auto ant2 = identifier->CreateAnt(shapeTypes,metadata);
 	Identification::Ptr ant1ID1,ant2ID1,ant1ID2,ant2ID2;
-	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->ID(),0,NULL,NULL);});
+	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->AntID(),0,NULL,NULL);});
 	// the two ant cannot share the same tag
-	ASSERT_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->ID(),0,NULL,NULL);},OverlappingIdentification);
-	ASSERT_NO_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->ID(),1,NULL,NULL);});
+	ASSERT_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),0,NULL,NULL);},OverlappingIdentification);
+	ASSERT_NO_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),1,NULL,NULL);});
 	// we can always reduce the validity of ID1
 	auto swapTime = std::make_shared<Time>(Time::FromTimeT(0));
 
@@ -150,7 +150,7 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	// overlaps with ant1ID1
 	ASSERT_THROW({
 			ant1ID2 = Identifier::AddIdentification(identifier,
-			                                        ant1->ID(),
+			                                        ant1->AntID(),
 			                                        0,
 			                                        Time::ConstPtr(),
 			                                        Time::ConstPtr());
@@ -158,7 +158,7 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	// overlaps with ant2ID1
 	ASSERT_THROW({
 			ant1ID2 = Identifier::AddIdentification(identifier,
-			                                        ant1->ID(),
+			                                        ant1->AntID(),
 			                                        1,
 			                                        swapTime,
 			                                        Time::ConstPtr());
@@ -170,14 +170,14 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	//works to swap the two id after frame a/10
 	ASSERT_NO_THROW({
 			ant1ID2 = Identifier::AddIdentification(identifier,
-			                                        ant1->ID(),
+			                                        ant1->AntID(),
 			                                        1,
 			                                        swapTime,
 			                                        Time::ConstPtr());
 		});
 	ASSERT_NO_THROW({
 			ant2ID2 = Identifier::AddIdentification(identifier,
-			                                        ant2->ID(),
+			                                        ant2->AntID(),
 			                                        0,
 			                                        swapTime,
 			                                        Time::ConstPtr());
