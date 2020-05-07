@@ -86,7 +86,7 @@ void AntMetadataBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	}
 
 
-	for ( const auto & [name,column] : d_experiment->AntMetadataConstPtr()->Columns() ) {
+	for ( const auto & [name,column] : d_experiment->AntMetadataPtr()->Columns() ) {
 		d_columnModel->appendRow(buildColumn(column));
 	}
 
@@ -296,7 +296,7 @@ void AntMetadataBridge::rebuildDataModel() {
 	if ( !d_experiment  ) {
 		return;
 	}
-	const auto & columns = d_experiment->AntMetadataConstPtr()->Columns();
+	const auto & columns = d_experiment->AntMetadataPtr()->Columns();
 	const auto & ants  = d_experiment->Identifier()->Ants();
 	for ( const auto & [name,column] : columns ) {
 		labels.push_back(ToQString(name));
@@ -432,7 +432,7 @@ void AntMetadataBridge::selectRow(int row) {
 	for ( const auto & [name,tValues] : ant->DataMap() ) {
 		fmp::AntMetadata::Column::Ptr column;
 		try {
-			column = d_experiment->AntMetadataConstPtr()->Columns().at(name);
+			column = d_experiment->AntMetadataPtr()->Columns().at(name);
 		} catch ( const std::exception & e) {
 			qWarning() << "Could not find column '" << ToQString(name);
 			selectRow(-1);

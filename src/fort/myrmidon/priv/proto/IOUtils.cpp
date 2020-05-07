@@ -429,7 +429,7 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 		stPb->set_name(shapeType->Name());
 	}
 
-	for ( const auto & [name,column] : e.AntMetadataConstPtr()->Columns() ) {
+	for ( const auto & [name,column] : e.AntMetadataConstPtr()->CColumns() ) {
 		auto cPb = pb->add_antmetadata();
 		cPb->set_name(column->Name());
 		SaveAntStaticValue(cPb->mutable_defaultvalue(),column->DefaultValue());

@@ -638,11 +638,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
-	EXPECT_EQ(e->AntMetadataConstPtr()->Columns().size(),
-	          res->AntMetadataConstPtr()->Columns().size());
-	for ( const auto [name,column] : e->AntMetadataConstPtr()->Columns() ) {
-		auto ci = res->AntMetadataConstPtr()->Columns().find(name);
-		if ( ci == res->AntMetadataConstPtr()->Columns().cend() ) {
+	EXPECT_EQ(e->AntMetadataConstPtr()->CColumns().size(),
+	          res->AntMetadataConstPtr()->CColumns().size());
+	for ( const auto [name,column] : e->AntMetadataConstPtr()->CColumns() ) {
+		auto ci = res->AntMetadataConstPtr()->CColumns().find(name);
+		if ( ci == res->AntMetadataConstPtr()->CColumns().cend() ) {
 			ADD_FAILURE() << "missing AntMetadataColumn '" << name << "'";
 		} else {
 			EXPECT_EQ(ci->second->MetadataType(),column->MetadataType());

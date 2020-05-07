@@ -489,6 +489,11 @@ fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() cons
 	return d_antMetadata;
 }
 
+fort::myrmidon::priv::AntMetadataPtr Experiment::AntMetadataPtr() {
+	return d_antMetadata;
+}
+
+
 AntMetadata::Column::Ptr
 Experiment::AddAntMetadataColumn(const std::string & name,
                                  AntMetadata::Type type) {

@@ -139,8 +139,8 @@ void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
                    const Time::ConstPtr & time,
                    bool noOverwrite) {
-	auto fi = d_metadata->Columns().find(name);
-	if ( fi == d_metadata->Columns().end() ) {
+	auto fi = d_metadata->CColumns().find(name);
+	if ( fi == d_metadata->CColumns().end() ) {
 		throw std::invalid_argument("Unknown value key '" + name + "'");
 	}
 	AntMetadata::CheckType(fi->second->MetadataType(),value);
@@ -202,7 +202,7 @@ const AntConstDataMap & Ant::CDataMap() const {
 
 void Ant::CompileData() {
 	std::map<std::string,AntStaticValue> defaults;
-	for ( const auto & [name,column] : d_metadata->Columns() ) {
+	for ( const auto & [name,column] : d_metadata->CColumns() ) {
 		defaults.insert(std::make_pair(name,column->DefaultValue()));
 	}
 	d_compiledData.Clear();

@@ -56,7 +56,8 @@ public:
 		AntStaticValue             d_default;
 	};
 
-	typedef std::map<std::string,Column::Ptr> ColumnByName;
+	typedef std::map<std::string,Column::Ptr>      ColumnByName;
+	typedef std::map<std::string,Column::ConstPtr> ConstColumnByName;
 
 	typedef std::function<void (const std::string &, const std::string &)> NameChangeCallback;
 	typedef std::function<void (const std::string &, Type, Type)>          TypeChangeCallback;
@@ -84,7 +85,8 @@ public:
 
 	void Delete(const std::string & columnName);
 
-	const ColumnByName & Columns() const;
+	const ColumnByName & Columns();
+	const ConstColumnByName & CColumns() const;
 
 private:
 	static AntStaticValue DefaultValue(Type type);

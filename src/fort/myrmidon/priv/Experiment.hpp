@@ -258,8 +258,10 @@ public :
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
-
 	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+
+	fort::myrmidon::priv::AntMetadataPtr AntMetadataPtr();
+
 
 	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
 
@@ -322,8 +324,8 @@ private:
 	SortedMeasurement        d_measurements;
 	MeasurementTypeContainer d_measurementTypes;
 
-	AntShapeTypeContainerPtr d_antShapeTypes;
-	AntMetadataPtr           d_antMetadata;
+	AntShapeTypeContainerPtr             d_antShapeTypes;
+	fort::myrmidon::priv::AntMetadataPtr d_antMetadata;
 };
 
 } //namespace priv
