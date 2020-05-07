@@ -22,6 +22,11 @@ void StatisticsBridge::setExperiment(const fmp::Experiment::ConstPtr  & experime
 	d_experiment = experiment;
 	emit activated(!d_experiment == false);
 
+	if ( !d_experiment == true ) {
+		rebuildModel();
+		return;
+	}
+
 	for ( const auto & [tddURI,tdd] : d_experiment->TrackingDataDirectories() ) {
 		onTrackingDataDirectoryAdded(tdd);
 	}

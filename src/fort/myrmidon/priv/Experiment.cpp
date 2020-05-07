@@ -14,8 +14,10 @@
 #include "InteractionSolver.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
+#include <fort/myrmidon/utils/PosixCall.h>
 
-#include <boost/interprocess/sync/file_lock.hpp>
+#include <unistd.h>
+#include <sys/file.h>
 
 namespace fort {
 namespace myrmidon {
@@ -77,41 +79,50 @@ Experiment::Experiment(const fs::path & filepath )
 class ExperimentLock {
 public:
 	typedef std::shared_ptr<ExperimentLock>          Ptr;
-	typedef boost::interprocess::file_lock FileLock;;
-	ExperimentLock(const std::string & filepath, bool shared)
-		: d_shared(shared) {
+	ExperimentLock(const fs::path & filepath, bool shared) {
+
+		int opts = O_RDWR;
+		int lock = LOCK_EX | LOCK_NB;
+		if ( shared == true ) {
+			opts = O_RDONLY;
+			lock = LOCK_SH | LOCK_NB;
+		}
+
+		d_fd = open(filepath.c_str(),opts);
+		if ( d_fd < 0 ) {
+			throw MYRMIDON_SYSTEM_ERROR(open,errno);
+		}
+
 		try {
-			d_lock = FileLock(filepath.c_str());
-		} catch ( const std::exception & e ) {
-			throw std::runtime_error("Could not create file lock on '"
-			                         + filepath
-			                         + "': '"
-			                         + e.what());
-		}
-		if ( d_shared == true ) {
-			if ( d_lock.try_lock_sharable() == false ) {
-				throw std::runtime_error("Could not lock '"
-				                         + filepath
-				                         + "' for read access: another program locked it for writing");
+			p_call(flock,d_fd,lock);
+		} catch ( std::system_error & e ) {
+			if ( e.code() != std::errc::resource_unavailable_try_again ) {
+				throw std::runtime_error("Could not acquire lock on '"
+				                         + filepath.string()
+				                         + "': " + e.what());
 			}
-		} else if ( d_lock.try_lock() == false ) {
-			throw std::runtime_error("Could not lock '"
-			                         + filepath
-			                         + "' for write access: another program locked it for reading or writing");
+
+			if ( shared == true ) {
+				throw std::runtime_error("Could not acquire shared lock on '"
+				                         + filepath.string()
+				                         + "':  another program has write access on it");
+			} else {
+				throw std::runtime_error("Could not acquire exclusive lock on '"
+				                         + filepath.string()
+				                         + "':  another program has write or read access on it");
+			}
 		}
+		std::cerr << "Locked " << filepath << std::endl;
 	}
 
 	~ExperimentLock() {
-		if ( d_shared == true ) {
-			d_lock.unlock_sharable();
-		} else {
-			d_lock.unlock();
-		}
+		std::cerr << "Unlocked " << std::endl;
+		flock(d_fd,LOCK_UN);
+		close(d_fd);
 	}
 
 private:
-	FileLock d_lock;
-	bool     d_shared;
+	int          d_fd;
 };
 
 
@@ -131,7 +142,7 @@ Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 }
 
 Experiment::Ptr Experiment::Open(const fs::path & filepath) {
-	auto lock = std::make_shared<ExperimentLock>(filepath.string(),false);
+	auto lock = std::make_shared<ExperimentLock>(filepath,false);
 	auto res =  ExperimentReadWriter::Open(filepath);
 	res->d_lock = lock;
 	return res;
@@ -139,7 +150,7 @@ Experiment::Ptr Experiment::Open(const fs::path & filepath) {
 
 
 Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
-	auto lock = std::make_shared<ExperimentLock>(filepath.string(),true);
+	auto lock = std::make_shared<ExperimentLock>(filepath,true);
 	auto res = ExperimentReadWriter::Open(filepath);
 	res->d_lock = lock;
 	return res;
@@ -154,13 +165,12 @@ void Experiment::Save(const fs::path & filepath) const {
 		throw std::runtime_error("Changing experiment file directory is not yet supported");
 	}
 
-	// touch file before locking
 	{
 		std::ofstream touching;
-		touching.open(filepath.string(),std::ios_base::app);
+		touching.open(filepath.c_str(),std::ios_base::app);
 	}
 
-	auto lock = std::make_shared<ExperimentLock>(filepath.string(),false);
+	auto lock = std::make_shared<ExperimentLock>(filepath,false);
 	ExperimentReadWriter::Save(*this,filepath);
 	const_cast<Experiment*>(this)->d_lock = lock;
 }
@@ -645,6 +655,10 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 InteractionSolver::ConstPtr Experiment::CompileInteractionSolver() const {
 	return std::make_shared<InteractionSolver>(d_universe->Spaces(),
 	                                           d_identifier->Ants());
+}
+
+void Experiment::UnlockFile() {
+	d_lock.reset();
 }
 
 } //namespace priv

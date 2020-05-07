@@ -33,6 +33,27 @@ void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data =  std::vector<uint8_t>(std::istreambuf_iterator<char>(f),{});
 }
 
+TEST_F(ExperimentUTest,ExclusiveOpening) {
+	auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
+	EXPECT_THROW({
+			auto b = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
+		},std::exception);
+
+	EXPECT_THROW({
+			auto b = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
+		},std::exception);
+
+	e.reset();
+	auto ce = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
+	EXPECT_NO_THROW({
+			auto cb = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
+		});
+
+	EXPECT_THROW({
+			auto b = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
+		},std::exception);
+}
+
 
 TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
@@ -44,6 +65,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 
 		ASSERT_EQ(e->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
+		e.reset();
 		auto ee = Experiment::Open(TestSetup::Basedir() / "test3.myrmidon");
 
 		ASSERT_FALSE(ee->Spaces().empty());

@@ -299,6 +299,8 @@ public :
 	// @return the right ratio
 	static double CornerWidthRatio(fort::tags::Family f);
 
+	void UnlockFile();
+
 private:
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,

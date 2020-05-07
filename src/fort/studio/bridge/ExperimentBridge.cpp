@@ -81,7 +81,6 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        [this](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
 		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
 	        });
-
 	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
@@ -138,6 +137,10 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 
 bool ExperimentBridge::open(const QString & path) {
 	fmp::Experiment::Ptr experiment;
+	if ( !d_experiment == false
+	     && d_experiment->AbsoluteFilePath().c_str() == path ) {
+		d_experiment->UnlockFile();
+	}
 	try {
 		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
