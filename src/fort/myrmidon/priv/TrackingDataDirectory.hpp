@@ -39,15 +39,13 @@ public:
 
 	typedef int32_t                                    UID;
 	typedef SegmentIndexer<std::string>                TrackingIndex;
-	typedef SegmentIndexer<MovieSegment::Ptr>          MovieIndex;
+	typedef SegmentIndexer<MovieSegment::ConstPtr>     MovieIndex;
 	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
 	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
 	class const_iterator {
 	public:
 		const_iterator(const ConstPtr & tdd,uint64_t current);
-
-		//		const_iterator(const ConstPtr & tdd,const RawFrameConstPtr & rawFrame);
 
 		const_iterator & operator=(const const_iterator & other) = delete;
 		const_iterator(const const_iterator & other);
