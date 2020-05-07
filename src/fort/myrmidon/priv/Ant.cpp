@@ -37,9 +37,14 @@ Identification::List & Ant::Accessor::Identifications(Ant & a){
 	return a.d_identifications;
 }
 
-const Identification::List & Ant::Identifications() const {
+const Identification::List & Ant::Identifications() {
 	return d_identifications;
 }
+
+const Identification::ConstList & Ant::CIdentifications() const {
+	return reinterpret_cast<const std::vector<Identification::ConstPtr>&>(d_identifications);
+}
+
 
 const Ant::TypedCapsuleList & Ant::Capsules() const {
 	return d_capsules;
@@ -88,7 +93,7 @@ Ant::DisplayState Ant::DisplayStatus() const {
 }
 
 const AntStaticValue & Ant::GetValue(const std::string & name,
-                                     const Time & time) {
+                                     const Time & time) const {
 	return d_compiledData.At(name,time);
 }
 
@@ -187,8 +192,12 @@ void Ant::DeleteValue(const std::string & name,
 	CompileData();
 }
 
-const AntDataMap & Ant::DataMap() const {
+const AntDataMap & Ant::DataMap() {
 	return d_data;
+}
+
+const AntConstDataMap & Ant::CDataMap() const {
+	return reinterpret_cast<const AntConstDataMap &>(d_data);
 }
 
 void Ant::CompileData() {

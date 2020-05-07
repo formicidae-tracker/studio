@@ -47,7 +47,9 @@ public:
 	// A Pointer to a const Identification
 	typedef std::shared_ptr<const Identification> ConstPtr;
 	// A List of Identification
-	typedef std::vector<Ptr> List;
+	typedef std::vector<Ptr>      List;
+	// A List of Identification
+	typedef std::vector<ConstPtr> ConstList;
 
 
 	const static double DEFAULT_TAG_SIZE;

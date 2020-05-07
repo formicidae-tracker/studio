@@ -39,6 +39,7 @@ typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 typedef std::pair<Time::ConstPtr,AntStaticValue>   AntTimedValue;
 
 typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
+typedef std::unordered_map<std::string,const std::vector<AntTimedValue> > AntConstDataMap;
 
 
 struct PositionedAnt {

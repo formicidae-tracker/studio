@@ -42,7 +42,7 @@ public:
 	typedef std::shared_ptr<const Ant> ConstPtr;
 
 	// A List of shape
-	typedef std::vector<std::pair<AntShapeTypeID,CapsulePtr>> TypedCapsuleList;
+	typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>> TypedCapsuleList;
 
 	// The Constructor for an Ant
 	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
@@ -58,7 +58,16 @@ public:
 	// <priv::Ant>. Adding and removing of <Identification> have to be
 	// respectively performed using <Identifier::AddIdentification>
 	// and <Identifier::RemoveIdentification>.
-	const Identification::List & Identifications() const;
+	const Identification::ConstList & CIdentifications() const;
+
+	// The Identification::List associated with this priv::Ant.
+	//
+	// A sorted <Identification::List> associated with this
+	// <priv::Ant>. Adding and removing of <Identification> have to be
+	// respectively performed using <Identifier::AddIdentification>
+	// and <Identifier::RemoveIdentification>.
+	const Identification::List & Identifications();
+
 
 	// Gets the Unique ID of the Ant
 	//
@@ -99,7 +108,7 @@ public:
 	void SetDisplayStatus(DisplayState s);
 
 	const AntStaticValue & GetValue(const std::string & name,
-	                               const Time & time);
+	                                const Time & time) const;
 
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
@@ -113,7 +122,9 @@ public:
 
 	AntStaticValue GetBaseValue(const std::string & name) const;
 
-	const AntDataMap & DataMap() const;
+	const AntDataMap & DataMap();
+
+	const AntConstDataMap & CDataMap() const;
 
 	void CompileData();
 

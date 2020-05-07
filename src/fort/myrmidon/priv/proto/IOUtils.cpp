@@ -207,7 +207,7 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr
 	pb->Clear();
 	pb->set_id(ant->ID());
 
-	for ( const auto & ident : ant->Identifications() ) {
+	for ( const auto & ident : ant->CIdentifications() ) {
 		SaveIdentification(pb->add_identifications(),ident);
 	}
 
@@ -220,7 +220,7 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
 	pb->set_displaystate(SaveAntDisplayState(ant->DisplayStatus()));
 
-	for ( const auto & [name,tValues] : ant->DataMap() ) {
+	for ( const auto & [name,tValues] : ant->CDataMap() ) {
 		for ( const auto & [time, value] : tValues ) {
 			auto vPb = pb->add_namedvalues();
 			vPb->set_name(name);

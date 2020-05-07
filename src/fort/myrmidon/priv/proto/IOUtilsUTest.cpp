@@ -471,11 +471,11 @@ TEST_F(IOUtilsUTest,AntIO) {
 		}
 		auto res = fi->second;
 		EXPECT_EQ(res->ID(),expected.id());
-		EXPECT_EQ(res->Identifications().size(),dIdents.size());
+		EXPECT_EQ(res->CIdentifications().size(),dIdents.size());
 		for(size_t i = 0 ;
-		    i < std::min(res->Identifications().size(),dIdents.size());
+		    i < std::min(res->CIdentifications().size(),dIdents.size());
 		    ++i) {
-			auto ii = res->Identifications()[i];
+			auto ii = res->CIdentifications()[i];
 			auto ie = dIdents[i];
 			EXPECT_EQ(ii->TagValue(),ie->TagValue());
 			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
