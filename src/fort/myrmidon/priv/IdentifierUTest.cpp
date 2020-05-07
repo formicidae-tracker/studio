@@ -170,13 +170,13 @@ TEST_F(IdentifierUTest,Compilation) {
     auto identifier = std::make_shared<Identifier>();
     auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
     auto metadata = std::make_shared<AntMetadata>();
-	std::set<Time,Time::Comparator> times;
+	std::set<Time> times;
 	std::set<TagID> tags;
 	const size_t NB_ANTS = 100;
 	for ( size_t i = 0; i < NB_ANTS; ++i) {
 		auto a = identifier->CreateAnt(shapeTypes,
 		                               metadata);
-		std::set<Time,Time::Comparator> antTimes;
+		std::set<Time> antTimes;
 
 		while( uniform(e1) < 0.8 ) {
 			antTimes.insert(Time::FromTimeT(0).Add(duration(e1) * Duration::Millisecond));

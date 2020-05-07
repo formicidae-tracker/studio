@@ -490,7 +490,7 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out, const fort::myrmidon::Time::ConstPtr & t ) {
 	if (!t) {
-		return out << "+-∞";
+		return out << "+/-∞";
 	}
 	return out << *t;
 }

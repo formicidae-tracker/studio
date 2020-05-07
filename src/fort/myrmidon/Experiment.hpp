@@ -2,17 +2,13 @@
 
 #include <memory>
 
-#include "Frame.hpp"
-
-
 
 namespace fort {
-
 namespace myrmidon {
 
 namespace priv {
 class Experiment;
-};
+} // namespace priv
 
 class Experiment {
 public:
@@ -22,5 +18,4 @@ private:
 };
 
 } //namespace mrymidon
-
 } // namespace fort

@@ -305,7 +305,7 @@ private:
 	                 std::map<TagID,
 	                          std::map<std::string,
 	                                   std::map<Time,
-	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
+	                                            MeasurementConstPtr>>>>    SortedMeasurement;
 
 	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementType> MeasurementTypeContainer;
 
