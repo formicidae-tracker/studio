@@ -19,7 +19,18 @@ class Ant;
 // display an <ID>, as returned by <FormattedID>.
 //
 // Instead of working directly with <TagID> myrmidon uses
-// <identification> to relates <TagID> to an Ant. An Ant could have different <Identification>, allowing us
+// <identification> to relates <TagID> to an Ant. An Ant could have
+// different <Identification>, allowing us to use different <TagID> to
+// refer to the same individual. Myrmidon ensures the following
+// invariant:
+//
+// * At any <Time> there is only a single <TagID> used to designate an
+//   Ant
+// * For any Ant, there only a single <Identification> that designate
+//   this Ant at any given <Time>. I.e. <Identification::Start> and *
+//   <Identification::End> must not overlap for a given Ant.
+//
+//
 class Ant {
 public:
 	// A pointer to a an Ant
