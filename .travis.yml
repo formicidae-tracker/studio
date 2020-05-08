@@ -43,10 +43,10 @@ script:
   - make all myrmidon-tests
   - src/fort/myrmidon/myrmidon-tests
   - CLDOC_CLANG_VERSION=9 make docs-api
+  - git clone -b gh-pages https://github.com/formicidae-tracker/studio.git gh-pages
+  - mkdir -p gh-pages/docs/dev/api
+  - cp -r ../docs/api/* gh-pages/docs/dev/api/
   - cd ..
-  - mkdir -p docs/dev/api
-  - cp -r docs/api/* docs/dev/api/
-
 
 after_success:
   - coveralls -b build -r . -i 'src/fort/myrmidon' -E '.*UTest.*' --verbose
@@ -55,9 +55,10 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GH_TOKEN
-  local_dir: docs/dev/api
+  local_dir: build/gh-pages/
   target_branch: gh-pages
 
 cache:
+  ccache: true
   directories:
     - build/_deps
