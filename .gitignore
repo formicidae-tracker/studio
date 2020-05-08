@@ -1,0 +1,16 @@
+build/
+/CMakeLists.txt.user
+*.autosave
+AUTHORS
+CMakeLists.txt
+CONTRIBUTING.md
+COPYING.LESSER
+.travis.yml
+FortMyrmidonConfig.cmake.in
+README.md
+ROADMAP.md
+cmake/
+docs/
+resources/
+scripts/
+src/
