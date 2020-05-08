@@ -18,7 +18,7 @@
   <p align="center">
     Graphical interface and general purpose API to analyze ant tracking data
     <br />
-    <a href="https://formicidae-tracker.github.io/studio/api/index.html"><strong>Explore the myrmidon API docs »</strong></a>
+    <a href="https://formicidae-tracker.github.io/studio/docs/dev/api/index.html"><strong>Explore the myrmidon API docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/formicidae-tracker/documentation/wiki">FORT Project Wiki</a>
@@ -46,14 +46,14 @@ For ubuntu 18.04 based distribution, you can use the debian package repository h
 
 #### Add packages.tuleu.science repository to your sources
 
-*NOTE: this step is only required once, and may produce errors if runned a second time* 
+*NOTE: this step is only required once, and may produce errors if runned a second time*
 
 Add the repository public key to your apt keyring. *You will be prompted for your password*
 ```bash
 wget -O - https://packages.tuleu.science/pubkey.gpg | sudo apt-key add -
 ```
 
-Append the reporsitory to your sources. *Please only run this command once and use a text editor on* `/etc/apt/sources.list.d/packages.tuleu.science.list` *if you need to correct any error* 
+Append the reporsitory to your sources. *Please only run this command once and use a text editor on* `/etc/apt/sources.list.d/packages.tuleu.science.list` *if you need to correct any error*
 
 ```bash
 echo "deb https://packages.tuleu.science/ubuntu bionic main" | sudo tee /etc/apt/sources.list.d/packages.tuleu.science.list
@@ -63,7 +63,7 @@ echo "deb https://packages.tuleu.science/ubuntu bionic main" | sudo tee /etc/apt
 
 Simply use the usual commands :
 
-* Installation: 
+* Installation:
 ```bash
 sudo apt update
 sudo apt install fort-studio
