@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort::myrmidon::priv" name="priv" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+</namespace>

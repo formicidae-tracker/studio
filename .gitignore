@@ -10,7 +10,6 @@ FortMyrmidonConfig.cmake.in
 README.md
 ROADMAP.md
 cmake/
-docs/
 resources/
 scripts/
 src/

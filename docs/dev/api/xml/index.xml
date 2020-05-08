@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+<index xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <namespace name="fort" ref="fort#fort">
+    <brief>the FORmidae Tracker namespace</brief>
+    <namespace name="myrmidon" ref="fort::myrmidon#fort::myrmidon">
+      <brief>the myrmidon API provides tracking analysis utilities</brief>
+      <namespace name="priv" ref="fort::myrmidon::priv#fort::myrmidon::priv">
+        <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+      </namespace>
+      <class name="Ant" ref="fort::myrmidon::Ant#fort::myrmidon::Ant" />
+      <class name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration">
+        <brief>A Duration represent time ellapsed between two Time</brief>
+      </class>
+      <class name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment" />
+      <class name="Frame" ref="fort::myrmidon::Frame#fort::myrmidon::Frame" />
+      <class name="Metadata" ref="fort::myrmidon::Metadata#fort::myrmidon::Metadata" />
+      <class name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time">
+        <brief>Time represent a point in Time</brief>
+        <class name="Comparator" ref="fort::myrmidon::Time::Comparator#fort::myrmidon::Time::Comparator" />
+        <class name="Overflow" ref="fort::myrmidon::Time::Overflow#fort::myrmidon::Time::Overflow">
+          <brief>Time values can overflow when performing operation on them.</brief>
+        </class>
+      </class>
+    </namespace>
+  </namespace>
+  <function id="operator*" name="operator*">
+    <brief>C++ shenanigans</brief>
+    <return>
+      <type name="fort::myrmidon::Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="operator*::a" name="a">
+      <type name="int64_t" />
+    </argument>
+    <argument id="operator*::b" name="b">
+      <type name="fort::myrmidon::Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats a Duration</brief>
+    <doc>Formats the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to the form
+"1h2m3.4s". Leading zero unit are omitted, and unit smaller than 1s
+uses a smalle unit ms us or ns. The zero duration formats to 0s. It
+mimic golang's
+[time.Duration.String()](https://golang.org/pkg/time/#Duration.String)
+behavior.</doc>
+    <return>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the std::ostream to format to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::d" name="d">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to format</doc>
+      <type name="fort::myrmidon::Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats to RFC 3339 date string format</brief>
+    <doc>Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
+string format, i.e. string of the form
+`1972-01-01T10:00:20.021Z`. It is merely a wrapper from
+google::protobuf::time_util functions.</doc>
+    <return>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the output iostream</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to format</doc>
+      <type name="fort::myrmidon::Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <return>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::t" name="t">
+      <type name="fort::myrmidon::Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </function>
+  <report name="Documentation generator" ref="report" />
+</index>
