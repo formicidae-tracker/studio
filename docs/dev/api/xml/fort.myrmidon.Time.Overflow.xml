@@ -6,7 +6,7 @@
   </base>
   <constructor id="fort::myrmidon::Time::Overflow::Overflow" name="Overflow">
     <argument id="fort::myrmidon::Time::Overflow::Overflow::clocktype" name="clocktype">
-      <type name="std::string" qualifier=" const &amp;" />
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </argument>
   </constructor>
   <destructor id="fort::myrmidon::Time::Overflow::~Overflow" name="~Overflow" virtual="yes" />

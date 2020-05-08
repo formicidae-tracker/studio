@@ -100,7 +100,7 @@ information.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::DebugString" name="DebugString">
     <return>
-      <type name="std::string" />
+      <type name="std::__cxx11::string" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Equals" name="Equals">
@@ -292,7 +292,7 @@ google::protobuf::time_util functions.</doc>
     </return>
     <argument id="fort::myrmidon::Time::Parse::input" name="input">
       <doc>the string to parse</doc>
-      <type name="std::string" qualifier=" const &amp;" />
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Round" name="Round">
