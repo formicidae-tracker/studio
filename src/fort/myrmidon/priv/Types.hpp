@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fort/myrmidon/Time.hpp>
+#include <fort/myrmidon/Types.hpp>
 
 #include <cstdint>
 
@@ -34,8 +34,6 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 // AABB
 typedef Eigen::AlignedBox<double,2> AABB;
 
-
-typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 
 typedef std::pair<Time::ConstPtr,AntStaticValue>   AntTimedValue;
 
@@ -83,6 +81,3 @@ struct InteractionFrame {
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
-
-
-std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::AntStaticValue &);

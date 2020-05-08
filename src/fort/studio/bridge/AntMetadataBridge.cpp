@@ -344,7 +344,7 @@ void AntMetadataBridge::setupItemFromValue(QStandardItem * item,
                                            const fmp::Ant::ConstPtr & ant,
                                            const fmp::AntMetadata::Column::ConstPtr & column) {
 	bool isDefault = true;
-	fmp::AntStaticValue v;
+	fm::AntStaticValue v;
 	try {
 		v = ant->GetBaseValue(column->Name());
 		isDefault = false;
@@ -466,7 +466,7 @@ void AntMetadataBridge::setSelectedAntID(quint32 ID) {
 QList<QStandardItem*> AntMetadataBridge::buildTimedChange(const fmp::Ant::Ptr & ant,
                                                           const fmp::AntMetadata::Column::Ptr & column,
                                                           const fm::Time & time,
-                                                          const fmp::AntStaticValue & value) {
+                                                          const fm::AntStaticValue & value) {
 	auto data = QVariant::fromValue(ant);
 	auto columnData = QVariant::fromValue(column);
 	auto name = ToQString(column->Name());
@@ -600,7 +600,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 	QStandardItem *nameItem,*timeItem,*valueItem;
 	std::string name;
 	fm::Time::ConstPtr time;
-	fmp::AntStaticValue value;
+	fm::AntStaticValue value;
 	try {
 		nameItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),0));
 		name = ToStdString(nameItem->data(Qt::UserRole+3).toString());
@@ -649,7 +649,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 	}
 
 	if ( item->column() == 2 ) {
-		fmp::AntStaticValue newValue;
+		fm::AntStaticValue newValue;
 		try {
 			newValue = fmp::AntMetadata::FromString(column->MetadataType(),ToStdString(item->text()));
 		} catch ( const std::exception & e ) {

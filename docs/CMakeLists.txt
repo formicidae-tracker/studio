@@ -9,7 +9,9 @@ add_custom_target(docs-api
 	COMMAND ${CLDOC_EXECUTABLE}
 	        generate
 	        -I/usr/include/eigen3
+	        -cxx-isystem${PROJECT_SOURCE_DIR}/docs/system_header_override
 	        -I${PROJECT_BINARY_DIR}/src/
+	        --std=c++17
 	        --
 	        --report
 	        --output

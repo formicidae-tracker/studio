@@ -97,9 +97,10 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
 set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Types.hpp
                      Color.hpp
-                     Experiment.hpp
-                     Ant.hpp
                      Time.hpp
+                     Identification.hpp
+                     Ant.hpp
+                     Experiment.hpp
                      utils/FileSystem.hpp)
 
 set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
@@ -145,9 +146,10 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
 set(SRC_FILES ForwardDeclaration.cpp
               Types.cpp
               Color.cpp
+              Time.cpp
+              Identification.cpp
+              Ant.cpp
               Experiment.cpp
-	          Ant.cpp
-	          Time.cpp
 	          )
 
 set(COMMON_UTEST_SRC_FILES TestSetup.cpp

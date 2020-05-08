@@ -2,7 +2,11 @@
 
 #include <memory>
 
+#include "Types.hpp"
 #include "Color.hpp"
+#include "Identification.hpp"
+
+
 
 namespace fort {
 namespace myrmidon {
@@ -14,9 +18,15 @@ class Ant;
 
 // The main object of interest of any Experiment
 //
-// Ant are the object of interest of an Experiment. They are uniquely
-// identified by <AntID>. By convention we use hexadecimal to
-// display an <ID>, as returned by <FormattedID>.
+//
+// Ant are the object of interest of an <Experiment>.
+//
+// ## Naming
+//
+// Ant are uniquely identified by <AntID>. By convention we use
+// hexadecimal to display an <ID>, as returned by <FormattedID>.
+//
+// ## Identification
 //
 // Instead of working directly with <TagID> myrmidon uses
 // <identification> to relates <TagID> to an Ant. An Ant could have
@@ -30,9 +40,21 @@ class Ant;
 //   this Ant at any given <Time>. I.e. <Identification::Start> and *
 //   <Identification::End> must not overlap for a given Ant.
 //
+// ## Visualization property
 //
+// Visualization of <Experiment> data is done through
+// fort-studio. When visualizaing tracking data, each Ant
+// <DisplayState> can be changed. Different colors could be assigned
+// to each Ant using <SetDisplayColor> and different <DisplayState>
+// can be set using <SetDisplayStatus>.
+//
+// ## Non-tracking data
+//
+// TODO
 class Ant {
 public:
+	typedef const std::shared_ptr<priv::Ant> PPtr;
+
 	// A pointer to a an Ant
 	typedef std::shared_ptr<Ant>       Ptr;
 	// A const pointer to an Ant
@@ -52,8 +74,25 @@ public:
 		SOLO    = 2
 	};
 
-	//const Identification::ConstList & CIdentifications() const
-	//const Identification::ConstList & CIdentifications() const
+	// Gets the const Identifications for this Ant
+	//
+	// Gets the <Identification::ConstPtr> targetting this Ant. These
+	// <Identification> will always be sorted in <Time> and not
+	// overlapping.
+	//
+	// @return an <Identification::ConstList> copy of all
+	//         <Identification::ConstPtr>
+	Identification::ConstList CIdentifications() const;
+
+	// Gets the Identifications for this Ant
+	//
+	// Gets the <Identification> targetting this Ant. These
+	// <Identification> will always be sorted in <Time> and not
+	// overlapping.
+	//
+	// @return an <Identification::List> copy of all
+	//         <Identification::Ptr>
+	Identification::List Identifications();
 
 	// Gets the ID of an Ant
 	//
@@ -96,17 +135,25 @@ public:
 	// @s the wanted <DisplayState>
 	void SetDisplayStatus(DisplayState s);
 
+	// Gets non-tracking data value
+	// @name the name of the non-tracking data value
+	// @time the <Time> we want the value for
+	//
+	// @return the wanted <AntStaticValue>
+	const AntStaticValue & GetValue(const std::string & name,
+	                                const Time & time) const;
 
+	// Sets a non-tracking
+	void SetValue(const std::string & name,
+	              const AntStaticValue & value,
+	              const Time::ConstPtr & time);
 
+	void DeleteValue(const std::string & name,
+	                 const Time::ConstPtr & time);
 
-
-
-
-
+	Ant(const PPtr & pAnt);
 
 private:
-	typedef const std::shared_ptr<priv::Ant> PPtr;
-	Ant(const PPtr & pAnt);
 
 
 	PPtr d_p;
