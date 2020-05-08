@@ -40,8 +40,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake  -DCMAKE_BUILD_TYPE=Debug -DBUILD_DOCS=On ..
-#  - make all myrmidon-tests
-#  - src/fort/myrmidon/myrmidon-tests
+  - make all myrmidon-tests
+  - src/fort/myrmidon/myrmidon-tests
   - CLDOC_CLANG_VERSION=9 make docs-api
   - cd ..
   - mkdir -p docs/dev/api
