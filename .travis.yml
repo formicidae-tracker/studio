@@ -41,7 +41,7 @@ script:
   - cmake  -DCMAKE_BUILD_TYPE=Debug -DBUILD_DOCS=On ..
 #  - make all myrmidon-tests
 #  - src/fort/myrmidon/myrmidon-tests
-  - make docs-api
+  - CC=/usr/bin/clang-6 CXX=/usr/bin/clang++-6 make docs-api
   - cd ..
   - mkdir -p docs/dev/api
   - cp -r docs/api/* docs/dev/api/
