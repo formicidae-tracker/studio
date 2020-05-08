@@ -43,17 +43,19 @@ class Ant;
 // ## Visualization property
 //
 // Visualization of <Experiment> data is done through
-// fort-studio. When visualizaing tracking data, each Ant
-// <DisplayState> can be changed. Different colors could be assigned
-// to each Ant using <SetDisplayColor> and different <DisplayState>
-// can be set using <SetDisplayStatus>.
+// fort-studio. Ants are visualized according to their <DisplayStatus>
+// and <DisplayColor>, which can be programmaticaly modified using
+// <SetDisplayStatus> and <SetDisplayColor>. Ants are showed according
+// to <DisplayState> value.
 //
-// ## Non-tracking data
+// ## Non-tracking data (named values)
 //
-// TODO
+// Ant also stores timed non-tracking data, called
+// <named_values>. These are modifiable using <SetValue> and
+// <DeleteValue> and accesible through <GetValue>.
+//
 class Ant {
 public:
-	typedef const std::shared_ptr<priv::Ant> PPtr;
 
 	// A pointer to a an Ant
 	typedef std::shared_ptr<Ant>       Ptr;
@@ -139,29 +141,48 @@ public:
 	// @name the name of the non-tracking data value
 	// @time the <Time> we want the value for
 	//
+	// Gets the value for <name> at <time>. Values are set with
+	// <SetValue>. If no value is sets prior to <time> (including -∞),
+	// it will be using the <Experiment> default one.
+	//
 	// @return the wanted <AntStaticValue>
 	const AntStaticValue & GetValue(const std::string & name,
 	                                const Time & time) const;
 
-	// Sets a non-tracking
+	// Sets a non-tracking data value at given Time
+	// @name the wanted column name
+	// @value the wanted <AntStaticValue>
+	// @time the first <Time> after which <name> will be set to
+	//       <value>
+	//
+	// Sets <name> to <value> starting from <time>. If <time> is
+	// nullptr, sets the starting <value> for <name>. <GetValue> is
+	// always defined even if user does not define value for nullptr
+	// <time> has the <Experiment> default value will be used.
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
 	              const Time::ConstPtr & time);
 
+	// Removes any value defined for a time
+	// @name the named value to remove
+	// @time the <Time> to remove
+	//
+	// Removes any value defined at a <Time>.
 	void DeleteValue(const std::string & name,
 	                 const Time::ConstPtr & time);
 
+	// Opaque pointer to implementation
+	typedef const std::shared_ptr<priv::Ant> PPtr;
+
+	// Private implementation constructor
+	// @pptr opaque pointer to implementation
+	//
+	// User cannot build Ant directly. They must be build and accessed
+	// from <Experiment>.
 	Ant(const PPtr & pAnt);
 
 private:
-
-
 	PPtr d_p;
-
-
-
-
-
 
 };
 

@@ -5,6 +5,10 @@
 namespace fort {
 namespace myrmidon {
 
+Identification::Identification(const PPtr & pptr)
+	: d_p(pptr) {
+}
+
 TagID Identification::TagValue() const {
 	return d_p->TagValue();
 }

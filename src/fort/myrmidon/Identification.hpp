@@ -148,14 +148,18 @@ public:
 	// Studio.
 	void ClearUserDefinedAntPose();
 
-
-private:
+	// An opaque pointer to implementation
 	typedef std::shared_ptr<priv::Identification> PPtr;
 
+	// Private implementation constructor
+	// @pptr opaque pointer to implementation
+	//
+	// User cannot build Identification directly. They must be build
+	// from <Experiment> and accessed from <Ant>
 	Identification(const PPtr & pptr);
+private:
 
 	PPtr d_p;
-
 };
 
 

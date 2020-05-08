@@ -4,6 +4,7 @@ if(NOT CLDOC_EXECUTABLE)
 	message(FATAL_ERROR "Could not find cldoc")
 endif(NOT CLDOC_EXECUTABLE)
 
+#set(MYRMIDON_API_DOC_FILES docs/api/named_values.md)
 
 add_custom_target(docs-api
 	COMMAND ${CLDOC_EXECUTABLE}
