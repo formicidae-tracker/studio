@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<class id="fort::myrmidon::pb::TrackingDataDirectory" name="TrackingDataDirectory" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <brief>This message holds all data related to an <ref ref="fort::myrmidon::priv::TrackingDataDirectory#fort::myrmidon::priv::TrackingDataDirectory">fort::myrmidon::priv::TrackingDataDirectory</ref>
-  </brief>
-</class>

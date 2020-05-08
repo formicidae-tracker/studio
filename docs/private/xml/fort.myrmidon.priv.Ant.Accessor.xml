@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<class id="fort::myrmidon::priv::Ant::Accessor" interface="true" name="Accessor" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <brief>C++ shenanigans</brief>
-  <doc>C++ shenanigan class to give restricted unlimited access to the
-<ref ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification::List">fort::myrmidon::priv::Identification::List</ref> to the <ref ref="fort::myrmidon::priv::Identifier#fort::myrmidon::priv::Identifier">fort::myrmidon::priv::Identifier</ref> class.</doc>
-</class>
