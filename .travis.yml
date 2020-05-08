@@ -26,7 +26,7 @@ addons:
       - libopencv-dev
       - libxkbcommon-x11-0
       - libgl1-mesa-dev
-      - libclang-dev
+      - libclang-7-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
