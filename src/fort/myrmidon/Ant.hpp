@@ -12,6 +12,7 @@ namespace fort {
 namespace myrmidon {
 
 namespace priv {
+// private <fort::myrmidon::Ant> implemenation
 class Ant;
 } // namespace priv
 
@@ -183,7 +184,6 @@ public:
 
 private:
 	PPtr d_p;
-
 };
 
 

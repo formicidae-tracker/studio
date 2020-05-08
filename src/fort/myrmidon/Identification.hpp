@@ -11,6 +11,7 @@ namespace fort {
 namespace myrmidon {
 
 namespace priv {
+// private <fort::myrmidon::Ant> implemenation
 class Identification;
 }
 

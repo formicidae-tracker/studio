@@ -42,7 +42,9 @@ public:
 	}
 
 	// constructor from std::chrono::duration
-	// @T the type holding
+	// @T first <std::chrono::duration> template
+	// @U second <std::chrono::duration> template
+	// @duration the <std::chrono::duration> to convert
 	template <typename T,typename U>
 	Duration( const std::chrono::duration<T,U> & duration)
 		: d_nanoseconds(std::chrono::duration<int64_t,std::nano>(duration).count()) {}
@@ -248,8 +250,10 @@ public:
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
+		// Construct an overflow from a clocktype name
 		Overflow(const std::string & clocktype)
 			: std::runtime_error(clocktype + " value will overflow") {}
+		// default destructor
 		virtual ~Overflow() {}
 	};
 
