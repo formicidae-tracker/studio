@@ -36,13 +36,25 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake  -DCMAKE_BUILD_TYPE=Debug ..
-  - make all myrmidon-tests
-  - src/fort/myrmidon/myrmidon-tests
+  - cmake  -DCMAKE_BUILD_TYPE=Debug -DBUILD_DOCS=On ..
+#  - make all myrmidon-tests
+#  - src/fort/myrmidon/myrmidon-tests
+  - make docs-api
   - cd ..
+  - mkdir -p docs/dev/api
+  - cp -r docs/api/* docs/dev/api/
+
 
 after_success:
   - coveralls -b build -r . -i 'src/fort/myrmidon' -E '.*UTest.*' --verbose
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GH_TOKEN
+  keep_history: true
+  local_dir: docs/dev/api
+  target_branch: gh-pages
 
 cache:
   directories:
