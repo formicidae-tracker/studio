@@ -9,6 +9,7 @@ add_custom_target(docs-api
 	COMMAND ${CLDOC_EXECUTABLE}
 	        generate
 	        -I/usr/include/eigen3
+	        -I${PROJECT_BINARY_DIR}/src/
 	        --
 	        --report
 	        --output
