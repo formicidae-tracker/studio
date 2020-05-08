@@ -15,8 +15,11 @@ class Ant;
 // The main object of interest of any Experiment
 //
 // Ant are the object of interest of an Experiment. They are uniquely
-// identified by <Ant::AntID>. By convention we use hexadecimal to
-// display an <Ant::ID>, as returned by <Ant::FormattedID>
+// identified by <AntID>. By convention we use hexadecimal to
+// display an <ID>, as returned by <FormattedID>.
+//
+// Instead of working directly with <TagID> myrmidon uses
+// <identification> to relates <TagID> to an Ant. An Ant could have different <Identification>, allowing us
 class Ant {
 public:
 	// A pointer to a an Ant
@@ -41,26 +44,46 @@ public:
 	//const Identification::ConstList & CIdentifications() const
 	//const Identification::ConstList & CIdentifications() const
 
-	// Gets the ID of tha Ant
+	// Gets the ID of an Ant
 	//
-	// <Ant> gets an unique ID in an experiment.
-	// @return the <ID> of the <Ant>
+	// Ants gets an unique ID in an experiment.
+	// @return the <ID> of the Ant
 	ID AntID() const;
 
 	// Gets the ID of the Ant formatted as a string.
 	//
 	// By Convention <ID> are formatted using hexadecimal notation (as
 	// opposed to tag that are formatted decimal).
-	// @return a string with the FormattedID
+	// @return a string with the formatted ID
 	std::string FormattedID() const;
 
 	// Gets the Display Color of an Ant
 	//
-	// Each <Ant> has a defined color for display.
+	// Each Ant has a defined color for display.
 	// @return a const reference to the <Color> used to display the Ant
 	const Color & DisplayColor() const;
 
 
+	// Sets the Ant display color
+	// @color the new <Color> for the Ant
+	void SetDisplayColor(const Color & color);
+
+	// Gets the Ant display state
+	//
+	// When interacting with the FORT Studio, any Ant has
+	// different <DisplayState> :
+	//
+	//   * <DisplayState::VISIBLE>: the Ant is visible if
+	//     they are no Ant which are <DisplayState::SOLO>
+	//   * <DisplayState::HIDDEN>: the Ant is not displayed
+	//   * <DisplayState::SOLO>: the Ant is visible and
+	//     all non <DisplayState::SOLO> Ant are shown.
+	// @return the <DisplayState> for this Ant.
+	DisplayState DisplayStatus() const;
+
+	// Sets the Ant display state.
+	// @s the wanted <DisplayState>
+	void SetDisplayStatus(DisplayState s);
 
 
 

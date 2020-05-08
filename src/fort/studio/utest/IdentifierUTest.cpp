@@ -157,7 +157,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 TEST_F(IdentifierUTest,DisplayStateModification) {
 	fmp::Ant::ConstPtr ant;
 	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 	QSignalSpy hiddenChanged(identifier,SIGNAL(numberHiddenAntChanged(quint32)));
 	QSignalSpy soloChanged(identifier,SIGNAL(numberSoloAntChanged(quint32)));
 	ASSERT_NO_THROW({
@@ -301,7 +301,7 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 TEST_F(IdentifierUTest,DisplayColorModification) {
 	fmp::Ant::ConstPtr ant;
 	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 
 	ASSERT_NO_THROW({
 			ant = experiment->CreateAnt();
@@ -310,7 +310,7 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	ASSERT_FALSE(!ant);
 
 	QColor newColor(12,34,56);
-	fmp::Color newColorFmp({12,34,56});
+	fm::Color newColorFmp({12,34,56});
 
 	EXPECT_FALSE(identifier->isModified());
 	EXPECT_EQ(modified.count(),0);
@@ -344,7 +344,7 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	ASSERT_EQ(displayChanged.count(),1);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->AntID());
-	EXPECT_EQ(displayChanged.last().at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.last().at(1).value<fm::Color>(),
 	          newColorFmp);
 	EXPECT_EQ(ant->DisplayColor(),
 	          newColorFmp);
@@ -393,7 +393,7 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 
 	QSignalSpy antCreated(identifier,SIGNAL(antCreated(fmp::Ant::ConstPtr)));
 	QSignalSpy antDeleted(identifier,SIGNAL(antDeleted(quint32)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 	QSignalSpy antSelected(identifier,SIGNAL(antSelected(fmp::Ant::Ptr)));
 
 
@@ -477,10 +477,10 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	ui->colorBox->setCurrentIndex(4);
 	ASSERT_EQ(displayChanged.count(),2);
 	EXPECT_EQ(displayChanged.at(0).at(0).toInt(),1);
-	EXPECT_EQ(displayChanged.at(0).at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.at(0).at(1).value<fm::Color>(),
 	          fmp::Palette::Default().At(2));
 	EXPECT_EQ(displayChanged.at(1).at(0).toInt(),2);
-	EXPECT_EQ(displayChanged.at(1).at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.at(1).at(1).value<fm::Color>(),
 	          fmp::Palette::Default().At(2));
 
 

@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <set>
 
-#include "../Ant.hpp"
 #include "../Time.hpp"
 
 #include "Types.hpp"
@@ -44,7 +43,7 @@ public:
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant> {
+class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<AntID,Ant> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
@@ -57,18 +56,18 @@ public:
 	virtual ~Identifier();
 
 	// A default asking for the next available ID
-	const static fort::myrmidon::Ant::ID NEXT_AVAILABLE_ID = 0;
+	const static AntID NEXT_AVAILABLE_ID = 0;
 
 	// Create an Ant
 	// @ID the desired ID
 	//
-	// Creats a new Ant with the iven ID. It will throw an
+	// Creats a new Ant with the given ID. It will throw an
 	// <AlreadyExistingAnt> if the ID is already used. If
 	// NEXT_AVAILABLE_ID is used, a unique ID will be automatically
 	// chosen.
 	AntPtr CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
 	                 const AntMetadataConstPtr & metadataColumns,
-	                 fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
+	                 AntID ID = NEXT_AVAILABLE_ID);
 
 	// Deletes an Ant
 	// @ID the <priv::Ant> to delete
@@ -76,7 +75,7 @@ public:
 	// Deletes an <priv::Ant> from the Identifier. It should have no
 	// Identification targetting her otherwise an exception will be
 	// thrown.
-	void DeleteAnt(fort::myrmidon::Ant::ID );
+	void DeleteAnt(AntID );
 
 	// Gets the Ants in the Identifier
 	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
@@ -97,7 +96,7 @@ public:
 	// <OverlappingIdentification> if any exists for the desired
 	// <priv::Ant> or <TagID>.
 	static IdentificationPtr AddIdentification(const Identifier::Ptr & itself,
-	                                           fort::myrmidon::Ant::ID id,
+	                                           AntID id,
 	                                           TagID tagValue,
 	                                           const Time::ConstPtr & start,
 	                                           const Time::ConstPtr & end);

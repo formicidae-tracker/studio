@@ -19,6 +19,18 @@ const Color & Ant::DisplayColor() const {
 	return d_p->DisplayColor();
 }
 
+void Ant::SetDisplayColor(const Color & color) {
+	d_p->SetDisplayColor(color);
+}
+
+Ant::DisplayState Ant::DisplayStatus() const {
+	return d_p->DisplayStatus();
+}
+
+void Ant::SetDisplayStatus(DisplayState s) {
+	d_p->SetDisplayStatus(s);
+}
+
 
 } // namespace myrmidon
 } // namespace fort

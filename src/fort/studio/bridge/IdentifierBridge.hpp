@@ -54,7 +54,7 @@ signals:
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
 	void antDisplayChanged(quint32,
-	                       fmp::Color,
+	                       fm::Color,
 	                       fmp::Ant::DisplayState);
 
 	void numberSoloAntChanged(quint32 numberSolo);

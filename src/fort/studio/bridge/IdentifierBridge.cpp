@@ -20,7 +20,7 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	qRegisterMetaType<fmp::Ant::Ptr>();
 	qRegisterMetaType<fmp::Identification::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::DisplayState>();
-	qRegisterMetaType<fmp::Color>();
+	qRegisterMetaType<fm::Color>();
 
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
