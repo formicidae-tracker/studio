@@ -108,17 +108,6 @@ public:
 	};
 
 
-	// Opaque pointer for implementation
-	typedef std::shared_ptr<priv::Zone> PPtr;
-
-	// Private implementation constructor
-	// @pptr opaque pointer to implementation
-	//
-	// User cannot build Zone directly. They must be build and
-	// accessed from <Space>.
-	Zone(const PPtr & pZone);
-
-
 	// Adds a new timed Definition
 	// @geometry the shape of the Zone as a <Shape::ConstList>
 	// @start the starting validi <Time> for this definition.
@@ -155,7 +144,7 @@ public:
 	// @name the wanted new Zone name
 	//
 	// There are no restrictions on Zone name
-	void SetName() const;
+	void SetName(const std::string & name);
 
 	// Gets the Zone ID
 	//
@@ -164,6 +153,16 @@ public:
 	//
 	// @return the Zone <ID>x
 	ID ZoneID() const;
+
+	// Opaque pointer for implementation
+	typedef std::shared_ptr<priv::Zone> PPtr;
+
+	// Private implementation constructor
+	// @pptr opaque pointer to implementation
+	//
+	// User cannot build Zone directly. They must be build and
+	// accessed from <Space>.
+	Zone(const PPtr & pZone);
 
 
 private:

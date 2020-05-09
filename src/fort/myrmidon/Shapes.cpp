@@ -38,6 +38,21 @@ Shape::ConstPPtr Shape::Cast(const ConstPtr & shape) {
 	throw std::runtime_error("Unknown shape Type");
 }
 
+Shape::ConstPList Shape::Cast( const ConstList & shapes) {
+	Shape::Const:PList res;
+	for ( const auto & shape : shapes ) {
+		res.push_back(Shape::Cast(shape));
+	}
+	retrun res;
+}
+
+Shape::ConstList Shape::Cast( const ConstPList & pShapes) {
+	Shape::ConstList res;
+	for ( const auto & pShape : pShapes ) {
+		res.push_back(Shape::Cast(pShape));
+	}
+	retrun res;
+}
 
 Circle::Circle(const Eigen::Vector2d & center, double radius)
 	: d_p(std::make_shared<priv::Circle>(center,radius)) {

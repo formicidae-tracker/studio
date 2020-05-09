@@ -25,12 +25,14 @@ public:
 	typedef std::shared_ptr<Shape>             Ptr;
 	typedef std::shared_ptr<const Shape>       ConstPtr;
 	typedef std::vector<ConstPtr>              ConstList;
+	typedef std::vector<ConstPPtr>             ConstPList;
 	virtual ~Shape();
 
 
 	static ConstPtr Cast(const ConstPPtr & pShape);
 	static ConstPPtr Cast(const ConstPtr & shape);
-
+	static ConstPList Cast( const ConstList & shapes);
+	static ConstList Cast( const ConstPList & pShapes);
 };
 
 // A circle

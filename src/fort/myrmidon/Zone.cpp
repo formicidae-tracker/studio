@@ -12,19 +12,11 @@ Zone::Zone(const PPtr & pZone)
 
 
 Shape::ConstList Zone::Definition::Geometry() const {
-	Shape::ConstList res;
-	for ( const auto & pShape : d_p->GetGeometry()->Shapes() ) {
-		res.push_back(Shape::Cast(pShape));
-	}
-	return res;
+	return Shape::Cast(d_p->GetGeometry()->Shapes());
 }
 
 void Zone::Definition::SetGeometry(const Shape::ConstList & shapes) {
-	std::vector<priv::Shape::ConstPtr> pShapes;
-	for ( const auto & shape : shapes ) {
-		pShapes.push_back(Shape::Cast(shape));
-	}
-	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(pShapes));
+	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(Shape::Cast(shapes));
 }
 
 const Time::ConstPtr & Zone::Definition::Start() const {
@@ -35,7 +27,6 @@ const Time::ConstPtr & Zone::Definition::End() const {
 	return d_p->End();
 }
 
-
 void Zone::Definition::SetStart(const Time::ConstPtr & start) {
 	d_p->SetStart(start);
 }
@@ -44,6 +35,46 @@ void Zone::Definition::SetStart(const Time::ConstPtr & start) {
 void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
 	d_p->SetEnd(end);
 }
+
+Zone::Definition::Ptr Zone::AddDefinition(const Shape::ConstList & geometry,
+                                          const Time::ConstPtr & start,
+                                          const Time::ConstPtr & end) {
+	return d_p->AddDefinition(Shape::Cast(geometry),
+	                          start,end);
+}
+
+ Zone::Definition::ConstList Zone::CDefinitions() const {
+	 Definition::ConstList res;
+	 for ( const auto & d : d_p->Definitions() ) {
+		 res.push_back(std::make_shared<const Definition>(d));
+	 }
+	 return res;
+ }
+
+ Zone::Definition::List Zone::Definitions() {
+	 Definition::List res;
+	 for ( const auto & d : d_p->Definitions() ) {
+		 res.push_back(std::make_shared<const Definition>(d));
+	 }
+	 return res;
+ }
+
+ void Zone::EraseDefinition(size_t index) {
+	 d_p->EraseDefinition(index);
+ }
+
+ const std::string & Zone::Name() const {
+	 return d_p->Name();
+ }
+
+ void Zone::SetName(const std::string & name) {
+	 d_p->SetName(name);
+ }
+
+ Zone::ID Zone::ZoneID() const {
+	 return d_p->ZoneID();
+ }
+
 
 } // namespace myrmidon
 } // namespace fort
