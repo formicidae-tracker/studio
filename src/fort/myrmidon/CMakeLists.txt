@@ -100,6 +100,8 @@ set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Time.hpp
                      Identification.hpp
                      Ant.hpp
+                     Zone.hpp
+                     Space.hpp
                      Experiment.hpp
                      utils/FileSystem.hpp)
 
@@ -149,6 +151,8 @@ set(SRC_FILES ForwardDeclaration.cpp
               Time.cpp
               Identification.cpp
               Ant.cpp
+              Zone.cpp
+              Space.cpp
               Experiment.cpp
 	          )
 
