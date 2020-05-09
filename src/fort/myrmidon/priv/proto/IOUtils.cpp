@@ -298,10 +298,6 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 			shapes.push_back(LoadShape(sPb));
 		}
 
-		if ( shapes.empty() == false ) {
-			geometry = std::make_shared<Zone::Geometry>(shapes);
-		}
-
 		Time::ConstPtr start,end;
 
 		if ( dPb.has_start() ) {
@@ -311,7 +307,7 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 			end = std::make_shared<Time>(Time::FromTimestamp(dPb.end()));
 		}
 
-		z->AddDefinition(geometry,start,end);
+		z->AddDefinition(shapes,start,end);
 
 	}
 }

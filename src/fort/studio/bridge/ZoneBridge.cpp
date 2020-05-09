@@ -156,7 +156,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		         << ToQString(start,"-") << ","
 		         << ToQString(end,"+")
 		         << ")";
-		z->AddDefinition(geometry,
+		z->AddDefinition(geometry->Shapes(),
 		                 start,end);
 	} catch ( const std::exception & e) {
 		qCritical() << "Coul not create definition: " << e.what();

@@ -657,11 +657,11 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 
 	auto dZ = s1->CreateZone("hole");
 	auto stamp = std::make_shared<Time>(Time::FromTimeT(1));
-	auto def1 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)})),
+	auto def1 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)},
 	                              Time::ConstPtr(),
 	                              stamp);
 
-	auto def2 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)})),
+	auto def2 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)},
 	                               stamp,
 	                               Time::ConstPtr());
 

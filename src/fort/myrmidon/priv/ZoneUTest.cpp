@@ -59,7 +59,6 @@ TEST_F(ZoneUTest,ZoneCanBeRenamed) {
 }
 
 TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
-	auto geometry = std::make_shared<Zone::Geometry>(shapes);
 
 	Time::ConstPtr start,end;
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
@@ -67,12 +66,12 @@ TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 	EXPECT_TRUE(TimePtrEqual(end,Time::ConstPtr()));
 
 
-	auto definition = zone->AddDefinition(geometry,Time::ConstPtr(),Time::ConstPtr());
+	auto definition = zone->AddDefinition(shapes,Time::ConstPtr(),Time::ConstPtr());
 
 
 
 	EXPECT_THROW({
-			zone->AddDefinition(geometry,
+			zone->AddDefinition(shapes,
 			                    std::make_shared<Time>(Time::FromTimeT(0)),
 			                    Time::ConstPtr());
 		},std::runtime_error);
@@ -89,7 +88,7 @@ TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 
 
 	EXPECT_NO_THROW({
-			zone->AddDefinition(geometry,
+			zone->AddDefinition(shapes,
 			                    std::make_shared<Time>(Time::FromTimeT(3)),
 			                    std::make_shared<Time>(Time::FromTimeT(4)));
 		});
@@ -99,20 +98,20 @@ TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 	EXPECT_TRUE(TimePtrEqual(start,Time::ConstPtr()));
 	EXPECT_TRUE(TimePtrEqual(end,std::make_shared<Time>(Time::FromTimeT(1))));
 	EXPECT_NO_THROW({
-			zone->AddDefinition(geometry,start,end);
+			zone->AddDefinition(shapes,start,end);
 		});
 
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
 	EXPECT_TRUE(TimePtrEqual(start,std::make_shared<Time>(Time::FromTimeT(2))));
 	EXPECT_TRUE(TimePtrEqual(end,std::make_shared<Time>(Time::FromTimeT(3))));
 	EXPECT_NO_THROW({
-			zone->AddDefinition(geometry,start,end);
+			zone->AddDefinition(shapes,start,end);
 		});
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
 	EXPECT_TRUE(TimePtrEqual(start,std::make_shared<Time>(Time::FromTimeT(4))));
 	EXPECT_TRUE(TimePtrEqual(end,Time::ConstPtr()));
 	EXPECT_NO_THROW({
-			zone->AddDefinition(geometry,start,end);
+			zone->AddDefinition(shapes,start,end);
 		});
 	EXPECT_FALSE(zone->NextFreeTimeRegion(start,end));
 
