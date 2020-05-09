@@ -1,6 +1,6 @@
 #include "Ant.hpp"
 
-#include <fort/myrmidon/priv/Ant.hpp>
+#include "priv/Ant.hpp"
 
 namespace fort {
 namespace myrmidon {

@@ -38,6 +38,7 @@ public:
 	typedef std::shared_ptr<ZoneDefinition>       Ptr;
 	typedef std::shared_ptr<const ZoneDefinition> ConstPtr;
 	typedef std::vector<Ptr>                      List;
+	typedef std::vector<ConstPtr>                 ConstList;
 	typedef ZoneGeometry                          Geometry;
 
 	ZoneDefinition(const ZonePtr & zone,
@@ -84,7 +85,9 @@ public:
 
 	bool NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const;
 
-	const Definition::List & Definitions() const;
+	const Definition::List & Definitions();
+
+	const Definition::ConstList & CDefinitions() const;
 
 	void EraseDefinition(size_t index);
 

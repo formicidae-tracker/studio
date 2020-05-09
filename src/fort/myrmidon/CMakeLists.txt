@@ -98,6 +98,7 @@ set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Types.hpp
                      Color.hpp
                      Time.hpp
+                     Shapes.hpp
                      Identification.hpp
                      Ant.hpp
                      Zone.hpp
@@ -149,6 +150,7 @@ set(SRC_FILES ForwardDeclaration.cpp
               Types.cpp
               Color.cpp
               Time.cpp
+              Shapes.cpp
               Identification.cpp
               Ant.cpp
               Zone.cpp

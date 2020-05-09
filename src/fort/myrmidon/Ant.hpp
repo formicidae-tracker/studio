@@ -38,7 +38,7 @@ class Ant;
 // * At any <Time> there is only a single <TagID> used to designate an
 //   Ant
 // * For any Ant, there only a single <Identification> that designate
-//   this Ant at any given <Time>. I.e. <Identification::Start> and *
+//   this Ant at any given <Time>. I.e. <Identification::Start> and
 //   <Identification::End> must not overlap for a given Ant.
 //
 // ## Visualization property

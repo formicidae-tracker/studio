@@ -16,7 +16,7 @@ class Identification;
 }
 
 
-// An Identification relates TagID to Ant
+// Relates <TagID> to <Ant>
 //
 // An Identification relates a <TagID> to an <Ant>.
 //

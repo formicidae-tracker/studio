@@ -316,7 +316,7 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	pb->Clear();
 	pb->set_id(zone->ZoneID());
 	pb->set_name(zone->Name());
-	for ( const auto & d : zone->Definitions() ) {
+	for ( const auto & d : zone->CDefinitions() ) {
 		auto dPb = pb->add_definitions();
 		if ( d->Start() ) {
 			d->Start()->ToTimestamp(dPb->mutable_start());

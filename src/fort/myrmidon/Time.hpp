@@ -13,7 +13,7 @@ namespace fort {
 
 namespace myrmidon {
 
-// A Duration represent time ellapsed between two Time
+// The time ellapsed between two <Time>
 //
 // A <myrmidon::Duration> could be negative. Why not using
 // std::chrono::duration ?  The C++ comittee took more than 9 years
@@ -192,7 +192,7 @@ private:
 
 
 
-// Time represent a point in Time
+// A point in time
 //
 // <myrmidon::Time> represents a point in time. Why re-implementing
 // one of this object and not using a `struct timeval` or a

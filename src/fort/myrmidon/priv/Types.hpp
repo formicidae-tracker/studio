@@ -28,9 +28,6 @@ typedef uint64_t MovieFrameID;
 typedef uint32_t TagID;
 
 
-// A List of 2D vector
-typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
-
 // AABB
 typedef Eigen::AlignedBox<double,2> AABB;
 

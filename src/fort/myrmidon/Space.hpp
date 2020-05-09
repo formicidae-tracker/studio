@@ -12,10 +12,31 @@ namespace priv {
 class Space;
 } // namespace priv
 
+
+// An homogenous coordinate system for tracking data
+//
+// A Space represent the physical space tracked by one single
+// Camera. Coordinates in one Space cannot be compared with coordinate
+// from another Space.
+//
+// Space are uniquely identified with their <SpaceID>.
+//
+// ## Zoning
+//
+// Within a single Space, it could be relevant to defines <Zone> where
+// interaction between Ant could be measured. I.e. <Ant> in different
+// <Zone> won't report interactions.
+//
+// <Zone> are manipulated with <CreateZone> and <DeleteZone>.
 class Space {
 public:
+	// A pointer to a Space
 	typedef std::shared_ptr<Space>       Ptr;
+	// A const pointer to a Space
 	typedef std::shared_ptr<const Space> ConstPtr;
+	// A unique ID for a Space
+	//
+	// <SpaceID> are unique within an <Experiment>
 	typedef uint32_t                     ID;
 
 	// Gets the Space ID

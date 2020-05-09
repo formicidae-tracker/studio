@@ -132,8 +132,12 @@ ZoneDefinition::Ptr Zone::AddDefinition(const std::vector<Shape::ConstPtr> & sha
 	return res;
 }
 
-const ZoneDefinition::List & Zone::Definitions() const {
+const ZoneDefinition::List & Zone::Definitions() {
 	return d_definitions;
+}
+
+const ZoneDefinition::ConstList & Zone::CDefinitions() const {
+	return reinterpret_cast<const ZoneDefinition::ConstList&>(d_definitions);
 }
 
 const std::string & Zone::Name() const {
