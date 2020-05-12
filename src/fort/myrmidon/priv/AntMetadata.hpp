@@ -16,14 +16,7 @@ public:
 	typedef std::shared_ptr<AntMetadata>       Ptr;
 	typedef std::shared_ptr<const AntMetadata> ConstPtr;
 
-	enum class Type {
-	                 Bool = 0,
-	                 Int,
-	                 Double,
-	                 String,
-	                 Time,
-	};
-
+	typedef fort::myrmidon::AntMetadataType    Type;
 	enum class Validity {
 	                     Valid = 0,
 	                     Intermediate = 1,

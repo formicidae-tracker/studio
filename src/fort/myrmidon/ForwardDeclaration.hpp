@@ -11,9 +11,6 @@ namespace myrmidon {
 // Forward declaration for <Ant::ID>
 typedef uint32_t AntID;
 
-// Forward delaration for AntShapeType::ID
-typedef uint32_t AntShapeTypeID;
-
 class Ant;
 // Forward declaration for <Ant::Ptr>
 typedef std::shared_ptr<Ant> AntPtr;

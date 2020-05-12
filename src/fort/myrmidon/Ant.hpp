@@ -181,12 +181,11 @@ public:
 
 
 	// Adds a Capsule to the Ant virtual shape
-	// @shapeTypeID the <AntShapeType::ID> for the <Capsule>
+	// @shapeTypeID the <AntShapeTypeID> for the <Capsule>
 	// @capsule the <Capsule>
 	//
 	// Adds a <Capsule> to the Ant virtual shape, associated with the
-	// <AntShapeType> body part. <AntShapeType can have several
-	// capsule.
+	// <AntShapeTypeID> body part.
 	void AddCapsule(AntShapeTypeID shapeTypeID,
 	                const Capsule::ConstPtr & capsule);
 

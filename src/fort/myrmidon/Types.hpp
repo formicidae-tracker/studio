@@ -31,7 +31,30 @@ typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 // A List of 2D Vector
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 
+// ID for Ant virtual body parts
+//
+// ID to designat an <Ant> virtual body part. See
+// <ant_collision_detection>
+typedef uint32_t AntShapeTypeID;
+
+
+// A list of Ant virtual shape part
 typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>>                 TypedCapsuleList;
+
+// Types for non-tracking data column
+enum class AntMetadataType {
+                            // A boolean
+                            Bool = 0,
+                            // An integer
+                            Int,
+                            // a float
+                            Double,
+                            // a std::string
+                            String,
+                            // a <Time>
+                            Time,
+};
+
 
 }
 }
