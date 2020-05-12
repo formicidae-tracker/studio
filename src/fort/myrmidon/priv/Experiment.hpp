@@ -89,7 +89,7 @@ public :
 	//  directory referred byt the TrackingDatadirectory.
 	//
 	// Saves the <priv::Experiment> data to the filesystem
-	void Save(const fs::path & filename) const;
+	void Save(const fs::path & filename);
 
 
 	// The absolute path of the Experiment

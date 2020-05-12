@@ -132,6 +132,9 @@ Experiment::Ptr Experiment::Create(const fs::path & filename) {
 
 Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 	auto absolutePath = fs::absolute(fs::weakly_canonical(filepath));
+	if ( fs::exists(absolutePath) == true ) {
+		throw std::runtime_error("'" + filepath.string() + "' already exists");
+	}
 	auto base = absolutePath;
 	base.remove_filename();
 	auto res = Create(absolutePath);
@@ -157,7 +160,7 @@ Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
 }
 
 
-void Experiment::Save(const fs::path & filepath) const {
+void Experiment::Save(const fs::path & filepath) {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
 	auto newBasedir = fs::weakly_canonical(filepath).parent_path();
 	//TODO: should not be an error.

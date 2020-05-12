@@ -8,7 +8,8 @@
 void ExperimentBridgeUTest::SetUp() {
 	try {
 		pathExisting = TestSetup::Basedir() / "ExperimentBridge.myrmidon";
-		auto experiment = fmp::Experiment::NewFile(pathExisting);
+		auto experiment = fmp::Experiment::Create(pathExisting);
+		experiment->Save(pathExisting);
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Could not create experiment file: " << e.what();
 	}

@@ -158,6 +158,11 @@ public:
 	// User cannot build Identification directly. They must be build
 	// from <Experiment> and accessed from <Ant>
 	Identification(const PPtr & pptr);
+
+	// Private implementation downcaster
+	//
+	// @return the opaque private implementation
+	const PPtr & ToPrivate() const;
 private:
 
 	PPtr d_p;

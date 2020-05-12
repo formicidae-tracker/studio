@@ -5,6 +5,12 @@
 namespace fort {
 namespace myrmidon {
 
+Ant::Ant(const PPtr & pAnt)
+	: d_p(pAnt) {
+}
+
+
+
 Identification::ConstList Ant::CIdentifications() const {
 	Identification::ConstList res;
 	const auto & idents = d_p->Identifications();

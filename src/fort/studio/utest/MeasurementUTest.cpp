@@ -10,7 +10,10 @@
 
 
 void MeasurementUTest::SetUp() {
-	experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "measurementUTest.myrmidon");
+	ASSERT_NO_THROW({
+			experiment = fmp::Experiment::Create(TestSetup::Basedir() / "measurementUTest.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "measurementUTest.myrmidon");
+		});
 	measurements = new MeasurementBridge(NULL);
 }
 void MeasurementUTest::TearDown() {

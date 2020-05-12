@@ -9,7 +9,8 @@
 
 void ZoneUTest::SetUp() {
 	EXPECT_NO_THROW({
-			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "zone.myrmidon");
+			experiment = fmp::Experiment::Create(TestSetup::Basedir() / "zone.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "zone.myrmidon");
 			auto foo = experiment->CreateSpace("foo");
 			auto bar = experiment->CreateSpace("bar");
 		});

@@ -9,6 +9,10 @@ Identification::Identification(const PPtr & pptr)
 	: d_p(pptr) {
 }
 
+const Identification::PPtr & Identification::ToPrivate() const {
+	return d_p;
+}
+
 TagID Identification::TagValue() const {
 	return d_p->TagValue();
 }
