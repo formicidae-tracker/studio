@@ -257,6 +257,14 @@ public:
 	// @return a map of measurement type name by their <MeasurementTypeID>
 	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
 
+	// Computes all measurement for ant Ant
+	// @result vector for the result
+	// @antID the desired <Ant>
+	// @mTypeID the desired measurement type
+	void ComputeMeasurementFor(ComputedMeasurement::List & result,
+	                           Ant::ID antID,
+	                           MeasurementTypeID mTypeID) const;
+
 
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
 

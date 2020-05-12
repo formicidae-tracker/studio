@@ -238,11 +238,6 @@ public :
 	// experiment.
 	const MeasurementByTagCloseUp & Measurements() const;
 
-	// Represents a Measurement in mm at a given Time.
-	struct ComputedMeasurement {
-		Time   MTime;
-		double LengthMM;
-	};
 
 	// Computes all Measurement of a type for an Ant
 	//
@@ -250,7 +245,7 @@ public :
 	//         <ComputedMeasurement>
 	// @AID the desired <Ant> designated by its <Ant::ID>
 	// @type the type of measurement we are looking for.
-	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
+	void ComputeMeasurementsForAnt(ComputedMeasurement::List & result,
 	                               AntID AID,
 	                               MeasurementTypeID type) const;
 

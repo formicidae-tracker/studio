@@ -328,7 +328,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 
 
-	std::vector<Experiment::ComputedMeasurement> measurements;
+	std::vector<ComputedMeasurement> measurements;
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->AntID(),
 	                             1);

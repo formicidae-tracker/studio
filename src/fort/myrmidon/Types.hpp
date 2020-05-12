@@ -65,6 +65,14 @@ enum class AntMetadataType {
                             Time,
 };
 
+// Represents a Measurement in mm at a given Time.
+struct ComputedMeasurement {
+	typedef std::vector<ComputedMeasurement> List;
+	Time   MTime;
+	double LengthMM;
+};
+
+
 
 }
 }
