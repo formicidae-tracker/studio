@@ -10,13 +10,16 @@ Zone::Zone(const PPtr & pZone)
 	: d_p(pZone) {
 }
 
+Zone::Definition::Definition(const PPtr & pDefinition)
+	: d_p(pDefinition) {
+}
 
 Shape::ConstList Zone::Definition::Geometry() const {
 	return Shape::Cast(d_p->GetGeometry()->Shapes());
 }
 
 void Zone::Definition::SetGeometry(const Shape::ConstList & shapes) {
-	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(Shape::Cast(shapes));
+	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(Shape::Cast(shapes)));
 }
 
 const Time::ConstPtr & Zone::Definition::Start() const {
@@ -39,8 +42,8 @@ void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
 Zone::Definition::Ptr Zone::AddDefinition(const Shape::ConstList & geometry,
                                           const Time::ConstPtr & start,
                                           const Time::ConstPtr & end) {
-	return d_p->AddDefinition(Shape::Cast(geometry),
-	                          start,end);
+	return std::make_shared<Zone::Definition>(d_p->AddDefinition(Shape::Cast(geometry),
+	                                                             start,end));
 }
 
  Zone::Definition::ConstList Zone::CDefinitions() const {
@@ -54,7 +57,7 @@ Zone::Definition::Ptr Zone::AddDefinition(const Shape::ConstList & geometry,
  Zone::Definition::List Zone::Definitions() {
 	 Definition::List res;
 	 for ( const auto & d : d_p->Definitions() ) {
-		 res.push_back(std::make_shared<const Definition>(d));
+		 res.push_back(std::make_shared<Definition>(d));
 	 }
 	 return res;
  }

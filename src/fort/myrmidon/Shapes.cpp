@@ -39,11 +39,11 @@ Shape::ConstPPtr Shape::Cast(const ConstPtr & shape) {
 }
 
 Shape::ConstPList Shape::Cast( const ConstList & shapes) {
-	Shape::Const:PList res;
+	Shape::ConstPList res;
 	for ( const auto & shape : shapes ) {
 		res.push_back(Shape::Cast(shape));
 	}
-	retrun res;
+	return res;
 }
 
 Shape::ConstList Shape::Cast( const ConstPList & pShapes) {
@@ -51,7 +51,7 @@ Shape::ConstList Shape::Cast( const ConstPList & pShapes) {
 	for ( const auto & pShape : pShapes ) {
 		res.push_back(Shape::Cast(pShape));
 	}
-	retrun res;
+	return res;
 }
 
 Circle::Circle(const Eigen::Vector2d & center, double radius)

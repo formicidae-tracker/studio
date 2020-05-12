@@ -189,22 +189,6 @@ private:
 	bool                      d_userDefinedPose;
 };
 
-// An std::exception when tow Identification overlaps in time.
-//
-// Two <priv::Identification> overlaps in time if they have
-// overlapping boundary and they either use the same <TagID> or targets
-// the same <priv::Ant>. This is an invariant condition that should
-// never happen and modification that will break this invariant will
-// throw this exception.
-class OverlappingIdentification : public std::runtime_error {
-public:
-	OverlappingIdentification(const Identification & a,
-	                          const Identification & b);
-private:
-	static std::string Reason(const Identification & a,
-	                          const Identification & b);
-};
-
 
 } // namespace priv
 } // namespace myrmidon
@@ -214,6 +198,7 @@ private:
 // Formats an Identification to an std::ostream
 // @out the stream to format to
 // @a the <fort::myrmidon::priv::Identification> to format
+//
 // @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::priv::Identification & a);

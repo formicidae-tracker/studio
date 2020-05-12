@@ -102,8 +102,18 @@ public:
 		// @end the <Time> before which the Definition is
 		//      valid. nullptr means -∞
 		void SetEnd(const Time::ConstPtr & end);
-	private:
+
+		// Opaque implementation pointer
 		typedef std::shared_ptr<priv::ZoneDefinition> PPtr;
+
+
+		// Private implementation constructor
+		// @pDefinition opaque pointer to implementation
+		//
+		// User cannot build Defoninition directly. They must be build and
+		// accessed from <Zone>.
+		Definition(const PPtr & pDefinition);
+	private:
 		PPtr d_p;
 	};
 
@@ -158,7 +168,7 @@ public:
 	typedef std::shared_ptr<priv::Zone> PPtr;
 
 	// Private implementation constructor
-	// @pptr opaque pointer to implementation
+	// @pZone opaque pointer to implementation
 	//
 	// User cannot build Zone directly. They must be build and
 	// accessed from <Space>.

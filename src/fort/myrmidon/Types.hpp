@@ -39,8 +39,7 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 
 // C++ Formatting operator for AntStaticValue
 // @out the <std::ostream> to format the value to
-// @color the <fort::myrmidon::AntStaticValue> to format
+// @v the <fort::myrmidon::AntStaticValue> to format
 //
 // @return a reference to <out>
-
-std::ostream & operator<<(std::ostream & out, const fort::myrmidon::AntStaticValue &);
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::AntStaticValue & v);

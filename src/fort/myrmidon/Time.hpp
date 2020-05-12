@@ -51,26 +51,32 @@ public:
 
 
 	// Gets the duration in hours
+	//
 	// @return the duration in hours
 	double Hours() const;
 
 	// Gets the duration in minutes
+	//
 	// @return the duration in minutes
 	double Minutes() const;
 
 	// Gets the number of seconds
+	//
 	// @return the duration in seconds
 	double Seconds() const;
 
 	// Gets the number of milliseconds
+	//
 	// @return the duration in milliseconds
 	double Milliseconds() const;
 
 	// Gets the number of microseconds
+	//
 	// @return the duration in microseconds
 	double Microseconds() const;
 
 	// Gets the number of nanoseconds
+	//
 	// @return the duration in nanoseconds
 	int64_t Nanoseconds() const {
 		return d_nanoseconds;
@@ -251,6 +257,7 @@ public:
 	class Overflow : public std::runtime_error {
 	public:
 		// Construct an overflow from a clocktype name
+		// @clocktype the clock type to use
 		Overflow(const std::string & clocktype)
 			: std::runtime_error(clocktype + " value will overflow") {}
 		// default destructor
@@ -361,8 +368,8 @@ public:
 	Time();
 
 	// Adds a Duration to a Time
-	//
 	// @d the <Duration> to add
+	//
 	// @return a new <myrmidon::Time> distant by <d> from this <myrmidon::Time>
 	Time Add(const Duration & d) const;
 
@@ -534,7 +541,11 @@ private:
 
 } // namespace fort
 
-// C++ shenanigans
+// Operator for <fort::myrmidon::Duration> multiplication
+// @a a signed integer
+// @b the <fort::myrmidon::Duration> to multiply
+//
+// @return `a*b`
 inline fort::myrmidon::Duration operator*(int64_t a,
                                           const fort::myrmidon::Duration & b) {
 	return a * b.Nanoseconds();

@@ -51,5 +51,18 @@ void Identification::ClearUserDefinedAntPose() {
 	d_p->ClearUserDefinedAntPose();
 }
 
+OverlappingIdentification::OverlappingIdentification(const priv::Identification & a,
+                                                     const priv::Identification & b) noexcept
+	: std::runtime_error(Reason(a,b)){
+}
+
+std::string OverlappingIdentification::Reason(const priv::Identification & a,
+                                              const priv::Identification & b) noexcept {
+	std::ostringstream os;
+	os << a << " and " << b << " overlaps";
+	return os.str();
+}
+
+
 } // namespace fort
 } // namespace myrmidon

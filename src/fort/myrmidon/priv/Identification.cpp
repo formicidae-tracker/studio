@@ -49,18 +49,6 @@ Ant::Ptr Identification::Target() const {
 }
 
 
-OverlappingIdentification::OverlappingIdentification(const Identification & a,
-                                                          const Identification & b)
-	: std::runtime_error(Reason(a,b)){
-}
-
-std::string OverlappingIdentification::Reason(const Identification & a,
-                                              const Identification & b) {
-	std::ostringstream os;
-	os << a << " and " << b << " overlaps";
-	return os.str();
-}
-
 
 Identifier::Ptr Identification::ParentIdentifier() const {
 	auto res = d_identifier.lock();

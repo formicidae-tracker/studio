@@ -84,9 +84,9 @@ public:
 	typedef std::shared_ptr<priv::Space> PPtr;
 
 	// Private implementation constructor
-	// @pptr opaque pointer to implementation
+	// @pSpace opaque pointer to implementation
 	//
-	// User cannot build Space directly. They must be build and
+23	// User cannot build Space directly. They must be build and
 	// accessed from <Experiment>.
 	Space(const PPtr & pSpace);
 private:

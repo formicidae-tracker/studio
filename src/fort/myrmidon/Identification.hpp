@@ -163,6 +163,25 @@ private:
 	PPtr d_p;
 };
 
+// Exception when two <Identification> overlaps in time.
+//
+// Two <Identification> overlaps in time if they have overlapping
+// boundary and they either use the same <TagID> or targets the same
+// <Ant>. This is an invariant condition that should never happen and
+// modification that will break this invariant will throw this
+// exception.
+class OverlappingIdentification : public std::runtime_error {
+public:
+	// Default constructor
+	// @a the first overlapping identification
+	// @b the second overlapping identification
+	OverlappingIdentification(const priv::Identification & a,
+	                          const priv::Identification & b) noexcept;
+private:
+	static std::string Reason(const priv::Identification & a,
+	                          const priv::Identification & b) noexcept;
+};
+
 
 } // namespace fort
 } // namespace myrmidon

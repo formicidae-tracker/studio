@@ -30,7 +30,7 @@ class Ant;
 // ## Identification
 //
 // Instead of working directly with <TagID> myrmidon uses
-// <identification> to relates <TagID> to an Ant. An Ant could have
+// <Identification> to relates <TagID> to an Ant. An Ant could have
 // different <Identification>, allowing us to use different <TagID> to
 // refer to the same individual. Myrmidon ensures the following
 // invariant:
@@ -176,7 +176,7 @@ public:
 	typedef const std::shared_ptr<priv::Ant> PPtr;
 
 	// Private implementation constructor
-	// @pptr opaque pointer to implementation
+	// @pAnt opaque pointer to implementation
 	//
 	// User cannot build Ant directly. They must be build and accessed
 	// from <Experiment>.

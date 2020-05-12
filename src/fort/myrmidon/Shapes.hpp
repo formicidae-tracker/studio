@@ -169,7 +169,7 @@ private:
 //
 // A polygon is defined by a collection of <Vertex>. Polygon in
 // myrmidon are always closed, meaning that there is no need to
-// manually close it by setting <Vetex>(<Size>-1) == <Vertex>(0).
+// manually close it by setting <Vertex>(<Size>-1) == <Vertex>(0).
 //
 // Note that order matters as {(-1,-1),(1,-1),(1,1),(-1,1)} is a
 // square, and {(-1,-1),(1,-1),(-1,1),(1,1)} is an hourglass.

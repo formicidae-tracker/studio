@@ -7,8 +7,7 @@ namespace myrmidon {
 
 // Defines a RGB color
 //
-// Defines a RGB color, specified in this order, i.e std::get<0>(c)
-// will return the red component.
+// Defines a RGB color, specified in this order.
 typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 
 
