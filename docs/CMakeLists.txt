@@ -4,14 +4,20 @@ if(NOT CLDOC_EXECUTABLE)
 	message(FATAL_ERROR "Could not find cldoc")
 endif(NOT CLDOC_EXECUTABLE)
 
+if(DOCS_USES_PATCHED_HEADERS)
+	set(PATCHED_SYSTEM_HEADERS_INCLUDE -cxx-isystem${PROJECT_SOURCE_DIR}/docs/system_header_override)
+endif(DOCS_USES_PATCHED_HEADERS)
+
 #set(MYRMIDON_API_DOC_FILES docs/api/named_values.md)
 
 add_custom_target(docs-api
 	COMMAND ${CLDOC_EXECUTABLE}
 	        generate
 	        -I/usr/include/eigen3
-	        -cxx-isystem${PROJECT_SOURCE_DIR}/docs/system_header_override
+	        -I${fort-tags_SOURCE_DIR}/include
+	        -I${APRILTAG_INCLUDE_DIRS}
 	        -I${PROJECT_BINARY_DIR}/src/
+	        ${PATCHED_SYSTEM_HEADERS_INCLUDE}
 	        --std=c++17
 	        --
 	        --report

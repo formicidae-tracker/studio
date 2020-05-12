@@ -164,7 +164,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 option(BUILD_DOCS "Builds the documentation" Off)
-
+option(DOCS_USES_PATCHED_HEADERS "Documentation shoudl use patched system headers" Off)
 if(BUILD_DOCS)
 	add_subdirectory(docs)
 endif(BUILD_DOCS)
