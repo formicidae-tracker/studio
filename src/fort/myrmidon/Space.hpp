@@ -86,7 +86,7 @@ public:
 	// Private implementation constructor
 	// @pSpace opaque pointer to implementation
 	//
-23	// User cannot build Space directly. They must be build and
+	// User cannot build Space directly. They must be build and
 	// accessed from <Experiment>.
 	Space(const PPtr & pSpace);
 private:

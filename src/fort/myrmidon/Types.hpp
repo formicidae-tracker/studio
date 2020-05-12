@@ -31,7 +31,7 @@ typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 // A List of 2D Vector
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 
-
+typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>>                 TypedCapsuleList;
 
 }
 }

@@ -6,8 +6,13 @@
 
 namespace fort {
 namespace myrmidon {
+
+
 // Forward declaration for <Ant::ID>
 typedef uint32_t AntID;
+
+// Forward delaration for AntShapeType::ID
+typedef uint32_t AntShapeTypeID;
 
 class Ant;
 // Forward declaration for <Ant::Ptr>
@@ -40,6 +45,12 @@ class Zone;
 typedef std::shared_ptr<Zone> ZonePtr;
 // Forward declaration for <Zone::ConstPtr>
 typedef std::shared_ptr<const Zone> ZoneConstPtr;
+
+class Capsule;
+// Forward declaration for <Capsule::Ptr>
+typedef std::shared_ptr<Capsule> CapsulePtr;
+// Forward declaration for <Capsule::ConstPtr>
+typedef std::shared_ptr<const Capsule> CapsuleConstPtr;
 
 
 

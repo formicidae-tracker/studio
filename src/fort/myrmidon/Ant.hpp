@@ -5,8 +5,8 @@
 #include "Types.hpp"
 #include "Color.hpp"
 #include "Identification.hpp"
-
-
+#include "ForwardDeclaration.hpp"
+#include "Shapes.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -54,6 +54,13 @@ class Ant;
 // Ant also stores timed non-tracking data, called
 // <named_values>. These are modifiable using <SetValue> and
 // <DeleteValue> and accesible through <GetValue>.
+//
+// ## Ant Shapping
+//
+// Each Ant has a virtual shape that can be modified with <AddCapsule>
+// and <DeleteCapsule>.
+//
+// More complete informations can be found in <ant_collision_detection>
 //
 class Ant {
 public:
@@ -171,6 +178,32 @@ public:
 	// Removes any value defined at a <Time>.
 	void DeleteValue(const std::string & name,
 	                 const Time::ConstPtr & time);
+
+
+	// Adds a Capsule to the Ant virtual shape
+	// @shapeTypeID the <AntShapeType::ID> for the <Capsule>
+	// @capsule the <Capsule>
+	//
+	// Adds a <Capsule> to the Ant virtual shape, associated with the
+	// <AntShapeType> body part. <AntShapeType can have several
+	// capsule.
+	void AddCapsule(AntShapeTypeID shapeTypeID,
+	                const Capsule::ConstPtr & capsule);
+
+	// Gets all part of this ant
+	//
+	// @return a <TypedCapsuleList> representing the virtual shape of
+	//         the Ant
+	TypedCapsuleList Capsules() const;
+
+	// Delete a part of the virtual shape
+	// @index the index in the <Capsules> to remove
+	void DeleteCapsule(const size_t index);
+
+	// Deletes all virtual shape parts
+	void ClearCapsules();
+
+
 
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Ant> PPtr;

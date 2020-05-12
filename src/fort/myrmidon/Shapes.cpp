@@ -126,6 +126,10 @@ double Capsule::R2() const {
 	return d_p->R2();
 }
 
+const Capsule::PPtr & Capsule::ToPrivate() const {
+	return d_p;
+}
+
 Polygon::Polygon(const Vector2dList & vertices)
 	: d_p(std::make_shared<priv::Polygon>(vertices)) {
 }

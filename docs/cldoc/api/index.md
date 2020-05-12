@@ -24,5 +24,4 @@ interactions or trajectories.
 
   * <tag_identification>
   * <named_values>
-  * <ant_shaping>
-  * <zoning>
+  * <ant_collision_detection>

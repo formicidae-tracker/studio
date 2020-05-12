@@ -66,6 +66,26 @@ void Ant::DeleteValue(const std::string & name,
 	d_p->DeleteValue(name,time);
 }
 
+void Ant::AddCapsule(AntShapeTypeID shapeTypeID,
+                     const Capsule::ConstPtr & capsule) {
+	d_p->AddCapsule(shapeTypeID,capsule->ToPrivate());
+}
+
+TypedCapsuleList Ant::Capsules() const {
+	TypedCapsuleList res;
+	for ( const auto & [shapeTypeID, pCapsule] : d_p->Capsules() ) {
+		res.push_back(std::make_pair(shapeTypeID,std::make_shared<const Capsule>(std::const_pointer_cast<priv::Capsule>(pCapsule))));
+	}
+	return res;
+}
+
+void Ant::DeleteCapsule(const size_t index) {
+	d_p->DeleteCapsule(index);
+}
+
+void Ant::ClearCapsules() {
+	d_p->ClearCapsules();
+}
 
 
 } // namespace myrmidon

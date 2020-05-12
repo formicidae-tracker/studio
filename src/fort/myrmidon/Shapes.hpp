@@ -111,6 +111,8 @@ private:
 // Their main purpose is to define <Ant> body parts.
 class Capsule  : public Shape {
 public:
+	// A const pointer to a Capsule
+	typedef std::shared_ptr<const Capsule> ConstPtr;
 	// public constructor
 	// @c1 the first center
 	// @c2 the second center
@@ -151,13 +153,17 @@ public:
 	// @return the radius at <C2>
 	double R2() const;
 
-
 	// Opaque pointer to implementation
 	typedef std::shared_ptr<priv::Capsule> PPtr;
 
 	// Private implementation constructor.
 	// @pCapsule opaque pointer to implementation
 	Capsule(const PPtr & pCapsule);
+
+	// Downcast to private implementation.
+	//
+	// @return the private implementation
+	const PPtr & ToPrivate() const;
 
 private:
 	friend class Shape;
