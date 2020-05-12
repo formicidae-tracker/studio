@@ -3,6 +3,7 @@
 #include "priv/Experiment.hpp"
 #include "priv/AntShapeType.hpp"
 #include "priv/Identifier.hpp"
+#include "priv/Measurement.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -145,6 +146,31 @@ uint8_t Experiment::Threshold() const {
 
 void Experiment::SetThreshold(uint8_t th) {
 	d_p->SetThreshold(th);
+}
+
+MeasurementTypeID Experiment::CreateMeasurementType(const std::string & name) {
+	return d_p->CreateMeasurementType(name)->MTID();
+}
+
+void Experiment::DeleteMeasurementType(MeasurementTypeID mTypeID) {
+	d_p->DeleteMeasurementType(mTypeID);
+}
+
+void Experiment::SetMeasurementTypeName(MeasurementTypeID mTypeID,
+                                        const std::string & name) {
+	auto fi = d_p->MeasurementTypes().find(mTypeID);
+	if ( fi == d_p->MeasurementTypes().end() ) {
+		throw std::invalid_argument("Unknwon measurement type " + std::to_string(mTypeID));
+	}
+	fi->second->SetName(name);
+}
+
+std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypes() const {
+	std::map<MeasurementTypeID,std::string> res;
+	for ( const auto & [mtID,mt] : d_p->MeasurementTypes() ) {
+		res.insert(std::make_pair(mtID,mt->Name()));
+	}
+	return res;
 }
 
 AntShapeTypeID Experiment::CreateAntShapeType(const std::string & name) {

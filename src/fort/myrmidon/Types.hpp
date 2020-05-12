@@ -33,9 +33,19 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 
 // ID for Ant virtual body parts
 //
-// ID to designat an <Ant> virtual body part. See
+// ID to designate an <Ant> virtual body part. See
 // <ant_collision_detection>
 typedef uint32_t AntShapeTypeID;
+
+// ID for manual measurements
+//
+// ID to designate a manual measurement made in the GUI
+typedef uint32_t MeasurementTypeID;
+
+// Mandatory measurement type for any <Experiment>
+//
+// Any <Experiment> have this Measurement type that cannot be removed.
+const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
 
 
 // A list of Ant virtual shape part

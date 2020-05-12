@@ -235,6 +235,29 @@ public:
 	void SetThreshold(uint8_t th);
 
 
+	// Creates a measurement type
+	// @name the wanted name for the new measurement
+	//
+	// @return the <MeasurementTypeID> identifying the new measurement
+	//         type
+	MeasurementTypeID CreateMeasurementType(const std::string & name);
+
+	// Deletes a measurement type
+	// @mTypeID the <MeasurementTypeID> to delete
+	void DeleteMeasurementType(MeasurementTypeID mTypeID);
+
+	// Sets the name of a measurement type
+	// @mTypeID the <MeasurementTypeID> to modify
+	// @name the wanted name
+	void SetMeasurementTypeName(MeasurementTypeID mTypeID,
+	                            const std::string & name);
+
+	// Gets the Experiment defined measurement type
+	//
+	// @return a map of measurement type name by their <MeasurementTypeID>
+	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
+
+
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
 
 	std::map<AntShapeTypeID,std::string> AntShapeTypeNames() const;

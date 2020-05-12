@@ -25,3 +25,4 @@ interactions or trajectories.
   * <tag_identification>
   * <named_values>
   * <ant_collision_detection>
+  * <manual_measurement>
