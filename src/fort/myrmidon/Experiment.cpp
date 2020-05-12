@@ -99,6 +99,54 @@ bool Experiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
 }
 
 
+const std::string & Experiment::Name() const {
+	return d_p->Name();
+}
+
+void Experiment::SetName(const std::string & name) {
+	d_p->SetName(name);
+}
+
+const std::string & Experiment::Author() const {
+	return d_p->Author();
+}
+
+void Experiment::SetAuthor(const std::string & author) {
+	d_p->SetAuthor(author);
+}
+
+const std::string & Experiment::Comment() const {
+	return d_p->Comment();
+}
+
+void Experiment::SetComment(const std::string & comment) {
+	d_p->SetComment(comment);
+}
+
+fort::tags::Family Experiment::Family() const {
+	d_p->Family();
+}
+
+void Experiment::SetFamily(fort::tags::Family tf) {
+	d_p->SetFamily(tf);
+}
+
+double Experiment::DefaultTagSize() const {
+	return d_p->DefaultTagSize();
+}
+
+void Experiment::SetDefaultTagSize(double defaultTagSize) {
+	d_p->SetDefaultTagSize(defaultTagSize);
+}
+
+uint8_t Experiment::Threshold() const {
+	return d_p->Threshold();
+}
+
+void Experiment::SetThreshold(uint8_t th) {
+	d_p->SetThreshold(th);
+}
+
 AntShapeTypeID Experiment::CreateAntShapeType(const std::string & name) {
 	return d_p->CreateAntShapeType(name)->TypeID();
 }

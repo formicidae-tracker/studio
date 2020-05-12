@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <fort/tags/fort-tags.h>
+
 #include "Types.hpp"
 #include "Ant.hpp"
 #include "Space.hpp"
@@ -167,6 +169,70 @@ public:
 	bool FreeIdentificationRangeAt(Time::ConstPtr & start,
 	                               Time::ConstPtr & end,
 	                               TagID tagID, const Time & time) const;
+
+	// The name of the Experiment.
+	//
+	// @return a reference to the Experiment's name
+	const std::string & Name() const;
+
+	// Sets the Experiment's name.
+	// @name the new <priv::Experiment> name
+	void SetName(const std::string & name);
+
+	// The author of the Experiment
+	//
+	// @return a reference to the author name
+	const std::string & Author() const;
+
+	// Sets the Experiment's author
+	// @author the new value for the Experiement's author
+	void SetAuthor(const std::string & author);
+
+	// Comments about the experiment
+	//
+	// @return a reference to the Experiment's comment
+	const std::string & Comment() const;
+
+	// Sets the comment of the Experiment
+	// @comment the wnated Experiment's comment
+	void SetComment(const std::string & comment);
+
+	// The kind of tag used in the Experiment
+	//
+	// @return the family of tag used in the Experiment
+	fort::tags::Family Family() const;
+
+	// Sets the kind of tag used in the Experiment
+	// @tf the tag that are used in the Experiment
+	void SetFamily(fort::tags::Family tf);
+
+	// The default physical tag size
+	//
+	// Usually an Ant colony are tagged with a majority of tag of a
+	// given size. Some individuals (like Queens) may often use a
+	// bigger tag size that should be set in their
+	// Identification. This value is use for <ComputeMeasurement>.
+	//
+	// myrmidon uses without whoite border convention for ARTag and
+	// with white border convention Apriltag
+	//
+	// @return the default tag size for the experiment in mm
+	double DefaultTagSize() const;
+
+	// Sets the default tag siye in mm
+	//
+	// @defaultTagSize the tag size in mm for the ma
+	void   SetDefaultTagSize(double defaultTagSize);
+
+	// The threshold used for tag detection
+	//
+	// @return the threshold used for detection
+	uint8_t Threshold() const;
+
+	// Sets the detection threshold
+	//
+	// @th the threshold to use.
+	void SetThreshold(uint8_t th);
 
 
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
