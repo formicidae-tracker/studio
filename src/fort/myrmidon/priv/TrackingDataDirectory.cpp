@@ -399,9 +399,27 @@ TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirector
 	, d_current(current) {
 }
 
+TrackingDataDirectory::const_iterator::const_iterator(const_iterator & other)
+	: d_parent(other.d_parent)
+	, d_current(other.d_current)
+	, d_file(std::move(other.d_file))
+	, d_message(other.d_message)
+	, d_frame(other.d_frame) {
+}
+
 TrackingDataDirectory::const_iterator::const_iterator(const const_iterator & other)
 	: d_parent(other.d_parent)
 	, d_current(other.d_current) {
+}
+
+TrackingDataDirectory::const_iterator &
+TrackingDataDirectory::const_iterator::operator=(const_iterator && other) {
+	d_parent = other.d_parent;
+	d_current = other.d_current;
+	d_file = std::move(other.d_file);
+	d_message = other.d_message;
+	d_frame = (other.d_frame);
+	return *this;
 }
 
 TrackingDataDirectory::const_iterator& TrackingDataDirectory::const_iterator::operator++() {

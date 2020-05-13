@@ -33,8 +33,9 @@ private:
 	                SpaceID spaceID,
 	                const IdentifiedFrame::ConstPtr & frame) const;
 
-	void ComputeInteractions(std::vector<Interaction> &  result,
-	                         const std::vector<PositionedAnt> & ants) const;
+	void ComputeInteractions(std::vector<PonctualInteraction> &  result,
+	                         const std::vector<PositionedAnt> & ants,
+	                         ZoneID zoneID) const;
 
 	AntGeometriesByID   d_antGeometries;
 	GeometriesBySpaceID d_spaceGeometries;

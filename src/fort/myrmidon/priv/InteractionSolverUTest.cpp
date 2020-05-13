@@ -174,8 +174,9 @@ InteractionFrame::ConstPtr InteractionSolverUTest::NaiveInteractions() {
 			for ( size_t j = i+1; j < ants.size(); ++j ) {
 				auto collisions = collides(ants[i],ants[j]);
 				if ( !collisions.empty() )  {
-					res->Interactions.push_back(Interaction{std::make_pair(ants[i].ID,ants[j].ID),
-					                                        collisions});
+					res->Interactions.push_back({std::make_pair(ants[i].ID,ants[j].ID),
+					                             collisions,
+					                             zID});
 				}
 			}
 		}
@@ -197,7 +198,7 @@ TEST_F(InteractionSolverUTest,TestE2E) {
 	for ( const auto & inter : interactions->Interactions ) {
 		auto fi = std::find_if(res->Interactions.begin(),
 		                       res->Interactions.end(),
-		                       [&inter](const Interaction & i) {
+		                       [&inter](const PonctualInteraction & i) {
 			                       return i.IDs == inter.IDs;
 		                       });
 		if ( fi == res->Interactions.end() ) {

@@ -92,6 +92,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/InteractionSolver.hpp
                       priv/TagStatistics.hpp
                       priv/Query.hpp
+                      priv/Matchers.hpp
                       )
 
 
@@ -147,6 +148,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/InteractionSolver.cpp
                       priv/TagStatistics.cpp
                       priv/Query.cpp
+                      priv/Matchers.cpp
                       )
 
 set(SRC_FILES ForwardDeclaration.cpp

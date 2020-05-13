@@ -115,29 +115,40 @@ struct IdentifiedFrame {
 };
 
 
-typedef std::pair<uint32_t,uint32_t> InteractionType;
-typedef std::pair<uint32_t,uint32_t> InteractionID;
+typedef std::pair<AntID,AntID>                   InteractionID;
+typedef std::pair<AntShapeTypeID,AntShapeTypeID> InteractionType;
 
-struct Interaction {
+struct PonctualInteraction {
 	InteractionID                IDs;
 	std::vector<InteractionType> InteractionTypes;
+	ZoneID                       Zone;
 };
 
 struct InteractionFrame {
 	typedef std::shared_ptr<const InteractionFrame> ConstPtr;
-	Time                     FrameTime;
-	std::vector<Interaction> Interactions;
+	Time                             FrameTime;
+	std::vector<PonctualInteraction> Interactions;
 };
 
+
 struct AntTrajectory {
+	typedef std::shared_ptr<const AntTrajectory> ConstPtr;
+
 	AntID   Ant;
 	SpaceID Space;
 	Time    Start;
-	Eigen::Matrix<double,Eigen::Dynamic,3> Position;
+
+	Eigen::Matrix<double,Eigen::Dynamic,3> Positions;
 	std::vector<uint64_t>                  Nanoseconds;
 };
 
+struct AntInteraction {
+	typedef std::shared_ptr<const AntInteraction> ConstPtr;
 
+	InteractionID                          IDs;
+	std::pair<AntTrajectory,AntTrajectory> Trajectories;
+	Time                                   Start,End;
+};
 
 }
 }

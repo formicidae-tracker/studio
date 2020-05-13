@@ -47,8 +47,10 @@ public:
 	public:
 		const_iterator(const ConstPtr & tdd,uint64_t current);
 
-		const_iterator & operator=(const const_iterator & other) = delete;
+		const const_iterator & operator=(const const_iterator & other) = delete;
+		const_iterator & operator=(const_iterator && other);
 		const_iterator(const const_iterator & other);
+		const_iterator(const_iterator & other);
 
 		const_iterator& operator++();
 		bool operator==(const const_iterator & other) const;
