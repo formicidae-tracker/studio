@@ -49,7 +49,7 @@ script:
   - cd ..
 
 after_success:
-  - coveralls -b build -r . -i 'src/fort/myrmidon' -E '.*UTest.*' --verbose
+  - coveralls -b build -r . -i 'src/fort/myrmidon/priv' -E '.*UTest.*' --verbose
 
 deploy:
   provider: pages
