@@ -91,6 +91,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/KDTree.impl.hpp
                       priv/InteractionSolver.hpp
                       priv/TagStatistics.hpp
+                      priv/Query.hpp
                       )
 
 
@@ -145,6 +146,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/KDTree.cpp
                       priv/InteractionSolver.cpp
                       priv/TagStatistics.cpp
+                      priv/Query.cpp
                       )
 
 set(SRC_FILES ForwardDeclaration.cpp
@@ -207,7 +209,6 @@ set(SRC_UTEST_FILES main-check.cpp
                     )
 
 
-
 set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
                     priv/UtilsUTest.hpp
@@ -256,6 +257,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     ${CXXFS_LIBRARY}
                                     fort-tags
                                     ${OpenCV_LIBS}
+                                    ${TBB_LIBRARIES}
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

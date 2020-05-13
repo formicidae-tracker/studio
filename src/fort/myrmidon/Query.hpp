@@ -26,6 +26,8 @@ class Query {
 	                                                       Ant::ID antID,
 	                                                       MeasurementTypeID mTypeID);
 
+	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment::ConstPtr & experiment);
+
 
 };
 

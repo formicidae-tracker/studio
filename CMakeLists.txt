@@ -18,6 +18,9 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(TBB REQUIRED tbb)
+
 find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
 find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
@@ -66,6 +69,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_CPP_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
+                    ${TBB_INCLUDE_DIRS}
                     ${fort-tags_SOURCE_DIR}/include
                     ${HERMES_INCLUDE_DIRS}
                     )
