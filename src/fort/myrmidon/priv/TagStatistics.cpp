@@ -148,13 +148,11 @@ void saveToCache(const std::string & hermesFile, const TagStatisticsHelper::Time
 
 
 TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & hermesFile) {
-	std::cerr << "building for "<< hermesFile << std::endl;
 	try {
 		return loadFromCache(hermesFile);
 	} catch ( const std::exception & ) {
 
 	}
-	std::cerr << "Not cached " << std::endl;
 	Timed res;
 
 	auto & stats = res.TagStats;
@@ -238,9 +236,6 @@ void TagStatisticsHelper::UpdateGaps(TagStatistics & stats,
 }
 
 void TagStatisticsHelper::Merge(Timed & stats, const Timed & other) {
-	std::cerr << "Merging " << stats.Start << " --- " << stats.End
-	          << " With " << other.Start << " --- " << other.End
-	          << std::endl;
 
 	if ( stats.End > other.Start ) {
 		throw std::runtime_error("Could ony merge time-upward");

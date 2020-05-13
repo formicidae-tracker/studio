@@ -60,8 +60,9 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		for ( auto it = tdd->begin(); it != tdd->end() ; ++it) {
 			auto f = *it;
 			EXPECT_EQ(f->Frame().FID(),i);
-			ASSERT_EQ(f->Tags().size(),1);
+			ASSERT_EQ(f->Tags().size(),2);
 			EXPECT_EQ(f->Tags().Get(0).id(),123);
+			EXPECT_EQ(f->Tags().Get(1).id(),124);
 			++i;
 		}
 		auto iterEnd = Time::Now();
@@ -69,8 +70,9 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		i = tdd->EndFrame()-3;
 		for( auto it = tdd->FrameAt(tdd->EndFrame()-3); it != tdd->end(); ++it ) {
 			EXPECT_EQ((*it)->Frame().FID(),i);
-			ASSERT_EQ((*it)->Tags().size(),1);
+			ASSERT_EQ((*it)->Tags().size(),2);
 			EXPECT_EQ((*it)->Tags().Get(0).id(),123);
+			EXPECT_EQ((*it)->Tags().Get(1).id(),124);
 			++i;
 		}
 
