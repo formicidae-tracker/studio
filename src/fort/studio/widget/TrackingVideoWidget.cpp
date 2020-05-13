@@ -140,7 +140,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
 
 	if ( !iFrame == false && d_showInteractions == true ) {
-		fmp::DenseMap<quint32,fmp::PositionedAnt> positions;
+		fmp::DenseMap<quint32,fm::PositionedAnt> positions;
 		for ( const auto & pa : tFrame->Positions ) {
 			positions.insert(std::make_pair(pa.ID,pa));
 		}

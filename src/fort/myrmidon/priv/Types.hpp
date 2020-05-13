@@ -38,39 +38,6 @@ typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
 typedef std::unordered_map<std::string,const std::vector<AntTimedValue> > AntConstDataMap;
 
 
-struct PositionedAnt {
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	Eigen::Vector2d Position;
-	double          Angle;
-	// here Ant::ID is a 32 bits, but will break the 16-bytes alignemnet of this structure.
-	uint64_t        ID;
-};
-
-typedef std::vector<PositionedAnt,Eigen::aligned_allocator<PositionedAnt>> PositionedAntList;
-
-struct IdentifiedFrame {
-	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
-	Time              FrameTime;
-	size_t            Height;
-	size_t            Width;
-	PositionedAntList Positions;
-	bool Contains(uint64_t antID) const;
-};
-
-
-typedef std::pair<uint32_t,uint32_t> InteractionType;
-typedef std::pair<uint32_t,uint32_t> InteractionID;
-
-struct Interaction {
-	InteractionID                IDs;
-	std::vector<InteractionType> InteractionTypes;
-};
-
-struct InteractionFrame {
-	typedef std::shared_ptr<const InteractionFrame> ConstPtr;
-	Time                     FrameTime;
-	std::vector<Interaction> Interactions;
-};
 
 
 

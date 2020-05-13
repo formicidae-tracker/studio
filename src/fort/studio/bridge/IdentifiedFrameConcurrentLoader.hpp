@@ -24,8 +24,8 @@ public:
 
 	void setExperiment(const fmp::Experiment::ConstPtr & experiment);
 
-	const fmp::IdentifiedFrame::ConstPtr & frameAt(fmp::MovieFrameID movieID) const;
-	const fmp::InteractionFrame::ConstPtr & interactionAt(fmp::MovieFrameID movieID) const;
+	const fm::IdentifiedFrame::ConstPtr & frameAt(fmp::MovieFrameID movieID) const;
+	const fm::InteractionFrame::ConstPtr & interactionAt(fmp::MovieFrameID movieID) const;
 
 
 	void moveToThread(QThread * thread);
@@ -53,9 +53,9 @@ private :
 	void setProgress(int done,int toDo);
 
 
-	typedef fmp::DenseMap<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr>  FramesByMovieID;
-	typedef fmp::DenseMap<fmp::MovieFrameID,fmp::InteractionFrame::ConstPtr> InteractionsByMovieID;
-	typedef std::tuple<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr,fmp::InteractionFrame::ConstPtr> ConcurrentResult;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr>  FramesByMovieID;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fm::InteractionFrame::ConstPtr> InteractionsByMovieID;
+	typedef std::tuple<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr,fm::InteractionFrame::ConstPtr> ConcurrentResult;
 
 	fmp::ExperimentConstPtr d_experiment;
 	FramesByMovieID         d_frames;

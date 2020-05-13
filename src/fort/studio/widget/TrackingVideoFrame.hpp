@@ -31,8 +31,8 @@ struct TrackingVideoFrame {
 	std::shared_ptr<QImage>         Image;
 	fm::Duration                    StartPos,EndPos;
 	fmp::MovieFrameID               FrameID;
-	fmp::IdentifiedFrame::ConstPtr  TrackingFrame;
-	fmp::InteractionFrame::ConstPtr InteractionFrame;
+	fm::IdentifiedFrame::ConstPtr   TrackingFrame;
+	fm::InteractionFrame::ConstPtr  InteractionFrame;
 #ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 	static std::mutex debugMutex;
 #endif
