@@ -108,7 +108,6 @@ void SaveStatistics(pb::TagStatistics * pb, const fort::myrmidon::TagStatistics 
 
 
 TagStatisticsHelper::Timed loadFromCache(const std::string & hermesFile) {
-
 	TagStatisticsHelper::Timed res;
 	RW::Read(cacheFilePath(hermesFile),
 	         [&res](const pb::TagStatisticsCacheHeader & pb) {
@@ -126,7 +125,7 @@ TagStatisticsHelper::Timed loadFromCache(const std::string & hermesFile) {
 		         res.End = Time::FromTimestamp(pb.end());
 	         },
 	         [&res] ( const pb::TagStatistics & pb) {
-		         res.TagStats.insert(std::make_pair(pb.id()+1,LoadStatistics(pb)));
+		         res.TagStats.insert(std::make_pair(pb.id(),LoadStatistics(pb)));
 	         });
 	return res;
 }
@@ -149,12 +148,13 @@ void saveToCache(const std::string & hermesFile, const TagStatisticsHelper::Time
 
 
 TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & hermesFile) {
+	std::cerr << "building for "<< hermesFile << std::endl;
 	try {
 		return loadFromCache(hermesFile);
 	} catch ( const std::exception & ) {
 
 	}
-
+	std::cerr << "Not cached " << std::endl;
 	Timed res;
 
 	auto & stats = res.TagStats;
@@ -190,6 +190,7 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 			                         + hermesFile + "':" + e.what());
 		}
 		FrameID current = ro.frameid();
+
 		// current time stripped from any monotonic data
 		auto currentTime = TimeFromFrameReadout(ro,1).Round(-1);
 		if ( hasStart == false ) {
@@ -198,9 +199,9 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 		}
 
 		res.End = currentTime;
-
+		static std::mutex mutex;
 		for ( const auto & tag : ro.tags() ) {
-			auto key = tag.id() + 1;
+			auto key = tag.id();
 			if ( stats.count(key) == 0 ) {
 				lastSeens.insert(std::make_pair(key,LastSeen{current,currentTime}));
 				auto tagStats = TagStatisticsHelper::Create(tag.id(),currentTime);
@@ -237,6 +238,10 @@ void TagStatisticsHelper::UpdateGaps(TagStatistics & stats,
 }
 
 void TagStatisticsHelper::Merge(Timed & stats, const Timed & other) {
+	std::cerr << "Merging " << stats.Start << " --- " << stats.End
+	          << " With " << other.Start << " --- " << other.End
+	          << std::endl;
+
 	if ( stats.End > other.Start ) {
 		throw std::runtime_error("Could ony merge time-upward");
 	}

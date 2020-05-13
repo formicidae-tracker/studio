@@ -74,7 +74,7 @@ struct ComputedMeasurement {
 
 struct TagStatistics {
 	typedef std::map<TagID,TagStatistics>   ByTagID;
-
+	typedef Eigen::Matrix<uint64_t,Eigen::Dynamic,1> CountVector;
 	enum CountHeader {
 		TOTAL_SEEN        = 0,
 		MULTIPLE_SEEN     = 1,
@@ -88,9 +88,9 @@ struct TagStatistics {
 		GAP_MORE          = 9,
 	};
 
-	TagID    ID;
-	Time     FirstSeen,LastSeen;
-	Eigen::Matrix<uint64_t,Eigen::Dynamic,1> Counts;
+	TagID       ID;
+	Time        FirstSeen,LastSeen;
+	CountVector Counts;
 
 };
 

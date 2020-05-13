@@ -209,6 +209,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/InteractionSolverUTest.cpp
                     priv/TagStatisticsUTest.cpp
                     priv/MatchersUTest.cpp
+                    priv/QueryUTest.cpp
                     )
 
 
@@ -247,6 +248,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/InteractionSolverUTest.hpp
                     priv/TagStatisticsUTest.hpp
                     priv/MatchersUTest.hpp
+                    priv/QueryUTest.hpp
                     )
 
 add_library(fort-myrmidon SHARED ${SRC_FILES}
