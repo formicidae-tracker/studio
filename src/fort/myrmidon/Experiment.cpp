@@ -198,11 +198,6 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID antShapeTypeID) {
 	d_p->DeleteAntShapeType(antShapeTypeID);
 }
 
-void Experiment::ComputeMeasurementFor(ComputedMeasurement::List & result,
-                                       Ant::ID antID,
-                                       MeasurementTypeID mTypeID) const {
-	d_p->ComputeMeasurementsForAnt(result,antID,mTypeID);
-}
 
 void Experiment::AddMetadataColumn(const std::string & name,
                                    AntMetadataType type) {

@@ -104,6 +104,7 @@ set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Zone.hpp
                      Space.hpp
                      Experiment.hpp
+                     Query.hpp
                      utils/FileSystem.hpp)
 
 set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
@@ -156,6 +157,7 @@ set(SRC_FILES ForwardDeclaration.cpp
               Zone.cpp
               Space.cpp
               Experiment.cpp
+              Query.cpp
 	          )
 
 set(COMMON_UTEST_SRC_FILES TestSetup.cpp
