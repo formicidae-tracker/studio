@@ -40,10 +40,10 @@ TEST_F(TagStatisticsUTest,ComputeAndUpdatesGap) {
 
 	Time t;
 	for ( const auto & d : testdata ) {
-		TagStatistics stat(0,t);
-		auto gap  = TagStatistics::ComputeGap(t,t.Add(d.D));
+		auto stat = TagStatisticsHelper::Create(0,t);
+		auto gap  = TagStatisticsHelper::ComputeGap(t,t.Add(d.D));
 		EXPECT_EQ(gap,d.H) << " testing for " << d.D;
-		stat.UpdateGaps(t,t.Add(d.D));
+		TagStatisticsHelper::UpdateGaps(stat,t,t.Add(d.D));
 		if ( d.H == 0 ) {
 			EXPECT_EQ(stat.Counts.sum(),1);
 		} else {
@@ -91,7 +91,7 @@ TEST_F(TagStatisticsUTest,ComputeAndUpdatesGap) {
 		if ( fi == b.end() ) {
 			return ::testing::AssertionFailure() << "b is missing stats for " << tagID;
 		}
-		auto statAssertion = StatsEqual(*stats,*fi->second);
+		auto statAssertion = StatsEqual(stats,fi->second);
 		if ( !statAssertion ) {
 			return statAssertion;
 		}
@@ -100,8 +100,8 @@ TEST_F(TagStatisticsUTest,ComputeAndUpdatesGap) {
 	return ::testing::AssertionSuccess();
 }
 
-::testing::AssertionResult TimedEqual(const TagStatistics::Timed & a,
-                                      const TagStatistics::Timed & b) {
+::testing::AssertionResult TimedEqual(const TagStatisticsHelper::Timed & a,
+                                      const TagStatisticsHelper::Timed & b) {
 	auto startAssertion = TimeEqual(a.Start,b.Start);
 	if ( !startAssertion ) {
 		return startAssertion;
@@ -117,7 +117,7 @@ TEST_F(TagStatisticsUTest,CacheIsconsistent) {
 	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001", TestSetup::Basedir());
 
 	auto loaders = tdd->StatisticsLoader();
-	std::vector<TagStatistics::Timed> computeds,cacheds;
+	std::vector<TagStatisticsHelper::Timed> computeds,cacheds;
 	computeds.reserve(loaders.size());
 	cacheds.reserve(loaders.size());
 	for ( auto & l : loaders ) {
@@ -132,19 +132,19 @@ TEST_F(TagStatisticsUTest,CacheIsconsistent) {
 		EXPECT_TRUE(TimedEqual(computeds[i],cacheds[i]));
 	}
 	std::vector<TagStatistics::ByTagID> merged;
-	merged.push_back(TagStatistics::MergeTimed(computeds.begin(),computeds.end()));
-	merged.push_back(TagStatistics::MergeTimed(cacheds.begin(),cacheds.end()));
+	merged.push_back(TagStatisticsHelper::MergeTimed(computeds.begin(),computeds.end()));
+	merged.push_back(TagStatisticsHelper::MergeTimed(cacheds.begin(),cacheds.end()));
 
 	EXPECT_TRUE(StatsByIDEqual(merged[0],merged[1]));
 
-	auto doubled = TagStatistics::MergeSpaced(merged.begin(),merged.end());
+	auto doubled = TagStatisticsHelper::MergeSpaced(merged.begin(),merged.end());
 
 	for ( const auto & [tagID,stats] : doubled ) {
 		auto fi = merged.front().find(tagID);
 		ASSERT_FALSE(fi == merged.front().end());
-		EXPECT_EQ(stats->ID,fi->second->ID);
-		EXPECT_TRUE(TimeEqual(stats->FirstSeen,fi->second->FirstSeen));
-		EXPECT_TRUE(TimeEqual(stats->LastSeen,fi->second->LastSeen));
+		EXPECT_EQ(stats.ID,fi->second.ID);
+		EXPECT_TRUE(TimeEqual(stats.FirstSeen,fi->second.FirstSeen));
+		EXPECT_TRUE(TimeEqual(stats.LastSeen,fi->second.LastSeen));
 	}
 
 

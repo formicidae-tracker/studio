@@ -40,8 +40,9 @@ QAbstractItemModel * StatisticsBridge::stats() const {
 	return d_model;
 }
 
-fmp::TagStatistics::ConstPtr StatisticsBridge::statsForTag(fmp::TagID tagID) const {
-	return fmp::TagStatistics::ConstPtr();
+const fm::TagStatistics & StatisticsBridge::statsForTag(fmp::TagID tagID) const {
+	auto static empty =  fmp::TagStatisticsHelper::Create(0,fm::Time());
+	return empty;
 }
 
 
@@ -64,7 +65,7 @@ void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::
 		        for ( int i = 0; i < watcher->progressMaximum(); ++i ) {
 			        stats.push_back(watcher->resultAt(i));
 		        }
-		        d_stats.at(uri) = fmp::TagStatistics::MergeTimed(stats.begin(),stats.end());
+		        d_stats.at(uri) = fmp::TagStatisticsHelper::MergeTimed(stats.begin(),stats.end());
 		        rebuildModel();
 	        },
 	        Qt::QueuedConnection);
@@ -99,7 +100,7 @@ void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
 
 StatisticsBridge::TimedStats StatisticsBridge::Load(QString filepath) {
 	try {
-		auto res = fmp::TagStatistics::BuildStats(ToStdString(filepath));
+		auto res = fmp::TagStatisticsHelper::BuildStats(ToStdString(filepath));
 		return res;
 	} catch ( const std::exception & e) {
 		qWarning() << "Could not build statistics for "
@@ -139,19 +140,19 @@ void StatisticsBridge::rebuildModel() {
 
 	}
 
-	auto stats = fmp::TagStatistics::MergeSpaced(spaceStats.begin(),spaceStats.end());
+	auto stats = fmp::TagStatisticsHelper::MergeSpaced(spaceStats.begin(),spaceStats.end());
 
 	for ( const auto & [tagID,tagStats] : stats ) {
 		QList<QStandardItem*> row;
-		row.push_back(new QStandardItem(QString::number(tagStats->ID)));
-		row.back()->setData(tagStats->ID);
-		row.push_back(new QStandardItem(ToQString(tagStats->FirstSeen)));
-		row.back()->setData(ToQString(tagStats->FirstSeen));
-		row.push_back(new QStandardItem(ToQString(tagStats->LastSeen)));
-		row.back()->setData(ToQString(tagStats->LastSeen));
+		row.push_back(new QStandardItem(QString::number(tagStats.ID)));
+		row.back()->setData(tagStats.ID);
+		row.push_back(new QStandardItem(ToQString(tagStats.FirstSeen)));
+		row.back()->setData(ToQString(tagStats.FirstSeen));
+		row.push_back(new QStandardItem(ToQString(tagStats.LastSeen)));
+		row.back()->setData(ToQString(tagStats.LastSeen));
 		for ( int i = 0; i < 10; ++i) {
-			row.push_back(new QStandardItem(QString::number(tagStats->Counts(i))));
-			row.back()->setData(quint64(tagStats->Counts(i)));
+			row.push_back(new QStandardItem(QString::number(tagStats.Counts(i))));
+			row.back()->setData(quint64(tagStats.Counts(i)));
 
 		}
 		for ( const auto & i : row ) {

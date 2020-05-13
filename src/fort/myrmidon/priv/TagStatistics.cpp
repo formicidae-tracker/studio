@@ -15,49 +15,51 @@ namespace myrmidon {
 namespace priv {
 
 
-TagStatistics::TagStatistics(TagID tagID,const Time & firstTime)
-	: ID(tagID)
-	, FirstSeen(firstTime)
-	, LastSeen(firstTime)
-	, Counts(10) {
-	Counts.setZero();
-	Counts(TOTAL_SEEN) = 1;
+TagStatistics TagStatisticsHelper::Create(TagID tagID,const Time & firstTime) {
+	TagStatistics res;
+	res.ID = tagID;
+	res.FirstSeen = firstTime;
+	res.LastSeen= firstTime;
+	res.Counts = Eigen::Matrix<uint64_t ,Eigen::Dynamic,1>(10);
+	res.Counts.setZero();
+	res.Counts(TagStatistics::TOTAL_SEEN) = 1;
+	return res;
 }
 
-TagStatistics::CountHeader TagStatistics::ComputeGap(const Time & lastSeen, const Time & currentTime) {
+TagStatistics::CountHeader TagStatisticsHelper::ComputeGap(const Time & lastSeen, const Time & currentTime) {
 	auto gap = currentTime.Sub(lastSeen);
 	if ( gap < 0 ) {
-		return CountHeader(0);
+		return TagStatistics::CountHeader(0);
 	}
 	if ( gap < 500 * Duration::Millisecond ) {
-		return GAP_500MS;
+		return TagStatistics::GAP_500MS;
 	}
 
 	if ( gap < Duration::Second ) {
-		return GAP_1S;
+		return TagStatistics::GAP_1S;
 	}
 
 	if ( gap < 10 * Duration::Second ) {
-		return GAP_10S;
+		return TagStatistics::GAP_10S;
 	}
 
 	if ( gap < Duration::Minute ) {
-		return GAP_1M;
+		return TagStatistics::GAP_1M;
 	}
 
 	if ( gap < 10 * Duration::Minute ) {
-		return GAP_10M;
+		return TagStatistics::GAP_10M;
 	}
 
 	if ( gap < 1 * Duration::Hour ) {
-		return GAP_1H;
+		return TagStatistics::GAP_1H;
 	}
 
 	if ( gap < 10 * Duration::Hour ) {
-		return GAP_10H;
+		return TagStatistics::GAP_10H;
 	}
 
-	return GAP_MORE;
+	return TagStatistics::GAP_MORE;
 }
 
 static int CURRENT_CACHE_VERSION = 1;
@@ -69,13 +71,13 @@ fs::path cacheFilePath(const std::string & hermesFile ) {
 	return fs::path(hermesFile).replace_extension(".statcache");
 }
 
-TagStatistics::Ptr LoadStatistics(const pb::TagStatistics & pb) {
+TagStatistics LoadStatistics(const pb::TagStatistics & pb) {
 	auto start = Time::FromTimestamp(pb.firstseen());
 	auto end = Time::FromTimestamp(pb.lastseen());
 
-	auto res = std::make_shared<TagStatistics>(pb.id(),start);
-	res->LastSeen = end;
-	res->Counts << pb.totalseen(),
+	auto res = TagStatisticsHelper::Create(pb.id(),start);
+	res.LastSeen = end;
+	res.Counts << pb.totalseen(),
 		pb.multipleseen(),
 		pb.gap500ms(),
 		pb.gap1s(),
@@ -88,26 +90,26 @@ TagStatistics::Ptr LoadStatistics(const pb::TagStatistics & pb) {
 	return res;
 }
 
-void SaveStatistics(pb::TagStatistics * pb, const TagStatistics::ConstPtr & tagStats) {
-	pb->set_id(tagStats->ID);
-	tagStats->FirstSeen.ToTimestamp(pb->mutable_firstseen());
-	tagStats->LastSeen.ToTimestamp(pb->mutable_lastseen());
-	pb->set_totalseen(tagStats->Counts(TagStatistics::TOTAL_SEEN));
-	pb->set_multipleseen(tagStats->Counts(TagStatistics::MULTIPLE_SEEN));
-	pb->set_gap500ms(tagStats->Counts(TagStatistics::GAP_500MS));
-	pb->set_gap1s(tagStats->Counts(TagStatistics::GAP_1S));
-	pb->set_gap10s(tagStats->Counts(TagStatistics::GAP_10S));
-	pb->set_gap1m(tagStats->Counts(TagStatistics::GAP_1M));
-	pb->set_gap10m(tagStats->Counts(TagStatistics::GAP_10M));
-	pb->set_gap1h(tagStats->Counts(TagStatistics::GAP_1H));
-	pb->set_gap10h(tagStats->Counts(TagStatistics::GAP_10H));
-	pb->set_gapmore(tagStats->Counts(TagStatistics::GAP_MORE));
+void SaveStatistics(pb::TagStatistics * pb, const fort::myrmidon::TagStatistics & tagStats) {
+	pb->set_id(tagStats.ID);
+	tagStats.FirstSeen.ToTimestamp(pb->mutable_firstseen());
+	tagStats.LastSeen.ToTimestamp(pb->mutable_lastseen());
+	pb->set_totalseen(tagStats.Counts(TagStatistics::TOTAL_SEEN));
+	pb->set_multipleseen(tagStats.Counts(TagStatistics::MULTIPLE_SEEN));
+	pb->set_gap500ms(tagStats.Counts(TagStatistics::GAP_500MS));
+	pb->set_gap1s(tagStats.Counts(TagStatistics::GAP_1S));
+	pb->set_gap10s(tagStats.Counts(TagStatistics::GAP_10S));
+	pb->set_gap1m(tagStats.Counts(TagStatistics::GAP_1M));
+	pb->set_gap10m(tagStats.Counts(TagStatistics::GAP_10M));
+	pb->set_gap1h(tagStats.Counts(TagStatistics::GAP_1H));
+	pb->set_gap10h(tagStats.Counts(TagStatistics::GAP_10H));
+	pb->set_gapmore(tagStats.Counts(TagStatistics::GAP_MORE));
 }
 
 
-TagStatistics::Timed loadFromCache(const std::string & hermesFile) {
+TagStatisticsHelper::Timed loadFromCache(const std::string & hermesFile) {
 
-	TagStatistics::Timed res;
+	TagStatisticsHelper::Timed res;
 	RW::Read(cacheFilePath(hermesFile),
 	         [&res](const pb::TagStatisticsCacheHeader & pb) {
 		         if ( pb.version() != CURRENT_CACHE_VERSION) {
@@ -129,7 +131,7 @@ TagStatistics::Timed loadFromCache(const std::string & hermesFile) {
 	return res;
 }
 
-void saveToCache(const std::string & hermesFile, const TagStatistics::Timed & stats) {
+void saveToCache(const std::string & hermesFile, const TagStatisticsHelper::Timed & stats) {
 	pb::TagStatisticsCacheHeader h;
 	h.set_version(CURRENT_CACHE_VERSION);
 	stats.Start.ToTimestamp(h.mutable_start());
@@ -146,7 +148,7 @@ void saveToCache(const std::string & hermesFile, const TagStatistics::Timed & st
 }
 
 
-TagStatistics::Timed TagStatistics::BuildStats(const std::string & hermesFile) {
+TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & hermesFile) {
 	try {
 		return loadFromCache(hermesFile);
 	} catch ( const std::exception & ) {
@@ -173,7 +175,7 @@ TagStatistics::Timed TagStatistics::BuildStats(const std::string & hermesFile) {
 		} catch ( const fort::hermes::EndOfFile & ) {
 			for ( const auto & [tagID,last] : lastSeens ) {
 				if ( last.FrameTime < res.End ) {
-					stats.at(tagID)->UpdateGaps(last.FrameTime,res.End);
+					UpdateGaps(stats.at(tagID),last.FrameTime,res.End);
 				}
 			}
 
@@ -201,22 +203,22 @@ TagStatistics::Timed TagStatistics::BuildStats(const std::string & hermesFile) {
 			auto key = tag.id() + 1;
 			if ( stats.count(key) == 0 ) {
 				lastSeens.insert(std::make_pair(key,LastSeen{current,currentTime}));
-				auto tagStats = std::make_shared<TagStatistics>(tag.id(),currentTime);
+				auto tagStats = TagStatisticsHelper::Create(tag.id(),currentTime);
 				if ( currentTime > res.Start ) {
-					tagStats->UpdateGaps(res.Start,currentTime);
+					UpdateGaps(tagStats,res.Start,currentTime);
 				}
 				stats.insert(std::make_pair(key,tagStats));
 			} else {
 				auto & last = lastSeens.at(key);
 				auto & tagStats = stats.at(key);
 				if ( last.FID == current ) {
-					tagStats->Counts(TagStatistics::CountHeader::MULTIPLE_SEEN) += 1;
+					tagStats.Counts(TagStatistics::CountHeader::MULTIPLE_SEEN) += 1;
 				} else {
-					tagStats->Counts(TagStatistics::CountHeader::TOTAL_SEEN) += 1;
+					tagStats.Counts(TagStatistics::CountHeader::TOTAL_SEEN) += 1;
 					if ( last.FID < current-1) {
-						tagStats->UpdateGaps(last.FrameTime,currentTime);
+						UpdateGaps(tagStats,last.FrameTime,currentTime);
 					}
-					tagStats->LastSeen = currentTime;
+					tagStats.LastSeen = currentTime;
 				}
 				last.FID = current;
 				last.FrameTime = currentTime;
@@ -224,15 +226,17 @@ TagStatistics::Timed TagStatistics::BuildStats(const std::string & hermesFile) {
 		}
 	}
 }
-void TagStatistics::UpdateGaps(const Time & lastSeen, const Time & currentTime) {
+void TagStatisticsHelper::UpdateGaps(TagStatistics & stats,
+                                     const Time & lastSeen,
+                                     const Time & currentTime) {
 	auto gap = ComputeGap(lastSeen,currentTime);
-	if ( gap < GAP_500MS ) {
+	if ( gap < TagStatistics::GAP_500MS ) {
 		return;
 	}
-	Counts(gap) += 1;
+	stats.Counts(gap) += 1;
 }
 
-void TagStatistics::Merge(Timed & stats, const Timed & other) {
+void TagStatisticsHelper::Merge(Timed & stats, const Timed & other) {
 	if ( stats.End > other.Start ) {
 		throw std::runtime_error("Could ony merge time-upward");
 	}
@@ -241,27 +245,27 @@ void TagStatistics::Merge(Timed & stats, const Timed & other) {
 		if ( fi == stats.TagStats.end() ) {
 			stats.TagStats.insert(std::make_pair(tagID,tagStats));
 		} else {
-			*(fi->second) = MergeTimed(*(fi->second),stats.End,*tagStats,other.Start);
+			fi->second = MergeTimed(fi->second,stats.End,tagStats,other.Start);
 		}
 	}
 	stats.End = other.End;
 }
 
-void TagStatistics::Merge(ByTagID & stats, const ByTagID & other) {
+void TagStatisticsHelper::Merge(TagStatistics::ByTagID & stats, const TagStatistics::ByTagID & other) {
 	for ( const auto & [tagID,tagStats] : other ) {
 		auto fi = stats.find(tagID);
 		if ( fi == stats.end() ) {
 			stats.insert(std::make_pair(tagID,tagStats));
 		} else {
-			*(fi->second) = MergeSpaced(*(fi->second),*tagStats);
+			fi->second = MergeSpaced(fi->second,tagStats);
 		}
 	}
 }
 
 
 TagStatistics
-TagStatistics::MergeTimed(const TagStatistics & old, const Time & oldEnd,
-                          const TagStatistics & newer, const Time & newerStart) {
+TagStatisticsHelper::MergeTimed(const TagStatistics & old, const Time & oldEnd,
+                                const TagStatistics & newer, const Time & newerStart) {
 	if ( old.ID != newer.ID ) {
 		throw std::invalid_argument("Mismatched ID "
 		                            + std::to_string(newer.ID)
@@ -276,22 +280,22 @@ TagStatistics::MergeTimed(const TagStatistics & old, const Time & oldEnd,
 	res.Counts += newer.Counts;
 	bool computeNew = false;
 	if ( newer.FirstSeen > newerStart ) {
-		res.Counts(TagStatistics::ComputeGap(newerStart,newer.FirstSeen)) -= 1;
+		res.Counts(ComputeGap(newerStart,newer.FirstSeen)) -= 1;
 		computeNew = true;
 	}
 	if ( res.LastSeen < oldEnd ) {
-		res.Counts(TagStatistics::ComputeGap(old.LastSeen,oldEnd)) -= 1;
+		res.Counts(ComputeGap(old.LastSeen,oldEnd)) -= 1;
 		computeNew = true;
 	}
 	if ( computeNew ==  true ) {
-		res.Counts(TagStatistics::ComputeGap(old.LastSeen,newer.FirstSeen)) += 1;
+		res.Counts(ComputeGap(old.LastSeen,newer.FirstSeen)) += 1;
 	}
 
 	res.LastSeen = newer.LastSeen;
 	return res;
 }
 
-TagStatistics TagStatistics::MergeSpaced(TagStatistics & a, TagStatistics & b) {
+TagStatistics TagStatisticsHelper::MergeSpaced(const TagStatistics & a, const TagStatistics & b) {
 	if ( a.ID != b.ID ) {
 		throw std::invalid_argument("Mismatched ID "
 		                            + std::to_string(a.ID)

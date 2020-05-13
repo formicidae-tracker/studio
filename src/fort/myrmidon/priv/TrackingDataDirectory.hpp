@@ -162,7 +162,7 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
-	std::vector<TagStatistics::Loader> StatisticsLoader() const;
+	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;

@@ -72,6 +72,27 @@ struct ComputedMeasurement {
 	double LengthMM;
 };
 
+struct TagStatistics {
+	typedef std::map<TagID,TagStatistics>   ByTagID;
+
+	enum CountHeader {
+		TOTAL_SEEN        = 0,
+		MULTIPLE_SEEN     = 1,
+		GAP_500MS         = 2,
+		GAP_1S            = 3,
+		GAP_10S           = 4,
+		GAP_1M            = 5,
+		GAP_10M           = 6,
+		GAP_1H            = 7,
+		GAP_10H           = 8,
+		GAP_MORE          = 9,
+	};
+
+	TagID    ID;
+	Time     FirstSeen,LastSeen;
+	Eigen::Matrix<uint64_t,Eigen::Dynamic,1> Counts;
+
+};
 
 
 }

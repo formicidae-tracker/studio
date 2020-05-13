@@ -21,22 +21,21 @@ public:
 
 	QAbstractItemModel * stats() const;
 
-	fmp::TagStatistics::ConstPtr statsForTag(fmp::TagID tagID) const;
+	const fm::TagStatistics & statsForTag(fmp::TagID tagID) const;
 
 public slots:
 	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::ConstPtr tdd);
 	void onTrackingDataDirectoryDeleted(QString tddURI);
 
 private:
-	typedef fmp::TagStatistics::ByTagID                    Stats;
-	typedef fmp::TagStatistics::Timed                      TimedStats;
+	typedef fm::TagStatistics::ByTagID                     Stats;
+	typedef fmp::TagStatisticsHelper::Timed                TimedStats;
 	typedef std::map<QString,Stats>                        StatsByTddURI;
 	typedef std::map<QString,QFutureWatcher<TimedStats>* > Watchers;
 	typedef std::map<QString,std::vector<QString>>         Files;
 	static TimedStats Load(QString data);
 
 	void rebuildModel();
-
 
 
 	fmp::Experiment::ConstPtr d_experiment;

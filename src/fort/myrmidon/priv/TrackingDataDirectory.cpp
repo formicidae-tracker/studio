@@ -542,13 +542,13 @@ TrackingDataDirectory::FullFrames() const {
 	return res;
 }
 
-std::vector<TagStatistics::Loader>
+std::vector<TagStatisticsHelper::Loader>
 TrackingDataDirectory::StatisticsLoader() const {
-	std::vector<TagStatistics::Loader> res;
+	std::vector<TagStatisticsHelper::Loader> res;
 	res.reserve(d_segments->Segments().size());
 	for ( const auto & [ref,segment] : d_segments->Segments() ) {
 		std::string filepath = (AbsoluteFilePath() / segment).string();
-		res.push_back([filepath] () { return TagStatistics::BuildStats(filepath); });
+		res.push_back([filepath] () { return TagStatisticsHelper::BuildStats(filepath); });
 	}
 	return res;
 }
