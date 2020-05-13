@@ -132,8 +132,8 @@ TEST_F(TagStatisticsUTest,CacheIsconsistent) {
 		EXPECT_TRUE(TimedEqual(computeds[i],cacheds[i]));
 	}
 	std::vector<TagStatistics::ByTagID> merged;
-	merged.push_back(TagStatisticsHelper::MergeTimed(computeds.begin(),computeds.end()));
-	merged.push_back(TagStatisticsHelper::MergeTimed(cacheds.begin(),cacheds.end()));
+	merged.push_back(TagStatisticsHelper::MergeTimed(computeds.begin(),computeds.end()).TagStats);
+	merged.push_back(TagStatisticsHelper::MergeTimed(cacheds.begin(),cacheds.end()).TagStats);
 
 	EXPECT_TRUE(StatsByIDEqual(merged[0],merged[1]));
 

@@ -29,9 +29,9 @@ public:
 	static Timed BuildStats(const std::string & hermesFile);
 
 	template <typename InputIter>
-	inline static TagStatistics::ByTagID MergeTimed(const InputIter & begin, const InputIter & end) {
+	inline static Timed MergeTimed(const InputIter & begin, const InputIter & end) {
 		if ( begin == end ) {
-			return TagStatistics::ByTagID();
+			return Timed();
 		}
 		std::sort(begin,end,
 		          []( const Timed &  a, const Timed & b) {
@@ -43,7 +43,7 @@ public:
 		      ++iter ) {
 			Merge(res,*iter);
 		}
-		return res.TagStats;
+		return res;
 	}
 
 	template <typename InputIter>

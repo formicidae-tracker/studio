@@ -86,6 +86,10 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 		throw std::invalid_argument(os.str());
 	}
 
+	for ( const auto & [frameID,ref] : *referenceCache ) {
+		d_frameIDByTime.insert(std::make_pair(ref.Time().SortKey(),frameID));
+	}
+
 }
 
 
@@ -427,7 +431,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	}
 	while ( !d_frame || d_frame->Frame().FID() < d_current) {
 		if ( !d_file ) {
-			auto p = parent->d_absoluteFilePath / parent->d_segments->Find(d_current);
+			auto p = parent->d_absoluteFilePath / parent->d_segments->Find(d_current).second;
 			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
 			d_message.Clear();
 		}
@@ -470,8 +474,25 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t fr
 	return const_iterator(Itself(),frameID);
 }
 
-TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameNear(const Time & t) const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAfter(const Time & t) const {
+	if ( t < StartDate() ) {
+		std::ostringstream oss;
+		oss << t << " is not in ["
+		    << StartDate() << ",+∞[";
+		throw std::out_of_range(oss.str());
+	}
+	auto iter = FrameAt(d_segments->Find(t).first.FID());
+	Time curTime = (*iter)->Frame().Time();
+	if (curTime == t) {
+		return iter;
+	}
+	for ( ; iter != end(); ++iter) {
+		curTime = (*iter)->Frame().Time();
+		if ( curTime >= t ) {
+			return iter;
+		}
+	}
+	return end();
 }
 
 
@@ -483,8 +504,12 @@ FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID FID) const {
 	return (*FrameAt(FID))->Frame();
 }
 
-FrameReference TrackingDataDirectory::FrameReferenceNear(const Time & t) const {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+FrameReference TrackingDataDirectory::FrameReferenceAfter(const Time & t) const {
+	auto fi = d_frameIDByTime.find(t.SortKey());
+	if ( fi != d_frameIDByTime.cend() ) {
+		return FrameReferenceAt(fi->second);
+	}
+	return (*FrameAfter(t))->Frame();
 }
 
 

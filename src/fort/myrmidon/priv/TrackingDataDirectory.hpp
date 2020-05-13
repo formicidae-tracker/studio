@@ -123,11 +123,11 @@ public:
 
 	const_iterator FrameAt(FrameID FID) const;
 
-	const_iterator FrameNear(const Time & t) const;
+	const_iterator FrameAfter(const Time & t) const;
 
 	FrameReference FrameReferenceAt(FrameID FID) const;
 
-	FrameReference FrameReferenceNear(const Time & t) const;
+	FrameReference FrameReferenceAfter(const Time & t) const;
 
 	// Opens an actual TrackingDataDirectory on the filesystem
 	// @path path to the tracking data directory.
@@ -166,7 +166,7 @@ public:
 
 private:
 	typedef std::pair<FrameID,Time> TimedFrame;
-
+	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
 
 	std::weak_ptr<const TrackingDataDirectory> d_itself;
 
@@ -181,6 +181,7 @@ private:
 	TrackingIndex::Ptr          d_segments;
 	MovieIndex::Ptr             d_movies;
 	FrameReferenceCacheConstPtr d_referencesByFID;
+	FrameIDByTime               d_frameIDByTime;
 
 	static void CheckPaths(const fs::path & path,
 	                       const fs::path & experimentRoot);

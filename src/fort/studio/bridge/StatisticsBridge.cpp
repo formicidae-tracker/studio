@@ -65,7 +65,7 @@ void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::
 		        for ( int i = 0; i < watcher->progressMaximum(); ++i ) {
 			        stats.push_back(watcher->resultAt(i));
 		        }
-		        d_stats.at(uri) = fmp::TagStatisticsHelper::MergeTimed(stats.begin(),stats.end());
+		        d_stats.at(uri) = fmp::TagStatisticsHelper::MergeTimed(stats.begin(),stats.end()).TagStats;
 		        rebuildModel();
 	        },
 	        Qt::QueuedConnection);

@@ -129,6 +129,14 @@ struct InteractionFrame {
 	std::vector<Interaction> Interactions;
 };
 
+struct AntTrajectory {
+	AntID   Ant;
+	SpaceID Space;
+	Time    Start;
+	Eigen::Matrix<double,Eigen::Dynamic,3> Position;
+	std::vector<uint64_t>                  Nanoseconds;
+};
+
 
 
 }

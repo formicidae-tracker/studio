@@ -72,8 +72,8 @@ MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
 
 	try {
 		const auto & segment = tdd->MovieSegments().Find(time);
-		auto start = tdd->FrameReferenceAt(segment->StartFrame()).Time();
-		return std::make_tuple(tdd,segment,start);
+		auto start = tdd->FrameReferenceAt(segment.second->StartFrame()).Time();
+		return std::make_tuple(tdd,segment.second,start);
 	} catch ( const std::exception & e ) {
 	}
 	return std::make_tuple(nullptr,nullptr,fm::Time());
