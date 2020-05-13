@@ -26,7 +26,10 @@ Matcher::Ptr Matcher::And(std::initializer_list<Ptr>  matchers) {
 
 		}
 
-		bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+		bool Match(fort::myrmidon::AntID ant1,
+		           fort::myrmidon::AntID ant2,
+		           const std::vector<InteractionType> & type,
+		           const Time & t) override {
 			for ( const auto & m : d_matchers ) {
 				if ( m->Match(ant1,ant2,type,t) == false ) {
 					return false;
@@ -59,9 +62,12 @@ Matcher::Ptr Matcher::Or(std::initializer_list<Ptr> matchers) {
 
 		}
 
-		bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+		bool Match(fort::myrmidon::AntID ant1,
+		           fort::myrmidon::AntID ant2,
+		           const std::vector<InteractionType> & types,
+		           const Time & t) override {
 			for ( const auto & m : d_matchers ) {
-				if ( m->Match(ant1,ant2,type,t) == true ) {
+				if ( m->Match(ant1,ant2,types,t) == true ) {
 					return true;
 				}
 			}
@@ -86,7 +92,10 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 		           const InteractionFrame::ConstPtr & interactionFrame) override {
 		}
 
-		bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+		bool Match(fort::myrmidon::AntID ant1,
+		           fort::myrmidon::AntID ant2,
+		           const std::vector<InteractionType> & types,
+		           const Time & t) override {
 			return ant1 == d_id;
 		}
 	};
@@ -113,7 +122,10 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 		           const InteractionFrame::ConstPtr & interactionFrame) override {
 		}
 
-		bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+		bool Match(fort::myrmidon::AntID ant1,
+		           fort::myrmidon::AntID ant2,
+		           const std::vector<InteractionType> & type,
+		           const Time & t) override {
 			auto fi = d_ants.find(ant1);
 			if ( fi == d_ants.end() ) {
 				return false;
@@ -148,11 +160,14 @@ public:
 		}
 	}
 
-	bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+	bool Match(fort::myrmidon::AntID ant1,
+	           fort::myrmidon::AntID ant2,
+	           const std::vector<InteractionType> & type,
+	           const Time & t) override {
 		auto fi1 = d_positions.find(ant1);
 		auto fi2 = d_positions.find(ant2);
 		if ( fi1 == d_positions.end() || fi2 == d_positions.end() ) {
-			return false;
+			return true;
 		}
 		double sDist = (Eigen::Vector2d(fi1->second.first,
 		                                fi1->second.second)
@@ -193,11 +208,14 @@ public:
 		}
 	}
 
-	bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) override {
+	bool Match(fort::myrmidon::AntID ant1,
+	           fort::myrmidon::AntID ant2,
+	           const std::vector<InteractionType> & type,
+	           const Time & t) override {
 		auto fi1 = d_angles.find(ant1);
 		auto fi2 = d_angles.find(ant2);
 		if ( fi1 == d_angles.end() || fi2 == d_angles.end() ) {
-			return false;
+			return true;
 		}
 		double angle = std::abs(fi1->second - fi2->second);
 		if ( d_greater == true ) {

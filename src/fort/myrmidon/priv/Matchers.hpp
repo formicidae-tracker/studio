@@ -35,7 +35,10 @@ public:
 	virtual void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
 	                   const InteractionFrame::ConstPtr & interactionFrame) = 0;
 
-	virtual bool Match(fort::myrmidon::AntID ant1, fort::myrmidon::AntID ant2, InteractionType type, const Time & t) = 0;
+	virtual bool Match(fort::myrmidon::AntID ant1,
+	                   fort::myrmidon::AntID ant2,
+	                   const std::vector<InteractionType> & types,
+	                   const Time & t) = 0;
 };
 
 } // namespace priv

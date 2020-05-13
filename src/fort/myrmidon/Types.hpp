@@ -146,7 +146,9 @@ struct AntInteraction {
 	typedef std::shared_ptr<const AntInteraction> ConstPtr;
 
 	InteractionID                          IDs;
-	std::pair<AntTrajectory,AntTrajectory> Trajectories;
+	std::vector<InteractionType>           Types;
+	std::pair<AntTrajectory::ConstPtr,
+	          AntTrajectory::ConstPtr>     Trajectories;
 	Time                                   Start,End;
 };
 

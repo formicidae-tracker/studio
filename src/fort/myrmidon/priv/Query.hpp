@@ -41,6 +41,7 @@ public:
 	                                Matcher::Ptr matcher = Matcher::Any());
 
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
+	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
@@ -61,7 +62,17 @@ private:
 		std::vector<uint64_t> Durations;
 		AntTrajectory::ConstPtr Terminate(AntID antID) const;
 	};
+
+	struct BuildingInteraction {
+		InteractionID             IDs;
+		Time Start,Last;
+		std::set<InteractionType> Types;
+		AntInteraction::ConstPtr Terminate(const BuildingTrajectory & a,
+		                                   const BuildingTrajectory & b) const;
+	};
+
 	typedef std::map<AntID,BuildingTrajectory> BuildingTrajectoryData;
+	typedef std::map<InteractionID,BuildingInteraction> BuildingInteractionData;
 
 
 	static void BuildRange(const Experiment::ConstPtr & experiment,
@@ -77,6 +88,15 @@ private:
 	static std::function<void(const IdentifiedData &)>
 	BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 	                  BuildingTrajectoryData & building,
+	                  Duration maxGap,
+	                  const Matcher::Ptr & matcher);
+
+
+	static std::function<void(const InteractionData &)>
+	BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                  std::vector<AntInteraction::ConstPtr> & interactions,
+	                  BuildingTrajectoryData & currentTrajectories,
+	                  BuildingInteractionData & currentInteractions,
 	                  Duration maxGap,
 	                  const Matcher::Ptr & matcher);
 
