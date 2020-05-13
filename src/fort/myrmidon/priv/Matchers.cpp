@@ -28,10 +28,9 @@ Matcher::Ptr Matcher::And(std::initializer_list<Ptr>  matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & type,
-		           const Time & t) override {
+		           const std::vector<InteractionType> & type) override {
 			for ( const auto & m : d_matchers ) {
-				if ( m->Match(ant1,ant2,type,t) == false ) {
+				if ( m->Match(ant1,ant2,type) == false ) {
 					return false;
 				}
 			}
@@ -64,10 +63,9 @@ Matcher::Ptr Matcher::Or(std::initializer_list<Ptr> matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & types,
-		           const Time & t) override {
+		           const std::vector<InteractionType> & types) override {
 			for ( const auto & m : d_matchers ) {
-				if ( m->Match(ant1,ant2,types,t) == true ) {
+				if ( m->Match(ant1,ant2,types) == true ) {
 					return true;
 				}
 			}
@@ -94,8 +92,7 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & types,
-		           const Time & t) override {
+		           const std::vector<InteractionType> & types) override {
 			return ant1 == d_id;
 		}
 	};
@@ -108,6 +105,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 		std::string    d_name;
 		AntStaticValue d_value;
 		ConstAntByID   d_ants;
+		Time           d_time;
 	public:
 		AntColumnMatcher (const std::string & name,
 		                  const AntStaticValue & value)
@@ -120,17 +118,27 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 
 		void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
 		           const InteractionFrame::ConstPtr & interactionFrame) override {
+			if ( !identifiedFrame == false ) {
+				d_time = identifiedFrame->FrameTime;
+				return;
+			}
+
+			if ( !interactionFrame == false ) {
+				d_time = interactionFrame->FrameTime;
+				return;
+			}
+			throw std::runtime_error("This matcher requires current time through ant position or interaction, but none is available in the current context");
+
 		}
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & type,
-		           const Time & t) override {
+		           const std::vector<InteractionType> & type) override {
 			auto fi = d_ants.find(ant1);
 			if ( fi == d_ants.end() ) {
 				return false;
 			}
-			return fi->second->GetValue(d_name,t) == d_value;
+			return fi->second->GetValue(d_name,d_time) == d_value;
 		}
 	};
 	return std::make_shared<AntColumnMatcher>(name,value);
@@ -162,8 +170,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<InteractionType> & type,
-	           const Time & t) override {
+	           const std::vector<InteractionType> & type) override {
 		auto fi1 = d_positions.find(ant1);
 		auto fi2 = d_positions.find(ant2);
 		if ( fi1 == d_positions.end() || fi2 == d_positions.end() ) {
@@ -173,10 +180,10 @@ public:
 		                                fi1->second.second)
 		                - Eigen::Vector2d(fi2->second.first,
 		                                  fi2->second.second)).squaredNorm();
-		if ( d_greater ) {
-			return d_distanceSquare > sDist;
-		} else {
+		if ( d_greater == true ) {
 			return d_distanceSquare < sDist;
+		} else {
+			return d_distanceSquare > sDist;
 		}
 	}
 };
@@ -210,8 +217,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<InteractionType> & type,
-	           const Time & t) override {
+	           const std::vector<InteractionType> & type) override {
 		auto fi1 = d_angles.find(ant1);
 		auto fi2 = d_angles.find(ant2);
 		if ( fi1 == d_angles.end() || fi2 == d_angles.end() ) {
@@ -236,16 +242,11 @@ Matcher::Ptr Matcher::AntDistanceGreaterThan(double distance) {
 }
 
 Matcher::Ptr Matcher::AntAngleGreaterThan(double angle) {
-	return std::make_shared<AntAngleMatcher>(angle,false);
-}
-
-Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
 	return std::make_shared<AntAngleMatcher>(angle,true);
 }
 
-
-Matcher::Ptr Any() {
-	return Matcher::Ptr();
+Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
+	return std::make_shared<AntAngleMatcher>(angle,false);
 }
 
 

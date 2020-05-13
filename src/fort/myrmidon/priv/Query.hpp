@@ -38,7 +38,7 @@ public:
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
-	                                Matcher::Ptr matcher = Matcher::Any());
+	                                Matcher::Ptr matcher = Matcher::Ptr());
 
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
@@ -46,7 +46,7 @@ public:
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Any());
+	                                   Matcher::Ptr matcher = Matcher::Ptr());
 
 
 private:

@@ -364,7 +364,7 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 
 		       for ( const auto & pa : data.second->Positions ) {
 			       auto & curTime = data.second->FrameTime;
-			       if ( matcher && matcher->Match(pa.ID,0,{},curTime) == false ) {
+			       if ( matcher && matcher->Match(pa.ID,0,{}) == false ) {
 				       continue;
 			       }
 
@@ -424,7 +424,7 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 		       auto & curTime = std::get<1>(data)->FrameTime;
 
 		       for (  const auto & pa : std::get<1>(data)->Positions ) {
-			       if ( matcher && matcher->Match(pa.ID,0,{},curTime) == false ) {
+			       if ( matcher && matcher->Match(pa.ID,0,{}) == false ) {
 				       continue;
 			       }
 
@@ -479,8 +479,7 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 		       for ( const auto & pInter : std::get<2>(data)->Interactions ) {
 			       if (matcher && matcher->Match(pInter.IDs.first,
 			                                     pInter.IDs.second,
-			                                     pInter.InteractionTypes,
-			                                     std::get<2>(data)->FrameTime) == false ) {
+			                                     pInter.InteractionTypes) == false ) {
 				       continue;
 			       }
 
