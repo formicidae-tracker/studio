@@ -314,6 +314,10 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
 
+	if ( imgCv.empty() ) {
+		return tags;
+	}
+
 	image_u8_t img =
 		{
 		 .width = imgCv.cols,
