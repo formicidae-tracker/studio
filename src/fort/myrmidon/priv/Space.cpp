@@ -136,8 +136,8 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 		                       [&tdd](const std::pair<Space::ID,Space::Ptr> & iter) {
 			                       auto ti = std::find_if(iter.second->d_tdds.begin(),
 			                                              iter.second->d_tdds.end(),
-			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tdd) {
-				                                              return tdd->URI() == tdd->URI();
+			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tddb) {
+				                                              return tdd->URI() == tddb->URI();
 			                                              });
 			                       return ti != iter.second->d_tdds.end();
 		                       });
