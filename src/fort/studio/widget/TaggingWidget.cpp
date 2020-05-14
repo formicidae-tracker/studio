@@ -5,6 +5,7 @@
 #include <QClipboard>
 
 #include <QSortFilterProxyModel>
+#include <QAction>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>

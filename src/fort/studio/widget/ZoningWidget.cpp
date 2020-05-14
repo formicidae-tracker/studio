@@ -1,6 +1,7 @@
 #include "ZoningWidget.hpp"
 #include "ui_ZoningWidget.h"
 
+#include <QAction>
 #include <QClipboard>
 
 #include <fort/myrmidon/priv/Polygon.hpp>
