@@ -59,7 +59,7 @@ std::map<Space::ID,Space::ConstPtr> Experiment::CSpaces() const {
 }
 
 Ant::Ptr Experiment::CreateAnt() {
-	d_p->CreateAnt();
+	return std::make_shared<Ant>(d_p->CreateAnt());
 }
 
 std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
@@ -96,7 +96,7 @@ void Experiment::DeleteIdentification(const Identification::Ptr & identification
 bool Experiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
                                            Time::ConstPtr & end,
                                            TagID tagID, const Time & time) const {
-	d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
+	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 
 
@@ -125,7 +125,7 @@ void Experiment::SetComment(const std::string & comment) {
 }
 
 fort::tags::Family Experiment::Family() const {
-	d_p->Family();
+	return d_p->Family();
 }
 
 void Experiment::SetFamily(fort::tags::Family tf) {
