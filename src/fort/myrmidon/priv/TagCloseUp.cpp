@@ -123,7 +123,7 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_threshold(threshold)
 	, d_resolver(resolver)
 	, d_parsed(0)
-	, d_cacheModified(true) {
+	, d_cacheModified(false) {
 	if ( f == tags::Family::Undefined ) {
 		throw std::invalid_argument("Cannot list for undefined family tag");
 	}
@@ -292,8 +292,14 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		              std::lock_guard<std::mutex> lock(d_mutex);
 		              ++d_parsed;
 		              if ( d_cacheModified == true && d_parsed == nbFiles ) {
-			              UnsafeSaveCache();
-			              d_cacheModified = false;
+			              try {
+				              UnsafeSaveCache();
+				              d_cacheModified = false;
+			              } catch (const std::exception & e) {
+				              // maybe the directory on the filesystem
+				              // gets removed here, so we shoudl avoid
+				              // an exception.
+			              }
 		              }
 	              });
 
