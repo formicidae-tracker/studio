@@ -70,7 +70,7 @@ void ProcessSegment( const fmp::MovieSegment::ConstPtr & segment) {
 			return;
 		}
 		uint64_t actualFrameID;
-		uint64_t movieFrame = capture.get(CV_CAP_PROP_POS_FRAMES) - 1;
+		uint64_t movieFrame = capture.get(cv::CAP_PROP_POS_FRAMES) - 1;
 
 		try {
 			actualFrameID = ExtractFrameNumber(frame);

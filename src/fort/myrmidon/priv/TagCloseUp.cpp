@@ -122,7 +122,8 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_family(f)
 	, d_threshold(threshold)
 	, d_resolver(resolver)
-	, d_parsed(0) {
+	, d_parsed(0)
+	, d_cacheModified(false) {
 	if ( f == tags::Family::Undefined ) {
 		throw std::invalid_argument("Cannot list for undefined family tag");
 	}
@@ -183,7 +184,7 @@ fs::path TagCloseUp::Lister::CacheFilePath(const fs::path & filepath) {
 	return filepath / "tag-close-up.cache";
 }
 
-std::shared_ptr<apriltag_family_t>
+std::pair<apriltag_family_t*,TagCloseUp::Lister::ATFamilyDestructor>
 TagCloseUp::Lister::LoadFamily(tags::Family family) {
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
@@ -210,7 +211,7 @@ TagCloseUp::Lister::LoadFamily(tags::Family family) {
 		oss << "Unsupported family: " << (int)family;
 		throw std::invalid_argument(oss.str());
 	}
-	return std::shared_ptr<apriltag_family_t>(fi->second.c(),fi->second.d);
+	return std::make_pair(fi->second.c(),fi->second.d);
 }
 
 void TagCloseUp::Lister::UnsafeSaveCache() {
@@ -290,9 +291,15 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 	Defer cleanup([this,nbFiles]() {
 		              std::lock_guard<std::mutex> lock(d_mutex);
 		              ++d_parsed;
-		              if ( d_cacheModified && d_parsed == nbFiles ) {
-			              UnsafeSaveCache();
-			              d_cacheModified = false;
+		              if ( d_cacheModified == true && d_parsed == nbFiles ) {
+			              try {
+				              UnsafeSaveCache();
+				              d_cacheModified = false;
+			              } catch (const std::exception & e) {
+				              // maybe the directory on the filesystem
+				              // gets removed here, so we shoudl avoid
+				              // an exception.
+			              }
 		              }
 	              });
 
@@ -309,10 +316,19 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 	std::vector<ConstPtr> tags;
 	apriltag_detector_t * detector = CreateDetector();
-	auto family = LoadFamily(d_family);
-	apriltag_detector_add_family(detector,family.get());
+
+	auto [family,family_destructor] = LoadFamily(d_family);
+	apriltag_detector_add_family(detector,family);
+	Defer destroyDetector([=]() {
+		                      apriltag_detector_destroy(detector);
+		                      family_destructor(family);
+	                      });
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
+
+	if ( imgCv.empty() ) {
+		return tags;
+	}
 
 	image_u8_t img =
 		{
@@ -323,6 +339,9 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		};
 	zarray_t * detections
 		= apriltag_detector_detect(detector,&img);
+	Defer destroyDetections([detections]() {
+							  apriltag_detections_destroy(detections);
+							});
 
 	apriltag_detection * d;
 
@@ -336,14 +355,11 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		                                            d));
 	}
 
-	apriltag_detections_destroy(detections);
 	{
 		std::lock_guard<std::mutex> lock(d_mutex);
 		d_cache.insert(std::make_pair(relativePath,tags));
 		d_cacheModified = true;
 	}
-
-	apriltag_detector_destroy(detector);
 
 	return tags;
 }

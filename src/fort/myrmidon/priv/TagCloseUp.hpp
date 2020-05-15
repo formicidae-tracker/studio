@@ -29,12 +29,12 @@ public:
 		typedef std::shared_ptr<Lister>                    Ptr;
 		typedef std::function<FrameReference (FrameID) >   FrameReferenceResolver;
 		typedef std::function<List()>                      Loader;
-		typedef std::shared_ptr<apriltag_family_t>         ATFamilyPtr;
+		typedef std::function<void(apriltag_family_t *)>   ATFamilyDestructor;
 		typedef std::pair<fs::path,std::shared_ptr<TagID>> FileAndFilter;
 		typedef std::multimap<FrameID,FileAndFilter>       Listing;
 
 		static Listing ListFiles(const fs::path & absoluteFilePath);
-		static ATFamilyPtr LoadFamily(tags::Family family);
+		static std::pair<apriltag_family_t*,ATFamilyDestructor> LoadFamily(tags::Family family);
 
 		static fs::path CacheFilePath(const fs::path & filepath);
 

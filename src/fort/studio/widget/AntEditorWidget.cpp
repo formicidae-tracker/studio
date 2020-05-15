@@ -15,7 +15,7 @@
 #include <fort/myrmidon/priv/Capsule.hpp>
 
 #include <QClipboard>
-
+#include <QAction>
 
 AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
