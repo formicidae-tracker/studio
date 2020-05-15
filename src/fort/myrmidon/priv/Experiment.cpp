@@ -15,6 +15,8 @@
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
+#include <fort/myrmidon/utils/Defer.hpp>
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -340,7 +342,8 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 	if ( fi != cache.end() ) {
 		return fi->second;
 	}
-	auto fDef = TagCloseUp::Lister::LoadFamily(f);
+	auto [fDef,family_destroy] = TagCloseUp::Lister::LoadFamily(f);
+	Defer cleanup([fDef,family_destroy]() { family_destroy(fDef); });
 	auto res = double(fDef->width_at_border) / double(fDef->total_width);
 	cache[f] = res;
 	return res;
