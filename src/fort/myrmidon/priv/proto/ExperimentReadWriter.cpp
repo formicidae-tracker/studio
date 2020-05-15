@@ -70,7 +70,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 	                });
 
 	for ( const auto & [spaceID,space] : experiment.CSpaces() ) {
-		lines.push_back([space](pb::FileLine & line) {
+		lines.push_back([space=space](pb::FileLine & line) {
 			                IOUtils::SaveSpace(line.mutable_space(),space);
 		                });
 	}
@@ -93,7 +93,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 
 	for ( const auto & [uri,measurementByType] : experiment.Measurements() ) {
 		for (const auto & [type,m] : measurementByType) {
-			lines.push_back([m](pb::FileLine & line) {
+			lines.push_back([m = m](pb::FileLine & line) {
 				                IOUtils::SaveMeasurement(line.mutable_measurement(),m);
 			                });
 		}

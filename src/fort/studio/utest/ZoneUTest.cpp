@@ -91,9 +91,9 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	auto firstZoneIndex = m->index(0,0,firstSpaceIndex);
 
 
-	EXPECT_TRUE(m->flags(m->index(0,1,firstSpaceIndex)) & Qt::ItemIsEditable != 0);
-	EXPECT_TRUE(m->flags(m->index(0,1,firstZoneIndex)) & Qt::ItemIsEditable != 0);
-	EXPECT_TRUE(m->flags(m->index(0,0,firstZoneIndex)) & Qt::ItemIsEditable != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,1,firstSpaceIndex)) & Qt::ItemIsEditable) != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,1,firstZoneIndex)) & Qt::ItemIsEditable) != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,0,firstZoneIndex)) & Qt::ItemIsEditable) != 0);
 	EXPECT_FALSE(zones->canAddItemAt(m->index(0,0,firstZoneIndex)));
 	m->setData(m->index(0,1,firstZoneIndex),
 	           ToQString(fm::Time::FromTimeT(1)));

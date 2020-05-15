@@ -14,6 +14,8 @@ public:
 	typedef Key                    key_type;
 	typedef std::pair<const Key,T> value_type;
 
+	class const_iterator;
+
 	class iterator {
     public:
 		iterator(const typename std::vector<std::pair<Key,T>>::iterator & iter,

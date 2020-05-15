@@ -30,7 +30,7 @@ void Experiment::Save(const std::string & filepath) {
 	d_p->Save(filepath);
 }
 
-const std::string & Experiment::AbsoluteFilePath() const {
+ std::string Experiment::AbsoluteFilePath() const {
 	return d_p->AbsoluteFilePath().string();
 }
 

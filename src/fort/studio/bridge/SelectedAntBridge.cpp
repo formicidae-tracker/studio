@@ -1,13 +1,14 @@
+
 #include "SelectedAntBridge.hpp"
 
 #include "SelectedIdentificationBridge.hpp"
 
 #include <QDebug>
 
-#include <fort/studio/Format.hpp>
-
 #include <fort/myrmidon/priv/Experiment.hpp>
 #include <fort/myrmidon/priv/Capsule.hpp>
+
+#include <fort/studio/Format.hpp>
 
 #include "IdentifierBridge.hpp"
 

@@ -137,7 +137,7 @@ void saveToCache(const std::string & hermesFile, const TagStatisticsHelper::Time
 	stats.End.ToTimestamp(h.mutable_end());
 	std::vector<RW::LineWriter> lines;
 	for ( const auto & [tagID,tagStats] : stats.TagStats ) {
-		lines.push_back([&tagStats](pb::TagStatistics & line) {
+		lines.push_back([tagStats = std::ref(tagStats)](pb::TagStatistics & line) {
 			                SaveStatistics(&line,tagStats);
 		                });
 	}

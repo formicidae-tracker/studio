@@ -319,7 +319,9 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 	auto [family,family_destructor] = LoadFamily(d_family);
 	apriltag_detector_add_family(detector,family);
-	Defer destroyDetector([=]() {
+	Defer destroyDetector([detector,
+	                       family = family,
+	                       family_destructor = family_destructor ]() {
 		                      apriltag_detector_destroy(detector);
 		                      family_destructor(family);
 	                      });
@@ -378,7 +380,9 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	res.reserve(files.size());
 
 	for( const auto & [FID,f] : files ) {
-		res.push_back([=]() {
+		res.push_back([=,
+		               f = f,
+		               FID = FID]() {
 			              return itself->LoadFile(f,FID,nbFiles);
 		              });
 	}

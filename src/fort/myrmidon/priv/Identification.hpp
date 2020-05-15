@@ -11,6 +11,23 @@
 
 #include "ForwardDeclaration.hpp"
 
+namespace fort {
+namespace myrmidon {
+namespace priv {
+class Identification;
+} // namespae priv
+} // namespae myrmidon
+} // namespae fort
+
+// Formats an Identification to an std::ostream
+// @out the stream to format to
+// @a the <fort::myrmidon::priv::Identification> to format
+//
+// @return a reference to <out>
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Identification & a);
+
+
 #include "TimeValid.hpp"
 
 class IdentificationUTest;
@@ -193,12 +210,3 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
-
-
-// Formats an Identification to an std::ostream
-// @out the stream to format to
-// @a the <fort::myrmidon::priv::Identification> to format
-//
-// @return a reference to <out>
-std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::priv::Identification & a);

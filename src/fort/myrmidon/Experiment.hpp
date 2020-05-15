@@ -97,7 +97,7 @@ public:
 	// Path to the underlying `.myrmidon` file
 	//
 	// @return the path to the `.myrmidon` file
-	const std::string & AbsoluteFilePath() const;
+	std::string AbsoluteFilePath() const;
 
 	// Creates a new <Space>
 	// @name wanted name for the new <Space>

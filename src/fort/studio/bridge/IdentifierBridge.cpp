@@ -299,13 +299,15 @@ void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
 	}
 	ant->SetDisplayStatus(ds);
 	switch(oldDs) {
-	case fmp::Ant::DisplayState::HIDDEN:
+	case fm::Ant::DisplayState::HIDDEN:
 		--d_numberHiddenAnt;
 		emit numberHiddenAntChanged(d_numberHiddenAnt);
 		break;
-	case fmp::Ant::DisplayState::SOLO:
+	case fm::Ant::DisplayState::SOLO:
 		--d_numberSoloAnt;
 		emit numberSoloAntChanged(d_numberSoloAnt);
+		break;
+	case fm::Ant::DisplayState::VISIBLE:
 		break;
 	}
 

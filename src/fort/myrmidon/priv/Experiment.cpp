@@ -1,5 +1,10 @@
 #include "Experiment.hpp"
 
+#include <unistd.h>
+#include <sys/file.h>
+
+#include <fstream>
+
 #include "ExperimentReadWriter.hpp"
 
 #include "Ant.hpp"
@@ -16,8 +21,6 @@
 #include <fort/myrmidon/utils/Checker.hpp>
 #include <fort/myrmidon/utils/PosixCall.h>
 
-#include <unistd.h>
-#include <sys/file.h>
 
 #include <fort/myrmidon/utils/Defer.hpp>
 
@@ -422,7 +425,11 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 		return fi->second;
 	}
 	auto [fDef,family_destroy] = TagCloseUp::Lister::LoadFamily(f);
-	Defer cleanup([fDef,family_destroy]() { family_destroy(fDef); });
+	Defer cleanup([fDef = fDef,
+	               family_destroy = family_destroy]
+	              () {
+		              family_destroy(fDef);
+	              });
 	auto res = double(fDef->width_at_border) / double(fDef->total_width);
 	cache[f] = res;
 	return res;

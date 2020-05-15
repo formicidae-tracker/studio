@@ -1,3 +1,5 @@
+#include <fort/myrmidon/Time.hpp>
+
 #include "TagStatisticsUTest.hpp"
 
 #include "TagStatistics.hpp"

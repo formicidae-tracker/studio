@@ -2,8 +2,20 @@
 
 
 #include "LocatableTypes.hpp"
-
 #include "Shape.hpp"
+
+namespace fort {
+namespace myrmidon {
+namespace priv {
+class ZoneDefinition;
+} // namespae priv
+} // namespae myrmidon
+} // namespae fort
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::ZoneDefinition & definition);
+
+
 #include "TimeValid.hpp"
 
 namespace fort {
@@ -115,7 +127,3 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
-
-
-std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::priv::Zone::Definition & definition);

@@ -1,21 +1,21 @@
 #include "AntEditorWidget.hpp"
 #include "ui_AntEditorWidget.h"
 
-#include <fort/studio/bridge/ExperimentBridge.hpp>
-#include <fort/studio/Format.hpp>
 
 #include <QStandardItemModel>
-
-#include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
-#include <fort/studio/widget/CloneShapeDialog.hpp>
-
-
-#include <fort/studio/Utils.hpp>
+#include <QClipboard>
+#include <QAction>
 
 #include <fort/myrmidon/priv/Capsule.hpp>
 
-#include <QClipboard>
-#include <QAction>
+
+#include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/Format.hpp>
+#include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
+#include <fort/studio/widget/CloneShapeDialog.hpp>
+#include <fort/studio/Utils.hpp>
+
+
 
 AntEditorWidget::AntEditorWidget(QWidget *parent)
 	: QWidget(parent)
