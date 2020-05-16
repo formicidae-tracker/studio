@@ -178,9 +178,15 @@ void Experiment::Save(const fs::path & filepath) {
 		touching.open(filepath.c_str(),std::ios_base::app);
 	}
 
-	auto lock = std::make_shared<ExperimentLock>(filepath,false);
+	auto lock = d_lock;
+	if ( !lock || filepath != d_absoluteFilepath ) {
+		lock = std::make_shared<ExperimentLock>(filepath,false);
+	}
 	ExperimentReadWriter::Save(*this,filepath);
-	const_cast<Experiment*>(this)->d_lock = lock;
+	if ( filepath != d_absoluteFilepath ) {
+		d_absoluteFilepath = filepath;
+	}
+	d_lock = lock;
 }
 
 Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {
