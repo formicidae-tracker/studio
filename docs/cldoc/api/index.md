@@ -26,3 +26,4 @@ interactions or trajectories.
   * <named_values>
   * <ant_collision_detection>
   * <manual_measurement>
+  * <queries>

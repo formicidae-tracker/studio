@@ -16,6 +16,7 @@ namespace myrmidon {
 // Experiment. They takes advantages of multithreading to have
 // efficient computation time.
 class Query {
+
 	// Computes all measurement for ant Ant
 	// @experiment the <Experiment> to query for
 	// @antID the desired <Ant>
