@@ -119,6 +119,21 @@ public:
 	// @return a const map of the Experiment <Space>
 	std::map<Space::ID,Space::ConstPtr> CSpaces() const;
 
+
+	// Adds a tracking data directory to Experiment
+	// @spaceID the <Space> the data directory is associated with
+	// @filepath path to the directory we want to add
+	//
+	// Adds a tracking data director acquired with the fort system to
+	// the wanted <Space>.
+	// @return the URI used to designate the tdd
+	std::string AddTrackingDataDirectory(Space::ID spaceID,
+	                                     const std::string & filepath);
+
+	// Removes a Tracking Data Directory from the Experiment
+	// @URI the URI of the tracking data directory to remove
+	void DeleteTrackingDataDirectory(const std::string & URI);
+
 	// Creates a new <Ant>
 	//
 	// @return a <Ant::Ptr> to the new <Ant>
@@ -258,27 +273,58 @@ public:
 	// @return a map of measurement type name by their <MeasurementTypeID>
 	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
 
-
+	// Creates a new Ant shape type
+	// @name the user defined name for the <Ant> Shape Type
+	//
+	// Creates a new <Ant> virtual shape body part type.
+	// @return the <AntShapeTypeID> for the <An> shape type
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
 
+	// Gets the defined Ant shape type
+	//
+	// @return the <Ant> shape type name by their <AntShapeTypeID>
 	std::map<AntShapeTypeID,std::string> AntShapeTypeNames() const;
 
-	void SetAntShapeTypeName(AntShapeTypeID antShapeTypeName,
+	// Changes the name of an Ant Shape type
+	// @antShapeTypeID the <AntShapeTypeID> of the shape type to rename
+	// @name the new name for the <Ant> shape typex
+	void SetAntShapeTypeName(AntShapeTypeID antShapeTypeID,
 	                         const std::string & name);
 
+	// Removes a virtual Ant shape type
+	// @antShapeTypeID the <AntShapeTypeID> of the shape type to remove
 	void DeleteAntShapeType(AntShapeTypeID antShapeTypeID);
 
 
+	// Adds a non-tracking data column
+	// @name the unique name for the column
+	// @type the <AntMetaDataType> for the column
+	//
+	// Adds a non-tracking data column with the given <name> and
+	// <type>. <name> should be a non-empty unique string for the
+	// column.
 	void AddMetadataColumn(const std::string & name,
 	                       AntMetadataType type);
 
+	// Removes a non-tracking data column.
+	// @name the name of the column to remove
 	void DeleteMetadataColumn(const std::string & name);
 
+	// Gets the types for non-tracking data columns
+	//
+	// @return a map of <AntMetadataType> indexed by column name for
+	// all columns defined in the experiment.
 	std::map<std::string,AntMetadataType> AntMetadataColumns() const;
 
+	// Renames a non-tracking data column
+	// @oldName the current name of the column to rename
+	// @newName the new wanted name for that column.
 	void RenameAntMetadataColumn(const std::string & oldName,
 	                             const std::string & newName);
 
+	// Changes the type of a non-tracking data column
+	// @name the name of the column
+	// @type the new wanted type.
 	void SetAntMetadataColumType(const std::string & name,
 	                             AntMetadataType type);
 

@@ -4,6 +4,7 @@
 #include "priv/AntShapeType.hpp"
 #include "priv/Identifier.hpp"
 #include "priv/Measurement.hpp"
+#include "priv/TrackingDataDirectory.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -57,6 +58,22 @@ std::map<Space::ID,Space::ConstPtr> Experiment::CSpaces() const {
 	}
 	return res;
 }
+
+std::string Experiment::AddTrackingDataDirectory(Space::ID spaceID,
+                                                 const std::string & filepath) {
+	auto fi  = d_p->Spaces().find(spaceID);
+	if ( fi == d_p->Spaces().end() ) {
+		throw std::invalid_argument("Unknown Space::ID " + std::to_string(spaceID));
+	}
+	auto tdd = priv::TrackingDataDirectory::Open(filepath,d_p->Basedir());
+	fi->second->AddTrackingDataDirectory(tdd);
+	return tdd->URI();
+}
+
+void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
+	d_p->DeleteTrackingDataDirectory(URI);
+}
+
 
 Ant::Ptr Experiment::CreateAnt() {
 	return std::make_shared<Ant>(d_p->CreateAnt());
@@ -239,5 +256,5 @@ Experiment::Experiment(const PPtr & pExperiment)
 	: d_p(pExperiment) {
 }
 
-} //namespace mrymidon
+} // namespace mrymidon
 } // namespace fort
