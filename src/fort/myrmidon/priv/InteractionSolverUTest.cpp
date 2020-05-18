@@ -113,6 +113,7 @@ void InteractionSolverUTest::SetUpTestSuite() {
 	//defines the space
 	universe = std::make_shared<Space::Universe>();
 	auto foo = Space::Universe::Create(universe,1,"foo");
+	identifiedFrame->Space = 1;
 	auto nest = foo->CreateZone("nest");
 	std::vector<Shape::ConstPtr> nestShapes = {std::make_shared<Polygon>(Vector2dList({{WIDTH/2,0},{WIDTH,0},{WIDTH,HEIGHT},{WIDTH/2,HEIGHT}}))};
 	nest->AddDefinition(nestShapes,
@@ -190,10 +191,12 @@ TEST_F(InteractionSolverUTest,TestE2E) {
 	                                                  ants);
 	InteractionFrame::ConstPtr res;
 	EXPECT_THROW({
-			res = solver->ComputeInteractions(2,frame);
+			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 2;
+			res = solver->ComputeInteractions(frame);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
-			res = solver->ComputeInteractions(1,frame);
+			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 1;
+			res = solver->ComputeInteractions(frame);
 		});
 	for ( const auto & inter : interactions->Interactions ) {
 		auto fi = std::find_if(res->Interactions.begin(),

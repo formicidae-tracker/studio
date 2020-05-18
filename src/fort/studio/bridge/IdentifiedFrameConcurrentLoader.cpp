@@ -164,8 +164,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 							CONC_LOADER_DEBUG(std::cerr << "Processing " << rawFrame->Frame().FID() << std::endl);
 							try {
 								auto movieID = segment->ToMovieFrameID(frameID);
-								auto identified = rawFrame->IdentifyFrom(*identifier);
-								auto interactions = solver->ComputeInteractions(spaceID,identified);
+								auto identified = rawFrame->IdentifyFrom(*identifier,spaceID);
+								auto interactions = solver->ComputeInteractions(identified);
 								return std::make_tuple(movieID,
 								                       identified,
 								                       interactions);

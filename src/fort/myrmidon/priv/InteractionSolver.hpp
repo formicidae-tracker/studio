@@ -20,8 +20,7 @@ public:
 	                  const AntByID & ants);
 
 	InteractionFrame::ConstPtr
-	ComputeInteractions(SpaceID spaceID,
-	                    const IdentifiedFrame::ConstPtr & frame) const;
+	ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) const;
 private:
 	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
 	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
@@ -30,7 +29,6 @@ private:
 	typedef std::unordered_map<Zone::ID,std::vector<PositionedAnt> > LocatedAnts;
 
 	void LocateAnts(LocatedAnts & locatedAnts,
-	                SpaceID spaceID,
 	                const IdentifiedFrame::ConstPtr & frame) const;
 
 	void ComputeInteractions(std::vector<PonctualInteraction> &  result,

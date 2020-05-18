@@ -111,7 +111,7 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 	tbb::filter_t<RawData,IdentifiedData>
 		computeData(tbb::filter::parallel,
 		            [identifier](const RawData & rawData ) {
-			            return std::make_pair(std::get<0>(rawData),std::get<1>(rawData)->IdentifyFrom(*identifier));
+			            return std::make_pair(std::get<0>(rawData),std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData)));
 		            });
 
 
@@ -145,8 +145,8 @@ void Query::InteractFrame(const Experiment::ConstPtr & experiment,
 	              InteractionData>
 		computeData(tbb::filter::parallel,
 		            [identifier,solver](const RawData & rawData ) {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier);
-			            auto interacted = solver->ComputeInteractions(std::get<0>(rawData),identified);
+			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            auto interacted = solver->ComputeInteractions(identified);
 			            return std::make_tuple(std::get<0>(rawData),identified,interacted);
 		            });
 
@@ -187,7 +187,7 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 		computeData(tbb::filter::parallel,
 		            [identifier](const RawData & rawData ) {
 			            return std::make_pair(std::get<0>(rawData),
-			                                  std::get<1>(rawData)->IdentifyFrom(*identifier));
+			                                  std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData)));
 		            });
 
 	 BuildingTrajectoryData currentTrajectories;
@@ -245,8 +245,8 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	tbb::filter_t<RawData,InteractionData>
 		computeData(tbb::filter::parallel,
 		            [identifier,solver](const RawData & rawData ) {
-			            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier);
-			            auto interacted = solver->ComputeInteractions(std::get<0>(rawData),identified);
+			            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            auto interacted = solver->ComputeInteractions(identified);
 			            return std::make_tuple(std::get<0>(rawData),identified,interacted);
 		            });
 

@@ -38,10 +38,9 @@ InteractionSolver::InteractionSolver(const SpaceByID & spaces,
 }
 
 InteractionFrame::ConstPtr
-InteractionSolver::ComputeInteractions(SpaceID spaceID,
-                                       const IdentifiedFrame::ConstPtr & frame) const {
+InteractionSolver::ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) const {
 	LocatedAnts locatedAnts;
-	LocateAnts(locatedAnts,spaceID,frame);
+	LocateAnts(locatedAnts,frame);
 	auto res = std::make_shared<InteractionFrame>();
 	res->FrameTime = frame->FrameTime;
 	for ( const auto & [zID,ants] : locatedAnts ) {
@@ -51,17 +50,16 @@ InteractionSolver::ComputeInteractions(SpaceID spaceID,
 }
 
 void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
-                                   SpaceID spaceID,
                                    const IdentifiedFrame::ConstPtr & frame) const {
 
-	if ( d_spaceGeometries.count(spaceID) == 0) {
-		throw std::invalid_argument("Invalid space " + std::to_string(spaceID));
+	if ( d_spaceGeometries.count(frame->Space) == 0) {
+		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame->Space) + " in IdentifiedFrame");
 	}
-	const auto & allGeometries = d_spaceGeometries.at(spaceID);
+	const auto & allGeometries = d_spaceGeometries.at(frame->Space);
 
 	// first we build geometries for the right time;
 	std::vector<std::pair<ZoneID,Zone::Geometry::ConstPtr> > currentGeometries;
-	for ( const auto & zID : d_zoneIDs.at(spaceID) ) {
+	for ( const auto & zID : d_zoneIDs.at(frame->Space) ) {
 		try {
 			currentGeometries.push_back(std::make_pair(zID,allGeometries.At(zID,frame->FrameTime)));
 		} catch ( const std::exception & e ) {

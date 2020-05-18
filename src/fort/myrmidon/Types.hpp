@@ -108,6 +108,7 @@ typedef std::vector<PositionedAnt,Eigen::aligned_allocator<PositionedAnt>> Posit
 struct IdentifiedFrame {
 	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
 	Time              FrameTime;
+	SpaceID           Space;
 	size_t            Height;
 	size_t            Width;
 	PositionedAntList Positions;
