@@ -124,13 +124,8 @@ public:
 	inline Matcher(const PPtr & pMatcher)
 		: d_p(pMatcher) {
 	}
-	// Casts down to private implementation
-	//
-	// @return the opaque pointer implementation.
-	inline const PPtr & ToPrivate() const {
-		return d_p;
-	}
 private:
+	friend class Query;
 	PPtr d_p;
 };
 

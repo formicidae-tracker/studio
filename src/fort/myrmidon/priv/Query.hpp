@@ -27,10 +27,10 @@ public:
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end);
 
-	static void CollideFrame(const Experiment::ConstPtr & experiment,
-	                         std::vector<CollisionData> & result,
-	                         const Time::ConstPtr & start,
-	                         const Time::ConstPtr & end);
+	static void CollideFrames(const Experiment::ConstPtr & experiment,
+	                          std::vector<CollisionData> & result,
+	                          const Time::ConstPtr & start,
+	                          const Time::ConstPtr & end);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                                std::vector<AntTrajectory::ConstPtr> & trajectories,

@@ -125,10 +125,10 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 }
 
-void Query::CollideFrame(const Experiment::ConstPtr & experiment,
-                         std::vector<CollisionData> & result,
-                         const Time::ConstPtr & start,
-                         const Time::ConstPtr & end) {
+void Query::CollideFrames(const Experiment::ConstPtr & experiment,
+                          std::vector<CollisionData> & result,
+                          const Time::ConstPtr & start,
+                          const Time::ConstPtr & end) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
 	DataRangeWithSpace ranges;

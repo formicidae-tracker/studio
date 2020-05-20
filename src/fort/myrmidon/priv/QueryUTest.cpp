@@ -113,9 +113,9 @@ TEST_F(QueryUTest,InteractionFrame) {
 	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
-			Query::CollideFrame(experiment,
-			                    collisionData,
-			                    {},{});
+			Query::CollideFrames(experiment,
+			                     collisionData,
+			                     {},{});
 		});
 
 	ASSERT_EQ(collisionData.size(),3000);

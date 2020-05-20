@@ -9,14 +9,14 @@ namespace myrmidon {
 Matcher::Ptr Matcher::And(std::initializer_list<Ptr> matchers) {
 	std::vector<PPtr> pMatchers;
 	pMatchers.reserve(matchers.size());
-	for ( const auto & m : matchers ) { pMatchers.push_back(m->ToPrivate()); }
+	for ( const auto & m : matchers ) { pMatchers.push_back(m->d_p); }
 	return std::make_shared<Matcher>(priv::Matcher::And(pMatchers));
 }
 
 Matcher::Ptr Matcher::Or(std::initializer_list<Ptr> matchers) {
 	std::vector<PPtr> pMatchers;
 	pMatchers.reserve(matchers.size());
-	for ( const auto & m : matchers ) { pMatchers.push_back(m->ToPrivate()); }
+	for ( const auto & m : matchers ) { pMatchers.push_back(m->d_p); }
 	return std::make_shared<Matcher>(priv::Matcher::Or(pMatchers));
 }
 
