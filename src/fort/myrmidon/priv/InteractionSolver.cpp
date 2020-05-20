@@ -44,7 +44,7 @@ InteractionSolver::ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) 
 	auto res = std::make_shared<InteractionFrame>();
 	res->FrameTime = frame->FrameTime;
 	for ( const auto & [zID,ants] : locatedAnts ) {
-		ComputeInteractions(res->Interactions,ants,zID);
+		ComputeInteractions(res->Interactions,ants,frame->Space,zID);
 	}
 	return res;
 }
@@ -86,6 +86,7 @@ void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
 
 void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  result,
                                             const std::vector<PositionedAnt> & ants,
+                                            SpaceID spaceID,
                                             ZoneID zoneID) const {
 
 	//first-pass we compute possible interactions
@@ -129,17 +130,19 @@ void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  
 	kdt->ComputeCollisions(inserter);
 
 	// now do the actual collisions
-	std::map<InteractionID,std::vector<InteractionType> > res;
+	std::map<InteractionID,std::set<InteractionType> > res;
 	for ( const auto & coarse : possibleCollisions ) {
 		if ( coarse.first.C->Intersects(*coarse.second.C) == true ) {
 			InteractionID ID = std::make_pair(coarse.first.ID,coarse.second.ID);
 			InteractionType type = std::make_pair(coarse.first.TypeID,coarse.second.TypeID);
-			res[ID].push_back(type);
+			res[ID].insert(type);
 		}
 	}
 	result.reserve(result.size() + res.size());
-	for ( const auto & [ID,interactions] : res ) {
-		result.push_back({ID,interactions,zoneID});
+	for ( const auto & [ID,interactionSet] : res ) {
+		std::vector<InteractionType> interactions(interactionSet.size());
+		std::copy(interactionSet.cbegin(),interactionSet.cend(),interactions.begin());
+		result.push_back(PonctualInteraction{ID,interactions,spaceID,zoneID});
 	}
 
 }

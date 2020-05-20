@@ -33,6 +33,7 @@ private:
 
 	void ComputeInteractions(std::vector<PonctualInteraction> &  result,
 	                         const std::vector<PositionedAnt> & ants,
+	                         SpaceID spaceID,
 	                         ZoneID zoneID) const;
 
 	AntGeometriesByID   d_antGeometries;
