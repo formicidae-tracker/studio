@@ -24,7 +24,7 @@ public:
 	}
 
 	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const InteractionFrame::ConstPtr & interactionFrame) override{
+	           const CollisionFrame::ConstPtr & collisionFrame) override{
 	};
 
 	bool Match(fort::myrmidon::AntID ant1,
@@ -43,7 +43,7 @@ class MockMatcher : public Matcher {
 public:
 	MOCK_METHOD(void,SetUpOnce,(const ConstAntByID & ants),(override));
 	MOCK_METHOD(void,SetUp,(const IdentifiedFrame::ConstPtr & f,
-	                        const InteractionFrame::ConstPtr & i),(override));
+	                        const CollisionFrame::ConstPtr & i),(override));
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
 	                        fort::myrmidon::AntID b,
 	                        const std::vector<InteractionType> & types), (override));
@@ -117,7 +117,7 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 
 	auto identifiedFrame = std::make_shared<IdentifiedFrame>();
 	identifiedFrame->FrameTime = Time().Add(-1);
-	auto interactionFrame = std::make_shared<InteractionFrame>();
+	auto collisionFrame = std::make_shared<CollisionFrame>();
 	ASSERT_NO_THROW({
 			columnMatcher->SetUpOnce(experiment->CIdentifier().CAnts());
 		});
@@ -135,7 +135,7 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 	EXPECT_FALSE(columnMatcher->Match(0,0,{}));
 	EXPECT_TRUE(columnMatcher->Match(a->AntID(),0,{}));
 	ASSERT_NO_THROW({
-			columnMatcher->SetUp({},interactionFrame);
+			columnMatcher->SetUp({},collisionFrame);
 		});
 
 	EXPECT_FALSE(columnMatcher->Match(a->AntID(),0,{}));
@@ -152,7 +152,7 @@ TEST_F(MatchersUTest,DistanceMatcher) {
 	identifiedFrame->Positions.push_back({{0,0},0,1});
 	identifiedFrame->Positions.push_back({{0,12},0,2});
 	identifiedFrame->Positions.push_back({{0,8},0,3});
-	auto interactionFrame = std::make_shared<InteractionFrame>();
+	auto collisionFrame = std::make_shared<CollisionFrame>();
 
 	ASSERT_NO_THROW({ greaterMatcher->SetUpOnce({}); });
 
@@ -161,7 +161,7 @@ TEST_F(MatchersUTest,DistanceMatcher) {
 		},std::runtime_error);
 
 	ASSERT_THROW({
-			smallerMatcher->SetUp({},interactionFrame);
+			smallerMatcher->SetUp({},collisionFrame);
 		},std::runtime_error);
 
 	ASSERT_NO_THROW({
@@ -191,7 +191,7 @@ TEST_F(MatchersUTest,AngleMatcher) {
 	identifiedFrame->Positions.push_back({{0,0},0,1});
 	identifiedFrame->Positions.push_back({{0,0},M_PI/5,2});
 	identifiedFrame->Positions.push_back({{0,0},-M_PI/3,3});
-	auto interactionFrame = std::make_shared<InteractionFrame>();
+	auto collisionFrame = std::make_shared<CollisionFrame>();
 
 	ASSERT_NO_THROW({ greaterMatcher->SetUpOnce({}); });
 
@@ -200,7 +200,7 @@ TEST_F(MatchersUTest,AngleMatcher) {
 		},std::runtime_error);
 
 	ASSERT_THROW({
-			smallerMatcher->SetUp({},interactionFrame);
+			smallerMatcher->SetUp({},collisionFrame);
 		},std::runtime_error);
 
 	ASSERT_NO_THROW({

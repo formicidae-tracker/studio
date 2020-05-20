@@ -53,3 +53,18 @@ computed when the user sets the head-tail measurement for any new
 identification. However for very large number of <fort::myrmidon::Ant>, this is
 unpraticable, and user can manually specify that relation using
 <fort::myrmidon::Identification::SetUserDefinedAntPose>.
+
+## Tag statistics.
+
+Myrmidon only reports fiduical tag data through
+<fort::myrmidon::TagStatistics>, one can use
+<fort::myrmidon::Query::ComputeTagStatistics> to get data telling :
+
+* At which <fort::myrmidon::Time> the tag was first and last seen
+* How many time a given tag was detected
+* How many time a tag was detected twice in a frame.
+* The detecteion gap histogram, informing fo how long tracking was
+  lost for a given tag.
+
+By design, it is not possible to get access to the raw tag data
+(position and orientation).

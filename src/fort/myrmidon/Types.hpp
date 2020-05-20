@@ -186,7 +186,7 @@ typedef std::pair<AntID,AntID>                   InteractionID;
 typedef std::pair<AntShapeTypeID,AntShapeTypeID> InteractionType;
 
 // Defines an interaction between two <Ant> ponctual in <Time>
-struct PonctualInteraction {
+struct Collision {
 	// The <AntID> of the two Ants interacting. note that the
 	// constraint `IDS.first < IDs.second` is always maintained to
 	// ensure uniqueness of IDs for <AntInteraction>.
@@ -199,19 +199,22 @@ struct PonctualInteraction {
 	ZoneID                       Zone;
 };
 
-// Defines all <PonctualInteraction> happening at a given time.
-struct InteractionFrame {
-	// A pointer to an <InteractionFrame>
-	typedef std::shared_ptr<const InteractionFrame> ConstPtr;
+// Reports all <Collision> happening at a given time.
+struct CollisionFrame {
+	// A pointer to a CollisionFrame
+	typedef std::shared_ptr<const CollisionFrame> ConstPtr;
 	// The <Time> when the interaction happens
-	Time                             FrameTime;
-	// Reports the <Space> where all the <PonctualInteraction>
+	Time                   FrameTime;
+	// Reports the <Space> where all the <Collision>
 	// happens.
-	SpaceID                      Space;
-	// The <PonctualInteraction> happenning at <FrameTime>
-	std::vector<PonctualInteraction> Interactions;
-};
+	SpaceID                Space;
+	// The <Collision> happenning at <FrameTime>
+	std::vector<Collision> Collisions;
 
+	// The zone any <Ant> is in.
+	std::map<AntID,ZoneID> AntZones;
+
+};
 
 // Defines a trajectory for an <Ant>
 struct AntTrajectory {

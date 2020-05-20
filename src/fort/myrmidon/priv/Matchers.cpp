@@ -20,9 +20,9 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 		}
 
 		void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-		           const InteractionFrame::ConstPtr & interactionFrame) override {
+		           const CollisionFrame::ConstPtr & collisionFrame) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
-			              [&](const Ptr & matcher) { matcher->SetUp(identifiedFrame,interactionFrame); });
+			              [&](const Ptr & matcher) { matcher->SetUp(identifiedFrame,collisionFrame); });
 
 		}
 
@@ -55,9 +55,9 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 		}
 
 		void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-		           const InteractionFrame::ConstPtr & interactionFrame) override {
+		           const CollisionFrame::ConstPtr & collisionFrame) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
-			              [&](const Ptr & matcher) { matcher->SetUp(identifiedFrame,interactionFrame); });
+			              [&](const Ptr & matcher) { matcher->SetUp(identifiedFrame,collisionFrame); });
 
 		}
 
@@ -87,7 +87,7 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 		}
 
 		void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-		           const InteractionFrame::ConstPtr & interactionFrame) override {
+		           const CollisionFrame::ConstPtr & collisionFrame) override {
 		}
 
 		bool Match(fort::myrmidon::AntID ant1,
@@ -120,14 +120,14 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 		}
 
 		void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-		           const InteractionFrame::ConstPtr & interactionFrame) override {
+		           const CollisionFrame::ConstPtr & collisionFrame) override {
 			if ( !identifiedFrame == false ) {
 				d_time = identifiedFrame->FrameTime;
 				return;
 			}
 
-			if ( !interactionFrame == false ) {
-				d_time = interactionFrame->FrameTime;
+			if ( !collisionFrame == false ) {
+				d_time = collisionFrame->FrameTime;
 				return;
 			}
 			throw std::runtime_error("This matcher requires current time through ant position or interaction, but none is available in the current context");
@@ -167,7 +167,7 @@ public:
 	}
 
 	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const InteractionFrame::ConstPtr & interactionFrame) override {
+	           const CollisionFrame::ConstPtr & collisionFrame) override {
 		if ( !identifiedFrame ) {
 			throw std::runtime_error("This matcher requires ant position, which are unavailable in the current context");
 		}
@@ -214,7 +214,7 @@ public:
 	}
 
 	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const InteractionFrame::ConstPtr & interactionFrame) override {
+	           const CollisionFrame::ConstPtr & collisionFrame) override {
 		if ( !identifiedFrame ) {
 			throw std::runtime_error("This matcher requires ant position, which are unavailable in the current context");
 		}

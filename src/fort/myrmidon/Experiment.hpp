@@ -271,6 +271,8 @@ public:
 	// @return a map of measurement type name by their <MeasurementTypeID>
 	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
 
+	/* cldoc:begin-category(ant_interaction) */
+
 	// Creates a new Ant shape type
 	// @name the user defined name for the <Ant> Shape Type
 	//
@@ -293,6 +295,9 @@ public:
 	// @antShapeTypeID the <AntShapeTypeID> of the shape type to remove
 	void DeleteAntShapeType(AntShapeTypeID antShapeTypeID);
 
+	/* cldoc:end-category() */
+
+	/* cldoc:begin-category(named_values) */
 
 	// Adds a non-tracking data column
 	// @name the unique name for the column
@@ -302,7 +307,8 @@ public:
 	// <type>. <name> should be a non-empty unique string for the
 	// column.
 	void AddMetadataColumn(const std::string & name,
-	                       AntMetadataType type);
+	                       AntMetadataType type,
+	                       AntStaticValue defaultValue);
 
 	// Removes a non-tracking data column.
 	// @name the name of the column to remove
@@ -310,9 +316,10 @@ public:
 
 	// Gets the types for non-tracking data columns
 	//
-	// @return a map of <AntMetadataType> indexed by column name for
-	// all columns defined in the experiment.
-	std::map<std::string,AntMetadataType> AntMetadataColumns() const;
+	// @return a pairs of <AntMetadataType> and <AntStaticValue>
+	// indexed by column name for all columns defined in the
+	// experiment.
+	std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > AntMetadataColumns() const;
 
 	// Renames a non-tracking data column
 	// @oldName the current name of the column to rename
@@ -323,8 +330,12 @@ public:
 	// Changes the type of a non-tracking data column
 	// @name the name of the column
 	// @type the new wanted type.
-	void SetAntMetadataColumType(const std::string & name,
-	                             AntMetadataType type);
+	// @defaultValue the new wantet default value
+	void SetAntMetadataColumnType(const std::string & name,
+	                              AntMetadataType type,
+	                              AntStaticValue defaultValue);
+
+	/* cldoc:end-category() */
 
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Experiment> PPtr;

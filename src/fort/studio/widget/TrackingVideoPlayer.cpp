@@ -507,7 +507,7 @@ void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
 			std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 	frame.TrackingFrame = d_loader->frameAt(frame.FrameID);
-	frame.InteractionFrame = d_loader->interactionAt(frame.FrameID);
+	frame.CollisionFrame = d_loader->collisionAt(frame.FrameID);
 	emit newFrame(d_taskID,d_seekID,frame);
 }
 

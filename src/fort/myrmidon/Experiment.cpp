@@ -217,18 +217,21 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID antShapeTypeID) {
 
 
 void Experiment::AddMetadataColumn(const std::string & name,
-                                   AntMetadataType type) {
-	d_p->AddAntMetadataColumn(name,type);
+                                   AntMetadataType type,
+                                   AntStaticValue defaultValue) {
+	auto md = d_p->AddAntMetadataColumn(name,type);
+	md->SetDefaultValue(defaultValue);
 }
 
 void Experiment::DeleteMetadataColumn(const std::string & name) {
 	d_p->DeleteAntMetadataColumn(name);
 }
 
-std::map<std::string,AntMetadataType> Experiment::AntMetadataColumns() const {
-	std::map<std::string,AntMetadataType> res;
+std::map<std::string,std::pair<AntMetadataType,AntStaticValue>>
+Experiment::AntMetadataColumns() const {
+	std::map<std::string,std::pair<AntMetadataType,AntStaticValue>> res;
 	for ( const auto & [name,column] : d_p->AntMetadataConstPtr()->CColumns() ) {
-		res.insert(std::make_pair(name,column->MetadataType()));
+		res.insert(std::make_pair(name,std::make_pair(column->MetadataType(),column->DefaultValue())));
 	}
 	return res;
 }
@@ -247,9 +250,16 @@ void Experiment::RenameAntMetadataColumn(const std::string & oldName,
 	LocateColumn(d_p,oldName).SetName(newName);
 }
 
-void Experiment::SetAntMetadataColumType(const std::string & name,
-                                         AntMetadataType type) {
-	LocateColumn(d_p,name).SetMetadataType(type);
+void Experiment::SetAntMetadataColumnType(const std::string & name,
+                                          AntMetadataType type,
+                                          AntStaticValue defaultValue) {
+	auto & col = LocateColumn(d_p,name);
+	if ( col.MetadataType() == type ) {
+		col.SetDefaultValue(defaultValue);
+		return;
+	}
+	col.SetMetadataType(type);
+	col.SetDefaultValue(defaultValue);
 }
 
 Experiment::Experiment(const PPtr & pExperiment)

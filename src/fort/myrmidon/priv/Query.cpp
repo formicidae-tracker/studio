@@ -9,7 +9,7 @@
 #include "TrackingDataDirectory.hpp"
 #include "Identifier.hpp"
 #include "RawFrame.hpp"
-#include "InteractionSolver.hpp"
+#include "CollisionSolver.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -125,12 +125,12 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 }
 
-void Query::InteractFrame(const Experiment::ConstPtr & experiment,
-                          std::vector<InteractionData> & result,
-                          const Time::ConstPtr & start,
-                          const Time::ConstPtr & end) {
+void Query::CollideFrame(const Experiment::ConstPtr & experiment,
+                         std::vector<CollisionData> & result,
+                         const Time::ConstPtr & start,
+                         const Time::ConstPtr & end) {
 	auto identifier = experiment->CIdentifier().Compile();
-	auto solver = experiment->CompileInteractionSolver();
+	auto solver = experiment->CompileCollisionSolver();
 	DataRangeWithSpace ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
@@ -142,18 +142,18 @@ void Query::InteractFrame(const Experiment::ConstPtr & experiment,
 		loadData(tbb::filter::serial,LoadData(ranges,rangeIter,dataIter));
 
 	tbb::filter_t<RawData,
-	              InteractionData>
+	              CollisionData>
 		computeData(tbb::filter::parallel,
 		            [identifier,solver](const RawData & rawData ) {
 			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeInteractions(identified);
+			            auto interacted = solver->ComputeCollisions(identified);
 			            return std::make_tuple(std::get<0>(rawData),identified,interacted);
 		            });
 
 
-	tbb::filter_t<InteractionData,void>
+	tbb::filter_t<CollisionData,void>
 		storeData(tbb::filter::serial,
-		          [&result](const InteractionData & res) {
+		          [&result](const CollisionData & res) {
 			          result.push_back(res);
 		          });
 
@@ -227,7 +227,7 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
                                    Matcher::Ptr matcher) {
 
 	auto identifier = experiment->CIdentifier().Compile();
-	auto solver = experiment->CompileInteractionSolver();
+	auto solver = experiment->CompileCollisionSolver();
 
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
@@ -242,18 +242,18 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	tbb::filter_t<void,RawData>
 		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
 
-	tbb::filter_t<RawData,InteractionData>
+	tbb::filter_t<RawData,CollisionData>
 		computeData(tbb::filter::parallel,
 		            [identifier,solver](const RawData & rawData ) {
 			            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeInteractions(identified);
+			            auto interacted = solver->ComputeCollisions(identified);
 			            return std::make_tuple(std::get<0>(rawData),identified,interacted);
 		            });
 
 	 BuildingTrajectoryData currentTrajectories;
 	 BuildingInteractionData currentInteractions;
 
-	tbb::filter_t<InteractionData,void>
+	tbb::filter_t<CollisionData,void>
 		computeInteractions(tbb::filter::serial_in_order,
 		                    BuildInteractions(trajectories,
 		                                      interactions,
@@ -371,7 +371,7 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 	        &matcher,
 	        maxGap]( const IdentifiedData & data ) {
 		       if ( matcher ) {
-			       matcher->SetUp(std::get<1>(data),InteractionFrame::ConstPtr());
+			       matcher->SetUp(std::get<1>(data),CollisionFrame::ConstPtr());
 		       }
 
 		       for ( const auto & pa : std::get<1>(data)->Positions ) {
@@ -416,7 +416,7 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 
 
 
-std::function<void(const Query::InteractionData &)>
+std::function<void(const Query::CollisionData &)>
 Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
                          std::vector<AntInteraction::ConstPtr> & interactions,
                          BuildingTrajectoryData & currentTrajectories,
@@ -428,7 +428,7 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 	        &currentTrajectories,
 	        &currentInteractions,
 	        &matcher,
-	        maxGap]( const InteractionData & data ) {
+	        maxGap]( const CollisionData & data ) {
 		       if ( matcher ) {
 			       matcher->SetUp(std::get<1>(data),std::get<2>(data));
 		       }
@@ -493,7 +493,7 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 		       }
 
 
-		       for ( const auto & pInter : std::get<2>(data)->Interactions ) {
+		       for ( const auto & pInter : std::get<2>(data)->Collisions ) {
 			       if (matcher && matcher->Match(pInter.IDs.first,
 			                                     pInter.IDs.second,
 			                                     pInter.InteractionTypes) == false ) {

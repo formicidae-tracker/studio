@@ -11,16 +11,16 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class InteractionSolver {
+class CollisionSolver {
 public:
-	typedef std::shared_ptr<InteractionSolver>       Ptr;
-	typedef std::shared_ptr<const InteractionSolver> ConstPtr;
+	typedef std::shared_ptr<CollisionSolver>       Ptr;
+	typedef std::shared_ptr<const CollisionSolver> ConstPtr;
 
-	InteractionSolver(const SpaceByID & spaces,
+	CollisionSolver(const SpaceByID & spaces,
 	                  const AntByID & ants);
 
-	InteractionFrame::ConstPtr
-	ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) const;
+	CollisionFrame::ConstPtr
+	ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) const;
 private:
 	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
 	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
@@ -31,9 +31,9 @@ private:
 	void LocateAnts(LocatedAnts & locatedAnts,
 	                const IdentifiedFrame::ConstPtr & frame) const;
 
-	void ComputeInteractions(std::vector<PonctualInteraction> &  result,
-	                         const std::vector<PositionedAnt> & ants,
-	                         ZoneID zoneID) const;
+	void ComputeCollisions(std::vector<Collision> &  result,
+	                       const std::vector<PositionedAnt> & ants,
+	                       ZoneID zoneID) const;
 
 	AntGeometriesByID   d_antGeometries;
 	GeometriesBySpaceID d_spaceGeometries;

@@ -89,7 +89,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/Measurement.hpp
                       priv/KDTree.hpp
                       priv/KDTree.impl.hpp
-                      priv/InteractionSolver.hpp
+                      priv/CollisionSolver.hpp
                       priv/TagStatistics.hpp
                       priv/Query.hpp
                       priv/Matchers.hpp
@@ -146,7 +146,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
                       priv/KDTree.cpp
-                      priv/InteractionSolver.cpp
+                      priv/CollisionSolver.cpp
                       priv/TagStatistics.cpp
                       priv/Query.cpp
                       priv/Matchers.cpp
@@ -208,7 +208,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/PolygonUTest.cpp
                     priv/KDTreeUTest.cpp
                     priv/AntMetadataUTest.cpp
-                    priv/InteractionSolverUTest.cpp
+                    priv/CollisionSolverUTest.cpp
                     priv/TagStatisticsUTest.cpp
                     priv/MatchersUTest.cpp
                     priv/QueryUTest.cpp
@@ -247,7 +247,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/PolygonUTest.hpp
                     priv/KDTreeUTest.hpp
                     priv/AntMetadataUTest.hpp
-                    priv/InteractionSolverUTest.hpp
+                    priv/CollisionSolverUTest.hpp
                     priv/TagStatisticsUTest.hpp
                     priv/MatchersUTest.hpp
                     priv/QueryUTest.hpp

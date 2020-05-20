@@ -1,4 +1,4 @@
-#include "InteractionSolverUTest.hpp"
+#include "CollisionSolverUTest.hpp"
 
 #include <random>
 
@@ -16,13 +16,13 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-IdentifiedFrame::ConstPtr  InteractionSolverUTest::frame;
-Space::Universe::Ptr       InteractionSolverUTest::universe;
-AntByID                    InteractionSolverUTest::ants;
-InteractionFrame::ConstPtr InteractionSolverUTest::interactions;
+IdentifiedFrame::ConstPtr  CollisionSolverUTest::frame;
+Space::Universe::Ptr       CollisionSolverUTest::universe;
+AntByID                    CollisionSolverUTest::ants;
+CollisionFrame::ConstPtr CollisionSolverUTest::collisions;
 
 void debugToImage(const IdentifiedFrame::ConstPtr & frame,
-                  const InteractionFrame::ConstPtr & interaction,
+                  const CollisionFrame::ConstPtr & collision,
                   const AntByID & ants ) {
 	cv::Mat debug(frame->Height/3,frame->Width/3,CV_8UC3);
 	debug.setTo(cv::Scalar(255,255,255));
@@ -45,7 +45,7 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 		}
 	}
 
-	for ( const auto & inter : interaction->Interactions ) {
+	for ( const auto & inter : collision->Collisions ) {
 		const auto & a = converted.at(inter.IDs.first);
 		const auto & b = converted.at(inter.IDs.second);
 		cv::line(debug,a,b,cv::Scalar(0,0,255),4);
@@ -66,7 +66,7 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 
 
 
-void InteractionSolverUTest::SetUpTestSuite() {
+void CollisionSolverUTest::SetUpTestSuite() {
 	std::random_device r;
 	std::default_random_engine e1(r());
 
@@ -126,13 +126,13 @@ void InteractionSolverUTest::SetUpTestSuite() {
 	food->AddDefinition(foodShapes,
 	                    {},{});
 
-	interactions = NaiveInteractions();
+	collisions = NaiveCollisions();
 
-	debugToImage(frame,interactions,ants);
+	debugToImage(frame,collisions,ants);
 }
 
 
-InteractionFrame::ConstPtr InteractionSolverUTest::NaiveInteractions() {
+CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 	std::unordered_map<Zone::ID,std::vector<PositionedAnt> > locatedAnt;
 	for ( const auto & p : frame->Positions ) {
 		bool found =  false;
@@ -168,14 +168,14 @@ InteractionFrame::ConstPtr InteractionSolverUTest::NaiveInteractions() {
 			return res;
 		};
 
-	auto res = std::make_shared<InteractionFrame>();
+	auto res = std::make_shared<CollisionFrame>();
 
 	for ( const auto & [zID,ants] : locatedAnt ) {
 		for ( size_t i = 0; i < ants.size(); ++i) {
 			for ( size_t j = i+1; j < ants.size(); ++j ) {
 				auto collisions = collides(ants[i],ants[j]);
 				if ( !collisions.empty() )  {
-					res->Interactions.push_back({std::make_pair(ants[i].ID,ants[j].ID),
+					res->Collisions.push_back({std::make_pair(ants[i].ID,ants[j].ID),
 					                             collisions,
 					                             zID});
 				}
@@ -186,26 +186,26 @@ InteractionFrame::ConstPtr InteractionSolverUTest::NaiveInteractions() {
 }
 
 
-TEST_F(InteractionSolverUTest,TestE2E) {
-	auto solver = std::make_shared<InteractionSolver>(universe->Spaces(),
+TEST_F(CollisionSolverUTest,TestE2E) {
+	auto solver = std::make_shared<CollisionSolver>(universe->Spaces(),
 	                                                  ants);
-	InteractionFrame::ConstPtr res;
+	CollisionFrame::ConstPtr res;
 	EXPECT_THROW({
 			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 2;
-			res = solver->ComputeInteractions(frame);
+			res = solver->ComputeCollisions(frame);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
 			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 1;
-			res = solver->ComputeInteractions(frame);
+			res = solver->ComputeCollisions(frame);
 		});
-	for ( const auto & inter : interactions->Interactions ) {
-		auto fi = std::find_if(res->Interactions.begin(),
-		                       res->Interactions.end(),
-		                       [&inter](const PonctualInteraction & i) {
+	for ( const auto & inter : collisions->Collisions ) {
+		auto fi = std::find_if(res->Collisions.begin(),
+		                       res->Collisions.end(),
+		                       [&inter](const Collision & i) {
 			                       return i.IDs == inter.IDs;
 		                       });
-		if ( fi == res->Interactions.end() ) {
-			ADD_FAILURE() << "Missing interaction between " << Ant::FormatID(inter.IDs.first)
+		if ( fi == res->Collisions.end() ) {
+			ADD_FAILURE() << "Missing collision between " << Ant::FormatID(inter.IDs.first)
 			              << " and " << Ant::FormatID(inter.IDs.second);
 			continue;
 		}
@@ -219,9 +219,9 @@ TEST_F(InteractionSolverUTest,TestE2E) {
 			if ( ti == fi->InteractionTypes.end() ) {
 				auto aName = type.first == 1 ? "body" : "antennas";
 				auto bName = type.second == 1 ? "body" : "antennas";
-				ADD_FAILURE() << "Interaction between " << Ant::FormatID(inter.IDs.first)
+				ADD_FAILURE() << "Collision between " << Ant::FormatID(inter.IDs.first)
 				              << " and " << Ant::FormatID(inter.IDs.second)
-				              << " is missing interaction " << aName << "-" << bName;
+				              << " is missing collision " << aName << "-" << bName;
 			}
 		}
 	}

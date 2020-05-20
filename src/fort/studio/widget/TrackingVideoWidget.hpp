@@ -12,10 +12,10 @@ class TrackingVideoWidget : public QWidget {
 	           READ showID
 	           WRITE setShowID
 	           NOTIFY showIDChanged);
-	Q_PROPERTY(bool showInteractions
-	           READ showInteractions
-	           WRITE setShowInteractions
-	           NOTIFY showInteractionsChanged);
+	Q_PROPERTY(bool showCollisions
+	           READ showCollisions
+	           WRITE setShowCollisions
+	           NOTIFY showCollisionsChanged);
 
 public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
@@ -26,7 +26,7 @@ public:
 
 	bool showID() const;
 
-	bool showInteractions() const;
+	bool showCollisions() const;
 
 
 	fm::Time trackingTime() const;
@@ -35,7 +35,7 @@ public:
 
 signals:
 	void showIDChanged(bool value);
-	void showInteractionsChanged(bool value);
+	void showCollisionsChanged(bool value);
 
 	void hasTrackingTimeChanged(bool value);
 
@@ -48,7 +48,7 @@ public slots:
 	void setZoomFocus(quint32 antID,qreal value);
 
 	void setShowID(bool show);
-	void setShowInteractions(bool show);
+	void setShowCollisions(bool show);
 
 protected:
 	void paintEvent(QPaintEvent * event) override;
@@ -67,7 +67,7 @@ private:
 	IdentifierBridge * d_identifier;
 	bool               d_hideLoadingBanner;
 	bool               d_showID;
-	bool               d_showInteractions;
+	bool               d_showCollisions;
 	bool               d_hasTrackingTime;
 	quint32            d_focusedAntID;
 	qreal              d_zoom;

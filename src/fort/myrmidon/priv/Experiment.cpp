@@ -16,7 +16,7 @@
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
 #include "Capsule.hpp"
-#include "InteractionSolver.hpp"
+#include "CollisionSolver.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
 #include <fort/myrmidon/utils/PosixCall.h>
@@ -671,9 +671,9 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 	}
 }
 
-InteractionSolver::ConstPtr Experiment::CompileInteractionSolver() const {
-	return std::make_shared<InteractionSolver>(d_universe->Spaces(),
-	                                           d_identifier->Ants());
+CollisionSolver::ConstPtr Experiment::CompileCollisionSolver() const {
+	return std::make_shared<CollisionSolver>(d_universe->Spaces(),
+	                                         d_identifier->Ants());
 }
 
 void Experiment::UnlockFile() {

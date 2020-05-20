@@ -16,8 +16,8 @@ namespace priv {
 
 class Query {
 public:
-	typedef std::pair<Space::ID,IdentifiedFrame::ConstPtr>                             IdentifiedData;
-	typedef std::tuple<Space::ID,IdentifiedFrame::ConstPtr,InteractionFrame::ConstPtr> InteractionData;
+	typedef std::pair<Space::ID,IdentifiedFrame::ConstPtr>                           IdentifiedData;
+	typedef std::tuple<Space::ID,IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
 
 
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
@@ -28,10 +28,10 @@ public:
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end);
 
-	static void InteractFrame(const Experiment::ConstPtr & experiment,
-	                          std::vector<InteractionData> & result,
-	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end);
+	static void CollideFrame(const Experiment::ConstPtr & experiment,
+	                         std::vector<CollisionData> & result,
+	                         const Time::ConstPtr & start,
+	                         const Time::ConstPtr & end);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
@@ -92,7 +92,7 @@ private:
 	                  const Matcher::Ptr & matcher);
 
 
-	static std::function<void(const InteractionData &)>
+	static std::function<void(const CollisionData &)>
 	BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                  std::vector<AntInteraction::ConstPtr> & interactions,
 	                  BuildingTrajectoryData & currentTrajectories,

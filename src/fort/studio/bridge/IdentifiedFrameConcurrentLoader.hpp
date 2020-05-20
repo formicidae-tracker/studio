@@ -25,7 +25,7 @@ public:
 	void setExperiment(const fmp::Experiment::ConstPtr & experiment);
 
 	const fm::IdentifiedFrame::ConstPtr & frameAt(fmp::MovieFrameID movieID) const;
-	const fm::InteractionFrame::ConstPtr & interactionAt(fmp::MovieFrameID movieID) const;
+	const fm::CollisionFrame::ConstPtr & collisionAt(fmp::MovieFrameID movieID) const;
 
 
 	void moveToThread(QThread * thread);
@@ -54,12 +54,12 @@ private :
 
 
 	typedef fmp::DenseMap<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr>  FramesByMovieID;
-	typedef fmp::DenseMap<fmp::MovieFrameID,fm::InteractionFrame::ConstPtr> InteractionsByMovieID;
-	typedef std::tuple<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr,fm::InteractionFrame::ConstPtr> ConcurrentResult;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fm::CollisionFrame::ConstPtr> CollisionsByMovieID;
+	typedef std::tuple<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr,fm::CollisionFrame::ConstPtr> ConcurrentResult;
 
 	fmp::ExperimentConstPtr d_experiment;
 	FramesByMovieID         d_frames;
-	InteractionsByMovieID   d_interactions;
+	CollisionsByMovieID     d_collisions;
 	int                     d_done,d_toDo;
 
 	std::shared_ptr<std::atomic<bool>> d_abordFlag;

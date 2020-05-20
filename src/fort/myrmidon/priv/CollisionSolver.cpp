@@ -1,4 +1,4 @@
-#include "InteractionSolver.hpp"
+#include "CollisionSolver.hpp"
 
 #include "Space.hpp"
 #include "Capsule.hpp"
@@ -9,8 +9,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-InteractionSolver::InteractionSolver(const SpaceByID & spaces,
-                                     const AntByID & ants) {
+CollisionSolver::CollisionSolver(const SpaceByID & spaces,
+                                 const AntByID & ants) {
 
 	for ( const auto & [aID,ant] : ants ) {
 		d_antGeometries.insert(std::make_pair(aID,ant->Capsules()));
@@ -37,21 +37,21 @@ InteractionSolver::InteractionSolver(const SpaceByID & spaces,
 	}
 }
 
-InteractionFrame::ConstPtr
-InteractionSolver::ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) const {
+CollisionFrame::ConstPtr
+CollisionSolver::ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) const {
 	LocatedAnts locatedAnts;
 	LocateAnts(locatedAnts,frame);
-	auto res = std::make_shared<InteractionFrame>();
+	auto res = std::make_shared<CollisionFrame>();
 	res->FrameTime = frame->FrameTime;
 	res->Space = frame->Space;
 	for ( const auto & [zID,ants] : locatedAnts ) {
-		ComputeInteractions(res->Interactions,ants,zID);
+		ComputeCollisions(res->Collisions,ants,zID);
 	}
 	return res;
 }
 
-void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
-                                   const IdentifiedFrame::ConstPtr & frame) const {
+void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
+                                 const IdentifiedFrame::ConstPtr & frame) const {
 
 	if ( d_spaceGeometries.count(frame->Space) == 0) {
 		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame->Space) + " in IdentifiedFrame");
@@ -85,9 +85,9 @@ void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
 }
 
 
-void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  result,
-                                            const std::vector<PositionedAnt> & ants,
-                                            ZoneID zoneID) const {
+void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
+                                        const std::vector<PositionedAnt> & ants,
+                                        ZoneID zoneID) const {
 
 	//first-pass we compute possible interactions
 	struct AntTypedCapsule  {
@@ -142,7 +142,7 @@ void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  
 	for ( const auto & [ID,interactionSet] : res ) {
 		std::vector<InteractionType> interactions(interactionSet.size());
 		std::copy(interactionSet.cbegin(),interactionSet.cend(),interactions.begin());
-		result.push_back(PonctualInteraction{ID,interactions,zoneID});
+		result.push_back(Collision{ID,interactions,zoneID});
 	}
 
 }

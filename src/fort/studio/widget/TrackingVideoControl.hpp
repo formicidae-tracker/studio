@@ -37,11 +37,11 @@ signals:
 	void zoomFocusChanged(quint32 antID,qreal zoom);
 
 	void showID(bool value);
-	void showInteractions(bool value);
+	void showCollisions(bool value);
 
 public slots:
 	void setShowID(bool value);
-	void setShowInteractions(bool value);
+	void setShowCollisions(bool value);
 
 private slots:
 	void onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state);
@@ -60,7 +60,7 @@ private slots:
 	void on_zoomCheckBox_stateChanged(int value);
 
 	void on_showCheckBox_stateChanged(int value);
-	void on_showInteractionsBox_stateChanged(int value);
+	void on_showCollisionsBox_stateChanged(int value);
 
 private:
 	qreal zoomValue() const;

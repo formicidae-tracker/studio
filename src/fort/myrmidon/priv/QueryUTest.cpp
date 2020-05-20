@@ -110,20 +110,20 @@ TEST_F(QueryUTest,InteractionFrame) {
 			}
 		});
 
-	std::vector<Query::InteractionData> interactionData;
+	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
-			Query::InteractFrame(experiment,
-			                     interactionData,
-			                     {},{});
+			Query::CollideFrame(experiment,
+			                    collisionData,
+			                    {},{});
 		});
 
-	ASSERT_EQ(interactionData.size(),3000);
+	ASSERT_EQ(collisionData.size(),3000);
 
 	size_t nonEmptyFrame(0);
-	for ( const auto & [spaceID,positions,interaction] : interactionData ) {
+	for ( const auto & [spaceID,positions,collision] : collisionData ) {
 		EXPECT_EQ(spaceID,1);
-		if ( interaction->Interactions.empty() == false ) {
+		if ( collision->Collisions.empty() == false ) {
 			++nonEmptyFrame;
 		}
 	}
