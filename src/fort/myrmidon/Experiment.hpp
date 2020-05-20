@@ -340,6 +340,12 @@ public:
 	                              AntMetadataType type,
 	                              AntStaticValue defaultValue);
 
+	// Gets tracking data statistics about the Experiment
+	//
+	// @return an <ExperimentDataInfo> list of informations
+	ExperimentDataInfo GetDataInformations() const;
+
+
 	/* cldoc:end-category() */
 
 	// Opaque pointer to implementation

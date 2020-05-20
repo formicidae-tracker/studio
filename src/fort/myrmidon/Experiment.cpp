@@ -266,5 +266,55 @@ Experiment::Experiment(const PPtr & pExperiment)
 	: d_p(pExperiment) {
 }
 
+
+TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::ConstPtr & tdd) {
+	return {
+	        .URI = tdd->URI(),
+	        .AbsoluteFilePath = tdd->AbsoluteFilePath().string(),
+	        .Frames = tdd->EndFrame() - tdd->StartFrame() + 1,
+	        .Start  = tdd->StartDate(),
+	        .End = tdd->EndDate(),
+	};
+}
+
+
+SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
+	SpaceDataInfo res = {.URI = space->URI(),.Name = space->Name(), .Frames = 0 };
+	const auto & tdds = space->TrackingDataDirectories();
+	if ( tdds.empty() == true ) {
+		return res;
+	}
+	res.Start = tdds.front()->StartDate();
+	res.End = tdds.back()->EndDate();
+	res.TrackingDataDirectories.reserve(tdds.size());
+	for ( const auto & tdd : tdds ) {
+		res.TrackingDataDirectories.push_back(buildTddInfos(tdd));
+		res.Frames += res.TrackingDataDirectories.back().Frames;
+	}
+	return res;
+}
+
+
+ExperimentDataInfo Experiment::GetDataInformations() const {
+	ExperimentDataInfo res = { .Frames = 0 };
+	const auto & spaces = d_p->CSpaces();
+	bool set = false;
+	for ( const auto & [spaceID,space] : spaces ) {
+		auto sInfo = buildSpaceInfos(space);
+		if ( set == false ) {
+			res.Start = sInfo.Start;
+			res.End = sInfo.End;
+			set = true;
+		} else {
+			res.Start = std::min(res.Start,sInfo.Start);
+			res.End = std::max(res.End,sInfo.End);
+		}
+		res.Spaces[spaceID] = sInfo;
+	}
+
+	return res;
+}
+
+
 } // namespace mrymidon
 } // namespace fort
