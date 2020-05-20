@@ -17,14 +17,13 @@ namespace priv {
 
 class Query {
 public:
-	typedef fort::myrmidon::Query::IdentifiedData IdentifiedData;
 	typedef fort::myrmidon::Query::CollisionData  CollisionData;
 
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
 	                                 TagStatistics::ByTagID & result);
 
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::vector<IdentifiedData> & result,
+	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end);
 
@@ -85,7 +84,7 @@ private:
 	         DataRangeWithSpace::iterator & rangeIter,
 	         TrackingDataDirectory::const_iterator & dataIter);
 
-	static std::function<void(const IdentifiedData &)>
+	static std::function<void(const IdentifiedFrame::ConstPtr &)>
 	BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 	                  BuildingTrajectoryData & building,
 	                  Duration maxGap,

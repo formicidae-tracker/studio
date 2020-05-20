@@ -60,7 +60,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
 		});
 
-	std::vector<Query::IdentifiedData> identifieds;
+	std::vector<IdentifiedFrame::ConstPtr> identifieds;
 
 	ASSERT_NO_THROW({
 			Query::IdentifyFrames(experiment,
@@ -69,8 +69,8 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			                      {});
 		});
 	ASSERT_EQ(identifieds.size(),3000);
-	for ( const auto & [spaceID,frame] : identifieds ) {
-		EXPECT_EQ(spaceID,1);
+	for ( const auto & frame : identifieds ) {
+		EXPECT_EQ(frame->Space,1);
 		ASSERT_EQ(frame->Positions.size(),1);
 		ASSERT_EQ(frame->Positions[0].ID,1);
 	}
@@ -121,9 +121,10 @@ TEST_F(QueryUTest,InteractionFrame) {
 	ASSERT_EQ(collisionData.size(),3000);
 
 	size_t nonEmptyFrame(0);
-	for ( const auto & [spaceID,positions,collision] : collisionData ) {
-		EXPECT_EQ(spaceID,1);
-		if ( collision->Collisions.empty() == false ) {
+	for ( const auto & [positions,collisions] : collisionData ) {
+		EXPECT_EQ(positions->Space,1);
+		EXPECT_EQ(collisions->Space,1);
+		if ( collisions->Collisions.empty() == false ) {
 			++nonEmptyFrame;
 		}
 	}

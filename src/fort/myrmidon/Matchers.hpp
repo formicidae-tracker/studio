@@ -14,11 +14,11 @@ class Matcher;
 
 // Reduces down output of Queries
 //
-// Matchers reduces down output of <Qeury> with some criterions.
+// Matchers reduces down output of <Query> with some criterions.
 //
 // * <AntIDMatcher> : <AntID> must match a given ID
 // * <AntColumnMatcher> : an <AntStaticValue> must match a given value.
-// * <AntDistanceSmallerThan>,<AntDistanceGreaterTham> : for
+// * <AntDistanceSmallerThan>,<AntDistanceGreaterThan> : for
 //   interaction queries anly, ensure some criterion for the distance
 //   between <Ant>.
 // * <AntAngleSmallerThan>/<AntAngleGreaterThan> : for interaction

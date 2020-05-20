@@ -16,10 +16,7 @@ namespace myrmidon {
 // efficient computation time.
 class Query {
 public:
-	typedef std::pair<Space::ID,IdentifiedFrame::ConstPtr>                           IdentifiedData;
-	typedef std::tuple<Space::ID,IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
-
-
+	typedef std::pair<IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
 
 	// Computes all measurement for an Ant
 	// @experiment the <Experiment> to query for
@@ -34,7 +31,7 @@ public:
 	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment::ConstPtr & experiment);
 
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::vector<IdentifiedData> & result,
+	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end);
 

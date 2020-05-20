@@ -160,7 +160,7 @@ public:
 	// are valid for [<start>,<end>[. One may obtain a valid time
 	// range using <FreeIdentificationRangeAt>.
 	//
-	// @return a <identification::Ptr> to the new <Identification>
+	// @return an <Identification::Ptr> to the new <Identification>
 	Identification::Ptr AddIdentification(Ant::ID antID,
 	                                      TagID tagID,
 	                                      const Time::ConstPtr & start,
@@ -177,7 +177,7 @@ public:
 	// @time the <Time> that must be included in the result time range
 	//
 	// Queries for a valid time range for a given <TagID> and
-	// <Time>. The result will be a range [<Start>,<End>[ containing
+	// <Time>. The result will be a range [<start>,<end>[ containing
 	// <time> where <tagID> is not used. If it returns false <start>
 	// and <end> will be resetted if such a range does not exists.
 	//
@@ -227,10 +227,11 @@ public:
 	// Usually an Ant colony are tagged with a majority of tag of a
 	// given size. Some individuals (like Queens) may often use a
 	// bigger tag size that should be set in their
-	// Identification. This value is use for <ComputeMeasurement>.
+	// Identification. This value is used for
+	// <Query::ComputeMeasurementFor>.
 	//
-	// myrmidon uses without whoite border convention for ARTag and
-	// with white border convention Apriltag
+	// myrmidon uses without white border convention for ARTag and
+	// with white border convention Apriltag.
 	//
 	// @return the default tag size for the experiment in mm
 	double DefaultTagSize() const;
@@ -280,7 +281,7 @@ public:
 	// @name the user defined name for the <Ant> Shape Type
 	//
 	// Creates a new <Ant> virtual shape body part type.
-	// @return the <AntShapeTypeID> for the <An> shape type
+	// @return the <AntShapeTypeID> for the <Ant> shape type
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
 
 	// Gets the defined Ant shape type
@@ -304,7 +305,8 @@ public:
 
 	// Adds a non-tracking data column
 	// @name the unique name for the column
-	// @type the <AntMetaDataType> for the column
+	// @type the <AntMetadataType> for the column
+	// @defaultValue the default value for that column
 	//
 	// Adds a non-tracking data column with the given <name> and
 	// <type>. <name> should be a non-empty unique string for the

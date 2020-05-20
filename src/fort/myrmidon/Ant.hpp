@@ -60,7 +60,7 @@ class Ant;
 // Each Ant has a virtual shape that can be modified with <AddCapsule>
 // and <DeleteCapsule>.
 //
-// More complete informations can be found in <ant_collision_detection>
+// More complete informations can be found in <ant_interaction>
 class Ant {
 public:
 
