@@ -1,3 +1,5 @@
+#include "Capsule.hpp"
+
 #include "CapsuleUTest.hpp"
 
 #include <random>

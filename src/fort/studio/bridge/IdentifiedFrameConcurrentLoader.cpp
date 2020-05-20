@@ -9,7 +9,7 @@
 #include <fort/myrmidon/priv/MovieSegment.hpp>
 #include <fort/myrmidon/priv/RawFrame.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
-#include <fort/myrmidon/priv/InteractionSolver.hpp>
+#include <fort/myrmidon/priv/CollisionSolver.hpp>
 
 #ifdef NDEBUG
 #define FORT_STUDIO_CONC_LOADER_NDEBUG 1
@@ -67,9 +67,9 @@ void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::Const
 	d_experiment = experiment;
 }
 
-const fmp::IdentifiedFrame::ConstPtr &
+const fm::IdentifiedFrame::ConstPtr &
 IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
-	static fmp::IdentifiedFrame::ConstPtr empty;
+	static fm::IdentifiedFrame::ConstPtr empty;
 	auto fi = d_frames.find(movieID+1);
 	if ( fi == d_frames.cend() ) {
 		return empty;
@@ -77,11 +77,11 @@ IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
 	return fi->second;
 }
 
-const fmp::InteractionFrame::ConstPtr &
-IdentifiedFrameConcurrentLoader::interactionAt(fmp::MovieFrameID movieID) const {
-	static fmp::InteractionFrame::ConstPtr empty;
-	auto fi = d_interactions.find(movieID+1);
-	if ( fi == d_interactions.cend() ) {
+const fm::CollisionFrame::ConstPtr &
+IdentifiedFrameConcurrentLoader::collisionAt(fmp::MovieFrameID movieID) const {
+	static fm::CollisionFrame::ConstPtr empty;
+	auto fi = d_collisions.find(movieID+1);
+	if ( fi == d_collisions.cend() ) {
 		return empty;
 	}
 	return fi->second;
@@ -101,8 +101,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 	}
 
 	clear();
-	auto identifier = d_experiment->ConstIdentifier().Compile();
-	auto solver = d_experiment->CompileInteractionSolver();
+	auto identifier = d_experiment->CIdentifier().Compile();
+	auto solver = d_experiment->CompileCollisionSolver();
 
 	size_t currentLoadingID = ++d_currentLoadingID;
 
@@ -164,15 +164,15 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 							CONC_LOADER_DEBUG(std::cerr << "Processing " << rawFrame->Frame().FID() << std::endl);
 							try {
 								auto movieID = segment->ToMovieFrameID(frameID);
-								auto identified = rawFrame->IdentifyFrom(*identifier);
-								auto interactions = solver->ComputeInteractions(spaceID,identified);
+								auto identified = rawFrame->IdentifyFrom(*identifier,spaceID);
+								auto collisions = solver->ComputeCollisions(identified);
 								return std::make_tuple(movieID,
 								                       identified,
-								                       interactions);
+								                       collisions);
 							} catch( const std::exception & ) {
 								return std::make_tuple(segment->EndMovieFrame()+1,
-								                       fmp::IdentifiedFrame::ConstPtr(),
-								                       fmp::InteractionFrame::ConstPtr());
+								                       fm::IdentifiedFrame::ConstPtr(),
+								                       fm::CollisionFrame::ConstPtr());
 							}
 						};
 					CONC_LOADER_DEBUG(std::cerr << "Spawning " << frameID << std::endl);
@@ -206,7 +206,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 						        }
 
 						        d_frames.insert(std::make_pair(std::get<0>(res)+1,std::get<1>(res)));
-						        d_interactions.insert(std::make_pair(std::get<0>(res)+1,std::get<2>(res)));
+						        d_collisions.insert(std::make_pair(std::get<0>(res)+1,std::get<2>(res)));
 					        },
 					        Qt::QueuedConnection);
 					watcher->setFuture(future);
@@ -227,7 +227,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 void IdentifiedFrameConcurrentLoader::clear() {
 	abordCurrent();
 	d_frames.clear();
-	d_interactions.clear();
+	d_collisions.clear();
 }
 
 

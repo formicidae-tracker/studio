@@ -33,7 +33,9 @@ set(PROTO_FILES priv/proto/Experiment.proto
                 priv/proto/Zone.proto
                 priv/proto/Space.proto
                 priv/proto/AntMetadata.proto
+                priv/proto/TagStatisticsCache.proto
                 )
+
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTO_FILES})
 
@@ -53,7 +55,6 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
                       priv/DenseMap.hpp
-                      priv/Color.hpp
                       priv/Space.hpp
                       priv/Zone.hpp
                       priv/Experiment.hpp
@@ -88,14 +89,25 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/Measurement.hpp
                       priv/KDTree.hpp
                       priv/KDTree.impl.hpp
-                      priv/InteractionSolver.hpp
+                      priv/CollisionSolver.hpp
+                      priv/TagStatistics.hpp
+                      priv/Query.hpp
+                      priv/Matchers.hpp
                       )
 
 
-set(HDR_PUBLIC_FILES Frame.hpp
-                     Experiment.hpp
-                     Ant.hpp
+set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
+                     Types.hpp
+                     Color.hpp
                      Time.hpp
+                     Shapes.hpp
+                     Identification.hpp
+                     Ant.hpp
+                     Zone.hpp
+                     Space.hpp
+                     Experiment.hpp
+                     Query.hpp
+                     Matchers.hpp
                      utils/FileSystem.hpp)
 
 set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
@@ -104,7 +116,6 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/LocatableTypes.cpp
                       priv/TimeUtils.cpp
                       priv/DenseMap.cpp
-                      priv/Color.cpp
                       priv/Space.cpp
                       priv/Zone.cpp
                       priv/Experiment.cpp
@@ -135,13 +146,24 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/AntPoseEstimate.cpp
                       priv/Measurement.cpp
                       priv/KDTree.cpp
-                      priv/InteractionSolver.cpp
+                      priv/CollisionSolver.cpp
+                      priv/TagStatistics.cpp
+                      priv/Query.cpp
+                      priv/Matchers.cpp
                       )
 
-set(SRC_FILES Frame.cpp
-	          Experiment.cpp
-	          Ant.cpp
-	          Time.cpp
+set(SRC_FILES ForwardDeclaration.cpp
+              Types.cpp
+              Color.cpp
+              Time.cpp
+              Shapes.cpp
+              Identification.cpp
+              Ant.cpp
+              Zone.cpp
+              Space.cpp
+              Experiment.cpp
+              Query.cpp
+              Matchers.cpp
 	          )
 
 set(COMMON_UTEST_SRC_FILES TestSetup.cpp
@@ -186,9 +208,11 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/PolygonUTest.cpp
                     priv/KDTreeUTest.cpp
                     priv/AntMetadataUTest.cpp
-                    priv/InteractionSolverUTest.cpp
+                    priv/CollisionSolverUTest.cpp
+                    priv/TagStatisticsUTest.cpp
+                    priv/MatchersUTest.cpp
+                    priv/QueryUTest.cpp
                     )
-
 
 
 set(HDR_UTEST_FILES TimeUTest.hpp
@@ -223,7 +247,10 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/PolygonUTest.hpp
                     priv/KDTreeUTest.hpp
                     priv/AntMetadataUTest.hpp
-                    priv/InteractionSolverUTest.hpp
+                    priv/CollisionSolverUTest.hpp
+                    priv/TagStatisticsUTest.hpp
+                    priv/MatchersUTest.hpp
+                    priv/QueryUTest.hpp
                     )
 
 add_library(fort-myrmidon SHARED ${SRC_FILES}
@@ -238,6 +265,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     ${CXXFS_LIBRARY}
                                     fort-tags
                                     ${OpenCV_LIBS}
+                                    ${TBB_LIBRARIES}
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

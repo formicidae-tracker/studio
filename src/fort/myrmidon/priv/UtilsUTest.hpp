@@ -22,8 +22,8 @@
 ::testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr &a,
                                       const fort::myrmidon::priv::Shape::ConstPtr &b);
 
-::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::priv::AntStaticValue &a,
-                                               const fort::myrmidon::priv::AntStaticValue &b);
+::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::AntStaticValue &a,
+                                               const fort::myrmidon::AntStaticValue &b);
 
 ::testing::AssertionResult AABBAlmostEqual(const fort::myrmidon::priv::AABB & a,
                                            const fort::myrmidon::priv::AABB & b);

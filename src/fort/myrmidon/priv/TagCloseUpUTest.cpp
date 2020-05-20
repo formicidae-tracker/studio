@@ -302,10 +302,13 @@ TEST_F(TagCloseUpUTest,CanOpenApriltagFamily) {
 		};
 
 	for (const auto & d : testdata) {
-		EXPECT_NO_THROW({
-				auto f = TagCloseUp::Lister::LoadFamily(d.F);
-				EXPECT_EQ(std::string(f->name),d.Name);
-			});
+		try {
+			auto [f,destructor] = TagCloseUp::Lister::LoadFamily(d.F);
+			EXPECT_EQ(std::string(f->name),d.Name);
+			destructor(f);
+		} catch ( const std::exception & e ) {
+			ADD_FAILURE() << "Could not load family: " << e.what();
+		}
 	}
 
 }

@@ -8,7 +8,7 @@
 #include <QSettings>
 #include <QAbstractItemModel>
 #include <QPointer>
-
+#include <QSortFilterProxyModel>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include "Logger.hpp"
@@ -160,6 +160,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 	d_ui->menuMove->addSeparator();
 	d_ui->menuMove->addAction(d_ui->visualizeWidget->jumpToTimeAction());
+
+	auto sorted = new QSortFilterProxyModel(this);
+	sorted->setSourceModel(d_experiment->statistics()->stats());
+	sorted->setSortRole(Qt::UserRole+1);
+	d_ui->statsView->setModel(sorted);
+
+	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 }
 

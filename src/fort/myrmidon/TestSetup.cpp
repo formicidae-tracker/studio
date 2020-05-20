@@ -85,11 +85,18 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 		ro->set_timestamp(fTime.MonotonicValue()/1000);
 		auto a = ro->add_tags();
 		a->set_id(123);
-		a->set_x(100 + 50*std::cos(2*M_PI*fTime.Sub(startTime).Seconds()));
-		a->set_y(100 + 50*std::sin(2*M_PI*fTime.Sub(startTime).Seconds()));
+		double phase = 2*M_PI*0.1*fTime.Sub(startTime).Seconds();
+		a->set_x(100 + 50*std::cos(phase));
+		a->set_y(100 + 50*std::sin(phase));
+		a = ro->add_tags();
+		a->set_id(124);
+		a->set_x(100 + 50*std::cos(phase));
+		a->set_y(100 - 50*std::sin(phase));
 		if ( !google::protobuf::util::SerializeDelimitedToZeroCopyStream(lineRO, gunziped.get()) ) {
 			throw std::runtime_error("could not write readout");
 		}
+
+
 	}
 	auto footer = lineFooter.mutable_footer();
 	if ( next != NULL ) {
@@ -384,7 +391,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	for (size_t i = 1; i <=3; ++i) {
 		fort::myrmidon::pb::AntDescription a;
 		a.set_id(i);
-		priv::proto::IOUtils::SaveColor(a.mutable_color(),priv::Palette::Default().At(0));
+		priv::proto::IOUtils::SaveColor(a.mutable_color(),Palette::Default().At(0));
 		l.set_allocated_antdescription(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant data " + std::to_string(i));

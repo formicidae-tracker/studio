@@ -27,7 +27,7 @@ public:
 
 	const fmp::Ant::TypedCapsuleList & capsules() const;
 
-	fm::Ant::ID selectedID() const;
+	fmp::AntID selectedID() const;
 
 	std::vector<fmp::Identification::ConstPtr> identifications() const;
 

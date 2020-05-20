@@ -79,18 +79,18 @@ inline std::vector<typename SegmentIndexer<T>::Segment> SegmentIndexer<T>::Segme
 }
 
 template <typename T>
-inline const T & SegmentIndexer<T>::Find(uint64_t frameID) const {
+inline std::pair<FrameReference,T> SegmentIndexer<T>::Find(uint64_t frameID) const {
 	auto fi = d_byID.lower_bound(frameID);
 	if ( fi == d_byID.end() ) {
 		std::ostringstream os;
 		os << frameID << " is too small";
 		throw std::out_of_range(os.str());
 	}
-	return fi->second->second;
+	return *fi->second;
 }
 
 template <typename T>
-inline const T & SegmentIndexer<T>::Find(const Time & t) const {
+inline std::pair<FrameReference,T> SegmentIndexer<T>::Find(const Time & t) const {
 	auto fi = d_byTime.lower_bound(t);
 	if ( fi == d_byTime.end() ) {
 		std::ostringstream os;
@@ -98,7 +98,7 @@ inline const T & SegmentIndexer<T>::Find(const Time & t) const {
 		throw std::out_of_range(os.str());
 	}
 
-	return fi->second->second;
+	return *fi->second;
 }
 
 

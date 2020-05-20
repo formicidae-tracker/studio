@@ -5,6 +5,7 @@
 #include <QClipboard>
 
 #include <QSortFilterProxyModel>
+#include <QAction>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
@@ -221,7 +222,7 @@ void TaggingWidget::newAnt() {
 
 
 	auto a = d_identifier->createAnt();
-	d_identifier->addIdentification(a->ID(),
+	d_identifier->addIdentification(a->AntID(),
 	                                d_tcu->TagValue(),
 	                                start,end);
 

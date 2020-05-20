@@ -13,14 +13,14 @@ namespace fort {
 
 namespace myrmidon {
 
-// A Duration represent time ellapsed between two Time
+// The time ellapsed between two <Time>
 //
-// A duration could be negative. Why not using std::chrono::duration ?
-// The C++ comittee took more than 9 years before figuring out that
-// people may want to convert "1m" to a duration. Since <Time> should
-// be re-implemented with a strong [golang
-// time](https://golang.org/pkg/time) inspiration, why not doing the
-// same for the associated <Duration>.
+// A <myrmidon::Duration> could be negative. Why not using
+// std::chrono::duration ?  The C++ comittee took more than 9 years
+// before figuring out that people may want to convert "1m" to a
+// duration. Since <myrmidon::Time> should be re-implemented with a
+// strong [golang time](https://golang.org/pkg/time) inspiration, why
+// not doing the same for the associated <myrmidon::Duration>.
 //
 // This class aims to replicate a go syntax. For example to represent
 // one hour, 10 minute, one may write:
@@ -36,56 +36,65 @@ public:
 	// @ns the number of nanosecond
 	inline Duration(int64_t ns)
 		: d_nanoseconds(ns) {}
-
+	// Default constructor with a zero duration.
 	inline Duration()
 		: d_nanoseconds(0) {
 	}
 
 	// constructor from std::chrono::duration
-	// @T the type holding
+	// @T first <std::chrono::duration> template
+	// @U second <std::chrono::duration> template
+	// @duration the <std::chrono::duration> to convert
 	template <typename T,typename U>
 	Duration( const std::chrono::duration<T,U> & duration)
 		: d_nanoseconds(std::chrono::duration<int64_t,std::nano>(duration).count()) {}
 
 
 	// Gets the duration in hours
-	// @return the duration in hour
+	//
+	// @return the duration in hours
 	double Hours() const;
 
 	// Gets the duration in minutes
-	// @return the duration in minute
+	//
+	// @return the duration in minutes
 	double Minutes() const;
 
 	// Gets the number of seconds
+	//
 	// @return the duration in seconds
 	double Seconds() const;
 
 	// Gets the number of milliseconds
+	//
 	// @return the duration in milliseconds
 	double Milliseconds() const;
 
 	// Gets the number of microseconds
+	//
 	// @return the duration in microseconds
 	double Microseconds() const;
 
 	// Gets the number of nanoseconds
+	//
 	// @return the duration in nanoseconds
 	int64_t Nanoseconds() const {
 		return d_nanoseconds;
 	}
 
 	// Parses a string to a Duration
-	// @string the string to Parse in the form  `"<amount><unit>"`
-	// @return the <Duration> represented by the string.
+	// @str the string to Parse in the form  `"2h"` or `"1m"`
 	//
-	// Parses a <std::string> to a <Duration>. string must be of the
-	// form `<amount><unit>` where `<amount>` is a value that may
-	// contain a decimal point, and <unit> could be any of `h`, `m`,
+	// Parses a <std::string> to a <myrmidon::Duration>. string must be of the
+	// form `[amount][unit]` where `[amount]` is a value that may
+	// contain a decimal point, and `[unit]` could be any of `h`, `m`,
 	// `s`, `ms`, `us`, `µs` and `ns`. This pattern may be
 	// repeated. For example `4m32s` is a valid input.
 	//
 	// It may throw <std::exception> on any parsing error.
-	static Duration Parse(const std::string & string);
+	//
+	// @return the <myrmidon::Duration> represented by the string.
+	static Duration Parse(const std::string & str);
 
 
 	// An Hour
@@ -102,46 +111,80 @@ public:
 	const static Duration Nanosecond;
 
 	// The addition operator
+	// @other the other <myrmidon::Duration> to add
+	//
+	// Adds two <myrmidon::Duration>.
+	// @return a new duration `this + other `
 	inline Duration operator+(const Duration & other) const {
 		return d_nanoseconds + other.d_nanoseconds;
 	}
 
 	// Multiplication operator
+	// @other the other <myrmidon::Duration> to multiply
+	//
+	// Multiplies two <myrmidon::Duration>.
+	// @return a new duration `this * other `
 	inline Duration operator*(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds * other.d_nanoseconds;
 	}
 
 	// Soustraction operator
+	// @other the other <myrmidon::Duration> to substract
+	//
+	// Substracts two <myrmidon::Duration>.
+	// @return a new duration `this - other `
 	inline Duration operator-(const fort::myrmidon::Duration & other) const {
 		return d_nanoseconds - other.d_nanoseconds;
 	}
 
 	// Negation operator
+	//
+	// @return the opposite duration `- this`
 	inline Duration operator-() const {
 		return -d_nanoseconds;
 	}
 
 	// Less than operator
+	// @other the <myrmidon::Duration> to compare
+	//
+	// Compares two <myrmidon::Duration>.
+	// @return `this < other`
 	inline bool operator<( const Duration & other ) const {
 		return d_nanoseconds < other.d_nanoseconds;
 	}
 
 	// Less or equal operator
+	// @other the <myrmidon::Duration> to compare
+	//
+	// Compares two <myrmidon::Duration>.
+	// @return `this <= other`
 	inline bool operator<=( const Duration & other ) const {
 		return d_nanoseconds <= other.d_nanoseconds;
 	}
 
 	// Greater than operator
+	// @other the <myrmidon::Duration> to compare
+	//
+	// Compares two <myrmidon::Duration>.
+	// @return `this > other`
 	inline bool operator>( const Duration & other ) const {
 		return d_nanoseconds > other.d_nanoseconds;
 	}
 
 	// Greate or equal operator
+	// @other the <myrmidon::Duration> to compare
+	//
+	// Compares two <myrmidon::Duration>.
+	// @return `this >= other`
 	inline bool operator>=( const Duration & other ) const {
 		return d_nanoseconds >= other.d_nanoseconds;
 	}
 
 	// Equality operator
+	// @other the <myrmidon::Duration> to compare
+	//
+	// Compares two <myrmidon::Duration>.
+	// @return `this == other`
 	inline bool operator==( const Duration & other ) const {
 		return d_nanoseconds == other.d_nanoseconds;
 	}
@@ -149,19 +192,21 @@ public:
 
 private:
 	friend class Time;
+
 	int64_t d_nanoseconds;
 };
 
 
 
-// Time represent a point in Time
+// A point in time
 //
-// Time represent a point in Time. Why re-implementing one of this
-// object and not using a `struct timeval` or a `std::chrono`. We are
-// dealing with long living experiment on heterogenous system. Under
-// this circunstances, we would like also to measure precise time
-// difference. For this purpose we could use the framegrabber
-// monolotic clock, which is timestamping every frame we acquired.
+// <myrmidon::Time> represents a point in time. Why re-implementing
+// one of this object and not using a `struct timeval` or a
+// `std::chrono` ? We are dealing with long living experiment on
+// heterogenous systems. Under this circunstances, we would like also
+// to measure precise time difference. For this purpose we could use
+// the framegrabber monolotic clock, which is timestamping every frame
+// we acquired.
 //
 // Well the issue is that we cannot solely rely on this clock, as we
 // may have several computers each with their own monolithic clock. Or
@@ -170,21 +215,22 @@ private:
 //
 // We could use the wall clock but this clock may be resetted any
 // time, and we would end up with issue where a time difference
-// between two consecutive frame could be negative.
+// between two consecutive frames could be negative.
 //
 // Inspired from golang [time.Time](https://golang.org/pkg/time#Time)
 // we propose an Object that store both a Wall time, and a Monotonic
 // timestamp. But here we could have different monotonic timestamp. We
-// try, whenever its possible (both <Time> have a monotonic time, and
-// they are issued from the same monotonic clock), use that value for
-// Time difference and Comparison. Otherwise the Wall clock value will
-// be used with the issue regarding the jitter or Wall clock reset.
+// try, whenever its possible (both <myrmidon::Time> have a monotonic
+// time, and they are issued from the same monotonic clock), use that
+// value for time differences and comparisons. Otherwise the Wall
+// clock value will be used with the issue regarding the jitter or
+// Wall clock reset.
 //
 // Differentiaing Monotonic clock is done through <MonoclockID>
 // values. The 0 value is reserved for the <SYSTEM_MONOTONIC_CLOCK>
 // and which is used by <Now>. When reading saved monotonic Timestamp
 // from the filesystem (as it is the case when reading data from
-// different <TrackingDataDirectory> ), care must be taken to assign
+// different `TrackingDataDirectory` ), care must be taken to assign
 // different <MonoclockID> for each of those reading. This class does
 // not enforce any mechanism. The only entry point to define the
 // <MonoclockID> is through the utility function
@@ -199,9 +245,9 @@ public:
 	// A const pointer to a Time
 	typedef std::shared_ptr<const Time> ConstPtr;
 
-	// An object optimized for std::map or std::set
+	// An object optimized for std::map or std::set keys
 	//
-	// SortableKey is an object constructed from current <Time> to be
+	// <SortableKey> is an object constructed from current <Time> to be
 	// used as a computationnaly efficient key in std::map or
 	// std::set. please note that this key has lost any monotonic
 	// information.
@@ -210,8 +256,11 @@ public:
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
+		// Construct an overflow from a clocktype name
+		// @clocktype the clock type to use
 		Overflow(const std::string & clocktype)
 			: std::runtime_error(clocktype + " value will overflow") {}
+		// default destructor
 		virtual ~Overflow() {}
 	};
 
@@ -219,9 +268,8 @@ public:
 	typedef uint32_t MonoclockID;
 
 	// Gets the current Time
-	// @return the current time
 	//
-	// Gets the current <Time>. This time will both have a wall and a
+	// Gets the current <myrmidon::Time>. This time will both have a wall and a
 	// monotonic clock reading associated with the
 	// <SYSTEM_MONOTONIC_CLOCK>. Therefore such idioms:
 	//
@@ -231,29 +279,33 @@ public:
 	// Duration ellapsed = Time::Now().Sub(start);
 	// ```
 	//
-	// Will always return a positive Duration, even if the wall clock
+	// Will always return a positive <Duration>, even if the wall clock
 	// has been reset between the two calls to <Now>
+	// @return the current <myrmidon::Time>
 	static Time Now();
 
 	// Creates a Time from `time_t`
 	// @t the time_t value
 	//
-	// Creates a <Time> from `time_t`. The <Time> will not have any
-	// monotonic clock value.
+	// Creates a <myrmidon::Time> from `time_t`. The <myrmidon::Time>
+	// will not have any monotonic clock value.
+	// @return the converted <myrmidon::Time>
 	static Time FromTimeT(time_t t);
 
 	// Creates a Time from `struct timeval`
 	// @t the `struct timeval`
 	//
-	// Creates a <Time> from `struct timeval`. The <Time> will not
-	// have any monotonic clock value.
+	// Creates a <myrmidon::Time> from `struct timeval`. The
+	// <myrmidon::Time> will not have any monotonic clock value.
+	// @return the converted <myrmidon::Time>
 	static Time FromTimeval(const timeval & t);
 
 	// Creates a Time from a protobuf Timestamp
 	// @timestamp the `google.protobuf.Timestamp` message
 	//
-	// Creates a <Time> from a protobuf Timestamp. The <Time> will not
-	// have any monotonic clock value.
+	// Creates a <myrmidon::Time> from a protobuf Timestamp. The
+	// <myrmidon::Time> will not have any monotonic clock value.
+	// @return the converted <myrmidon::Time>
 	static Time FromTimestamp(const google::protobuf::Timestamp & timestamp);
 
 	// Creates a Time from a protobuf Timestamp and an external Monotonic clock
@@ -261,16 +313,18 @@ public:
 	// @nsecs the external monotonic value in nanoseconds
 	// @monoID the external monoID
 	//
-	// Creates a <Time> from a protobuf Timestamp and an external
-	// monotonic clock. The two values should correspond to the same
-	// physical time. It is an helper function to create accurate
-	// <Time> from data saved in `fort.hermes.FrameReadout` protobuf
-	// messages that saves both a Wall time value and a framegrabber
-	// timestamp for each frame. It is the caller responsability to
-	// manage <monoID> value for not mixing timestamp issued from
-	// different clocks. Nothing prevent you to use
-	// <SYSTEM_MONOTONIC_CLOCK> for the <monoID> value but the
-	// behavior manipulating resulting time is undefined.
+	// Creates a <myrmidon::Time> from a protobuf Timestamp and an
+	// external monotonic clock. The two values should correspond to
+	// the same physical time. It is an helper function to create
+	// accurate <myrmidon::Time> from data saved in
+	// `fort.hermes.FrameReadout` protobuf messages that saves both a
+	// Wall time value and a framegrabber timestamp for each frame. It
+	// is the caller responsability to manage <monoID> value for not
+	// mixing timestamp issued from different clocks. Nothing prevent
+	// you to use <SYSTEM_MONOTONIC_CLOCK> for the <monoID> value but
+	// the behavior manipulating resulting times is undefined.
+	// @return the converted <myrmidon::Time> with associated
+	// monotonic data
 	static Time FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
 	                                      uint64_t nsecs,
 	                                      MonoclockID monoID);
@@ -283,29 +337,31 @@ public:
 	// date string format, i.e. string of the form
 	// `1972-01-01T10:00:20.021-05:00`. It is merely a wrapper from
 	// google::protobuf::time_util functions.
+	// @return the converted <myrmidon::Time>
 	static Time Parse(const std::string & input);
 
 
 	// Converts to a `time_t`
-	// @return `time_t`representing the <Time>.
 	//
 	// Converts to a `time_t`. Please note that time_t have a maximal
 	// resolution of a second.
+	// @return `time_t`representing the <myrmidon::Time>.
 	time_t ToTimeT() const;
 
 	// Converts to a `struct timeval`
-	// @return `struct timeval`representing the <Time>.
 	//
 	// Converts to a `struct timeval`. Please note that time_t have a maximal
 	// resolution of a microsecond.
+	// @return `struct timeval`representing the <myrmidon::Time>.
 	timeval ToTimeval() const;
 
 	// Converts to a protobuf Timestamp message
-	// @return the protobuf Timestamp representing the <Time>.
+	//
+	// @return the protobuf Timestamp representing the <myrmidon::Time>.
 	google::protobuf::Timestamp ToTimestamp() const;
 
 	// In-place conversion to a protobuf Timestamp
-	// @timestamp the timestamp to modify to represent the <Time>
+	// @timestamp the timestamp to modify to represent the <myrmidon::Time>
 	void ToTimestamp(google::protobuf::Timestamp * timestamp) const;
 
 	// Zero time constructor
@@ -313,124 +369,152 @@ public:
 
 	// Adds a Duration to a Time
 	// @d the <Duration> to add
-	// @return a new <Time> distant by <d> from this <Time>
+	//
+	// @return a new <myrmidon::Time> distant by <d> from this <myrmidon::Time>
 	Time Add(const Duration & d) const;
 
 	// Rounds a Time to a Duration
 	// @d the <Duration> to round to.
-	// @return a new <Time> rounded to the wanted duration
 	//
-	// Rounds the <Time> to the halp-rounded up <Duration>
+	// Rounds the <myrmidon::Time> to the halp-rounded up <Duration>
 	// d. Currently only multiple of <Duration::Second> and power of
 	// 10 of <Duration::Nanosecond> which are smaller than a second
 	// are supported.
+	//
+	// @return a new <myrmidon::Time> rounded to the wanted duration
 	Time Round(const Duration & d) const;
 
 	// Reports if this time is after t
-	// @t the <Time> to test against
-	// @return `true` if this <Time> is strictly after <t>
+	// @t the <myrmidon::Time> to test against
+	//
+	// @return `true` if this <myrmidon::Time> is strictly after <t>
 	bool After(const Time & t) const;
 
 	// Reports if this time is before t
-	// @t the <Time> to test against
-	// @return `true` if this <Time> is strictly before <t>
+	// @t the <myrmidon::Time> to test against
+	//
+	// @return `true` if this <myrmidon::Time> is strictly before <t>
 	bool Before(const Time & t) const;
 
 	// Reports if this time is the same than t
-	// @t the <Time> to test against
-	// @return `true` if this <Time> is the same than <t>
+	// @t the <myrmidon::Time> to test against
+	//
+	// @return `true` if this <myrmidon::Time> is the same than <t>
 	bool Equals(const Time & t) const;
 
 	// Computes time difference with another time
-	// @t the <Time> to substract to this one.
+	// @t the <myrmidon::Time> to substract to this one.
+	//
 	// @return a <Duration> representing the time ellapsed between
-	// <this> and <t>. It could be negative.
+	//         `this` and <t>. It could be negative.
 	Duration Sub(const Time & t) const;
 
-	// The <MonoclockID> reserved for the current system
-	// `CLOCK_MONOTONIC`.
+	// The current system monotonic clock.
+	//
+	// The <MonoclockID> reserved for the current system ( aka
+	// `CLOCK_MONOTONIC`).
 	const static MonoclockID SYSTEM_MONOTONIC_CLOCK = 0;
 
 	// Reports the presence of a monotonic time value
-	// @true if <this> contains a monotonic clock value.
 	//
-	// Reports the presence of a monotonic time value. Only <Time>
-	// issued by <Now> or <FromTimestampAndMonotonic> contains a
-	// monotonic time value.
+	// Reports the presence of a monotonic time value. Only
+	// <myrmidon::Time> issued by <Now> or <FromTimestampAndMonotonic>
+	// contains a monotonic time value.
+	// @return `true` if `this` contains a monotonic clock value.
 	bool HasMono() const;
 
-	// Returns the referred MonoclockID.
+	// Gets the referred MonoclockID.
+	//
+	// Gets the referred <MonoclockID>. It throws <std::exception> if
+	// this <myrmidon::Time> has no monotonic clock value (see <HasMono>).
 	// @return the <MonoclockID> designating the monotonic clock the
 	//         monotonic time value refers to.
-	//
-	// Returns the referred <MonoclockID>. It throws std::exception if
-	// this <Time> has no monotonic clock value (see <HasMono>).
 	MonoclockID MonoID() const;
 
-	// Returns the monotonic value.
-	// @return the monotonic clock value.
+	// Gets the monotonic value.
 	//
-	// Returns the monotonic value. It throws std::exception if
-	// this <Time> has no monotonic clock value (see <HasMono>).
+	// Gets the monotonic value. It throws std::exception if this
+	// <myrmidon::Time> has no monotonic clock value (see <HasMono>).
+	// @return the monotonic clock value.
 	uint64_t MonotonicValue() const;
 
+	// Builds a debug string
+	//
+	// This method is useful for internal debugging. Prefer the
+	// standard c++ formatting operator on <std::ostream>.
+	//
+	// @return a debug string with the complete time internal state.
 	std::string DebugString() const;
 
 	// Helpers to convert (sec,nsec) to nsec
 	// @sec the amount of second
 	// @nsec the amount of nanos
-	// @return sec * 1e9 + nsec if no overflow
 	//
 	// Helpers to convert (sec,nsec) to nsec. Throws <Overflow> on
 	// overflow.
+	// @return sec * 1e9 + nsec if no overflow
 	static uint64_t MonoFromSecNSec(uint64_t sec, uint64_t nsec);
 
 
-	// Equal operator
+	// Equal comparison operator
+	// @other the other <myrmidon::Time> to compare to
+	//
+	// @return `true` if `this == other`
 	inline bool operator == (const Time & other ) const  {
 		return Equals(other);
 	}
 
 	// Less than operator
+	// @other the other <myrmidon::Time> to compare to
+	//
+	// @return `true` if `this < other`
 	inline bool operator < (const Time & other ) const  {
 		return Before(other);
 	}
 
 	// Less or equal operator
+	// @other the other <myrmidon::Time> to compare to
+	//
+	// @return `true` if `this <= other`
 	inline bool operator <= (const Time & other ) const  {
 		return !other.Before(*this);
 	}
 
 	// Greater than operator
+	// @other the other <myrmidon::Time> to compare to
+	//
+	// @return `true` if `this > other`
 	inline bool operator > (const Time & other ) const  {
 		return other.Before(*this);
 	}
 
 	// Greate or equal operator
+	// @other the other <myrmidon::Time> to compare to
+	//
+	// @return `true` if `this >= other`
 	inline bool operator >= (const Time & other ) const  {
 		return !Before(other);
 	}
 
-	// Returns the SortableKey representing this Time
+	// Builds a SortableKey for std::map and std::set.
+	//
+	// Builds a <SortableKey> representing this <myrmidon::Time>
+	// suitable for <std::map> and <std::set>.
+	// @return a <SortableKey> representing this <myrmidon::Time>
 	inline SortableKey SortKey() const {
 		return std::make_pair(d_wallSec,d_wallNsec);
 	}
 
-	// Returns a SortableKey representing a Time pointer
+	// Builds a SortableKey representing a Time pointer
+	// @timePtr the source <ConstPtr> to build a <SortableKey> for.
 	//
-	// Returns a <SortableKey> representing a pointer to a
-	// <Time>. Passing a nullptr to this function, will represent the
-	// smallest possible key possible, which is then mathematically
-	// equivalent to -∞ <Time> (no result of Time::Parse can represent
-	// this value).
+	// Builds a <SortableKey> representing a <ConstPtr>. Passing a
+	// nullptr to this function, will represent the smallest possible
+	// key possible, which is then mathematically equivalent to -∞
+	// <myrmidon::Time> (no result of <Parse> can represent this
+	// value).
+	// @return a <SortableKey> representing the <ConstPtr>
 	static SortableKey SortKey(const ConstPtr & timePtr);
-
-	class Comparator {
-	public:
-		bool operator()(const Time & a, const Time & b) const {
-			return a.Before(b);
-		}
-	};
 
 private:
 
@@ -457,7 +541,11 @@ private:
 
 } // namespace fort
 
-// C++ shenanigans
+// Operator for <fort::myrmidon::Duration> multiplication
+// @a a signed integer
+// @b the <fort::myrmidon::Duration> to multiply
+//
+// @return `a*b`
 inline fort::myrmidon::Duration operator*(int64_t a,
                                           const fort::myrmidon::Duration & b) {
 	return a * b.Nanoseconds();
@@ -468,7 +556,6 @@ inline fort::myrmidon::Duration operator*(int64_t a,
 // Formats a Duration
 // @out the std::ostream to format to
 // @d the <fort::myrmidon::Duration> to format
-// @return a reference to <out>
 //
 // Formats the <fort::myrmidon::Duration> to the form
 // "1h2m3.4s". Leading zero unit are omitted, and unit smaller than 1s
@@ -476,20 +563,36 @@ inline fort::myrmidon::Duration operator*(int64_t a,
 // mimic golang's
 // [time.Duration.String()](https://golang.org/pkg/time/#Duration.String)
 // behavior.
+//
+// @return a reference to <out>
+
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Duration & d);
 
 // Formats to RFC 3339 date string format
 // @out the output iostream
 // @t the <fort::myrmidon::Time> to format
-// @return a reference to <out>
 //
 // Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
 // string format, i.e. string of the form
 // `1972-01-01T10:00:20.021Z`. It is merely a wrapper from
 // google::protobuf::time_util functions.
+//
+// @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t);
 
+// Formats to RFC 3339 date string format
+// @out the output iostream
+// @t the <fort::myrmidon::Time::ConstPtr> to format
+//
+// Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
+// string format, i.e. string of the form
+// `1972-01-01T10:00:20.021Z`. It is merely a wrapper from
+// google::protobuf::time_util functions.
+//
+// Please note that null pointer formats to `+/-∞`
+//
+// @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time::ConstPtr & t );

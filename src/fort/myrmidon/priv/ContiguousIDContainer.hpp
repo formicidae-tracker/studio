@@ -13,9 +13,10 @@ namespace priv {
 template <typename TID,typename T>
 class AlmostContiguousIDContainer {
 public:
-	typedef DenseMap<TID,T>           ObjectByID;
-	typedef std::set<TID>             SetOfObjectID;
-	typedef std::function<T(TID)>     Creator;
+	typedef DenseMap<TID,std::shared_ptr<T> >       ObjectByID;
+	typedef DenseMap<TID,std::shared_ptr<const T> > ConstObjectByID;
+	typedef std::set<TID>                           SetOfObjectID;
+	typedef std::function<std::shared_ptr<T>(TID)>  Creator;
 
 	class AlreadyExistingObject : public std::runtime_error {
 	public:
@@ -39,7 +40,7 @@ public:
 		: d_continuous(false) {
 	}
 
-	T CreateObject(Creator creator, TID ID = NEXT_AVAILABLE_OBJECT_ID) {
+	std::shared_ptr<T> CreateObject(Creator creator, TID ID = NEXT_AVAILABLE_OBJECT_ID) {
 		if ( ID == NEXT_AVAILABLE_OBJECT_ID ) {
 			ID = NextAvailableObjectID();
 		}
@@ -66,9 +67,14 @@ public:
 		d_objectIDs.erase(ID);
 	}
 
-	const ObjectByID & Objects() const {
+	const ObjectByID & Objects() {
 		return d_objects;
 	}
+
+	const ConstObjectByID & CObjects() const {
+		return *reinterpret_cast<const ConstObjectByID*>(&d_objects);
+	}
+
 
 	size_t Count(TID ID) const {
 		return d_objects.count(ID);

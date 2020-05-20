@@ -1,7 +1,5 @@
 #include "ColorComboBox.hpp"
 
-#include <fort/myrmidon/priv/Color.hpp>
-
 #include <fort/studio/MyrmidonTypes.hpp>
 
 #include <QColorDialog>

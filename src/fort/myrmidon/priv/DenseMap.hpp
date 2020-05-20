@@ -14,6 +14,8 @@ public:
 	typedef Key                    key_type;
 	typedef std::pair<const Key,T> value_type;
 
+	class const_iterator;
+
 	class iterator {
     public:
 		iterator(const typename std::vector<std::pair<Key,T>>::iterator & iter,
@@ -261,9 +263,6 @@ public:
 	}
 
 private:
-
-	DenseMap( const DenseMap & other ) = delete;
-	DenseMap & operator=(const DenseMap & other) = delete;
 	std::vector<std::pair<Key,T>> d_values;
 	size_t                        d_size;
 };

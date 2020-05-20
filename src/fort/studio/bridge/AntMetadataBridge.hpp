@@ -59,7 +59,7 @@ private:
 	QList<QStandardItem*> buildTimedChange(const fmp::Ant::Ptr & ant,
 	                                       const fmp::AntMetadata::Column::Ptr & name,
 	                                       const fm::Time & time,
-	                                       const fmp::AntStaticValue & value);
+	                                       const fm::AntStaticValue & value);
 	QString findTypeName(fmp::AntMetadata::Type type);
 
 	void setupItemFromValue(QStandardItem * item,

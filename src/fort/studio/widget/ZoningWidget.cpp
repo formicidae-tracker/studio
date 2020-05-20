@@ -1,6 +1,7 @@
 #include "ZoningWidget.hpp"
 #include "ui_ZoningWidget.h"
 
+#include <QAction>
 #include <QClipboard>
 
 #include <fort/myrmidon/priv/Polygon.hpp>
@@ -329,7 +330,7 @@ void ZoningWidget::rebuildGeometry(fmp::Zone::ID zID ) {
 
 fmp::Shape::ConstPtr ZoningWidget::convertShape(const QSharedPointer<Shape> & s) {
 	if ( auto p = s.dynamicCast<Polygon>() ) {
-		fmp::Vector2dList vertices;
+		fm::Vector2dList vertices;
 		for ( const auto & v : p->vertices() ) {
 			vertices.push_back(Conversion::toEigen(v));
 		}

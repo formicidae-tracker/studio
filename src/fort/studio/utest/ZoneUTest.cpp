@@ -9,7 +9,8 @@
 
 void ZoneUTest::SetUp() {
 	EXPECT_NO_THROW({
-			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "zone.myrmidon");
+			experiment = fmp::Experiment::Create(TestSetup::Basedir() / "zone.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "zone.myrmidon");
 			auto foo = experiment->CreateSpace("foo");
 			auto bar = experiment->CreateSpace("bar");
 		});
@@ -90,9 +91,9 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	auto firstZoneIndex = m->index(0,0,firstSpaceIndex);
 
 
-	EXPECT_TRUE(m->flags(m->index(0,1,firstSpaceIndex)) & Qt::ItemIsEditable != 0);
-	EXPECT_TRUE(m->flags(m->index(0,1,firstZoneIndex)) & Qt::ItemIsEditable != 0);
-	EXPECT_TRUE(m->flags(m->index(0,0,firstZoneIndex)) & Qt::ItemIsEditable != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,1,firstSpaceIndex)) & Qt::ItemIsEditable) != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,1,firstZoneIndex)) & Qt::ItemIsEditable) != 0);
+	EXPECT_TRUE( (m->flags(m->index(0,0,firstZoneIndex)) & Qt::ItemIsEditable) != 0);
 	EXPECT_FALSE(zones->canAddItemAt(m->index(0,0,firstZoneIndex)));
 	m->setData(m->index(0,1,firstZoneIndex),
 	           ToQString(fm::Time::FromTimeT(1)));

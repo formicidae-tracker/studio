@@ -76,6 +76,8 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		Time::ConstPtr Start,End;
 		double         TagSize;
 		TagID          Value;
+		bool           HasPose;
+		Eigen::Vector3d Pose;
 	};
 
 	std::vector<TestData> data
@@ -83,24 +85,38 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
 		    0.0,
-		    123
+		    123,
+		    false,
+		    Eigen::Vector3d()
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
 		    2.3,
-		    23
+		    23,
+		    false,
+		    Eigen::Vector3d()
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
 		    0.0,
-		    34
+		    34,
+		    false,
+		    Eigen::Vector3d()
 		   },
+		   {
+		    Time::ConstPtr(),Time::ConstPtr(),
+		    0.0,
+		    123,
+		    true,
+		    Eigen::Vector3d(1,2,0.15)
+		   },
+
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
 	auto a = e->CreateAnt();
 	for ( const auto & d : data ) {
-		auto ident = Identifier::AddIdentification(e->Identifier(),a->ID(), d.Value, d.Start, d.End);
+		auto ident = Identifier::AddIdentification(e->Identifier(),a->AntID(), d.Value, d.Start, d.End);
 		// ident->SetAntPosition(Eigen::Vector2d(d.X,d.Y), d.Angle);
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
@@ -111,6 +127,14 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		if ( d.End ) {
 			d.End->ToTimestamp(expected.mutable_end());
 		}
+		if ( d.HasPose ) {
+			ident->SetUserDefinedAntPose(d.Pose.block<2,1>(0,0),d.Pose.z());
+			auto e = expected.mutable_userdefinedpose();
+			IOUtils::SaveVector(e->mutable_position(),d.Pose.block<2,1>(0,0));
+			e->set_angle(d.Pose.z());
+		}
+
+
 		expected.set_id(d.Value);
 		expected.set_tagsize(d.TagSize);
 
@@ -131,9 +155,16 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_EQ(!finalIdent->Start(),!d.Start);
 		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
 		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
-		EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
-		EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
+		if ( d.HasPose == false ) {
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
+			EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
+		} else {
+			EXPECT_TRUE(VectorAlmostEqual(finalIdent->AntPosition(),
+			                              d.Pose.block<2,1>(0,0)));
+			EXPECT_DOUBLE_EQ(finalIdent->AntAngle(),d.Pose.z());
+		}
+
 		if ( d.TagSize == 0.0 ) {
 			EXPECT_TRUE(finalIdent->UseDefaultTagSize());
 		} else {
@@ -374,10 +405,10 @@ TEST_F(IOUtilsUTest,AntIO) {
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntDescription a,expected;
-		expected.set_id(dA->ID());
+		expected.set_id(dA->AntID());
 		for(const auto & identData : d.IData ) {
 			auto ident = Identifier::AddIdentification(e->Identifier(),
-			                                           dA->ID(),
+			                                           dA->AntID(),
 			                                           identData.Value,
 			                                           identData.Start,
 			                                           identData.End);
@@ -429,29 +460,29 @@ TEST_F(IOUtilsUTest,AntIO) {
 				for( auto & i : dIdents ) {
 					e->Identifier()->DeleteIdentification(i);
 				}
-				e->Identifier()->DeleteAnt(dA->ID());
+				e->Identifier()->DeleteAnt(dA->AntID());
 			});
 
 		IOUtils::LoadAnt(e,a);
-		auto fi = e->ConstIdentifier().Ants().find(expected.id());
-		EXPECT_TRUE(fi != e->ConstIdentifier().Ants().cend());
-		if ( fi == e->ConstIdentifier().Ants().cend() ) {
+		auto fi = e->CIdentifier().CAnts().find(expected.id());
+		EXPECT_TRUE(fi != e->CIdentifier().CAnts().cend());
+		if ( fi == e->CIdentifier().CAnts().cend() ) {
 			continue;
 		}
 		auto res = fi->second;
-		EXPECT_EQ(res->ID(),expected.id());
-		EXPECT_EQ(res->Identifications().size(),dIdents.size());
+		EXPECT_EQ(res->AntID(),expected.id());
+		EXPECT_EQ(res->CIdentifications().size(),dIdents.size());
 		for(size_t i = 0 ;
-		    i < std::min(res->Identifications().size(),dIdents.size());
+		    i < std::min(res->CIdentifications().size(),dIdents.size());
 		    ++i) {
-			auto ii = res->Identifications()[i];
+			auto ii = res->CIdentifications()[i];
 			auto ie = dIdents[i];
 			EXPECT_EQ(ii->TagValue(),ie->TagValue());
 			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
 			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
 			EXPECT_TRUE(VectorAlmostEqual(ii->AntPosition(),ie->AntPosition()));
 			EXPECT_NEAR(ii->AntAngle(),ie->AntAngle(),M_PI/100000.0);
-			EXPECT_EQ(ii->Target()->ID(),ie->Target()->ID());
+			EXPECT_EQ(ii->Target()->AntID(),ie->Target()->AntID());
 
 		}
 
@@ -607,11 +638,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Comment(),e->Comment());
 	EXPECT_EQ(res->Family(),e->Family());
 	EXPECT_EQ(res->Threshold(),e->Threshold());
-	EXPECT_EQ(e->AntMetadataConstPtr()->Columns().size(),
-	          res->AntMetadataConstPtr()->Columns().size());
-	for ( const auto [name,column] : e->AntMetadataConstPtr()->Columns() ) {
-		auto ci = res->AntMetadataConstPtr()->Columns().find(name);
-		if ( ci == res->AntMetadataConstPtr()->Columns().cend() ) {
+	EXPECT_EQ(e->AntMetadataConstPtr()->CColumns().size(),
+	          res->AntMetadataConstPtr()->CColumns().size());
+	for ( const auto [name,column] : e->AntMetadataConstPtr()->CColumns() ) {
+		auto ci = res->AntMetadataConstPtr()->CColumns().find(name);
+		if ( ci == res->AntMetadataConstPtr()->CColumns().cend() ) {
 			ADD_FAILURE() << "missing AntMetadataColumn '" << name << "'";
 		} else {
 			EXPECT_EQ(ci->second->MetadataType(),column->MetadataType());
@@ -626,11 +657,11 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 
 	auto dZ = s1->CreateZone("hole");
 	auto stamp = std::make_shared<Time>(Time::FromTimeT(1));
-	auto def1 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)})),
+	auto def1 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)},
 	                              Time::ConstPtr(),
 	                              stamp);
 
-	auto def2 = dZ->AddDefinition(std::make_shared<Zone::Geometry>(std::vector<Shape::ConstPtr>({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)})),
+	auto def2 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)},
 	                               stamp,
 	                               Time::ConstPtr());
 

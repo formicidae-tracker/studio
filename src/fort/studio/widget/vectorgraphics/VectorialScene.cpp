@@ -503,7 +503,7 @@ void VectorialScene::deleteShape(QSharedPointer<Shape> shape) {
 }
 
 
-void VectorialScene::setStaticPolygon(const fmp::Vector2dList & corners,
+void VectorialScene::setStaticPolygon(const fm::Vector2dList & corners,
                                       const QColor & color) {
 	if ( d_staticPolygon == nullptr ) {
 		d_staticPolygon = new QGraphicsPolygonItem;

@@ -51,8 +51,12 @@ AntMetadata::AntMetadata(const NameChangeCallback & onNameChange,
 	, d_onDefaultChange(onDefaultChange) {
 }
 
-const AntMetadata::ColumnByName & AntMetadata::Columns() const {
+const AntMetadata::ColumnByName & AntMetadata::Columns() {
 	return d_columns;
+}
+
+const AntMetadata::ConstColumnByName & AntMetadata::CColumns() const {
+	return reinterpret_cast<const ConstColumnByName&>(d_columns);
 }
 
 size_t AntMetadata::Count(const std::string & name) const {

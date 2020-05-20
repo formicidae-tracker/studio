@@ -86,7 +86,7 @@ public slots:
 
 	void setScrollMode(bool scrollMode);
 
-	void jumpNextVisible(fm::Ant::ID antID, bool backward);
+	void jumpNextVisible(fmp::AntID antID, bool backward);
 
 
 signals:

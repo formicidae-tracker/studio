@@ -157,9 +157,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="showInteractionsBox">
+      <widget class="QCheckBox" name="showCollisionsBox">
        <property name="text">
-        <string>Show Interactions</string>
+        <string>Show Collisions</string>
        </property>
       </widget>
      </item>

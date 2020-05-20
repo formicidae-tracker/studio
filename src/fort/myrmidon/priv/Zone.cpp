@@ -7,7 +7,7 @@ namespace myrmidon {
 namespace priv {
 
 
-Zone::Geometry::Geometry(const std::vector<Shape::ConstPtr> & shapes)
+ZoneGeometry::ZoneGeometry(const std::vector<Shape::ConstPtr> & shapes)
 	: d_shapes(shapes) {
 	d_AABBs.reserve(d_shapes.size());
 	for ( const auto & s : shapes) {
@@ -22,19 +22,19 @@ Zone::Geometry::Geometry(const std::vector<Shape::ConstPtr> & shapes)
 }
 
 
-const std::vector<Shape::ConstPtr> & Zone::Geometry::Shapes() const {
+const std::vector<Shape::ConstPtr> & ZoneGeometry::Shapes() const {
 	return d_shapes;
 }
 
-const AABB & Zone::Geometry::GlobalAABB() const {
+const AABB & ZoneGeometry::GlobalAABB() const {
 	return d_globalAABB;
 }
 
-const std::vector<AABB> & Zone::Geometry::IndividualAABB() const {
+const std::vector<AABB> & ZoneGeometry::IndividualAABB() const {
 	return d_AABBs;
 }
 
-bool Zone::Geometry::Contains(const Eigen::Vector2d & point ) const {
+bool ZoneGeometry::Contains(const Eigen::Vector2d & point ) const {
 	if ( d_globalAABB.contains(point) == false ) {
 		return false;
 	}
@@ -47,41 +47,41 @@ bool Zone::Geometry::Contains(const Eigen::Vector2d & point ) const {
 
 }
 
-Zone::Definition::Definition(const Zone::Ptr & zone,
-                             Geometry::ConstPtr geometry,
-                             const Time::ConstPtr & start,
-                             const Time::ConstPtr & end)
+ZoneDefinition::ZoneDefinition(const Zone::Ptr & zone,
+                               Geometry::ConstPtr geometry,
+                               const Time::ConstPtr & start,
+                               const Time::ConstPtr & end)
 	: d_zone(zone)
 	, d_geometry(geometry) {
 	d_start = start;
 	d_end = end;
 }
 
-const Zone::Geometry::ConstPtr & Zone::Definition::GetGeometry() const {
+const ZoneGeometry::ConstPtr & ZoneDefinition::GetGeometry() const {
 	return d_geometry;
 }
 
-void Zone::Definition::SetGeometry(const Geometry::ConstPtr & geometry) {
+void ZoneDefinition::SetGeometry(const Geometry::ConstPtr & geometry) {
 	d_geometry = geometry;
 }
 
-const Time::ConstPtr & Zone::Definition::Start() const {
+const Time::ConstPtr & ZoneDefinition::Start() const {
 	return d_start;
 }
 
-const Time::ConstPtr & Zone::Definition::End() const {
+const Time::ConstPtr & ZoneDefinition::End() const {
 	return d_end;
 }
 
-void Zone::Definition::SetStart(const Time::ConstPtr & start) {
+void ZoneDefinition::SetStart(const Time::ConstPtr & start) {
 	SetBound(start,d_end);
 }
 
-void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
+void ZoneDefinition::SetEnd(const Time::ConstPtr & end) {
 	SetBound(d_start,end);
 }
 
-void Zone::Definition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+void ZoneDefinition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
 	if ( !start == false && !end == false && end->Before(*start) ) {
 		std::ostringstream os;
 		os << "Invalid time range [" << *start << "," << *end << "]";
@@ -113,21 +113,15 @@ Zone::Ptr Zone::Create(ID ZID,const std::string & name,const std::string & paren
 	return res;
 }
 
-Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
-                                          const Time::ConstPtr & start,
-                                          const Time::ConstPtr & end) {
+ZoneDefinition::Ptr Zone::AddDefinition(const std::vector<Shape::ConstPtr> & shapes,
+                                        const Time::ConstPtr & start,
+                                        const Time::ConstPtr & end) {
 	auto itself = d_itself.lock();
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
 	}
-	Definition::Ptr res;
-	if ( !geometry == true ) {
-	    res = std::make_shared<Definition>(itself,
-	                                       std::make_shared<Geometry>(std::vector<Shape::ConstPtr>()),
-	                                       start,end);
-	} else {
-		res = std::make_shared<Definition>(itself,geometry,start,end);
-	}
+	auto geometry = std::make_shared<Geometry>(shapes);
+	auto res = std::make_shared<Definition>(itself,geometry,start,end);
 	auto oldDefinitions = d_definitions;
 	d_definitions.push_back(res);
 	auto check = TimeValid::SortAndCheckOverlap(d_definitions.begin(),d_definitions.end());
@@ -138,8 +132,12 @@ Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
 	return res;
 }
 
-const Zone::Definition::List & Zone::Definitions() const {
+const ZoneDefinition::List & Zone::Definitions() {
 	return d_definitions;
+}
+
+const ZoneDefinition::ConstList & Zone::CDefinitions() const {
+	return reinterpret_cast<const ZoneDefinition::ConstList&>(d_definitions);
 }
 
 const std::string & Zone::Name() const {
@@ -154,7 +152,7 @@ Zone::ID Zone::ZoneID() const {
 	return d_ZID;
 }
 
-Zone::Geometry::ConstPtr Zone::AtTime(const Time & t) {
+ZoneGeometry::ConstPtr Zone::AtTime(const Time & t) {
 	for ( const auto & d : d_definitions ) {
 		if ( d->IsValid(t) == true ) {
 			return d->GetGeometry();

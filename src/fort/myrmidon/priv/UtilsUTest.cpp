@@ -1,3 +1,5 @@
+#include <fort/myrmidon/Time.hpp>
+
 #include "UtilsUTest.hpp"
 
 #include <fort/myrmidon/UtilsUTest.hpp>
@@ -86,8 +88,8 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 	return ::testing::AssertionFailure() << "unsupported shape type";
 }
 
-::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::priv::AntStaticValue &a,
-                                               const fort::myrmidon::priv::AntStaticValue &b) {
+::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::AntStaticValue &a,
+                                               const fort::myrmidon::AntStaticValue &b) {
 	if ( a.index() != b.index() ) {
 		return ::testing::AssertionFailure() << "StaticValue Type differs a:" << a.index()
 		                                     << " b:" <<b.index();

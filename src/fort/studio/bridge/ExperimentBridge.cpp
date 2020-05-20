@@ -19,7 +19,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
 	, d_antMetadata(new AntMetadataBridge(this))
 	, d_movies(new MovieBridge(this))
-	, d_zones(new ZoneBridge(this)) {
+	, d_zones(new ZoneBridge(this))
+	, d_statistics(new StatisticsBridge(this)) {
 
 	connectModifications();
 
@@ -80,11 +81,15 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        [this](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
 		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
 	        });
-
 	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
 
+	connect(d_universe,&UniverseBridge::trackingDataDirectoryAdded,
+	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryAdded);
+
+	connect(d_universe,&UniverseBridge::trackingDataDirectoryDeleted,
+	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 
 }
 
@@ -132,6 +137,10 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 
 bool ExperimentBridge::open(const QString & path) {
 	fmp::Experiment::Ptr experiment;
+	if ( !d_experiment == false
+	     && d_experiment->AbsoluteFilePath().c_str() == path ) {
+		d_experiment->UnlockFile();
+	}
 	try {
 		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
@@ -206,6 +215,10 @@ ZoneBridge * ExperimentBridge::zones() const {
 	return d_zones;
 }
 
+StatisticsBridge * ExperimentBridge::statistics() const {
+	return d_statistics;
+}
+
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -221,6 +234,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_antMetadata->setExperiment(experiment);
 	d_movies->setExperiment(experiment);
 	d_zones->setExperiment(experiment);
+	d_statistics->setExperiment(experiment);
 	setModified(false);
 	resetChildModified();
 	emit activated(d_experiment.get() != NULL);
@@ -268,6 +282,9 @@ void ExperimentBridge::connectModifications() {
 	connect(d_zones,&ZoneBridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
+	connect(d_statistics,&StatisticsBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
+
 }
 
 void ExperimentBridge::resetChildModified() {
@@ -281,4 +298,5 @@ void ExperimentBridge::resetChildModified() {
 	d_antMetadata->setModified(false);
 	d_movies->setModified(false);
 	d_zones->setModified(false);
+	d_statistics->setModified(false);
 }

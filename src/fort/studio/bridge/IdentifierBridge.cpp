@@ -20,7 +20,7 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	qRegisterMetaType<fmp::Ant::Ptr>();
 	qRegisterMetaType<fmp::Identification::ConstPtr>();
 	qRegisterMetaType<fmp::Ant::DisplayState>();
-	qRegisterMetaType<fmp::Color>();
+	qRegisterMetaType<fm::Color>();
 
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
@@ -79,7 +79,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 
 	//reorder ants
 	std::map<quint32,fmp::Ant::Ptr> ants;
-	for ( const auto & a : d_experiment->ConstIdentifier().Ants() ) {
+	for ( const auto & a : d_experiment->Identifier()->Ants() ) {
 		ants.insert(a);
 	}
 
@@ -105,7 +105,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 		return fmp::Ant::Ptr();
 	}
 
-	qInfo() << "Created new Ant" << fmp::Ant::FormatID(ant->ID()).c_str();
+	qInfo() << "Created new Ant" << ant->FormattedID().c_str();
 
 	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
 
@@ -178,7 +178,7 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
 }
 
 void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & identification) {
-	auto item = findAnt(identification->Target()->ID());
+	auto item = findAnt(identification->Target()->AntID());
 	if ( !d_experiment || item == NULL) {
 		qWarning() << "Not deleting Identification "
 		           << ToQString(identification);
@@ -205,7 +205,7 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 }
 
 QString IdentifierBridge::formatAntName(const fmp::Ant::Ptr & ant) {
-	QString res = fmp::Ant::FormatID(ant->ID()).c_str();
+	QString res = ant->FormattedID().c_str();
 	if ( ant->Identifications().empty() ) {
 		return res + " <no-tags>";
 	}
@@ -299,25 +299,27 @@ void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
 	}
 	ant->SetDisplayStatus(ds);
 	switch(oldDs) {
-	case fmp::Ant::DisplayState::HIDDEN:
+	case fm::Ant::DisplayState::HIDDEN:
 		--d_numberHiddenAnt;
 		emit numberHiddenAntChanged(d_numberHiddenAnt);
 		break;
-	case fmp::Ant::DisplayState::SOLO:
+	case fm::Ant::DisplayState::SOLO:
 		--d_numberSoloAnt;
 		emit numberSoloAntChanged(d_numberSoloAnt);
+		break;
+	case fm::Ant::DisplayState::VISIBLE:
 		break;
 	}
 
 	switch(ds) {
 	case fmp::Ant::DisplayState::VISIBLE:
-		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		qInfo() << "Setting Ant " << ant->FormattedID().c_str()
 		        << " to VISIBLE";
 		hideItem->setCheckState(Qt::Unchecked);
 		soloItem->setCheckState(Qt::Unchecked);
 		break;
 	case fmp::Ant::DisplayState::HIDDEN:
-		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		qInfo() << "Setting Ant " << ant->FormattedID().c_str()
 		        << " to HIDDEN";
 		++d_numberHiddenAnt;
 		emit numberHiddenAntChanged(d_numberHiddenAnt);
@@ -325,7 +327,7 @@ void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
 		soloItem->setCheckState(Qt::Unchecked);
 		break;
 	case fmp::Ant::DisplayState::SOLO:
-		qInfo() << "Setting Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		qInfo() << "Setting Ant " << ant->FormattedID().c_str()
 		        << " to SOLO";
 		++d_numberSoloAnt;
 		emit numberSoloAntChanged(d_numberSoloAnt);
@@ -334,7 +336,7 @@ void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
 		break;
 	}
 	setModified(true);
-	emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+	emit antDisplayChanged(ant->AntID(),ant->DisplayColor(),ant->DisplayStatus());
 }
 
 void IdentifierBridge::onItemChanged(QStandardItem * item) {
@@ -402,14 +404,14 @@ void IdentifierBridge::setAntDisplayColor(const QItemSelection & selection,
 	doOnSelection(selection,
 	              [this,&color](const fmp::Ant::Ptr & ant,
 	                            QStandardItem * item) {
-		              qInfo() << "Setting Display Color of Ant " << fmp::Ant::FormatID(ant->ID()).c_str()
+		              qInfo() << "Setting Display Color of Ant " << ant->FormattedID().c_str()
 		                      << " to " << color;
 		              ant->SetDisplayColor({color.red(),color.green(),color.blue()});
 
 		              item->setData(antDisplayColor(ant),Qt::DecorationRole);
 
 		              setModified(true);
-		              emit antDisplayChanged(ant->ID(),ant->DisplayColor(),ant->DisplayStatus());
+		              emit antDisplayChanged(ant->AntID(),ant->DisplayColor(),ant->DisplayStatus());
 	              });
 }
 
@@ -423,7 +425,7 @@ void IdentifierBridge::deleteSelection(const QItemSelection & selection) {
 		              for( const auto & i : ant->Identifications() ) {
 			              toDeleteIdentifications.insert(i);
 		              }
-		              toDeleteAID.insert(ant->ID());
+		              toDeleteAID.insert(ant->AntID());
 	              });
 
 	for ( const auto & i : toDeleteIdentifications ) {
@@ -469,7 +471,7 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 	if ( !d_experiment ) {
 		return fmp::Identification::ConstPtr();
 	}
-	return d_experiment->ConstIdentifier().Identify(tagID,time);
+	return d_experiment->CIdentifier().Identify(tagID,time);
 }
 
 
@@ -479,7 +481,7 @@ bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
 	if ( !d_experiment ) {
 		return false;
 	}
-	return d_experiment->ConstIdentifier().FreeRangeContaining(start,end,tagID,time);
+	return d_experiment->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 
 SelectedAntBridge * IdentifierBridge::selectedAnt() const {
@@ -490,7 +492,7 @@ fmp::Ant::ConstPtr IdentifierBridge::ant(fm::Ant::ID aID) const {
 	if ( !d_experiment == true ) {
 		return fmp::Ant::ConstPtr();
 	}
-	const auto & ants = d_experiment->ConstIdentifier().Ants();
+	const auto & ants = d_experiment->CIdentifier().CAnts();
 	auto fi = ants.find(aID);
 	if ( fi == ants.cend() ) {
 		return fmp::Ant::ConstPtr();

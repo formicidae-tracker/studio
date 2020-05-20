@@ -14,7 +14,7 @@
 #include <fort/myrmidon/priv/TagCloseUp.hpp>
 #include <fort/myrmidon/Time.hpp>
 #include <fort/myrmidon/priv/Measurement.hpp>
-#include <fort/myrmidon/priv/Color.hpp>
+#include <fort/myrmidon/Color.hpp>
 #include <fort/myrmidon/priv/AntMetadata.hpp>
 #include <fort/myrmidon/priv/MovieSegment.hpp>
 #include <fort/myrmidon/priv/Experiment.hpp>
@@ -28,7 +28,7 @@ Q_DECLARE_METATYPE(fmp::Ant::Ptr)
 Q_DECLARE_METATYPE(fmp::Ant::ConstPtr)
 Q_DECLARE_METATYPE(fmp::Ant::DisplayState)
 Q_DECLARE_METATYPE(fmp::AntShapeType::Ptr)
-Q_DECLARE_METATYPE(fmp::Color)
+Q_DECLARE_METATYPE(fm::Color)
 Q_DECLARE_METATYPE(fmp::Identification::Ptr)
 Q_DECLARE_METATYPE(fmp::Identification::ConstPtr)
 Q_DECLARE_METATYPE(fmp::TrackingDataDirectory::ConstPtr)
@@ -47,8 +47,8 @@ Q_DECLARE_METATYPE(fmp::Zone::Definition::Ptr)
 
 class Conversion {
 public:
-	static QColor colorFromFM(const fmp::Color & color, int opacity = 255);
-	static QIcon  iconFromFM(const fmp::Color & color);
+	static QColor colorFromFM(const fm::Color & color, int opacity = 255);
+	static QIcon  iconFromFM(const fm::Color & color);
 	static QPointF fromEigen(const Eigen::Vector2d & p);
 	static Eigen::Vector2d toEigen(const QPointF  & p);
 };

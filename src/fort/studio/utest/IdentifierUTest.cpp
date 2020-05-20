@@ -19,7 +19,8 @@
 
 void IdentifierUTest::SetUp() {
 	ASSERT_NO_THROW({
-			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "identifierUTest.myrmidon");
+			experiment = fmp::Experiment::Create(TestSetup::Basedir() / "identifierUTest.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "identifierUTest.myrmidon");
 			identifier = new IdentifierBridge(NULL);
 		});
 }
@@ -68,7 +69,7 @@ TEST_F(IdentifierUTest,AntModificationTest) {
 
 
 	auto ant = identifier->createAnt();
-	EXPECT_EQ(ant->ID(),1);
+	EXPECT_EQ(ant->AntID(),1);
 	EXPECT_TRUE(identifier->isModified());
 	ASSERT_EQ(modified.count(),1);
 	ASSERT_EQ(antCreated.count(),1);
@@ -84,12 +85,12 @@ TEST_F(IdentifierUTest,AntModificationTest) {
 	EXPECT_EQ(modified.count(),2);
 	EXPECT_FALSE(modified.last().at(0).toBool());
 
-	identifier->deleteAnt(ant->ID());
+	identifier->deleteAnt(ant->AntID());
 	EXPECT_TRUE(identifier->isModified());
 	EXPECT_EQ(modified.count(),3);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	ASSERT_EQ(antDeleted.count(),1);
-	EXPECT_EQ(antDeleted.last().at(0).value<fm::Ant::ID>(),ant->ID());
+	EXPECT_EQ(antDeleted.last().at(0).value<fm::Ant::ID>(),ant->AntID());
 
 }
 
@@ -109,7 +110,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_FALSE(identifier->isModified());
 	EXPECT_EQ(modified.count(),0);
 
-	auto identification = identifier->addIdentification(ant->ID(),
+	auto identification = identifier->addIdentification(ant->AntID(),
 	                                                    1,
 	                                                    fm::Time::ConstPtr(),
 	                                                    std::make_shared<fm::Time>(fm::Time::FromTimeT(1)));
@@ -124,7 +125,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
 	          "0x0001 ↤ {1}");
 
-	identification = identifier->addIdentification(ant->ID(),
+	identification = identifier->addIdentification(ant->AntID(),
 	                                               2,
 	                                               std::make_shared<fm::Time>(fm::Time::FromTimeT(2)),
 	                                               fm::Time::ConstPtr());
@@ -157,7 +158,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 TEST_F(IdentifierUTest,DisplayStateModification) {
 	fmp::Ant::ConstPtr ant;
 	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 	QSignalSpy hiddenChanged(identifier,SIGNAL(numberHiddenAntChanged(quint32)));
 	QSignalSpy soloChanged(identifier,SIGNAL(numberSoloAntChanged(quint32)));
 	ASSERT_NO_THROW({
@@ -273,7 +274,7 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 		EXPECT_EQ(identifier->numberSoloAnt(),d.NSolo);
 
 		EXPECT_EQ(ant->DisplayStatus(),d.DisplayState);
-		EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->ID());
+		EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->AntID());
 		EXPECT_EQ(displayChanged.last().at(2).value<fmp::Ant::DisplayState>(),d.DisplayState);
 		EXPECT_EQ(hideItem->checkState(),d.Hide);
 		EXPECT_EQ(soloItem->checkState(),d.Solo);
@@ -301,7 +302,7 @@ TEST_F(IdentifierUTest,DisplayStateModification) {
 TEST_F(IdentifierUTest,DisplayColorModification) {
 	fmp::Ant::ConstPtr ant;
 	QSignalSpy modified(identifier,SIGNAL(modified(bool)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 
 	ASSERT_NO_THROW({
 			ant = experiment->CreateAnt();
@@ -310,7 +311,7 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	ASSERT_FALSE(!ant);
 
 	QColor newColor(12,34,56);
-	fmp::Color newColorFmp({12,34,56});
+	fm::Color newColorFmp({12,34,56});
 
 	EXPECT_FALSE(identifier->isModified());
 	EXPECT_EQ(modified.count(),0);
@@ -343,8 +344,8 @@ TEST_F(IdentifierUTest,DisplayColorModification) {
 	ASSERT_EQ(modified.count(),1);
 	ASSERT_EQ(displayChanged.count(),1);
 	EXPECT_TRUE(modified.last().at(0).toBool());
-	EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->ID());
-	EXPECT_EQ(displayChanged.last().at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.last().at(0).toInt(),ant->AntID());
+	EXPECT_EQ(displayChanged.last().at(1).value<fm::Color>(),
 	          newColorFmp);
 	EXPECT_EQ(ant->DisplayColor(),
 	          newColorFmp);
@@ -380,7 +381,7 @@ TEST_F(IdentifierUTest,AntSelection) {
 	ASSERT_EQ(antSelected.count(),3);
 	EXPECT_EQ(antSelected.last().at(0).toBool(),
 	          true);
-	EXPECT_EQ(identifier->selectedAnt()->selectedID(),ant[0]->ID());
+	EXPECT_EQ(identifier->selectedAnt()->selectedID(),ant[0]->AntID());
 
 }
 
@@ -393,7 +394,7 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 
 	QSignalSpy antCreated(identifier,SIGNAL(antCreated(fmp::Ant::ConstPtr)));
 	QSignalSpy antDeleted(identifier,SIGNAL(antDeleted(quint32)));
-	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fmp::Color,fmp::Ant::DisplayState)));
+	QSignalSpy displayChanged(identifier,SIGNAL(antDisplayChanged(quint32,fm::Color,fmp::Ant::DisplayState)));
 	QSignalSpy antSelected(identifier,SIGNAL(antSelected(fmp::Ant::Ptr)));
 
 
@@ -426,7 +427,7 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 			EXPECT_EQ(antCreated.count(),i+1);
 		}
 		auto ant = antCreated.last().at(0).value<fmp::Ant::ConstPtr>();
-		EXPECT_EQ(ant->ID(),i+1);
+		EXPECT_EQ(ant->AntID(),i+1);
 		EXPECT_EQ(ant->DisplayColor(),fmp::Palette::Default().At(0));
 		ASSERT_EQ(m->rowCount(),i+1);
 		EXPECT_EQ(ToStdString(m->data(m->index(i,0)).toString()),
@@ -477,10 +478,10 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	ui->colorBox->setCurrentIndex(4);
 	ASSERT_EQ(displayChanged.count(),2);
 	EXPECT_EQ(displayChanged.at(0).at(0).toInt(),1);
-	EXPECT_EQ(displayChanged.at(0).at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.at(0).at(1).value<fm::Color>(),
 	          fmp::Palette::Default().At(2));
 	EXPECT_EQ(displayChanged.at(1).at(0).toInt(),2);
-	EXPECT_EQ(displayChanged.at(1).at(1).value<fmp::Color>(),
+	EXPECT_EQ(displayChanged.at(1).at(1).value<fm::Color>(),
 	          fmp::Palette::Default().At(2));
 
 

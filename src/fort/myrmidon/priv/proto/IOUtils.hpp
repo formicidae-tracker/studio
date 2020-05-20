@@ -12,10 +12,10 @@
 #include <fort/myrmidon/Space.pb.h>
 
 #include <fort/myrmidon/Time.hpp>
+#include <fort/myrmidon/Color.hpp>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
-#include <fort/myrmidon/priv/Color.hpp>
 #include <fort/myrmidon/priv/Ant.hpp>
 #include <fort/myrmidon/priv/Shape.hpp>
 
@@ -152,7 +152,7 @@ public:
 	                      const pb::Space & pb);
 
 	static void SaveSpace(pb::Space * pb,
-	                      const SpacePtr & space);
+	                      const SpaceConstPtr & space);
 
 
 	// Loads an Experiment from a protobuf message

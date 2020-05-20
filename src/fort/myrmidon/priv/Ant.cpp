@@ -11,7 +11,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
+std::string Ant::FormatID(ID ID) {
 	std::ostringstream os;
 	os << "0x" << std::setw(4) << std::setfill('0') << std::hex
 	   << std::uppercase << ID;
@@ -20,9 +20,8 @@ std::string Ant::FormatID(fort::myrmidon::Ant::ID ID) {
 
 Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
          const AntMetadataConstPtr & metadata,
-         fort::myrmidon::Ant::ID ID)
+         ID ID)
 	: d_ID(ID)
-	, d_IDStr(FormatID(ID))
 	, d_displayColor(Palette::Default().At(0) )
 	, d_displayState(DisplayState::VISIBLE)
 	, d_shapeTypes(shapeTypeContainer)
@@ -37,9 +36,14 @@ Identification::List & Ant::Accessor::Identifications(Ant & a){
 	return a.d_identifications;
 }
 
-const Identification::List & Ant::Identifications() const {
+const Identification::List & Ant::Identifications() {
 	return d_identifications;
 }
+
+const Identification::ConstList & Ant::CIdentifications() const {
+	return reinterpret_cast<const std::vector<Identification::ConstPtr>&>(d_identifications);
+}
+
 
 const Ant::TypedCapsuleList & Ant::Capsules() const {
 	return d_capsules;
@@ -88,7 +92,7 @@ Ant::DisplayState Ant::DisplayStatus() const {
 }
 
 const AntStaticValue & Ant::GetValue(const std::string & name,
-                                     const Time & time) {
+                                     const Time & time) const {
 	return d_compiledData.At(name,time);
 }
 
@@ -134,8 +138,8 @@ void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
                    const Time::ConstPtr & time,
                    bool noOverwrite) {
-	auto fi = d_metadata->Columns().find(name);
-	if ( fi == d_metadata->Columns().end() ) {
+	auto fi = d_metadata->CColumns().find(name);
+	if ( fi == d_metadata->CColumns().end() ) {
 		throw std::invalid_argument("Unknown value key '" + name + "'");
 	}
 	AntMetadata::CheckType(fi->second->MetadataType(),value);
@@ -187,13 +191,17 @@ void Ant::DeleteValue(const std::string & name,
 	CompileData();
 }
 
-const AntDataMap & Ant::DataMap() const {
+const AntDataMap & Ant::DataMap() {
 	return d_data;
+}
+
+const AntConstDataMap & Ant::CDataMap() const {
+	return reinterpret_cast<const AntConstDataMap &>(d_data);
 }
 
 void Ant::CompileData() {
 	std::map<std::string,AntStaticValue> defaults;
-	for ( const auto & [name,column] : d_metadata->Columns() ) {
+	for ( const auto & [name,column] : d_metadata->CColumns() ) {
 		defaults.insert(std::make_pair(name,column->DefaultValue()));
 	}
 	d_compiledData.Clear();

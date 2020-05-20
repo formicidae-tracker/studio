@@ -156,7 +156,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		         << ToQString(start,"-") << ","
 		         << ToQString(end,"+")
 		         << ")";
-		z->AddDefinition(geometry,
+		z->AddDefinition(geometry->Shapes(),
 		                 start,end);
 	} catch ( const std::exception & e) {
 		qCritical() << "Coul not create definition: " << e.what();
@@ -324,6 +324,7 @@ bool ZoneBridge::canAddItemAt(const QModelIndex & index) {
 	case ZoneType:
 		return item->data(DataRole).value<fmp::Zone::Ptr>()->NextFreeTimeRegion(start,end);
 	}
+	return false;
 }
 
 bool ZoneBridge::canRemoveItemAt(const QModelIndex & index) {
@@ -339,6 +340,7 @@ bool ZoneBridge::canRemoveItemAt(const QModelIndex & index) {
 	case ZoneType:
 		return true;
 	}
+	return false;
 }
 
 

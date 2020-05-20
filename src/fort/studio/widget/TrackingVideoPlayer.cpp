@@ -415,7 +415,7 @@ void TrackingVideoPlayer::setSeekReady(bool ready) {
 }
 
 
-void TrackingVideoPlayer::jumpNextVisible(fm::Ant::ID antID, bool backward) {
+void TrackingVideoPlayer::jumpNextVisible(fmp::AntID antID, bool backward) {
 	if ( d_task == nullptr
 	     || d_seekReady == false
 	     || d_displayed.Contains(antID) == true ) {
@@ -507,7 +507,7 @@ void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
 			std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 	frame.TrackingFrame = d_loader->frameAt(frame.FrameID);
-	frame.InteractionFrame = d_loader->interactionAt(frame.FrameID);
+	frame.CollisionFrame = d_loader->collisionAt(frame.FrameID);
 	emit newFrame(d_taskID,d_seekID,frame);
 }
 

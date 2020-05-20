@@ -7,7 +7,7 @@
 #include <QIcon>
 #include <QCalendarWidget>
 #include <QTimeEdit>
-
+#include <QAction>
 #include <fort/studio/widget/FrameFinderDialog.hpp>
 
 #include <fort/studio/bridge/UniverseBridge.hpp>

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+
+package fort.myrmidon.pb;
+
+import "google/protobuf/timestamp.proto";
+
+message TagStatisticsCacheHeader {
+	uint32                    version  = 1;
+	google.protobuf.Timestamp start = 2;
+	google.protobuf.Timestamp end   = 3;
+};
+
+message TagStatistics {
+	uint32 id                              = 1;
+	google.protobuf.Timestamp firstSeen    = 2;
+	google.protobuf.Timestamp lastSeen     = 3;
+	uint64 totalSeen                       = 4;
+	uint64 multipleSeen                    = 5;
+	uint64 gap500ms                        = 6;
+	uint64 gap1s                           = 7;
+	uint64 gap10s                          = 8;
+	uint64 gap1m                           = 9;
+	uint64 gap10m                          = 10;
+	uint64 gap1h                           = 11;
+	uint64 gap10h                          = 12;
+	uint64 gapMore                         = 13;
+};

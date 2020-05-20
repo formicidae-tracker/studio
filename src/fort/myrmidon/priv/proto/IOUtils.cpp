@@ -51,11 +51,18 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
 	}
 
-	auto res = Identifier::AddIdentification(e->Identifier(),target->ID(),pb.id(),start,end);
+	auto res = Identifier::AddIdentification(e->Identifier(),target->AntID(),pb.id(),start,end);
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
 		res->SetTagSize(Identification::DEFAULT_TAG_SIZE);
+	}
+
+	if ( pb.has_userdefinedpose() ) {
+		Eigen::Vector2d antPosition;
+		LoadVector(antPosition,pb.userdefinedpose().position());
+		res->SetUserDefinedAntPose(antPosition,
+		                           pb.userdefinedpose().angle());
 	}
 }
 
@@ -71,6 +78,12 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 	pb->set_id(ident->TagValue());
 	if ( ident->UseDefaultTagSize() == false ) {
 		pb->set_tagsize(ident->TagSize());
+	}
+
+	if ( ident->HasUserDefinedAntPose() == true ) {
+		auto udpPb = pb->mutable_userdefinedpose();
+		SaveVector(udpPb->mutable_position(),ident->AntPosition());
+		udpPb->set_angle(ident->AntAngle());
 	}
 }
 
@@ -192,9 +205,9 @@ void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDesc
 
 void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr & ant) {
 	pb->Clear();
-	pb->set_id(ant->ID());
+	pb->set_id(ant->AntID());
 
-	for ( const auto & ident : ant->Identifications() ) {
+	for ( const auto & ident : ant->CIdentifications() ) {
 		SaveIdentification(pb->add_identifications(),ident);
 	}
 
@@ -207,7 +220,7 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
 	pb->set_displaystate(SaveAntDisplayState(ant->DisplayStatus()));
 
-	for ( const auto & [name,tValues] : ant->DataMap() ) {
+	for ( const auto & [name,tValues] : ant->CDataMap() ) {
 		for ( const auto & [time, value] : tValues ) {
 			auto vPb = pb->add_namedvalues();
 			vPb->set_name(name);
@@ -285,10 +298,6 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 			shapes.push_back(LoadShape(sPb));
 		}
 
-		if ( shapes.empty() == false ) {
-			geometry = std::make_shared<Zone::Geometry>(shapes);
-		}
-
 		Time::ConstPtr start,end;
 
 		if ( dPb.has_start() ) {
@@ -298,7 +307,7 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 			end = std::make_shared<Time>(Time::FromTimestamp(dPb.end()));
 		}
 
-		z->AddDefinition(geometry,start,end);
+		z->AddDefinition(shapes,start,end);
 
 	}
 }
@@ -307,7 +316,7 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	pb->Clear();
 	pb->set_id(zone->ZoneID());
 	pb->set_name(zone->Name());
-	for ( const auto & d : zone->Definitions() ) {
+	for ( const auto & d : zone->CDefinitions() ) {
 		auto dPb = pb->add_definitions();
 		if ( d->Start() ) {
 			d->Start()->ToTimestamp(dPb->mutable_start());
@@ -337,14 +346,14 @@ void IOUtils::LoadSpace(const Experiment::Ptr & e,
 }
 
 void IOUtils::SaveSpace(pb::Space * pb,
-                        const Space::Ptr & space) {
+                        const Space::ConstPtr & space) {
 	pb->Clear();
 	pb->set_id(space->SpaceID());
 	pb->set_name(space->Name());
 	for ( const auto & tdd : space->TrackingDataDirectories() ) {
 		pb->add_trackingdatadirectories(tdd->URI());
 	}
-	for ( const auto & [zoneID,z] : space->Zones() ) {
+	for ( const auto & [zoneID,z] : space->CZones() ) {
 		SaveZone(pb->add_zones(),z);
 	}
 }
@@ -404,19 +413,19 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_tagsize(e.DefaultTagSize());
 
 
-	for ( const auto & [MTID,t] : e.MeasurementTypes() ) {
+	for ( const auto & [MTID,t] : e.CMeasurementTypes() ) {
 		auto mtPb = pb->add_custommeasurementtypes();
 		mtPb->set_id(t->MTID());
 		mtPb->set_name(t->Name());
 	}
 
-	for ( const auto & [typeID,shapeType] : e.AntShapeTypes() ) {
+	for ( const auto & [typeID,shapeType] : e.CAntShapeTypes() ) {
 		auto stPb = pb->add_antshapetypes();
 		stPb->set_id(shapeType->TypeID());
 		stPb->set_name(shapeType->Name());
 	}
 
-	for ( const auto & [name,column] : e.AntMetadataConstPtr()->Columns() ) {
+	for ( const auto & [name,column] : e.AntMetadataConstPtr()->CColumns() ) {
 		auto cPb = pb->add_antmetadata();
 		cPb->set_name(column->Name());
 		SaveAntStaticValue(cPb->mutable_defaultvalue(),column->DefaultValue());

@@ -43,7 +43,7 @@ public:
 
 	SelectedAntBridge * selectedAnt() const;
 
-	fmp::Ant::ConstPtr ant(fm::Ant::ID aID) const;
+	fmp::Ant::ConstPtr ant(fmp::AntID aID) const;
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -54,7 +54,7 @@ signals:
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
 	void antDisplayChanged(quint32,
-	                       fmp::Color,
+	                       fm::Color,
 	                       fmp::Ant::DisplayState);
 
 	void numberSoloAntChanged(quint32 numberSolo);
@@ -92,7 +92,7 @@ private:
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
-	QStandardItem * findAnt(fm::Ant::ID AID) const;
+	QStandardItem * findAnt(fmp::AntID AID) const;
 
 	void doOnSelection(const QItemSelection & selection,
 	                   const std::function<void (const fmp::Ant::Ptr & ant,

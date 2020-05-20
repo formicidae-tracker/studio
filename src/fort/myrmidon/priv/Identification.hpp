@@ -11,6 +11,23 @@
 
 #include "ForwardDeclaration.hpp"
 
+namespace fort {
+namespace myrmidon {
+namespace priv {
+class Identification;
+} // namespae priv
+} // namespae myrmidon
+} // namespae fort
+
+// Formats an Identification to an std::ostream
+// @out the stream to format to
+// @a the <fort::myrmidon::priv::Identification> to format
+//
+// @return a reference to <out>
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Identification & a);
+
+
 #include "TimeValid.hpp"
 
 class IdentificationUTest;
@@ -47,7 +64,9 @@ public:
 	// A Pointer to a const Identification
 	typedef std::shared_ptr<const Identification> ConstPtr;
 	// A List of Identification
-	typedef std::vector<Ptr> List;
+	typedef std::vector<Ptr>      List;
+	// A List of Identification
+	typedef std::vector<ConstPtr> ConstList;
 
 
 	const static double DEFAULT_TAG_SIZE;
@@ -134,6 +153,12 @@ public:
 	// destroyed.
 	IdentifierPtr ParentIdentifier() const;
 
+	inline bool HasUserDefinedAntPose() const {
+		return d_userDefinedPose;
+	}
+
+	void SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle);
+	void ClearUserDefinedAntPose();
 
 	class Accessor {
 	private:
@@ -144,7 +169,9 @@ public:
 		                     const Time::ConstPtr & start);
 		static void SetEnd(Identification & identification,
 		                   const Time::ConstPtr & end);
-
+		static void SetAntPosition(Identification & identification,
+		                           const Eigen::Vector2d& position,
+		                           double angle);
 	public:
 		friend class Identifier;
 		friend class IdentificationUTest;
@@ -168,8 +195,6 @@ private:
 
 	void SetBound(const Time::ConstPtr & start,
 	              const Time::ConstPtr & end);
-	friend class Ant;
-	friend class Identifier;
 	friend class IdentificationUTest;
 
 	Isometry2Dd               d_antToTag;
@@ -178,34 +203,10 @@ private:
 	double                    d_tagSize;
 	std::weak_ptr<Ant>        d_target;
 	std::weak_ptr<Identifier> d_identifier;
-
-};
-
-// An std::exception when tow Identification overlaps in time.
-//
-// Two <priv::Identification> overlaps in time if they have
-// overlapping boundary and they either use the same <TagID> or targets
-// the same <priv::Ant>. This is an invariant condition that should
-// never happen and modification that will break this invariant will
-// throw this exception.
-class OverlappingIdentification : public std::runtime_error {
-public:
-	OverlappingIdentification(const Identification & a,
-	                          const Identification & b);
-private:
-	static std::string Reason(const Identification & a,
-	                          const Identification & b);
+	bool                      d_userDefinedPose;
 };
 
 
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
-
-
-// Formats an Identification to an std::ostream
-// @out the stream to format to
-// @a the <fort::myrmidon::priv::Identification> to format
-// @return a reference to <out>
-std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::priv::Identification & a);

@@ -18,7 +18,7 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	, d_identifier(nullptr)
 	, d_hideLoadingBanner(true)
 	, d_showID(false)
-	, d_showInteractions(false)
+	, d_showCollisions(false)
 	, d_focusedAntID(0)
 	, d_zoom(1.0)
 	, d_lastFocus(0,0)
@@ -32,8 +32,8 @@ bool TrackingVideoWidget::showID() const {
 	return d_showID;
 }
 
-bool TrackingVideoWidget::showInteractions() const {
-	return d_showInteractions;
+bool TrackingVideoWidget::showCollisions() const {
+	return d_showCollisions;
 }
 
 
@@ -127,7 +127,7 @@ void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
 void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & focusRectangle) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
 	const auto & tFrame = d_frame.TrackingFrame;
-	const auto & iFrame = d_frame.InteractionFrame;
+	const auto & iFrame = d_frame.CollisionFrame;
 	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
 	const static double ANT_HALF_SIZE = 8.0;
 
@@ -139,15 +139,15 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
 
-	if ( !iFrame == false && d_showInteractions == true ) {
-		fmp::DenseMap<quint32,fmp::PositionedAnt> positions;
+	if ( !iFrame == false && d_showCollisions == true ) {
+		fmp::DenseMap<quint32,fm::PositionedAnt> positions;
 		for ( const auto & pa : tFrame->Positions ) {
 			positions.insert(std::make_pair(pa.ID,pa));
 		}
 
-		for ( const auto & interaction : iFrame->Interactions ) {
-			auto a = d_identifier->ant(interaction.IDs.first);
-			auto b = d_identifier->ant(interaction.IDs.second);
+		for ( const auto & collision : iFrame->Collisions ) {
+			auto a = d_identifier->ant(collision.IDs.first);
+			auto b = d_identifier->ant(collision.IDs.second);
 
 			if ( !a || !b
 			     || ( hasSolo == true
@@ -156,8 +156,8 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 				continue;
 			}
 
-			auto aPos = Conversion::fromEigen(ratio * positions.at(a->ID()).Position);
-			auto bPos = Conversion::fromEigen(ratio * positions.at(b->ID()).Position);
+			auto aPos = Conversion::fromEigen(ratio * positions.at(a->AntID()).Position);
+			auto bPos = Conversion::fromEigen(ratio * positions.at(b->AntID()).Position);
 
 			if ( focusRectangle.contains(aPos) == false
 			     && focusRectangle.contains(bPos) == false ) {
@@ -249,7 +249,7 @@ void TrackingVideoWidget::setZoomFocus(quint32 antID,qreal value) {
 void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
 	if ( !d_frame.Image == true || !d_frame.TrackingFrame ) {
 		if ( reset == true ) {
-			d_lastFocus == QPointF(0,0);
+			d_lastFocus = QPointF(0,0);
 		}
 		return;
 	}
@@ -276,13 +276,13 @@ void TrackingVideoWidget::setShowID(bool show) {
 	emit showIDChanged(show);
 }
 
-void TrackingVideoWidget::setShowInteractions(bool show) {
-	if ( show == d_showInteractions ) {
+void TrackingVideoWidget::setShowCollisions(bool show) {
+	if ( show == d_showCollisions ) {
 		return;
 	}
-	d_showInteractions = show;
+	d_showCollisions = show;
 	update();
-	emit showInteractionsChanged(show);
+	emit showCollisionsChanged(show);
 }
 
 
