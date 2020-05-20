@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::CollisionFrame" name="CollisionFrame" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Reports all <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> happening at a given time.</brief>
+  <field id="fort::myrmidon::CollisionFrame::FrameTime" name="FrameTime">
+    <brief>The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> when the interaction happens</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::CollisionFrame::Space" name="Space">
+    <brief>Reports the <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame::Space">Space</ref> where all the <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref>
+    </brief>
+    <doc>happens.</doc>
+    <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
+  </field>
+  <field id="fort::myrmidon::CollisionFrame::Collisions" name="Collisions">
+    <brief>The <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> happenning at <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame::FrameTime">fort::myrmidon::CollisionFrame::FrameTime</ref>
+    </brief>
+    <type name="std::vector&lt;fort::myrmidon::Collision, std::allocator&lt;fort::myrmidon::Collision&gt; &gt;" />
+  </field>
+  <field id="fort::myrmidon::CollisionFrame::AntZones" name="AntZones">
+    <brief>The zone any <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> is in.</brief>
+    <type name="std::map&lt;unsigned int, unsigned int, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, unsigned int&gt; &gt; &gt;" />
+  </field>
+  <typedef id="fort::myrmidon::CollisionFrame::ConstPtr" name="ConstPtr">
+    <brief>A pointer to a CollisionFrame</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt;" />
+  </typedef>
+</struct>

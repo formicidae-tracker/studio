@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::PositionedAnt" name="PositionedAnt" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>A PositionnedAnt gives an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> position and orientation in a</brief>
+  <doc><ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref></doc>
+  <field id="fort::myrmidon::PositionedAnt::Position" name="Position">
+    <brief>The position in the image.</brief>
+    <type name="Eigen::Vector2d" />
+  </field>
+  <field id="fort::myrmidon::PositionedAnt::Angle" name="Angle">
+    <brief>The angle in the image</brief>
+    <type builtin="yes" name="double" />
+  </field>
+  <field id="fort::myrmidon::PositionedAnt::ID" name="ID">
+    <brief>The <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> this position refers to.</brief>
+    <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+  </field>
+  <typedef id="fort::myrmidon::PositionedAnt::eigen_aligned_operator_new_marker_type" name="eigen_aligned_operator_new_marker_type">
+    <brief>Memory management issue with Eigen</brief>
+    <type builtin="yes" name="void" />
+  </typedef>
+  <method id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::" name="">
+      <type name="std::size_t" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::memory" name="memory">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete::" name="">
+      <type name="std::nothrow_t" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete[]::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete[]::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete[]::" name="">
+      <type name="std::size_t" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete[]::memory" name="memory">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator delete[]::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator new" name="operator new" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" qualifier="*" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator new::size" name="size">
+      <type name="std::size_t" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator new" name="operator new" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" qualifier="*" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator new::size" name="size">
+      <type name="std::size_t" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator new::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator new" name="operator new" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" qualifier="*" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator new::size" name="size">
+      <type name="std::size_t" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator new::" name="">
+      <type name="std::nothrow_t" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" qualifier="*" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator new[]::size" name="size">
+      <type name="std::size_t" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]" static="yes">
+    <brief>Memory management issue with Eigen</brief>
+    <return>
+      <type builtin="yes" name="void" qualifier="*" />
+    </return>
+    <argument id="fort::myrmidon::PositionedAnt::operator new[]::size" name="size">
+      <type name="std::size_t" />
+    </argument>
+    <argument id="fort::myrmidon::PositionedAnt::operator new[]::ptr" name="ptr">
+      <type builtin="yes" name="void" qualifier="*" />
+    </argument>
+  </method>
+</struct>

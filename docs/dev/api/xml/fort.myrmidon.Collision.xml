@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::Collision" name="Collision" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines an interaction between two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> ponctual in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+  </brief>
+  <field id="fort::myrmidon::Collision::IDs" name="IDs">
+    <brief>The <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> of the two Ants interacting. note that the</brief>
+    <doc>constraint `IDS.first &lt; IDs.second` is always maintained to
+ensure uniqueness of IDs for <ref ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction">fort::myrmidon::AntInteraction</ref>.</doc>
+    <type name="InteractionID" ref="fort::myrmidon#fort::myrmidon::InteractionID" />
+  </field>
+  <field id="fort::myrmidon::Collision::InteractionTypes" name="InteractionTypes">
+    <brief>Reports all virtual <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> interacting between the two Ants.</brief>
+    <type name="std::vector&lt;std::pair&lt;unsigned int, unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int, unsigned int&gt; &gt; &gt;" />
+  </field>
+  <field id="fort::myrmidon::Collision::Zone" name="Zone">
+    <brief>Reports the <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision::Zone">Zone</ref> where the interaction happened, the</brief>
+    <doc>corresponding <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> is reported in <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref>. 0
+means the default zone.</doc>
+    <type name="ZoneID" ref="fort::myrmidon#fort::myrmidon::ZoneID" />
+  </field>
+</struct>

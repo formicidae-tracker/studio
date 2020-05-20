@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::Matcher" name="Matcher" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Reduces down output of Queries</brief>
+  <doc>Matchers reduces down output of <ref ref="fort::myrmidon::Query#fort::myrmidon::Query">fort::myrmidon::Query</ref> with some criterions.
+
+* <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntIDMatcher">AntIDMatcher</ref> : <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> must match a given ID
+* <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntColumnMatcher">AntColumnMatcher</ref> : an <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref> must match a given value.
+* <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceSmallerThan">AntDistanceSmallerThan</ref>,<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceGreaterThan">AntDistanceGreaterThan</ref> : for
+interaction queries anly, ensure some criterion for the distance
+between <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>.
+* <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleSmallerThan">AntAngleSmallerThan</ref>/<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleGreaterThan">AntAngleGreaterThan</ref> : for interaction
+queries only, ensure that angle between <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> meets sopme
+criterion.
+
+## Combination
+
+Using <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::And">And</ref> or <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Or">Or</ref>, one can combine several Matcher together to
+build more complex criterion.</doc>
+  <typedef id="fort::myrmidon::Matcher::PPtr" name="PPtr">
+    <brief>opaque pointer to implementation</brief>
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Matcher&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Matcher::Ptr" name="Ptr">
+    <brief>A pointer to a Matcher</brief>
+    <type name="std::shared_ptr&lt;fort::myrmidon::Matcher&gt;" />
+  </typedef>
+  <constructor id="fort::myrmidon::Matcher::Matcher" name="Matcher">
+    <brief>Private implementation constructor</brief>
+    <doc>User should not build a matcher directly, they must use this
+class static methods instead.</doc>
+    <argument id="fort::myrmidon::Matcher::Matcher::pMatcher" name="pMatcher">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::PPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::Matcher::And" name="And" static="yes">
+    <brief>AND combines several Matcher together.</brief>
+    <doc>AND combines several Matcher together. The resulting Matcher
+will match only if all of the given Matcher matches too.
+</doc>
+    <return>
+      <doc>a new Matcher which is the AND combination of the given
+Matchers.</doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::And::matchers" name="matchers">
+      <doc>the matchers to combine</doc>
+      <type name="std::initializer_list&lt;std::shared_ptr&lt;fort::myrmidon::Matcher&gt; &gt;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntAngleGreaterThan" name="AntAngleGreaterThan" static="yes">
+    <brief>Matches an angle between two Ants</brief>
+    <doc>Matches that the angle between two Ants is greater than
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleGreaterThan::angle">angle</ref>, only valid for interaction queries.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches when two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> are not facing the
+same direction with <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleGreaterThan::angle">angle</ref> threshold.</doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntAngleGreaterThan::angle" name="angle">
+      <doc>the angle to be greater (in radians).</doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntAngleSmallerThan" name="AntAngleSmallerThan" static="yes">
+    <brief>Matches an angle between two Ants</brief>
+    <doc>Matches that the angle between two Ants is smaller than
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleSmallerThan::angle">angle</ref>, only valid for interaction queries.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches when two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> are facing the same
+direction with <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntAngleSmallerThan::angle">angle</ref> threshold.</doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntAngleSmallerThan::angle" name="angle">
+      <doc>the angle to be smaller (in radians).</doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntColumnMatcher" name="AntColumnMatcher" static="yes">
+    <brief>Matches a given <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>
+    </brief>
+    <doc>Matches a given <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>. In case of interactions,
+matches any interaction with one of the Ant meeting the
+criterion.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> with the value matching that
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntColumnMatcher::name" name="name">
+      <doc>the name of the column to match against</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Matcher::AntColumnMatcher::value" name="value">
+      <doc>the value to match against</doc>
+      <type name="AntStaticValue" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntDistanceGreaterThan" name="AntDistanceGreaterThan" static="yes">
+    <brief>Matches a distance between two Ants</brief>
+    <doc>Matches that a distance between two Ants is greater than
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceGreaterThan::distance">distance</ref>, only valid for interaction queries.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> outside the given
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceGreaterThan::distance">distance</ref></doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntDistanceGreaterThan::distance" name="distance">
+      <doc>the distance to be greater.</doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntDistanceSmallerThan" name="AntDistanceSmallerThan" static="yes">
+    <brief>Matches a distance between two Ants</brief>
+    <doc>Matches that a distance between two Ants is smaller than
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceSmallerThan::distance">distance</ref>, only valid for interaction queries.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> within the given
+<ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntDistanceSmallerThan::distance">distance</ref></doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntDistanceSmallerThan::distance" name="distance">
+      <doc>the distance to be smaller.</doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::AntIDMatcher" name="AntIDMatcher" static="yes">
+    <brief>Matches a given <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref>
+    </brief>
+    <doc>Matches a given <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref>. In case of interactions, matches any
+interaction with one of the Ant with the given <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::AntIDMatcher::ID">ID</ref>
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr">fort::myrmidon::Matcher::Ptr</ref> that matches <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>  of the given ID</doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::AntIDMatcher::ID" name="ID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> to matches against</doc>
+      <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Matcher::Or" name="Or" static="yes">
+    <brief>OR combines several Matcher together.</brief>
+    <doc>OR combines several Matcher together. The resulting Matcher
+will match if any of the given Matcher matches too.
+</doc>
+    <return>
+      <doc>a new Matcher which is the OR combination of the given
+Matchers.</doc>
+      <type name="Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::Matcher::Or::matchers" name="matchers">
+      <doc>the matchers to combine</doc>
+      <type name="std::initializer_list&lt;std::shared_ptr&lt;fort::myrmidon::Matcher&gt; &gt;" />
+    </argument>
+  </method>
+</class>

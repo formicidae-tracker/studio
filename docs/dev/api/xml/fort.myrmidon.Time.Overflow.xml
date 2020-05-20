@@ -5,9 +5,13 @@
     <type name="std::runtime_error" />
   </base>
   <constructor id="fort::myrmidon::Time::Overflow::Overflow" name="Overflow">
+    <brief>Construct an overflow from a clocktype name</brief>
     <argument id="fort::myrmidon::Time::Overflow::Overflow::clocktype" name="clocktype">
+      <doc>the clock type to use</doc>
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </argument>
   </constructor>
-  <destructor id="fort::myrmidon::Time::Overflow::~Overflow" name="~Overflow" virtual="yes" />
+  <destructor id="fort::myrmidon::Time::Overflow::~Overflow" name="~Overflow" virtual="yes">
+    <brief>default destructor</brief>
+  </destructor>
 </class>

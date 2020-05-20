@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::AntTrajectory" name="AntTrajectory" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines a trajectory for an <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref>
+  </brief>
+  <field id="fort::myrmidon::AntTrajectory::Ant" name="Ant">
+    <brief>Reports the <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> of the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref> this trajectory refers to.</brief>
+    <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectory::Space" name="Space">
+    <brief>Reports the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Space">Space</ref> this trajectory is taking place</brief>
+    <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectory::Start" name="Start">
+    <brief>Reports the starting <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> of this trajectory. <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Nanoseconds">fort::myrmidon::AntTrajectory::Nanoseconds</ref>
+    </brief>
+    <doc>are reference to <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Start">Start</ref>.</doc>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectory::Positions" name="Positions">
+    <brief>Reports the position in the frame of the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">fort::myrmidon::AntTrajectory::Ant</ref>,x,y and angle in</brief>
+    <doc>radians.</doc>
+    <type name="Eigen::Matrix&lt;double, -1, 3, 0, -1, 3&gt;" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectory::Nanoseconds" name="Nanoseconds">
+    <brief>Reports the difference in ns of all position to <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Start">fort::myrmidon::AntTrajectory::Start</ref>.</brief>
+    <type name="std::vector&lt;unsigned long, std::allocator&lt;unsigned long&gt; &gt;" />
+  </field>
+  <typedef id="fort::myrmidon::AntTrajectory::ConstPtr" name="ConstPtr">
+    <brief>A pointer to the trajectory</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;" />
+  </typedef>
+</struct>

@@ -12,353 +12,162 @@ return values.
 3. [References](#report/references): Unresolved cross references.
 </doc>
   <coverage>
-    <type documented="3" name="function" undocumented="1">
-      <undocumented id="operator&lt;&lt;" name="operator&lt;&lt;">
-        <location column="1" file="src/fort/myrmidon/Time.hpp" line="494" />
-      </undocumented>
-    </type>
-    <type documented="4" name="typedef" undocumented="6">
-      <undocumented id="fort::myrmidon::Ant::ID" name="ID">
-        <location column="2" file="src/fort/myrmidon/Ant.hpp" line="19" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Ant::List" name="List">
-        <location column="2" file="src/fort/myrmidon/Ant.hpp" line="18" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Experiment::Ptr" name="Ptr">
-        <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="17" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Frame::ID" name="ID">
-        <location column="2" file="src/fort/myrmidon/Frame.hpp" line="14" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Frame::Ptr" name="Ptr">
-        <location column="2" file="src/fort/myrmidon/Frame.hpp" line="16" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Frame::Timestamp" name="Timestamp">
-        <location column="2" file="src/fort/myrmidon/Frame.hpp" line="15" />
-      </undocumented>
-    </type>
+    <type documented="6" name="function" undocumented="0" />
+    <type documented="5" name="category" undocumented="0" />
+    <type documented="76" name="typedef" undocumented="0" />
     <type documented="1" name="methodtemplate" undocumented="0" />
-    <type documented="1" name="templatetypeparameter" undocumented="1">
-      <undocumented id="fort::myrmidon::Duration::Duration::U" name="U">
-        <location column="23" file="src/fort/myrmidon/Time.hpp" line="46" />
-      </undocumented>
-    </type>
-    <type documented="2" name="namespace" undocumented="1">
-      <undocumented id="fort::myrmidon::priv" name="priv">
-        <location column="1" file="src/fort/myrmidon/Experiment.hpp" line="13" />
-      </undocumented>
-    </type>
-    <type documented="43" name="method" undocumented="4">
-      <undocumented id="fort::myrmidon::Experiment::GetFrame" name="GetFrame">
-        <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="22" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Experiment::Open" name="Open">
-        <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="19" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Time::Comparator::operator()" name="operator()">
-        <location column="3" file="src/fort/myrmidon/Time.hpp" line="430" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Time::DebugString" name="DebugString">
-        <location column="2" file="src/fort/myrmidon/Time.hpp" line="377" />
-      </undocumented>
-    </type>
-    <type documented="2" name="constructor" undocumented="2">
-      <undocumented id="fort::myrmidon::Duration::Duration" name="Duration">
-        <location column="2" file="src/fort/myrmidon/Time.hpp" line="40" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Time::Overflow::Overflow" name="Overflow">
-        <location column="3" file="src/fort/myrmidon/Time.hpp" line="213" />
-      </undocumented>
-    </type>
-    <type documented="7" name="variable" undocumented="1">
-      <undocumented id="fort::myrmidon::Ant::NO_ANT" name="NO_ANT">
-        <location column="2" file="src/fort/myrmidon/Ant.hpp" line="20" />
-      </undocumented>
-    </type>
-    <type documented="0" name="destructor" undocumented="1">
-      <undocumented id="fort::myrmidon::Time::Overflow::~Overflow" name="~Overflow">
-        <location column="3" file="src/fort/myrmidon/Time.hpp" line="215" />
-      </undocumented>
-    </type>
-    <type documented="3" name="class" undocumented="6">
-      <undocumented id="fort::myrmidon::Ant" name="Ant">
-        <location column="1" file="src/fort/myrmidon/Ant.hpp" line="16" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Experiment" name="Experiment">
-        <location column="1" file="src/fort/myrmidon/Experiment.hpp" line="15" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Frame" name="Frame">
-        <location column="1" file="src/fort/myrmidon/Frame.hpp" line="12" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Metadata" name="Metadata">
-        <location column="1" file="src/fort/myrmidon/Ant.hpp" line="14" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::Time::Comparator" name="Comparator">
-        <location column="2" file="src/fort/myrmidon/Time.hpp" line="428" />
-      </undocumented>
-      <undocumented id="fort::myrmidon::priv::Experiment" name="Experiment">
-        <location column="18" file="src/fort/myrmidon/Experiment.hpp" line="13" />
-      </undocumented>
-    </type>
+    <type documented="11" name="struct" undocumented="0" />
+    <type documented="2" name="templatetypeparameter" undocumented="0" />
+    <type documented="3" name="enum" undocumented="0" />
+    <type documented="3" name="namespace" undocumented="0" />
+    <type documented="185" name="method" undocumented="0" />
+    <type documented="46" name="field" undocumented="0" />
+    <type documented="18" name="constructor" undocumented="0" />
+    <type documented="8" name="variable" undocumented="0" />
+    <type documented="5" name="destructor" undocumented="0" />
+    <type documented="28" name="class" undocumented="0" />
+    <type documented="18" name="enumvalue" undocumented="0" />
   </coverage>
   <arguments>
-    <function id="fort::myrmidon::Duration::Duration" name="Duration">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="46" />
-      <undocumented name="duration" />
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="size" />
     </function>
-    <function id="fort::myrmidon::Duration::Hours" name="Hours">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="53" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="size" />
     </function>
-    <function id="fort::myrmidon::Duration::Minutes" name="Minutes">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="57" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
     </function>
-    <function id="fort::myrmidon::Duration::Seconds" name="Seconds">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="61" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
     </function>
-    <function id="fort::myrmidon::Duration::Milliseconds" name="Milliseconds">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="65" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
     </function>
-    <function id="fort::myrmidon::Duration::Microseconds" name="Microseconds">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="69" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
     </function>
-    <function id="fort::myrmidon::Duration::Nanoseconds" name="Nanoseconds">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="73" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="size" />
     </function>
-    <function id="fort::myrmidon::Duration::Parse" name="Parse">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="88" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="size" />
     </function>
-    <function id="fort::myrmidon::Duration::operator+" name="operator+">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="105" />
-      <undocumented-return />
-      <undocumented name="other" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="memory" />
     </function>
-    <function id="fort::myrmidon::Duration::operator*" name="operator*">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="110" />
-      <undocumented-return />
-      <undocumented name="other" />
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="memory" />
     </function>
-    <function id="fort::myrmidon::Duration::operator-" name="operator-">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="115" />
-      <undocumented-return />
-      <undocumented name="other" />
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="size" />
     </function>
-    <function id="fort::myrmidon::Duration::operator-" name="operator-">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="120" />
-      <undocumented-return />
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
     </function>
-    <function id="fort::myrmidon::Duration::operator&lt;" name="operator&lt;">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="125" />
-      <undocumented-return />
-      <undocumented name="other" />
+    <function id="fort::myrmidon::Space::LocateMovieFrame" name="LocateMovieFrame">
+      <location column="2" file="src/fort/myrmidon/Space.hpp" line="87" />
+      <undocumented name="time" />
     </function>
-    <function id="fort::myrmidon::Duration::operator&lt;=" name="operator&lt;=">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="130" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Duration::operator&gt;" name="operator&gt;">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="135" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Duration::operator&gt;=" name="operator&gt;=">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="140" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Duration::operator==" name="operator==">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="145" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::Now" name="Now">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="236" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::FromTimeT" name="FromTimeT">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="243" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::FromTimeval" name="FromTimeval">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="250" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::FromTimestamp" name="FromTimestamp">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="257" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::FromTimestampAndMonotonic" name="FromTimestampAndMonotonic">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="274" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::Parse" name="Parse">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="286" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::ToTimeT" name="ToTimeT">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="294" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::ToTimeval" name="ToTimeval">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="301" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::ToTimestamp" name="ToTimestamp">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="305" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::Add" name="Add">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="317" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::Round" name="Round">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="327" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::After" name="After">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="332" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::Before" name="Before">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="337" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::Equals" name="Equals">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="342" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::Sub" name="Sub">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="348" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::HasMono" name="HasMono">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="360" />
-      <undocumented-return />
-      <misspelled name="true" />
-    </function>
-    <function id="fort::myrmidon::Time::MonoID" name="MonoID">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="368" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::MonotonicValue" name="MonotonicValue">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="375" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::MonoFromSecNSec" name="MonoFromSecNSec">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="386" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="fort::myrmidon::Time::operator==" name="operator==">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="390" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::operator&lt;" name="operator&lt;">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="395" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::operator&lt;=" name="operator&lt;=">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="400" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::operator&gt;" name="operator&gt;">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="405" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::operator&gt;=" name="operator&gt;=">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="410" />
-      <undocumented-return />
-      <undocumented name="other" />
-    </function>
-    <function id="fort::myrmidon::Time::SortKey" name="SortKey">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="415" />
-      <undocumented-return />
-    </function>
-    <function id="fort::myrmidon::Time::SortKey" name="SortKey">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="426" />
-      <undocumented-return />
-      <undocumented name="timePtr" />
-    </function>
-    <function id="operator*" name="operator*">
-      <location column="1" file="src/fort/myrmidon/Time.hpp" line="461" />
-      <undocumented-return />
-      <undocumented name="a" />
-      <undocumented name="b" />
-    </function>
-    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
-      <location column="1" file="src/fort/myrmidon/Time.hpp" line="479" />
-      <undocumented-return />
-      <misspelled name="return" />
-    </function>
-    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
-      <location column="1" file="src/fort/myrmidon/Time.hpp" line="491" />
-      <undocumented-return />
-      <misspelled name="return" />
+    <function id="fort::myrmidon::Query::ComputeAntInteractions" name="ComputeAntInteractions">
+      <location column="2" file="src/fort/myrmidon/Query.hpp" line="106" />
+      <undocumented name="interactions" />
     </function>
   </arguments>
   <references>
+    <methodtemplate id="fort::myrmidon::Duration::Duration" name="Duration">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype component="duration" name="params">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </methodtemplate>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::T" name="T">
+      <location column="12" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype name="brief">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </templatetypeparameter>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::U" name="U">
+      <location column="23" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype name="brief">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </templatetypeparameter>
     <method id="fort::myrmidon::Duration::Parse" name="Parse">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="88" />
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="97" />
       <doctype name="doc">
         <ref name="std::string" />
-        <ref name="amount" />
-        <ref name="unit" />
-        <ref name="amount" />
-        <ref name="unit" />
         <ref name="std::exception" />
       </doctype>
-      <doctype component="string" name="params">
-        <ref name="amount" />
-        <ref name="unit" />
-      </doctype>
     </method>
-    <class id="fort::myrmidon::Time" name="Time">
-      <location column="1" file="src/fort/myrmidon/Time.hpp" line="194" />
+    <method id="fort::myrmidon::Time::MonoID" name="MonoID">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="432" />
       <doctype name="doc">
-        <ref name="TrackingDataDirectory" />
-      </doctype>
-    </class>
-    <method id="fort::myrmidon::Time::Sub" name="Sub">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="348" />
-      <doctype component="return" name="params">
-        <ref name="this" />
+        <ref name="std::exception" />
       </doctype>
     </method>
-    <method id="fort::myrmidon::Time::HasMono" name="HasMono">
-      <location column="2" file="src/fort/myrmidon/Time.hpp" line="360" />
-      <doctype component="true" name="params">
-        <ref name="this" />
+    <method id="fort::myrmidon::Time::DebugString" name="DebugString">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="447" />
+      <doctype name="doc">
+        <ref name="std::ostream" />
       </doctype>
     </method>
+    <method id="fort::myrmidon::Time::SortKey" name="SortKey">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="504" />
+      <doctype name="doc">
+        <ref name="std::map" />
+        <ref name="std::set" />
+      </doctype>
+    </method>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/fort/myrmidon/Types.hpp" line="313" />
+      <doctype component="out" name="params">
+        <ref name="std::ostream" />
+      </doctype>
+    </function>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/fort/myrmidon/Color.hpp" line="48" />
+      <doctype component="out" name="params">
+        <ref name="std::ostream" />
+      </doctype>
+    </function>
+    <method id="fort::myrmidon::Identification::AntPosition" name="AntPosition">
+      <location column="2" file="src/fort/myrmidon/Identification.hpp" line="114" />
+      <doctype name="returns">
+        <ref name="Eigen::Vector2d" />
+      </doctype>
+    </method>
+    <category id="manual_measurement" name="manual_measurement">
+      <doctype name="doc">
+        <ref name="fort::myrmidon::Identification::TagSize" />
+        <ref name="fort::myrmidon::Identification::SetTagSize" />
+      </doctype>
+    </category>
+    <typedef id="fort::myrmidon::Query::CollisionData" name="CollisionData">
+      <location column="2" file="src/fort/myrmidon/Query.hpp" line="21" />
+      <doctype name="brief">
+        <ref name="CollideFrame" />
+      </doctype>
+    </typedef>
   </references>
 </report>

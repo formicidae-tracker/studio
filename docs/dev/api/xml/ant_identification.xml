@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<category id="ant_identification" name="ant_identification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Ant Identification mechanism</brief>
+  <doc># Ant Identification mechanism
+
+The main object of interest in myrmidon are <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>, designated by their
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref>. Their position is acquired by the FORT
+system using fiducial marker, but the general philosophy of myrmidon
+is to hide the direct <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> value for this tracking
+data, and asks user to relate <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to the wanted
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> object using
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>. The main reason is that with long
+tracking experiment, some ant will need to be re-tagged, and one may
+need to associate several <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to track the same
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Also in practice fiducial tag cannot be always
+be aligned and centered on the insect body. Then
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> also contains data in order to make
+these adjustment.
+
+## Identifiying <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> with <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>
+
+Usually this steps will be performed through the FORT Studio graphical
+interface. However one would be able to add <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> in
+an <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> with
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::CreateAnt">fort::myrmidon::Experiment::CreateAnt</ref> and then associate
+<ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> with that <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> using
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddIdentification">fort::myrmidon::Experiment::AddIdentification</ref>.
+
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> have <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> validity,
+using <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::SetStart">fort::myrmidon::Identification::SetStart</ref> and
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::SetEnd">fort::myrmidon::Identification::SetEnd</ref>, one can reduce the
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> range an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> is
+used to designate an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+
+## Identification invariants
+
+To ensure soundness of the tracking database, in an
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>, myrmidon is ensuring that at a given
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>:
+
+ * Only one <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> is used to designat an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+ * Only one <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> is targeted by any <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>.
+
+
+## Automatic and manual pose estimation
+
+As mentionned above <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> also contains data on how the
+virtual <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> reference frame is related to the tag reference frame.
+
+Using the graphical interface, this orientation is automatically
+computed when the user sets the head-tail measurement for any new
+identification. However for very large number of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>, this is
+unpraticable, and user can manually specify that relation using
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::SetUserDefinedAntPose">fort::myrmidon::Identification::SetUserDefinedAntPose</ref>.
+
+## Tag statistics.
+
+Myrmidon only reports fiduical tag data through
+<ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">fort::myrmidon::TagStatistics</ref>, one can use
+<ref ref="fort::myrmidon::Query#fort::myrmidon::Query::ComputeTagStatistics">fort::myrmidon::Query::ComputeTagStatistics</ref> to get data telling :
+
+* At which <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the tag was first and last seen
+* How many time a given tag was detected
+* How many time a tag was detected twice in a frame.
+* The detecteion gap histogram, informing fo how long tracking was
+  lost for a given tag.
+
+By design, it is not possible to get access to the raw tag data
+(position and orientation).</doc>
+</category>

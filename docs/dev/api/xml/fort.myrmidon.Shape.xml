@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Shape" interface="true" name="Shape" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Base class for  geometric Shape</brief>
+  <doc>Base class for geometruc Shape such as <ref ref="fort::myrmidon::Circle#fort::myrmidon::Circle">fort::myrmidon::Circle</ref>, <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">fort::myrmidon::Capsule</ref> and
+<ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">fort::myrmidon::Polygon</ref>. This class is only here to be able to construct
+hereterogenous <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList">ConstList</ref> of shape, and contains only static
+methods to convert from and to opaque Shape.</doc>
+  <subclass access="public" name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
+    <brief>A capsule</brief>
+  </subclass>
+  <subclass access="public" name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
+    <brief>A circle</brief>
+  </subclass>
+  <subclass access="public" name="Polygon" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">
+    <brief>A closed polygon</brief>
+  </subclass>
+  <typedef id="fort::myrmidon::Shape::ConstList" name="ConstList">
+    <brief>A const list of Shape</brief>
+    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::Shape&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::Shape&gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Shape::ConstPList" name="ConstPList">
+    <brief>An opaque const list Shape</brief>
+    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt; &gt; &gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Shape::ConstPPtr" name="ConstPPtr">
+    <brief>An opaque private pointer</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Shape::ConstPtr" name="ConstPtr">
+    <brief>A const pointer to a Shape</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::Shape&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Shape::Ptr" name="Ptr">
+    <brief>A pointer to a Shape</brief>
+    <type name="std::shared_ptr&lt;fort::myrmidon::Shape&gt;" />
+  </typedef>
+  <destructor abstract="yes" id="fort::myrmidon::Shape::~Shape" name="~Shape" virtual="yes">
+    <brief>Default destructor</brief>
+  </destructor>
+  <method abstract="yes" id="fort::myrmidon::Shape::Cast" name="Cast" static="yes">
+    <brief>Casts from opaque pointer.</brief>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPtr">fort::myrmidon::Shape::ConstPtr</ref> of the Shape</doc>
+      <type name="ConstPtr" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPtr" />
+    </return>
+    <argument id="fort::myrmidon::Shape::Cast::pShape" name="pShape">
+      <doc>an opaque Shape</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Shape::Cast" name="Cast" static="yes">
+    <brief>Casts to opaque pointer.</brief>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPPtr">fort::myrmidon::Shape::ConstPPtr</ref> to the opaque implementation</doc>
+      <type name="ConstPPtr" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPPtr" />
+    </return>
+    <argument id="fort::myrmidon::Shape::Cast::shape" name="shape">
+      <doc>a Shape</doc>
+      <type name="ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Shape::Cast" name="Cast" static="yes">
+    <brief>Cast from opaque list</brief>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList">fort::myrmidon::Shape::ConstList</ref> of Shape</doc>
+      <type name="ConstList" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList" />
+    </return>
+    <argument id="fort::myrmidon::Shape::Cast::pShapes" name="pShapes">
+      <doc>an opaque list of shape</doc>
+      <type name="ConstPList" qualifier=" const &amp;" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPList" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Shape::Cast" name="Cast" static="yes">
+    <brief>Cast to opaque list</brief>
+    <return>
+      <doc>an opaque list of shapes</doc>
+      <type name="ConstPList" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPList" />
+    </return>
+    <argument id="fort::myrmidon::Shape::Cast::shapes" name="shapes">
+      <doc>a list of shape</doc>
+      <type name="ConstList" qualifier=" const &amp;" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList" />
+    </argument>
+  </method>
+</class>

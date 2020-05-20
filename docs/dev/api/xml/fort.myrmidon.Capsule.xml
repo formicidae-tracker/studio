@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Capsule" interface="true" name="Capsule" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>A capsule</brief>
+  <doc>A Capsule is two circle and the region in between thos two circles.
+
+Their main purpose is to define <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> body parts.</doc>
+  <base access="public">
+    <type name="Shape" ref="fort::myrmidon::Shape#fort::myrmidon::Shape" />
+    <brief>Base class for  geometric Shape</brief>
+  </base>
+  <typedef id="fort::myrmidon::Capsule::ConstPtr" name="ConstPtr">
+    <brief>A const pointer to a Capsule</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::Capsule&gt;" />
+  </typedef>
+  <typedef id="fort::myrmidon::Capsule::PPtr" name="PPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Capsule&gt;" />
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::Capsule::Capsule" name="Capsule">
+    <brief>public constructor</brief>
+    <argument id="fort::myrmidon::Capsule::Capsule::c1" name="c1">
+      <doc>the first center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Capsule::Capsule::c2" name="c2">
+      <doc>the second center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Capsule::Capsule::r1" name="r1">
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::Capsule::c1">c1</ref></doc>
+      <type builtin="yes" name="double" />
+    </argument>
+    <argument id="fort::myrmidon::Capsule::Capsule::r2" name="r2">
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::Capsule::c2">c2</ref></doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </constructor>
+  <constructor abstract="yes" id="fort::myrmidon::Capsule::Capsule" name="Capsule">
+    <brief>Private implementation constructor.</brief>
+    <argument id="fort::myrmidon::Capsule::Capsule::pCapsule" name="pCapsule">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::PPtr" />
+    </argument>
+  </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::Capsule::~Capsule" name="~Capsule" virtual="yes">
+    <brief>virtual destructor</brief>
+  </destructor>
+  <method abstract="yes" id="fort::myrmidon::Capsule::C1" name="C1">
+    <brief>Gets the first center</brief>
+    <return>
+      <doc>the first center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::C2" name="C2">
+    <brief>Gets the second center</brief>
+    <return>
+      <doc>the second center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::R1" name="R1">
+    <brief>Gets the radius at C1</brief>
+    <return>
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::C1">fort::myrmidon::Capsule::C1</ref></doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::R2" name="R2">
+    <brief>Gets the radius at C2</brief>
+    <return>
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::C2">fort::myrmidon::Capsule::C2</ref></doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::SetC1" name="SetC1">
+    <brief>Sets the first center</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Capsule::SetC1::c1" name="c1">
+      <doc>the first center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::SetC2" name="SetC2">
+    <brief>Sets the second center</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Capsule::SetC2::c2" name="c2">
+      <doc>the second center</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::SetR1" name="SetR1">
+    <brief>Sets the radius at C1</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Capsule::SetR1::r1" name="r1">
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::C1">fort::myrmidon::Capsule::C1</ref></doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::SetR2" name="SetR2">
+    <brief>Sets the radius at C2</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Capsule::SetR2::r2" name="r2">
+      <doc>the radius at <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::C2">fort::myrmidon::Capsule::C2</ref></doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Capsule::ToPrivate" name="ToPrivate">
+    <brief>Downcast to private implementation.</brief>
+    <return>
+      <doc>the private implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::PPtr" />
+    </return>
+  </method>
+</class>

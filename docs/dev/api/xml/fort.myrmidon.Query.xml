@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Query" interface="true" name="Query" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>namespace priv</brief>
+  <typedef id="fort::myrmidon::Query::CollisionData" name="CollisionData">
+    <brief>Data returned by &amp;lt;CollideFrame&amp;gt;.</brief>
+    <type name="std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt;" />
+  </typedef>
+  <method abstract="yes" id="fort::myrmidon::Query::CollideFrames" name="CollideFrames" static="yes">
+    <brief>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> in data frame</brief>
+    <doc>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> between ants in frames, data will be reported
+sequencially, space by space.</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::CollideFrames::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFrames::result" name="result">
+      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
+      <type name="std::vector&lt;std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt;, std::allocator&lt;std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt; &gt; &gt;" qualifier=" &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFrames::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFrames::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeAntInteractions" name="ComputeAntInteractions" static="yes">
+    <brief>Computes interactions for ants</brief>
+    <doc>Computes interactions for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
+in time, first interacting Ant by firs interacting Ant.</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::trajectories" name="trajectories">
+      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
+      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt; &gt; &gt;" qualifier=" &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::interactions" name="interactions">
+      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntInteraction&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntInteraction&gt; &gt; &gt;" qualifier=" &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::maximumGap" name="maximumGap">
+      <doc>the maximal undetected duration before cutting the
+trajectory in two</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::matcher" name="matcher">
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
+intensive queries.</doc>
+      <type name="Matcher::Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeMeasurementFor" name="ComputeMeasurementFor" static="yes">
+    <brief>Computes all measurement for an Ant</brief>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement::List">fort::myrmidon::ComputedMeasurement::List</ref> of the Measurement for the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="ComputedMeasurement::List" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement::List" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeMeasurementFor::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeMeasurementFor::antID" name="antID">
+      <doc>the desired <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="Ant::ID" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeMeasurementFor::mTypeID" name="mTypeID">
+      <doc>the desired measurement type</doc>
+      <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeTagStatistics" name="ComputeTagStatistics" static="yes">
+    <brief>Computes <ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">fort::myrmidon::TagStatistics</ref> for an experiment</brief>
+    <return>
+      <doc>the tag statistics index by <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref></doc>
+      <type name="TagStatistics::ByTagID" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::ByTagID" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeTagStatistics::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeTrajectories" name="ComputeTrajectories" static="yes">
+    <brief>Computes trajectories for ants</brief>
+    <doc>Computes trajectories for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
+in time, ant by ant.</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::trajectories" name="trajectories">
+      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
+      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt; &gt; &gt;" qualifier=" &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::maximumGap" name="maximumGap">
+      <doc>the maximal undetected duration before cutting the
+trajectory in two</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeTrajectories::matcher" name="matcher">
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
+intensive queries.</doc>
+      <type name="Matcher::Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::IdentifyFrames" name="IdentifyFrames" static="yes">
+    <brief>Identifies ants in frames</brief>
+    <doc>Identifies Ants in frames, data will be reported squencially,
+space by space.</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::result" name="result">
+      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref></doc>
+      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt; &gt; &gt;" qualifier=" &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+</class>
