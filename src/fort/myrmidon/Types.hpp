@@ -213,7 +213,6 @@ struct CollisionFrame {
 
 	// The zone any <Ant> is in.
 	std::map<AntID,ZoneID> AntZones;
-
 };
 
 // Defines a trajectory for an <Ant>

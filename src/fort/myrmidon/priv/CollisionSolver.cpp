@@ -46,6 +46,9 @@ CollisionSolver::ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) cons
 	res->Space = frame->Space;
 	for ( const auto & [zID,ants] : locatedAnts ) {
 		ComputeCollisions(res->Collisions,ants,zID);
+		for ( const auto & a : ants ) {
+			res->AntZones[a.ID] = zID;
+		}
 	}
 	return res;
 }

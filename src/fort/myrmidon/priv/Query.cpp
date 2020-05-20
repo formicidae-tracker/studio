@@ -106,7 +106,7 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 	auto rangeIter = ranges.begin();
 	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
 
 	tbb::filter_t<RawData,IdentifiedData>
 		computeData(tbb::filter::parallel,
@@ -116,7 +116,7 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 
 	tbb::filter_t<IdentifiedData,void>
-		storeData(tbb::filter::serial,
+		storeData(tbb::filter::serial_in_order,
 		          [&result](const IdentifiedData & res) {
 			          result.push_back(res);
 		          });
@@ -139,7 +139,7 @@ void Query::CollideFrame(const Experiment::ConstPtr & experiment,
 	auto rangeIter = ranges.begin();
 	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData >
-		loadData(tbb::filter::serial,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
 
 	tbb::filter_t<RawData,
 	              CollisionData>
@@ -152,7 +152,7 @@ void Query::CollideFrame(const Experiment::ConstPtr & experiment,
 
 
 	tbb::filter_t<CollisionData,void>
-		storeData(tbb::filter::serial,
+		storeData(tbb::filter::serial_in_order,
 		          [&result](const CollisionData & res) {
 			          result.push_back(res);
 		          });
