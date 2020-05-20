@@ -43,8 +43,9 @@ InteractionSolver::ComputeInteractions(const IdentifiedFrame::ConstPtr & frame) 
 	LocateAnts(locatedAnts,frame);
 	auto res = std::make_shared<InteractionFrame>();
 	res->FrameTime = frame->FrameTime;
+	res->Space = frame->Space;
 	for ( const auto & [zID,ants] : locatedAnts ) {
-		ComputeInteractions(res->Interactions,ants,frame->Space,zID);
+		ComputeInteractions(res->Interactions,ants,zID);
 	}
 	return res;
 }
@@ -86,7 +87,6 @@ void InteractionSolver::LocateAnts(LocatedAnts & locatedAnts,
 
 void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  result,
                                             const std::vector<PositionedAnt> & ants,
-                                            SpaceID spaceID,
                                             ZoneID zoneID) const {
 
 	//first-pass we compute possible interactions
@@ -142,7 +142,7 @@ void InteractionSolver::ComputeInteractions(std::vector<PonctualInteraction> &  
 	for ( const auto & [ID,interactionSet] : res ) {
 		std::vector<InteractionType> interactions(interactionSet.size());
 		std::copy(interactionSet.cbegin(),interactionSet.cend(),interactions.begin());
-		result.push_back(PonctualInteraction{ID,interactions,spaceID,zoneID});
+		result.push_back(PonctualInteraction{ID,interactions,zoneID});
 	}
 
 }

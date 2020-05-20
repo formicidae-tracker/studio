@@ -12,9 +12,9 @@ class Matcher {
 public:
 	typedef std::shared_ptr<Matcher> Ptr;
 
-	static Ptr And(std::initializer_list<Ptr> matcher);
+	static Ptr And(const std::vector<Ptr> & matcher);
 
-	static Ptr Or(std::initializer_list<Ptr> matcher);
+	static Ptr Or(const std::vector<Ptr> & matcher);
 
 	static Ptr AntIDMatcher(AntID ID);
 

@@ -6,12 +6,12 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Matcher::Ptr Matcher::And(std::initializer_list<Ptr>  matchers) {
+Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 	class AndMatcher : public Matcher {
 	private:
 		std::vector<Ptr> d_matchers;
 	public:
-		AndMatcher(std::initializer_list<Ptr>  matchers)
+		AndMatcher(const std::vector<Ptr> & matchers)
 			: d_matchers(matchers) {
 		}
 		void SetUpOnce(const ConstAntByID & ants) override {
@@ -41,12 +41,12 @@ Matcher::Ptr Matcher::And(std::initializer_list<Ptr>  matchers) {
 	return std::make_shared<AndMatcher>(matchers);
 }
 
-Matcher::Ptr Matcher::Or(std::initializer_list<Ptr> matchers) {
+Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 	class OrMatcher : public Matcher {
 	private:
 		std::vector<Ptr> d_matchers;
 	public:
-		OrMatcher(std::initializer_list<Ptr>  matchers)
+		OrMatcher(const std::vector<Ptr> &  matchers)
 			: d_matchers(matchers) {
 		}
 		void SetUpOnce(const ConstAntByID & ants) override {
@@ -93,6 +93,9 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
 		           const std::vector<InteractionType> & types) override {
+			if ( ant2 != 0 && ant2 == d_id ) {
+				return true;
+			}
 			return ant1 == d_id;
 		}
 	};
@@ -134,7 +137,13 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
 		           const std::vector<InteractionType> & type) override {
-			auto fi = d_ants.find(ant1);
+			auto fi = d_ants.find(ant2);
+			if ( fi != d_ants.end()
+			     && fi->second->GetValue(d_name,d_time) == d_value ) {
+				return true;
+			}
+
+			fi = d_ants.find(ant1);
 			if ( fi == d_ants.end() ) {
 				return false;
 			}

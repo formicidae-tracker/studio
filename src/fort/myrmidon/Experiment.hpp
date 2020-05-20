@@ -236,8 +236,7 @@ public:
 	double DefaultTagSize() const;
 
 	// Sets the default tag siye in mm
-	//
-	// @defaultTagSize the tag size in mm for the ma
+	// @defaultTagSize the tag size in mm ( the one defined on tag sheet )
 	void   SetDefaultTagSize(double defaultTagSize);
 
 	// The threshold used for tag detection
@@ -246,7 +245,6 @@ public:
 	uint8_t Threshold() const;
 
 	// Sets the detection threshold
-	//
 	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 

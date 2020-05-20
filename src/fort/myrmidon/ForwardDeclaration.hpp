@@ -7,8 +7,7 @@
 namespace fort {
 namespace myrmidon {
 
-
-// Forward declaration for <Ant::ID>
+// Forward declaration for Ant::ID
 typedef uint32_t AntID;
 
 class Ant;

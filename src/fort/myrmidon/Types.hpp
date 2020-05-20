@@ -71,6 +71,7 @@ enum class AntMetadataType {
 // <Experiment> tag family and size, and the size of the tag measured
 // in the image.
 struct ComputedMeasurement {
+	// A list of measurement
 	typedef std::vector<ComputedMeasurement> List;
 	// The <Time> of the Measurement
 	Time   MTime;
@@ -136,6 +137,7 @@ struct TagStatistics {
 // A PositionnedAnt gives an <Ant> position and orientation in a
 // <IdentifiedFrame>
 struct PositionedAnt {
+	// Memory management issue with Eigen
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	// The position in the image.
 	Eigen::Vector2d Position;
@@ -191,37 +193,64 @@ struct PonctualInteraction {
 	InteractionID                IDs;
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
 	std::vector<InteractionType> InteractionTypes;
-	SpaceID                      Space;
-	// Reports the
+	// Reports the <Zone> where the interaction happened, the
+	// corresponding <Space> is reported in <InteractionFrame>. 0
+	// means the default zone.
 	ZoneID                       Zone;
 };
 
+// Defines all <PonctualInteraction> happening at a given time.
 struct InteractionFrame {
+	// A pointer to an <InteractionFrame>
 	typedef std::shared_ptr<const InteractionFrame> ConstPtr;
+	// The <Time> when the interaction happens
 	Time                             FrameTime;
+	// Reports the <Space> where all the <PonctualInteraction>
+	// happens.
+	SpaceID                      Space;
+	// The <PonctualInteraction> happenning at <FrameTime>
 	std::vector<PonctualInteraction> Interactions;
 };
 
 
+// Defines a trajectory for an <Ant>
 struct AntTrajectory {
+	// A pointer to the trajectory
 	typedef std::shared_ptr<const AntTrajectory> ConstPtr;
 
+	// Reports the <AntID> of the <Ant> this trajectory refers to.
 	AntID   Ant;
+	// Reports the <Space> this trajectory is taking place
 	SpaceID Space;
+	// Reports the starting <Time> of this trajectory. <Nanoseconds>
+	// are reference to <Start>.
 	Time    Start;
-
+	// Reports the position in the frame of the <Ant>,x,y and angle in
+	// radians.
 	Eigen::Matrix<double,Eigen::Dynamic,3> Positions;
+	// Reports the difference in ns of all position to <Start>.
 	std::vector<uint64_t>                  Nanoseconds;
 };
 
+// Defines an interaction between two Ants
 struct AntInteraction {
+	// A pointer to the interaction structure
 	typedef std::shared_ptr<const AntInteraction> ConstPtr;
 
-	InteractionID                          IDs;
-	std::vector<InteractionType>           Types;
+	// The IDs of the two <Ant>. Always reports `IDs.first <
+	// IDs.second`.
+	InteractionID                      IDs;
+	// Reports the the virtual shape body part that were in contact
+	// during the interaction.
+	std::vector<InteractionType>       Types;
+	// Reports the <AntTrajectory> of each Ant during the
+	// interaction. The Trajectory are truncated to the interaction.
 	std::pair<AntTrajectory::ConstPtr,
-	          AntTrajectory::ConstPtr>     Trajectories;
-	Time                                   Start,End;
+	          AntTrajectory::ConstPtr> Trajectories;
+	// Reports the <Time> the interaction starts
+	Time                               Start;
+	// Reports the <Time> the interaction ends
+	Time                               End;
 };
 
 }
