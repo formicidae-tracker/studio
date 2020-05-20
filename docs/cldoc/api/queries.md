@@ -62,3 +62,53 @@ Query::ComputeTrajectories(experiment,
 
 All available matcher, included And or Or combination matcher could be
 found in <fort::myrmidon::Matcher> class.
+
+## examples
+
+### query for a single frame
+
+In order to query for a single frame, simply use the
+<fort::myrmidon::Time> of the frame and <fort::myrmidon::Time> + 1 ns
+
+```
+using fort::myrmidon;
+Time frameTime; // time of the wanted frame
+std::vector<CollisionData> collisions; // after query, shoudl have a single element.
+Query::CollideFrame(experiment,
+                    collisions,
+                    std::make_shared<Time>(frameTime),
+                    std::make_shared<Time>(frameTime.Add(1)));
+// 1ns is the minimal gap between two times, only a single frame
+// should be reported. Maybe one of a different space if it happens
+// that two frames have been allegedly taken in the same nanosecond
+// for multispace experiment.
+```
+
+Note: querying Frame by Frame is not advised, as it will be very IO
+inefficient. If you need a sequence of frames, it is better to ask for
+all frames at once. Even if only a few frames are needed, it may be
+more efficient to query for all of them and drop the many unwanted ones.
+
+
+### Gets all the interactions with the nurse group
+
+```
+using fort::myrmidon;
+
+experiment->AddMetadataColumn("group",AntMetadataType::String,"worker");
+
+// Adds some ant to the "nurse" group
+antA->SetValue("group",{},"nurse");
+antB->SetValue("group",{},"nurse");
+
+// query now all interactions with the nurse group
+std::vector<AntTrajectory::ConstPtr> trajectories;
+std::vector<AntInteraction::ConstPtr> interactions;
+Query::ComputeAntInteractions(experiment,
+                              tajectories,
+                              interactions,
+                              {},
+                              {},
+                              2 * Duration::Second,
+                              Matcher::AntColumnMatcher("group","nurse"));
+```
