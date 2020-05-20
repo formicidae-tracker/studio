@@ -61,7 +61,6 @@ class Ant;
 // and <DeleteCapsule>.
 //
 // More complete informations can be found in <ant_collision_detection>
-//
 class Ant {
 public:
 

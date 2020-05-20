@@ -20,11 +20,12 @@ convex region between these circles.
 Each of the capsule must be assigned to a virtual body part. These are
 defined at the experiment level using
 <fort::myrmidon::Experiment::CreateAntShapeType>. Each shape type is
-assigned an <AntShapeTypeID> and has a user defined name. A type can
-be removed using <fort::myrmidon::Experiment::DeleteAntShapeType>.
+assigned an <fort::myrmidon::AntShapeTypeID> and has a user defined
+name. A type can be removed using
+<fort::myrmidon::Experiment::DeleteAntShapeType>.
 
 Once a type is defined, one can start to add capsule for any Ant with
-that type using <Ant::AddCapsule>
+that type using <fort::myrmidon::Ant::AddCapsule>
 
 ## Zoning
 

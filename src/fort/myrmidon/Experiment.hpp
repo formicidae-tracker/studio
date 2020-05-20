@@ -248,6 +248,7 @@ public:
 	// @th the threshold to use.
 	void SetThreshold(uint8_t th);
 
+	/* cldoc:begin-category(manual_measurement) */
 
 	// Creates a measurement type
 	// @name the wanted name for the new measurement
@@ -270,6 +271,8 @@ public:
 	//
 	// @return a map of measurement type name by their <MeasurementTypeID>
 	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
+
+	/* cldoc:end-category() */
 
 	/* cldoc:begin-category(ant_interaction) */
 

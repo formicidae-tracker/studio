@@ -18,7 +18,7 @@ namespace myrmidon {
 
 // The ID for a tag
 //
-// As explained in <tag_identification> myrmidon doesn't allows to
+// As explained in <ant_identification> myrmidon doesn't allows to
 // access tracking tag data directly, but through the definition of
 // <Ant> and <Identification>.
 typedef uint32_t TagID;
@@ -34,7 +34,7 @@ typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> V
 // ID for Ant virtual body parts
 //
 // ID to designate an <Ant> virtual body part. See
-// <ant_collision_detection>
+// <ant_interaction>
 typedef uint32_t AntShapeTypeID;
 
 // ID for manual measurements
@@ -181,7 +181,7 @@ typedef std::pair<AntID,AntID>                   InteractionID;
 //
 // Designates an interaction type for an interaction. Unline
 // <InteractionID>, there are no order on the interaction types, as
-// the first item refers to the <AntSHapeTypeID> for the first <Ant>
+// the first item refers to the <AntShapeTypeID> for the first <Ant>
 // and the second one for the second Ant.
 typedef std::pair<AntShapeTypeID,AntShapeTypeID> InteractionType;
 
@@ -194,7 +194,7 @@ struct Collision {
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
 	std::vector<InteractionType> InteractionTypes;
 	// Reports the <Zone> where the interaction happened, the
-	// corresponding <Space> is reported in <InteractionFrame>. 0
+	// corresponding <Space> is reported in <CollisionFrame>. 0
 	// means the default zone.
 	ZoneID                       Zone;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fort/myrmidon/Types.hpp>
+#include <fort/myrmidon/Query.hpp>
 
 #include "Experiment.hpp"
 #include "TrackingDataDirectory.hpp"
@@ -16,9 +17,8 @@ namespace priv {
 
 class Query {
 public:
-	typedef std::pair<Space::ID,IdentifiedFrame::ConstPtr>                           IdentifiedData;
-	typedef std::tuple<Space::ID,IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
-
+	typedef fort::myrmidon::Query::IdentifiedData IdentifiedData;
+	typedef fort::myrmidon::Query::CollisionData  CollisionData;
 
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
 	                                 TagStatistics::ByTagID & result);

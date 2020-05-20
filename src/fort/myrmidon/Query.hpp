@@ -3,8 +3,7 @@
 #include "Types.hpp"
 
 #include "Experiment.hpp"
-
-
+#include "Matchers.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -16,8 +15,13 @@ namespace myrmidon {
 // Experiment. They takes advantages of multithreading to have
 // efficient computation time.
 class Query {
+public:
+	typedef std::pair<Space::ID,IdentifiedFrame::ConstPtr>                           IdentifiedData;
+	typedef std::tuple<Space::ID,IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
 
-	// Computes all measurement for ant Ant
+
+
+	// Computes all measurement for an Ant
 	// @experiment the <Experiment> to query for
 	// @antID the desired <Ant>
 	// @mTypeID the desired measurement type
@@ -28,6 +32,31 @@ class Query {
 	                                                       MeasurementTypeID mTypeID);
 
 	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment::ConstPtr & experiment);
+
+	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
+	                           std::vector<IdentifiedData> & result,
+	                           const Time::ConstPtr & start,
+	                           const Time::ConstPtr & end);
+
+	static void CollideFrame(const Experiment::ConstPtr & experiment,
+	                         std::vector<CollisionData> & result,
+	                         const Time::ConstPtr & start,
+	                         const Time::ConstPtr & end);
+
+	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
+	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                                const Time::ConstPtr & start,
+	                                const Time::ConstPtr & end,
+	                                Duration maximumGap,
+	                                Matcher::Ptr matcher = Matcher::Ptr());
+
+	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
+	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                                   std::vector<AntInteraction::ConstPtr> & interactions,
+	                                   const Time::ConstPtr & start,
+	                                   const Time::ConstPtr & end,
+	                                   Duration maximumGap,
+	                                   Matcher::Ptr matcher = Matcher::Ptr());
 
 
 };

@@ -4,10 +4,10 @@ Non-tracking timed data
 
 # Named values: Non-tracking timed data for Ant
 
-On top of the tracking data acquired with the tracking system <Ant>
-can also store timed key based values. Keys are non-empty string, and
-values are <AntStaticValue>, i.e. an union of boolean, number string
-or <xTime>.
+On top of the tracking data acquired with the tracking system
+<fort::myrmidon::Ant> can also store timed key based values. Keys are
+non-empty string, and values are <fort::myrmidon::AntStaticValue>,
+i.e. an union of boolean, number string or <fort::myrmidon::Time>.
 
 ## Defining column and their type.
 
