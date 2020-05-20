@@ -22,8 +22,8 @@ interactions or trajectories.
 
 ## Main documentation topics
 
-  * <tag_identification>
-  * <named_values>
-  * <ant_collision_detection>
-  * <manual_measurement>
-  * <queries>
+  * <ant_identification> : How do we identify Ant
+  * <named_values> : Non-tracking Ant Data
+  * <ant_interaction>: Ant virtual shape and interaction (collision detection)
+  * <manual_measurement> : how to access manual measurement made in FORT Studio
+  * <queries> : how to perform complex queries on the dataset
