@@ -80,6 +80,13 @@ public:
 	Zone::ConstByID CZones() const;
 
 
+	// Locates a movie file and frame number
+	//
+	// @return a pair of an absolute file path to the movie file, and
+	// the wanted movie frame number.
+	std::pair<std::string,uint64_t> LocateMovieFrame(const Time & time) const;
+
+
 	// Opaque pointer for implementation
 	typedef std::shared_ptr<priv::Space> PPtr;
 

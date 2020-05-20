@@ -1,6 +1,7 @@
 #include "Space.hpp"
 
 #include "priv/Space.hpp"
+#include "priv/TrackingDataDirectory.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -43,6 +44,23 @@ Zone::ConstByID Space::CZones() const {
 		res.insert(std::make_pair(zID,std::make_shared<const Zone>(zone)));
 	}
 	return res;
+}
+
+std::pair<std::string,uint64_t> Space::LocateMovieFrame(const Time & time) const {
+	for ( const auto & tdd : d_p->TrackingDataDirectories() ) {
+		if ( tdd->IsValid(time) == false ) {
+			continue;
+		}
+
+		auto ref = tdd->FrameReferenceAfter(time);
+		auto movieSegment = tdd->MovieSegments().Find(time);
+
+		auto movieFrameID = movieSegment.second->ToMovieFrameID(ref.FID());
+		return std::make_pair(movieSegment.second->AbsoluteFilePath().string(),movieFrameID);
+	}
+	std::ostringstream oss;
+	oss << "Could not find time " << time << " in space " << d_p->Name();
+	throw std::runtime_error(oss.str());
 }
 
 
