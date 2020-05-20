@@ -249,7 +249,7 @@ void TrackingVideoWidget::setZoomFocus(quint32 antID,qreal value) {
 void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
 	if ( !d_frame.Image == true || !d_frame.TrackingFrame ) {
 		if ( reset == true ) {
-			d_lastFocus == QPointF(0,0);
+			d_lastFocus = QPointF(0,0);
 		}
 		return;
 	}

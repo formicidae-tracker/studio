@@ -355,7 +355,7 @@ bool Time::Equals(const Time & t) const {
 	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
 		return d_mono == t.d_mono;
 	}
-	return d_wallSec == t.d_wallSec && t.d_wallNsec == t.d_wallNsec;
+	return d_wallSec == t.d_wallSec && d_wallNsec == t.d_wallNsec;
 }
 
 bool Time::Before(const Time & t) const {
