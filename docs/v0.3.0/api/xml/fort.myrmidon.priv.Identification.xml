@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::priv::Identification" name="Identification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>private <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> implemenation</brief>
+</class>

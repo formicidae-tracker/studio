@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::AntInteraction" name="AntInteraction" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines an interaction between two Ants</brief>
+  <field id="fort::myrmidon::AntInteraction::IDs" name="IDs">
+    <brief>The IDs of the two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Always reports `IDs.first &lt;</brief>
+    <doc>IDs.second`.</doc>
+    <type name="InteractionID" ref="fort::myrmidon#fort::myrmidon::InteractionID" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Types" name="Types">
+    <brief>Reports the the virtual shape body part that were in contact</brief>
+    <doc>during the interaction.</doc>
+    <type name="std::vector&lt;std::pair&lt;unsigned int, unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int, unsigned int&gt; &gt; &gt;" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Trajectories" name="Trajectories">
+    <brief>Reports the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> of each Ant during the</brief>
+    <doc>interaction. The Trajectory are truncated to the interaction.</doc>
+    <type name="std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;, std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt; &gt;" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Start" name="Start">
+    <brief>Reports the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the interaction starts</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::End" name="End">
+    <brief>Reports the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the interaction ends</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <typedef id="fort::myrmidon::AntInteraction::ConstPtr" name="ConstPtr">
+    <brief>A pointer to the interaction structure</brief>
+    <type name="std::shared_ptr&lt;const fort::myrmidon::AntInteraction&gt;" />
+  </typedef>
+</struct>

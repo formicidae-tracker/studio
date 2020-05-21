@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::Duration" name="Duration" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>The time ellapsed between two <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+  </brief>
+  <doc>A <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">Duration</ref> could be negative. Why not using
+std::chrono::duration ?  The C++ comittee took more than 9 years
+before figuring out that people may want to convert "1m" to a
+duration. Since <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> should be re-implemented with a
+strong [golang time](https://golang.org/pkg/time) inspiration, why
+not doing the same for the associated <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">Duration</ref>.
+
+This class aims to replicate a go syntax. For example to represent
+one hour, 10 minute, one may write:
+
+```c++
+Duration d = 1 * Duration::Hour + 10 * Duration::Minute;
+```
+
+</doc>
+  <methodtemplate id="fort::myrmidon::Duration::Duration" name="Duration">
+    <brief>constructor from std::chrono::duration</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Duration::Duration::duration" name="duration">
+      <doc>the &amp;lt;std::chrono::duration&amp;gt; to convert</doc>
+      <type name="std::chrono::duration&lt;_Rep, _Period&gt;" qualifier=" const &amp;" />
+    </argument>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::T" name="T">
+      <brief>first &amp;lt;std::chrono::duration&amp;gt; template</brief>
+    </templatetypeparameter>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::U" name="U">
+      <brief>second &amp;lt;std::chrono::duration&amp;gt; template</brief>
+    </templatetypeparameter>
+  </methodtemplate>
+  <variable id="fort::myrmidon::Duration::Hour" name="Hour">
+    <brief>An Hour</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <variable id="fort::myrmidon::Duration::Microsecond" name="Microsecond">
+    <brief>A Microsecond</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <variable id="fort::myrmidon::Duration::Millisecond" name="Millisecond">
+    <brief>A Millisecond</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <variable id="fort::myrmidon::Duration::Minute" name="Minute">
+    <brief>A Minute</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <variable id="fort::myrmidon::Duration::Nanosecond" name="Nanosecond">
+    <brief>A Nanosecond</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <variable id="fort::myrmidon::Duration::Second" name="Second">
+    <brief>A Second</brief>
+    <type name="Duration" qualifier=" const" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+  </variable>
+  <constructor id="fort::myrmidon::Duration::Duration" name="Duration">
+    <brief>constructor by an ammount of nanosecond</brief>
+    <argument id="fort::myrmidon::Duration::Duration::ns" name="ns">
+      <doc>the number of nanosecond</doc>
+      <type name="int64_t" />
+    </argument>
+  </constructor>
+  <constructor id="fort::myrmidon::Duration::Duration" name="Duration">
+    <brief>Default constructor with a zero duration.</brief>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::Duration::Hours" name="Hours">
+    <brief>Gets the duration in hours</brief>
+    <return>
+      <doc>the duration in hours</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Duration::Microseconds" name="Microseconds">
+    <brief>Gets the number of microseconds</brief>
+    <return>
+      <doc>the duration in microseconds</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Duration::Milliseconds" name="Milliseconds">
+    <brief>Gets the number of milliseconds</brief>
+    <return>
+      <doc>the duration in milliseconds</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Duration::Minutes" name="Minutes">
+    <brief>Gets the duration in minutes</brief>
+    <return>
+      <doc>the duration in minutes</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::Duration::Nanoseconds" name="Nanoseconds">
+    <brief>Gets the number of nanoseconds</brief>
+    <return>
+      <doc>the duration in nanoseconds</doc>
+      <type name="int64_t" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::Duration::operator*" name="operator*">
+    <brief>Multiplication operator</brief>
+    <doc>Multiplies two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>a new duration `this * other `</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator*::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to multiply</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator+" name="operator+">
+    <brief>The addition operator</brief>
+    <doc>Adds two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>a new duration `this + other `</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator+::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to add</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator-" name="operator-">
+    <brief>Soustraction operator</brief>
+    <doc>Substracts two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>a new duration `this - other `</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator-::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to substract</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator-" name="operator-">
+    <brief>Negation operator</brief>
+    <return>
+      <doc>the opposite duration `- this`</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::Duration::operator&lt;" name="operator&lt;">
+    <brief>Less than operator</brief>
+    <doc>Compares two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>`this &lt; other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator&lt;::other" name="other">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to compare</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator&lt;=" name="operator&lt;=">
+    <brief>Less or equal operator</brief>
+    <doc>Compares two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>`this &lt;= other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator&lt;=::other" name="other">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to compare</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator==" name="operator==">
+    <brief>Equality operator</brief>
+    <doc>Compares two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>`this == other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator==::other" name="other">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to compare</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator&gt;" name="operator&gt;">
+    <brief>Greater than operator</brief>
+    <doc>Compares two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>`this &gt; other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator&gt;::other" name="other">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to compare</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Duration::operator&gt;=" name="operator&gt;=">
+    <brief>Greate or equal operator</brief>
+    <doc>Compares two <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>.
+</doc>
+    <return>
+      <doc>`this &gt;= other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Duration::operator&gt;=::other" name="other">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to compare</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Duration::Parse" name="Parse" static="yes">
+    <brief>Parses a string to a Duration</brief>
+    <doc>Parses a &amp;lt;std::string&amp;gt; to a <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>. string must be of the
+form `[amount][unit]` where `[amount]` is a value that may
+contain a decimal point, and `[unit]` could be any of `h`, `m`,
+`s`, `ms`, `us`, `µs` and `ns`. This pattern may be
+repeated. For example `4m32s` is a valid input.
+
+It may throw &amp;lt;std::exception&amp;gt; on any parsing error.
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> represented by the string.</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="fort::myrmidon::Duration::Parse::str" name="str">
+      <doc>the string to Parse in the form  `"2h"` or `"1m"`</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Duration::Seconds" name="Seconds">
+    <brief>Gets the number of seconds</brief>
+    <return>
+      <doc>the duration in seconds</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+</class>

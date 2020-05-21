@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::priv::Shape" name="Shape" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+</class>

@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='utf-8'?>
+<report id="report" title="Documention generator" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <doc>
+This page provides a documentation coverage report. Any undocumented symbols
+are reported here together with the location of where you should document them.
+
+This report contains the following sections:
+
+1. [Coverage](#report/coverage): The documented symbols coverage.
+2. [Arguments](#report/arguments): Errors about undocumented, misspelled function arguments and
+return values.
+3. [References](#report/references): Unresolved cross references.
+</doc>
+  <coverage>
+    <type documented="6" name="function" undocumented="0" />
+    <type documented="5" name="category" undocumented="0" />
+    <type documented="76" name="typedef" undocumented="0" />
+    <type documented="1" name="methodtemplate" undocumented="0" />
+    <type documented="11" name="struct" undocumented="0" />
+    <type documented="2" name="templatetypeparameter" undocumented="0" />
+    <type documented="3" name="enum" undocumented="0" />
+    <type documented="3" name="namespace" undocumented="0" />
+    <type documented="185" name="method" undocumented="0" />
+    <type documented="46" name="field" undocumented="0" />
+    <type documented="18" name="constructor" undocumented="0" />
+    <type documented="8" name="variable" undocumented="0" />
+    <type documented="5" name="destructor" undocumented="0" />
+    <type documented="28" name="class" undocumented="0" />
+    <type documented="18" name="enumvalue" undocumented="0" />
+  </coverage>
+  <arguments>
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="size" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="size" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="size" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="size" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="memory" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="ptr" />
+      <undocumented name="memory" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="size" />
+    </function>
+    <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="141" />
+      <undocumented name="" />
+      <undocumented name="ptr" />
+    </function>
+    <function id="fort::myrmidon::Space::LocateMovieFrame" name="LocateMovieFrame">
+      <location column="2" file="src/fort/myrmidon/Space.hpp" line="87" />
+      <undocumented name="time" />
+    </function>
+    <function id="fort::myrmidon::Query::ComputeAntInteractions" name="ComputeAntInteractions">
+      <location column="2" file="src/fort/myrmidon/Query.hpp" line="106" />
+      <undocumented name="interactions" />
+    </function>
+  </arguments>
+  <references>
+    <methodtemplate id="fort::myrmidon::Duration::Duration" name="Duration">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype component="duration" name="params">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </methodtemplate>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::T" name="T">
+      <location column="12" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype name="brief">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </templatetypeparameter>
+    <templatetypeparameter id="fort::myrmidon::Duration::Duration::U" name="U">
+      <location column="23" file="src/fort/myrmidon/Time.hpp" line="48" />
+      <doctype name="brief">
+        <ref name="std::chrono::duration" />
+      </doctype>
+    </templatetypeparameter>
+    <method id="fort::myrmidon::Duration::Parse" name="Parse">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="97" />
+      <doctype name="doc">
+        <ref name="std::string" />
+        <ref name="std::exception" />
+      </doctype>
+    </method>
+    <method id="fort::myrmidon::Time::MonoID" name="MonoID">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="432" />
+      <doctype name="doc">
+        <ref name="std::exception" />
+      </doctype>
+    </method>
+    <method id="fort::myrmidon::Time::DebugString" name="DebugString">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="447" />
+      <doctype name="doc">
+        <ref name="std::ostream" />
+      </doctype>
+    </method>
+    <method id="fort::myrmidon::Time::SortKey" name="SortKey">
+      <location column="2" file="src/fort/myrmidon/Time.hpp" line="504" />
+      <doctype name="doc">
+        <ref name="std::map" />
+        <ref name="std::set" />
+      </doctype>
+    </method>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/fort/myrmidon/Types.hpp" line="313" />
+      <doctype component="out" name="params">
+        <ref name="std::ostream" />
+      </doctype>
+    </function>
+    <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+      <location column="1" file="src/fort/myrmidon/Color.hpp" line="48" />
+      <doctype component="out" name="params">
+        <ref name="std::ostream" />
+      </doctype>
+    </function>
+    <method id="fort::myrmidon::Identification::AntPosition" name="AntPosition">
+      <location column="2" file="src/fort/myrmidon/Identification.hpp" line="114" />
+      <doctype name="returns">
+        <ref name="Eigen::Vector2d" />
+      </doctype>
+    </method>
+    <category id="manual_measurement" name="manual_measurement">
+      <doctype name="doc">
+        <ref name="fort::myrmidon::Identification::TagSize" />
+        <ref name="fort::myrmidon::Identification::SetTagSize" />
+      </doctype>
+    </category>
+    <typedef id="fort::myrmidon::Query::CollisionData" name="CollisionData">
+      <location column="2" file="src/fort/myrmidon/Query.hpp" line="21" />
+      <doctype name="brief">
+        <ref name="CollideFrame" />
+      </doctype>
+    </typedef>
+  </references>
+</report>
