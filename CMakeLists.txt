@@ -92,7 +92,6 @@ int main(){
 	USE_CXX17_FS_LIBRARY
 )
 
-
 if(USE_CXX17_FS_LIBRARY)
 	set(CXXFS_LIBRARY "-lstdc++fs")
 else(USE_CXX17_FS_LIBRARY)
@@ -147,6 +146,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
         DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake )
 
+add_subdirectory(pkgconfig)
 
 
 add_subdirectory(src)
