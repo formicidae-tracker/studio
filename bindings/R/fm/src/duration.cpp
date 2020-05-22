@@ -2,11 +2,6 @@
 
 #include <RcppCommon.h>
 
-namespace Rcpp {
-template <> SEXP wrap(const fort::myrmidon::Duration &);
-template <> fort::myrmidon::Duration as(SEXP);
-}
-
 #include <Rcpp.h>
 
 // Helpers method for Duration
