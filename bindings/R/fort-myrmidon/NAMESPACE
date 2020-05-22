@@ -1,0 +1,3 @@
+useDynLib(fort-myrmidon, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
