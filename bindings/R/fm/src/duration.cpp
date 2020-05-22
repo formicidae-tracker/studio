@@ -1,13 +1,38 @@
 #include <fort/myrmidon/Time.hpp>
 
-#include <RcppCommon.h>
-
 #include <Rcpp.h>
 
 // Helpers method for Duration
-void fmDuration_to_string(fort::myrmidon::Duration * d) {
+void fmDuration_show(fort::myrmidon::Duration * d) {
 	Rcpp::Rcout << *d << "\n";
 }
+
+
+fort::myrmidon::Duration * fmHour(int64_t v) {
+	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Hour);
+}
+
+fort::myrmidon::Duration * fmMinute(int64_t v) {
+	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Minute);
+}
+
+fort::myrmidon::Duration * fmSecond(int64_t v) {
+	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Second);
+}
+
+fort::myrmidon::Duration * fmMillisecond(int64_t v) {
+	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Millisecond);
+}
+
+fort::myrmidon::Duration * fmMicrosecond(int64_t v) {
+	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Microsecond);
+}
+
+fort::myrmidon::Duration * fmNanosecond(int64_t v) {
+	return new fort::myrmidon::Duration(v);
+}
+
+
 
 
 RCPP_MODULE(duration) {
@@ -20,6 +45,14 @@ RCPP_MODULE(duration) {
 		.method("milliseconds",&fort::myrmidon::Duration::Milliseconds)
 		.method("microseconds",&fort::myrmidon::Duration::Microseconds)
 		.method("nanoseconds",&fort::myrmidon::Duration::Nanoseconds)
-		.method("show",&fmDuration_to_string)
+		.method("show",&fmDuration_show)
 		;
+	Rcpp::function("fmHour",&fmHour);
+	Rcpp::function("fmMinute",&fmMinute);
+	Rcpp::function("fmSecond",&fmSecond);
+	Rcpp::function("fmMillisecond",&fmMillisecond);
+	Rcpp::function("fmMicrosecond",&fmMicrosecond);
+	Rcpp::function("fmNanosecond",&fmNanosecond);
 }
+
+RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Duration);
