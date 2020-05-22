@@ -1,6 +1,6 @@
-\name{fort-myrmidon-package}
-\alias{fort-myrmidon-package}
-\alias{fort-myrmidon}
+\name{fm-package}
+\alias{fm-package}
+\alias{fm}
 \docType{package}
 \title{
   A short title line describing what the package does
