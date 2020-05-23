@@ -7,10 +7,12 @@ using namespace Rcpp;
 
 
 RcppExport SEXP _rcpp_module_boot_duration();
+RcppExport SEXP _rcpp_module_boot_test();
 RcppExport SEXP _rcpp_module_boot_time();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_duration", (DL_FUNC) &_rcpp_module_boot_duration, 0},
+    {"_rcpp_module_boot_test", (DL_FUNC) &_rcpp_module_boot_test, 0},
     {"_rcpp_module_boot_time", (DL_FUNC) &_rcpp_module_boot_time, 0},
     {NULL, NULL, 0}
 };
