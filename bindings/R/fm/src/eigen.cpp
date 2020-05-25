@@ -16,4 +16,22 @@ template <> SEXP wrap(const Eigen::Vector2d & v) {
 	return res;
 }
 
+template <> fort::myrmidon::Vector2dList as(SEXP l) {
+	Rcpp::List list(l);
+	fort::myrmidon::Vector2dList res;
+	res.reserve(list.size());
+	for ( const auto & v : list ) {
+		res.push_back(as<Eigen::Vector2d>(v));
+	}
+	return res;
+}
+
+template <> SEXP wrap(const fort::myrmidon::Vector2dList & list) {
+	Rcpp::List res;
+	for ( const auto & v : list ) {
+		res.push_back(v);
+	}
+	return res;
+}
+
 }
