@@ -63,6 +63,10 @@ public:
 	// @return the <TagID> used by this Identification
 	TagID TagValue() const;
 
+	// Gets the AntID of the targeted Ant
+	//
+	// @return the <AntID> of the targetted <Ant>
+	AntID TargetAntID() const;
 
 	// Sets the starting validity time for this Identification
 	// @start the starting <Time> could be an empty pointer to
@@ -188,5 +192,14 @@ private:
 };
 
 
+
 } // namespace fort
 } // namespace myrmidon
+
+// Formats an Identification to an std::ostream
+// @out the stream to format to
+// @identification the <fort::myrmidon::Identification> to format
+//
+// @return a reference to <out>
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Identification & identification);

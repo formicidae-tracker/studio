@@ -12,3 +12,4 @@
 loadModule("duration", TRUE)
 loadModule("time", TRUE)
 loadModule("shapes", TRUE)
+loadModule("identification", TRUE)

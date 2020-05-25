@@ -1,6 +1,7 @@
 #include "Identification.hpp"
 
 #include "priv/Identification.hpp"
+#include "priv/Ant.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -16,6 +17,11 @@ const Identification::PPtr & Identification::ToPrivate() const {
 TagID Identification::TagValue() const {
 	return d_p->TagValue();
 }
+
+AntID Identification::TargetAntID() const {
+	return d_p->Target()->AntID();
+}
+
 
 void Identification::SetStart(const Time::ConstPtr & start) {
 	d_p->SetStart(start);
@@ -70,3 +76,9 @@ std::string OverlappingIdentification::Reason(const priv::Identification & a,
 
 } // namespace fort
 } // namespace myrmidon
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Identification & identification) {
+	return out << *(identification.ToPrivate());
+}
