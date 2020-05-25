@@ -43,12 +43,24 @@ RCPP_MODULE(shapes) {
 		.derives<fort::myrmidon::Shape>("fmShape")
 		.constructor<Eigen::Vector2d,double>()
 		.const_method("show",&fmCircle_show)
+		.const_method("center",&fort::myrmidon::Circle::Center)
+		.const_method("radius",&fort::myrmidon::Circle::Radius)
+		.method("setCenter",&fort::myrmidon::Circle::SetCenter)
+		.method("setRadius",&fort::myrmidon::Circle::SetRadius)
 		;
 
 	Rcpp::class_<fort::myrmidon::Capsule>("fmCapsule")
 		.derives<fort::myrmidon::Shape>("fmShape")
 		.constructor<Eigen::Vector2d,Eigen::Vector2d,double,double>()
 		.const_method("show",&fmCapsule_show)
+		.const_method("c1",&fort::myrmidon::Capsule::C1)
+		.const_method("r1",&fort::myrmidon::Capsule::R1)
+		.const_method("c2",&fort::myrmidon::Capsule::C2)
+		.const_method("r2",&fort::myrmidon::Capsule::R2)
+		.method("setC1",&fort::myrmidon::Capsule::SetC1)
+		.method("setR1",&fort::myrmidon::Capsule::SetR1)
+		.method("setC2",&fort::myrmidon::Capsule::SetC2)
+		.method("setR2",&fort::myrmidon::Capsule::SetR2)
 		;
 
 
