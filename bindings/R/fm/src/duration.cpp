@@ -1,6 +1,4 @@
-#include <fort/myrmidon/Time.hpp>
-
-#include <Rcpp.h>
+#include "duration.h"
 
 // Helpers method for Duration
 void fmDuration_show(fort::myrmidon::Duration * d) {
@@ -33,8 +31,6 @@ fort::myrmidon::Duration * fmNanosecond(int64_t v) {
 }
 
 
-
-
 RCPP_MODULE(duration) {
 	Rcpp::class_<fort::myrmidon::Duration>("fmDuration")
 		.constructor()
@@ -54,5 +50,3 @@ RCPP_MODULE(duration) {
 	Rcpp::function("fmMicrosecond",&fmMicrosecond);
 	Rcpp::function("fmNanosecond",&fmNanosecond);
 }
-
-RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Duration);

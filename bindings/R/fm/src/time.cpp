@@ -1,7 +1,5 @@
-#include <fort/myrmidon/Time.hpp>
-
-#include <Rcpp.h>
-
+#include "time.h"
+#include "duration.h"
 
 void fmTime_show(const fort::myrmidon::Time * t) {
 	Rcpp::Rcout << *t << "\n";
@@ -58,9 +56,6 @@ fort::myrmidon::Time::ConstPtr * fmTime_const_ptr(const fort::myrmidon::Time * t
 }
 
 
-RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Time);
-RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Time::ConstPtr);
-RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Duration);
 
 
 RCPP_MODULE(time) {

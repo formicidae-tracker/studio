@@ -11,3 +11,4 @@
 ## a load action, so this does not have to be placed in .onLoad() or evalqOnLoad().
 loadModule("duration", TRUE)
 loadModule("time", TRUE)
+loadModule("shapes", TRUE)
