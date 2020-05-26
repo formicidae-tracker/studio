@@ -64,12 +64,9 @@ void Ant::ClearCapsules() {
 	d_capsules.clear();
 }
 
-void Ant::AddCapsule(AntShapeTypeID typeID, const CapsulePtr & capsule) {
+void Ant::AddCapsule(AntShapeTypeID typeID, const Capsule & capsule) {
 	if ( d_shapeTypes->Count(typeID) == 0 ) {
 		throw std::invalid_argument("Unknown AntShapeTypeID " + std::to_string(typeID));
-	}
-	if (!capsule) {
-		throw std::invalid_argument("No capsule");
 	}
 	d_capsules.push_back(std::make_pair(typeID,capsule));
 }

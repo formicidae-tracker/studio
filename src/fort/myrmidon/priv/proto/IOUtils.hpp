@@ -250,13 +250,13 @@ public:
 	//
 	// @pb the protobuf message to read from
 	// @return a <Capsule::Ptr> initialized with the message data
-	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+	static Capsule LoadCapsule(const pb::Capsule & pb);
 
 	// Saves a Capsule to a message
 	//
 	// @pb the protobuf message to save to
 	// @capsule the <Capsule> to save to
-	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+	static void SaveCapsule(pb::Capsule * pb,const Capsule & capsule);
 
 
 	static CirclePtr LoadCircle(const pb::Circle & pb);

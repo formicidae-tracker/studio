@@ -33,14 +33,13 @@ void AntUTest::TearDown() {
 
 
 TEST_F(AntUTest,CapsuleEdition) {
-	auto capsule = std::make_shared<Capsule>(Eigen::Vector2d(0,0),
-	                                         Eigen::Vector2d(1,1),
-	                                         0.1,
-	                                         0.1);
+	Capsule capsule(Eigen::Vector2d(0,0),
+	                Eigen::Vector2d(1,1),
+	                0.1,
+	                0.1);
 
 
-	EXPECT_THROW(ant->AddCapsule(3,Capsule::Ptr()),std::invalid_argument);
-	EXPECT_THROW(ant->AddCapsule(1,Capsule::Ptr()),std::invalid_argument);
+	EXPECT_THROW(ant->AddCapsule(3,Capsule()),std::invalid_argument);
 	EXPECT_NO_THROW({
 			ant->AddCapsule(1,capsule);
 			ant->AddCapsule(2,capsule);

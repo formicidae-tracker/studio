@@ -104,9 +104,9 @@ TEST_F(QueryUTest,InteractionFrame) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
-				                                            Eigen::Vector2d(0,-10),
-				                                            10,10));
+				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
+				                          Eigen::Vector2d(0,-10),
+				                          10,10));
 			}
 		});
 
@@ -171,9 +171,9 @@ TEST_F(QueryUTest,InteractionComputation) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
-				                                            Eigen::Vector2d(0,-10),
-				                                            10,10));
+				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
+				                          Eigen::Vector2d(0,-10),
+				                          10,10));
 			}
 		});
 

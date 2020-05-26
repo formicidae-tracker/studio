@@ -94,7 +94,7 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 
 	//first-pass we compute possible interactions
 	struct AntTypedCapsule  {
-		Capsule::ConstPtr C;
+		Capsule           C;
 		AntID             ID;
 		AntShapeType::ID  TypeID;
 		inline bool operator<( const AntTypedCapsule & other ) {
@@ -120,11 +120,11 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 
 		for ( const auto & [typeID,c] : fiGeom->second ) {
 			auto data =
-				AntTypedCapsule { .C = std::make_shared<Capsule>(c->Transform(antToOrig)),
+				AntTypedCapsule { .C = c.Transform(antToOrig),
 				                  .ID = uint32_t(ant.ID),
 				                  .TypeID = typeID,
 			};
-			nodes.push_back({.Object = data, .Volume = data.C->ComputeAABB() });
+			nodes.push_back({.Object = data, .Volume = data.C.ComputeAABB() });
 		}
 	}
 	auto kdt = KDT::Build(nodes.begin(),nodes.end(),-1);
@@ -135,7 +135,7 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 	// now do the actual collisions
 	std::map<InteractionID,std::set<InteractionType> > res;
 	for ( const auto & coarse : possibleCollisions ) {
-		if ( coarse.first.C->Intersects(*coarse.second.C) == true ) {
+		if ( coarse.first.C.Intersects(coarse.second.C) == true ) {
 			InteractionID ID = std::make_pair(coarse.first.ID,coarse.second.ID);
 			InteractionType type = std::make_pair(coarse.first.TypeID,coarse.second.TypeID);
 			res[ID].insert(type);

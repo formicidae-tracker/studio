@@ -547,20 +547,20 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 
 }
 
-CapsulePtr IOUtils::LoadCapsule(const pb::Capsule & pb) {
+Capsule IOUtils::LoadCapsule(const pb::Capsule & pb) {
 	Eigen::Vector2d c1,c2;
 	LoadVector(c1,pb.c1());
 	LoadVector(c2,pb.c2());
-	return std::make_shared<Capsule>(c1,c2,
-	                                 pb.r1(),
-	                                 pb.r2());
+	return Capsule(c1,c2,
+	               pb.r1(),
+	               pb.r2());
 }
 
-void IOUtils::SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule) {
-	SaveVector(pb->mutable_c1(),capsule->C1());
-	SaveVector(pb->mutable_c2(),capsule->C2());
-	pb->set_r1(capsule->R1());
-	pb->set_r2(capsule->R2());
+void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule & capsule) {
+	SaveVector(pb->mutable_c1(),capsule.C1());
+	SaveVector(pb->mutable_c2(),capsule.C2());
+	pb->set_r1(capsule.R1());
+	pb->set_r2(capsule.R2());
 }
 
 CirclePtr IOUtils::LoadCircle(const pb::Circle & pb) {
@@ -595,7 +595,7 @@ void IOUtils::SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon) {
 
 Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 	if ( pb.has_capsule() == true ) {
-		return LoadCapsule(pb.capsule());
+		return std::make_shared<Capsule>(LoadCapsule(pb.capsule()));
 	}
 
 	if ( pb.has_circle() == true ) {
@@ -611,7 +611,7 @@ Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 void IOUtils::SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape) {
 	switch(shape->ShapeType()) {
 	case Shape::Type::Capsule:
-		SaveCapsule(pb->mutable_capsule(),std::static_pointer_cast<const Capsule>(shape));
+		SaveCapsule(pb->mutable_capsule(),*std::static_pointer_cast<const Capsule>(shape));
 		return;
 	case Shape::Type::Circle:
 		SaveCircle(pb->mutable_circle(),std::static_pointer_cast<const Circle>(shape));

@@ -36,11 +36,11 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 		auto antIso = Isometry2Dd(p.Angle,p.Position);
 		for ( const auto & [t,c] : ant->Capsules() ) {
 			auto color = t == 1 ? cv::Scalar(0,255,0) : cv::Scalar(255,0,255);
-			auto cc = c->Transform(antIso);
+			auto cc = c.Transform(antIso);
 			auto center1 = cv::Point(cc.C1().x(),cc.C1().y())/3;
 			auto center2 = cv::Point(cc.C2().x(),cc.C2().y())/3;
-			cv::circle(debug,center1,c->R1()/3,color,2);
-			cv::circle(debug,center2,c->R2()/3,color,2);
+			cv::circle(debug,center1,c.R1()/3,color,2);
+			cv::circle(debug,center2,c.R2()/3,color,2);
 			cv::line(debug,center1,center2,color,2);
 		}
 	}
@@ -89,16 +89,16 @@ void CollisionSolverUTest::SetUpTestSuite() {
 		auto ant = std::make_shared<Ant>(shapeTypes,
 		                                 metadata,
 		                                 i+1);
-		ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(40+noise(e1),0),
-		                                            Eigen::Vector2d(-100+2*noise(e1),0),
-		                                            40+noise(e1),
-		                                            60+noise(e1)));
-		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,10),
-		                                            Eigen::Vector2d(60,50),
-		                                            25,40));
-		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,-10),
-		                                            Eigen::Vector2d(60,-50),
-		                                            25,40));
+		ant->AddCapsule(1,Capsule(Eigen::Vector2d(40+noise(e1),0),
+		                          Eigen::Vector2d(-100+2*noise(e1),0),
+		                          40+noise(e1),
+		                          60+noise(e1)));
+		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,10),
+		                          Eigen::Vector2d(60,50),
+		                          25,40));
+		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,-10),
+		                          Eigen::Vector2d(60,-50),
+		                          25,40));
 
 		ants.insert(std::make_pair(ant->AntID(),ant));
 
@@ -157,9 +157,9 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 			Isometry2Dd aIso(a.Angle,a.Position);
 			Isometry2Dd bIso(b.Angle,b.Position);
 			for ( const auto & [aType,aC] : aAnt->Capsules() ) {
-				Capsule aCapsule = aC->Transform(aIso);
+				Capsule aCapsule = aC.Transform(aIso);
 				for ( const auto & [bType,bC] : bAnt->Capsules() ) {
-					Capsule bCapsule = bC->Transform(bIso);
+					Capsule bCapsule = bC.Transform(bIso);
 					if ( aCapsule.Intersects(bCapsule) == true ) {
 						res.push_back(std::make_pair(aType,bType));
 					}

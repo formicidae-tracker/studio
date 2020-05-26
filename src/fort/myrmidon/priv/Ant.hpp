@@ -12,6 +12,9 @@
 
 #include "TimeMap.hpp"
 
+#include "Capsule.hpp"
+
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -45,7 +48,7 @@ public:
 	typedef fort::myrmidon::Ant::ID    ID;
 
 	// A List of shape
-	typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>> TypedCapsuleList;
+	typedef std::vector<std::pair<AntShapeTypeID,Capsule>> TypedCapsuleList;
 
 	// The Constructor for an Ant
 	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
@@ -94,7 +97,7 @@ public:
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
 	static std::string FormatID(ID ID);
 
-	void AddCapsule(AntShapeTypeID typeID, const CapsulePtr & capsule);
+	void AddCapsule(AntShapeTypeID typeID, const Capsule & capsule);
 
 	const TypedCapsuleList & Capsules() const;
 
