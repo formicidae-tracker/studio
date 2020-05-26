@@ -1,6 +1,6 @@
 #include <fort/myrmidon/Types.hpp>
 
-#include "Rcpp.h"
+#include "RcppCommon.h"
 
 namespace Rcpp {
 template <> Eigen::Vector2d as(SEXP);

@@ -1,6 +1,9 @@
 #include "time.h"
 #include "duration.h"
 
+#include "Rcpp.h"
+
+
 void fmTime_show(const fort::myrmidon::Time * t) {
 	Rcpp::Rcout << *t << "\n";
 }

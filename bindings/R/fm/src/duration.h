@@ -1,5 +1,5 @@
 #include <fort/myrmidon/Time.hpp>
 
-#include <Rcpp.h>
+#include "RcppCommon.h"
 
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Duration);

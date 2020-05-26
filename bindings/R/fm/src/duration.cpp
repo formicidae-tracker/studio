@@ -1,5 +1,7 @@
 #include "duration.h"
 
+#include "Rcpp.h"
+
 // Helpers method for Duration
 void fmDuration_show(fort::myrmidon::Duration * d) {
 	Rcpp::Rcout << *d << "\n";

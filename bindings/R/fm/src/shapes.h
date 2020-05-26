@@ -1,6 +1,6 @@
 #include <fort/myrmidon/Shapes.hpp>
 
-#include "Rcpp.h"
+#include "RcppCommon.h"
 
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Shape);
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::Circle);

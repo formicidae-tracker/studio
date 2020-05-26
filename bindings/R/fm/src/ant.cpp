@@ -2,6 +2,7 @@
 
 #include "ant.h"
 
+#include "Rcpp.h"
 
 void fmAnt_show(const fort::myrmidon::Ant * ant) {
 	Rcpp::Rcout << "fmAnt " << ant->FormattedID() << "\n";

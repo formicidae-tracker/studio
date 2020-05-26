@@ -2,6 +2,8 @@
 
 #include "eigen.h"
 
+#include "Rcpp.h"
+
 void fmCircle_show(const fort::myrmidon::Circle * c) {
 	Rcpp::Rcout << "fmCircle ( center = "
 	            << c->Center().transpose()

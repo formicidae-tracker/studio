@@ -1,5 +1,8 @@
 #include "eigen.h"
 
+#include "Rcpp.h"
+
+
 namespace Rcpp {
 template <> Eigen::Vector2d as(SEXP vv) {
 	NumericVector v(vv);
