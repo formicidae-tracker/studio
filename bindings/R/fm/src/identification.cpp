@@ -42,3 +42,24 @@ RCPP_MODULE(identification) {
 		.method("clearUserDefinedAntPose",&fort::myrmidon::Identification::ClearUserDefinedAntPose)
 		;
 }
+
+
+namespace Rcpp {
+
+template <> SEXP wrap(const fort::myrmidon::Identification::List & l) {
+	List res;
+	for ( const auto & i : l) {
+		res.push_back(i);
+	}
+	return res;
+}
+
+template <> SEXP wrap(const fort::myrmidon::Identification::ConstList & l ) {
+	List res;
+	for ( const auto & i : l) {
+		res.push_back(i);
+	}
+	return res;
+}
+
+}
