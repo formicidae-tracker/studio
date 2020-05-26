@@ -48,6 +48,7 @@ void fmZone_show(const fort::myrmidon::Zone * z) {
 
 
 RCPP_MODULE(zone) {
+
 	Rcpp::class_<fort::myrmidon::CZoneDefinition>("fmCZoneDefinition")
 		.const_method("show",&fmCZoneDefinition_show)
 		.const_method("geometry",&fort::myrmidon::CZoneDefinition::Geometry)

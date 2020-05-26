@@ -12,6 +12,7 @@ RcppExport SEXP _rcpp_module_boot_color();
 RcppExport SEXP _rcpp_module_boot_duration();
 RcppExport SEXP _rcpp_module_boot_identification();
 RcppExport SEXP _rcpp_module_boot_shapes();
+RcppExport SEXP _rcpp_module_boot_space();
 RcppExport SEXP _rcpp_module_boot_time();
 RcppExport SEXP _rcpp_module_boot_zone();
 
@@ -22,6 +23,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_duration", (DL_FUNC) &_rcpp_module_boot_duration, 0},
     {"_rcpp_module_boot_identification", (DL_FUNC) &_rcpp_module_boot_identification, 0},
     {"_rcpp_module_boot_shapes", (DL_FUNC) &_rcpp_module_boot_shapes, 0},
+    {"_rcpp_module_boot_space", (DL_FUNC) &_rcpp_module_boot_space, 0},
     {"_rcpp_module_boot_time", (DL_FUNC) &_rcpp_module_boot_time, 0},
     {"_rcpp_module_boot_zone", (DL_FUNC) &_rcpp_module_boot_zone, 0},
     {NULL, NULL, 0}
