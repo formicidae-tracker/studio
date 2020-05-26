@@ -10,7 +10,10 @@ RcppExport SEXP _rcpp_module_boot_ant();
 RcppExport SEXP _rcpp_module_boot_antStaticValue();
 RcppExport SEXP _rcpp_module_boot_color();
 RcppExport SEXP _rcpp_module_boot_duration();
+RcppExport SEXP _rcpp_module_boot_experiment();
 RcppExport SEXP _rcpp_module_boot_identification();
+RcppExport SEXP _rcpp_module_boot_matchers();
+RcppExport SEXP _rcpp_module_boot_queries();
 RcppExport SEXP _rcpp_module_boot_shapes();
 RcppExport SEXP _rcpp_module_boot_space();
 RcppExport SEXP _rcpp_module_boot_time();
@@ -21,7 +24,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_antStaticValue", (DL_FUNC) &_rcpp_module_boot_antStaticValue, 0},
     {"_rcpp_module_boot_color", (DL_FUNC) &_rcpp_module_boot_color, 0},
     {"_rcpp_module_boot_duration", (DL_FUNC) &_rcpp_module_boot_duration, 0},
+    {"_rcpp_module_boot_experiment", (DL_FUNC) &_rcpp_module_boot_experiment, 0},
     {"_rcpp_module_boot_identification", (DL_FUNC) &_rcpp_module_boot_identification, 0},
+    {"_rcpp_module_boot_matchers", (DL_FUNC) &_rcpp_module_boot_matchers, 0},
+    {"_rcpp_module_boot_queries", (DL_FUNC) &_rcpp_module_boot_queries, 0},
     {"_rcpp_module_boot_shapes", (DL_FUNC) &_rcpp_module_boot_shapes, 0},
     {"_rcpp_module_boot_space", (DL_FUNC) &_rcpp_module_boot_space, 0},
     {"_rcpp_module_boot_time", (DL_FUNC) &_rcpp_module_boot_time, 0},
