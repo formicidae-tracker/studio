@@ -35,26 +35,26 @@ void Experiment::Save(const std::string & filepath) {
 	return d_p->AbsoluteFilePath().string();
 }
 
-Space::Ptr Experiment::CreateSpace(const std::string & name) {
-	return std::make_shared<Space>(d_p->CreateSpace(name));
+Space Experiment::CreateSpace(const std::string & name) {
+	return Space(d_p->CreateSpace(name));
 }
 
 void Experiment::DeleteSpace(Space::ID spaceID) {
 	d_p->DeleteSpace(spaceID);
 }
 
-std::map<Space::ID,Space::Ptr> Experiment::Spaces() {
-	std::map<Space::ID,Space::Ptr> res;
+std::map<Space::ID,Space> Experiment::Spaces() {
+	std::map<Space::ID,Space> res;
 	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
-		res.insert(std::make_pair(spaceID,std::make_shared<Space>(space)));
+		res.insert(std::make_pair(spaceID,Space(space)));
 	}
 	return res;
 }
 
-std::map<Space::ID,Space::ConstPtr> Experiment::CSpaces() const {
-	std::map<Space::ID,Space::ConstPtr> res;
+std::map<Space::ID,CSpace> Experiment::CSpaces() const {
+	std::map<Space::ID,CSpace> res;
 	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
-		res.insert(std::make_pair(spaceID,std::make_shared<Space>(space)));
+		res.insert(std::make_pair(spaceID,CSpace(space)));
 	}
 	return res;
 }

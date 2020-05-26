@@ -103,7 +103,7 @@ public:
 	// @name wanted name for the new <Space>
 	//
 	// @return a <Space::Ptr> to the new <Space>
-	Space::Ptr CreateSpace(const std::string & name);
+	Space CreateSpace(const std::string & name);
 
 	// Deletes a <Space>
 	// @spaceID the <Space::ID> of the <Space> we want to delete.
@@ -112,12 +112,12 @@ public:
 	// Gets the <Space> in the Experiment
 	//
 	// @return a map of the Experiment <Space> by their <Space::ID>
-	std::map<Space::ID,Space::Ptr> Spaces();
+	std::map<Space::ID,Space> Spaces();
 
 	/// Gets the <Space> in the Experiment with const access
 	//
 	// @return a const map of the Experiment <Space>
-	std::map<Space::ID,Space::ConstPtr> CSpaces() const;
+	std::map<Space::ID,CSpace> CSpaces() const;
 
 
 	// Adds a tracking data directory to Experiment

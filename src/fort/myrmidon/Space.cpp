@@ -3,6 +3,8 @@
 #include "priv/Space.hpp"
 #include "priv/TrackingDataDirectory.hpp"
 
+#include "utils/ConstClassHelper.hpp"
+
 namespace fort {
 namespace myrmidon {
 
@@ -18,12 +20,12 @@ const std::string & Space::Name() const {
 	return d_p->Name();
 }
 
-void Space::SetName(const std::string & name) const {
+void Space::SetName(const std::string & name) {
 	d_p->SetName(name);
 }
 
-Zone::Ptr Space::CreateZone(const std::string & name) {
-	return std::make_shared<Zone>(d_p->CreateZone(name,0));
+Zone Space::CreateZone(const std::string & name) {
+	return Zone(d_p->CreateZone(name,0));
 }
 
 void Space::DeleteZone(Zone::ID ID) {
@@ -33,7 +35,7 @@ void Space::DeleteZone(Zone::ID ID) {
 Zone::ByID Space::Zones() {
 	Zone::ByID res;
 	for ( const auto & [zID,zone] : d_p->Zones() ) {
-		res.insert(std::make_pair(zID,std::make_shared<Zone>(zone)));
+		res.insert(std::make_pair(zID,Zone(zone)));
 	}
 	return res;
 }
@@ -41,7 +43,7 @@ Zone::ByID Space::Zones() {
 Zone::ConstByID Space::CZones() const {
 	Zone::ConstByID res;
 	for ( const auto & [zID,zone] : d_p->Zones() ) {
-		res.insert(std::make_pair(zID,std::make_shared<const Zone>(zone)));
+		res.insert(std::make_pair(zID,CZone(zone)));
 	}
 	return res;
 }
@@ -64,6 +66,25 @@ std::pair<std::string,uint64_t> Space::LocateMovieFrame(const Time & time) const
 }
 
 
+fort::myrmidon::SpaceID CSpace::SpaceID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Space,SpaceID);
+}
+
+const std::string & CSpace::Name() const {
+	return FORT_MYRMIDON_CONST_HELPER(Space,Name);
+}
+
+Zone::ConstByID CSpace::CZones() const {
+	return FORT_MYRMIDON_CONST_HELPER(Space,CZones);
+}
+
+std::pair<std::string,uint64_t> CSpace::LocateMovieFrame(const Time & time) const {
+	return FORT_MYRMIDON_CONST_HELPER(Space,LocateMovieFrame,time);
+}
+
+CSpace::CSpace(const ConstPPtr & pSpace) :
+	d_p(pSpace) {
+}
 
 
 
