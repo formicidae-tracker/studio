@@ -4,6 +4,12 @@
 #include "ant.h"
 #include "identification.h"
 #include "time.h"
+#include "ant_static_value.h"
+
+
+RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::TrackingDataDirectoryInfo)
+RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::SpaceDataInfo)
+RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::ExperimentDataInfo)
 
 namespace Rcpp {
 
@@ -13,8 +19,13 @@ template <> SEXP wrap(const std::map<fort::myrmidon::Space::ID,fort::myrmidon::C
 template <> SEXP wrap(const std::map<fort::myrmidon::Ant::ID,fort::myrmidon::Ant> & ants);
 template <> SEXP wrap(const std::map<fort::myrmidon::Ant::ID,fort::myrmidon::CAnt> & cAnts);
 
-template <> SEXP wrap(const std::map<fort::myrmidon::MeasurementTypeID,std::string> & mTypes);
+template <> SEXP wrap(const std::map<uint32_t,std::string> & mTypes);
 
+template <> SEXP wrap(const std::map<std::string,std::pair<fort::myrmidon::AntMetadataType,fort::myrmidon::AntStaticValue> > & data);
+
+template <> SEXP wrap( const std::vector<fort::myrmidon::TrackingDataDirectoryInfo> & tddInfos);
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::SpaceDataInfo> & spaceInfos);
 
 }
 
@@ -36,6 +47,33 @@ void fmExperiment_show(const fort::myrmidon::Experiment * e) {
 
 
 RCPP_MODULE(experiment) {
+
+	Rcpp::class_<fort::myrmidon::TrackingDataDirectoryInfo>("fmTrackingDataDirectoryInfo")
+		.field_readonly("uri",&fort::myrmidon::TrackingDataDirectoryInfo::URI)
+		.field_readonly("absoluteFilePath",&fort::myrmidon::TrackingDataDirectoryInfo::AbsoluteFilePath)
+		.field_readonly("frames",&fort::myrmidon::TrackingDataDirectoryInfo::Frames)
+		.field_readonly("start",&fort::myrmidon::TrackingDataDirectoryInfo::Start)
+		.field_readonly("end",&fort::myrmidon::TrackingDataDirectoryInfo::End)
+		;
+
+	Rcpp::class_<fort::myrmidon::SpaceDataInfo>("fmSpaceDataInfo")
+		.field_readonly("uri",&fort::myrmidon::SpaceDataInfo::URI)
+		.field_readonly("name",&fort::myrmidon::SpaceDataInfo::Name)
+		.field_readonly("frames",&fort::myrmidon::SpaceDataInfo::Frames)
+		.field_readonly("start",&fort::myrmidon::SpaceDataInfo::Start)
+		.field_readonly("end",&fort::myrmidon::SpaceDataInfo::End)
+		.field_readonly("trackingDataDirectories",&fort::myrmidon::SpaceDataInfo::TrackingDataDirectories)
+		;
+
+
+	Rcpp::class_<fort::myrmidon::ExperimentDataInfo>("fmExperimentDataInfo")
+		.field_readonly("frames",&fort::myrmidon::ExperimentDataInfo::Frames)
+		.field_readonly("start",&fort::myrmidon::ExperimentDataInfo::Start)
+		.field_readonly("end",&fort::myrmidon::ExperimentDataInfo::End)
+		.field_readonly("spaces",&fort::myrmidon::ExperimentDataInfo::Spaces)
+		;
+
+
 	Rcpp::class_<fort::myrmidon::CExperiment>("fmCExperiment")
 		.const_method("show",&fmCExperiment_show)
 		.const_method("absoluteFilePath",&fort::myrmidon::CExperiment::AbsoluteFilePath)
@@ -48,6 +86,11 @@ RCPP_MODULE(experiment) {
 		.const_method("family",&fort::myrmidon::CExperiment::Family)
 		.const_method("defaultTagSize",&fort::myrmidon::CExperiment::DefaultTagSize)
 		.const_method("threshold",&fort::myrmidon::CExperiment::Threshold)
+		.const_method("measurementTypeNames",&fort::myrmidon::CExperiment::MeasurementTypeNames)
+		.const_method("antShapeTypeNames",&fort::myrmidon::CExperiment::AntShapeTypeNames)
+		.const_method("antMetadataColumns",&fort::myrmidon::CExperiment::AntMetadataColumns)
+		.const_method("getDataInformations",&fort::myrmidon::CExperiment::GetDataInformations)
+
 		;
 
 	Rcpp::class_<fort::myrmidon::Experiment>("fmExperiment")
@@ -79,9 +122,20 @@ RCPP_MODULE(experiment) {
 		.const_method("threshold",&fort::myrmidon::Experiment::Threshold)
 		.method("setThreshold",&fort::myrmidon::Experiment::SetThreshold)
 		.method("createMeasurementType",&fort::myrmidon::Experiment::CreateMeasurementType)
+		.const_method("measurementTypeNames",&fort::myrmidon::Experiment::MeasurementTypeNames)
 		.method("deleteMeasurementType",&fort::myrmidon::Experiment::DeleteMeasurementType)
 		.method("setMeasurementTypeName",&fort::myrmidon::Experiment::SetMeasurementTypeName)
-
+		.method("createAntShapeType",&fort::myrmidon::Experiment::CreateAntShapeType)
+		.const_method("antShapeTypeNames",&fort::myrmidon::Experiment::AntShapeTypeNames)
+		.method("setAntShapeTypeName",&fort::myrmidon::Experiment::SetAntShapeTypeName)
+		.method("deleteAntShapeType",&fort::myrmidon::Experiment::DeleteAntShapeType)
+		.method("addMetadataColumn",&fort::myrmidon::Experiment::AddMetadataColumn)
+		.method("deleteMetadataColumn",&fort::myrmidon::Experiment::DeleteMetadataColumn)
+		.const_method("antMetadataColumns",&fort::myrmidon::Experiment::AntMetadataColumns)
+		.method("renameAntMetadataColumn",&fort::myrmidon::Experiment::RenameAntMetadataColumn)
+		.method("setAntMetadataColumnType",&fort::myrmidon::Experiment::SetAntMetadataColumnType)
+		.const_method("const",&fort::myrmidon::Experiment::Const)
+		.const_method("getDataInformations",&fort::myrmidon::Experiment::GetDataInformations)
 		;
 
 
@@ -129,10 +183,38 @@ template <> SEXP wrap(const std::map<fort::myrmidon::Ant::ID,fort::myrmidon::CAn
 	return res;
 }
 
-template <> SEXP wrap(const std::map<fort::myrmidon::MeasurementTypeID,std::string> & mTypes) {
+template <> SEXP wrap(const std::map<uint32_t,std::string> & mTypes) {
 	List res;
 	for ( const auto & [mType,name] : mTypes ) {
 		res[mType] = name;
+	}
+	return res;
+}
+
+template <> SEXP wrap(const std::map<std::string,std::pair<fort::myrmidon::AntMetadataType,fort::myrmidon::AntStaticValue> > & data) {
+	List res;
+	for ( const auto & [columnName,pair] : data ) {
+		List rPair;
+		rPair["type"] = pair.first;
+		rPair["value"]  = pair.second;
+		res[columnName]  = rPair;
+	}
+	return res;
+}
+
+
+template <> SEXP wrap( const std::vector<fort::myrmidon::TrackingDataDirectoryInfo> & tddInfos) {
+	List res;
+	for ( const auto & i : tddInfos ) {
+		res.push_back(i);
+	}
+	return res;
+}
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::SpaceDataInfo> & spaceInfos) {
+	List res;
+	for ( const auto & [spaceID,info] : spaceInfos ) {
+		res[spaceID] = info;
 	}
 	return res;
 }

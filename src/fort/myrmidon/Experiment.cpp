@@ -229,12 +229,12 @@ void Experiment::SetMeasurementTypeName(MeasurementTypeID mTypeID,
 }
 
 
-std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypes() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypes);
+std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypeNames() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypeNames);
 }
 
 
-std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypes() const {
+std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypeNames() const {
 	std::map<MeasurementTypeID,std::string> res;
 	for ( const auto & [mtID,mt] : d_p->CMeasurementTypes() ) {
 		res.insert(std::make_pair(mtID,mt->Name()));
@@ -379,6 +379,10 @@ ExperimentDataInfo CExperiment::GetDataInformations() const {
 	}
 
 	return res;
+}
+
+CExperiment Experiment::Const() const {
+	return CExperiment(d_p);
 }
 
 

@@ -101,7 +101,7 @@ public :
 		// Gets the Experiment defined measurement type
 	//
 	// @return a map of measurement type name by their <MeasurementTypeID>
-	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
+	std::map<MeasurementTypeID,std::string> MeasurementTypeNames() const;
 
 		// Gets the defined Ant shape type
 	//
@@ -386,7 +386,7 @@ public:
 	// Gets the Experiment defined measurement type
 	//
 	// @return a map of measurement type name by their <MeasurementTypeID>
-	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
+	std::map<MeasurementTypeID,std::string> MeasurementTypeNames() const;
 
 	/* cldoc:end-category() */
 

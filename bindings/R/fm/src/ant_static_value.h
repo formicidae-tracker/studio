@@ -4,3 +4,4 @@
 #include "RcppCommon.h"
 
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::AntStaticValue)
+RCPP_EXPOSED_ENUM_NODECL(fort::myrmidon::AntMetadataType)
