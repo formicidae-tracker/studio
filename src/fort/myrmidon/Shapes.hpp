@@ -99,6 +99,11 @@ public:
 	// @pCircle opaque pointer to implementation
 	Circle(const PPtr & pCircle);
 
+	// Downcast to private implementation.
+	//
+	// @return the private implementation
+	const PPtr & ToPrivate() const;
+
 private:
 	friend class Shape;
 	PPtr d_p;
@@ -209,6 +214,12 @@ public:
 	// Private implementation constructor
 	// @pPolygon opaque pointer to implementation
 	Polygon(const PPtr & pPolygon);
+
+	// Downcast to private implementation.
+	//
+	// @return the private implementation
+	const PPtr & ToPrivate() const;
+
 private:
 	friend class Shape;
 

@@ -91,3 +91,58 @@ RCPP_MODULE(shapes) {
 	Rcpp::function("fmPolygonCreate", &fmPolygon_create);
 
 }
+
+namespace Rcpp {
+template <> fort::myrmidon::Shape::ConstList as(SEXP exp) {
+	using namespace fort::myrmidon;
+	Rcpp::List geometries(exp);
+	fort::myrmidon::Shape::ConstList newGeometry;
+	for ( const auto & elem : geometries ) {
+		try {
+			auto c = Rcpp::as<Circle>(elem);
+			newGeometry.push_back(std::make_shared<Circle>(c.ToPrivate()));
+			continue;
+		} catch (const std::exception & e) {
+
+		}
+
+		try {
+			auto c = Rcpp::as<Capsule>(elem);
+			newGeometry.push_back(std::make_shared<Capsule>(c.ToPrivate()));
+			continue;
+		} catch (const std::exception & e) {
+
+		}
+
+		try {
+			auto p = Rcpp::as<Polygon>(elem);
+			newGeometry.push_back(std::make_shared<Polygon>(p.ToPrivate()));
+			continue;
+		} catch (const std::exception & e) {
+
+		}
+
+		throw std::runtime_error("fort::myrmidon::Shape::ConstList must be list of fmCircle, fmCapsule and fmPolygon");
+	}
+	return newGeometry;
+}
+
+template <> SEXP wrap(const fort::myrmidon::Shape::ConstList & list) {
+	Rcpp::List res;
+	for ( const auto & shape : list ) {
+		if ( auto c = std::dynamic_pointer_cast<const fort::myrmidon::Circle>(shape) ) {
+			res.push_back(*c);
+		}
+
+		if ( auto c = std::dynamic_pointer_cast<const fort::myrmidon::Capsule>(shape) ) {
+			res.push_back(*c);
+		}
+
+		if ( auto p = std::dynamic_pointer_cast<const fort::myrmidon::Polygon>(shape) ) {
+			res.push_back(*p);
+		}
+	}
+	return res;
+}
+
+}

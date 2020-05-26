@@ -81,6 +81,10 @@ double Circle::Radius() const {
 	return d_p->Radius();
 }
 
+const Circle::PPtr & Circle::ToPrivate() const {
+	return d_p;
+}
+
 Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,
@@ -152,6 +156,11 @@ const Eigen::Vector2d & Polygon::Vertex(size_t i) const {
 void Polygon::SetVertex(size_t i, const Eigen::Vector2d & v) {
 	d_p->SetVertex(i,v);
 }
+
+const Polygon::PPtr & Polygon::ToPrivate() const {
+	return d_p;
+}
+
 
 } // namespace myrmidon
 } // namespace fort

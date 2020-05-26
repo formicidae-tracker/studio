@@ -54,6 +54,7 @@ fort::myrmidon::AntStaticValue fmAntStaticTime(const fort::myrmidon::Time & v) {
 
 RCPP_MODULE(antStaticValue) {
 	Rcpp::class_<fort::myrmidon::AntStaticValue>("fmAntStaticValue")
+		.const_method("show",&fmAntStaticValue_show)
 		.const_method("toBool",&fmAntStaticValue_toBool)
 		.const_method("toInteger",&fmAntStaticValue_toInteger)
 		.const_method("toNumeric",&fmAntStaticValue_toNumeric)
