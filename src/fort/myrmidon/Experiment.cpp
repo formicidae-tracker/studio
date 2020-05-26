@@ -6,25 +6,27 @@
 #include "priv/Measurement.hpp"
 #include "priv/TrackingDataDirectory.hpp"
 
+#include "utils/ConstClassHelper.hpp"
+
 namespace fort {
 namespace myrmidon {
 
 
-Experiment::Ptr Experiment::Open(const std::string & filepath) {
-	return std::make_shared<Experiment>(priv::Experiment::Open(filepath));
+Experiment Experiment::Open(const std::string & filepath) {
+	return Experiment(priv::Experiment::Open(filepath));
 }
 
-Experiment::ConstPtr Experiment::OpenReadOnly(const std::string & filepath) {
+CExperiment Experiment::OpenReadOnly(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
-	return std::make_shared<const Experiment>(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenReadOnly(filepath)));
+	return CExperiment(priv::Experiment::OpenReadOnly(filepath));
 }
 
-Experiment::Ptr Experiment::NewFile(const std::string & filepath) {
-	return std::make_shared<Experiment>(priv::Experiment::NewFile(filepath));
+Experiment Experiment::NewFile(const std::string & filepath) {
+	return Experiment(priv::Experiment::NewFile(filepath));
 }
 
-Experiment::Ptr Experiment::Create(const std::string & filepath) {
-	return std::make_shared<Experiment>(priv::Experiment::Create(filepath));
+Experiment Experiment::Create(const std::string & filepath) {
+	return Experiment(priv::Experiment::Create(filepath));
 }
 
 void Experiment::Save(const std::string & filepath) {
@@ -314,6 +316,69 @@ ExperimentDataInfo Experiment::GetDataInformations() const {
 
 	return res;
 }
+
+std::string CExperiment::AbsoluteFilePath() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AbsoluteFilePath);
+}
+
+std::map<Space::ID,CSpace> CExperiment::CSpaces() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,CSpaces);
+}
+
+std::map<Ant::ID,CAnt> CExperiment::CAnts() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,CAnts);
+}
+
+bool CExperiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
+                                            Time::ConstPtr & end,
+                                            TagID tagID, const Time & time) const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,FreeIdentificationRangeAt,start,end,tagID,time);
+}
+
+const std::string & CExperiment::Name() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Name);
+}
+
+const std::string & CExperiment::Author() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Author);
+}
+
+const std::string & CExperiment::Comment() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Comment);
+}
+
+fort::tags::Family CExperiment::Family() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Family);
+}
+
+double CExperiment::DefaultTagSize() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,DefaultTagSize);
+}
+
+uint8_t CExperiment::Threshold() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Threshold);
+}
+
+std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypes() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypes);
+}
+
+std::map<AntShapeTypeID,std::string> CExperiment::AntShapeTypeNames() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntShapeTypeNames);
+}
+
+std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > CExperiment::AntMetadataColumns() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntMetadataColumns);
+}
+
+ExperimentDataInfo CExperiment::GetDataInformations() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,GetDataInformations);
+}
+
+CExperiment::CExperiment(const ConstPPtr & pExperiment)
+	: d_p(pExperiment) {
+}
+
 
 
 } // namespace mrymidon

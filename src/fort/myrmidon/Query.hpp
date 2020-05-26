@@ -26,7 +26,7 @@ public:
 	// @mTypeID the desired measurement type
 	//
 	// @return a <ComputedMeasurement::List> of the Measurement for the <Ant>
-	static ComputedMeasurement::List ComputeMeasurementFor(const Experiment::ConstPtr & experiment,
+	static ComputedMeasurement::List ComputeMeasurementFor(const CExperiment & experiment,
 	                                                       Ant::ID antID,
 	                                                       MeasurementTypeID mTypeID);
 
@@ -34,7 +34,7 @@ public:
 	// @experiment the <Experiment> to query for
 	//
 	// @return the tag statistics index by <TagID>
-	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment::ConstPtr & experiment);
+	static TagStatistics::ByTagID ComputeTagStatistics(const CExperiment & experiment);
 
 	// Identifies ants in frames
 	// @experiment the <Experiment> to query for
@@ -47,7 +47,7 @@ public:
 	// Identifies Ants in frames, data will be reported squencially,
 	// space by space.
 
-	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
+	static void IdentifyFrames(const CExperiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end);
@@ -63,7 +63,7 @@ public:
 	// Finds <Collision> between ants in frames, data will be reported
 	// sequencially, space by space.
 
-	static void CollideFrames(const Experiment::ConstPtr & experiment,
+	static void CollideFrames(const CExperiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const Time::ConstPtr & start,
 	                          const Time::ConstPtr & end);
@@ -82,7 +82,7 @@ public:
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// in time, ant by ant.
-	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
+	static void ComputeTrajectories(const CExperiment & experiment,
 	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
@@ -103,7 +103,7 @@ public:
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// in time, first interacting Ant by firs interacting Ant.
-	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
+	static void ComputeAntInteractions(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,
 	                                   const Time::ConstPtr & start,

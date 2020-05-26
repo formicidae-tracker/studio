@@ -18,6 +18,125 @@ class Experiment;
 
 class Query;
 
+// const version of Experiment
+//
+// Simply a strip down copy of <Experiment> . Its an helper class
+// to support const correctness of object and for language binding
+// that does not enforce constness, such as R.
+class CExperiment {
+public :
+	// Path to the underlying `.myrmidon` file
+	//
+	// @return the path to the `.myrmidon` file
+	std::string AbsoluteFilePath() const;
+
+	// Gets the <Space> in the Experiment with const access
+	//
+	// @return a const map of the Experiment <Space>
+	std::map<Space::ID,CSpace> CSpaces() const;
+
+	// Gets the <Ant> in the Experiment
+	//
+	// @return the const <Ant> indexed by their <Ant::ID> in the
+	// Experiment.
+	std::map<Ant::ID,CAnt> CAnts() const;
+
+
+	// Queries for a valid time range
+	// @start return value by reference for the start of the range
+	// @end return value by reference for the end of the range
+	// @tagID the <TagID> we want a range for
+	// @time the <Time> that must be included in the result time range
+	//
+	// Queries for a valid time range for a given <TagID> and
+	// <Time>. The result will be a range [<start>,<end>[ containing
+	// <time> where <tagID> is not used. If it returns false <start>
+	// and <end> will be resetted if such a range does not exists.
+	//
+	// @return `true` if such a range exist, false otherwise.
+	bool FreeIdentificationRangeAt(Time::ConstPtr & start,
+	                               Time::ConstPtr & end,
+	                               TagID tagID, const Time & time) const;
+
+	// The name of the Experiment.
+	//
+	// @return a reference to the Experiment's name
+	const std::string & Name() const;
+
+	// The author of the Experiment
+	//
+	// @return a reference to the author name
+	const std::string & Author() const;
+
+	// Comments about the experiment
+	//
+	// @return a reference to the Experiment's comment
+	const std::string & Comment() const;
+
+	// The kind of tag used in the Experiment
+	//
+	// @return the family of tag used in the Experiment
+	fort::tags::Family Family() const;
+
+
+	// The default physical tag size
+	//
+	// Usually an Ant colony are tagged with a majority of tag of a
+	// given size. Some individuals (like Queens) may often use a
+	// bigger tag size that should be set in their
+	// Identification. This value is used for
+	// <Query::ComputeMeasurementFor>.
+	//
+	// myrmidon uses without white border convention for ARTag and
+	// with white border convention Apriltag.
+	//
+	// @return the default tag size for the experiment in mm
+	double DefaultTagSize() const;
+
+	// The threshold used for tag detection
+	//
+	// @return the threshold used for detection
+	uint8_t Threshold() const;
+
+		// Gets the Experiment defined measurement type
+	//
+	// @return a map of measurement type name by their <MeasurementTypeID>
+	std::map<MeasurementTypeID,std::string> MeasurementTypes() const;
+
+		// Gets the defined Ant shape type
+	//
+	// @return the <Ant> shape type name by their <AntShapeTypeID>
+	std::map<AntShapeTypeID,std::string> AntShapeTypeNames() const;
+
+	// Gets the types for non-tracking data columns
+	//
+	// @return a pairs of <AntMetadataType> and <AntStaticValue>
+	// indexed by column name for all columns defined in the
+	// experiment.
+	std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > AntMetadataColumns() const;
+
+	// Gets tracking data statistics about the Experiment
+	//
+	// @return an <ExperimentDataInfo> list of informations
+	ExperimentDataInfo GetDataInformations() const;
+
+	// Opaque pointer to implementation
+	typedef const std::shared_ptr<const priv::Experiment> ConstPPtr;
+
+	// Private implementation constructor
+	// @pExperiment opaque pointer to implementation
+	//
+	// User cannot create an Experiment directly. They must use
+	// <Open>, <OpenReadOnly>, <Create> and <NewFile>.
+	CExperiment(const ConstPPtr & pExperiment);
+private:
+	friend class fort::myrmidon::Query;
+
+	ConstPPtr d_p;
+
+};
+
+
 
 // Entry point of myrmidon API
 //
@@ -42,11 +161,6 @@ class Query;
 // ( read-only program must have released the Experiment too !!!).
 class Experiment {
 public:
-	// A pointer to an Experiment
-	typedef std::shared_ptr<Experiment> Ptr;
-	// A const pointer to an Experiment
-	typedef std::shared_ptr<const Experiment> ConstPtr;
-
 	// Opens an Experiment with full access
 	// @filepath the path to the wanted file
 	//
@@ -55,7 +169,7 @@ public:
 	// with full access (read only access must be closed).
 	//
 	// @return a <Ptr> to the Experiment
-	static Ptr Open(const std::string & filepath);
+	static Experiment Open(const std::string & filepath);
 
 	// Opens a read only Experiment
 	// @filepath the path to the wanted file.
@@ -65,7 +179,7 @@ public:
 	// with full access (read only access must be closed).
 	//
 	// @return a <Ptr> to the Experiment
-	static ConstPtr OpenReadOnly(const std::string & filepath);
+	static CExperiment OpenReadOnly(const std::string & filepath);
 
 	// Creates a new Experiment file
 	// @filepath the wanted filepath
@@ -75,7 +189,7 @@ public:
 	// location.
 	//
 	// @return a <Ptr> to the new empty Experiment
-	static Ptr NewFile(const std::string & filepath);
+	static Experiment NewFile(const std::string & filepath);
 
 	// Creates a new Experiment without file association
 	// @filepath the wanted filepath
@@ -84,7 +198,7 @@ public:
 	// filesystem location. Will not create a file.
 	//
 	// @return a <Ptr> to the new empty Experiment
-	static Ptr Create(const std::string & filepath);
+	static Experiment Create(const std::string & filepath);
 
 	// Saves the Experiment
 	// @filepath the desired filesystem location to save the Experiment to
@@ -114,9 +228,9 @@ public:
 	// @return a map of the Experiment <Space> by their <Space::ID>
 	std::map<Space::ID,Space> Spaces();
 
-	/// Gets the <Space> in the Experiment with const access
+	// Gets the <Space> in the Experiment with const access
 	//
-	// @return a const map of the Experiment <Space>
+	// @return a const map of the Experiment <CSpace>
 	std::map<Space::ID,CSpace> CSpaces() const;
 
 
@@ -348,6 +462,9 @@ public:
 
 	/* cldoc:end-category() */
 
+	// Casts down to a CExperiment
+	CExperiment Const() const;
+
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Experiment> PPtr;
 
@@ -358,7 +475,6 @@ public:
 	// <Open>, <OpenReadOnly>, <Create> and <NewFile>.
 	Experiment(const PPtr & pExperiment);
 private:
-	friend class fort::myrmidon::Query;
 
 	PPtr d_p;
 };
