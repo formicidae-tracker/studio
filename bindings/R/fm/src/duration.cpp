@@ -8,28 +8,28 @@ void fmDuration_show(fort::myrmidon::Duration * d) {
 }
 
 
-fort::myrmidon::Duration * fmHour(int64_t v) {
-	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Hour);
+fort::myrmidon::Duration fmHour(int64_t v) {
+	return fort::myrmidon::Duration(v * fort::myrmidon::Duration::Hour);
 }
 
-fort::myrmidon::Duration * fmMinute(int64_t v) {
-	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Minute);
+fort::myrmidon::Duration fmMinute(int64_t v) {
+	return fort::myrmidon::Duration(v * fort::myrmidon::Duration::Minute);
 }
 
-fort::myrmidon::Duration * fmSecond(int64_t v) {
-	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Second);
+fort::myrmidon::Duration fmSecond(int64_t v) {
+	return fort::myrmidon::Duration(v * fort::myrmidon::Duration::Second);
 }
 
-fort::myrmidon::Duration * fmMillisecond(int64_t v) {
-	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Millisecond);
+fort::myrmidon::Duration fmMillisecond(int64_t v) {
+	return fort::myrmidon::Duration(v * fort::myrmidon::Duration::Millisecond);
 }
 
-fort::myrmidon::Duration * fmMicrosecond(int64_t v) {
-	return new fort::myrmidon::Duration(v * fort::myrmidon::Duration::Microsecond);
+fort::myrmidon::Duration fmMicrosecond(int64_t v) {
+	return fort::myrmidon::Duration(v * fort::myrmidon::Duration::Microsecond);
 }
 
-fort::myrmidon::Duration * fmNanosecond(int64_t v) {
-	return new fort::myrmidon::Duration(v);
+fort::myrmidon::Duration fmNanosecond(int64_t v) {
+	return fort::myrmidon::Duration(v);
 }
 
 

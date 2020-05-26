@@ -12,8 +12,8 @@ void fmCircle_show(const fort::myrmidon::Circle * c) {
 	            << " )\n";
 }
 
-fort::myrmidon::Circle * fmCircle_create(const Eigen::Vector2d & center, double radius) {
-	return new fort::myrmidon::Circle(center,radius);
+fort::myrmidon::Circle fmCircle_create(const Eigen::Vector2d & center, double radius) {
+	return fort::myrmidon::Circle(center,radius);
 }
 
 void fmCapsule_show(const fort::myrmidon::Capsule * c) {
@@ -28,11 +28,11 @@ void fmCapsule_show(const fort::myrmidon::Capsule * c) {
 	            << " )\n";
 }
 
-fort::myrmidon::Capsule * fmCapsule_create(const Eigen::Vector2d & c1,
-                                           const Eigen::Vector2d & c2,
-                                           double r1,
-                                           double r2) {
-	return new fort::myrmidon::Capsule(c1,c2,r1,r2);
+fort::myrmidon::Capsule fmCapsule_create(const Eigen::Vector2d & c1,
+                                         const Eigen::Vector2d & c2,
+                                         double r1,
+                                         double r2) {
+	return fort::myrmidon::Capsule(c1,c2,r1,r2);
 }
 
 void fmPolygon_show(const fort::myrmidon::Polygon * p) {
@@ -44,8 +44,8 @@ void fmPolygon_show(const fort::myrmidon::Polygon * p) {
 }
 
 
-fort::myrmidon::Polygon * fmPolygon_create(const fort::myrmidon::Vector2dList & vertices) {
-	return new fort::myrmidon::Polygon(vertices);
+fort::myrmidon::Polygon fmPolygon_create(const fort::myrmidon::Vector2dList & vertices) {
+	return fort::myrmidon::Polygon(vertices);
 }
 
 

@@ -15,8 +15,6 @@ void fmCIdentification_show(const fort::myrmidon::CIdentification * i) {
 }
 
 
-
-
 RCPP_MODULE(identification) {
 	Rcpp::class_<fort::myrmidon::CIdentification>("fmCIdentification")
 		.const_method("show",&fmCIdentification_show)

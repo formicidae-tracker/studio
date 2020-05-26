@@ -23,18 +23,18 @@ int fmColor_blue(const fort::myrmidon::Color * c) {
 	return std::get<2>(*c);
 }
 
-fort::myrmidon::Color * fmRGBColor(SEXP xx) {
+fort::myrmidon::Color fmRGBColor(SEXP xx) {
 	Rcpp::IntegerVector v(xx);
 	if ( v.size() != 3 ) {
 		throw std::runtime_error("fmRGBColor needs an integer vector of size 3");
 	}
-	return new fort::myrmidon::Color(std::clamp(v[0],0,255),
-	                                 std::clamp(v[1],0,255),
-	                                 std::clamp(v[2],0,255));
+	return fort::myrmidon::Color(std::clamp(v[0],0,255),
+	                             std::clamp(v[1],0,255),
+	                             std::clamp(v[2],0,255));
 }
 
-fort::myrmidon::Color * fmDefaultPaletteColor(size_t i) {
-	return new fort::myrmidon::Color(fort::myrmidon::Palette::Default().At(i));
+fort::myrmidon::Color fmDefaultPaletteColor(size_t i) {
+	return fort::myrmidon::Color(fort::myrmidon::Palette::Default().At(i));
 }
 
 RCPP_MODULE(color) {
