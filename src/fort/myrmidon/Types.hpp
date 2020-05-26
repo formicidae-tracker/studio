@@ -49,7 +49,7 @@ const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
 
 
 // A list of Ant virtual shape part
-typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>>                 TypedCapsuleList;
+typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 
 // Types for non-tracking data column
 enum class AntMetadataType {

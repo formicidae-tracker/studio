@@ -2,6 +2,8 @@
 
 #include "priv/Ant.hpp"
 
+#include "utils/ConstClassHelper.hpp"
+
 namespace fort {
 namespace myrmidon {
 
@@ -10,13 +12,12 @@ Ant::Ant(const PPtr & pAnt)
 }
 
 
-
 Identification::ConstList Ant::CIdentifications() const {
 	Identification::ConstList res;
 	const auto & idents = d_p->Identifications();
 	res.reserve(idents.size());
 	for ( const auto & pIdent : idents ) {
-		res.push_back(std::make_shared<const Identification>(pIdent));
+		res.push_back(CIdentification(pIdent));
 	}
 	return res;
 }
@@ -26,7 +27,7 @@ Identification::List Ant::Identifications() {
 	const auto & idents = d_p->Identifications();
 	res.reserve(idents.size());
 	for ( const auto & pIdent : idents ) {
-		res.push_back(std::make_shared<Identification>(pIdent));
+		res.push_back(Identification(pIdent));
 	}
 	return res;
 }
@@ -73,14 +74,14 @@ void Ant::DeleteValue(const std::string & name,
 }
 
 void Ant::AddCapsule(AntShapeTypeID shapeTypeID,
-                     const Capsule::ConstPtr & capsule) {
-	d_p->AddCapsule(shapeTypeID,capsule->ToPrivate());
+                     const Capsule & capsule) {
+	d_p->AddCapsule(shapeTypeID,*capsule.ToPrivate());
 }
 
 TypedCapsuleList Ant::Capsules() const {
 	TypedCapsuleList res;
 	for ( const auto & [shapeTypeID, pCapsule] : d_p->Capsules() ) {
-		res.push_back(std::make_pair(shapeTypeID,std::make_shared<const Capsule>(std::const_pointer_cast<priv::Capsule>(pCapsule))));
+		res.push_back(std::make_pair(shapeTypeID,Capsule(std::make_shared<priv::Capsule>(pCapsule))));
 	}
 	return res;
 }
@@ -91,6 +92,41 @@ void Ant::DeleteCapsule(const size_t index) {
 
 void Ant::ClearCapsules() {
 	d_p->ClearCapsules();
+}
+
+
+Identification::ConstList CAnt::CIdentifications() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,CIdentifications);
+}
+
+fort::myrmidon::AntID CAnt::AntID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,AntID);
+}
+
+
+std::string CAnt::FormattedID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,FormattedID);
+}
+
+const Color & CAnt::DisplayColor() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,DisplayColor);
+}
+
+Ant::DisplayState CAnt::DisplayStatus() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,DisplayStatus);
+}
+
+const AntStaticValue & CAnt::GetValue(const std::string & name,
+                                      const Time & time) const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,GetValue,name,time);
+}
+
+TypedCapsuleList CAnt::Capsules() const {
+	return FORT_MYRMIDON_CONST_HELPER(Ant,Capsules);
+}
+
+CAnt::CAnt(const ConstPPtr & pAnt)
+	: d_p(pAnt) {
 }
 
 

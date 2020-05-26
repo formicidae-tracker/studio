@@ -17,6 +17,7 @@ class Ant;
 } // namespace priv
 
 
+
 // The main object of interest of any Experiment
 //
 //
@@ -63,11 +64,6 @@ class Ant;
 // More complete informations can be found in <ant_interaction>
 class Ant {
 public:
-
-	// A pointer to a an Ant
-	typedef std::shared_ptr<Ant>       Ptr;
-	// A const pointer to an Ant
-	typedef std::shared_ptr<const Ant> ConstPtr;
 	// The ID of an Ant.
 	//
 	// ID are unique within an Experiment.
@@ -85,12 +81,11 @@ public:
 
 	// Gets the const Identifications for this Ant
 	//
-	// Gets the <Identification::ConstPtr> targetting this Ant. These
+	// Gets the <Identification> targetting this Ant. These
 	// <Identification> will always be sorted in <Time> and not
 	// overlapping.
 	//
-	// @return an <Identification::ConstList> copy of all
-	//         <Identification::ConstPtr>
+	// @return a  <Identification::ConstList>
 	Identification::ConstList CIdentifications() const;
 
 	// Gets the Identifications for this Ant
@@ -186,7 +181,7 @@ public:
 	// Adds a <Capsule> to the Ant virtual shape, associated with the
 	// <AntShapeTypeID> body part.
 	void AddCapsule(AntShapeTypeID shapeTypeID,
-	                const Capsule::ConstPtr & capsule);
+	                const Capsule & capsule);
 
 	// Gets all part of this ant
 	//
@@ -202,7 +197,6 @@ public:
 	void ClearCapsules();
 
 
-
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Ant> PPtr;
 
@@ -215,6 +209,88 @@ public:
 
 private:
 	PPtr d_p;
+};
+
+
+// const version of Ant
+//
+// Simply a strip down copy of <Ant> . Its an helper class
+// to support const correctness of object and for language binding
+// that does not enforce constness, such as R.
+class CAnt {
+public:
+	// Gets the const Identifications for this Ant
+	//
+	// Gets the <Identification> targetting this Ant. These
+	// <Identification> will always be sorted in <Time> and not
+	// overlapping.
+	//
+	// @return a  <Identification::ConstList>
+	Identification::ConstList CIdentifications() const;
+
+	// Gets the ID of an Ant
+	//
+	// Ants gets an unique ID in an experiment.
+	// @return the <ID> of the Ant
+	fort::myrmidon::AntID AntID() const;
+
+	// Gets the ID of the Ant formatted as a string.
+	//
+	// By Convention <ID> are formatted using hexadecimal notation (as
+	// opposed to tag that are formatted decimal).
+	// @return a string with the formatted ID
+	std::string FormattedID() const;
+
+	// Gets the Display Color of an Ant
+	//
+	// Each Ant has a defined color for display.
+	// @return a const reference to the <Color> used to display the Ant
+	const Color & DisplayColor() const;
+
+	// Gets the Ant display state
+	//
+	// When interacting with the FORT Studio, any Ant has
+	// different <DisplayState> :
+	//
+	//   * <DisplayState::VISIBLE>: the Ant is visible if
+	//     they are no Ant which are <DisplayState::SOLO>
+	//   * <DisplayState::HIDDEN>: the Ant is not displayed
+	//   * <DisplayState::SOLO>: the Ant is visible and
+	//     all non <DisplayState::SOLO> Ant are shown.
+	// @return the <DisplayState> for this Ant.
+	Ant::DisplayState DisplayStatus() const;
+
+	// Gets non-tracking data value
+	// @name the name of the non-tracking data value
+	// @time the <Time> we want the value for
+	//
+	// Gets the value for <name> at <time>. Values are set with
+	// <SetValue>. If no value is sets prior to <time> (including -∞),
+	// it will be using the <Experiment> default one.
+	//
+	// @return the wanted <AntStaticValue>
+	const AntStaticValue & GetValue(const std::string & name,
+	                                const Time & time) const;
+
+	// Gets all part of this ant
+	//
+	// @return a <TypedCapsuleList> representing the virtual shape of
+	//         the Ant
+	TypedCapsuleList Capsules() const;
+
+	// Opaque pointer to implementation
+	typedef const std::shared_ptr<const priv::Ant> ConstPPtr;
+
+	// Private implementation constructor
+	// @pAnt opaque pointer to implementation
+	//
+	// User cannot build Ant directly. They must be build and accessed
+	// from <Experiment>.
+	CAnt(const ConstPPtr & pAnt);
+
+private:
+	ConstPPtr d_p;
+
 };
 
 

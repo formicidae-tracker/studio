@@ -3,8 +3,43 @@
 #include "priv/Identification.hpp"
 #include "priv/Ant.hpp"
 
+#include "utils/ConstClassHelper.hpp"
+
 namespace fort {
 namespace myrmidon {
+
+TagID CIdentification::TagValue() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, TagValue);
+}
+
+AntID CIdentification::TargetAntID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, TargetAntID);
+}
+
+Time::ConstPtr CIdentification::Start() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, Start);
+}
+
+Time::ConstPtr CIdentification::End() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, End);
+}
+
+Eigen::Vector2d CIdentification::AntPosition() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, AntPosition);
+}
+
+double CIdentification::AntAngle() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, AntAngle);
+}
+
+bool CIdentification::HasUserDefinedAntPose() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, HasUserDefinedAntPose);
+}
+
+CIdentification::CIdentification(const ConstPPtr & pIdentification)
+	: d_p(pIdentification) {
+}
+
 
 Identification::Identification(const PPtr & pptr)
 	: d_p(pptr) {

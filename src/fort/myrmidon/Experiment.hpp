@@ -137,18 +137,18 @@ public:
 	// Creates a new <Ant>
 	//
 	// @return a <Ant::Ptr> to the new <Ant>
-	Ant::Ptr CreateAnt();
+	Ant CreateAnt();
 
 	// Gets the <Ant> in the Experiment
 	//
 	// @return the <Ant> indexed by their <Ant::ID> in the Experiment.
-	std::map<Ant::ID,Ant::Ptr> Ants();
+	std::map<Ant::ID,Ant> Ants();
 
 	// Gets the <Ant> in the Experiment
 	//
 	// @return the const <Ant> indexed by their <Ant::ID> in the
 	// Experiment.
-	std::map<Ant::ID,Ant::ConstPtr> CAnts() const;
+	std::map<Ant::ID,CAnt> CAnts() const;
 
 	// Adds an <Identification> to the Experiment
 	// @antID the targetted <Ant> designated by its <Ant::ID>
@@ -161,14 +161,14 @@ public:
 	// range using <FreeIdentificationRangeAt>.
 	//
 	// @return an <Identification::Ptr> to the new <Identification>
-	Identification::Ptr AddIdentification(Ant::ID antID,
-	                                      TagID tagID,
-	                                      const Time::ConstPtr & start,
-	                                      const Time::ConstPtr & end);
+	Identification AddIdentification(Ant::ID antID,
+	                                 TagID tagID,
+	                                 const Time::ConstPtr & start,
+	                                 const Time::ConstPtr & end);
 
 	// Deletes an <Identification>
 	// @identification the <Identification> to delete
-	void DeleteIdentification(const Identification::Ptr & identification);
+	void DeleteIdentification(const Identification & identification);
 
 	// Queries for a valid time range
 	// @start return value by reference for the start of the range

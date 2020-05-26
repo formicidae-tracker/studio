@@ -75,39 +75,39 @@ void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 }
 
 
-Ant::Ptr Experiment::CreateAnt() {
-	return std::make_shared<Ant>(d_p->CreateAnt());
+Ant Experiment::CreateAnt() {
+	return Ant(d_p->CreateAnt());
 }
 
-std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
-	std::map<Ant::ID,Ant::Ptr> res;
+std::map<Ant::ID,Ant> Experiment::Ants() {
+	std::map<Ant::ID,Ant> res;
 	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
-		res.insert(std::make_pair(antID,std::make_shared<Ant>(ant)));
+		res.insert(std::make_pair(antID,Ant(ant)));
 	}
 	return res;
 }
 
-std::map<Ant::ID,Ant::ConstPtr> Experiment::CAnts() const {
-	std::map<Ant::ID,Ant::ConstPtr> res;
+std::map<Ant::ID,CAnt> Experiment::CAnts() const {
+	std::map<Ant::ID,CAnt> res;
 	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
-		res.insert(std::make_pair(antID,std::make_shared<Ant>(ant)));
+		res.insert(std::make_pair(antID,CAnt(ant)));
 	}
 	return res;
 }
 
-Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
+Identification Experiment::AddIdentification(Ant::ID antID,
                                                   TagID tagID,
                                                   const Time::ConstPtr & start,
                                                   const Time::ConstPtr & end) {
-	return std::make_shared<Identification>(priv::Identifier::AddIdentification(d_p->Identifier(),
-		      antID,
-		      tagID,
-		      start,
-		      end));
+	return Identification(priv::Identifier::AddIdentification(d_p->Identifier(),
+	                                                          antID,
+	                                                          tagID,
+	                                                          start,
+	                                                          end));
 }
 
-void Experiment::DeleteIdentification(const Identification::Ptr & identification) {
-	d_p->Identifier()->DeleteIdentification(identification->ToPrivate());
+void Experiment::DeleteIdentification(const Identification & identification) {
+	d_p->Identifier()->DeleteIdentification(identification.ToPrivate());
 }
 
 bool Experiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
