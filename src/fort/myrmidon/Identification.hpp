@@ -77,7 +77,7 @@ public:
 	// Tests if Identification has a user defined pose
 	//
 	// @return `true` if the Identification has a user defined pose
-	//         through <SetUserDefinedAntPose>
+	//         through <Identification::SetUserDefinedAntPose>
 	bool HasUserDefinedAntPose() const;
 
 

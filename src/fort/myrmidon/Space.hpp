@@ -22,7 +22,7 @@ class CSpace {
 public :
 	// Gets the Space ID
 	//
-	// @return this Space <ID>;
+	// @return this Space <SpaceID>;
 	fort::myrmidon::SpaceID SpaceID() const;
 
 	// Gets the Space name

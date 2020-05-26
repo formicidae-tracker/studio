@@ -130,10 +130,10 @@ public :
 
 	// Gets the Zone ID
 	//
-	// Gets the Zone <ID>. <ID> are unique within a <Space>, but two
-	// Zone in different <Space> can have the same <ID>.
+	// Gets the Zone <ZoneID>. <ZoneID> are unique within a <Space>, but two
+	// Zone in different <Space> can have the same <ZoneID>.
 	//
-	// @return the Zone <ID>x
+	// @return the Zone <ZoneID>
 	fort::myrmidon::ZoneID ZoneID() const;
 
 	// Opaque pointer for implementation
@@ -175,8 +175,8 @@ private:
 //
 // Zone have time valid <ZoneDefinition>. In most cases there would be
 // a single <ZoneDefinition> for any <Zone> valid for ]-∞,+∞[ <Time>,
-// but it is possible to assign different <Definition::Geometry> for
-// different time range using multiple <Definition>.
+// but it is possible to assign different <ZoneDefinition::Geometry> for
+// different time range using multiple <ZoneDefinition>.
 //
 // <ZoneDefinition> are manipulated using <AddDefinition> and
 // <EraseDefinition>.
@@ -198,10 +198,10 @@ public:
 	// @start the starting validi <Time> for this definition.
 	// @end the ending valid <Time> for this definition
 	//
-	// Adds a new timed <Definition> valid for
+	// Adds a new timed <ZoneDefinition> valid for
 	// [<start>,<end>[. nullptr means -/+∞.
 	//
-	// @return a <Definition::Ptr> for the new <Definition>
+	// @return the new <ZoneDefinition>
 	ZoneDefinition AddDefinition(const Shape::ConstList & geometry,
 	                             const Time::ConstPtr & start,
 	                             const Time::ConstPtr & end);

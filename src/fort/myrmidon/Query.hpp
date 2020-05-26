@@ -17,7 +17,7 @@ namespace myrmidon {
 class Query {
 public:
 
-	// Data returned by <CollideFrame>.
+	// Data returned by <CollideFrames>.
 	typedef std::pair<IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
 
 	// Computes all measurement for an Ant

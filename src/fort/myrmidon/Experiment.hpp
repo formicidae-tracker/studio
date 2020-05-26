@@ -30,7 +30,7 @@ public :
 	// @return the path to the `.myrmidon` file
 	std::string AbsoluteFilePath() const;
 
-	// Gets the <Space> in the Experiment with const access
+	// Gets the Space in the Experiment with const access
 	//
 	// @return a const map of the Experiment <Space>
 	std::map<Space::ID,CSpace> CSpaces() const;
@@ -127,7 +127,8 @@ public :
 	// @pExperiment opaque pointer to implementation
 	//
 	// User cannot create an Experiment directly. They must use
-	// <Open>, <OpenReadOnly>, <Create> and <NewFile>.
+	// <Experiment::Open>, <Experiment::OpenReadOnly>,
+	// <Experiment::Create> and <Experiment::NewFile>.
 	CExperiment(const ConstPPtr & pExperiment);
 private:
 	friend class fort::myrmidon::Query;
@@ -168,7 +169,7 @@ public:
 	// file. Only a single program can open the same myrmidon file
 	// with full access (read only access must be closed).
 	//
-	// @return a <Ptr> to the Experiment
+	// @return the <Experiment>
 	static Experiment Open(const std::string & filepath);
 
 	// Opens a read only Experiment
@@ -178,7 +179,7 @@ public:
 	// file. Only a single program can open the same myrmidon file
 	// with full access (read only access must be closed).
 	//
-	// @return a <Ptr> to the Experiment
+	// @return the <CExperiment>
 	static CExperiment OpenReadOnly(const std::string & filepath);
 
 	// Creates a new Experiment file
@@ -188,7 +189,7 @@ public:
 	// location. Will throw an error if a file already exists at this
 	// location.
 	//
-	// @return a <Ptr> to the new empty Experiment
+	// @return  the new empty <Experiment>
 	static Experiment NewFile(const std::string & filepath);
 
 	// Creates a new Experiment without file association
@@ -197,7 +198,7 @@ public:
 	// Creates a new Experiment virtually associated with the desired
 	// filesystem location. Will not create a file.
 	//
-	// @return a <Ptr> to the new empty Experiment
+	// @return the new empty <Experiment>
 	static Experiment Create(const std::string & filepath);
 
 	// Saves the Experiment
@@ -216,7 +217,7 @@ public:
 	// Creates a new <Space>
 	// @name wanted name for the new <Space>
 	//
-	// @return a <Space::Ptr> to the new <Space>
+	// @return the new <Space>
 	Space CreateSpace(const std::string & name);
 
 	// Deletes a <Space>
@@ -250,7 +251,7 @@ public:
 
 	// Creates a new <Ant>
 	//
-	// @return a <Ant::Ptr> to the new <Ant>
+	// @return the new <Ant>
 	Ant CreateAnt();
 
 	// Gets the <Ant> in the Experiment
@@ -274,7 +275,7 @@ public:
 	// are valid for [<start>,<end>[. One may obtain a valid time
 	// range using <FreeIdentificationRangeAt>.
 	//
-	// @return an <Identification::Ptr> to the new <Identification>
+	// @return the new <Identification>
 	Identification AddIdentification(Ant::ID antID,
 	                                 TagID tagID,
 	                                 const Time::ConstPtr & start,
