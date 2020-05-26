@@ -7,16 +7,23 @@ void fmIdentification_show(const fort::myrmidon::Identification * i) {
 	Rcpp::Rcout << "fmIdentification " << *i  << "\n";
 }
 
+void fmCIdentification_show(const fort::myrmidon::CIdentification * i) {
+	fmIdentification_show(static_cast<const fort::myrmidon::Identification*>(i));
+}
+
+
+
+
 RCPP_MODULE(identification) {
-	Rcpp::class_<fort::myrmidon::Identification>("fmCIdentification")
-		.const_method("show",&fmIdentification_show)
-		.const_method("tagValue",&fort::myrmidon::Identification::TagValue)
-		.const_method("targetAntID",&fort::myrmidon::Identification::TargetAntID)
-		.const_method("start",&fort::myrmidon::Identification::Start)
-		.const_method("end",&fort::myrmidon::Identification::End)
-		.const_method("antPosition",&fort::myrmidon::Identification::AntPosition)
-		.const_method("antAngle",&fort::myrmidon::Identification::AntAngle)
-		.const_method("hasUserDefinedAntPose",&fort::myrmidon::Identification::HasUserDefinedAntPose)
+	Rcpp::class_<fmCIdentification>("fmCIdentification")
+		.const_method("show",&fmCIdentification_show)
+		.const_method("tagValue",&fort::myrmidon::CIdentification::TagValue)
+		.const_method("targetAntID",&fort::myrmidon::CIdentification::TargetAntID)
+		.const_method("start",&fort::myrmidon::CIdentification::Start)
+		.const_method("end",&fort::myrmidon::CIdentification::End)
+		.const_method("antPosition",&fmCIdentification::AntPosition)
+		.const_method("antAngle",&fmCIdentification::AntAngle)
+		.const_method("hasUserDefinedAntPose",&fmCIdentification::HasUserDefinedAntPose)
 		;
 
 	Rcpp::class_<fort::myrmidon::Identification>("fmIdentification")
