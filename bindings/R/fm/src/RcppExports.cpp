@@ -7,6 +7,7 @@ using namespace Rcpp;
 
 
 RcppExport SEXP _rcpp_module_boot_ant();
+RcppExport SEXP _rcpp_module_boot_antStaticValue();
 RcppExport SEXP _rcpp_module_boot_color();
 RcppExport SEXP _rcpp_module_boot_duration();
 RcppExport SEXP _rcpp_module_boot_identification();
@@ -15,6 +16,7 @@ RcppExport SEXP _rcpp_module_boot_time();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_ant", (DL_FUNC) &_rcpp_module_boot_ant, 0},
+    {"_rcpp_module_boot_antStaticValue", (DL_FUNC) &_rcpp_module_boot_antStaticValue, 0},
     {"_rcpp_module_boot_color", (DL_FUNC) &_rcpp_module_boot_color, 0},
     {"_rcpp_module_boot_duration", (DL_FUNC) &_rcpp_module_boot_duration, 0},
     {"_rcpp_module_boot_identification", (DL_FUNC) &_rcpp_module_boot_identification, 0},

@@ -3,6 +3,7 @@
 #include "ant.h"
 
 #include "identification.h"
+#include "color.h"
 
 #include "Rcpp.h"
 
@@ -36,12 +37,15 @@ Rcpp::List fmAnt_identifications(fort::myrmidon::Ant * ant) {
 }
 
 
+
 RCPP_MODULE(ant) {
 	Rcpp::class_<fort::myrmidon::CAnt>("fmCAnt")
 		.const_method("show",&fmCAnt_show)
 		.const_method("cIdentifications",&fmCAnt_cIdentifications)
 		.const_method("antID",&fort::myrmidon::CAnt::AntID)
 		.const_method("formattedID",&fort::myrmidon::CAnt::FormattedID)
+		.const_method("displayColor",&fort::myrmidon::CAnt::DisplayColor)
+		.const_method("displayStatus",&fort::myrmidon::CAnt::DisplayStatus)
 		;
 
 	Rcpp::class_<fort::myrmidon::Ant>("fmAnt")
@@ -50,6 +54,10 @@ RCPP_MODULE(ant) {
 		.method("identifications",&fmAnt_identifications)
 		.const_method("antID",&fort::myrmidon::Ant::AntID)
 		.const_method("formattedID",&fort::myrmidon::Ant::FormattedID)
+		.const_method("displayColor",&fort::myrmidon::Ant::DisplayColor)
+		.method("setDisplayColor",&fort::myrmidon::Ant::SetDisplayColor)
+		.const_method("displayStatus",&fort::myrmidon::Ant::DisplayStatus)
+		.method("setDisplayStatus",&fort::myrmidon::Ant::SetDisplayStatus)
 		;
 
 }

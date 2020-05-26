@@ -12,6 +12,7 @@
 loadModule("duration", TRUE)
 loadModule("time", TRUE)
 loadModule("color", TRUE)
+loadModule("antStaticValue", TRUE)
 loadModule("shapes", TRUE)
 loadModule("identification", TRUE)
 loadModule("ant", TRUE)
