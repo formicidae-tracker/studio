@@ -17,6 +17,10 @@ ZoneDefinition::ZoneDefinition(const PPtr & pDefinition)
 }
 
 Shape::ConstList ZoneDefinition::Geometry() const {
+	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,Geometry);
+}
+
+Shape::ConstList CZoneDefinition::Geometry() const {
 	return Shape::Cast(d_p->GetGeometry()->Shapes());
 }
 
@@ -25,10 +29,18 @@ void ZoneDefinition::SetGeometry(const Shape::ConstList & shapes) {
 }
 
 const Time::ConstPtr & ZoneDefinition::Start() const {
+	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,Start);
+}
+
+const Time::ConstPtr & CZoneDefinition::Start() const {
 	return d_p->Start();
 }
 
 const Time::ConstPtr & ZoneDefinition::End() const {
+	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,End);
+}
+
+const Time::ConstPtr & CZoneDefinition::End() const {
 	return d_p->End();
 }
 
@@ -49,8 +61,12 @@ ZoneDefinition Zone::AddDefinition(const Shape::ConstList & geometry,
 }
 
 ZoneDefinition::ConstList Zone::CDefinitions() const {
+	return FORT_MYRMIDON_CONST_HELPER(Zone,CDefinitions);
+}
+
+ZoneDefinition::ConstList CZone::CDefinitions() const {
 	ZoneDefinition::ConstList res;
-	for ( const auto & d : d_p->Definitions() ) {
+	for ( const auto & d : d_p->CDefinitions() ) {
 		res.push_back(CZoneDefinition(d));
 	}
 	return res;
@@ -69,6 +85,10 @@ void Zone::EraseDefinition(size_t index) {
 }
 
 const std::string & Zone::Name() const {
+	return FORT_MYRMIDON_CONST_HELPER(Zone,Name);
+}
+
+const std::string & CZone::Name() const {
 	return d_p->Name();
 }
 
@@ -76,37 +96,16 @@ void Zone::SetName(const std::string & name) {
 	d_p->SetName(name);
 }
 
-Zone::ID Zone::ZoneID() const {
+fort::myrmidon::ZoneID Zone::ZoneID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Zone,ZoneID);
+}
+
+Zone::ID CZone::ZoneID() const {
 	return d_p->ZoneID();
-}
-
-Shape::ConstList CZoneDefinition::Geometry() const {
-	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,Geometry);
-}
-
-const Time::ConstPtr & CZoneDefinition::Start() const {
-	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,Start);
-}
-
-const Time::ConstPtr & CZoneDefinition::End() const {
-	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,End);
 }
 
 CZoneDefinition::CZoneDefinition(const ConstPPtr & pDefinition)
 	: d_p(pDefinition) {
-}
-
-
-ZoneDefinition::ConstList CZone::CDefinitions() const {
-	return FORT_MYRMIDON_CONST_HELPER(Zone,CDefinitions);
-}
-
-const std::string & CZone::Name() const {
-	return FORT_MYRMIDON_CONST_HELPER(Zone,Name);
-}
-
-fort::myrmidon::ZoneID CZone::ZoneID() const {
-	return FORT_MYRMIDON_CONST_HELPER(Zone,ZoneID);
 }
 
 CZone::CZone(const ConstPPtr & pZone)

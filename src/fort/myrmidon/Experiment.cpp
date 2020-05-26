@@ -33,7 +33,11 @@ void Experiment::Save(const std::string & filepath) {
 	d_p->Save(filepath);
 }
 
- std::string Experiment::AbsoluteFilePath() const {
+std::string Experiment::AbsoluteFilePath() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AbsoluteFilePath);
+}
+
+std::string CExperiment::AbsoluteFilePath() const {
 	return d_p->AbsoluteFilePath().string();
 }
 
@@ -54,8 +58,12 @@ std::map<Space::ID,Space> Experiment::Spaces() {
 }
 
 std::map<Space::ID,CSpace> Experiment::CSpaces() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,CSpaces);
+}
+
+std::map<Space::ID,CSpace> CExperiment::CSpaces() const {
 	std::map<Space::ID,CSpace> res;
-	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
+	for ( const auto & [spaceID, space] : d_p->CSpaces() ) {
 		res.insert(std::make_pair(spaceID,CSpace(space)));
 	}
 	return res;
@@ -90,8 +98,13 @@ std::map<Ant::ID,Ant> Experiment::Ants() {
 }
 
 std::map<Ant::ID,CAnt> Experiment::CAnts() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,CAnts);
+}
+
+
+std::map<Ant::ID,CAnt> CExperiment::CAnts() const {
 	std::map<Ant::ID,CAnt> res;
-	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
+	for ( const auto & [antID, ant] : d_p->CIdentifier().CAnts() ) {
 		res.insert(std::make_pair(antID,CAnt(ant)));
 	}
 	return res;
@@ -115,11 +128,22 @@ void Experiment::DeleteIdentification(const Identification & identification) {
 bool Experiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
                                            Time::ConstPtr & end,
                                            TagID tagID, const Time & time) const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,FreeIdentificationRangeAt,start,end,tagID,time);
+}
+
+
+bool CExperiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
+                                            Time::ConstPtr & end,
+                                            TagID tagID, const Time & time) const {
 	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 
 
 const std::string & Experiment::Name() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Name);
+}
+
+const std::string & CExperiment::Name() const {
 	return d_p->Name();
 }
 
@@ -128,6 +152,10 @@ void Experiment::SetName(const std::string & name) {
 }
 
 const std::string & Experiment::Author() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Author);
+}
+
+const std::string & CExperiment::Author() const {
 	return d_p->Author();
 }
 
@@ -136,6 +164,10 @@ void Experiment::SetAuthor(const std::string & author) {
 }
 
 const std::string & Experiment::Comment() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Comment);
+}
+
+const std::string & CExperiment::Comment() const {
 	return d_p->Comment();
 }
 
@@ -144,6 +176,10 @@ void Experiment::SetComment(const std::string & comment) {
 }
 
 fort::tags::Family Experiment::Family() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Family);
+}
+
+fort::tags::Family CExperiment::Family() const {
 	return d_p->Family();
 }
 
@@ -152,6 +188,10 @@ void Experiment::SetFamily(fort::tags::Family tf) {
 }
 
 double Experiment::DefaultTagSize() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,DefaultTagSize);
+}
+
+double CExperiment::DefaultTagSize() const {
 	return d_p->DefaultTagSize();
 }
 
@@ -160,6 +200,10 @@ void Experiment::SetDefaultTagSize(double defaultTagSize) {
 }
 
 uint8_t Experiment::Threshold() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,Threshold);
+}
+
+uint8_t CExperiment::Threshold() const {
 	return d_p->Threshold();
 }
 
@@ -184,9 +228,15 @@ void Experiment::SetMeasurementTypeName(MeasurementTypeID mTypeID,
 	fi->second->SetName(name);
 }
 
+
 std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypes() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypes);
+}
+
+
+std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypes() const {
 	std::map<MeasurementTypeID,std::string> res;
-	for ( const auto & [mtID,mt] : d_p->MeasurementTypes() ) {
+	for ( const auto & [mtID,mt] : d_p->CMeasurementTypes() ) {
 		res.insert(std::make_pair(mtID,mt->Name()));
 	}
 	return res;
@@ -197,6 +247,10 @@ AntShapeTypeID Experiment::CreateAntShapeType(const std::string & name) {
 }
 
 std::map<AntShapeTypeID,std::string> Experiment::AntShapeTypeNames() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntShapeTypeNames);
+}
+
+std::map<AntShapeTypeID,std::string> CExperiment::AntShapeTypeNames() const {
 	std::map<AntShapeTypeID,std::string> res;
 	for ( const auto & [shapeTypeID,shapeType] : d_p->CAntShapeTypes() ) {
 		res.insert(std::make_pair(shapeTypeID,shapeType->Name()));
@@ -229,8 +283,14 @@ void Experiment::DeleteMetadataColumn(const std::string & name) {
 	d_p->DeleteAntMetadataColumn(name);
 }
 
-std::map<std::string,std::pair<AntMetadataType,AntStaticValue>>
+std::map<std::string,std::pair<AntMetadataType,AntStaticValue> >
 Experiment::AntMetadataColumns() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntMetadataColumns);
+}
+
+
+std::map<std::string,std::pair<AntMetadataType,AntStaticValue>>
+CExperiment::AntMetadataColumns() const {
 	std::map<std::string,std::pair<AntMetadataType,AntStaticValue>> res;
 	for ( const auto & [name,column] : d_p->AntMetadataConstPtr()->CColumns() ) {
 		res.insert(std::make_pair(name,std::make_pair(column->MetadataType(),column->DefaultValue())));
@@ -238,7 +298,8 @@ Experiment::AntMetadataColumns() const {
 	return res;
 }
 
-inline priv::AntMetadata::Column & LocateColumn(const priv::Experiment::Ptr & p,
+
+priv::AntMetadata::Column & LocateColumn(const priv::Experiment::Ptr & p,
                                                 const std::string & name) {
 	auto fi = p->AntMetadataPtr()->Columns().find(name);
 	if ( fi == p->AntMetadataPtr()->Columns().end() ) {
@@ -296,8 +357,11 @@ SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
 	return res;
 }
 
-
 ExperimentDataInfo Experiment::GetDataInformations() const {
+	return FORT_MYRMIDON_CONST_HELPER(Experiment,GetDataInformations);
+}
+
+ExperimentDataInfo CExperiment::GetDataInformations() const {
 	ExperimentDataInfo res = { .Frames = 0 };
 	const auto & spaces = d_p->CSpaces();
 	bool set = false;
@@ -317,63 +381,6 @@ ExperimentDataInfo Experiment::GetDataInformations() const {
 	return res;
 }
 
-std::string CExperiment::AbsoluteFilePath() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AbsoluteFilePath);
-}
-
-std::map<Space::ID,CSpace> CExperiment::CSpaces() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,CSpaces);
-}
-
-std::map<Ant::ID,CAnt> CExperiment::CAnts() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,CAnts);
-}
-
-bool CExperiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
-                                            Time::ConstPtr & end,
-                                            TagID tagID, const Time & time) const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,FreeIdentificationRangeAt,start,end,tagID,time);
-}
-
-const std::string & CExperiment::Name() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Name);
-}
-
-const std::string & CExperiment::Author() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Author);
-}
-
-const std::string & CExperiment::Comment() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Comment);
-}
-
-fort::tags::Family CExperiment::Family() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Family);
-}
-
-double CExperiment::DefaultTagSize() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,DefaultTagSize);
-}
-
-uint8_t CExperiment::Threshold() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Threshold);
-}
-
-std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypes() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypes);
-}
-
-std::map<AntShapeTypeID,std::string> CExperiment::AntShapeTypeNames() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntShapeTypeNames);
-}
-
-std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > CExperiment::AntMetadataColumns() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntMetadataColumns);
-}
-
-ExperimentDataInfo CExperiment::GetDataInformations() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,GetDataInformations);
-}
 
 CExperiment::CExperiment(const ConstPPtr & pExperiment)
 	: d_p(pExperiment) {

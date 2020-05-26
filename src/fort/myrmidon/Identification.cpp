@@ -8,33 +8,6 @@
 namespace fort {
 namespace myrmidon {
 
-TagID CIdentification::TagValue() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, TagValue);
-}
-
-AntID CIdentification::TargetAntID() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, TargetAntID);
-}
-
-Time::ConstPtr CIdentification::Start() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, Start);
-}
-
-Time::ConstPtr CIdentification::End() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, End);
-}
-
-Eigen::Vector2d CIdentification::AntPosition() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, AntPosition);
-}
-
-double CIdentification::AntAngle() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, AntAngle);
-}
-
-bool CIdentification::HasUserDefinedAntPose() const {
-	return FORT_MYRMIDON_CONST_HELPER(Identification, HasUserDefinedAntPose);
-}
 
 CIdentification::CIdentification(const ConstPPtr & pIdentification)
 	: d_p(pIdentification) {
@@ -50,10 +23,19 @@ const Identification::PPtr & Identification::ToPrivate() const {
 }
 
 TagID Identification::TagValue() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, TagValue);
+}
+
+
+TagID CIdentification::TagValue() const {
 	return d_p->TagValue();
 }
 
 AntID Identification::TargetAntID() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, TargetAntID);
+}
+
+AntID CIdentification::TargetAntID() const {
 	return d_p->Target()->AntID();
 }
 
@@ -67,23 +49,42 @@ void Identification::SetEnd(const Time::ConstPtr & end) {
 }
 
 Time::ConstPtr Identification::Start() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, Start);
+}
+
+Time::ConstPtr CIdentification::Start() const {
 	return d_p->Start();
 }
 
 Time::ConstPtr Identification::End() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, End);
+}
+
+Time::ConstPtr CIdentification::End() const {
 	return d_p->End();
 }
 
-
 Eigen::Vector2d Identification::AntPosition() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, AntPosition);
+}
+
+Eigen::Vector2d CIdentification::AntPosition() const {
 	return d_p->AntPosition();
 }
 
 double Identification::AntAngle() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, AntAngle);
+}
+
+double CIdentification::AntAngle() const {
 	return d_p->AntAngle();
 }
 
 bool Identification::HasUserDefinedAntPose() const {
+	return FORT_MYRMIDON_CONST_HELPER(Identification, HasUserDefinedAntPose);
+}
+
+bool CIdentification::HasUserDefinedAntPose() const {
 	return d_p->HasUserDefinedAntPose();
 }
 
