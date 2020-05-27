@@ -11,6 +11,7 @@
 #include "RawFrame.hpp"
 #include "CollisionSolver.hpp"
 
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -96,8 +97,13 @@ Query::LoadData(const DataRangeWithSpace & ranges,
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
                            const Time::ConstPtr & start,
-                           const Time::ConstPtr & end) {
+                           const Time::ConstPtr & end,
+                           bool computeZones) {
 	auto identifier = experiment->CIdentifier().Compile();
+	CollisionSolver::ConstPtr collider;
+	if ( computeZones == true ) {
+		collider = experiment->CompileCollisionSolver();
+	}
 	DataRangeWithSpace ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
@@ -110,8 +116,16 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
 		computeData(tbb::filter::parallel,
-		            [identifier](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            return std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
+			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            if ( collider ) {
+				            auto zoner = collider->ZonerFor(identified);
+				            identified->Zones.reserve(identified->Positions.size());
+				            for ( const auto & p : identified->Positions ) {
+					            identified->Zones.push_back(zoner->LocateAnt(p));
+				            }
+			            }
+			            return identified;
 		            });
 
 
@@ -167,8 +181,13 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
                                 const Time::ConstPtr & start,
                                 const Time::ConstPtr & end,
                                 Duration maximumGap,
-                                Matcher::Ptr matcher) {
+                                Matcher::Ptr matcher,
+                                bool computeZones) {
 	auto identifier = experiment->CIdentifier().Compile();
+	CollisionSolver::ConstPtr collider;
+	if ( computeZones == true ) {
+		collider = experiment->CompileCollisionSolver();
+	}
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
@@ -185,8 +204,16 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	std::string currentTddURI;
 	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
 		computeData(tbb::filter::parallel,
-		            [identifier](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            return std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
+			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            if ( collider ) {
+				            auto zoner = collider->ZonerFor(identified);
+				            identified->Zones.reserve(identified->Positions.size());
+				            for ( const auto & p : identified->Positions ) {
+					            identified->Zones.push_back(zoner->LocateAnt(p));
+				            }
+			            }
+			            return identified;
 		            });
 
 	 BuildingTrajectoryData currentTrajectories;
@@ -198,7 +225,7 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                       loadData & computeData & computeTrajectories);
 
 	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
-		auto res = bTrajectory.Terminate(antID);
+		auto res = bTrajectory.Terminate();
 		if ( res ) {
 			trajectories.push_back(res);
 		}
@@ -265,7 +292,7 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                       loadData & computeData & computeInteractions);
 
 	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
-		auto res = bTrajectory.Terminate(antID);
+		auto res = bTrajectory.Terminate();
 		if ( res ) {
 			trajectories.push_back(res);
 		}
@@ -303,20 +330,6 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 
 }
 
-
-AntTrajectory::ConstPtr Query::BuildingTrajectory::Terminate(AntID antID) const {
-	if ( Durations.size() < 2 ) {
-		return AntTrajectory::ConstPtr();
-	}
-	auto res = std::make_shared<AntTrajectory>();
-	res->Space = SpaceID;
-	res->Ant = antID;
-	res->Start = Start;
-	res->Positions = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],DataPoints.size()/3,3);
-	res->Nanoseconds = Durations;
-	return res;
-}
-
 inline bool MonoIDMismatch(const Time & a,
                     const Time & b) {
 	if ( a.HasMono() ) {
@@ -328,6 +341,65 @@ inline bool MonoIDMismatch(const Time & a,
 	return b.HasMono() == false;
 }
 
+Query::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
+                                              const PositionedAnt & ant,
+                                              const ZoneID * zone)
+	: Ant(ant.ID)
+	, SpaceID(frame->Space)
+	, Start(frame->FrameTime)
+	, Last(frame->FrameTime)
+	, DataPoints({ant.Position.x(),ant.Position.y(),ant.Angle})
+	, Durations({0}) {
+	if ( zone != nullptr ) {
+		Zones.push_back(*zone);
+	}
+}
+
+
+void Query::BuildingTrajectory::Append(const IdentifiedFrame::ConstPtr & frame,
+                                       const PositionedAnt & ant,
+                                       const ZoneID * zone) {
+	Last = frame->FrameTime;
+	Durations.push_back(frame->FrameTime.Sub(Start).Nanoseconds());
+	DataPoints.insert(DataPoints.end(),
+	                  {ant.Position.x(),ant.Position.y(),ant.Angle});
+	if ( zone != nullptr ) {
+		Zones.push_back(*zone);
+	}
+}
+
+AntTrajectory::ConstPtr Query::BuildingTrajectory::Terminate() const {
+	if ( Durations.size() < 2 ) {
+		return AntTrajectory::ConstPtr();
+	}
+	auto res = std::make_shared<AntTrajectory>();
+	res->Space = SpaceID;
+	res->Ant = Ant;
+	res->Start = Start;
+	res->Positions = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],DataPoints.size()/3,3);
+	res->Nanoseconds = Durations;
+	res->Zones = Zones;
+	return res;
+}
+
+Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
+                                                const Time & curTime)
+	: IDs(collision.IDs)
+	, Start(curTime)
+	, Last(curTime) {
+	for ( const auto & type : collision.InteractionTypes ) {
+		Types.insert(type);
+	}
+}
+
+void Query::BuildingInteraction::Append(const Collision & collision,
+                                        const Time & curTime) {
+	Last = curTime;
+	for ( const auto & type : collision.InteractionTypes ) {
+		Types.insert(type);
+	}
+}
+
 AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTrajectory & a,
                                                                const BuildingTrajectory & b ) const {
 	auto res = std::make_shared<AntInteraction>();
@@ -336,9 +408,8 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 		res->Types.push_back(type);
 	}
 	auto cutTrajectory
-		= [this](const BuildingTrajectory & t,
-		         AntID antID) {
-			  auto res = std::const_pointer_cast<AntTrajectory>(t.Terminate(antID));
+		= [this](const BuildingTrajectory & t) {
+			  auto res = std::const_pointer_cast<AntTrajectory>(t.Terminate());
 			  uint64_t toTrim = Start.Sub(t.Start).Nanoseconds();
 			  auto fi = std::find_if(res->Nanoseconds.begin(),
 			                         res->Nanoseconds.end(),
@@ -352,13 +423,12 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 			  res->Positions = res->Positions.block(elems,0,res->Positions.rows()-elems,3);
 			  return res;
 		  };
-	res->Trajectories.first = cutTrajectory(a,res->IDs.first);
-	res->Trajectories.second = cutTrajectory(b,res->IDs.second);
+	res->Trajectories.first = cutTrajectory(a);
+	res->Trajectories.second = cutTrajectory(b);
 	res->Start = Start;
 	res->End = Last;
 	return res;
 }
-
 
 std::function<void(const IdentifiedFrame::ConstPtr &)>
 Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
@@ -372,8 +442,14 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 		       if ( matcher ) {
 			       matcher->SetUp(data,CollisionFrame::ConstPtr());
 		       }
-
+		       size_t i = 0;
 		       for ( const auto & pa : data->Positions ) {
+			       const ZoneID * zone = nullptr;
+			       if ( data->Zones.size() != 0 ) {
+				       zone = &(data->Zones[i]);
+			       }
+			       ++i;
+
 			       auto & curTime = data->FrameTime;
 			       if ( matcher && matcher->Match(pa.ID,0,{}) == false ) {
 				       continue;
@@ -384,28 +460,19 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 				       if ( MonoIDMismatch(curTime,fi->second.Last) == true
 				            || curTime.Sub(fi->second.Last) > maxGap
 				            || data->Space != fi->second.SpaceID) {
-					       auto res = fi->second.Terminate(pa.ID);
+					       auto res = fi->second.Terminate();
 					       if ( res ) {
 						       result.push_back(res);
 					       }
 					       building.erase(fi);
 					       fi = building.end();
 				       } else {
-					       fi->second.Last = curTime;
-					       fi->second.Durations.push_back(curTime.Sub(fi->second.Start).Nanoseconds());
-					       fi->second.DataPoints.insert(fi->second.DataPoints.end(),
-					                                    {pa.Position.x(),pa.Position.y(),pa.Angle});
+					       fi->second.Append(data,pa,zone);
 				       }
 			       }
 
 			       if ( fi == building.end() ) {
-				       BuildingTrajectory newStart;
-				       newStart.SpaceID = data->Space;
-				       newStart.Start = curTime;
-				       newStart.Last = curTime;
-				       newStart.Durations = { 0 };
-				       newStart.DataPoints = {pa.Position.x(),pa.Position.y(),pa.Angle};
-				       building.insert(std::make_pair(pa.ID,newStart));;
+				       building.insert(std::make_pair(pa.ID,BuildingTrajectory(data,pa,zone)));;
 			       }
 		       }
 	       };
@@ -432,11 +499,18 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 			       matcher->SetUp(std::get<0>(data),std::get<1>(data));
 		       }
 
-		       std::vector<PositionedAnt> toTerminate;
+		       std::vector<std::pair<PositionedAnt,const ZoneID*>> toTerminate;
 
 		       auto & curTime = std::get<0>(data)->FrameTime;
 
+		       size_t i = 0;
 		       for (  const auto & pa : std::get<0>(data)->Positions ) {
+			       const ZoneID * zone = nullptr;
+			       if ( std::get<0>(data)->Zones.size() != 0 ) {
+				       zone = &(std::get<0>(data)->Zones[i]);
+			       }
+			       ++i;
+
 			       if ( matcher && matcher->Match(pa.ID,0,{}) == false ) {
 				       continue;
 			       }
@@ -458,37 +532,22 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 						       } catch ( const std::exception & ) {
 						       }
 					       }
-					       toTerminate.push_back(pa);
+					       toTerminate.push_back(std::make_pair(pa,zone));
 					       for ( const auto & IDs : toRemove ) {
 						       currentInteractions.erase(IDs);
 					       }
 				       } else {
-					       fi->second.Last = curTime;
-					       fi->second.Durations.push_back(curTime.Sub(fi->second.Start).Nanoseconds());
-					       fi->second.DataPoints.insert(fi->second.DataPoints.end(),
-					                                    {pa.Position.x(),pa.Position.y(),pa.Angle});
+					       fi->second.Append(std::get<0>(data),pa,zone);
 				       }
 			       } else {
-				       BuildingTrajectory newStart;
-				       newStart.SpaceID = std::get<0>(data)->Space;
-				       newStart.Start = curTime;
-				       newStart.Last = curTime;
-				       newStart.Durations = { 0 };
-				       newStart.DataPoints = {pa.Position.x(),pa.Position.y(),pa.Angle};
-				       currentTrajectories.insert(std::make_pair(pa.ID,newStart));;
+				       currentTrajectories.insert(std::make_pair(pa.ID,BuildingTrajectory(std::get<0>(data),pa,zone)));;
 			       }
 		       }
 
-		       for ( const auto & pa : toTerminate ) {
+		       for ( const auto & [pa,zone] : toTerminate ) {
 			       auto & curTraj = currentTrajectories.at(pa.ID);
-			       trajectories.push_back(curTraj.Terminate(pa.ID));
-			       curTraj.Start = curTime;
-			       curTraj.Last = curTime;
-			       curTraj.Durations.clear();
-			       curTraj.Durations.push_back(0);
-			       curTraj.DataPoints.clear();
-			       curTraj.DataPoints.insert(curTraj.DataPoints.begin(),
-			                                 {pa.Position.x(),pa.Position.y(),pa.Angle});
+			       trajectories.push_back(curTraj.Terminate());
+			       curTraj = BuildingTrajectory(std::get<0>(data),pa,zone);
 		       }
 
 
@@ -512,22 +571,12 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 					       currentInteractions.erase(fi);
 					       fi = currentInteractions.end();
 				       } else {
-					       fi->second.Last = curTime;
-					       for ( const auto & type : pInter.InteractionTypes ) {
-						       fi->second.Types.insert(type);
-					       }
+					       fi->second.Append(pInter,curTime);
 				       }
 			       }
 
 			       if ( fi == currentInteractions.end() ) {
-				       BuildingInteraction newInter;
-				       newInter.IDs = pInter.IDs;
-				       newInter.Start = curTime;
-				       newInter.Last = curTime;
-				       for ( const auto & type : pInter.InteractionTypes ) {
-					       newInter.Types.insert(type);
-				       }
-				       currentInteractions.insert(std::make_pair(newInter.IDs,newInter));
+				       currentInteractions.insert(std::make_pair(pInter.IDs,BuildingInteraction(pInter,curTime)));
 			       }
 
 		       }

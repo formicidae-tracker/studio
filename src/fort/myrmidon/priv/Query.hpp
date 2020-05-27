@@ -25,7 +25,8 @@ public:
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
-	                           const Time::ConstPtr & end);
+	                           const Time::ConstPtr & end,
+	                           bool computeZones = false);
 
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
 	                          std::vector<CollisionData> & result,
@@ -37,7 +38,8 @@ public:
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
-	                                Matcher::Ptr matcher = Matcher::Ptr());
+	                                Matcher::Ptr matcher = Matcher::Ptr(),
+	                                bool computeZones = false);
 
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
@@ -55,17 +57,34 @@ private:
 	typedef std::pair<Space::ID,RawFrameConstPtr>            RawData;
 
 	struct BuildingTrajectory {
-		Space::ID SpaceID;
-		Time Start,Last;
-		std::vector<double> DataPoints;
+		AntID                 Ant;
+		Space::ID             SpaceID;
+		Time                  Start,Last;
+		std::vector<double>   DataPoints;
 		std::vector<uint64_t> Durations;
-		AntTrajectory::ConstPtr Terminate(AntID antID) const;
+		std::vector<uint32_t> Zones;
+		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
+		                   const PositionedAnt & ant,
+		                   const ZoneID * zone);
+		void Append(const IdentifiedFrame::ConstPtr & frame,
+		            const PositionedAnt & ant,
+		            const ZoneID * zone);
+
+		AntTrajectory::ConstPtr Terminate() const;
+
 	};
 
 	struct BuildingInteraction {
 		InteractionID             IDs;
 		Time Start,Last;
 		std::set<InteractionType> Types;
+		BuildingInteraction(const Collision & collision,
+		                    const Time & curTime);
+
+		void Append(const Collision & collision,
+		            const Time & curTime);
+
+
 		AntInteraction::ConstPtr Terminate(const BuildingTrajectory & a,
 		                                   const BuildingTrajectory & b) const;
 	};
