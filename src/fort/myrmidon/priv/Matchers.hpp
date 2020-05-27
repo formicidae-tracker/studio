@@ -4,6 +4,7 @@
 
 #include "Identifier.hpp"
 
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -36,8 +37,12 @@ public:
 	virtual bool Match(fort::myrmidon::AntID ant1,
 	                   fort::myrmidon::AntID ant2,
 	                   const std::vector<InteractionType> & types) = 0;
+
+	virtual void Format(std::ostream & out) const = 0;
 };
 
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::Matcher & m);

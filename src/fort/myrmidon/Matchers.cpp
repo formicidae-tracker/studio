@@ -48,3 +48,9 @@ Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
 
 } // namespace myrmidon
 } // namespace fortoio
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Matcher & m) {
+	return out << *m.d_p;
+}

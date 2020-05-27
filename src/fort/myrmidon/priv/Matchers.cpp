@@ -36,6 +36,16 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 			}
 			return true;
 		}
+
+		void Format(std::ostream & out ) const override {
+			std::string prefix = "( ";
+			for ( const auto & m : d_matchers ) {
+				out << prefix;
+				m->Format(out);
+				prefix = " && ";
+			}
+			out << " )";
+		}
 	};
 
 	return std::make_shared<AndMatcher>(matchers);
@@ -71,6 +81,17 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 			}
 			return false;
 		}
+
+		void Format(std::ostream & out ) const override {
+			std::string prefix = "( ";
+			for ( const auto & m : d_matchers ) {
+				out << prefix;
+				m->Format(out);
+				prefix = " || ";
+			}
+			out << " )";
+		}
+
 	};
 	return std::make_shared<OrMatcher>(matchers);
 }
@@ -98,6 +119,11 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 			}
 			return ant1 == d_id;
 		}
+
+		void Format(std::ostream & out ) const override {
+			out << "Ant.ID == " << Ant::FormatID(d_id);
+		}
+
 	};
 	return std::make_shared<AntIDMatcher>(ID);
 }
@@ -149,6 +175,11 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 			}
 			return fi->second->GetValue(d_name,d_time) == d_value;
 		}
+
+		void Format(std::ostream & out ) const override {
+			out << "Ant.'" << d_name << "' == " << d_value;
+		}
+
 	};
 	return std::make_shared<AntColumnMatcher>(name,value);
 }
@@ -195,6 +226,10 @@ public:
 			return d_distanceSquare > sDist;
 		}
 	}
+
+	void Format(std::ostream & out ) const override {
+		out << "Distance(Ant1, Ant2) " << (d_greater == true ? ">" : "<" ) << " " << std::sqrt(d_distanceSquare);
+	}
 };
 
 
@@ -240,6 +275,11 @@ public:
 		}
 	};
 
+	void Format(std::ostream & out ) const override {
+		out << "Angle(Ant1, Ant2) " << (d_greater == true ? ">" : "<" ) << " " << d_angle;
+	}
+
+
 };
 
 Matcher::Ptr Matcher::AntDistanceSmallerThan(double distance) {
@@ -262,3 +302,8 @@ Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::Matcher & m) {
+	m.Format(out);
+	return out;
+}

@@ -33,6 +33,10 @@ public:
 		return d_value;
 	};
 
+	void Format(std::ostream & out) const override {
+		out << std::boolalpha << d_value;
+	}
+
 	static Ptr Create(bool value) {
 		return std::make_shared<StaticMatcher>(value);
 	}
@@ -47,6 +51,7 @@ public:
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
 	                        fort::myrmidon::AntID b,
 	                        const std::vector<InteractionType> & types), (override));
+	MOCK_METHOD(void,Format,(std::ostream & out), (const override));
 };
 
 TEST_F(MatchersUTest,AndMatcher) {
@@ -220,6 +225,60 @@ TEST_F(MatchersUTest,AngleMatcher) {
 
 }
 
+
+TEST_F(MatchersUTest,Formatting) {
+	struct TestData {
+		Matcher::Ptr M;
+		std::string Expected;
+	};
+
+	std::vector<TestData> testdata
+		= {
+		   {
+		    Matcher::AntIDMatcher(1),
+		    "Ant.ID == 0x0001",
+		   },
+		   {
+		    Matcher::AntColumnMatcher("foo",42.3),
+		    "Ant.'foo' == 42.3",
+		   },
+		   {
+		    Matcher::AntDistanceSmallerThan(42.3),
+		    "Distance(Ant1, Ant2) < 42.3",
+		   },
+		   {
+		    Matcher::AntDistanceGreaterThan(42.3),
+		    "Distance(Ant1, Ant2) > 42.3",
+		   },
+		   {
+		    Matcher::AntAngleSmallerThan(0.1),
+		    "Angle(Ant1, Ant2) < 0.1",
+		   },
+		   {
+		    Matcher::AntAngleGreaterThan(0.1),
+		    "Angle(Ant1, Ant2) > 0.1",
+		   },
+		   {
+		    Matcher::And({StaticMatcher::Create(false),
+		                  StaticMatcher::Create(true),
+		                  StaticMatcher::Create(false)}),
+		    "( false && true && false )",
+		   },
+		   {
+		    Matcher::Or({StaticMatcher::Create(false),
+		                  StaticMatcher::Create(true),
+		                  StaticMatcher::Create(false)}),
+		    "( false || true || false )",
+		   },
+
+	};
+
+	for ( const auto & d : testdata ) {
+		std::ostringstream oss;
+		oss << *d.M;
+		EXPECT_EQ(oss.str(),d.Expected);
+	}
+}
 
 
 

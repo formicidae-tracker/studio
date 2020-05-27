@@ -4,6 +4,16 @@
 
 #include "Types.hpp"
 
+
+namespace fort {
+namespace myrmidon {
+class Matcher;
+}
+}
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Matcher & m);
+
 namespace fort {
 namespace myrmidon {
 
@@ -126,6 +136,8 @@ public:
 	}
 private:
 	friend class Query;
+	friend std::ostream & ::operator<<(std::ostream & out,
+	                                   const fort::myrmidon::Matcher & m);
 	PPtr d_p;
 };
 
