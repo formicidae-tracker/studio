@@ -375,6 +375,7 @@ ExperimentDataInfo CExperiment::GetDataInformations() const {
 			res.Start = std::min(res.Start,sInfo.Start);
 			res.End = std::max(res.End,sInfo.End);
 		}
+		res.Frames += sInfo.Frames;
 		res.Spaces[spaceID] = sInfo;
 	}
 
