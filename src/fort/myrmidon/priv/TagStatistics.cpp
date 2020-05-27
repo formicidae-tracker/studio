@@ -7,6 +7,7 @@
 
 #include <fort/myrmidon/TagStatisticsCache.pb.h>
 
+#include "DenseMap.hpp"
 
 #include "TimeUtils.hpp"
 
@@ -150,9 +151,9 @@ void saveToCache(const std::string & hermesFile, const TagStatisticsHelper::Time
 TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & hermesFile) {
 	try {
 		return loadFromCache(hermesFile);
-	} catch ( const std::exception & ) {
-
+	} catch ( const std::exception & e) {
 	}
+
 	Timed res;
 
 	auto & stats = res.TagStats;
@@ -165,7 +166,7 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 	};
 
 
-	DenseMap<TagID,LastSeen> lastSeens;
+	std::map<TagID,LastSeen> lastSeens;
 	bool hasStart = false;
 	for (;;) {
 		try {
