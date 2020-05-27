@@ -51,7 +51,7 @@ public:
 	// will match only if all of the given Matcher matches too.
 	// @return a new Matcher which is the AND combination of the given
 	//         Matchers.
-	static Ptr And(std::initializer_list<Ptr> matchers);
+	static Ptr And(std::vector<Ptr> matchers);
 
 	// OR combines several Matcher together.
 	// @matchers the matchers to combine
@@ -60,7 +60,7 @@ public:
 	// will match if any of the given Matcher matches too.
 	// @return a new Matcher which is the OR combination of the given
 	//         Matchers.
-	static Ptr Or(std::initializer_list<Ptr> matchers);
+	static Ptr Or(std::vector<Ptr> matchers);
 
 	// Matches a given <AntID>
 	// @ID the <AntID> to matches against
@@ -69,7 +69,7 @@ public:
 	// interaction with one of the Ant with the given <ID>
 	//
 	// @return a <Ptr> that matches <Ant>  of the given ID
-	static Ptr AntIDMatcher(AntID ID);
+	static Ptr AntID(AntID ID);
 
 	// Matches a given <AntStaticValue>
 	// @name the name of the column to match against
@@ -81,7 +81,7 @@ public:
 	//
 	// @return a <Ptr> that matches <Ant> with the value matching that
 	// <Ant>
-	static Ptr AntColumnMatcher(const std::string & name, const AntStaticValue & value);
+	static Ptr AntColumn(const std::string & name, const AntStaticValue & value);
 
 	// Matches a distance between two Ants
 	// @distance the distance to be smaller.
