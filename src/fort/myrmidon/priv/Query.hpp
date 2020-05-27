@@ -58,7 +58,7 @@ public:
 private:
 	typedef std::pair<TrackingDataDirectory::const_iterator,
 	                  TrackingDataDirectory::const_iterator> DataRange;
-	typedef std::vector<std::pair<Space::ID,DataRange>>      DataRangeWithSpace;
+	typedef std::map<Space::ID,std::vector<DataRange>>       DataRangeBySpaceID;
 	typedef std::pair<Space::ID,RawFrameConstPtr>            RawData;
 
 	struct BuildingTrajectory {
@@ -101,12 +101,22 @@ private:
 	static void BuildRange(const Experiment::ConstPtr & experiment,
 	                       const Time::ConstPtr & start,
 	                       const Time::ConstPtr & end,
-	                       DataRangeWithSpace & ranges);
+	                       DataRangeBySpaceID & ranges);
 
-	static std::function<RawData(tbb::flow_control&)>
-	LoadData(const DataRangeWithSpace & ranges,
-	         DataRangeWithSpace::iterator & rangeIter,
-	         TrackingDataDirectory::const_iterator & dataIter);
+	class DataLoader {
+	public:
+		DataLoader(const DataRangeBySpaceID & dataRanges);
+
+		RawData operator()( tbb::flow_control & fc) const;
+	private:
+		typedef std::map<Space::ID,std::vector<DataRange>::const_iterator> RangesIteratorByID;
+		typedef std::map<Space::ID,TrackingDataDirectory::const_iterator> DataIteratorByID;
+		const DataRangeBySpaceID & d_dataRanges;
+		std::shared_ptr<RangesIteratorByID> d_rangeIterators;
+		std::shared_ptr<DataIteratorByID>   d_dataIterators;
+
+	};
+
 
 	static std::function<void(const IdentifiedFrame::ConstPtr &)>
 	BuildTrajectories(std::function<void(const AntTrajectory::ConstPtr&)> store,

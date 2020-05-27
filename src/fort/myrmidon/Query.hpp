@@ -44,9 +44,7 @@ public:
 	// @end the end time for the query, use nullptr for the end of the
 	//      experiment
 	//
-	// Identifies Ants in frames, data will be reported squencially,
-	// space by space.
-
+	// Identifies Ants in frames, data will be reported ordered by time.
 	static void IdentifyFrames(const CExperiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
@@ -61,8 +59,7 @@ public:
 	//      experiment
 	//
 	// Finds <Collision> between ants in frames, data will be reported
-	// sequencially, space by space.
-
+	// ordered by time.
 	static void CollideFrames(const CExperiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const Time::ConstPtr & start,
@@ -81,7 +78,7 @@ public:
 	//          intensive queries.
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
-	// in time, ant by ant.
+	// by ending time
 	static void ComputeTrajectories(const CExperiment & experiment,
 	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                const Time::ConstPtr & start,
@@ -102,7 +99,7 @@ public:
 	//          intensive queries.
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
-	// in time, first interacting Ant by firs interacting Ant.
+	// by ending time.
 	static void ComputeAntInteractions(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,

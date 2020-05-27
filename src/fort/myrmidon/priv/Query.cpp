@@ -48,7 +48,7 @@ void Query::ComputeTagStatistics(const Experiment::ConstPtr & experiment,TagStat
 void Query::BuildRange(const Experiment::ConstPtr & experiment,
                        const Time::ConstPtr & start,
                        const Time::ConstPtr & end,
-                       DataRangeWithSpace & ranges) {
+                       DataRangeBySpaceID & ranges) {
 
 	const auto & spaces = experiment->CSpaces();
 	for ( const auto & [spaceID,space] : spaces ) {
@@ -66,35 +66,57 @@ void Query::BuildRange(const Experiment::ConstPtr & experiment,
 				}
 				iend = tdd->FrameAfter(*end);
 			}
-			ranges.push_back(std::make_pair(spaceID,std::make_pair(ibegin,iend)));
+			ranges[spaceID].push_back(std::make_pair(ibegin,iend));
 		}
 	}
 }
 
 
-std::function<Query::RawData(tbb::flow_control &fc)>
-Query::LoadData(const DataRangeWithSpace & ranges,
-                DataRangeWithSpace::iterator & rangeIter,
-                TrackingDataDirectory::const_iterator & dataIter) {
-	return [&ranges,
-	        &rangeIter,
-	        &dataIter](tbb::flow_control & fc) -> RawData {
-		       if ( dataIter == rangeIter->second.second ) {
-			       ++rangeIter;
-			       if ( rangeIter == ranges.end() ) {
-				       fc.stop();
-				       return std::make_pair(0,RawFrame::ConstPtr());
-			       }
-			       dataIter = std::move(rangeIter->second.first);
-		       }
-
-		       auto res = *dataIter;
-		       ++dataIter;
-		       return std::make_pair(rangeIter->first,res);
-	};
+Query::DataLoader::DataLoader(const DataRangeBySpaceID & dataRanges)
+	: d_dataRanges(dataRanges)
+	, d_rangeIterators(std::make_shared<RangesIteratorByID>())
+	, d_dataIterators(std::make_shared<DataIteratorByID>()) {
+	for ( const auto & [spaceID,ranges] : d_dataRanges ) {
+		d_rangeIterators->insert(std::make_pair(spaceID,ranges.begin()));
+		d_dataIterators->insert(std::make_pair(spaceID,std::move(ranges.begin()->first)));
+	}
 }
 
+Query::RawData Query::DataLoader::operator()( tbb::flow_control & fc) const {
+	Space::ID next(0);
+	Time nextTime;
+	for (  auto & [spaceID,dataIter] : *d_dataIterators ) {
+		auto & rangeIterator = d_rangeIterators->at(spaceID);
+		if ( rangeIterator == d_dataRanges.at(spaceID).cend() ) {
+			continue;
+		}
+		if ( dataIter == d_rangeIterators->at(spaceID)->second ) {
+			++rangeIterator;
+			if ( rangeIterator == d_dataRanges.at(spaceID).cend() ) {
+				continue;
+			}
+			auto newDataIter = std::move(rangeIterator->first);
+			dataIter = std::move(newDataIter);
+		}
+		const auto & dataTime = (*dataIter)->Frame().Time();
 
+		if ( next == 0 || dataTime.Before(nextTime) ) {
+			nextTime = dataTime;
+			next = spaceID;
+		}
+	}
+
+	if ( next == 0 ) {
+		fc.stop();
+		return Query::RawData(0,RawFrame::ConstPtr());
+	}
+
+	auto & dataIter = d_dataIterators->at(next);
+
+	auto res = *(dataIter);
+	++dataIter;
+	return std::make_pair(next,res);
+}
 
 
 inline bool MonoIDMismatch(const Time & a,

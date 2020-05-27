@@ -23,15 +23,13 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 	if ( computeZones == true ) {
 		collider = experiment->CompileCollisionSolver();
 	}
-	DataRangeWithSpace ranges;
+	DataRangeBySpaceID ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
 	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
 		computeData(tbb::filter::parallel,
@@ -66,15 +64,13 @@ void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           const Time::ConstPtr & end) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
-	DataRangeWithSpace ranges;
+	DataRangeBySpaceID ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData >
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
 	tbb::filter_t<RawData,
 	              CollisionData>
@@ -113,15 +109,13 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
-	DataRangeWithSpace ranges;
+	DataRangeBySpaceID ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
 	std::string currentTddURI;
 	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
@@ -176,15 +170,13 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
-	DataRangeWithSpace ranges;
+	DataRangeBySpaceID ranges;
 	BuildRange(experiment,start,end,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
 	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
 	tbb::filter_t<RawData,CollisionData>
 		computeData(tbb::filter::parallel,
