@@ -22,7 +22,6 @@ void StatisticsBridge::setExperiment(const fmp::Experiment::ConstPtr  & experime
 	d_experiment = experiment;
 	emit activated(!d_experiment == false);
 	setOutdated(true);
-	rebuildModel();
 }
 
 bool StatisticsBridge::isActive() const {
@@ -137,8 +136,13 @@ void StatisticsBridge::compute() {
 	size_t currentSeed = d_seed;
 	auto future = QtConcurrent::run([this]() -> Stats * {
 		                                auto stats = new Stats();
-		                                fmp::Query::ComputeTagStatistics(d_experiment,
-		                                                                 *stats);
+		                                try {
+			                                fmp::Query::ComputeTagStatistics(d_experiment,
+			                                                                 *stats);
+		                                } catch (const std::exception & e) {
+			                                std::cerr << "Could not compute stats: " << e.what() <<  std::endl;
+			                                return nullptr;
+		                                }
 		                                return stats;
 	                                });
 
@@ -147,15 +151,16 @@ void StatisticsBridge::compute() {
 	        &QFutureWatcher<Stats*>::finished,
 	        this,
 	        [this,currentSeed]() {
-		        auto watcher = d_watcher;
+		        auto result = d_watcher->result();
 		        d_watcher->deleteLater();
 		        d_watcher = nullptr;
 		        emit ready(true);
 
-		        if ( currentSeed != d_seed ) {
+		        if ( currentSeed != d_seed
+		             || result == nullptr) {
 			        return;
 		        }
-		        d_stats = *watcher->result();
+		        d_stats = *result;
 		        rebuildModel();
 		        setOutdated(false);
 	        },Qt::QueuedConnection);

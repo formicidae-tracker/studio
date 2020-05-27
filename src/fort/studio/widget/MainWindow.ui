@@ -72,6 +72,16 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
+         <widget class="QPushButton" name="computeStatsButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Compute Stats</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableView" name="statsView">
           <property name="alternatingRowColors">
            <bool>true</bool>
@@ -125,7 +135,7 @@
      <x>0</x>
      <y>0</y>
      <width>1248</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
