@@ -3,7 +3,7 @@
 #include "zone.h"
 #include "time.h"
 
-#include "../priv/map.hpp"
+#include "map.hpp"
 
 namespace Rcpp {
 template <> SEXP wrap(const std::pair<std::string,uint64_t> & locatedMovieFrame);

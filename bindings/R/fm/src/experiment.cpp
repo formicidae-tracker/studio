@@ -5,7 +5,7 @@
 #include "identification.h"
 #include "time.h"
 #include "ant_static_value.h"
-#include "../priv/map.hpp"
+#include "map.hpp"
 
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::TrackingDataDirectoryInfo)
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::SpaceDataInfo)

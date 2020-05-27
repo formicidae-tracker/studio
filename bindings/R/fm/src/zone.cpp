@@ -9,7 +9,6 @@ template <> SEXP wrap(const fort::myrmidon::ZoneDefinition::List & );
 
 #include <Rcpp.h>
 
-
 #define ZONE_DEFINITION_SHOW(ClassName,zd) do {	  \
 	Rcpp::Rcout << #ClassName " ([\n"; \
 	Rcpp::Rcout << "  start = "; \
@@ -36,6 +35,7 @@ template <> SEXP wrap(const fort::myrmidon::ZoneDefinition::List & );
 	Rcpp::Rcout << "  ])\n])\n"; \
 	}while(0)
 
+
 void fmCZoneDefinition_show(const fort::myrmidon::CZoneDefinition * zd) {
 	ZONE_DEFINITION_SHOW(fmCZoneDefinition,zd);
 }
@@ -55,7 +55,6 @@ void fmZone_show(const fort::myrmidon::Zone * z) {
 	            << " Name = " << z->Name()
 	            << ")\n";
 }
-
 
 RCPP_MODULE(zone) {
 
