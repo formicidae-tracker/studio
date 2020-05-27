@@ -11,7 +11,7 @@ void fmIdentification_show(const fort::myrmidon::Identification * i) {
 }
 
 void fmCIdentification_show(const fort::myrmidon::CIdentification * i) {
-	fmIdentification_show(reinterpret_cast<const fort::myrmidon::Identification*>(i));
+	Rcpp::Rcout << "fmCIdentification " << *reinterpret_cast<const fort::myrmidon::Identification*>(i)  << "\n";
 }
 
 
