@@ -16,9 +16,9 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-IdentifiedFrame::ConstPtr  CollisionSolverUTest::frame;
-Space::Universe::Ptr       CollisionSolverUTest::universe;
-AntByID                    CollisionSolverUTest::ants;
+IdentifiedFrame::Ptr     CollisionSolverUTest::frame;
+Space::Universe::Ptr     CollisionSolverUTest::universe;
+AntByID                  CollisionSolverUTest::ants;
 CollisionFrame::ConstPtr CollisionSolverUTest::collisions;
 
 void debugToImage(const IdentifiedFrame::ConstPtr & frame,
@@ -191,11 +191,11 @@ TEST_F(CollisionSolverUTest,TestE2E) {
 	                                                  ants);
 	CollisionFrame::ConstPtr res;
 	EXPECT_THROW({
-			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 2;
+			frame->Space = 2;
 			res = solver->ComputeCollisions(frame);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
-			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 1;
+			frame->Space = 1;
 			res = solver->ComputeCollisions(frame);
 		});
 	for ( const auto & inter : collisions->Collisions ) {

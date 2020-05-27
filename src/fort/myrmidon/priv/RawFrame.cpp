@@ -61,7 +61,7 @@ const FrameReference & RawFrame::Frame() const {
 	return d_frame;
 }
 
-IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier,SpaceID spaceID ) const {
+IdentifiedFrame::Ptr RawFrame::IdentifyFrom(const IdentifierIF & identifier,SpaceID spaceID ) const {
 	auto res = std::make_shared<IdentifiedFrame>();
 	res->Space = spaceID;
 	res->FrameTime = Frame().Time();

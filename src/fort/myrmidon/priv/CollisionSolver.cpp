@@ -38,7 +38,7 @@ CollisionSolver::CollisionSolver(const SpaceByID & spaces,
 }
 
 CollisionFrame::ConstPtr
-CollisionSolver::ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) const {
+CollisionSolver::ComputeCollisions(const IdentifiedFrame::Ptr & frame) const {
 	LocatedAnts locatedAnts;
 	LocateAnts(locatedAnts,frame);
 	auto res = std::make_shared<CollisionFrame>();
@@ -53,9 +53,8 @@ CollisionSolver::ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) cons
 	return res;
 }
 
-void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
-                                 const IdentifiedFrame::ConstPtr & frame) const {
 
+AntZoner::ConstPtr CollisionSolver::ZonerFor(const IdentifiedFrame::ConstPtr & frame) const {
 	if ( d_spaceGeometries.count(frame->Space) == 0) {
 		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame->Space) + " in IdentifiedFrame");
 	}
@@ -70,21 +69,40 @@ void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
 			continue;
 		}
 	}
+	return std::make_shared<AntZoner>(currentGeometries);
+}
+
+
+AntZoner::AntZoner(const ZoneGeometries & zoneGeometries)
+	: d_zoneGeometries(zoneGeometries) {
+}
+
+ZoneID AntZoner::LocateAnt(const PositionedAnt & ant) const {
+	auto fi =  std::find_if(d_zoneGeometries.begin(),
+	                        d_zoneGeometries.end(),
+	                        [&ant](const std::pair<ZoneID,Zone::Geometry::ConstPtr> & iter ) -> bool {
+		                        return iter.second->Contains(ant.Position);
+	                        });
+	if ( fi == d_zoneGeometries.end() ) {
+		return 0;
+	}
+	return fi->first;
+}
+
+
+void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
+                                 const IdentifiedFrame::Ptr & frame) const {
+
+	auto zoner = ZonerFor(frame);
 
 	// now for each geometry. we test if the ants is in the zone
+	frame->Zones.reserve(frame->Positions.size());
 	for ( const auto & p : frame->Positions ) {
-		bool found = false;
-		for ( const auto & [zID,geometry] : currentGeometries ) {
-			if (geometry->Contains(p.Position) == true ) {
-				locatedAnts[zID].push_back(p);
-				found = true;
-				break;
-			}
-		}
-		if ( found == false ) {
-			locatedAnts[0].push_back(p);
-		}
+		auto zoneID = zoner->LocateAnt(p);
+		locatedAnts[zoneID].push_back(p);
+		frame->Zones.push_back(zoneID);
 	}
+
 }
 
 

@@ -11,16 +11,32 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+class AntZoner {
+public:
+	typedef std::shared_ptr<AntZoner>       Ptr;
+	typedef std::shared_ptr<const AntZoner> ConstPtr;
+	typedef std::vector<std::pair<ZoneID,Zone::Geometry::ConstPtr> > ZoneGeometries;
+
+	AntZoner(const ZoneGeometries & zoneGeometries);
+
+	ZoneID LocateAnt(const PositionedAnt & ant) const;
+private:
+	ZoneGeometries d_zoneGeometries;
+};
+
+
 class CollisionSolver {
 public:
 	typedef std::shared_ptr<CollisionSolver>       Ptr;
 	typedef std::shared_ptr<const CollisionSolver> ConstPtr;
 
 	CollisionSolver(const SpaceByID & spaces,
-	                  const AntByID & ants);
+	                const AntByID & ants);
+
+	AntZoner::ConstPtr ZonerFor(const IdentifiedFrame::ConstPtr & frame) const;
 
 	CollisionFrame::ConstPtr
-	ComputeCollisions(const IdentifiedFrame::ConstPtr & frame) const;
+	ComputeCollisions(const IdentifiedFrame::Ptr & frame) const;
 private:
 	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
 	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
@@ -29,7 +45,7 @@ private:
 	typedef std::unordered_map<Zone::ID,std::vector<PositionedAnt> > LocatedAnts;
 
 	void LocateAnts(LocatedAnts & locatedAnts,
-	                const IdentifiedFrame::ConstPtr & frame) const;
+	                const IdentifiedFrame::Ptr & frame) const;
 
 	void ComputeCollisions(std::vector<Collision> &  result,
 	                       const std::vector<PositionedAnt> & ants,

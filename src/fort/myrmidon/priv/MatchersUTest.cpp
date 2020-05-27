@@ -135,8 +135,6 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 			columnMatcher->SetUp(identifiedFrame,{});
 		});
 
-
-
 	EXPECT_FALSE(columnMatcher->Match(0,0,{}));
 	EXPECT_TRUE(columnMatcher->Match(a->AntID(),0,{}));
 	ASSERT_NO_THROW({

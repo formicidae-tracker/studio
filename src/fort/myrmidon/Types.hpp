@@ -152,6 +152,8 @@ typedef std::vector<PositionedAnt,Eigen::aligned_allocator<PositionedAnt>> Posit
 // A visual frame were <Ant> have been identified from their <TagID>
 struct IdentifiedFrame {
 	// A pointer to an IdentifiedFrame
+	typedef std::shared_ptr<IdentifiedFrame>       Ptr;
+	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
 	// The <Time> at which this frame was taken.
 	Time              FrameTime;
@@ -163,6 +165,8 @@ struct IdentifiedFrame {
 	size_t            Width;
 	// The list of identified <Ant> in the frame
 	PositionedAntList Positions;
+	// optionnal Zones for ants
+	std::vector<ZoneID> Zones;
 	// Tests if the frame contains an <Ant>
 	// @antID the <AntID> of the <Ant> to test for.
 	//
