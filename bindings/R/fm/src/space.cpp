@@ -3,14 +3,17 @@
 #include "zone.h"
 #include "time.h"
 
+#include "../priv/map.hpp"
 
 namespace Rcpp {
-template <> SEXP wrap(const fort::myrmidon::Zone::ByID & zones);
-template <> SEXP wrap(const fort::myrmidon::Zone::ConstByID & zones);
 template <> SEXP wrap(const std::pair<std::string,uint64_t> & locatedMovieFrame);
 }
 
 #include <Rcpp.h>
+
+
+FM_IMPLEMENT_MAPUINT32(ZoneID,CZone)
+FM_IMPLEMENT_MAPUINT32(ZoneID,Zone)
 
 
 void fmCSpace_show(const fort::myrmidon::CSpace * s) {
@@ -26,6 +29,10 @@ void fmSpace_show(const fort::myrmidon::Space * s) {
 }
 
 RCPP_MODULE(space) {
+	FM_DECLARE_MAPUINT32(ZoneID,CZone,"fmCZoneByID");
+	FM_DECLARE_MAPUINT32(ZoneID,Zone,"fmZoneByID");
+
+
 	Rcpp::class_<fort::myrmidon::CSpace>("fmCSpace")
 		.const_method("show",&fmCSpace_show)
 		.const_method("spaceID",&fort::myrmidon::CSpace::SpaceID)
@@ -49,22 +56,6 @@ RCPP_MODULE(space) {
 }
 
 namespace Rcpp {
-
-template <> SEXP wrap(const fort::myrmidon::Zone::ByID & zones) {
-	List res;
-	for ( const auto & [zoneID,zone] : zones) {
-		res[zoneID] = zone;
-	}
-	return res;
-}
-
-template <> SEXP wrap(const fort::myrmidon::Zone::ConstByID & zones) {
-	List res;
-	for ( const auto & [zoneID,zone] : zones) {
-		res[zoneID] = zone;
-	}
-	return res;
-}
 
 template <> SEXP wrap(const std::pair<std::string,uint64_t> & locatedMovieFrame) {
 	List res;

@@ -12,8 +12,13 @@ template <> SEXP wrap(const fort::myrmidon::ZoneDefinition::List & );
 
 #define ZONE_DEFINITION_SHOW(ClassName,zd) do {	  \
 	Rcpp::Rcout << #ClassName " ([\n"; \
+	Rcpp::Rcout << "  start = "; \
+	fmTimeCPtr_show(&zd->Start()); \
+	Rcpp::Rcout << "  end = "; \
+	fmTimeCPtr_show(&zd->End()); \
+	Rcpp::Rcout << "  shapes = ([\n"; \
 	for ( const auto & shape : zd->Geometry() ) { \
-		Rcpp::Rcout << "  "; \
+		Rcpp::Rcout << "    "; \
 		if ( auto c = std::dynamic_pointer_cast<const fort::myrmidon::Circle>(shape) ) { \
 			fmCircle_show(c.get()); \
 			continue; \
@@ -28,7 +33,7 @@ template <> SEXP wrap(const fort::myrmidon::ZoneDefinition::List & );
 		} \
 		Rcpp::Rcout << "unsupported shape type"; \
 	} \
-	Rcpp::Rcout << "])\n"; \
+	Rcpp::Rcout << "  ])\n])\n"; \
 	}while(0)
 
 void fmCZoneDefinition_show(const fort::myrmidon::CZoneDefinition * zd) {
