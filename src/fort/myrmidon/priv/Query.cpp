@@ -94,241 +94,8 @@ Query::LoadData(const DataRangeWithSpace & ranges,
 	};
 }
 
-void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
-                           std::vector<IdentifiedFrame::ConstPtr> & result,
-                           const Time::ConstPtr & start,
-                           const Time::ConstPtr & end,
-                           bool computeZones) {
-	auto identifier = experiment->CIdentifier().Compile();
-	CollisionSolver::ConstPtr collider;
-	if ( computeZones == true ) {
-		collider = experiment->CompileCollisionSolver();
-	}
-	DataRangeWithSpace ranges;
-	BuildRange(experiment,start,end,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
-
-	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
-		computeData(tbb::filter::parallel,
-		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            if ( collider ) {
-				            auto zoner = collider->ZonerFor(identified);
-				            identified->Zones.reserve(identified->Positions.size());
-				            for ( const auto & p : identified->Positions ) {
-					            identified->Zones.push_back(zoner->LocateAnt(p));
-				            }
-			            }
-			            return identified;
-		            });
 
 
-	tbb::filter_t<IdentifiedFrame::ConstPtr,void>
-		storeData(tbb::filter::serial_in_order,
-		          [&result](const IdentifiedFrame::ConstPtr & res) {
-			          result.push_back(res);
-		          });
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
-
-}
-
-void Query::CollideFrames(const Experiment::ConstPtr & experiment,
-                          std::vector<CollisionData> & result,
-                          const Time::ConstPtr & start,
-                          const Time::ConstPtr & end) {
-	auto identifier = experiment->CIdentifier().Compile();
-	auto solver = experiment->CompileCollisionSolver();
-	DataRangeWithSpace ranges;
-	BuildRange(experiment,start,end,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
-	tbb::filter_t<void,RawData >
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
-
-	tbb::filter_t<RawData,
-	              CollisionData>
-		computeData(tbb::filter::parallel,
-		            [identifier,solver](const RawData & rawData ) -> CollisionData {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeCollisions(identified);
-			            return std::make_pair(identified,interacted);
-		            });
-
-
-	tbb::filter_t<CollisionData,void>
-		storeData(tbb::filter::serial_in_order,
-		          [&result](const CollisionData & res) {
-			          result.push_back(res);
-		          });
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
-
-}
-
-
-void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
-                                std::vector<AntTrajectory::ConstPtr> & trajectories,
-                                const Time::ConstPtr & start,
-                                const Time::ConstPtr & end,
-                                Duration maximumGap,
-                                Matcher::Ptr matcher,
-                                bool computeZones) {
-	auto identifier = experiment->CIdentifier().Compile();
-	CollisionSolver::ConstPtr collider;
-	if ( computeZones == true ) {
-		collider = experiment->CompileCollisionSolver();
-	}
-	if ( matcher ) {
-		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
-	}
-	DataRangeWithSpace ranges;
-	BuildRange(experiment,start,end,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
-
-	std::string currentTddURI;
-	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
-		computeData(tbb::filter::parallel,
-		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            if ( collider ) {
-				            auto zoner = collider->ZonerFor(identified);
-				            identified->Zones.reserve(identified->Positions.size());
-				            for ( const auto & p : identified->Positions ) {
-					            identified->Zones.push_back(zoner->LocateAnt(p));
-				            }
-			            }
-			            return identified;
-		            });
-
-	 BuildingTrajectoryData currentTrajectories;
-	 tbb::filter_t<IdentifiedFrame::ConstPtr,void>
-		 computeTrajectories(tbb::filter::serial_in_order,
-		                     BuildTrajectories(trajectories,currentTrajectories,maximumGap,matcher));
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
-	                       loadData & computeData & computeTrajectories);
-
-	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
-		auto res = bTrajectory.Terminate();
-		if ( res ) {
-			trajectories.push_back(res);
-		}
-	}
-
-	// sorts trajectories by Ant and Time, mixed Space
-	std::sort(trajectories.begin(),
-	          trajectories.end(),
-	          [](const AntTrajectory::ConstPtr & a,
-	             const AntTrajectory::ConstPtr & b) {
-		          if ( a->Ant == b->Ant ) {
-			          return a->Start < b->Start;
-		          }
-		          return a->Ant < b->Ant;
-	          });
-}
-
-
-void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-                                   std::vector<AntInteraction::ConstPtr> & interactions,
-                                   const Time::ConstPtr & start,
-                                   const Time::ConstPtr & end,
-                                   Duration maximumGap,
-                                   Matcher::Ptr matcher) {
-
-	auto identifier = experiment->CIdentifier().Compile();
-	auto solver = experiment->CompileCollisionSolver();
-
-	if ( matcher ) {
-		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
-	}
-	DataRangeWithSpace ranges;
-	BuildRange(experiment,start,end,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
-	auto rangeIter = ranges.begin();
-	auto dataIter = ranges.front().second.first;
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,LoadData(ranges,rangeIter,dataIter));
-
-	tbb::filter_t<RawData,CollisionData>
-		computeData(tbb::filter::parallel,
-		            [identifier,solver](const RawData & rawData ) -> CollisionData {
-			            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeCollisions(identified);
-			            return std::make_pair(identified,interacted);
-		            });
-
-	 BuildingTrajectoryData currentTrajectories;
-	 BuildingInteractionData currentInteractions;
-
-	tbb::filter_t<CollisionData,void>
-		computeInteractions(tbb::filter::serial_in_order,
-		                    BuildInteractions(trajectories,
-		                                      interactions,
-		                                      currentTrajectories,
-		                                      currentInteractions,
-		                                      maximumGap,
-		                                      matcher));
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
-	                       loadData & computeData & computeInteractions);
-
-	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
-		auto res = bTrajectory.Terminate();
-		if ( res ) {
-			trajectories.push_back(res);
-		}
-	}
-
-	for ( const auto & [IDs,bInteraction] : currentInteractions ) {
-		auto res = bInteraction.Terminate(currentTrajectories.at(IDs.first),
-		                                  currentTrajectories.at(IDs.second));
-		if ( res ) {
-			interactions.push_back(res);
-		}
-	}
-
-	// sorts trajectories by Ant and Time, mixed Space
-	std::sort(trajectories.begin(),
-	          trajectories.end(),
-	          [](const AntTrajectory::ConstPtr & a,
-	             const AntTrajectory::ConstPtr & b) {
-		          if ( a->Ant == b->Ant ) {
-			          return a->Start < b->Start;
-		          }
-		          return a->Ant < b->Ant;
-	          });
-
-	// sorts interactions too.
-	std::sort(interactions.begin(),
-	          interactions.end(),
-	          [](const AntInteraction::ConstPtr & a,
-	             const AntInteraction::ConstPtr & b) {
-		          if ( a->IDs == b->IDs ) {
-			          return a->Start < b->Start;
-		          }
-		          return a->IDs < b->IDs;
-	          });
-
-}
 
 inline bool MonoIDMismatch(const Time & a,
                     const Time & b) {
@@ -431,11 +198,11 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 }
 
 std::function<void(const IdentifiedFrame::ConstPtr &)>
-Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
+Query::BuildTrajectories(std::function<void(const AntTrajectory::ConstPtr &)> storeResult,
                          BuildingTrajectoryData & building,
                          Duration maxGap,
                          const Matcher::Ptr & matcher) {
-	return [&result,
+	return [storeResult,
 	        &building,
 	        &matcher,
 	        maxGap]( const IdentifiedFrame::ConstPtr & data ) {
@@ -462,7 +229,7 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 				            || data->Space != fi->second.SpaceID) {
 					       auto res = fi->second.Terminate();
 					       if ( res ) {
-						       result.push_back(res);
+						       storeResult(res);
 					       }
 					       building.erase(fi);
 					       fi = building.end();
@@ -483,14 +250,14 @@ Query::BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
 
 
 std::function<void(const Query::CollisionData &)>
-Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
-                         std::vector<AntInteraction::ConstPtr> & interactions,
+Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> storeTrajectory,
+                         std::function<void(const AntInteraction::ConstPtr&)> storeInteraction,
                          BuildingTrajectoryData & currentTrajectories,
                          BuildingInteractionData & currentInteractions,
                          Duration maxGap,
                          const Matcher::Ptr & matcher) {
-	return [&trajectories,
-	        &interactions,
+	return [storeTrajectory,
+	        storeInteraction,
 	        &currentTrajectories,
 	        &currentInteractions,
 	        &matcher,
@@ -527,8 +294,8 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 						       }
 						       toRemove.push_back(IDs);
 						       try {
-							       interactions.push_back(interaction.Terminate(currentTrajectories.at(IDs.first),
-							                                                    currentTrajectories.at(IDs.second)));
+							       storeInteraction(interaction.Terminate(currentTrajectories.at(IDs.first),
+							                                              currentTrajectories.at(IDs.second)));
 						       } catch ( const std::exception & ) {
 						       }
 					       }
@@ -546,7 +313,7 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 
 		       for ( const auto & [pa,zone] : toTerminate ) {
 			       auto & curTraj = currentTrajectories.at(pa.ID);
-			       trajectories.push_back(curTraj.Terminate());
+			       storeTrajectory(curTraj.Terminate());
 			       curTraj = BuildingTrajectory(std::get<0>(data),pa,zone);
 		       }
 
@@ -564,8 +331,8 @@ Query::BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
 				       if ( MonoIDMismatch(curTime,fi->second.Last) == true
 				            || curTime.Sub(fi->second.Last) > maxGap ) {
 					       try {
-					            interactions.push_back(fi->second.Terminate(currentTrajectories.at(pInter.IDs.first),
-					                                                        currentTrajectories.at(pInter.IDs.second)));
+					            storeInteraction(fi->second.Terminate(currentTrajectories.at(pInter.IDs.first),
+					                                                  currentTrajectories.at(pInter.IDs.second)));
 					       } catch ( const std::exception & )  {
 					       }
 					       currentInteractions.erase(fi);

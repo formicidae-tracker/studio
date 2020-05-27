@@ -26,7 +26,8 @@ void Query::IdentifyFrames(const CExperiment & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
                            const Time::ConstPtr & start,
                            const Time::ConstPtr & end) {
-	priv::Query::IdentifyFrames(experiment.d_p,result,start,end);
+	auto backInserter = std::back_inserter(result);
+	priv::Query::IdentifyFrames(experiment.d_p,backInserter,start,end);
 }
 
 
@@ -34,7 +35,8 @@ void Query::CollideFrames(const CExperiment & experiment,
                          std::vector<CollisionData> & result,
                          const Time::ConstPtr & start,
                          const Time::ConstPtr & end) {
-	priv::Query::CollideFrames(experiment.d_p,result,start,end);
+	auto backInserter = std::back_inserter(result);
+	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end);
 }
 
 void Query::ComputeTrajectories(const CExperiment & experiment,
@@ -43,8 +45,9 @@ void Query::ComputeTrajectories(const CExperiment & experiment,
                                 const Time::ConstPtr & end,
                                 Duration maximumGap,
                                 Matcher::Ptr matcher) {
+	auto backInserter = std::back_inserter(trajectories);
 	priv::Query::ComputeTrajectories(experiment.d_p,
-	                                 trajectories,
+	                                 backInserter,
 	                                 start,
 	                                 end,
 	                                 maximumGap,
@@ -58,9 +61,12 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
                                    const Time::ConstPtr & end,
                                    Duration maximumGap,
                                    Matcher::Ptr matcher) {
+	auto trajInserter = std::back_inserter(trajectories);
+	auto interInserter = std::back_inserter(interactions);
+
 	priv::Query::ComputeAntInteractions(experiment.d_p,
-	                                    trajectories,
-	                                    interactions,
+	                                    trajInserter,
+	                                    interInserter,
 	                                    start,
 	                                    end,
 	                                    maximumGap,

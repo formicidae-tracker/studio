@@ -22,28 +22,33 @@ public:
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
 	                                 TagStatistics::ByTagID & result);
 
+	template < typename OutputIter>
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::vector<IdentifiedFrame::ConstPtr> & result,
+	                           OutputIter & output,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end,
 	                           bool computeZones = false);
 
+	template <typename OutputIter>
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
-	                          std::vector<CollisionData> & result,
+	                          OutputIter & output,
 	                          const Time::ConstPtr & start,
 	                          const Time::ConstPtr & end);
 
+	template <typename OutputIter>
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
-	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                                OutputIter & output,
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
 	                                Matcher::Ptr matcher = Matcher::Ptr(),
 	                                bool computeZones = false);
 
+	template <typename TrajectoryOutputIter,
+	          typename InteractionOutputIter>
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                   std::vector<AntInteraction::ConstPtr> & interactions,
+	                                   TrajectoryOutputIter & trajectories,
+	                                   InteractionOutputIter & interactions,
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
@@ -104,15 +109,15 @@ private:
 	         TrackingDataDirectory::const_iterator & dataIter);
 
 	static std::function<void(const IdentifiedFrame::ConstPtr &)>
-	BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
+	BuildTrajectories(std::function<void(const AntTrajectory::ConstPtr&)> store,
 	                  BuildingTrajectoryData & building,
 	                  Duration maxGap,
 	                  const Matcher::Ptr & matcher);
 
 
 	static std::function<void(const CollisionData &)>
-	BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                  std::vector<AntInteraction::ConstPtr> & interactions,
+	BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> storeTrajectory,
+	                  std::function<void(const AntInteraction::ConstPtr&)> storeInteraction,
 	                  BuildingTrajectoryData & currentTrajectories,
 	                  BuildingInteractionData & currentInteractions,
 	                  Duration maxGap,
@@ -126,3 +131,6 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+#include "Query.impl.hpp"

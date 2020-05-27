@@ -63,8 +63,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	std::vector<IdentifiedFrame::ConstPtr> identifieds;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      {},
 			                      {});
 		});
@@ -78,8 +79,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	auto t = experiment->CSpaces().begin()->second->TrackingDataDirectories().front()->StartDate();
 	identifieds.clear();
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      {},
 			                      std::make_shared<Time>(t.Add(1)));
 		});
@@ -87,8 +89,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 
 	identifieds.clear();
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      std::make_shared<Time>(t.Add(1)),
 			                      {});
 		});
@@ -113,8 +116,9 @@ TEST_F(QueryUTest,InteractionFrame) {
 	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(collisionData);
 			Query::CollideFrames(experiment,
-			                     collisionData,
+			                     inserter,
 			                     {},{});
 		});
 
@@ -142,8 +146,9 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(trajectories);
 			Query::ComputeTrajectories(experiment,
-			                           trajectories,
+			                           inserter,
 			                           {},
 			                           {},
 			                           20000 * Duration::Millisecond,
@@ -180,9 +185,11 @@ TEST_F(QueryUTest,InteractionComputation) {
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 	std::vector<AntInteraction::ConstPtr> interactions;
 	ASSERT_NO_THROW({
+			auto trajInserter = std::back_inserter(trajectories);
+			auto interInserter = std::back_inserter(interactions);
 			Query::ComputeAntInteractions(experiment,
-			                              trajectories,
-			                              interactions,
+			                              trajInserter,
+			                              interInserter,
 			                              {},
 			                              {},
 			                              220 * Duration::Millisecond,
