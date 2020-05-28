@@ -18,6 +18,10 @@
 
 #include <fort/myrmidon/utils/Defer.hpp>
 
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio.hpp>
+
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
 #else
@@ -610,10 +614,10 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 
 
 std::map<FrameReference,fs::path>
-TrackingDataDirectory::FullFrames() const {
+TrackingDataDirectory::FullFramesFor(const fs::path & subpath) const {
 	std::map<FrameReference,fs::path> res;
 
-	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / "ants");
+	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / subpath);
 	for(const auto & [FID,fileAndFilter] : listing) {
 		if ( !fileAndFilter.second == true ) {
 			res.insert(std::make_pair(FrameReferenceAt(FID),fileAndFilter.first));
@@ -622,6 +626,48 @@ TrackingDataDirectory::FullFrames() const {
 
 	return res;
 }
+
+void TrackingDataDirectory::ComputeFullFrames() const {
+	auto firstFrame = *begin();
+	int width = firstFrame->Width();
+	int height = firstFrame->Height();
+	const auto & ms = d_movies->Segments();
+	fs::create_directory(AbsoluteFilePath() / "ants/computed");
+	tbb::parallel_for(tbb::blocked_range<size_t>(0,ms.size()),
+	                  [this,
+	                   &ms,
+	                   width,
+	                   height](const tbb::blocked_range<size_t> & range) {
+		                  for ( size_t i = range.begin();
+		                        i != range.end();
+		                        ++i ) {
+			                  cv::VideoCapture capture(ms[i].second->AbsoluteFilePath());
+			                  cv::Mat frame,scaled;
+			                  capture >> frame;
+			                  cv::resize(frame,scaled,cv::Size(width,height),cv::INTER_CUBIC);
+			                  auto filename = "frame_" + std::to_string(ms[i].second->ToTrackingFrameID(0)) + ".png";
+			                  auto imgPath = AbsoluteFilePath() / "ants/computed" / filename;
+			                  cv::imwrite(imgPath.c_str(),scaled);
+		                  }
+	                  });
+
+
+
+}
+
+std::map<FrameReference,fs::path>
+TrackingDataDirectory::FullFrames() const {
+	return FullFramesFor("ants");
+}
+
+std::map<FrameReference,fs::path>
+TrackingDataDirectory::ComputedFullFrames() const {
+	if ( fs::is_directory(AbsoluteFilePath() / "ants/computed") == false ) {
+		ComputeFullFrames();
+	}
+	return FullFramesFor("ants/computed");
+}
+
 
 std::vector<TagStatisticsHelper::Loader>
 TrackingDataDirectory::StatisticsLoader() const {

@@ -471,15 +471,26 @@ void ZoneBridge::rebuildFullFrameModel() {
 	if ( !d_selectedSpace == true ) {
 		return;
 	}
+	std::vector<std::pair<std::string,FullFrame>> fullframes;
 
 	for ( const auto & tdd : d_selectedSpace->TrackingDataDirectories() ) {
-		for ( const auto & [ref,path] : tdd->FullFrames() ) {
-			auto item = new QStandardItem(ref.URI().c_str());
-			item->setEditable(false);
-			item->setData(QVariant::fromValue(FullFrame{ref,path.c_str()}));
-			d_fullFrameModel->appendRow({item});
+		const auto & tddFullFrames = tdd->FullFrames();
+		if ( tddFullFrames.empty() == false ) {
+			for ( const auto & [ref,path] : tddFullFrames ) {
+				fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
+			}
+			continue;
 		}
+		for ( const auto & [ref,path] : tdd->ComputedFullFrames() ) {
+			fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
+		}
+	}
 
+	for ( const auto & [uri,ff] : fullframes ) {
+		auto item = new QStandardItem(uri.c_str());
+		item->setEditable(false);
+		item->setData(QVariant::fromValue(ff));
+		d_fullFrameModel->appendRow({item});
 	}
 
 }
