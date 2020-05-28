@@ -120,7 +120,6 @@ public:
 	}
 
 	~ExperimentLock() {
-		std::cerr << "Unlocked " << std::endl;
 		flock(d_fd,LOCK_UN);
 		close(d_fd);
 	}

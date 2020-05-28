@@ -25,7 +25,7 @@ public:
 
 	class Lister {
 	public :
-
+		~Lister();
 		typedef std::shared_ptr<Lister>                    Ptr;
 		typedef std::function<FrameReference (FrameID) >   FrameReferenceResolver;
 		typedef std::function<List()>                      Loader;
@@ -64,6 +64,8 @@ public:
 		              FrameID FID,
 		              size_t nbFiles);
 
+		List LoadFileFromCache(const fs::path & file);
+
 
 		void UnsafeSaveCache();
 		void LoadCache();
@@ -75,10 +77,9 @@ public:
 		tags::Family           d_family;
 		uint8_t                d_threshold;
 		FrameReferenceResolver d_resolver;
-		ByLocalFile            d_cache;
 		std::mutex             d_mutex;
-		bool                   d_cacheModified;
-		size_t                 d_parsed;
+		ByLocalFile            d_cache;
+		bool                   d_saveCacheOnDelete;
 	};
 
 	static double ComputeAngleFromCorners(const Eigen::Vector2d & c0,

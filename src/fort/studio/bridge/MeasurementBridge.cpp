@@ -6,6 +6,7 @@
 #include <QtConcurrent>
 #include <QDebug>
 
+#include <fort/myrmidon/utils/Defer.hpp>
 
 TagCloseUpLoader::TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
                                    const std::string & tddURI,
@@ -145,8 +146,9 @@ void MeasurementBridge::loadTagCloseUp() {
 		return;
 	}
 
-	d_loaders.clear();
+	clearAllTCUs();
 
+	d_loaders.clear();
 	for ( const auto & [tddURI,tdd] : d_experiment->TrackingDataDirectories() ) {
 		auto lister =  tdd->TagCloseUpLister(d_experiment->Family(),
 		                                     d_experiment->Threshold());
@@ -164,13 +166,14 @@ void MeasurementBridge::loadTagCloseUp() {
 		        emit progressChanged(value,d_loaders.size());
 	        },
 	        Qt::QueuedConnection);
+
 	connect(d_watcher,
 	        &QFutureWatcher<TagCloseUpLoader::Result>::resultReadyAt,
 	        this,
 	        [this](int index) {
 		        const auto & [seed,tddURI,tcus] = d_watcher->resultAt(index);
 		        if ( seed != d_seed
-		             || tddURI.empty() == true ) {
+		             || tddURI.empty() == true) {
 			        return;
 		        }
 

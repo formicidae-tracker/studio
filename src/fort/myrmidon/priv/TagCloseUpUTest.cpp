@@ -150,7 +150,9 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	ASSERT_EQ(res.size(),1);
 	EXPECT_EQ(res[0]->TagValue(),0);
 	computed = res[0];
-
+	// need to clear all to save cache
+	loaders.clear();
+	lister.reset();
 	auto cachePath = TagCloseUp::Lister::CacheFilePath(barAntDir);
 	ASSERT_TRUE(fs::is_regular_file(cachePath)) <<
 		cachePath << " does not exist";
