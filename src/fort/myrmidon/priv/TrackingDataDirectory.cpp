@@ -16,6 +16,8 @@
 
 #include <fort/myrmidon/priv/proto/TDDCache.hpp>
 
+#include <fort/myrmidon/utils/Defer.hpp>
+
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
 #else
@@ -595,6 +597,8 @@ void TrackingDataDirectory::SaveToCache() const {
 const TagCloseUp::Lister::Ptr
 TrackingDataDirectory::TagCloseUpLister(tags::Family f,
                                         uint8_t threshold) const {
+	PERF_FUNCTION();
+
 	auto locked = Itself();
 	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
 	                                  f,

@@ -124,6 +124,7 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_resolver(resolver)
 	, d_parsed(0)
 	, d_cacheModified(false) {
+	PERF_FUNCTION();
 	if ( f == tags::Family::Undefined ) {
 		throw std::invalid_argument("Cannot list for undefined family tag");
 	}
@@ -132,12 +133,15 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	} catch (const std::exception & e) {
 		if ( forceCache == true ) {
 			throw std::runtime_error(std::string("Could not list from cache: ") + e.what());
+		} else {
+			std::cerr << "Could not load cache for " << absoluteBaseDir << ": " << e.what() << std::endl;
 		}
 	}
 }
 
 std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
 TagCloseUp::Lister::ListFiles(const fs::path & path) {
+	PERF_FUNCTION();
 	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
 
 	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
@@ -235,6 +239,7 @@ void TagCloseUp::Lister::UnsafeSaveCache() {
 }
 
 void TagCloseUp::Lister::LoadCache() {
+	PERF_FUNCTION();
 	typedef proto::FileReadWriter<pb::TagCloseUpCacheHeader,pb::TagCloseUp> RW;
 
 	auto cachePath = CacheFilePath(d_absoluteBaseDir);
@@ -369,6 +374,7 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 
 std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
+	PERF_FUNCTION();
 	auto itself = d_itself.lock();
 	if (!itself) {
 		throw DeletedReference<Lister>();
