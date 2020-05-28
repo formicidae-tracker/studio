@@ -72,8 +72,7 @@ void StatisticsBridge::rebuildModel() {
 		d_model->setHorizontalHeaderLabels({tr("Tag ID"),tr("First Seen"),tr("Last Seen"),
 		                                    tr("Times Seen"),tr("Multiple Detection"),
 		                                    tr("Gap <500ms"),
-		                                    tr("Gap <1s"),tr("Gap <10s"),
-		                                    tr("Gap >=10s")});
+		                                    tr("Gap <1s"),tr("Other gaps (largely over estimated)")});
 	}
 
 	if ( !d_experiment == true ) {
@@ -95,11 +94,11 @@ void StatisticsBridge::rebuildModel() {
 				row.back()->setData(quint64(tagStats.Counts(i)));
 			}
 		} else {
-			for ( int i = 0; i < 3; ++i) {
+			for ( int i = 0; i < 4; ++i) {
 				row.push_back(new QStandardItem(QString::number(tagStats.Counts(i))));
 				row.back()->setData(quint64(tagStats.Counts(i)));
 			}
-			quint64 count = tagStats.Counts.block<1,7>(3,0).sum();
+			quint64 count = tagStats.Counts.block<1,6>(4,0).sum();
 			row.push_back(new QStandardItem(QString::number(count)));
 			row.back()->setData(count);
 		}
