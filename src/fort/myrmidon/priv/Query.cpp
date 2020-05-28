@@ -138,7 +138,7 @@ Query::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame::ConstPtr & 
 	, Start(frame->FrameTime)
 	, Last(frame->FrameTime)
 	, DataPoints({ant.Position.x(),ant.Position.y(),ant.Angle})
-	, Durations({0}) {
+	, Durations({0.0}) {
 	if ( zone != nullptr ) {
 		Zones.push_back(*zone);
 	}
@@ -149,7 +149,7 @@ void Query::BuildingTrajectory::Append(const IdentifiedFrame::ConstPtr & frame,
                                        const PositionedAnt & ant,
                                        const ZoneID * zone) {
 	Last = frame->FrameTime;
-	Durations.push_back(frame->FrameTime.Sub(Start).Nanoseconds());
+	Durations.push_back(frame->FrameTime.Sub(Start).Seconds());
 	DataPoints.insert(DataPoints.end(),
 	                  {ant.Position.x(),ant.Position.y(),ant.Angle});
 	if ( zone != nullptr ) {
@@ -166,7 +166,7 @@ AntTrajectory::ConstPtr Query::BuildingTrajectory::Terminate() const {
 	res->Ant = Ant;
 	res->Start = Start;
 	res->Positions = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],DataPoints.size()/3,3);
-	res->Nanoseconds = Durations;
+	res->Seconds = Durations;
 	res->Zones = Zones;
 	return res;
 }
@@ -199,21 +199,28 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 	auto cutTrajectory
 		= [this](const BuildingTrajectory & t) {
 			  auto res = std::const_pointer_cast<AntTrajectory>(t.Terminate());
-			  uint64_t toTrim = Start.Sub(t.Start).Nanoseconds();
-			  auto fi = std::find_if(res->Nanoseconds.begin(),
-			                         res->Nanoseconds.end(),
+			  if ( !res ) {
+				  throw std::runtime_error("No trajectory");
+			  }
+			  double toTrim = Start.Sub(t.Start).Seconds();
+			  auto fi = std::find_if(res->Seconds.begin(),
+			                         res->Seconds.end(),
 			                         [toTrim](uint64_t d) {
 				                         return d >= toTrim;
 			                         });
-			  size_t elems = fi - res->Nanoseconds.begin();
+			  size_t elems = fi - res->Seconds.begin();
 			  res->Start = Start;
 
-			  res->Nanoseconds.erase(res->Nanoseconds.begin(),fi);
+			  res->Seconds.erase(res->Seconds.begin(),fi);
 			  res->Positions = res->Positions.block(elems,0,res->Positions.rows()-elems,3);
 			  return res;
-		  };
-	res->Trajectories.first = cutTrajectory(a);
-	res->Trajectories.second = cutTrajectory(b);
+		  };\
+	try {
+		res->Trajectories.first = cutTrajectory(a);
+		res->Trajectories.second = cutTrajectory(b);
+	} catch ( const std::exception & e ) {
+		return AntInteraction::ConstPtr();
+	}
 	res->Start = Start;
 	res->End = Last;
 	return res;
@@ -316,8 +323,11 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 						       }
 						       toRemove.push_back(IDs);
 						       try {
-							       storeInteraction(interaction.Terminate(currentTrajectories.at(IDs.first),
-							                                              currentTrajectories.at(IDs.second)));
+							       auto toStore = interaction.Terminate(currentTrajectories.at(IDs.first),
+							                                            currentTrajectories.at(IDs.second));
+							       if ( toStore ) {
+								       storeInteraction(toStore);
+							       }
 						       } catch ( const std::exception & ) {
 						       }
 					       }
@@ -335,7 +345,10 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 
 		       for ( const auto & [pa,zone] : toTerminate ) {
 			       auto & curTraj = currentTrajectories.at(pa.ID);
-			       storeTrajectory(curTraj.Terminate());
+			       auto toStore = curTraj.Terminate();
+			       if ( toStore ) {
+				       storeTrajectory(toStore);
+			       }
 			       curTraj = BuildingTrajectory(std::get<0>(data),pa,zone);
 		       }
 
@@ -353,8 +366,11 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 				       if ( MonoIDMismatch(curTime,fi->second.Last) == true
 				            || curTime.Sub(fi->second.Last) > maxGap ) {
 					       try {
-					            storeInteraction(fi->second.Terminate(currentTrajectories.at(pInter.IDs.first),
-					                                                  currentTrajectories.at(pInter.IDs.second)));
+						       auto toStore = fi->second.Terminate(currentTrajectories.at(pInter.IDs.first),
+						                                           currentTrajectories.at(pInter.IDs.second));
+						       if ( toStore ) {
+							       storeInteraction(toStore);
+						       }
 					       } catch ( const std::exception & )  {
 					       }
 					       currentInteractions.erase(fi);

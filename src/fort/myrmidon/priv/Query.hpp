@@ -66,7 +66,7 @@ private:
 		Space::ID             SpaceID;
 		Time                  Start,Last;
 		std::vector<double>   DataPoints;
-		std::vector<uint64_t> Durations;
+		std::vector<double>   Durations;
 		std::vector<uint32_t> Zones;
 		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
 		                   const PositionedAnt & ant,

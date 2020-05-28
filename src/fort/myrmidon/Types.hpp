@@ -233,7 +233,7 @@ struct AntTrajectory {
 	// radians.
 	Eigen::Matrix<double,Eigen::Dynamic,3> Positions;
 	// Reports the difference in ns of all position to <Start>.
-	std::vector<uint64_t>                  Nanoseconds;
+	std::vector<double>                    Seconds;
 	// Reports zone of ant if asked
 	std::vector<uint32_t>                  Zones;
 };
