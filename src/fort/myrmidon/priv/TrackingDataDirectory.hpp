@@ -164,9 +164,12 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
+	std::map<FrameReference,fs::path> ComputedFullFrames() const;
+
 	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
 
 private:
+
 	typedef std::pair<FrameID,Time> TimedFrame;
 	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
 
@@ -222,6 +225,11 @@ private:
 	                      const TrackingIndex::Ptr & segments,
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
+
+	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath ) const;
+
+	void ComputeFullFrames() const;
+
 
 	void SaveToCache() const;
 
