@@ -293,6 +293,7 @@ TagCloseUp::Lister::CreateDetector() {
 TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
                                               FrameID FID,
                                               size_t nbFiles) {
+	PERF_FUNCTION();
 	Defer cleanup([this,nbFiles]() {
 		              std::lock_guard<std::mutex> lock(d_mutex);
 		              ++d_parsed;
