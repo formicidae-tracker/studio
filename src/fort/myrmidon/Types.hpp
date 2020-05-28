@@ -215,8 +215,6 @@ struct CollisionFrame {
 	// The <Collision> happenning at <FrameTime>
 	std::vector<Collision> Collisions;
 
-	// The zone any <Ant> is in.
-	std::map<AntID,ZoneID> AntZones;
 };
 
 // Defines a trajectory for an <Ant>
