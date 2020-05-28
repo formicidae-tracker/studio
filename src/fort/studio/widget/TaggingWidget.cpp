@@ -83,7 +83,8 @@ TaggingWidget::~TaggingWidget() {
 }
 
 
-void TaggingWidget::setup(ExperimentBridge * experiment) {
+void TaggingWidget::setup(ExperimentBridge * experiment,
+                          QAction * loadTagCloseUpAction) {
 
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
@@ -172,6 +173,13 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	d_ui->selectedAntIdentification->setup(experiment);
 
 
+	connect(loadTagCloseUpAction,&QAction::changed,
+	        this,
+	        [this,loadTagCloseUpAction]() {
+		        d_ui->familySelector->setEnabled(loadTagCloseUpAction->isEnabled());
+		        d_ui->thresholdBox->setEnabled(loadTagCloseUpAction->isEnabled());
+	        });
+	d_ui->loadTagCloseUpButton->setAction(loadTagCloseUpAction);
 }
 
 
@@ -511,7 +519,6 @@ QAction * TaggingWidget::addIdentificationToAntAction() const {
 QAction * TaggingWidget::deletePoseEstimationAction() const {
 	return d_deletePoseAction;
 }
-
 
 void TaggingWidget::setUp(const NavigationAction & actions ) {
 	connect(actions.NextTag,&QAction::triggered,

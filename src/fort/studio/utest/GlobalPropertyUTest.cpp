@@ -132,7 +132,7 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	ASSERT_NO_THROW({
 			experiment = fmp::priv::Experiment::Create(TestSetup::Basedir() / "globalProperty.myrmidon");
 			experiment->Save(TestSetup::Basedir() / "globalProperty.myrmidon");
-			globalPropertiesWidget.setup(&experimentBridge);
+			globalPropertiesWidget.setup(&experimentBridge,nullptr);
 		});
 
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->nameEdit->isEnabled());

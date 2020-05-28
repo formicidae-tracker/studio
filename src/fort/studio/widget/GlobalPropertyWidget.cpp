@@ -4,6 +4,7 @@
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <QDoubleSpinBox>
 
+#include <QAction>
 
 GlobalPropertyWidget::GlobalPropertyWidget(QWidget *parent)
 	: QWidget(parent)
@@ -22,7 +23,8 @@ GlobalPropertyWidget::~GlobalPropertyWidget() {
 	delete d_ui;
 }
 
-void GlobalPropertyWidget::setup(ExperimentBridge * experiment) {
+void GlobalPropertyWidget::setup(ExperimentBridge * experiment,
+                                 QAction * loadTagCloseUpAction) {
 	auto properties = experiment->globalProperties();
 	connect(properties,
 	        &GlobalPropertyBridge::activated,
@@ -113,4 +115,10 @@ void GlobalPropertyWidget::setup(ExperimentBridge * experiment) {
 	        &MeasurementBridge::progressChanged,
 	        [this](size_t done,size_t toDo) {
 	        });
+
+	connect(loadTagCloseUpAction,&QAction::changed,
+	        this,[this,loadTagCloseUpAction]() {
+		             d_ui->familySelector->setEnabled(loadTagCloseUpAction->isEnabled());
+	             });
+
 }

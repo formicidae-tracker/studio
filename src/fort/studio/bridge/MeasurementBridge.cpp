@@ -107,25 +107,34 @@ void MeasurementBridge::setOutdated(bool v) {
 }
 
 void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd) {
+	if ( !d_experiment  ) {
+		setOutdated(false);
+		return;
+	}
 	qDebug() << "[MeasurementBrdige]: new TDD "<< tdd->URI().c_str();
-	setOutdated(true);
+	setOutdated(d_experiment->Family() != fort::tags::Family::Undefined );
 }
 
 void MeasurementBridge::onTDDDeleted(const QString & tddURI) {
-	qDebug() << "[MeasurementBrdige]: Removing TDD "<< tddURI;
-	setOutdated(true);
-}
-
-void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family , uint8_t) {
-	if ( !d_experiment || d_watcher == nullptr ) {
+	if ( !d_experiment  ) {
+		setOutdated(false);
 		return;
 	}
+	qDebug() << "[MeasurementBrdige]: Removing TDD "<< tddURI;
+	setOutdated(d_experiment->Family() != fort::tags::Family::Undefined );
+}
+
+void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family family, uint8_t) {
+	if ( !d_experiment ) {
+		return;
+	}
+
 	qDebug() << "[MeasurementBridge]: newDetectionSetting '"
 	         << int(d_experiment->Family()) << ";"
 	         << d_experiment->Threshold();
 
 
-	setOutdated(true);
+	setOutdated(family != fort::tags::Family::Undefined );
 }
 
 
@@ -149,10 +158,10 @@ void MeasurementBridge::loadTagCloseUp() {
 	d_watcher = new QFutureWatcher<TagCloseUpLoader::Result>();
 
 	connect(d_watcher,
-	        &QFutureWatcher<TagCloseUpLoader::Result>::progressRangeChanged,
+	        &QFutureWatcher<TagCloseUpLoader::Result>::progressValueChanged,
 	        this,
-	        [this](int mini, int maxi) {
-		        emit progressChanged(mini,maxi);
+	        [this](int value) {
+		        emit progressChanged(value,d_loaders.size());
 	        },
 	        Qt::QueuedConnection);
 	connect(d_watcher,
@@ -169,17 +178,18 @@ void MeasurementBridge::loadTagCloseUp() {
 			        addOneTCU(tddURI,tcu);
 		        }
 	        },
-	        Qt::BlockingQueuedConnection);
+	        Qt::QueuedConnection);
 
 	connect(d_watcher,
 	        &QFutureWatcher<TagCloseUpLoader::Result>::finished,
 	        this,
 	        [this] () {
+		        d_loaders.clear();
 		        d_watcher->deleteLater();
 		        d_watcher = nullptr;
 		        emit ready(true);
 	        },
-	        Qt::BlockingQueuedConnection);
+	        Qt::QueuedConnection);
 
 	emit progressChanged(0,d_loaders.size());
 
@@ -195,19 +205,14 @@ void MeasurementBridge::loadTagCloseUp() {
 
 
 void MeasurementBridge::cancelAll() {
-	if ( d_watcher == nullptr ) {
-		return;
-	}
-	qInfo() << "Cancelling all tag close-up loaders";
+	if ( d_watcher != nullptr ) {
+		qInfo() << "Cancelling all tag close-up loaders";
 
-	d_watcher->cancel();
-	d_watcher->waitForFinished();
+		d_watcher->cancel();
+		emit progressChanged(0,0);
+	}
 
 	clearAllTCUs();
-
-	d_loaders.clear();
-	emit ready(true);
-	emit progressChanged(0,0);
 }
 
 QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
