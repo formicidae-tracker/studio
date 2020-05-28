@@ -110,8 +110,8 @@ typedef DenseMap<MeasurementTypeID,MeasurementTypeConstPtr> ConstMeasurementType
 
 
 typedef uint32_t AntShapeTypeID;
-typedef DenseMap<AntShapeTypeID,AntShapeTypePtr>                    AntShapeTypeByID;
-typedef DenseMap<AntShapeTypeID,AntShapeTypeConstPtr>                    ConstAntShapeTypeByID;
+typedef DenseMap<AntShapeTypeID,AntShapeTypePtr>      AntShapeTypeByID;
+typedef DenseMap<AntShapeTypeID,AntShapeTypeConstPtr> ConstAntShapeTypeByID;
 
 FORT_MYRMIDON_FDECLARE_CLASS(AntShapeTypeContainer)
 

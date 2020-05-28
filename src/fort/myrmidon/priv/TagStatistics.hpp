@@ -3,7 +3,6 @@
 #include <functional>
 
 #include "Types.hpp"
-#include "DenseMap.hpp"
 
 #include <fort/myrmidon/Types.hpp>
 

@@ -203,8 +203,14 @@ private:
 	BuildIndexes(const std::string & URI,
 	             Time::MonoclockID monoID,
 	             const std::vector<fs::path> & hermesFile,
-	             const TrackingIndex::Ptr & trackingIndexer,
-	             FrameReferenceCache & cache);
+	             const TrackingIndex::Ptr & trackingIndexer);
+
+	static void BuildCache(const std::string & URI,
+	                       Time::MonoclockID monoID,
+	                       const fs::path & tddPath,
+	                       const TrackingIndex::ConstPtr & trackingIndexer,
+	                       FrameReferenceCache & cache);
+
 
 
 	TrackingDataDirectory(const std::string & uri,
