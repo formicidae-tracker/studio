@@ -117,7 +117,6 @@ public:
 				                         + "':  another program has write or read access on it");
 			}
 		}
-		std::cerr << "Locked " << filepath << std::endl;
 	}
 
 	~ExperimentLock() {
