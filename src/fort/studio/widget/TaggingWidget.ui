@@ -146,42 +146,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="unusedTagLabel">
+         <widget class="QActionButton" name="loadTagCloseUp">
           <property name="text">
-           <string>Unused Tag(s):</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="unusedTagDisplay">
-          <property name="text">
-           <string>N.A.</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="missingTagLabel">
-          <property name="text">
-           <string>Missing Tag(s):</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="missingTagDisplay">
-          <property name="text">
-           <string>N.A.</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <string>Load Tag Close Up</string>
           </property>
          </widget>
         </item>
@@ -274,6 +241,11 @@
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/AntIdentificationWidget.hpp</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QActionButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">fort/studio/widget/base/QActionButton.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

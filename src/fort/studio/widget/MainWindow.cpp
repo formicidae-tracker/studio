@@ -169,30 +169,31 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 
-	auto updateComputeStats =
+	auto updateComputeStatsAction =
 		[this] () {
 			bool ready = d_experiment->statistics()->isReady();
 			bool outdated = d_experiment->statistics()->isOutdated();
-			d_ui->computeStatsButton->setEnabled(ready && outdated);
-			d_ui->computeStatsButton->setText(ready ? tr("Compute Tag Statistics") : tr("Computing Tag Statistics..."));
+			d_ui->actionLoadTagStatistics->setEnabled(ready && outdated);
+			d_ui->actionLoadTagStatistics->setText(ready ? tr("Compute Tag Statistics") : tr("Computing Tag Statistics..."));
 		};
 
 	connect(d_experiment->statistics(),
 	        &StatisticsBridge::ready,
-	        d_ui->computeStatsButton,
-	        updateComputeStats);
+	        d_ui->actionLoadTagStatistics,
+	        updateComputeStatsAction);
 
 	connect(d_experiment->statistics(),
 	        &StatisticsBridge::outdated,
-	        d_ui->computeStatsButton,
-	        updateComputeStats);
+	        d_ui->actionLoadTagStatistics,
+	        updateComputeStatsAction);
 
-	connect(d_ui->computeStatsButton,
-	        &QPushButton::clicked,
+	connect(d_ui->actionLoadTagStatistics,
+	        &QAction::triggered,
 	        [this]() {
 		        d_experiment->statistics()->compute();
 	        });
-	updateComputeStats();
+	updateComputeStatsAction();
+	d_ui->computeStatsButton->setAction(d_ui->actionLoadTagStatistics);
 
 
 }
