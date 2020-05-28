@@ -165,6 +165,7 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
 			return res;
 		};
 	for( auto const & f : fs::directory_iterator(absoluteFilePath) ) {
+		std::cerr << "Looking for " << f.path().generic_string() << std::endl;
 		if ( ! MYRMIDON_FILE_IS_REGULAR(f.status()) ) {
 			continue;
 		}
@@ -189,7 +190,7 @@ void TrackingDataDirectory::LookUpFiles(const fs::path & absoluteFilePath,
 
 void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
                                               const std::string & parentURI,
-                                              MovieSegment::List & movies ){
+                                              MovieSegment::List & movies ) {
 	for ( const auto & [id,paths] : moviesPaths ) {
 		if ( !paths.first.empty() && !paths.second.empty() ) {
 			movies.push_back(MovieSegment::Open(id,paths.first,paths.second,parentURI));
