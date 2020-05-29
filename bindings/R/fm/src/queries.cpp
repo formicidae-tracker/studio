@@ -335,45 +335,96 @@ Rcpp::DataFrame fmQuery_computeTagStatistics(const CExperiment & experiment) {
 	                               Rcpp::_["Gap >= 10h"] = GapMore);
 }
 
+class ProgressDisplayer {
+private :
+	Duration d_duration;
+	Time d_last,d_lastShown,d_start,d_end;
+public :
+	ProgressDisplayer(const CExperiment & experiment,
+	                  const Time::ConstPtr & start,
+	                  const Time::ConstPtr & end,
+	                  Duration d = Duration::Hour )
+		: d_duration(d) {
+		if ( !start || !end ) {
+			auto info = experiment.GetDataInformations();
+			if ( !start  ) {
+				d_start = info.Start;
+			} else {
+				d_start = *start;
+			}
+			if ( !end ) {
+				d_end = info.End;
+			} else {
+				d_end = *end;
+			}
+		} else {
+			d_start = *start;
+			d_end = *end;
+		}
+		d_last = d_start;
+		d_lastShown = Time::Now();
+	}
 
-Rcpp::List fmQuery_identifyFrames(const CExperiment & experiment,
-                                  const Time::ConstPtr & start,
-                                  const Time::ConstPtr & end,
-                                  bool computeZones) {
+
+
+	void ShowProgress(const Time & t) {
+		auto ellapsed = t.Sub(d_last);
+		if ( ellapsed < d_duration ) {
+			return;
+		}
+		d_last = t;
+		auto now = Time::Now();
+		auto computationTime = now.Sub(d_lastShown);
+		auto reminder = d_end.Sub(t);
+		d_lastShown = now;
+		Rcpp::Rcout << "Processed frame at " << t
+		            << ", computed "
+		            << ellapsed
+		            << " in "  << computationTime
+		            << ". Remind " << reminder
+		            << ", ETA " << Duration((reminder.Seconds() / ellapsed.Seconds()) * computationTime.Seconds() * 1e9)
+		            << "\n";
+	}
+};
+
+
+Rcpp::List fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
+                                 const fort::myrmidon::Time::ConstPtr & startTime,
+                                 const fort::myrmidon::Time::ConstPtr & endTime,
+                                 bool computeZones = false,
+                                 bool singleThread = false,
+                                 bool showProgress = false) {
+	auto fstart = Time::Now();
 	std::list<IdentifiedFrame::ConstPtr> asList;
 	size_t n = 0;
-	Time last;
-	Time lastCompute = Time::Now();
-	auto fstart = Time::Now();
+	std::shared_ptr<ProgressDisplayer> pd;
+	if ( showProgress == true ) {
+		pd = std::make_shared<ProgressDisplayer>(experiment,startTime,endTime);
+	}
 	Query::IdentifyFramesFunctor(experiment,
-	                             [&asList,&n,&last,&lastCompute](const IdentifiedFrame::ConstPtr & frame) {
+	                             [&asList,&n,pd](const IdentifiedFrame::ConstPtr & frame) {
 		                             asList.push_back(frame);
 		                             ++n;
-		                             auto trackingDuration = frame->FrameTime.Sub(last);
-		                             if ( trackingDuration >= Duration::Hour ) {
-			                             auto now = Time::Now();
-			                             auto computeDuration = now.Sub(lastCompute);
-			                             std::cerr << "Processed " << frame->FrameTime
-			                                       << " in " << computeDuration
-			                                       <<  " ratio is " << trackingDuration.Seconds() / computeDuration.Seconds()
-			                                       << std::endl;
-			                             last = frame->FrameTime;
-			                             lastCompute = now;
+		                             if ( pd ) {
+			                             pd->ShowProgress(frame->FrameTime);
 		                             }
 	                             },
-	                             start,
-	                             end,
+	                             startTime,
+	                             endTime,
 	                             computeZones,
 	                             true);
-
-	std::cerr << "C++ reading took : " << Time::Now().Sub(fstart) << std::endl;
-	fstart = Time::Now();
+	if ( showProgress ) {
+		Rcpp::Rcout << "C++ reading took : " << Time::Now().Sub(fstart) << "\n";
+		fstart = Time::Now();
+	}
 	Rcpp::List res(n);
 	for ( size_t i = 0; i < n; ++i) {
 		res[i] = fmIdentifiedFrame(asList.front());
 		asList.pop_front();
 	}
-	std::cerr << "RWrapping Took : " << Time::Now().Sub(fstart) << std::endl;
+	if ( showProgress ) {
+		Rcpp::Rcout << "RWrapping Took : " << Time::Now().Sub(fstart) << "\n";
+	}
 	return res;
 }
 
@@ -495,7 +546,7 @@ RCPP_MODULE(queries) {
 
 	Rcpp::function("fmQueryComputeMeasurementFor",&fmQuery_computeMeasurementFor);
 	Rcpp::function("fmQueryComputeTagStatistics",&fmQuery_computeTagStatistics);
-	Rcpp::function("fmQueryIdentifyFrames",&fmQuery_identifyFrames);
+	Rcpp::function("fmQueryIdentifyFrames",&fmQueryIdentifyFrames);
 	Rcpp::function("fmQueryCollideFrames",&fmQuery_collideFrames);
 	Rcpp::function("fmQueryComputeTrajectories",&fmQuery_computeTrajectories);
 	Rcpp::function("fmQueryComputeAntInteractions",&fmQuery_computeAntInteractions);
