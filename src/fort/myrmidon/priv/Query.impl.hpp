@@ -17,7 +17,8 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
                            OutputIter & output,
                            const Time::ConstPtr & start,
                            const Time::ConstPtr & end,
-                           bool computeZones) {
+                           bool computeZones,
+                           bool singleThread) {
 	auto identifier = experiment->CIdentifier().Compile();
 	CollisionSolver::ConstPtr collider;
 	if ( computeZones == true ) {
@@ -28,6 +29,27 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 	if ( ranges.empty() ) {
 		return;
 	}
+
+	if (singleThread == true ) {
+		DataLoader loader(ranges);
+		for(;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			if ( collider ) {
+				auto zoner = collider->ZonerFor(identified);
+				identified->Zones.reserve(identified->Positions.size());
+				for ( const auto & p : identified->Positions ) {
+					identified->Zones.push_back(zoner->LocateAnt(p));
+				}
+			}
+			output = identified;
+		}
+		return;
+	}
+
 	tbb::filter_t<void,RawData>
 		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
@@ -61,7 +83,8 @@ inline
 void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           OutputIter & output,
                           const Time::ConstPtr & start,
-                          const Time::ConstPtr & end) {
+                          const Time::ConstPtr & end,
+                          bool singleThreaded) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
 	DataRangeBySpaceID ranges;
@@ -69,6 +92,21 @@ void Query::CollideFrames(const Experiment::ConstPtr & experiment,
 	if ( ranges.empty() ) {
 		return;
 	}
+
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			auto collided = solver->ComputeCollisions(identified);
+			output = {identified,collided};
+		}
+		return;
+	}
+
 	tbb::filter_t<void,RawData >
 		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
@@ -100,7 +138,8 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
                                 const Time::ConstPtr & end,
                                 Duration maximumGap,
                                 Matcher::Ptr matcher,
-                                bool computeZones) {
+                                bool computeZones,
+                                bool singleThreaded) {
 	auto identifier = experiment->CIdentifier().Compile();
 	CollisionSolver::ConstPtr collider;
 	if ( computeZones == true ) {
@@ -114,36 +153,57 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	if ( ranges.empty() ) {
 		return;
 	}
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
+	BuildingTrajectoryData currentTrajectories;
+	auto computeTrajectoriesFunction =
+		BuildTrajectories([&output](const AntTrajectory::ConstPtr & t) {
+			                  output = t;
+		                  },
+			currentTrajectories,
+			maximumGap,
+			matcher);
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			if ( collider ) {
+				auto zoner = collider->ZonerFor(identified);
+				identified->Zones.reserve(identified->Positions.size());
+				for ( const auto & p : identified->Positions ) {
+					identified->Zones.push_back(zoner->LocateAnt(p));
+				}
+			}
+			computeTrajectoriesFunction(identified);
+		}
+	} else {
+		tbb::filter_t<void,RawData>
+			loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
-	std::string currentTddURI;
-	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
-		computeData(tbb::filter::parallel,
-		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            if ( collider ) {
-				            auto zoner = collider->ZonerFor(identified);
-				            identified->Zones.reserve(identified->Positions.size());
-				            for ( const auto & p : identified->Positions ) {
-					            identified->Zones.push_back(zoner->LocateAnt(p));
+		std::string currentTddURI;
+		tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
+			computeData(tbb::filter::parallel,
+			            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
+				            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+				            if ( collider ) {
+					            auto zoner = collider->ZonerFor(identified);
+					            identified->Zones.reserve(identified->Positions.size());
+					            for ( const auto & p : identified->Positions ) {
+						            identified->Zones.push_back(zoner->LocateAnt(p));
+					            }
 				            }
-			            }
-			            return identified;
-		            });
+				            return identified;
+			            });
 
-	 BuildingTrajectoryData currentTrajectories;
-	 tbb::filter_t<IdentifiedFrame::ConstPtr,void>
-		 computeTrajectories(tbb::filter::serial_in_order,
-		                     BuildTrajectories([&output](const AntTrajectory::ConstPtr & t) {
-			                                       output = t;
-		                                       },
-			                     currentTrajectories,
-			                     maximumGap,
-			                     matcher));
+		tbb::filter_t<IdentifiedFrame::ConstPtr,void>
+			computeTrajectories(tbb::filter::serial_in_order,
+			                    computeTrajectoriesFunction);
 
-	tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
-	                       loadData & computeData & computeTrajectories);
+		tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
+		                       loadData & computeData & computeTrajectories);
+	}
 
 	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
 		auto res = bTrajectory.Terminate();
@@ -162,7 +222,8 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
                                    const Time::ConstPtr & start,
                                    const Time::ConstPtr & end,
                                    Duration maximumGap,
-                                   Matcher::Ptr matcher) {
+                                   Matcher::Ptr matcher,
+                                   bool singleThreaded) {
 
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
@@ -175,35 +236,53 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	if ( ranges.empty() ) {
 		return;
 	}
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
-	tbb::filter_t<RawData,CollisionData>
-		computeData(tbb::filter::parallel,
-		            [identifier,solver](const RawData & rawData ) -> CollisionData {
-			            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeCollisions(identified);
-			            return std::make_pair(identified,interacted);
-		            });
+	BuildingTrajectoryData currentTrajectories;
+	BuildingInteractionData currentInteractions;
+	auto buildInteractionsFunction =
+		BuildInteractions([&trajectoryOutput](const AntTrajectory::ConstPtr & t) {
+			                  trajectoryOutput = t;
+		                  },
+			[&interactionOutput](const AntInteraction::ConstPtr & i) {
+				interactionOutput = i;
+			},
+			currentTrajectories,
+			currentInteractions,
+			maximumGap,
+			matcher);
 
-	 BuildingTrajectoryData currentTrajectories;
-	 BuildingInteractionData currentInteractions;
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified  = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			auto collided = solver->ComputeCollisions(identified);
+			buildInteractionsFunction({identified,collided});
+		}
+	} else {
 
-	tbb::filter_t<CollisionData,void>
-		computeInteractions(tbb::filter::serial_in_order,
-		                    BuildInteractions([&trajectoryOutput](const AntTrajectory::ConstPtr & t) {
-			                                      trajectoryOutput = t;
-		                                      },
-			                    [&interactionOutput](const AntInteraction::ConstPtr & i) {
-				                    interactionOutput = i;
-			                    },
-			                    currentTrajectories,
-			                    currentInteractions,
-			                    maximumGap,
-			                    matcher));
+		tbb::filter_t<void,RawData>
+			loadData(tbb::filter::serial_in_order,DataLoader(ranges));
 
-	tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
-	                       loadData & computeData & computeInteractions);
+		tbb::filter_t<RawData,CollisionData>
+			computeData(tbb::filter::parallel,
+			            [identifier,solver](const RawData & rawData ) -> CollisionData {
+				            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+				            auto interacted = solver->ComputeCollisions(identified);
+				            return std::make_pair(identified,interacted);
+			            });
+
+
+		tbb::filter_t<CollisionData,void>
+			computeInteractions(tbb::filter::serial_in_order,
+			                    buildInteractionsFunction);
+
+		tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
+		                       loadData & computeData & computeInteractions);
+	}
 
 	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
 		auto res = bTrajectory.Terminate();

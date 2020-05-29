@@ -44,9 +44,10 @@ void Query::IdentifyFramesFunctor(const CExperiment & experiment,
                                   std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
                                   const Time::ConstPtr & start,
                                   const Time::ConstPtr & end,
-                                  bool computeZones) {
+                                  bool computeZones,
+                                  bool singleThreaded) {
 	WrapFunctor inserter(storeData);
-	priv::Query::IdentifyFrames(experiment.d_p,inserter,start,end,computeZones);
+	priv::Query::IdentifyFrames(experiment.d_p,inserter,start,end,computeZones,singleThreaded);
 }
 
 
@@ -54,27 +55,30 @@ void Query::IdentifyFrames(const CExperiment & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
                            const Time::ConstPtr & start,
                            const Time::ConstPtr & end,
-                           bool computeZones) {
+                           bool computeZones,
+                           bool singleThread) {
 	auto backInserter = std::back_inserter(result);
-	priv::Query::IdentifyFrames(experiment.d_p,backInserter,start,end,computeZones);
+	priv::Query::IdentifyFrames(experiment.d_p,backInserter,start,end,computeZones,singleThread);
 }
 
 
 void Query::CollideFramesFunctor(const CExperiment & experiment,
                                  std::function<void (const CollisionData & data)> storeData,
                                  const Time::ConstPtr & start,
-                                 const Time::ConstPtr & end) {
+                                 const Time::ConstPtr & end,
+                                 bool singleThread) {
 	WrapFunctor backInserter(storeData);
-	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end);
+	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end,singleThread);
 }
 
 
 void Query::CollideFrames(const CExperiment & experiment,
-                         std::vector<CollisionData> & result,
-                         const Time::ConstPtr & start,
-                         const Time::ConstPtr & end) {
+                          std::vector<CollisionData> & result,
+                          const Time::ConstPtr & start,
+                          const Time::ConstPtr & end,
+                          bool singleThread) {
 	auto backInserter = std::back_inserter(result);
-	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end);
+	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end,singleThread);
 }
 
 void Query::ComputeTrajectoriesFunctor(const CExperiment & experiment,
@@ -83,7 +87,8 @@ void Query::ComputeTrajectoriesFunctor(const CExperiment & experiment,
                                        const Time::ConstPtr & end,
                                        Duration maximumGap,
                                        Matcher::Ptr matcher,
-                                       bool computeZones) {
+                                       bool computeZones,
+                                       bool singleThread) {
 	WrapFunctor backInserter(storeTrajectory);
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 backInserter,
@@ -91,7 +96,8 @@ void Query::ComputeTrajectoriesFunctor(const CExperiment & experiment,
 	                                 end,
 	                                 maximumGap,
 	                                 matcher->d_p,
-	                                 computeZones);
+	                                 computeZones,
+	                                 singleThread);
 }
 
 
@@ -102,7 +108,8 @@ void Query::ComputeTrajectories(const CExperiment & experiment,
                                 const Time::ConstPtr & end,
                                 Duration maximumGap,
                                 Matcher::Ptr matcher,
-                                bool computeZones) {
+                                bool computeZones,
+                                bool singleThread) {
 	auto backInserter = std::back_inserter(trajectories);
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 backInserter,
@@ -110,7 +117,8 @@ void Query::ComputeTrajectories(const CExperiment & experiment,
 	                                 end,
 	                                 maximumGap,
 	                                 matcher->d_p,
-	                                 computeZones);
+	                                 computeZones,
+	                                 singleThread);
 }
 
 void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
@@ -119,7 +127,8 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
                                           const Time::ConstPtr & start,
                                           const Time::ConstPtr & end,
                                           Duration maximumGap,
-                                          Matcher::Ptr matcher) {
+                                          Matcher::Ptr matcher,
+                                          bool singleThread) {
 	WrapFunctor trajInserter(storeTrajectory);
 	WrapFunctor interInserter(storeInteraction);
 
@@ -129,7 +138,8 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
 	                                    start,
 	                                    end,
 	                                    maximumGap,
-	                                    matcher->d_p);
+	                                    matcher->d_p,
+	                                    singleThread);
 }
 
 
@@ -139,7 +149,8 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
                                    const Time::ConstPtr & start,
                                    const Time::ConstPtr & end,
                                    Duration maximumGap,
-                                   Matcher::Ptr matcher) {
+                                   Matcher::Ptr matcher,
+                                   bool singleThread) {
 	auto trajInserter = std::back_inserter(trajectories);
 	auto interInserter = std::back_inserter(interactions);
 
@@ -149,7 +160,8 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
 	                                    start,
 	                                    end,
 	                                    maximumGap,
-	                                    matcher->d_p);
+	                                    matcher->d_p,
+	                                    singleThread);
 }
 
 

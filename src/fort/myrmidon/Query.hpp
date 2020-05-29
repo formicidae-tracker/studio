@@ -14,6 +14,27 @@ namespace myrmidon {
 // This class is a wrapper for all data queries that can be made on an
 // Experiment. They takes advantages of multithreading to have
 // efficient computation time.
+//
+// ## Functor version Some queries have two version, one returing to
+//  one or two std::vector, and one with a storeMethod parameter. The
+//  later is to be used with bindings, or when a different data
+//  structure is needed.
+//
+// ## Note on Multithreading
+//
+// For very small <Experiment> in number of Ant, most of the query
+// operation are IO bounded, and the multithreading overhead will
+// impact performance by 40-50% in computation time, as threads are
+// waiting for data inpout to come. This is the case for
+// <IdentifyFrames>, <CollideFrames>, <ComputeTrajectories> and
+// <ComputeAntInteractions>. But for very complex scenarii, with
+// several hundred of individual with complex shape, multi-threading
+// could be a premium. Therefore these methodd and their Functor
+// counterpart have a singleThreaded option to run the query in a
+// single thread and remove the multi-thread overhead. However if the
+// operations are heavy because of the size of the experiment, it will
+// have an impact on performances.
+//
 class Query {
 public:
 
@@ -45,6 +66,7 @@ public:
 	// @end the end time for the query, use nullptr for the end of the
 	//      experiment
 	// @computeZones should compute zones for, makes computation slower
+	// @singleThread run this query on a single thread
 	//
 	// Identifies Ants in frames, data will be reported ordered by
 	// time.  This version aimed to be used by language bindings to
@@ -53,7 +75,8 @@ public:
 	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
 	                                  const Time::ConstPtr & start,
 	                                  const Time::ConstPtr & end,
-	                                  bool computeZones = false);
+	                                  bool computeZones = false,
+	                                  bool singleThreaded = false);
 
 
 	// Identifies ants in frames
@@ -64,13 +87,15 @@ public:
 	// @end the end time for the query, use nullptr for the end of the
 	//      experiment
 	// @computeZones should compute zones for, makes computation slower
+	// @singleThread run this query on a single thread
 	//
 	// Identifies Ants in frames, data will be reported ordered by time.
 	static void IdentifyFrames(const CExperiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end,
-	                           bool computeZones = false);
+	                           bool computeZones = false,
+	                           bool singleThreaded = false);
 
 	// Finds <Collision> in data frame - functor version
 	// @OutputIter an output iterator to fill results
@@ -87,7 +112,8 @@ public:
 	static void CollideFramesFunctor(const CExperiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
 	                                 const Time::ConstPtr & start,
-	                                 const Time::ConstPtr & end);
+	                                 const Time::ConstPtr & end,
+	                                 bool singleThread = false);
 
 
 	// Finds <Collision> in data frame
@@ -97,13 +123,15 @@ public:
 	//        of the experiment.
 	// @end the end time for the query, use nullptr for the end of the
 	//      experiment
+	// @singleThread run this query on a single thread
 	//
 	// Finds <Collision> between ants in frames, data will be reported
 	// ordered by time.
 	static void CollideFrames(const CExperiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end);
+	                          const Time::ConstPtr & end,
+	                          bool singleThread = false);
 
 	// Computes trajectories for ants - functor version
 	// @experiment the <Experiment> to query for
@@ -117,6 +145,7 @@ public:
 	// @matcher a <Matcher> to specify more precise, less memory
 	//          intensive queries.
 	// @computeZones enables ant zone computation, but slower query
+	// @singleThread run this query on a single thread
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
@@ -127,7 +156,8 @@ public:
 	                                       const Time::ConstPtr & end,
 	                                       Duration maximumGap,
 	                                       Matcher::Ptr matcher = Matcher::Ptr(),
-	                                       bool computeZones = false);
+	                                       bool computeZones = false,
+	                                       bool singleThread = false);
 
 
 
@@ -143,6 +173,7 @@ public:
 	// @matcher a <Matcher> to specify more precise, less memory
 	//          intensive queries.
 	// @computeZones enables ant zone computation, but slower query
+	// @singleThread run this query on a single thread
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time
@@ -152,7 +183,8 @@ public:
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
 	                                Matcher::Ptr matcher = Matcher::Ptr(),
-	                                bool computeZones = false );
+	                                bool computeZones = false,
+	                                bool singleThread = false);
 
 
 	// Computes interactions for ants - functor version
@@ -167,6 +199,7 @@ public:
 	//             trajectory in two
 	// @matcher a <Matcher> to specify more precise, less memory
 	//          intensive queries.
+	// @singleThread run this query on a single thread
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
@@ -177,7 +210,8 @@ public:
 	                                          const Time::ConstPtr & start,
 	                                          const Time::ConstPtr & end,
 	                                          Duration maximumGap,
-	                                          Matcher::Ptr matcher = Matcher::Ptr());
+	                                          Matcher::Ptr matcher = Matcher::Ptr(),
+	                                          bool singleThread = false);
 
 
 
@@ -192,6 +226,7 @@ public:
 	//             trajectory in two
 	// @matcher a <Matcher> to specify more precise, less memory
 	//          intensive queries.
+	// @singleThread run this query on a single thread
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time.
@@ -201,7 +236,8 @@ public:
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Ptr());
+	                                   Matcher::Ptr matcher = Matcher::Ptr(),
+	                                   bool singleThread = false);
 
 
 };

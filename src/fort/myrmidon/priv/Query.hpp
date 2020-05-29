@@ -27,13 +27,15 @@ public:
 	                           OutputIter & output,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end,
-	                           bool computeZones = false);
+	                           bool computeZones = false,
+	                           bool singleThreaded = false);
 
 	template <typename OutputIter>
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
 	                          OutputIter & output,
 	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end);
+	                          const Time::ConstPtr & end,
+	                          bool singleThreaded = false);
 
 	template <typename OutputIter>
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
@@ -42,7 +44,8 @@ public:
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
 	                                Matcher::Ptr matcher = Matcher::Ptr(),
-	                                bool computeZones = false);
+	                                bool computeZones = false,
+	                                bool singleThreaded = false);
 
 	template <typename TrajectoryOutputIter,
 	          typename InteractionOutputIter>
@@ -52,7 +55,8 @@ public:
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Ptr());
+	                                   Matcher::Ptr matcher = Matcher::Ptr(),
+	                                   bool singleThreaded = false);
 
 
 private:
@@ -108,6 +112,7 @@ private:
 		DataLoader(const DataRangeBySpaceID & dataRanges);
 
 		RawData operator()( tbb::flow_control & fc) const;
+		RawData operator()() const;
 	private:
 		typedef std::map<Space::ID,std::vector<DataRange>::const_iterator> RangesIteratorByID;
 		typedef std::map<Space::ID,TrackingDataDirectory::const_iterator> DataIteratorByID;

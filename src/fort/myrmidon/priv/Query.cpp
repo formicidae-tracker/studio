@@ -82,7 +82,16 @@ Query::DataLoader::DataLoader(const DataRangeBySpaceID & dataRanges)
 	}
 }
 
-Query::RawData Query::DataLoader::operator()( tbb::flow_control & fc) const {
+
+Query::RawData Query::DataLoader::operator()(tbb::flow_control & fc) const {
+	auto res = (*this)();
+	if (std::get<0>(res) == 0 ) {
+		fc.stop();
+	}
+	return res;
+}
+
+Query::RawData Query::DataLoader::operator()() const {
 	Space::ID next(0);
 	Time nextTime;
 	for (  auto & [spaceID,dataIter] : *d_dataIterators ) {
@@ -107,7 +116,6 @@ Query::RawData Query::DataLoader::operator()( tbb::flow_control & fc) const {
 	}
 
 	if ( next == 0 ) {
-		fc.stop();
 		return Query::RawData(0,RawFrame::ConstPtr());
 	}
 
