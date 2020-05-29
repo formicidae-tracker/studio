@@ -340,17 +340,44 @@ Rcpp::List fmQuery_identifyFrames(const CExperiment & experiment,
                                   const Time::ConstPtr & start,
                                   const Time::ConstPtr & end,
                                   bool computeZones) {
-	Rcpp::List res;
+	std::list<IdentifiedFrame::ConstPtr> asList;
+	size_t n = 0;
+	Time last;
+	Time lastCompute = Time::Now();
+	auto fstart = Time::Now();
 	Query::IdentifyFramesFunctor(experiment,
-	                             [&res](const IdentifiedFrame::ConstPtr & frame) {
-		                             res.push_back(fmIdentifiedFrame(frame));
+	                             [&asList,&n,&last,&lastCompute](const IdentifiedFrame::ConstPtr & frame) {
+		                             asList.push_back(frame);
+		                             ++n;
+		                             auto trackingDuration = frame->FrameTime.Sub(last);
+		                             if ( trackingDuration >= Duration::Hour ) {
+			                             auto now = Time::Now();
+			                             auto computeDuration = now.Sub(lastCompute);
+			                             std::cerr << "Processed " << frame->FrameTime
+			                                       << " in " << computeDuration
+			                                       <<  " ratio is " << trackingDuration.Seconds() / computeDuration.Seconds()
+			                                       << std::endl;
+			                             last = frame->FrameTime;
+			                             lastCompute = now;
+		                             }
 	                             },
 	                             start,
 	                             end,
-	                             computeZones);
+	                             computeZones,
+	                             true);
 
+	std::cerr << "C++ reading took : " << Time::Now().Sub(fstart) << std::endl;
+	fstart = Time::Now();
+	Rcpp::List res(n);
+	for ( size_t i = 0; i < n; ++i) {
+		res[i] = fmIdentifiedFrame(asList.front());
+		asList.pop_front();
+	}
+	std::cerr << "RWrapping Took : " << Time::Now().Sub(fstart) << std::endl;
 	return res;
 }
+
+
 
 Rcpp::List fmQuery_collideFrames(const CExperiment & experiment,
                                        const Time::ConstPtr & start,
