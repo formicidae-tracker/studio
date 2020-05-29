@@ -1,24 +1,43 @@
 #include "queries.h"
 
 #include "time.h"
+#include "experiment.h"
+#include "matchers.h"
+#include "duration.h"
 
 #include <Rcpp.h>
 
+using namespace fort::myrmidon;
+
+
 struct fmIdentifiedFrame {
-	fort::myrmidon::Time    FrameTime;
-	fort::myrmidon::SpaceID Space;
-	size_t                  Width;
-	size_t                  Height;
-	Rcpp::DataFrame         DataFrame;
-	fmIdentifiedFrame(const fort::myrmidon::IdentifiedFrame::ConstPtr & frame )
+	Time       FrameTime;
+	SpaceID    Space;
+	size_t     Width;
+	size_t     Height;
+	Rcpp::List Data;
+
+	void Show() const {
+		Rcpp::Rcout << "fmIdentifiedFrame (\n"
+		            << "  frameTime = " << FrameTime << "\n"
+		            << "  space = " << Space << "\n"
+		            << "  width = " << Width << "\n"
+		            << "  height = " << Height << "\n"
+		            << "  data = ";
+		Rcpp::Function("str")(Data);
+		Rcpp::Rcout << ")\n";
+	}
+
+
+	fmIdentifiedFrame(const IdentifiedFrame::ConstPtr & frame )
 		: FrameTime(frame->FrameTime)
 		, Space(frame->Space)
 		, Width(frame->Width)
 		, Height(frame->Height) {
 
-		size_t size = frame->Positions.size();
-		Rcpp::IntegerVector IDs(size);
-		Rcpp::NumericVector X(size),Y(size),Angle(size);
+		size_t n = frame->Positions.size();
+		Rcpp::IntegerVector IDs(n);
+		Rcpp::NumericVector X(n),Y(n),Angle(n);
 		size_t i = 0;
 		for ( const auto & ant : frame->Positions ) {
 			IDs[i] = ant.ID;
@@ -28,42 +47,23 @@ struct fmIdentifiedFrame {
 			++i;
 		}
 
-		if ( frame->Zones.empty() == true ) {
-			DataFrame = Rcpp::DataFrame::create( Rcpp::Named("AntID") = IDs,
-			                                     Rcpp::_["X"] = X,
-			                                     Rcpp::_["Y"] = Y,
-			                                     Rcpp::_["Angle"] = Angle);
-		} else  {
-			Rcpp::IntegerVector Zones(size);
-			i = 0;
-			for ( const auto & z : frame->Zones ) {
-				Zones[i] = z;
-				++i;
-			}
-			DataFrame = Rcpp::DataFrame::create( Rcpp::Named("AntID") = IDs,
-			                                     Rcpp::_["X"] = X,
-			                                     Rcpp::_["Y"] = Y,
-			                                     Rcpp::_["Angle"] = Angle,
-			                                     Rcpp::_["ZoneID"] = Zones);
+		Rcpp::CharacterVector colNames({"AntID","X","Y","Angle"});
+		Data = Rcpp::List({IDs,X,Y,Angle});
+
+		if ( frame->Zones.empty() == false ) {
+			Data.push_back(Rcpp::IntegerVector(frame->Zones.begin(),frame->Zones.end()));
+			colNames.push_back("ZoneID");
 		}
+
+		Data.attr("names") = colNames;
+		Data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,n);
+		Data.attr("class") = "data.frame";
 	}
-
-	void Show() const {
-		Rcpp::Rcout << "fmIdentifiedFrame (\n"
-		            << "  frameTime = " << FrameTime << "\n"
-		            << "  space = " << Space << "\n"
-		            << "  width = " << Width << "\n"
-		            << "  height = " << Height << "\n"
-		            << "  data = ";
-		Rcpp::Function("str")(DataFrame);
-		Rcpp::Rcout << ")\n";
-
-	}
-
 };
 
-fmIdentifiedFrame fmIdentifiedFrame_debug() {
-	using namespace fort::myrmidon;
+RCPP_EXPOSED_CLASS(fmIdentifiedFrame)
+
+IdentifiedFrame::ConstPtr IdentifiedFrame_debug() {
 	auto f = std::make_shared<IdentifiedFrame>();
 	f->FrameTime = Time::Now();
 	f->Space = 42;
@@ -74,15 +74,17 @@ fmIdentifiedFrame fmIdentifiedFrame_debug() {
 	f->Zones.push_back(0);
 	f->Zones.push_back(2);
 
-	return fmIdentifiedFrame(f);
+	return f;
 }
 
-RCPP_EXPOSED_CLASS(fmIdentifiedFrame);
+fmIdentifiedFrame fmIdentifiedFrame_debug() {
+	return fmIdentifiedFrame(IdentifiedFrame_debug());
+}
 
 struct fmCollision {
-	fort::myrmidon::AntID  Ant1;
-	fort::myrmidon::AntID  Ant2;
-	fort::myrmidon::ZoneID Zone;
+	AntID  Ant1;
+	AntID  Ant2;
+	ZoneID Zone;
 	Rcpp::List             InteractionTypes;
 	void Show() const {
 		Rcpp::Rcout << "fmCollision (\n"
@@ -94,7 +96,7 @@ struct fmCollision {
 		Rcpp::Rcout << ")\n";
 	}
 
-	fmCollision(const fort::myrmidon::Collision & c)
+	fmCollision(const Collision & c)
 		: Ant1(c.IDs.first)
 		, Ant2(c.IDs.second)
 		, Zone(c.Zone)
@@ -108,8 +110,8 @@ struct fmCollision {
 
 RCPP_EXPOSED_CLASS(fmCollision);
 
-fort::myrmidon::Collision Collision_debug() {
-	return fort::myrmidon::Collision{
+Collision Collision_debug() {
+	return Collision{
 		.IDs = std::make_pair(3,4),.InteractionTypes = {{1,1},{2,1},{1,3}},.Zone= 51};
 }
 
@@ -119,8 +121,8 @@ fmCollision fmCollision_debug() {
 
 
 struct fmCollisionFrame {
-	fort::myrmidon::Time    FrameTime;
-	fort::myrmidon::SpaceID Space;
+	Time    FrameTime;
+	SpaceID Space;
 	Rcpp::List              Collisions;
 	void Show() const {
 		Rcpp::Rcout << "fmCollisionFrame (\n"
@@ -131,7 +133,7 @@ struct fmCollisionFrame {
 		Rcpp::Rcout << ")\n";
 	}
 
-	fmCollisionFrame(const fort::myrmidon::CollisionFrame::ConstPtr & f)
+	fmCollisionFrame(const CollisionFrame::ConstPtr & f)
 		: FrameTime(f->FrameTime)
 		, Space(f->Space)
 		, Collisions(f->Collisions.size()) {
@@ -156,9 +158,9 @@ fmCollisionFrame fmCollisionFrame_debug() {
 }
 
 struct fmAntTrajectory {
-	fort::myrmidon::AntID   Ant;
-	fort::myrmidon::SpaceID Space;
-	fort::myrmidon::Time    Start;
+	AntID   Ant;
+	SpaceID Space;
+	Time    Start;
 	Rcpp::DataFrame         Data;
 
 	void Show() const {
@@ -172,7 +174,7 @@ struct fmAntTrajectory {
 	}
 
 
-	fmAntTrajectory(const fort::myrmidon::AntTrajectory::ConstPtr & traj )
+	fmAntTrajectory(const AntTrajectory::ConstPtr & traj )
 		: Ant(traj->Ant)
 		, Space(traj->Space)
 		, Start(traj->Start) {
@@ -183,13 +185,13 @@ struct fmAntTrajectory {
 		numericVectorFromEigen(Y,traj->Positions,1,n);
 		numericVectorFromEigen(Angle,traj->Positions,2,n);
 		if ( traj->Zones.empty() == true ) {
-			Data = Rcpp::DataFrame::create(Rcpp::Named("Time (s)") = Time,
+			Data = Rcpp::DataFrame::create(Rcpp::_["Time (s)"] = Time,
 			                               Rcpp::_["X"] = X,
 			                               Rcpp::_["Y"] = Y,
 			                               Rcpp::_["Angle"] = Angle);
 		} else {
 			Rcpp::IntegerVector Zone(traj->Zones.begin(),traj->Zones.end());
-			Data = Rcpp::DataFrame::create(Rcpp::Named("Time (s)") = Time,
+			Data = Rcpp::DataFrame::create(Rcpp::_["Time (s)"] = Time,
 			                               Rcpp::_["X"] = X,
 			                               Rcpp::_["Y"] = Y,
 			                               Rcpp::_["Angle"] = Angle,
@@ -200,7 +202,7 @@ struct fmAntTrajectory {
 
 RCPP_EXPOSED_CLASS(fmAntTrajectory);
 
-fort::myrmidon::AntTrajectory::ConstPtr AntTrajectory_debug() {
+AntTrajectory::ConstPtr AntTrajectory_debug() {
 	using namespace fort::myrmidon;
 	auto res = std::make_shared<AntTrajectory>();
 	res->Ant = 3;
@@ -222,11 +224,11 @@ fmAntTrajectory fmAntTrajectory_debug() {
 }
 
 struct fmAntInteraction {
-	fort::myrmidon::AntID  Ant1;
-	fort::myrmidon::AntID  Ant2;
+	AntID  Ant1;
+	AntID  Ant2;
 	Rcpp::List             Types;
 	fmAntTrajectory        Ant1Trajectory,Ant2Trajectory;
-	fort::myrmidon::Time   Start,End;
+	Time   Start,End;
 
 	void Show() const  {
 		Rcpp::Function structure("str");
@@ -244,7 +246,7 @@ struct fmAntInteraction {
 		Rcpp::Rcout << ")\n";
 	}
 
-	fmAntInteraction(const fort::myrmidon::AntInteraction::ConstPtr & ai)
+	fmAntInteraction(const AntInteraction::ConstPtr & ai)
 		: Ant1(ai->IDs.first)
 		, Ant2(ai->IDs.second)
 		, Types(ai->Types.size())
@@ -261,7 +263,7 @@ struct fmAntInteraction {
 
 RCPP_EXPOSED_CLASS(fmAntInteraction);
 
-fort::myrmidon::AntInteraction::ConstPtr AntInteraction_debug() {
+AntInteraction::ConstPtr AntInteraction_debug() {
 	using namespace fort::myrmidon;
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = {3,4};
@@ -277,6 +279,142 @@ fmAntInteraction fmAntInteraction_debug() {
 }
 
 
+Rcpp::DataFrame fmQuery_computeMeasurementFor(const CExperiment & experiment,
+                                              AntID antID,
+                                              MeasurementTypeID mTypeID) {
+	auto cMeasurements = Query::ComputeMeasurementFor(experiment,antID, mTypeID);
+
+	Rcpp::DatetimeVector times(cMeasurements.size());
+	Rcpp::NumericVector lengths(cMeasurements.size());
+	for( size_t i = 0; i < cMeasurements.size(); ++i ) {
+		times[i] = cMeasurements[i].MTime.ToTimeT();
+		lengths[i] = cMeasurements[i].LengthMM;
+	}
+
+	return Rcpp::DataFrame::create(Rcpp::_["date"] = times,
+	                               Rcpp::_["length (mm)"] = lengths);
+}
+
+Rcpp::DataFrame fmQuery_computeTagStatistics(const CExperiment & experiment) {
+	using namespace fort::myrmidon;
+	auto stats = Query::ComputeTagStatistics(experiment);
+	auto n  = stats.size();
+	Rcpp::IntegerVector TagID(n),Count(n),Multiple(n),Gap500(n),Gap1s(n),Gap10s(n),Gap1m(n),Gap10m(n),Gap1h(n),Gap10h(n),GapMore(n);
+	Rcpp::DatetimeVector FirstSeen(n),LastSeen(n);
+
+	size_t i = 0;
+	for(const auto & [tagID,stat] : stats) {
+		TagID[i] = stat.ID;
+		FirstSeen[i] = stat.FirstSeen.ToTimeT();
+		LastSeen[i] = stat.LastSeen.ToTimeT();
+		Count[i] = stat.Counts(TagStatistics::TOTAL_SEEN);
+		Multiple[i] = stat.Counts(TagStatistics::MULTIPLE_SEEN);
+		Gap500[i] = stat.Counts(TagStatistics::GAP_500MS);
+		Gap1s[i] = stat.Counts(TagStatistics::GAP_1S);
+		Gap10s[i] = stat.Counts(TagStatistics::GAP_10S);
+		Gap1m[i] = stat.Counts(TagStatistics::GAP_1M);
+		Gap10m[i] = stat.Counts(TagStatistics::GAP_10M);
+		Gap1h[i] = stat.Counts(TagStatistics::GAP_1H);
+		Gap10h[i] = stat.Counts(TagStatistics::GAP_10H);
+		GapMore[i] = stat.Counts(TagStatistics::GAP_MORE);
+		++i;
+	}
+
+	return Rcpp::DataFrame::create(Rcpp::_["TagID"] = TagID,
+	                               Rcpp::_["First Seen"] = FirstSeen,
+	                               Rcpp::_["Last Seen"] = LastSeen,
+	                               Rcpp::_["Count"] = Count,
+	                               Rcpp::_["Multiple Seen"] = Multiple,
+	                               Rcpp::_["Gap < 500ms"] = Gap500,
+	                               Rcpp::_["Gap < 1s"] = Gap1s,
+	                               Rcpp::_["Gap < 10s"] = Gap10s,
+	                               Rcpp::_["Gap < 1m"] = Gap1m,
+	                               Rcpp::_["Gap < 10m"] = Gap10m,
+	                               Rcpp::_["Gap < 1h"] = Gap1h,
+	                               Rcpp::_["Gap < 10h"] = Gap10h,
+	                               Rcpp::_["Gap >= 10h"] = GapMore);
+}
+
+
+Rcpp::List fmQuery_identifyFrames(const CExperiment & experiment,
+                                  const Time::ConstPtr & start,
+                                  const Time::ConstPtr & end,
+                                  bool computeZones) {
+	Rcpp::List res;
+	Query::IdentifyFramesFunctor(experiment,
+	                             [&res](const IdentifiedFrame::ConstPtr & frame) {
+		                             res.push_back(fmIdentifiedFrame(frame));
+	                             },
+	                             start,
+	                             end,
+	                             computeZones);
+
+	return res;
+}
+
+Rcpp::List fmQuery_collideFrames(const CExperiment & experiment,
+                                       const Time::ConstPtr & start,
+                                       const Time::ConstPtr & end) {
+	Rcpp::List resIdentified,resCollided;
+	Query::CollideFramesFunctor(experiment,
+	                            [&resIdentified,
+	                             &resCollided] (const Query::CollisionData & data) {
+		                            resIdentified.push_back(fmIdentifiedFrame(data.first));
+		                            resCollided.push_back(fmCollisionFrame(data.second));
+	                            },
+	                            start,
+	                            end);
+	Rcpp::List res;
+	res["positions"] = resIdentified;
+	res["collision"] = resCollided;
+	return res;
+}
+
+Rcpp::List fmQuery_computeTrajectories(const CExperiment & experiment,
+                                       const Time::ConstPtr & start,
+                                       const Time::ConstPtr & end,
+                                       const Duration maximumGap,
+                                       const Matcher::Ptr & matcher,
+                                       bool computeZones) {
+	Rcpp::List res;
+	Query::ComputeTrajectoriesFunctor(experiment,
+	                                  [&res](const AntTrajectory::ConstPtr & trajectory) {
+		                                  res.push_back(fmAntTrajectory(trajectory));
+	                                  },
+	                                  start,
+	                                  end,
+	                                  maximumGap,
+	                                  matcher,
+	                                  computeZones);
+
+	return res;
+}
+
+
+Rcpp::List fmQuery_computeAntInteractions(const CExperiment & experiment,
+                                          const Time::ConstPtr & start,
+                                          const Time::ConstPtr & end,
+                                          const Duration maximumGap,
+                                          const Matcher::Ptr & matcher) {
+	Rcpp::List resTrajectories,resInteractions;
+	Query::ComputeAntInteractionsFunctor(experiment,
+	                                     [&resTrajectories](const AntTrajectory::ConstPtr & trajectory ) {
+		                                     resTrajectories.push_back(fmAntTrajectory(trajectory));
+	                                     },
+	                                     [&resInteractions](const AntInteraction::ConstPtr & interaction) {
+		                                     resInteractions.push_back(fmAntInteraction(interaction));
+	                                     },
+	                                     start,
+	                                     end,
+	                                     maximumGap,
+	                                     matcher);
+	Rcpp::List res;
+	res["trajectories"] = resTrajectories;
+	res["interactions"] = resInteractions;
+	return res;
+}
+
+
 RCPP_MODULE(queries) {
 	Rcpp::class_<fmIdentifiedFrame>("fmIdentifiedFrame")
 		.const_method("show",&fmIdentifiedFrame::Show)
@@ -284,7 +422,7 @@ RCPP_MODULE(queries) {
 		.field_readonly("space",&fmIdentifiedFrame::Space)
 		.field_readonly("width",&fmIdentifiedFrame::Width)
 		.field_readonly("height",&fmIdentifiedFrame::Height)
-		.field_readonly("data",&fmIdentifiedFrame::DataFrame)
+		.field_readonly("data",&fmIdentifiedFrame::Data)
 		;
 
 	Rcpp::class_<fmCollision>("fmCollision")
@@ -326,5 +464,13 @@ RCPP_MODULE(queries) {
 	Rcpp::function("fmCollisionFrameDebug",&fmCollisionFrame_debug);
 	Rcpp::function("fmAntTrajectoryDebug",&fmAntTrajectory_debug);
 	Rcpp::function("fmAntInteractionDebug",&fmAntInteraction_debug);
+
+
+	Rcpp::function("fmQueryComputeMeasurementFor",&fmQuery_computeMeasurementFor);
+	Rcpp::function("fmQueryComputeTagStatistics",&fmQuery_computeTagStatistics);
+	Rcpp::function("fmQueryIdentifyFrames",&fmQuery_identifyFrames);
+	Rcpp::function("fmQueryCollideFrames",&fmQuery_collideFrames);
+	Rcpp::function("fmQueryComputeTrajectories",&fmQuery_computeTrajectories);
+	Rcpp::function("fmQueryComputeAntInteractions",&fmQuery_computeAntInteractions);
 
 }
