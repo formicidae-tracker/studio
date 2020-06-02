@@ -229,12 +229,11 @@ struct AntTrajectory {
 	// Reports the starting <Time> of this trajectory. <Nanoseconds>
 	// are reference to <Start>.
 	Time    Start;
-	// Reports the position in the frame of the <Ant>,x,y and angle in
-	// radians.
-	Eigen::Matrix<double,Eigen::Dynamic,3> Positions;
-	// Reports the difference in ns of all position to <Start>.
-	std::vector<double>                    Seconds;
-	// Reports zone of ant if asked
+	// Reports the time and position in the frame of the <Ant>,x,y and
+	// angle in radians.
+	Eigen::Matrix<double,Eigen::Dynamic,4> Data;
+	// Reports zone of ant if asked, optional vector of either size 0
+	// or Data.rows()
 	std::vector<uint32_t>                  Zones;
 };
 

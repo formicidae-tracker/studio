@@ -160,9 +160,8 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	for( const auto & trajectory : trajectories ) {
 		EXPECT_EQ(trajectory->Ant,1);
 		EXPECT_EQ(trajectory->Space,1);
-		ASSERT_EQ(trajectory->Seconds.size(),1000);
-		ASSERT_EQ(trajectory->Positions.rows(),1000);
-		EXPECT_EQ(trajectory->Seconds.front(),0);
+		ASSERT_EQ(trajectory->Data.rows(),1000);
+		EXPECT_EQ(trajectory->Data(0,0),0);
 	}
 
 }
