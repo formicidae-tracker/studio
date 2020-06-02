@@ -5,9 +5,24 @@
 #include "matchers.h"
 #include "duration.h"
 
-#include <Rcpp.h>
+
+#include <iostream>
 
 using namespace fort::myrmidon;
+
+class Defer {
+private :
+	typedef std::function<void()> Function;
+	Function d_function;
+public :
+	Defer(const Function & function) : d_function(function) {};
+	~Defer() { d_function(); };
+};
+
+
+
+#include <Rcpp.h>
+
 
 
 struct fmIdentifiedFrame {
@@ -34,7 +49,6 @@ struct fmIdentifiedFrame {
 		, Space(frame->Space)
 		, Width(frame->Width)
 		, Height(frame->Height) {
-
 		size_t n = frame->Positions.size();
 		Rcpp::IntegerVector IDs(n);
 		Rcpp::NumericVector X(n),Y(n),Angle(n);
@@ -47,13 +61,15 @@ struct fmIdentifiedFrame {
 			++i;
 		}
 
-		Rcpp::CharacterVector colNames({"AntID","X","Y","Angle"});
-		Data = Rcpp::List({IDs,X,Y,Angle});
 
+
+		Rcpp::CharacterVector colNames({"AntID","X","Y","Angle"});\
+		Data = Rcpp::List({IDs,X,Y,Angle});
 		if ( frame->Zones.empty() == false ) {
 			Data.push_back(Rcpp::IntegerVector(frame->Zones.begin(),frame->Zones.end()));
 			colNames.push_back("ZoneID");
 		}
+
 
 		Data.attr("names") = colNames;
 		Data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,n);
@@ -387,6 +403,46 @@ public :
 	}
 };
 
+Rcpp::Datetime cast(const Time & t ) {
+	auto tv = t.ToTimeval();
+	return double(tv.tv_sec) + 1e-6 * (tv.tv_usec);
+}
+
+SEXP makeS4(const IdentifiedFrame::ConstPtr & frame) {
+	Rcpp::S4 res("fmFoo");
+
+	res.slot("frameTime") = cast(frame->FrameTime);
+	res.slot("width") = frame->Width;
+	res.slot("height") = frame->Height;
+	size_t n = frame->Positions.size();
+	Rcpp::IntegerVector IDs(n);
+	Rcpp::NumericVector X(n),Y(n),Angle(n);
+	size_t i = 0;
+	for ( const auto & ant : frame->Positions ) {
+		IDs[i] = ant.ID;
+		X[i] = ant.Position.x();
+		Y[i] = ant.Position.y();
+		Angle[i] = ant.Angle;
+		++i;
+	}
+
+
+	Rcpp::List Data;
+	Rcpp::CharacterVector colNames({"AntID","X","Y","Angle"}); \
+	Data = Rcpp::List({IDs,X,Y,Angle});
+	if ( frame->Zones.empty() == false ) {
+		Data.push_back(Rcpp::IntegerVector(frame->Zones.begin(),frame->Zones.end()));
+		colNames.push_back("ZoneID");
+	}
+
+
+	Data.attr("names") = colNames;
+	Data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,n);
+	Data.attr("class") = "data.frame";
+	res.slot("data") = Data;
+	return res;
+}
+
 
 Rcpp::List fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
                                  const fort::myrmidon::Time::ConstPtr & startTime,
@@ -397,29 +453,32 @@ Rcpp::List fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
 	auto fstart = Time::Now();
 	std::list<IdentifiedFrame::ConstPtr> asList;
 	size_t n = 0;
-	std::shared_ptr<ProgressDisplayer> pd;
+	std::function<void (const Time & t)> pd = [](const Time & t) {};
 	if ( showProgress == true ) {
-		pd = std::make_shared<ProgressDisplayer>(experiment,startTime,endTime);
+		ProgressDisplayer pdObj(experiment,startTime,endTime);
+		pd = [pdObj](const Time & t) mutable -> void {
+			     pdObj.ShowProgress(t);
+		     };
+
 	}
 	Query::IdentifyFramesFunctor(experiment,
 	                             [&asList,&n,pd](const IdentifiedFrame::ConstPtr & frame) {
 		                             asList.push_back(frame);
 		                             ++n;
-		                             if ( pd ) {
-			                             pd->ShowProgress(frame->FrameTime);
-		                             }
+		                             pd(frame->FrameTime);
 	                             },
 	                             startTime,
 	                             endTime,
 	                             computeZones,
 	                             true);
+
 	if ( showProgress ) {
 		Rcpp::Rcout << "C++ reading took : " << Time::Now().Sub(fstart) << "\n";
 		fstart = Time::Now();
 	}
 	Rcpp::List res(n);
 	for ( size_t i = 0; i < n; ++i) {
-		res[i] = fmIdentifiedFrame(asList.front());
+		res[i] = makeS4(asList.front());//fmIdentifiedFrame(asList.front());
 		asList.pop_front();
 	}
 	if ( showProgress ) {
