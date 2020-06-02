@@ -4,6 +4,27 @@
 #include "Rcpp.h"
 
 
+fort::myrmidon::Time fmTime_fromR( SEXP exp) {
+	double ts = Rcpp::Datetime(exp).getFractionalTimestamp();
+	struct timeval tv = {
+	                     .tv_sec = time_t(ts),
+	                     .tv_usec = 0
+	};
+	tv.tv_usec = (ts - double(tv.tv_sec)) * 1e6;
+	return fort::myrmidon::Time::FromTimeval(tv);
+}
+
+
+Rcpp::Datetime fmTime_asR(const fort::myrmidon::Time & t) {
+	auto tv = t.ToTimeval();
+	return Rcpp::Datetime(double(tv.tv_sec) + 1e-6 * (tv.tv_usec));
+}
+
+Rcpp::Datetime fmTime_asR_fromPtr ( const fort::myrmidon::Time * t ){
+	return fmTime_asR(*t);
+}
+
+
 void fmTime_show(const fort::myrmidon::Time * t) {
 	Rcpp::Rcout << *t << "\n";
 }
@@ -46,6 +67,7 @@ RCPP_MODULE(time) {
 		.const_method("sub",&fort::myrmidon::Time::Sub)
 		.const_method("round",&fort::myrmidon::Time::Round)
 		.const_method("const_ptr",&fmTime_const_ptr)
+		.const_method("as.POSIXct",&fmTime_asR_fromPtr)
 		;
 
 	Rcpp::class_<fort::myrmidon::Time::ConstPtr>("fmTimeCPtr")
