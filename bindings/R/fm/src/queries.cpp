@@ -36,9 +36,8 @@ SEXP fmIdentifiedFrame_asR(const IdentifiedFrame::ConstPtr & frame) {
 
 
 	Data.attr("names") = colNames;
-	Data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,n);
 	Data.attr("class") = "data.frame";
-	Rcpp::S4 res("fmIdentfiedFrame");
+	Rcpp::S4 res("fmIdentifiedFrame");
 
 	res.slot("frameTime") = fmTime_asR(frame->FrameTime);
 	res.slot("width") = frame->Width;
@@ -94,6 +93,7 @@ struct fmCollision {
 		}
 	}
 };
+
 
 SEXP fmInteractionTypes_asR(const std::vector<InteractionType> & it ) {
 	// ugly reinterpret cast, but the memory layout is right
@@ -151,12 +151,11 @@ SEXP fmCollisionFrame_debug() {
 
 SEXP fmAntTrajectory_asR(const AntTrajectory::ConstPtr & at) {
 	size_t nPoints = at->Data.rows();
-
 #define numericVectorFromEigen(Var,matrix,col,size) Rcpp::NumericVector Var(&((matrix)(0,col)),&((matrix)(0,col))+size)
-	numericVectorFromEigen(Times,at->Data,0,nPoints);
-	numericVectorFromEigen(Xs,at->Data,1,nPoints);
-	numericVectorFromEigen(Ys,at->Data,2,nPoints);
-	numericVectorFromEigen(Angles,at->Data,3,nPoints);
+ 	numericVectorFromEigen(Times,at->Data,0,nPoints);
+ 	numericVectorFromEigen(Xs,at->Data,1,nPoints);
+ 	numericVectorFromEigen(Ys,at->Data,2,nPoints);
+ 	numericVectorFromEigen(Angles,at->Data,3,nPoints);
 #undef numericVectorFromEigen
 	Rcpp::List data({Times,Xs,Ys,Angles});
 	Rcpp::CharacterVector names = {"Time (s)","X","Y","Angle"};
@@ -165,15 +164,13 @@ SEXP fmAntTrajectory_asR(const AntTrajectory::ConstPtr & at) {
 		names.push_back("Zone");
 	}
 	data.attr("names") = names;
-	data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,nPoints);
 	data.attr("class") = "data.frame";
-
 
 	Rcpp::S4 res("fmAntTrajectory");
 	res.slot("ant") = at->Ant;
 	res.slot("start") = fmTime_asR(at->Start);
 	res.slot("space") = at->Space;
-	res.slot("data") = data;
+	res.slot("positions") = data;
 	return res;
 }
 
@@ -285,16 +282,26 @@ SEXP fmQuery_computeTagStatistics(const CExperiment & experiment) {
 }
 
 
-class ProgressDisplayer {
+class ProgressDisplayerIF {
+public :
+	virtual ~ProgressDisplayerIF(){}
+	virtual void ShowProgress(const Time & t) {}
+
+};
+
+class ProgressDisplayer : public ProgressDisplayerIF{
 private :
 	Duration d_duration;
-	Time d_last,d_lastShown,d_start,d_end;
+	Time d_last,d_computeStart,d_lastShown,d_start,d_end;
+	std::string d_what;
 public :
 	ProgressDisplayer(const CExperiment & experiment,
 	                  const Time::ConstPtr & start,
 	                  const Time::ConstPtr & end,
-	                  Duration d = Duration::Hour )
-		: d_duration(d) {
+	                  const std::string & what,
+	                  Duration d = Duration::Hour)
+		: d_duration(d)
+		, d_what(what) {
 		if ( !start || !end ) {
 			auto info = experiment.GetDataInformations();
 			if ( !start  ) {
@@ -313,9 +320,14 @@ public :
 		}
 		d_last = d_start;
 		d_lastShown = Time::Now();
+		d_computeStart = d_lastShown;
 	}
 
-	void ShowProgress(const Time & t) {
+	virtual ~ProgressDisplayer() {
+		std::cerr << d_what << " took " << Time::Now().Sub(d_computeStart) << "\n";
+	}
+
+	void ShowProgress(const Time & t) override{
 		auto ellapsed = t.Sub(d_last);
 		if ( ellapsed < d_duration ) {
 			return;
@@ -325,54 +337,166 @@ public :
 		auto computationTime = now.Sub(d_lastShown);
 		auto reminder = d_end.Sub(t);
 		d_lastShown = now;
-		Rcpp::Rcout << "Processed frame at " << t
-		            << ", computed "
-		            << ellapsed
-		            << " in "  << computationTime
-		            << ". Remind " << reminder
-		            << ", ETA " << Duration((reminder.Seconds() / ellapsed.Seconds()) * computationTime.Seconds() * 1e9)
-		            << "\n";
+		std::cerr << "Processed frame at " << t
+		          << ", computed "
+		          << ellapsed
+		          << " in "
+		          << computationTime
+		          << ". Remind "
+		          << reminder
+		          << ", ETA " << Duration((reminder.Seconds() / ellapsed.Seconds()) * computationTime.Seconds() * 1e9)
+		          << "\n";
 	}
+
 };
 
+#define DECLARE_PD() \
+	auto pd = new ProgressDisplayerIF()
+#define CLEAR_PD() \
+	delete pd
 
-Rcpp::List fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
-                                 const fort::myrmidon::Time::ConstPtr & startTime,
-                                 const fort::myrmidon::Time::ConstPtr & endTime,
-                                 bool computeZones = false,
-                                 bool singleThread = false,
-                                 bool showProgress = false) {
-	Time fstart;
-	if ( showProgress == true ) {
-		fstart = Time::Now();
-	}
-	std::vector<SEXP> res;
-	size_t n = 0;
-	std::function<void (const Time & t)> pd = [](const Time & t) {};
-	if ( showProgress == true ) {
-		ProgressDisplayer pdObj(experiment,startTime,endTime);
-		pd = [pdObj](const Time & t) mutable -> void {
-			     pdObj.ShowProgress(t);
-		     };
-	}
+#define SET_PD(What) \
+	if ( showProgress == true ) { \
+		CLEAR_PD(); \
+		pd = new ProgressDisplayer(experiment,startTime,endTime,What); \
+	} \
+
+
+SEXP fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
+                           const fort::myrmidon::Time::ConstPtr & startTime,
+                           const fort::myrmidon::Time::ConstPtr & endTime,
+                           bool computeZones = false,
+                           bool singleThread = false,
+                           bool showProgress = false) {
+	std::vector<IdentifiedFrame::ConstPtr> res_;
+	DECLARE_PD();
+	SET_PD("Processing");
 	Query::IdentifyFramesFunctor(experiment,
-	                             [&res,pd](const IdentifiedFrame::ConstPtr & frame) {
-		                             res.push_back(fmIdentifiedFrame_asR(frame));
-		                             pd(frame->FrameTime);
+	                             [&res_,pd](const IdentifiedFrame::ConstPtr & frame) {
+		                             res_.push_back(frame);
+		                             pd->ShowProgress(frame->FrameTime);
 	                             },
 	                             startTime,
 	                             endTime,
 	                             computeZones,
 	                             true);
-
-	if ( showProgress == true ) {
-		Rcpp::Rcout << "Processing took " << Time::Now().Sub(fstart) << "\n";
+	SET_PD("R conversion");
+	Rcpp::List res(res_.size());
+	while( res_.empty() == false ) {
+		res[res_.size()-1] = fmIdentifiedFrame_asR(res_.back());
+		res_.pop_back();
 	}
+	CLEAR_PD();
+	return res;
+}
 
-	return Rcpp::List(res.cbegin(),res.cend());
+SEXP fmQueryCollideFrames(const fort::myrmidon::CExperiment & experiment,
+                          const fort::myrmidon::Time::ConstPtr & startTime,
+                          const fort::myrmidon::Time::ConstPtr & endTime,
+                          bool singleThread,
+                          bool showProgress) {
+	std::vector<Query::CollisionData> res_;
+	DECLARE_PD();
+	SET_PD("Processing");
+	Query::CollideFramesFunctor(experiment,
+	                            [&res_,pd](const Query::CollisionData & data) {
+		                            res_.push_back(data);
+		                            pd->ShowProgress(std::get<0>(data)->FrameTime);
+	                            },
+	                            startTime,
+	                            endTime,
+	                            true);
+	SET_PD("R conversion");
+	Rcpp::List resPositions(res_.size()),resCollisions(res_.size());
+	while( res_.empty() == false ) {
+		resPositions[res_.size()-1] = fmIdentifiedFrame_asR(std::get<0>(res_.back()));
+		resCollisions[res_.size()-1] = fmCollisionFrame_asR(std::get<1>(res_.back()));
+		res_.pop_back();
+	}
+	Rcpp::List res;
+	res["positions"]  = resPositions;
+	res["collisions"] = resCollisions;
+	CLEAR_PD();
+	return res;
 }
 
 
+SEXP fmQueryComputeAntTrajectories(const CExperiment & experiment,
+                                   const Time::ConstPtr & startTime,
+                                   const Time::ConstPtr & endTime,
+                                   const Duration & maximuGap,
+                                   const Matcher::Ptr & matcher,
+                                   bool computeZones,
+                                   bool singleThreaded,
+                                   bool showProgress) {
+	std::vector<AntTrajectory::ConstPtr> res_;
+	DECLARE_PD();
+	SET_PD("Processing");
+	Query::ComputeAntTrajectoriesFunctor(experiment,
+	                                     [&res_,pd](const AntTrajectory::ConstPtr & at) {
+		                                     res_.push_back(at);
+		                                     pd->ShowProgress(at->End());
+	                                     },
+	                                     startTime,
+	                                     endTime,
+	                                     maximuGap,
+	                                     matcher,
+	                                     computeZones,
+	                                     singleThreaded);
+	SET_PD("R Conversion");
+	Rcpp::List res(res_.size());
+	while( res_.empty() == false ) {
+		res[res_.size() - 1] = fmAntTrajectory_asR(res_.back());
+		res_.pop_back();
+	}
+	CLEAR_PD();
+	return res;
+}
+
+SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
+                                   const Time::ConstPtr & startTime,
+                                   const Time::ConstPtr & endTime,
+                                   const Duration & maximuGap,
+                                   const Matcher::Ptr & matcher,
+                                   bool singleThreaded,
+                                   bool showProgress) {
+	std::vector<AntTrajectory::ConstPtr> resTrajectories_;
+	std::vector<AntInteraction::ConstPtr>  resInteractions_;
+	DECLARE_PD();
+	SET_PD("Processing");
+	Query::ComputeAntInteractionsFunctor(experiment,
+	                                     [&resTrajectories_,pd](const AntTrajectory::ConstPtr & at) {
+		                                     resTrajectories_.push_back(at);
+		                                     pd->ShowProgress(at->End());
+	                                     },
+	                                     [&resInteractions_] ( const AntInteraction::ConstPtr & ai ) {\
+		                                     resInteractions_.push_back(ai);
+	                                     },
+	                                     startTime,
+	                                     endTime,
+	                                     maximuGap,
+	                                     matcher,
+	                                     singleThreaded);
+
+	Rcpp::List resTrajectories(resTrajectories_.size()),resInteractions(resInteractions_.size());
+	SET_PD("R trajectory conversion");
+	while(resTrajectories_.empty() == false ) {
+		const auto & at = resTrajectories_.back();
+		resTrajectories[resTrajectories_.size()-1] = fmAntTrajectory_asR(at);
+		resTrajectories_.pop_back();
+	}
+	SET_PD("R interaction conversion");
+	while(resInteractions_.empty() == false ) {
+		const auto & ai = resInteractions_.back();
+		resInteractions[resInteractions_.size()-1] = fmAntInteraction_asR(ai);
+		resInteractions_.pop_back();
+	}
+	Rcpp::List res;
+	res["trajectories"] = resTrajectories;
+	res["interactions"] = resInteractions;
+	CLEAR_PD();
+	return res;
+}
 
 
 
@@ -388,8 +512,8 @@ RCPP_MODULE(queries) {
 	Rcpp::function("fmQueryComputeMeasurementFor",&fmQuery_computeMeasurementFor);
 	Rcpp::function("fmQueryComputeTagStatistics",&fmQuery_computeTagStatistics);
 	Rcpp::function("fmQueryIdentifyFrames",&fmQueryIdentifyFrames);
-	//	Rcpp::function("fmQueryCollideFrames",&fmQuery_collideFrames);
-	//Rcpp::function("fmQueryComputeTrajectories",&fmQuery_computeTrajectories);
-	//Rcpp::function("fmQueryComputeAntInteractions",&fmQuery_computeAntInteractions);
+	Rcpp::function("fmQueryCollideFrames",&fmQueryCollideFrames);
+	Rcpp::function("fmQueryComputeAntTrajectories",&fmQueryComputeAntTrajectories);
+	Rcpp::function("fmQueryComputeAntInteractions",&fmQueryComputeAntInteractions);
 
 }

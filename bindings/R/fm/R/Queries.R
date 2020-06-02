@@ -30,7 +30,7 @@ setClass("fmAntTrajectory",
              "ant" = "integer",
              "space" = "integer",
              "start" = "POSIXct",
-             "data" = "data.frame"
+             "positions" = "data.frame"
          )
          )
 

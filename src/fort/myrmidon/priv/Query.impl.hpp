@@ -137,7 +137,7 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
                                 const Time::ConstPtr & start,
                                 const Time::ConstPtr & end,
                                 Duration maximumGap,
-                                Matcher::Ptr matcher,
+                                const Matcher::Ptr & matcher,
                                 bool computeZones,
                                 bool singleThreaded) {
 	auto identifier = experiment->CIdentifier().Compile();
@@ -222,7 +222,7 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
                                    const Time::ConstPtr & start,
                                    const Time::ConstPtr & end,
                                    Duration maximumGap,
-                                   Matcher::Ptr matcher,
+                                   const Matcher::Ptr & matcher,
                                    bool singleThreaded) {
 
 	auto identifier = experiment->CIdentifier().Compile();

@@ -18,7 +18,7 @@ void fmMatcher_show(const fort::myrmidon::Matcher::Ptr * m ) {
 	Rcpp::Rcout << "fmMatcher ( " << **m << " )\n";
 }
 
-fort::myrmidon::Matcher::Ptr fmMatcher_none() {
+fort::myrmidon::Matcher::Ptr fmMatcher_any() {
 	return fort::myrmidon::Matcher::Ptr();
 }
 
@@ -29,7 +29,7 @@ RCPP_MODULE(matchers) {
 		;
 
 
-	Rcpp::function("fmMatcherNone",&fmMatcher_none);
+	Rcpp::function("fmMatcherAny",&fmMatcher_any);
 	Rcpp::function("fmMatcherAnd",&fort::myrmidon::Matcher::And);
 	Rcpp::function("fmMatcherOr",&fort::myrmidon::Matcher::Or);
 	Rcpp::function("fmMatcherAntID",&fort::myrmidon::Matcher::AntID);

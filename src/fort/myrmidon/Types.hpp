@@ -235,6 +235,7 @@ struct AntTrajectory {
 	// Reports zone of ant if asked, optional vector of either size 0
 	// or Data.rows()
 	std::vector<uint32_t>                  Zones;
+	Time End() const;
 };
 
 // Defines an interaction between two Ants

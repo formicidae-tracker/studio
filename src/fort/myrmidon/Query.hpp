@@ -26,7 +26,7 @@ namespace myrmidon {
 // operation are IO bounded, and the multithreading overhead will
 // impact performance by 40-50% in computation time, as threads are
 // waiting for data inpout to come. This is the case for
-// <IdentifyFrames>, <CollideFrames>, <ComputeTrajectories> and
+// <IdentifyFrames>, <CollideFrames>, <ComputeAntTrajectories> and
 // <ComputeAntInteractions>. But for very complex scenarii, with
 // several hundred of individual with complex shape, multi-threading
 // could be a premium. Therefore these methodd and their Functor
@@ -150,14 +150,14 @@ public:
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
 	// avoid large data copy.
-	static void ComputeTrajectoriesFunctor(const CExperiment & experiment,
-	                                       std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-	                                       const Time::ConstPtr & start,
-	                                       const Time::ConstPtr & end,
-	                                       Duration maximumGap,
-	                                       Matcher::Ptr matcher = Matcher::Ptr(),
-	                                       bool computeZones = false,
-	                                       bool singleThread = false);
+	static void ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
+	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
+	                                          const Time::ConstPtr & start,
+	                                          const Time::ConstPtr & end,
+	                                          Duration maximumGap,
+	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
+	                                          bool computeZones = false,
+	                                          bool singleThread = false);
 
 
 
@@ -177,14 +177,14 @@ public:
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time
-	static void ComputeTrajectories(const CExperiment & experiment,
-	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                const Time::ConstPtr & start,
-	                                const Time::ConstPtr & end,
-	                                Duration maximumGap,
-	                                Matcher::Ptr matcher = Matcher::Ptr(),
-	                                bool computeZones = false,
-	                                bool singleThread = false);
+	static void ComputeAntTrajectories(const CExperiment & experiment,
+	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                                   const Time::ConstPtr & start,
+	                                   const Time::ConstPtr & end,
+	                                   Duration maximumGap,
+	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
+	                                   bool computeZones = false,
+	                                   bool singleThread = false);
 
 
 	// Computes interactions for ants - functor version
@@ -210,7 +210,7 @@ public:
 	                                          const Time::ConstPtr & start,
 	                                          const Time::ConstPtr & end,
 	                                          Duration maximumGap,
-	                                          Matcher::Ptr matcher = Matcher::Ptr(),
+	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                          bool singleThread = false);
 
 
@@ -236,7 +236,7 @@ public:
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Ptr(),
+	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool singleThread = false);
 
 

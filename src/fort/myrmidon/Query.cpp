@@ -81,42 +81,42 @@ void Query::CollideFrames(const CExperiment & experiment,
 	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end,singleThread);
 }
 
-void Query::ComputeTrajectoriesFunctor(const CExperiment & experiment,
-                                       std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-                                       const Time::ConstPtr & start,
-                                       const Time::ConstPtr & end,
-                                       Duration maximumGap,
-                                       Matcher::Ptr matcher,
-                                       bool computeZones,
-                                       bool singleThread) {
+void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
+                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
+                                          const Time::ConstPtr & start,
+                                          const Time::ConstPtr & end,
+                                          Duration maximumGap,
+                                          const Matcher::Ptr & matcher,
+                                          bool computeZones,
+                                          bool singleThread) {
 	WrapFunctor backInserter(storeTrajectory);
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 backInserter,
 	                                 start,
 	                                 end,
 	                                 maximumGap,
-	                                 matcher->d_p,
+	                                 !matcher ? Matcher::PPtr() : matcher->d_p,
 	                                 computeZones,
 	                                 singleThread);
 }
 
 
 
-void Query::ComputeTrajectories(const CExperiment & experiment,
-                                std::vector<AntTrajectory::ConstPtr> & trajectories,
-                                const Time::ConstPtr & start,
-                                const Time::ConstPtr & end,
-                                Duration maximumGap,
-                                Matcher::Ptr matcher,
-                                bool computeZones,
-                                bool singleThread) {
+void Query::ComputeAntTrajectories(const CExperiment & experiment,
+                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
+                                   const Time::ConstPtr & start,
+                                   const Time::ConstPtr & end,
+                                   Duration maximumGap,
+                                   const Matcher::Ptr & matcher,
+                                   bool computeZones,
+                                   bool singleThread) {
 	auto backInserter = std::back_inserter(trajectories);
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 backInserter,
 	                                 start,
 	                                 end,
 	                                 maximumGap,
-	                                 matcher->d_p,
+	                                 !matcher ? Matcher::PPtr() : matcher->d_p,
 	                                 computeZones,
 	                                 singleThread);
 }
@@ -127,7 +127,7 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
                                           const Time::ConstPtr & start,
                                           const Time::ConstPtr & end,
                                           Duration maximumGap,
-                                          Matcher::Ptr matcher,
+                                          const Matcher::Ptr & matcher,
                                           bool singleThread) {
 	WrapFunctor trajInserter(storeTrajectory);
 	WrapFunctor interInserter(storeInteraction);
@@ -138,7 +138,7 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
 	                                    start,
 	                                    end,
 	                                    maximumGap,
-	                                    matcher->d_p,
+	                                    !matcher ? Matcher::PPtr() : matcher->d_p,
 	                                    singleThread);
 }
 
@@ -149,7 +149,7 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
                                    const Time::ConstPtr & start,
                                    const Time::ConstPtr & end,
                                    Duration maximumGap,
-                                   Matcher::Ptr matcher,
+                                   const Matcher::Ptr & matcher,
                                    bool singleThread) {
 	auto trajInserter = std::back_inserter(trajectories);
 	auto interInserter = std::back_inserter(interactions);
@@ -160,7 +160,7 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
 	                                    start,
 	                                    end,
 	                                    maximumGap,
-	                                    matcher->d_p,
+	                                    !matcher ? Matcher::PPtr() : matcher->d_p,
 	                                    singleThread);
 }
 

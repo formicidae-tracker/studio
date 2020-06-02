@@ -43,7 +43,7 @@ public:
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
-	                                Matcher::Ptr matcher = Matcher::Ptr(),
+	                                const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                bool computeZones = false,
 	                                bool singleThreaded = false);
 
@@ -55,7 +55,7 @@ public:
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Ptr(),
+	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool singleThreaded = false);
 
 

@@ -148,7 +148,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
 
 add_subdirectory(pkgconfig)
 
-
 add_subdirectory(src)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
