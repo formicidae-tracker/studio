@@ -195,12 +195,14 @@ SEXP fmAntTrajectory_debug() {
 }
 
 
-SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai) {
+SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai, bool reportTrajectories = false) {
 	Rcpp::S4 res("fmAntInteraction");
 	res.slot("ant1") = ai->IDs.first;
 	res.slot("ant2") = ai->IDs.second;
-	res.slot("ant1Trajectory") = fmAntTrajectory_asR(ai->Trajectories.first);
-	res.slot("ant2Trajectory") = fmAntTrajectory_asR(ai->Trajectories.second);
+	if ( reportTrajectories == true ) {
+		res.slot("ant1Trajectory") = fmAntTrajectory_asR(ai->Trajectories.first);
+		res.slot("ant2Trajectory") = fmAntTrajectory_asR(ai->Trajectories.second);
+	}
 	res.slot("start") = fmTime_asR(ai->Start);
 	res.slot("end") = fmTime_asR(ai->End);
 	res.slot("types") = fmInteractionTypes_asR(ai->Types);
@@ -453,13 +455,20 @@ SEXP fmQueryComputeAntTrajectories(const CExperiment & experiment,
 	return res;
 }
 
+double meanUS(const std::vector<Duration> & durations) {
+	double res = 0.0 ;
+	for ( const auto & d: durations ) { res += d.Microseconds()/durations.size(); }
+	return res;
+}
+
 SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
                                    const Time::ConstPtr & startTime,
                                    const Time::ConstPtr & endTime,
                                    const Duration & maximuGap,
                                    const Matcher::Ptr & matcher,
                                    bool singleThreaded,
-                                   bool showProgress) {
+                                   bool showProgress,
+                                   bool reportTrajectories) {
 	std::vector<AntTrajectory::ConstPtr> resTrajectories_;
 	std::vector<AntInteraction::ConstPtr>  resInteractions_;
 	DECLARE_PD();
@@ -488,9 +497,10 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 	SET_PD("R interaction conversion");
 	while(resInteractions_.empty() == false ) {
 		const auto & ai = resInteractions_.back();
-		resInteractions[resInteractions_.size()-1] = fmAntInteraction_asR(ai);
+		resInteractions[resInteractions_.size()-1] = fmAntInteraction_asR(ai,reportTrajectories);
 		resInteractions_.pop_back();
 	}
+
 	Rcpp::List res;
 	res["trajectories"] = resTrajectories;
 	res["interactions"] = resInteractions;
@@ -511,9 +521,9 @@ RCPP_MODULE(queries) {
 
 	Rcpp::function("fmQueryComputeMeasurementFor",&fmQuery_computeMeasurementFor);
 	Rcpp::function("fmQueryComputeTagStatistics",&fmQuery_computeTagStatistics);
-	Rcpp::function("fmQueryIdentifyFrames",&fmQueryIdentifyFrames);
-	Rcpp::function("fmQueryCollideFrames",&fmQueryCollideFrames);
-	Rcpp::function("fmQueryComputeAntTrajectories",&fmQueryComputeAntTrajectories);
-	Rcpp::function("fmQueryComputeAntInteractions",&fmQueryComputeAntInteractions);
+	Rcpp::function("fmQueryIdentifyFramesC",&fmQueryIdentifyFrames);
+	Rcpp::function("fmQueryCollideFramesC",&fmQueryCollideFrames);
+	Rcpp::function("fmQueryComputeAntTrajectoriesC",&fmQueryComputeAntTrajectories);
+	Rcpp::function("fmQueryComputeAntInteractionsC",&fmQueryComputeAntInteractions);
 
 }
