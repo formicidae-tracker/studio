@@ -186,7 +186,7 @@ Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
 	: IDs(collision.IDs)
 	, Start(curTime)
 	, Last(curTime) {
-	for ( const auto & type : collision.InteractionTypes ) {
+	for ( const auto & type : collision.Types ) {
 		Types.insert(type);
 	}
 }
@@ -194,7 +194,7 @@ Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
 void Query::BuildingInteraction::Append(const Collision & collision,
                                         const Time & curTime) {
 	Last = curTime;
-	for ( const auto & type : collision.InteractionTypes ) {
+	for ( const auto & type : collision.Types ) {
 		Types.insert(type);
 	}
 }
@@ -365,7 +365,7 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 		       for ( const auto & pInter : std::get<1>(data)->Collisions ) {
 			       if (matcher && matcher->Match(pInter.IDs.first,
 			                                     pInter.IDs.second,
-			                                     pInter.InteractionTypes) == false ) {
+			                                     pInter.Types) == false ) {
 				       continue;
 			       }
 

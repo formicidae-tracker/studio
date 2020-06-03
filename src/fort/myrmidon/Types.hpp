@@ -196,7 +196,7 @@ struct Collision {
 	// ensure uniqueness of IDs for <AntInteraction>.
 	InteractionID                IDs;
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
-	std::vector<InteractionType> InteractionTypes;
+	std::vector<InteractionType> Types;
 	// Reports the <Zone> where the interaction happened, the
 	// corresponding <Space> is reported in <CollisionFrame>. 0
 	// means the default zone.
