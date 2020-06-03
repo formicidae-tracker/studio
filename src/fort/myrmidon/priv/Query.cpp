@@ -174,9 +174,9 @@ AntTrajectory::ConstPtr Query::BuildingTrajectory::Terminate() const {
 	res->Ant = Ant;
 	res->Start = Start;
 	size_t nPoints = Durations.size();
-	res->Data.resize(nPoints,4);
-	res->Data.block(0,1,nPoints,3) = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],nPoints,3);
-	res->Data.block(0,0,nPoints,1) = Eigen::Map<const Eigen::VectorXd>(&Durations[0],nPoints);
+	res->Positions.resize(nPoints,4);
+	res->Positions.block(0,1,nPoints,3) = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],nPoints,3);
+	res->Positions.block(0,0,nPoints,1) = Eigen::Map<const Eigen::VectorXd>(&Durations[0],nPoints);
 	res->Zones = Zones;
 	return res;
 }
@@ -214,14 +214,14 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 			  }
 			  double toTrim = Start.Sub(t.Start).Seconds();
 			  size_t idx = 0;
-			  for ( ; idx < res->Data.rows(); ++idx ) {
-				  if ( res->Data(idx,0) >= toTrim ) {
+			  for ( ; idx < res->Positions.rows(); ++idx ) {
+				  if ( res->Positions(idx,0) >= toTrim ) {
 					  break;
 				  }
 			  }
 			  res->Start = Start;
-			  res->Data = res->Data.block(idx,0,res->Data.rows()-idx,4).eval();
-			  res->Data.block(0,0,res->Data.rows(),1).array() -= res->Data(0,0);
+			  res->Positions = res->Positions.block(idx,0,res->Positions.rows()-idx,4).eval();
+			  res->Positions.block(0,0,res->Positions.rows(),1).array() -= res->Positions(0,0);
 			  return res;
 		  };\
 	try {

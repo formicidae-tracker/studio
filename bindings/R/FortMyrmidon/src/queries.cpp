@@ -12,7 +12,43 @@
 
 using namespace fort::myrmidon;
 
-namespace Rcpp {
+#define check_s4_type(obj,className) do {	  \
+		if ( std::string(obj.attr("class")) != className ) { \
+			throw std::runtime_error("Invalid object class "+ std::string(obj.attr("class")) + "( expected: " className); \
+		} \
+	} while(0)
+
+
+namespace Rcpp
+{
+
+template<> IdentifiedFrame::ConstPtr as(SEXP exp) {
+	Rcpp::S4 frame(exp);
+	check_s4_type(frame,"fmIdentifiedFrame");
+	auto res = std::make_shared<IdentifiedFrame>();
+	res->FrameTime = fmTime_fromR(frame.slot("frameTime"));
+	res->Width = frame.slot("width");
+	res->Height = frame.slot("height");
+	res->Space = frame.slot("space");
+	Rcpp::DataFrame data(frame.slot("data"));
+	Rcpp::IntegerVector IDs    = data[0];
+	Rcpp::NumericVector Xs     = data[1];
+	Rcpp::NumericVector Ys     = data[2];
+	Rcpp::NumericVector Angles = data[3];
+	for ( size_t i = 0; i < data.nrows(); ++i) {
+		res->Positions.push_back(PositionedAnt{.Position = Eigen::Vector2d(Xs[i],Ys[i]),
+		                                       .Angle = Angles[i],
+		                                       .ID = uint32_t(IDs[i])
+			});
+	}
+	if ( data.size() == 5 ) {
+		Rcpp::IntegerVector Zones = data[5];
+		res->Zones = std::vector<uint32_t>(Zones.begin(),Zones.end());
+	}
+
+	return res;
+}
+
 template<> SEXP wrap(const IdentifiedFrame::ConstPtr & frame) {
 	size_t n = frame->Positions.size();
 	Rcpp::IntegerVector IDs(n);
@@ -76,6 +112,27 @@ SEXP fmInteractionType_asR(const std::vector<InteractionType> & it ) {
 	                           reinterpret_cast<const std::vector<uint32_t>*>(&(it))->begin());
 }
 
+void fmInteractionType_fromR(std::vector<InteractionType> & result,
+                             SEXP value) {
+	Rcpp::IntegerMatrix types(value);
+	result.clear();
+	result.reserve(types.rows());
+	for ( size_t i = 0; i < types.rows(); ++i ) {
+		result.push_back(std::make_pair(types(i,0),types(i,1)));
+	}
+}
+
+Collision fmCollision_fromR(SEXP exp) {
+	Rcpp::S4 collision(exp);
+	Collision res;
+	uint32_t ant1 = collision.slot("ant1");
+	uint32_t ant2 = collision.slot("ant2");
+
+	res.IDs = std::make_pair(ant1,ant2);
+	res.Zone = collision.slot("zone");
+	fmInteractionType_fromR(res.Types,collision.slot("types"));
+	return res;
+}
 
 SEXP fmCollision_asR(const Collision & c) {
 	Rcpp::S4 res("fmCollision");
@@ -87,7 +144,7 @@ SEXP fmCollision_asR(const Collision & c) {
 }
 
 Collision Collision_debug() {
-	return Collision{
+	return Collision {
 		.IDs = std::make_pair(3,4),.Types = {{1,1},{2,1},{1,3}},.Zone= 51};
 }
 
@@ -97,6 +154,21 @@ SEXP fmCollision_debug() {
 
 
 namespace Rcpp {
+template<> CollisionFrame::ConstPtr as(SEXP exp) {
+	Rcpp::S4 frame(exp);
+	check_s4_type(frame,"fmCollisionFrame");
+	auto res = std::make_shared<CollisionFrame>();
+	res->FrameTime = fmTime_fromR(frame.slot("frameTime"));
+	res->Space = frame.slot("space");
+	Rcpp::List collisions(frame.slot("collisions"));
+	res->Collisions.reserve(collisions.size());
+	for( size_t i = 0; i < collisions.size(); ++i) {
+		res->Collisions.push_back(fmCollision_fromR(collisions[i]));
+	}
+	return res;
+}
+
+
 template<> SEXP wrap(const CollisionFrame::ConstPtr & frame ) {
 	Rcpp::S4 res("fmCollisionFrame");
 	res.slot("frameTime") = fmTime_asR(frame->FrameTime);
@@ -124,14 +196,40 @@ SEXP fmCollisionFrame_debug() {
 }
 
 namespace Rcpp {
+
+template<> AntTrajectory::ConstPtr as(SEXP exp) {
+	Rcpp::S4 at(exp);
+	check_s4_type(at,"fmAntTrajectory");
+	auto res = std::make_shared<AntTrajectory>();
+	res->Ant = at.slot("ant");
+	res->Start = fmTime_fromR(at.slot("start"));
+	res->Space = at.slot("space");
+	Rcpp::DataFrame positions(at.slot("positions"));
+	res->Positions.resize(positions.nrows(),4);
+	Rcpp::NumericVector seconds(positions[0]);
+	Rcpp::NumericVector xs(positions[1]);
+	Rcpp::NumericVector ys(positions[2]);
+	Rcpp::NumericVector angles(positions[3]);
+
+	res->Positions.block(0,0,positions.nrows(),1) = Eigen::Map<Eigen::VectorXd>(&(seconds[0]),positions.nrows());
+	res->Positions.block(0,1,positions.nrows(),1) = Eigen::Map<Eigen::VectorXd>(&(xs[0]),positions.nrows());
+	res->Positions.block(0,2,positions.nrows(),1) = Eigen::Map<Eigen::VectorXd>(&(ys[0]),positions.nrows());
+	res->Positions.block(0,3,positions.nrows(),1) = Eigen::Map<Eigen::VectorXd>(&(angles[0]),positions.nrows());
+	if ( positions.size() == 5 ) {
+		Rcpp::IntegerVector zones = positions[4];
+		res->Zones = std::vector<uint32_t>(zones.begin(),zones.end());
+	}
+	return res;
+}
+
 template <>
 SEXP wrap(const AntTrajectory::ConstPtr & at) {
-	size_t nPoints = at->Data.rows();
+	size_t nPoints = at->Positions.rows();
 #define numericVectorFromEigen(Var,matrix,col,size) Rcpp::NumericVector Var(&((matrix)(0,col)),&((matrix)(0,col))+size)
- 	numericVectorFromEigen(Times,at->Data,0,nPoints);
- 	numericVectorFromEigen(Xs,at->Data,1,nPoints);
- 	numericVectorFromEigen(Ys,at->Data,2,nPoints);
- 	numericVectorFromEigen(Angles,at->Data,3,nPoints);
+ 	numericVectorFromEigen(Times,at->Positions,0,nPoints);
+ 	numericVectorFromEigen(Xs,at->Positions,1,nPoints);
+ 	numericVectorFromEigen(Ys,at->Positions,2,nPoints);
+ 	numericVectorFromEigen(Angles,at->Positions,3,nPoints);
 #undef numericVectorFromEigen
 	Rcpp::List data({Times,Xs,Ys,Angles});
 	Rcpp::CharacterVector names = {"Time (s)","X","Y","Angle"};
@@ -156,12 +254,12 @@ AntTrajectory::ConstPtr AntTrajectory_debug() {
 	res->Ant = 3;
 	res->Space = 42;
 	res->Start = Time::Now();
-	res->Data.resize(10,4);
+	res->Positions.resize(10,4);
 	for ( size_t i = 0; i < 10 ; ++i ) {
-		res->Data(i,0) = i*0.1;
-		res->Data(i,1) = 1.0 * i;
-		res->Data(i,2) = -1.0 * i;
-		res->Data(i,3) = i * 0.1;
+		res->Positions(i,0) = i*0.1;
+		res->Positions(i,1) = 1.0 * i;
+		res->Positions(i,2) = -1.0 * i;
+		res->Positions(i,3) = i * 0.1;
 		res->Zones.push_back(i > 4 ? 51 : 0);
 	}
 	return res;
@@ -188,6 +286,26 @@ SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai,
 
 
 namespace Rcpp {
+
+template<> AntInteraction::ConstPtr as(SEXP exp) {
+	Rcpp::S4 ai(exp);
+	check_s4_type(ai,"fmAntInteraction");
+	auto res = std::make_shared<AntInteraction>();
+	uint32_t ant1 = ai.slot("ant1");
+	uint32_t ant2 = ai.slot("ant2");
+	res->IDs = std::make_pair(ant1,ant2);
+	try {
+		auto at1 = Rcpp::as<AntTrajectory::ConstPtr>(ai.slot("ant1Trajectory"));
+		auto at2 = Rcpp::as<AntTrajectory::ConstPtr>(ai.slot("ant2Trajectory"));
+		res->Trajectories = std::make_pair(at1,at2);
+	} catch ( const std::exception & ) {
+	}
+	res->Start = fmTime_fromR(ai.slot("start"));
+	res->End = fmTime_fromR(ai.slot("end"));
+	fmInteractionType_fromR(res->Types,ai.slot("types"));
+	return res;
+}
+
 template <>
 SEXP wrap(const AntInteraction::ConstPtr & ai) {
 	return fmAntInteraction_asR(ai,true);

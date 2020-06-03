@@ -14,10 +14,10 @@ bool IdentifiedFrame::Contains(uint64_t antID) const {
 }
 
 Time AntTrajectory::End() const {
-	if ( Data.rows() == 0 ) {
+	if ( Positions.rows() == 0 ) {
 		return Start;
 	}
-	return Start.Add(Data(Data.rows()-1,0) * Duration::Second);
+	return Start.Add(Positions(Positions.rows()-1,0) * Duration::Second);
 }
 
 } // namespace myrmidon
