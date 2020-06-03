@@ -1,4 +1,4 @@
-Package: fm
+Package: FortMyrmidon
 Type: Package
 Title: Bindings to the FORT myrmidon C++ API
 Version: 1.0
