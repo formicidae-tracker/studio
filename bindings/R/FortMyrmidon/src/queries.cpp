@@ -12,7 +12,8 @@
 
 using namespace fort::myrmidon;
 
-SEXP fmIdentifiedFrame_asR(const IdentifiedFrame::ConstPtr & frame) {
+namespace Rcpp {
+template<> SEXP wrap(const IdentifiedFrame::ConstPtr & frame) {
 	size_t n = frame->Positions.size();
 	Rcpp::IntegerVector IDs(n);
 	Rcpp::NumericVector X(n),Y(n),Angle(n);
@@ -47,7 +48,7 @@ SEXP fmIdentifiedFrame_asR(const IdentifiedFrame::ConstPtr & frame) {
 	return res;
 }
 
-
+}
 
 IdentifiedFrame::ConstPtr IdentifiedFrame_debug() {
 	auto f = std::make_shared<IdentifiedFrame>();
@@ -64,7 +65,7 @@ IdentifiedFrame::ConstPtr IdentifiedFrame_debug() {
 }
 
 SEXP fmIdentifiedFrame_debug() {
-	return fmIdentifiedFrame_asR(IdentifiedFrame_debug());
+	return Rcpp::wrap(IdentifiedFrame_debug());
 }
 
 
@@ -95,8 +96,8 @@ SEXP fmCollision_debug() {
 }
 
 
-
-SEXP fmCollisionFrame_asR(const CollisionFrame::ConstPtr & frame ) {
+namespace Rcpp {
+template<> SEXP wrap(const CollisionFrame::ConstPtr & frame ) {
 	Rcpp::S4 res("fmCollisionFrame");
 	res.slot("frameTime") = fmTime_asR(frame->FrameTime);
 	res.slot("space") = frame->Space;
@@ -106,6 +107,7 @@ SEXP fmCollisionFrame_asR(const CollisionFrame::ConstPtr & frame ) {
 	return res;
 }
 
+}
 
 CollisionFrame::ConstPtr CollisionFrame_debug() {
 	auto f = std::make_shared<CollisionFrame>();
@@ -118,11 +120,12 @@ CollisionFrame::ConstPtr CollisionFrame_debug() {
 }
 
 SEXP fmCollisionFrame_debug() {
-	return fmCollisionFrame_asR(CollisionFrame_debug());
+	return Rcpp::wrap(CollisionFrame_debug());
 }
 
-
-SEXP fmAntTrajectory_asR(const AntTrajectory::ConstPtr & at) {
+namespace Rcpp {
+template <>
+SEXP wrap(const AntTrajectory::ConstPtr & at) {
 	size_t nPoints = at->Data.rows();
 #define numericVectorFromEigen(Var,matrix,col,size) Rcpp::NumericVector Var(&((matrix)(0,col)),&((matrix)(0,col))+size)
  	numericVectorFromEigen(Times,at->Data,0,nPoints);
@@ -146,6 +149,7 @@ SEXP fmAntTrajectory_asR(const AntTrajectory::ConstPtr & at) {
 	res.slot("positions") = data;
 	return res;
 }
+}
 
 AntTrajectory::ConstPtr AntTrajectory_debug() {
 	auto res = std::make_shared<AntTrajectory>();
@@ -164,22 +168,30 @@ AntTrajectory::ConstPtr AntTrajectory_debug() {
 }
 
 SEXP fmAntTrajectory_debug() {
-	return fmAntTrajectory_asR(AntTrajectory_debug());
+	return Rcpp::wrap(AntTrajectory_debug());
 }
 
-
-SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai, bool reportTrajectories = false) {
+SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai,
+                         bool reportTrajectories = false) {
 	Rcpp::S4 res("fmAntInteraction");
 	res.slot("ant1") = ai->IDs.first;
 	res.slot("ant2") = ai->IDs.second;
 	if ( reportTrajectories == true ) {
-		res.slot("ant1Trajectory") = fmAntTrajectory_asR(ai->Trajectories.first);
-		res.slot("ant2Trajectory") = fmAntTrajectory_asR(ai->Trajectories.second);
+		res.slot("ant1Trajectory") = Rcpp::wrap(ai->Trajectories.first);
+		res.slot("ant2Trajectory") = Rcpp::wrap(ai->Trajectories.second);
 	}
 	res.slot("start") = fmTime_asR(ai->Start);
 	res.slot("end") = fmTime_asR(ai->End);
 	res.slot("types") = fmInteractionType_asR(ai->Types);
 	return res;
+}
+
+
+namespace Rcpp {
+template <>
+SEXP wrap(const AntInteraction::ConstPtr & ai) {
+	return fmAntInteraction_asR(ai,true);
+}
 }
 
 AntInteraction::ConstPtr AntInteraction_debug() {
@@ -193,7 +205,7 @@ AntInteraction::ConstPtr AntInteraction_debug() {
 }
 
 SEXP fmAntInteraction_debug() {
-	return fmAntInteraction_asR(AntInteraction_debug());
+	return Rcpp::wrap(AntInteraction_debug());
 }
 
 Rcpp::DataFrame fmQuery_computeMeasurementFor(const CExperiment & experiment,
@@ -358,7 +370,7 @@ SEXP fmQueryIdentifyFrames(const fort::myrmidon::CExperiment & experiment,
 	SET_PD("R conversion");
 	Rcpp::List res(res_.size());
 	while( res_.empty() == false ) {
-		res[res_.size()-1] = fmIdentifiedFrame_asR(res_.back());
+		res[res_.size()-1] = Rcpp::wrap(res_.back());
 		res_.pop_back();
 	}
 	CLEAR_PD();
@@ -384,8 +396,8 @@ SEXP fmQueryCollideFrames(const fort::myrmidon::CExperiment & experiment,
 	SET_PD("R conversion");
 	Rcpp::List resPositions(res_.size()),resCollisions(res_.size());
 	while( res_.empty() == false ) {
-		resPositions[res_.size()-1] = fmIdentifiedFrame_asR(std::get<0>(res_.back()));
-		resCollisions[res_.size()-1] = fmCollisionFrame_asR(std::get<1>(res_.back()));
+		resPositions[res_.size()-1] = Rcpp::wrap(std::get<0>(res_.back()));
+		resCollisions[res_.size()-1] = Rcpp::wrap(std::get<1>(res_.back()));
 		res_.pop_back();
 	}
 	Rcpp::List res;
@@ -421,7 +433,7 @@ SEXP fmQueryComputeAntTrajectories(const CExperiment & experiment,
 	SET_PD("R Conversion");
 	Rcpp::List res(res_.size());
 	while( res_.empty() == false ) {
-		res[res_.size() - 1] = fmAntTrajectory_asR(res_.back());
+		res[res_.size() - 1] = Rcpp::wrap(res_.back());
 		res_.pop_back();
 	}
 	CLEAR_PD();
@@ -464,7 +476,7 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 	SET_PD("R trajectory conversion");
 	while(resTrajectories_.empty() == false ) {
 		const auto & at = resTrajectories_.back();
-		resTrajectories[resTrajectories_.size()-1] = fmAntTrajectory_asR(at);
+		resTrajectories[resTrajectories_.size()-1] = Rcpp::wrap(at);
 		resTrajectories_.pop_back();
 	}
 	SET_PD("R interaction conversion");
