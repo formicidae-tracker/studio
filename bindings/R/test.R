@@ -1,7 +1,7 @@
-devtools::load_all("fm");
+devtools::load_all("FortMyrmidon");
 e <- fmExperimentOpenReadOnly("/home/atuleu/Documents/large.myrmidon");
-start <- fmTimeParse('2020-05-14T08:00:00.000Z')$const_ptr();
-end <- fmTimeParse('2020-05-15T08:00:00.000Z')$const_ptr();
+start <- fmTimeParse('2020-05-14T08:00:00.000Z');
+end <- fmTimeParse('2020-05-15T08:00:00.000Z');
 gap <- fmSecond(3);
 #dd <- fmQueryIdentifyFrames(e,start,end,TRUE,FALSE,TRUE);
-dd <- fmQueryComputeAntInteractionsC(e,start,end,gap,fmMatcherAny(),FALSE,TRUE,FALSE);
+dd <- fmQueryComputeAntInteractions(e,start,end,gap,showProgress = TRUE);

@@ -12,3 +12,5 @@ void fmTimeCPtr_show(const fort::myrmidon::Time::ConstPtr * t);
 Rcpp::Datetime fmTime_asR(const fort::myrmidon::Time & t );
 
 fort::myrmidon::Time fmTime_fromR( SEXP exp);
+
+fort::myrmidon::Time::ConstPtr fmTimeCPtr_fromAnySEXP(SEXP exp);

@@ -54,6 +54,29 @@ fort::myrmidon::Time::ConstPtr fmTime_const_ptr(const fort::myrmidon::Time * t) 
 	return std::make_shared<fort::myrmidon::Time>(*t);
 }
 
+fort::myrmidon::Time::ConstPtr fmTimeCPtr_fromAnySEXP(SEXP exp) {
+	using namespace fort::myrmidon;
+
+	if ( exp == R_NilValue ) {
+		std::cerr << "nil" << std::endl;
+		return Time::ConstPtr();
+	}
+
+	if ( Rf_inherits(exp,"Rcpp_fmTimeCPtr") == true ) {
+		return Rcpp::as<Time::ConstPtr>(exp);
+	}
+	if ( Rf_inherits(exp,"Rcpp_fmTime") == true ) {
+		return std::make_shared<Time>(Rcpp::as<Time>(exp));
+	}
+
+	try {
+		return std::make_shared<Time>(fmTime_fromR(exp));
+	} catch ( const std::exception & ) {
+	}
+
+	throw std::runtime_error("Invalid R expression:  expected NULL, Rcpp_fmTime, Rcpp_fmTimeCPtr or POSIXct");
+}
+
 
 
 RCPP_MODULE(time) {
@@ -79,4 +102,5 @@ RCPP_MODULE(time) {
 	Rcpp::function("fmTimeNow",&fort::myrmidon::Time::Now);
 	Rcpp::function("fmTimeParse",&fort::myrmidon::Time::Parse);
 	Rcpp::function("fmTimeInf",&fmTimeCPtr_infinite);
+	Rcpp::function("fmTimeCPtrFromAnySEXP",&fmTimeCPtr_fromAnySEXP);
 }
