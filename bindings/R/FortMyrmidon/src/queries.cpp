@@ -1,4 +1,4 @@
-#include "queries.h"
+#include <FortMyrmidon/queries.h>
 
 #include "time.h"
 #include "experiment.h"

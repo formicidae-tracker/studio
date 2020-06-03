@@ -1,11 +1,4 @@
-PKG_CFLAGS=-O3
-PKG_CXXFLAGS=-O3
-PKG_CXX98FLAGS=-O3
-PKG_CXX11FLAGS=-O3
-PKG_CXX14FLAGS=-O3
-PKG_CXX17FLAGS=-O3
-
-PKG_CPPFLAGS=`pkg-config --cflags fort-myrmidon` --std=c++17
+PKG_CPPFLAGS=`pkg-config --cflags fort-myrmidon` --std=c++17 -I../inst/include/
 PKG_LIBS=`pkg-config --libs fort-myrmidon`
 
 CXX_STD= CXX17
