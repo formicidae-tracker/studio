@@ -210,13 +210,13 @@ TEST_F(CollisionSolverUTest,TestE2E) {
 			continue;
 		}
 
-		for ( const auto & type : inter.InteractionTypes ) {
-			auto ti = std::find_if(fi->InteractionTypes.begin(),
-			                       fi->InteractionTypes.end(),
+		for ( const auto & type : inter.Types ) {
+			auto ti = std::find_if(fi->Types.begin(),
+			                       fi->Types.end(),
 			                       [&type] ( const InteractionType & tested ) {
 				                       return tested == type;
 			                       });
-			if ( ti == fi->InteractionTypes.end() ) {
+			if ( ti == fi->Types.end() ) {
 				auto aName = type.first == 1 ? "body" : "antennas";
 				auto bName = type.second == 1 ? "body" : "antennas";
 				ADD_FAILURE() << "Collision between " << Ant::FormatID(inter.IDs.first)

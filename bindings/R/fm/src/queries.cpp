@@ -67,35 +67,8 @@ SEXP fmIdentifiedFrame_debug() {
 	return fmIdentifiedFrame_asR(IdentifiedFrame_debug());
 }
 
-struct fmCollision {
-	AntID  Ant1;
-	AntID  Ant2;
-	ZoneID Zone;
-	Rcpp::List             InteractionTypes;
-	void Show() const {
-		Rcpp::Rcout << "fmCollision (\n"
-		            << "  ant1 = " << Ant1 << "\n"
-		            << "  ant2 = " << Ant2 << "\n"
-		            << "  zone = " << Zone << "\n"
-		            << "  interactionTypes = ";
-		Rcpp::Function("str")(InteractionTypes);
-		Rcpp::Rcout << ")\n";
-	}
 
-	fmCollision(const Collision & c)
-		: Ant1(c.IDs.first)
-		, Ant2(c.IDs.second)
-		, Zone(c.Zone)
-		, InteractionTypes(c.InteractionTypes.size()) {
-		for ( size_t i = 0 ; i < c.InteractionTypes.size(); ++i ) {
-			const auto & t = c.InteractionTypes[i];
-			InteractionTypes[i] = Rcpp::IntegerVector({(int)t.first,(int)t.second});
-		}
-	}
-};
-
-
-SEXP fmInteractionTypes_asR(const std::vector<InteractionType> & it ) {
+SEXP fmInteractionType_asR(const std::vector<InteractionType> & it ) {
 	// ugly reinterpret cast, but the memory layout is right
 	return Rcpp::IntegerMatrix(it.size(),
 	                           2,
@@ -108,13 +81,13 @@ SEXP fmCollision_asR(const Collision & c) {
 	res.slot("ant1") = c.IDs.first;
 	res.slot("ant2") = c.IDs.second;
 	res.slot("zone") = c.Zone;
-	res.slot("interactionTypes") = fmInteractionTypes_asR(c.InteractionTypes);
+	res.slot("types") = fmInteractionType_asR(c.Types);
 	return res;
 }
 
 Collision Collision_debug() {
 	return Collision{
-		.IDs = std::make_pair(3,4),.InteractionTypes = {{1,1},{2,1},{1,3}},.Zone= 51};
+		.IDs = std::make_pair(3,4),.Types = {{1,1},{2,1},{1,3}},.Zone= 51};
 }
 
 SEXP fmCollision_debug() {
@@ -205,7 +178,7 @@ SEXP fmAntInteraction_asR(const AntInteraction::ConstPtr & ai, bool reportTrajec
 	}
 	res.slot("start") = fmTime_asR(ai->Start);
 	res.slot("end") = fmTime_asR(ai->End);
-	res.slot("types") = fmInteractionTypes_asR(ai->Types);
+	res.slot("types") = fmInteractionType_asR(ai->Types);
 	return res;
 }
 
