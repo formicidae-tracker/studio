@@ -1,4 +1,3 @@
 build/
 /CMakeLists.txt.user
 *.autosave
-.Rproj.user

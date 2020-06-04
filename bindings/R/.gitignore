@@ -1,3 +1,8 @@
 *.o
 *.tar.gz
 *.so
+.Rproj.user
+man/
+.Rhistory
+.Rdata
+FortMyrmidon.Rcheck/
