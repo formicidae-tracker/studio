@@ -40,9 +40,11 @@ The latter aims to provide an user friendly API to help researcher focus more on
 
 ### Installation from Debian packages (Ubuntu 18.04)
 
-For ubuntu 18.04 based distribution, you can use the debian package repository hosted at https://packages.tuleu.science .
+For ubuntu 18.04 and 20.04 based distribution, you can use the debian
+package repository hosted at https://packages.tuleu.science .
 
-* NOTE: Only bionic based distribution and their derivative such as Mint Tina are supported at this moment *
+* NOTE: Only bionic and focal based distribution and their derivative
+  such as Mint Tina are supported at this moment *
 
 #### Add packages.tuleu.science repository to your sources
 
@@ -94,6 +96,7 @@ These instructions will get you a copy of the project up and running on your loc
 The main dependencies for this project are:
   * a C++17 compiler (tested with gcc 7.4 and 8.3)
   * std::filesystem support (gcc >= 8.3.0) or boost::filesystem (>=1.60.0)
+  * OpenCV 3 or 4
   * cmake (>=3.11)
   * Eigen 3
   * Asio Library
@@ -131,10 +134,48 @@ make
 
 #### Running the unit tests
 
-Unit tests for the myrmidon API are runned through gtest, which is automatically downloaded by the cmake build process. A `check` target that will build the tests and run them is also created.
+Unit tests for the myrmidon API are runned through gtest, which is
+automatically downloaded by the cmake build process. A `check` target
+that will build the tests and run them is also created.
 
 ```bash
 make check
+```
+
+## Other language bindings
+
+Some bindings are available for other language such as R. These are
+not port of the myrmidon API, but wrapper for theses languages and
+theyr require you to install libfort-myrmidon locally, by preference
+using package managers.
+
+### R bindings
+
+R bindings are located in `bindings/R`. There are two options to
+install them in your local R installation. Both of them required the
+`devtools` R package.
+
+#### Install from github
+
+Simply run in R
+
+``` R
+devtools::install_git("https::/github.com/formicidae-tracker/studio.git",subdir = "bindings/R/FortMyrmidon")
+```
+
+#### From a local git tree
+
+First get the local source
+``` bash
+git clone https::/github.com/formicidae-tracker/studio.git
+cd studio/bindings/R
+R
+```
+
+Now in R simply use `devtools::install`
+
+``` R
+devtools::install()
 ```
 
 ## Contributing
