@@ -129,3 +129,15 @@ NULL
 #'
 #' @field get return the underlying \linkS4class{fmTime} object.
 NULL
+
+#' @name fmTimeCPtrFromAnySEXP
+#' @title Converts several object type to a \linkS4class{fmTimeCPtr}
+#' @param exp an object that could be:
+#'     \itemize{
+#'     \item NULL to represent +/-∞
+#'     \item a POSIXct/POSIXlt object from R
+#'     \item a fmTimeCPtr, such as one returned by many myrmidon methods
+#'     \item a fmTime such as outpute by \code{\link{fmTimeNow}} or \code{\link{fmTimeParse}}
+#'     }
+#' @return a \linkS4class{fmTimeCPtr} representing the wanted time.
+NULL
