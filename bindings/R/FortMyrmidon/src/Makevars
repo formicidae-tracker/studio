@@ -1,4 +1,4 @@
-PKG_CPPFLAGS=`pkg-config --cflags fort-myrmidon` --std=c++17 -I../inst/include/
-PKG_LIBS=`pkg-config --libs fort-myrmidon`
+PKG_CPPFLAGS=`pkg-config --cflags "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0"` --std=c++17 -I../inst/include/
+PKG_LIBS=`pkg-config --libs "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0`
 
 CXX_STD= CXX17
