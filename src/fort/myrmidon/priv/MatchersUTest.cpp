@@ -114,7 +114,7 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 	auto columnMatcher = Matcher::AntColumnMatcher("bar",42);
 
 	auto experiment = Experiment::Create(TestSetup::Basedir() / "matcher.myrmidon");
-	experiment->AddAntMetadataColumn("bar",AntMetadata::Type::Int);
+	experiment->AddAntMetadataColumn("bar",AntMetadata::Type::INT);
 
 	auto a = experiment->CreateAnt();
 	a->SetValue("bar",42,Time::ConstPtr());

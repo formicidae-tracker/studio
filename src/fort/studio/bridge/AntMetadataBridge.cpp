@@ -36,22 +36,22 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	        &AntMetadataBridge::onTimedChangeItemChanged);
 
 
-#define add_item_type(t,T) do {	  \
-		auto  item = new QStandardItem(#T); \
+#define add_item_type(t,T,tT) do {	  \
+		auto  item = new QStandardItem(#tT); \
 		item->setData(quint32(fmp::AntMetadata::Type::T)); \
 		d_typeModel->appendRow(item); \
 	}while(0)
-	add_item_type(bool,Bool);
-	add_item_type(int,Int);
-	add_item_type(double,Double);
+	add_item_type(bool,BOOL,Bool);
+	add_item_type(int,INT,Int);
+	add_item_type(double,DOUBLE,Double);
 #undef add_item_type
 
 	auto stringItem = new QStandardItem("String");
-	stringItem->setData(quint32(fmp::AntMetadata::Type::String));
+	stringItem->setData(quint32(fmp::AntMetadata::Type::STRING));
 	d_typeModel->appendRow(stringItem);
 
 	auto timeItem = new QStandardItem("Time");
-	timeItem->setData(quint32(fmp::AntMetadata::Type::Time));
+	timeItem->setData(quint32(fmp::AntMetadata::Type::TIME));
 	d_typeModel->appendRow(timeItem);
 
 	connect(this,

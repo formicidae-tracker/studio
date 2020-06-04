@@ -54,15 +54,15 @@ typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 // Types for non-tracking data column
 enum class AntMetadataType {
                             // A boolean
-                            Bool = 0,
+                            BOOL = 0,
                             // An integer
-                            Int,
+                            INT,
                             // a float
-                            Double,
+                            DOUBLE,
                             // a std::string
-                            String,
+                            STRING,
                             // a <Time>
-                            Time,
+                            TIME,
 };
 
 // Represents a Measurement in mm at a given Time.

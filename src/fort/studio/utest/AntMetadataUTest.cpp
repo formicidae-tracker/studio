@@ -51,28 +51,28 @@ TEST_F(AntMetadataUTest,TypeModel) {
 	EXPECT_EQ(ToStdString(m->index(0,0).data(Qt::DisplayRole).toString()),
 	          "Bool");
 	EXPECT_EQ(m->index(0,0).data(Qt::UserRole+1).toInt(),
-	          int(fmp::AntMetadata::Type::Bool));
+	          int(fmp::AntMetadata::Type::BOOL));
 
 	EXPECT_EQ(ToStdString(m->index(1,0).data(Qt::DisplayRole).toString()),
 	          "Int");
 	EXPECT_EQ(m->index(1,0).data(Qt::UserRole+1).toInt(),
-	          int(fmp::AntMetadata::Type::Int));
+	          int(fmp::AntMetadata::Type::INT));
 
 	EXPECT_EQ(ToStdString(m->index(2,0).data(Qt::DisplayRole).toString()),
 	          "Double");
 	EXPECT_EQ(m->index(2,0).data(Qt::UserRole+1).toInt(),
-	          int(fmp::AntMetadata::Type::Double));
+	          int(fmp::AntMetadata::Type::DOUBLE));
 
 
 	EXPECT_EQ(ToStdString(m->index(3,0).data(Qt::DisplayRole).toString()),
 	          "String");
 	EXPECT_EQ(m->index(3,0).data(Qt::UserRole+1).toInt(),
-	          int(fmp::AntMetadata::Type::String));
+	          int(fmp::AntMetadata::Type::STRING));
 
 	EXPECT_EQ(ToStdString(m->index(4,0).data(Qt::DisplayRole).toString()),
 	          "Time");
 	EXPECT_EQ(m->index(4,0).data(Qt::UserRole+1).toInt(),
-	          int(fmp::AntMetadata::Type::Time));
+	          int(fmp::AntMetadata::Type::TIME));
 }
 
 TEST_F(AntMetadataUTest,ModificationTest) {
@@ -90,21 +90,21 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 	EXPECT_FALSE(metadata->isModified());
 	EXPECT_EQ(modified.count(),0);
 
-	metadata->addMetadataColumn("foo",quint32(fmp::AntMetadata::Type::Double));
+	metadata->addMetadataColumn("foo",quint32(fmp::AntMetadata::Type::DOUBLE));
 	EXPECT_EQ(m->rowCount(),1);
 	ASSERT_EQ(modified.count(),1);
 	EXPECT_TRUE(modified.last().at(0).toBool());
 	EXPECT_EQ(ToStdString(columnChanged.last().at(0).toString()),
 	          "foo");
 	EXPECT_EQ(columnChanged.last().at(1).toInt(),
-	          quint32(fmp::AntMetadata::Type::Double));
+	          quint32(fmp::AntMetadata::Type::DOUBLE));
 
-	metadata->addMetadataColumn("bar",quint32(fmp::AntMetadata::Type::String));
+	metadata->addMetadataColumn("bar",quint32(fmp::AntMetadata::Type::STRING));
 	EXPECT_EQ(columnChanged.count(),2);
 	EXPECT_EQ(ToStdString(columnChanged.last().at(0).toString()),
 	          "bar");
 	EXPECT_EQ(columnChanged.last().at(1).toInt(),
-	          quint32(fmp::AntMetadata::Type::String));
+	          quint32(fmp::AntMetadata::Type::STRING));
 
 	//data is sorted
 	ASSERT_EQ(m->rowCount(),2);
@@ -140,7 +140,7 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 	EXPECT_EQ(ToStdString(columnRemoved.last().at(0).toString()),
 	          "bar");
 
-	m->setData(m->index(0,1),quint32(fmp::AntMetadata::Type::Time),Qt::UserRole+2);
+	m->setData(m->index(0,1),quint32(fmp::AntMetadata::Type::TIME),Qt::UserRole+2);
 	EXPECT_TRUE(metadata->isModified());
 	EXPECT_EQ(modified.count(),5);
 	EXPECT_TRUE(modified.last().at(0).toBool());
@@ -148,7 +148,7 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 	EXPECT_EQ(ToStdString(columnChanged.last().at(0).toString()),
 	          "foo");
 	EXPECT_EQ(columnChanged.last().at(1).toInt(),
-	          quint32(fmp::AntMetadata::Type::Time));
+	          quint32(fmp::AntMetadata::Type::TIME));
 	EXPECT_EQ(ToStdString(m->index(0,2).data(Qt::DisplayRole).toString()),
 	          ToStdString(ToQString(fm::Time())));
 
@@ -166,7 +166,7 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 	EXPECT_FALSE(metadata->isModified());
 	EXPECT_EQ(modified.count(),6);
 
-	m->setData(m->index(0,1),quint32(fmp::AntMetadata::Type::Bool),Qt::UserRole+2);
+	m->setData(m->index(0,1),quint32(fmp::AntMetadata::Type::BOOL),Qt::UserRole+2);
 	EXPECT_FALSE(metadata->isModified());
 	EXPECT_EQ(modified.count(),6);
 	EXPECT_EQ(columnChanged.count(),3);

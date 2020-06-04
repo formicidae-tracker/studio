@@ -16,8 +16,8 @@ void AntUTest::SetUp() {
 	shapeTypes->Create("antennas",2);
 
 	antMetadata = std::make_shared<AntMetadata>();
-	AntMetadata::Create(antMetadata,"dead",AntMetadata::Type::Bool);
-	AntMetadata::Create(antMetadata,"group",AntMetadata::Type::String);
+	AntMetadata::Create(antMetadata,"dead",AntMetadata::Type::BOOL);
+	AntMetadata::Create(antMetadata,"group",AntMetadata::Type::STRING);
 
 	ant = std::make_shared<Ant>(shapeTypes,
 	                            antMetadata,

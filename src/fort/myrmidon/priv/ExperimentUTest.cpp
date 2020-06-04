@@ -490,16 +490,16 @@ TEST_F(ExperimentUTest,CornerWidthRatioForFamilies) {
 }
 
 TEST_F(ExperimentUTest,AntMetadataManipulation) {
-	auto alive = e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
-	auto group = e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+	auto alive = e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
+	auto group = e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 	auto ant = e->CreateAnt();
 	ant->SetValue("group",std::string("nurse"),Time::ConstPtr());
 	//should throw because ant has a value
-	EXPECT_THROW(group->SetMetadataType(AntMetadata::Type::Int),std::runtime_error);
+	EXPECT_THROW(group->SetMetadataType(AntMetadata::Type::INT),std::runtime_error);
 	//OK to change a column without any values
-	EXPECT_NO_THROW(alive->SetMetadataType(AntMetadata::Type::Int));
+	EXPECT_NO_THROW(alive->SetMetadataType(AntMetadata::Type::INT));
 	// Adding a column marks adds a default value to all Ant immediatly
-	auto ageInDays = e->AddAntMetadataColumn("age",AntMetadata::Type::Double);
+	auto ageInDays = e->AddAntMetadataColumn("age",AntMetadata::Type::DOUBLE);
 	EXPECT_NO_THROW({
 			EXPECT_EQ(std::get<double>(ant->GetValue("age",Time())),0.0);
 		});

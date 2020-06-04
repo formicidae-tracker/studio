@@ -396,8 +396,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
-	e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
-	e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+	e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
+	e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
@@ -614,11 +614,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			st->set_id(3);
 			st->set_name("antenna-right");
 
-			e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+			e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
 			auto c = expected.add_antmetadata();
 			c->set_name("alive");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(false));
-			e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+			e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 			c = expected.add_antmetadata();
 			c->set_name("group");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(std::string()));
