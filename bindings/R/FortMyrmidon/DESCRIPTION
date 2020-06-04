@@ -13,6 +13,8 @@ Description: This package are R Bindings to the FORT myrmidon C++ API,
  queries to identify Ant duringt the experiment, detect their
  collision with other individual, construct their trajectories and
  finally estimate their timed intercation with other individuals.
-License: GPL-3 (>= 3)
-Imports: Rcpp (>= 1.0.4)
+License: LGPL-3
+Imports: Rcpp (>= 1.0.4), methods
 LinkingTo: Rcpp
+RoxygenNote: 7.1.0
+Encoding: UTF-8

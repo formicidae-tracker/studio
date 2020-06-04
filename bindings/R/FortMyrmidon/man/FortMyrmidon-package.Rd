@@ -1,6 +1,6 @@
-\name{fm-package}
-\alias{fm-package}
-\alias{fm}
+\name{FortMyrmidon-package}
+\alias{FortMyrmidon-package}
+\alias{FortMyrmidon}
 \docType{package}
 \title{
   A short title line describing what the package does
@@ -28,7 +28,11 @@ Maintainer: Your Name <your@email.com>
 }
 \examples{
   \dontrun{
-     ## Optional simple examples of the most important functions
-     ## These can be in \dontrun{} and \donttest{} blocks.   
+    # opens an experiment in readonly mode
+    e <- fmExperimentOpenReadOnly("somefile.myrmidon")
+    # gets alls Ant position from the specified date until the end of the experiment
+    positions <- fmQueryIdentifyFrame(e,
+                                      start = fmTimeParse("2020-03-30T15:04:32.123Z"))
+
   }
 }
