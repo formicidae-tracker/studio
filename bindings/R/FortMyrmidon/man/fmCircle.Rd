@@ -13,7 +13,7 @@ a Reference Class that wraps a C++ \href{https://formicidae-tracker.github.io/st
 
 \item{\code{radius}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Circle/fort::myrmidon::Circle::Radius}{fort::myrmidon::Circle::Radius}}
 
-\item{\code{setCenter}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Circle/fort::myrmidon::Circle::SetCenter}{fort::myrmidon::Circle::SetSetRadius}}
+\item{\code{setCenter}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Circle/fort::myrmidon::Circle::SetCenter}{fort::myrmidon::Circle::SetRadius}}
 
 \item{\code{setRadius}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Circle/fort::myrmidon::Circle::SetRadius}{fort::myrmidon::Circle::SetRadius}}
 }}
