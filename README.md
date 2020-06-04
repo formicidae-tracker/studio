@@ -18,7 +18,7 @@
   <p align="center">
     Graphical interface and general purpose API to analyze ant tracking data
     <br />
-    <a href="https://formicidae-tracker.github.io/studio/docs/dev/api/index.html"><strong>Explore the myrmidon API docs »</strong></a>
+    <a href="https://formicidae-tracker.github.io/studio/docs/latest/api/index.html"><strong>Explore the myrmidon API docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/formicidae-tracker/documentation/wiki">FORT Project Wiki</a>
