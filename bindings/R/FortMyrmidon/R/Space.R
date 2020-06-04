@@ -55,7 +55,7 @@ NULL
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace}{fort::myrmidon::CSpace}
 #'
 #' @field spaceID
-#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::CSpaceID}{fort::myrmidon::CSpace::CSpaceID}
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::SpaceID}{fort::myrmidon::CSpace::SpaceID}
 #' @field name
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::Name}{fort::myrmidon::CSpace::Name}
 #' @field cZones returns a \linkS4class{fmCZoneByID} as

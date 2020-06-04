@@ -34,6 +34,11 @@
 	the name correspondance. For example the
 	\code{fort::myrmidon::AntMetadata::Type} have a corresponding
 	\code{\link{fmAntMetadataType}} list.
+	\item \code{std::vector} or \code{std::list} are replace by simple R
+	list.
+	\item \code{std::map<uint32_t,T>} are replaced with special
+	\code{ByID} objects. These objects also works with the \code{[[]]}
+	operator, but the index are not necessarly continuous.
   }
 }
 \author{

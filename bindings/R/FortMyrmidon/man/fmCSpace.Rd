@@ -11,7 +11,7 @@ a Reference Class wrapper for
 \section{Fields}{
 
 \describe{
-\item{\code{spaceID}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::CSpaceID}{fort::myrmidon::CSpace::CSpaceID}}
+\item{\code{spaceID}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::SpaceID}{fort::myrmidon::CSpace::SpaceID}}
 
 \item{\code{name}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CSpace/fort::myrmidon::CSpace::Name}{fort::myrmidon::CSpace::Name}}
 
