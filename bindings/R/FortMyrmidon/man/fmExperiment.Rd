@@ -23,9 +23,11 @@ a reference class wrapper for the C++
 
 \item{\code{deleteSpace}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::DeleteSpace}{fort::myrmidon::Experiment::DeleteSpace}}
 
-\item{\code{cSpaces}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CSpaces}{fort::myrmidon::Experiment::CSpaces}}
+\item{\code{cSpaces}}{returns a \code{\link{fmCSpaceByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CSpaces}{fort::myrmidon::Experiment::CSpaces}}
 
-\item{\code{spaces}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::Spaces}{fort::myrmidon::Experiment::Spaces}}
+\item{\code{spaces}}{returns a \code{\link{fmSpaceByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::Spaces}{fort::myrmidon::Experiment::Spaces}}
 
 \item{\code{addTrackingDataDirectory}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::AddTrackingDataDirectory}{fort::myrmidon::Experiment::AddTrackingDataDirectory}}
 
@@ -33,9 +35,11 @@ a reference class wrapper for the C++
 
 \item{\code{createAnt}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CreateAnt}{fort::myrmidon::Experiment::CreateAnt}}
 
-\item{\code{cAnts}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CAnts}{fort::myrmidon::Experiment::CAnts}}
+\item{\code{cAnts}}{returns a \code{\link{fmCAntByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CAnts}{fort::myrmidon::Experiment::CAnts}}
 
-\item{\code{ants}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::Ants}{fort::myrmidon::Experiment::Ants}}
+\item{\code{ants}}{returns a \code{\link{fmAntByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::Ants}{fort::myrmidon::Experiment::Ants}}
 
 \item{\code{addIdentification}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::AddIdentification}{fort::myrmidon::Experiment::AddIdentification}}
 
@@ -69,7 +73,8 @@ a reference class wrapper for the C++
 
 \item{\code{createMeasurementType}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CreateMeasurementType}{fort::myrmidon::Experiment::CreateMeasurementType}}
 
-\item{\code{measurementTypeNames}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::MeasurementTypeNames}{fort::myrmidon::Experiment::MeasurementTypeNames}}
+\item{\code{measurementTypeNames}}{returns a \code{\link{fmMeasurementTypeNameByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::MeasurementTypeNames}{fort::myrmidon::Experiment::MeasurementTypeNames}}
 
 \item{\code{deleteMeasurementType}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::DeleteMeasurementType}{fort::myrmidon::Experiment::DeleteMeasurementType}}
 
@@ -77,7 +82,8 @@ a reference class wrapper for the C++
 
 \item{\code{createAntShapeType}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::CreateAntShapeType}{fort::myrmidon::Experiment::CreateAntShapeType}}
 
-\item{\code{antShapeTypeNames}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::AntShapeTypeNames}{fort::myrmidon::Experiment::AntShapeTypeNames}}
+\item{\code{antShapeTypeNames}}{returns a \code{\link{AntShapeTypeByID}} as
+\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::AntShapeTypeNames}{fort::myrmidon::Experiment::AntShapeTypeNames}}
 
 \item{\code{setAntShapeTypeName}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Experiment/fort::myrmidon::Experiment::SetAntShapeTypeName}{fort::myrmidon::Experiment::SetAntShapeTypeName}}
 
