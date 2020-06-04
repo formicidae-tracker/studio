@@ -1,4 +1,7 @@
-PKG_CPPFLAGS=`pkg-config --cflags "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0"` --std=c++17 -I../inst/include/
-PKG_LIBS=`pkg-config --libs "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0`
+FM_CFLAGS = $(shell pkg-config --cflags "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0" ||  echo "FORT-MYRMIDON-NOT-FOUND")
+FM_LIBS = $(shell pkg-config --libs "fort-myrmidon >= 0.4.0 fort-myrmidon < 0.5.0" || echo "FORT-MYRMIDON-NOT-FOUND")
+
+PKG_CPPFLAGS = $(FM_CFLAGS) --std=c++17 -I../inst/include/
+PKG_LIBS = $(FM_LIBS)
 
 CXX_STD= CXX17
