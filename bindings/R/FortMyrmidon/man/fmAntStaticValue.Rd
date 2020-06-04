@@ -23,9 +23,6 @@
     A \code{fmAntStaticValue} as an assigned type, declared by
     \code{\link{fmAntMetadataType}}. It is not possible to convert
     autonatically one type to another (you have to do it manually).
-    \cr\cr
-    fmColor can be created with \code{\link{fmRGBColor}} or
-    \code{\link{fmDefaultPaletteColor}}
 }
 \section{Fields}{
 
