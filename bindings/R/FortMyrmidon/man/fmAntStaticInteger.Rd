@@ -7,7 +7,8 @@
 \item{v}{the integer to represent}
 }
 \value{
-a \code{\link{fmAntStaticValue}} of type \code{INTEGER}, see \code{\link{fmAntMetadataType}}
+a \code{\link{fmAntStaticValue}} of type \code{INTEGER},
+    see \code{\link{fmAntMetadataType}}
 }
 \description{
 creates a \code{\link{fmAntStaticValue}} from an integer

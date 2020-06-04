@@ -2,13 +2,16 @@
 % Please edit documentation in R/AntStaticValue.R
 \name{fmAntStaticNumeric}
 \alias{fmAntStaticNumeric}
-\title{creates a \code{\link{fmAntStaticValue}} from a numerical value}
+\title{creates a \code{\link{fmAntStaticValue}} from a numerical
+    value}
 \arguments{
 \item{v}{the numeric to represent}
 }
 \value{
-a \code{\link{fmAntStaticValue}} of type \code{DOUBLE}, see \code{\link{fmAntMetadataType}}
+a \code{\link{fmAntStaticValue}} of type \code{DOUBLE}, see
+    \code{\link{fmAntMetadataType}}
 }
 \description{
-creates a \code{\link{fmAntStaticValue}} from a numerical value
+creates a \code{\link{fmAntStaticValue}} from a numerical
+    value
 }

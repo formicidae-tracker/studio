@@ -7,7 +7,8 @@
 \item{v}{the boolean to represent}
 }
 \value{
-a \code{\link{fmAntStaticValue}} of type \code{BOOL}, see \code{\link{fmAntMetadataType}}
+a \code{\link{fmAntStaticValue}} of type \code{BOOL}, see
+    \code{\link{fmAntMetadataType}}
 }
 \description{
 creates a \code{\link{fmAntStaticValue}} from a boolean

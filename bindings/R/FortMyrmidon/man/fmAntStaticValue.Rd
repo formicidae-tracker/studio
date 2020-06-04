@@ -9,6 +9,7 @@
     functioanility of these objects. since we cannot mimic the use
     of \code{std::get<TYPE>()} function, these R object uses the
     following methods.
+    \cr\cr
     To create an fmStaticValue, please use the following function
     to create an object of the appropriate type:
     \itemize{
@@ -18,9 +19,13 @@
     \item \code{\link{fmAntStaticString}}
     \item \code{\link{fmAntStaticTime}}
     }
+    \cr\cr
     A \code{fmAntStaticValue} as an assigned type, declared by
     \code{\link{fmAntMetadataType}}. It is not possible to convert
     autonatically one type to another (you have to do it manually).
+    \cr\cr
+    fmColor can be created with \code{\link{fmRGBColor}} or
+    \code{\link{fmDefaultPaletteColor}}
 }
 \section{Fields}{
 

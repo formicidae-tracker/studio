@@ -2,13 +2,16 @@
 % Please edit documentation in R/AntStaticValue.R
 \name{fmAntStaticTime}
 \alias{fmAntStaticTime}
-\title{creates a \code{\link{fmAntStaticValue}} from a \code{\link{fmTime}}}
+\title{creates a \code{\link{fmAntStaticValue}} from a
+    \code{\link{fmTime}}}
 \arguments{
 \item{v}{the \code{\link{fmTime}} to represent}
 }
 \value{
-a \code{\link{fmAntStaticValue}} of type \code{TIME}, see \code{\link{fmAntMetadataType}}
+a \code{\link{fmAntStaticValue}} of type \code{TIME}, see
+    \code{\link{fmAntMetadataType}}
 }
 \description{
-creates a \code{\link{fmAntStaticValue}} from a \code{\link{fmTime}}
+creates a \code{\link{fmAntStaticValue}} from a
+    \code{\link{fmTime}}
 }
