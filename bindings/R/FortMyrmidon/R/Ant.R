@@ -62,3 +62,12 @@ NULL
 #' @field setDisplayStatus
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::SetDisplayStatus}{fort::myrmidon::Ant::SetDisplayStatus}
 NULL
+
+
+
+#' Enum list for \code{fort::myrmidon::Ant::DisplayState}
+#' @description list that represent the
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::DisplayState}{fort::myrmidon::Ant:DisplayState}
+#'     enum
+#' @usage names(which(a$displayState() == fmAntDisplayState))
+fmAntDisplayState <- list( VISIBLE = 0L, HIDDEN = 1L, SOLO = 2L)

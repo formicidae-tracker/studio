@@ -203,7 +203,7 @@ template <> SEXP wrap(const std::map<std::string,std::pair<fort::myrmidon::AntMe
 	for ( const auto & [columnName,pair] : data ) {
 		List rPair;
 		rPair["type"] = pair.first;
-		rPair["value"]  = pair.second;
+		rPair["defaultValue"]  = pair.second;
 		res[columnName]  = rPair;
 	}
 	return res;

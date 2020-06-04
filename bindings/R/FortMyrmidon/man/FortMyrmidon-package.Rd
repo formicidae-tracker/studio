@@ -30,6 +30,10 @@
 	class name in fromt of the function. Example
 	\code{fort::myrmidon::Experiment::OpenReadOnly} becomes in R
 	\code{fmExperimentOpenReadOnly}
+	\item any enum in the C++ API have a corresponding list in R with
+	the name correspondance. For example the
+	\code{fort::myrmidon::AntMetadata::Type} have a corresponding
+	\code{\lnk{fmAntMetadataType}}  list.
   }
 }
 \author{

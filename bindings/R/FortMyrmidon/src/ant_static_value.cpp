@@ -6,7 +6,29 @@
 #include "Rcpp.h"
 
 void fmAntStaticValue_show(const fort::myrmidon::AntStaticValue * v) {
-	Rcpp::Rcout << "fmAntStaticValue " << *v << "\n";
+	using namespace fort::myrmidon;
+
+	Rcpp::Rcout << "fmAntStaticValue( type = ";
+	switch ( AntMetadataType(v->index()) ) {
+	case AntMetadataType::BOOL:
+		Rcpp::Rcout << "BOOL";
+		break;
+	case AntMetadataType::INT:
+		Rcpp::Rcout << "INT";
+		break;
+	case AntMetadataType::DOUBLE:
+		Rcpp::Rcout << "DOUBLE";
+		break;
+	case AntMetadataType::STRING:
+		Rcpp::Rcout << "STRING";
+		break;
+	case AntMetadataType::TIME:
+		Rcpp::Rcout << "TIME";
+		break;
+	default:
+		Rcpp::Rcout << "<UNKNWON>";
+	}
+	Rcpp::Rcout << " , value = " << *v << ")\n";
 }
 
 bool fmAntStaticValue_toBool(const fort::myrmidon::AntStaticValue * v) {
