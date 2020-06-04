@@ -3,29 +3,50 @@
 \alias{FortMyrmidon}
 \docType{package}
 \title{
-  A short title line describing what the package does
+  R wrapper for the C++ FORT Myrmdion API
 }
 \description{
-  A more detailed description of what the package does. A length
-  of about one to five lines is recommended.
+  This package are R bindings to the C++ fort myrmidon API, an API to
+  access and process the tracking data of the FORmicidae Tracker.
 }
 \details{
-  This section should provide a more detailed overview of how to use the
-  package, including the most important functions.
+  The R documentation of this pacakge is rather quite
+  non-complete. While it least all Classes and method accessible to R,
+  most of it are pointers to the
+  \href{https://formicidae-tracker.github.io/studio/docs/latest/api/}{FORT
+	MYrmidon C++ API documentation}. Only some function (especially queries)
+  have their own detailed R documentation. While reading the C++
+  documentation, an R version could be found using the following rules:
+  \itemize{
+	\item any method, class name, function in R is prefixed with \code{fm}
+	to replace the \code{fort::myrmidon::} C++ namespace. Example:
+	\code{fort::myrmidon::Experiment}  becomes \code{fmExperiment}, or
+	\code{fort::myrmidon::CAnt} becomes \code{fmCAnt}.
+	\item any method from C++ uses the same name in R, at the exception of
+	the first letter that do not use a capital, for example C++
+	\code{fort::myrmidon::Ant::DisplayColor} becomes in R
+	\code{fmAnt$displayColor}
+	\item any static method of any class is exported by prefixing the
+	class name in fromt of the function. Example
+	\code{fort::myrmidon::Experiment::OpenReadOnly} becomes in R
+	\code{fmExperimentOpenReadOnly}
+  }
 }
 \author{
-Your Name, email optional.
+Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
 
-Maintainer: Your Name <your@email.com>
+Maintainer: Alexandre Tuleu. <alexandre.tuleu.2005@polytechnique.org>
 }
 \references{
-  This optional section can contain literature or other references for
-  background information.
+  Documentation for the FORmicidae Tracker myrmidon API could be found
+  at \url{https://formicidae-tracker.github.io/studio/}.
+
+  You can join the
+  \href{https://join.slack.com/t/formicidae-tracker/shared_invite/zt-ev4l54jm-~1g6yI_PMlYcv0bEv7M2VQ}{Slack
+	workspace} to ask questions.
+
 }
 \keyword{ package }
-\seealso{
-  Optional links to other man pages
-}
 \examples{
   \dontrun{
     # opens an experiment in readonly mode
