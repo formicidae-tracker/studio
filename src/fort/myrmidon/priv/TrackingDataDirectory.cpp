@@ -641,7 +641,7 @@ void TrackingDataDirectory::ComputeFullFrames() const {
 		                  for ( size_t i = range.begin();
 		                        i != range.end();
 		                        ++i ) {
-			                  cv::VideoCapture capture(ms[i].second->AbsoluteFilePath());
+			                  cv::VideoCapture capture(ms[i].second->AbsoluteFilePath().c_str());
 			                  cv::Mat frame,scaled;
 			                  capture >> frame;
 			                  cv::resize(frame,scaled,cv::Size(width,height),cv::INTER_CUBIC);
