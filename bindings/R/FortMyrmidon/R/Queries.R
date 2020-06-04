@@ -234,8 +234,8 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #'     collision detection and therefore interaction computation).
 #'
 #' @param experiment the \code{\link{fmCExperiment}} to query for, use
-#'     \code{e$const} if you didn't opened the experiment in read
-#'     only mode.
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
@@ -293,3 +293,36 @@ fmQueryComputeAntInteractions <- function (experiment,
                                           showProgress,
                                           reportTrajectories))
 }
+
+#' @name fmQueryComputeMeasurementFor
+#' @title Computes manual measurement for an Ant
+#' @description access and computes the manual measurement made in the
+#'     FORT Studio GUI. Length are reported in mm from the detected
+#'     tag size and the tag size parameter. See
+#'     \url{https://formicidae-tracker.github.io/studio/docs/latest/api/#manual_measurement/manual_measurement}
+#' @param experiment the \code{\link{fmCExperiment}} to query for, use
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
+#' @param antID the ant we are interested in
+#' @param mTypeID the measurement type id we are interceded in
+#' @return a data.frame with the date of the measurement and the
+#'     length in mm.
+NULL
+
+#' @name fmQueryComputeTagStatistics
+#' @title Computes tag tracking statistics for an experiment
+#' @description Computes tracking statistics by tag for an
+#'     experiment. It consists of:
+#'     \itemize{
+#'     \item the dates at which a tag was first and last seen.
+#'     \item The number of times it was detected \item the number of
+#'     time it was detected multiple time in a frame
+#'     \item an histogram of tracking gap for this tag. This histogram
+#'     is only valid for experiment with a single space, and will
+#'     report erroneous values for multiple space experiment.
+#'     }
+#' @param experiment the \code{\link{fmCExperiment}} to query for, use
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
+#' @return a data.frame with the statistics for each tag.
+NULL

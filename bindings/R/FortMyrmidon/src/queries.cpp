@@ -350,8 +350,8 @@ SEXP fmTagStatistics_asR(const TagStatistics::ByTagID & tagStats ) {
 	size_t i = 0;
 	for(const auto & [tagID,stat] : tagStats) {
 		TagID[i] = stat.ID;
-		FirstSeen[i] = stat.FirstSeen.ToTimeT();
-		LastSeen[i] = stat.LastSeen.ToTimeT();
+		FirstSeen[i] = fmTime_asR(stat.FirstSeen);
+		LastSeen[i] = fmTime_asR(stat.LastSeen);
 		Count[i] = stat.Counts(TagStatistics::TOTAL_SEEN);
 		Multiple[i] = stat.Counts(TagStatistics::MULTIPLE_SEEN);
 		Gap500[i] = stat.Counts(TagStatistics::GAP_500MS);

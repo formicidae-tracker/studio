@@ -22,7 +22,8 @@ tag size for particular identification using
 <fort::myrmidon::Identification::SetTagSize>. The latter should be
 used for Queens per example that often uses a tag of a different size.
 
-Tag size should use the normal tag size convention for the family
-used. For example, ARTag tag defines their size from the inner black
-border, and apriltag from the outer white border (if
-applicable). These are the size written on the tag sheets.
+The tag size value in mm should use the normal tag size convention for
+the family used. For example, ARTag defines their size from the inner
+black border, and apriltag from the outer white border (if
+applicable). To sets this field use the size written on the tag
+sheets.

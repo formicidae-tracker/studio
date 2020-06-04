@@ -17,8 +17,8 @@ fmQueryComputeAntInteractions(
 }
 \arguments{
 \item{experiment}{the \code{\link{fmCExperiment}} to query for, use
-\code{e$const} if you didn't opened the experiment in read
-only mode.}
+\code{e$const} if you didn't opened the experiment in read only
+mode.}
 
 \item{start}{the starting time for the query. Data which were
 acquire before that time will not be reported. Could be NULL
