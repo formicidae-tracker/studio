@@ -70,24 +70,49 @@ public:
 	// public constructor
 	// @center the center of the circle
 	// @radius the radius of the circle
+	//
+	// R version:
+	// ```R
+	// c <- fmCircleCreate(c(x,y),r)
+	// ```
 	Circle(const Eigen::Vector2d & center, double radius);
 	// virtual destructor
 	virtual ~Circle();
 
 	// Sets the center of the circle
 	// @center the center of the circle
+	//
+	// R version:
+	// ```R
+	// c$setCenter(c(x,y))
+	// ```
 	void SetCenter( const Eigen::Vector2d & center);
 
 	// Gets the center of the circle
+	//
+	// R version:
+	// ```R
+	// c$center()
+	// ```
 	//
 	// @return a reference to the center of the circle
 	const Eigen::Vector2d & Center() const;
 
 	// Sets the radius of the circle
 	// @radius the radius of the circle
+	//
+	// R version:
+	// ```R
+	// c$setRadius(radius)
+	// ```
 	void SetRadius(double radius);
 
 	// Gets the radius of the circle
+	//
+	// R version:
+	// ```R
+	// c$radius()
+	// ```
 	//
 	// @return the circle's radius
 	double Radius() const;
@@ -123,6 +148,12 @@ public:
 	// @c2 the second center
 	// @r1 the radius at <c1>
 	// @r2 the radius at <c2>
+	//
+	//
+	// R version:
+	// ```R
+	// c <- fmCapsuleCreate(c(x1,y1),c(x2,y2),r1,r2)
+	// ```
 	Capsule(const Eigen::Vector2d & c1,
 	        const Eigen::Vector2d & c2,
 	        double r1,
@@ -131,29 +162,69 @@ public:
 	virtual ~Capsule();
 	// Sets the first center
 	// @c1 the first center
+	//
+	// R version:
+	// ```R
+	// c$setC1(c(x1,y1))
+	// ```
 	void SetC1(const Eigen::Vector2d & c1);
 	// Sets the second center
 	// @c2 the second center
+	//
+	// R version:
+	// ```R
+	// c$setC2(c(x2,y2))
+	// ```
 	void SetC2(const Eigen::Vector2d & c2);
 	// Gets the first center
+	//
+	// R version:
+	// ```R
+	// c$c1()
+	// ```
 	//
 	// @return the first center
 	const Eigen::Vector2d & C1() const;
 	// Gets the second center
 	//
+	// R version:
+	// ```R
+	// c$c2()
+	// ```
+	//
 	// @return the second center
 	const Eigen::Vector2d & C2() const;
 	// Sets the radius at C1
 	// @r1 the radius at <C1>
+	//
+	// R version:
+	// ```R
+	// c$setR1(r1)
+	// ```
 	void SetR1(double r1);
 	// Sets the radius at C2
 	// @r2 the radius at <C2>
+	//
+	// R version:
+	// ```R
+	// c$setR2(r2)
+	// ```
 	void SetR2(double r2);
 	// Gets the radius at C1
+	//
+	// R version:
+	// ```R
+	// c$r1()
+	// ```
 	//
 	// @return the radius at <C1>
 	double R1() const;
 	// Gets the radius at C2
+	//
+	// R version:
+	// ```R
+	// c$r2()
+	// ```
 	//
 	// @return the radius at <C2>
 	double R2() const;
@@ -188,11 +259,21 @@ class Polygon  : public Shape {
 public:
 	// Public constructor
 	// @vertices the vertices of the polygon
+	//
+	// R version:
+	// ```R
+	// p <- fmPolygonCreate(list(c(x1,y1),c(x2,y2),...))
+	// ```
 	Polygon(const Vector2dList & vertices);
 	// virtual destructor
 	virtual ~Polygon();
 
-	// Gets the size of the Polygon
+	// Gets the number of vertices in the polygon
+	//
+	// R version:
+	// ```R
+	// p$size()
+	// ```
 	//
 	// @return the number of vertices in the Polygon
 	size_t Size() const;
@@ -200,12 +281,24 @@ public:
 	// Gets a polygon vertex
 	// @i the index of the wanted vertex in [0;<Size>-1]
 	//
+	// R version:
+	// ```R
+	// # idx still starts from 0 as in C/C++
+	// p$vertex(idx)
+	// ```
+	//
 	// @return a const reference to the wanted vertex
 	const Eigen::Vector2d & Vertex(size_t i) const;
 
 	// Sets a polygon vertex
 	// @i the index of the vertex to modify in [0,<Size>-1]
 	// @v the wanted value for the vertex
+	//
+	// R version:
+	// ```R
+	// # idx still starts from 0 as in C/C++
+	// p$setVertex(idx,c(x,y))
+	// ```
 	void SetVertex(size_t i, const Eigen::Vector2d & v);
 
 	// Opaque pointer to implementation

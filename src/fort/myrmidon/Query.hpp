@@ -46,6 +46,11 @@ public:
 	// @antID the desired <Ant>
 	// @mTypeID the desired measurement type
 	//
+	// R version:
+	// ```R
+	// fmQueryComputeMeasurementFor(experiment,antID,mTypeID)
+	// ```
+	//
 	// @return a <ComputedMeasurement::List> of the Measurement for the <Ant>
 	static ComputedMeasurement::List ComputeMeasurementFor(const CExperiment & experiment,
 	                                                       Ant::ID antID,
@@ -53,6 +58,11 @@ public:
 
 	// Computes <TagStatistics> for an experiment
 	// @experiment the <Experiment> to query for
+	//
+	// R version:
+	// ```R
+	// fmQueryComputeTagStatistics(experiment)
+	// ```
 	//
 	// @return the tag statistics index by <TagID>
 	static TagStatistics::ByTagID ComputeTagStatistics(const CExperiment & experiment);
@@ -71,7 +81,17 @@ public:
 	// Identifies Ants in frames, data will be reported ordered by
 	// time.  This version aimed to be used by language bindings to
 	// avoid large data copy.
-	static void IdentifyFramesFunctor(const CExperiment & experiment,
+	//
+	// R version:
+	// ```R
+	// fmQueryIdentifyFrames(experiment,
+	//                       start = NULL,
+	//                       end = NULL,
+	//                       computeZones = FALSE,
+	//                       singleThreaded = FALSE,
+	//                       showProgress = FALSE)
+	// ```
+static void IdentifyFramesFunctor(const CExperiment & experiment,
 	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
 	                                  const Time::ConstPtr & start,
 	                                  const Time::ConstPtr & end,
@@ -90,6 +110,16 @@ public:
 	// @singleThread run this query on a single thread
 	//
 	// Identifies Ants in frames, data will be reported ordered by time.
+	//
+	// R version:
+	// ```R
+	// fmQueryIdentifyFrames(experiment,
+	//                       start = NULL,
+	//                       end = NULL,
+	//                       computeZones = FALSE,
+	//                       singleThreaded = FALSE,
+	//                       showProgress = FALSE)
+	// ```
 	static void IdentifyFrames(const CExperiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time::ConstPtr & start,
@@ -109,6 +139,15 @@ public:
 	// Finds <Collision> between ants in frames, data will be reported
 	// ordered by time. This version aimed to be used by language bindings to
 	// avoid large data copy.
+	//
+	// R version:
+	// ```R
+	// fmQueryCollideFrames(experiment,
+	//                      start = NULL,
+	//                      end = NULL,
+	//                      singleThreaded = FALSE,
+	//                      showProgress = FALSE)
+	// ```
 	static void CollideFramesFunctor(const CExperiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
 	                                 const Time::ConstPtr & start,
@@ -127,6 +166,15 @@ public:
 	//
 	// Finds <Collision> between ants in frames, data will be reported
 	// ordered by time.
+	//
+	// R version:
+	// ```R
+	// fmQueryCollideFrames(experiment,
+	//                      start = NULL,
+	//                      end = NULL,
+	//                      singleThreaded = FALSE,
+	//                      showProgress = FALSE)
+	// ```
 	static void CollideFrames(const CExperiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const Time::ConstPtr & start,
@@ -150,6 +198,18 @@ public:
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
 	// avoid large data copy.
+	//
+	// R version:
+	// ```R
+	// fmQueryComputeAntTrajectories(experiment,
+	//                               start = NULL,
+	//                               end = NULL,
+	//                               maximuGap = fmSecond(1),
+	//                               matcher = NULL,
+	//                               computeZones = FALSE
+	//                               singleThreaded = FALSE,
+	//                               showProgress = FALSE)
+	// ```
 	static void ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
 	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                          const Time::ConstPtr & start,
@@ -177,6 +237,18 @@ public:
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time
+	//
+	// R version:
+	// ```R
+	// fmQueryComputeAntTrajectories(experiment,
+	//                               start = NULL,
+	//                               end = NULL,
+	//                               maximuGap = fmSecond(1),
+	//                               matcher = NULL,
+	//                               computeZones = FALSE
+	//                               singleThreaded = FALSE,
+	//                               showProgress = FALSE)
+	// ```
 	static void ComputeAntTrajectories(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   const Time::ConstPtr & start,
@@ -204,6 +276,18 @@ public:
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
 	// avoid large data copy.
+	//
+	// R version:
+	// ```R
+	// fmQueryComputeAntInteractions(experiment,
+	//                               start = NULL,
+	//                               end = NULL,
+	//                               maximuGap = fmSecond(1),
+	//                               matcher = NULL,
+	//                               singleThreaded = FALSE,
+	//                               showProgress = FALSE,
+	//                               reportTrajectories = FALSE)
+	// ```
 	static void ComputeAntInteractionsFunctor(const CExperiment & experiment,
 	                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
 	                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
@@ -230,6 +314,18 @@ public:
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time.
+	//
+	// R version:
+	// ```R
+	// fmQueryComputeAntInteractions(experiment,
+	//                               start = NULL,
+	//                               end = NULL,
+	//                               maximuGap = fmSecond(1),
+	//                               matcher = NULL,
+	//                               singleThreaded = FALSE,
+	//                               showProgress = FALSE,
+	//                               reportTrajectories = FALSE)
+	// ```
 	static void ComputeAntInteractions(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,

@@ -26,16 +26,31 @@ public:
 
 	// Gets the geometry of this definition
 	//
+	// R version:
+	// ```R
+	// zd$geometry()
+	// ```
+	//
 	// @return a union of <Shape> defining the geometry
 	Shape::ConstList Geometry() const;
 
 	// Gets the first valid time of the Definition
+	//
+	// R version:
+	// ```R
+	// zd$start()
+	// ```
 	//
 	// @return a <Time::ConstPtr> for the first valid
 	//         time. nullptr means -∞.
 	const Time::ConstPtr & Start() const;
 
 	// Gets the ending valid time of the Definition
+	//
+	// R version:
+	// ```R
+	// zd$end()
+	// ```
 	//
 	// @return a <Time::ConstPtr> before which the Definition is
 	//         valid. nullptr means +∞.
@@ -68,20 +83,40 @@ public:
 
 	// Gets the geometry of this definition
 	//
+	// R version:
+	// ```R
+	// zd$geometry()
+	// ```
+	//
 	// @return a union of <Shape> defining the geometry
 	Shape::ConstList Geometry() const;
 
 	// Sets the geometry of this definition
 	// @shapes a union of <Shape> defining the <Zone> geometry.
+	//
+	// R version:
+	// ```R
+	// zd$setGeometry(list(fmCircle(c(x,y),r),...))
+	// ```
 	void SetGeometry(const Shape::ConstList & shapes);
 
 	// Gets the first valid time of the Definition
+	//
+	// R version:
+	// ```R
+	// zd$start()
+	// ```
 	//
 	// @return a <Time::ConstPtr> for the first valid
 	//         time. nullptr means -∞.
 	const Time::ConstPtr & Start() const;
 
 	// Gets the ending valid time of the Definition
+	//
+	// R version:
+	// ```R
+	// zd$end()
+	// ```
 	//
 	// @return a <Time::ConstPtr> before which the Definition is
 	//         valid. nullptr means +∞.
@@ -90,11 +125,23 @@ public:
 	// Sets the first valid time of the Definition
 	// @start the first valid <Time> for the Definition. nullptr
 	//        means -∞
+	//
+	// R version:
+	// ```R
+	// # const_ptr() is needed to convert to fmTimeCPtr
+	// zd$setStart(fmTimeParse()$const_ptr())
+	// ```
 	void SetStart(const Time::ConstPtr & start);
 
 	// Sets the last valid time of the Definition
 	// @end the <Time> before which the Definition is
 	//      valid. nullptr means -∞
+	//
+	// R version:
+	// ```R
+	// # const_ptr() is needed to convert to fmTimeCPtr
+	// zd$setEnd(fmTimeParse()$const_ptr())
+	// ```
 	void SetEnd(const Time::ConstPtr & end);
 
 	// Opaque implementation pointer
@@ -120,10 +167,20 @@ class CZone {
 public :
 	// const access to the ZoneDefinition
 	//
+	// R version:
+	// ```R
+	// z$cDefinitions()
+	// ```
+	//
 	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
 	ZoneDefinition::ConstList CDefinitions() const;
 
-	// Gets Zone name
+	// Gets the Zone name
+	//
+	// R version:
+	// ```R
+	// z$name()
+	// ```
 	//
 	// @return the Zone name
 	const std::string & Name() const;
@@ -132,6 +189,11 @@ public :
 	//
 	// Gets the Zone <ZoneID>. <ZoneID> are unique within a <Space>, but two
 	// Zone in different <Space> can have the same <ZoneID>.
+	//
+	// R version:
+	// ```R
+	// z$zoneID()
+	// ```
 	//
 	// @return the Zone <ZoneID>
 	fort::myrmidon::ZoneID ZoneID() const;
@@ -201,6 +263,13 @@ public:
 	// Adds a new timed <ZoneDefinition> valid for
 	// [<start>,<end>[. nullptr means -/+∞.
 	//
+	// R version:
+	// ```R
+	// z$addDefinition(list(fmCircle(c(x,y),r),...),
+	//                 fmTimeParse("XXX")$const_ptr(), # const_ptr() needed to convert to fmTimeCPtr
+	//                 fmTimeParse("YYY")$const_ptr()) # const_ptr() needed to convert to fmTimeCPtr
+	// ```
+	//
 	// @return the new <ZoneDefinition>
 	ZoneDefinition AddDefinition(const Shape::ConstList & geometry,
 	                             const Time::ConstPtr & start,
@@ -208,10 +277,20 @@ public:
 
 	// const access to the ZoneDefinition
 	//
+	// R version:
+	// ```R
+	// z$cDefinitions()
+	// ```
+	//
 	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
 	ZoneDefinition::ConstList CDefinitions() const;
 
 	// Gets Zone's ZoneDefinition
+	//
+	// R version:
+	// ```R
+	// z$definitions()
+	// ```
 	//
 	// @return a <ZoneDefinition::List> of <ZoneDefinition> for this Zone
 	ZoneDefinition::List Definitions();
@@ -222,11 +301,21 @@ public:
 
 	// Gets Zone name
 	//
+	// R version:
+	// ```R
+	// z$name()
+	// ```
+	//
 	// @return the Zone name
 	const std::string & Name() const;
 
 	// Sets the Zone name
 	// @name the wanted new Zone name
+	//
+	// R version:
+	// ```R
+	// z$setName(name)
+	// ```
 	//
 	// There are no restrictions on Zone name
 	void SetName(const std::string & name);
@@ -235,6 +324,11 @@ public:
 	//
 	// Gets the Zone <ID>. <ID> are unique within a <Space>, but two
 	// Zone in different <Space> can have the same <ID>.
+	//
+	// R version:
+	// ```R
+	// z$zoneID()
+	// ```
 	//
 	// @return the Zone <ID>x
 	ID ZoneID() const;

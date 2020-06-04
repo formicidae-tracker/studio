@@ -18,9 +18,9 @@ namespace myrmidon {
 
 // The ID for a tag
 //
-// As explained in <ant_identification> myrmidon doesn't allows to
-// access tracking tag data directly, but through the definition of
-// <Ant> and <Identification>.
+// The ID for a tag. As explained in <ant_identification> myrmidon
+// doesn't allows to access tracking tag data directly, but through
+// the definition of <Ant> and <Identification>.
 typedef uint32_t TagID;
 
 // A named value
@@ -28,6 +28,8 @@ typedef uint32_t TagID;
 // AntStaticValue holds a value for a <named_values>.
 typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 
+// A List of 2D Vector
+//
 // A List of 2D Vector
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 

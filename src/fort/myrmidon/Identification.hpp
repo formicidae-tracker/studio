@@ -25,17 +25,32 @@ class CIdentification {
 public:
 	// Gets the TagID of this Identification
 	//
+	// R Version :
+	// ```R
+	// i$tagValue()
+	// ```
+	//
 	// @return the <TagID> used by this Identification
 	TagID TagValue() const;
 
 	// Gets the AntID of the targeted Ant
 	//
+	// R Version :
+	// ```R
+	// i$targetAntID()
+	// ```
+	//
 	// @return the <AntID> of the targetted <Ant>
 	AntID TargetAntID() const;
 
-		// Gets the starting validity time
+	// Gets the starting validity time
 	//
 	// Identification are valid for [<Start>,<End>[
+	//
+	// R Version :
+	// ```R
+	// i$start()
+	// ```
 	//
 	// @return the <Time> after which this Identification is
 	//         valid. nullptr represents -∞
@@ -45,6 +60,11 @@ public:
 	//
 	// Identification are valid for [<Start>,<End>[
 	//
+	// R Version :
+	// ```R
+	// i$end()
+	// ```
+	//
 	// @return the <Time> after which this Identification is
 	//         unvalid. nullptr represents +∞
 	Time::ConstPtr End() const;
@@ -53,6 +73,11 @@ public:
 	//
 	// Gets the Ant position relatively to the tag center. This offset
 	// is expressed in the tag reference frame.
+	//
+	// R Version :
+	// ```R
+	// i$antPosition()
+	// ```
 	//
 	// @return an <Eigen::Vector2d> of the <Ant> center relative to
 	// the tag center.
@@ -69,12 +94,22 @@ public:
 	// clockwise, which is the opposite of most mathematical drawing
 	// when y is pointing from bottom to top.
 	//
+	// R Version :
+	// ```R
+	// i$antAngle()
+	// ```
+	//
 	// @return the angle in radian between the tag orientation and the
 	//         ant orientation.
 	double AntAngle() const;
 
 
 	// Tests if Identification has a user defined pose
+	//
+	// R Version :
+	// ```R
+	// i$hasUserDefinedAntPose()
+	// ```
 	//
 	// @return `true` if the Identification has a user defined pose
 	//         through <Identification::SetUserDefinedAntPose>
@@ -142,10 +177,20 @@ public:
 
 	// Gets the TagID of this Identification
 	//
+	// R Version :
+	// ```R
+	// i$tagValue()
+	// ```
+	//
 	// @return the <TagID> used by this Identification
 	TagID TagValue() const;
 
 	// Gets the AntID of the targeted Ant
+	//
+	// R Version :
+	// ```R
+	// i$targetAntID()
+	// ```
 	//
 	// @return the <AntID> of the targetted <Ant>
 	AntID TargetAntID() const;
@@ -160,6 +205,12 @@ public:
 	// the same <Ant>. In such a case the boundaries remain unchanged.
 	//
 	// Identification are valid for [<Start>,<End>[
+	//
+	// R Version :
+	// ```R
+	// # const_ptr is needed to cast fmTime to fmTimeCPtr
+	// i$setStart(fmTimeParse("XXX")$const_ptr())
+	// ```
 	void SetStart(const Time::ConstPtr & start);
 
 	// Sets the ending validity time for this Identification
@@ -172,11 +223,22 @@ public:
 	// the same <Ant>. In such a case the boundaries remain unchanged.
 	//
 	// Identification are valid for [<Start>,<End>[
+	//
+	// R Version :
+	// ```R
+	// # const_ptr is needed to cast fmTime to fmTimeCPtr
+	// i$setEnd(fmTimeParse("XXX")$const_ptr())
+	// ```
 	void SetEnd(const Time::ConstPtr & end);
 
 	// Gets the starting validity time
 	//
 	// Identification are valid for [<Start>,<End>[
+	//
+	// R Version :
+	// ```R
+	// i$start()
+	// ```
 	//
 	// @return the <Time> after which this Identification is
 	//         valid. nullptr represents -∞
@@ -186,6 +248,11 @@ public:
 	//
 	// Identification are valid for [<Start>,<End>[
 	//
+	// R Version :
+	// ```R
+	// i$end()
+	// ```
+	//
 	// @return the <Time> after which this Identification is
 	//         unvalid. nullptr represents +∞
 	Time::ConstPtr End() const;
@@ -194,6 +261,11 @@ public:
 	//
 	// Gets the Ant position relatively to the tag center. This offset
 	// is expressed in the tag reference frame.
+	//
+	// R Version :
+	// ```R
+	// i$antPosition()
+	// ```
 	//
 	// @return an <Eigen::Vector2d> of the <Ant> center relative to
 	// the tag center.
@@ -210,12 +282,22 @@ public:
 	// clockwise, which is the opposite of most mathematical drawing
 	// when y is pointing from bottom to top.
 	//
+	// R Version :
+	// ```R
+	// i$antAngle()
+	// ```
+	//
 	// @return the angle in radian between the tag orientation and the
 	//         ant orientation.
 	double AntAngle() const;
 
 
 	// Tests if Identification has a user defined pose
+	//
+	// R Version :
+	// ```R
+	// i$hasUserDefinedAntPose()
+	// ```
 	//
 	// @return `true` if the Identification has a user defined pose
 	//         through <SetUserDefinedAntPose>
@@ -226,6 +308,11 @@ public:
 	//              center, expressed in the tag reference frame.
 	// @antAngle the <Ant> angle, relative to the tag angle.
 	//
+	//
+	// R Version :
+	// ```R
+	// i$setUserDefinedAntPose(c(x,y),angle)
+	// ```
 	void SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle);
 
 	// Clears any user defined pose.
@@ -233,6 +320,11 @@ public:
 	// Clears any user defined pose for this Identification. Myrmidon
 	// will re-compute the <Ant> pose from measurement made in FORT
 	// Studio.
+	//
+	// R Version :
+	// ```R
+	// i$clearUserDefiniedAntPose()
+	// ```
 	void ClearUserDefinedAntPose();
 
 	// An opaque pointer to implementation

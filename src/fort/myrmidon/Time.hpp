@@ -52,30 +52,60 @@ public:
 
 	// Gets the duration in hours
 	//
+	// R version:
+	// ```R
+	// d$hours()
+	// ```
+	//
 	// @return the duration in hours
 	double Hours() const;
 
 	// Gets the duration in minutes
+	//
+	// R version:
+	// ```R
+	// d$minutes()
+	// ```
 	//
 	// @return the duration in minutes
 	double Minutes() const;
 
 	// Gets the number of seconds
 	//
+	// R version:
+	// ```R
+	// d$seconds()
+	// ```
+	//
 	// @return the duration in seconds
 	double Seconds() const;
 
 	// Gets the number of milliseconds
+	//
+	// R version:
+	// ```R
+	// d$milliseconds()
+	// ```
 	//
 	// @return the duration in milliseconds
 	double Milliseconds() const;
 
 	// Gets the number of microseconds
 	//
+	// R version:
+	// ```R
+	// d$microseconds()
+	// ```
+	//
 	// @return the duration in microseconds
 	double Microseconds() const;
 
 	// Gets the number of nanoseconds
+	//
+	// R version:
+	// ```R
+	// d$nanoseconds()
+	// ```
 	//
 	// @return the duration in nanoseconds
 	int64_t Nanoseconds() const {
@@ -97,17 +127,65 @@ public:
 	static Duration Parse(const std::string & str);
 
 
-	// An Hour
+	// An hour
+	//
+	// Value for an hour.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build an hour
+	// fmHour(1)
+	// ```
 	const static Duration Hour;
-	// A Minute
+	// A minute
+	//
+	// Value for a minute.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build a minute
+	// fmMinute(1)
+	// ```
 	const static Duration Minute;
-	// A Second
+	// A second
+	//
+	// Value for a second.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build a second
+	// fmSecond(1)
+	// ```
 	const static Duration Second;
-	// A Millisecond
+	// A millisecond
+	//
+	// Value for a millisecond.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build a millisecond
+	// fmMillisecond(1)
+	// ```
 	const static Duration Millisecond;
-	// A Microsecond
+	// A microsecond
+	//
+	// Value for a microsecond.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build a microsecond
+	// fmMicrosecond(1)
+	// ```
 	const static Duration Microsecond;
 	// A Nanosecond
+	//
+	// Value for a nanosecond.
+	//
+	// R version:
+	// ```R
+	// # we use a method to build a nanosecond
+	// fmNanosecond(1)
+	// ```
 	const static Duration Nanosecond;
 
 	// The addition operator
@@ -281,6 +359,12 @@ public:
 	//
 	// Will always return a positive <Duration>, even if the wall clock
 	// has been reset between the two calls to <Now>
+	//
+	// R version:
+	// ```R
+	// t <- fmTimeNow()
+	// ```
+	//
 	// @return the current <myrmidon::Time>
 	static Time Now();
 
@@ -297,6 +381,7 @@ public:
 	//
 	// Creates a <myrmidon::Time> from `struct timeval`. The
 	// <myrmidon::Time> will not have any monotonic clock value.
+	//
 	// @return the converted <myrmidon::Time>
 	static Time FromTimeval(const timeval & t);
 
@@ -305,6 +390,7 @@ public:
 	//
 	// Creates a <myrmidon::Time> from a protobuf Timestamp. The
 	// <myrmidon::Time> will not have any monotonic clock value.
+	//
 	// @return the converted <myrmidon::Time>
 	static Time FromTimestamp(const google::protobuf::Timestamp & timestamp);
 
@@ -323,6 +409,7 @@ public:
 	// mixing timestamp issued from different clocks. Nothing prevent
 	// you to use <SYSTEM_MONOTONIC_CLOCK> for the <monoID> value but
 	// the behavior manipulating resulting times is undefined.
+	//
 	// @return the converted <myrmidon::Time> with associated
 	// monotonic data
 	static Time FromTimestampAndMonotonic(const google::protobuf::Timestamp & timestamp,
@@ -337,6 +424,12 @@ public:
 	// date string format, i.e. string of the form
 	// `1972-01-01T10:00:20.021-05:00`. It is merely a wrapper from
 	// google::protobuf::time_util functions.
+	//
+	// R version:
+	// ```R
+	// t <- fmTimeParse("1972-01-01T00:00:00.000Z")
+	// ```
+	//
 	// @return the converted <myrmidon::Time>
 	static Time Parse(const std::string & input);
 
@@ -345,6 +438,7 @@ public:
 	//
 	// Converts to a `time_t`. Please note that time_t have a maximal
 	// resolution of a second.
+	//
 	// @return `time_t`representing the <myrmidon::Time>.
 	time_t ToTimeT() const;
 
@@ -370,6 +464,11 @@ public:
 	// Adds a Duration to a Time
 	// @d the <Duration> to add
 	//
+	// R version:
+	// ```R
+	// newT <- t$add(fmSecond(1)) # a copy of t with one added second
+	// ```
+	//
 	// @return a new <myrmidon::Time> distant by <d> from this <myrmidon::Time>
 	Time Add(const Duration & d) const;
 
@@ -381,11 +480,21 @@ public:
 	// 10 of <Duration::Nanosecond> which are smaller than a second
 	// are supported.
 	//
+	// R version:
+	// ```R
+	// newT <- t$round(fmSecond(1)) # a copy of t rounded at the nearest second
+	// ```
+	//
 	// @return a new <myrmidon::Time> rounded to the wanted duration
 	Time Round(const Duration & d) const;
 
 	// Reports if this time is after t
 	// @t the <myrmidon::Time> to test against
+	//
+	// R version:
+	// ```R
+	// t1$after(t2) # return TRUE if t1 > t2
+	// ```
 	//
 	// @return `true` if this <myrmidon::Time> is strictly after <t>
 	bool After(const Time & t) const;
@@ -393,17 +502,33 @@ public:
 	// Reports if this time is before t
 	// @t the <myrmidon::Time> to test against
 	//
+	// R version:
+	// ```R
+	// t1$before(t2) # return TRUE if t1 < t2
+	// ```
+	//
 	// @return `true` if this <myrmidon::Time> is strictly before <t>
 	bool Before(const Time & t) const;
 
 	// Reports if this time is the same than t
 	// @t the <myrmidon::Time> to test against
 	//
+	// R version:
+	// ```R
+	// t1$equals(t2) # return TRUE if t1 == t2
+	// ```
+	//
 	// @return `true` if this <myrmidon::Time> is the same than <t>
 	bool Equals(const Time & t) const;
 
 	// Computes time difference with another time
 	// @t the <myrmidon::Time> to substract to this one.
+	//
+	// R version:
+	// ```R
+	// # gets the fmDuration between t1 and t2
+	// t1$sub(t2)
+	// ```
 	//
 	// @return a <Duration> representing the time ellapsed between
 	//         `this` and <t>. It could be negative.
