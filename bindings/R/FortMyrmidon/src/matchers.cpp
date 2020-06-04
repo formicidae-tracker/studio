@@ -38,6 +38,7 @@ RCPP_MODULE(matchers) {
 	Rcpp::function("fmMatcherAntDistanceSmallerThan",&fort::myrmidon::Matcher::AntDistanceSmallerThan);
 	Rcpp::function("fmMatcherAntAngleGreaterThan",&fort::myrmidon::Matcher::AntAngleGreaterThan);
 	Rcpp::function("fmMatcherAntAngleSmallerThan",&fort::myrmidon::Matcher::AntAngleSmallerThan);
+	Rcpp::function("fmMatcherInteractionType",&fort::myrmidon::Matcher::InteractionType);
 
 }
 

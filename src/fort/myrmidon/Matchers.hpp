@@ -49,6 +49,12 @@ public:
 	//
 	// AND combines several Matcher together. The resulting Matcher
 	// will match only if all of the given Matcher matches too.
+	//
+	// R Version :
+	// ```R
+	// fmMatcherAnd(list(...))
+	// ```
+	//
 	// @return a new Matcher which is the AND combination of the given
 	//         Matchers.
 	static Ptr And(std::vector<Ptr> matchers);
@@ -58,6 +64,12 @@ public:
 	//
 	// OR combines several Matcher together. The resulting Matcher
 	// will match if any of the given Matcher matches too.
+	//
+	// R Version :
+	// ```R
+	// fmMatcherOr(list(...))
+	// ```
+	//
 	// @return a new Matcher which is the OR combination of the given
 	//         Matchers.
 	static Ptr Or(std::vector<Ptr> matchers);
@@ -67,6 +79,11 @@ public:
 	//
 	// Matches a given <AntID>. In case of interactions, matches any
 	// interaction with one of the Ant with the given <ID>
+	//
+	// R Version :
+	// ```R
+	// fmMatcherAntID(andID)
+	// ```
 	//
 	// @return a <Ptr> that matches <Ant>  of the given ID
 	static Ptr AntID(AntID ID);
@@ -79,6 +96,11 @@ public:
 	// matches any interaction with one of the Ant meeting the
 	// criterion.
 	//
+	// R Version :
+	// ```R
+	// fmMatcherAntColumn("group","nurses")
+	// ```
+	//
 	// @return a <Ptr> that matches <Ant> with the value matching that
 	// <Ant>
 	static Ptr AntColumn(const std::string & name, const AntStaticValue & value);
@@ -88,6 +110,11 @@ public:
 	//
 	// Matches that a distance between two Ants is smaller than
 	// <distance>, only valid for interaction queries.
+	//
+	// R Version :
+	// ```R
+	// fmMatcherAntDistanceSmallerThan(distance)
+	// ```
 	//
 	// @return a <Ptr> that matches two <Ant> within the given
 	// <distance>
@@ -99,6 +126,11 @@ public:
 	// Matches that a distance between two Ants is greater than
 	// <distance>, only valid for interaction queries.
 	//
+	// R Version :
+	// ```R
+	// fmMatcherAntDistanceGreaterThan(distance)
+	// ```
+	//
 	// @return a <Ptr> that matches two <Ant> outside the given
 	// <distance>
 	static Ptr AntDistanceGreaterThan(double distance);
@@ -108,6 +140,11 @@ public:
 	//
 	// Matches that the angle between two Ants is smaller than
 	// <angle>, only valid for interaction queries.
+	//
+	// R Version :
+	// ```R
+	// fmMatcherAntAngleSmallerThan(angle)
+	// ```
 	//
 	// @return a <Ptr> that matches when two <Ant> are facing the same
 	// direction with <angle> threshold.
@@ -119,12 +156,34 @@ public:
 	// Matches that the angle between two Ants is greater than
 	// <angle>, only valid for interaction queries.
 	//
+	// R Version :
+	// ```R
+	// fmMatcherAntAngleGreaterThan(angle)
+	// ```
+	//
 	// @return a <Ptr> that matches when two <Ant> are not facing the
 	// same direction with <angle> threshold.
 	static Ptr AntAngleGreaterThan(double angle);
 
 	// opaque pointer to implementation
 	typedef std::shared_ptr<priv::Matcher> PPtr;
+
+	// Matches an <InteractionType>
+	// @type1 the first AntShapeTypeID to match
+	// @type2 the second AntShapeTypeID to match
+	//
+	// Matches interactions with the specified type. Matches
+	// `(type1,type2)` and `(type2,type1)` interactions.
+	//
+	// R Version :
+	// ```R
+	// fmMatcherInteractionType(type1,type2)
+	// ```
+	//
+	// @return a <Ptr> that matches a given <InteractionType> or its
+	// opposite.
+	static Ptr InteractionType(AntShapeTypeID type1,
+	                           AntShapeTypeID type2);
 
 	// Private implementation constructor
 	// @pMatcher opaque pointer to implementation

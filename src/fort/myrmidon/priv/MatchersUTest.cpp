@@ -29,7 +29,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<InteractionType> & types) override {
+	           const std::vector<fort::myrmidon::InteractionType> & types) override {
 		return d_value;
 	};
 
@@ -50,7 +50,7 @@ public:
 	                        const CollisionFrame::ConstPtr & i),(override));
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
 	                        fort::myrmidon::AntID b,
-	                        const std::vector<InteractionType> & types), (override));
+	                        const std::vector<fort::myrmidon::InteractionType> & types), (override));
 	MOCK_METHOD(void,Format,(std::ostream & out), (const override));
 };
 

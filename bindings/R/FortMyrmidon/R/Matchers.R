@@ -117,3 +117,18 @@ NULL
 #' # a matches when two ant are more than 30 pixels appart
 #' fmMatcherAntAngleSmallerThan(30)
 NULL
+
+#' @name fmMatcherInteractionType
+#' @title \code{\link{fmMatcher}} a matcher that matches when an
+#'     interaction contains the given type
+#' @param type1 the first virtual ant shape type to match
+#' @param type2 the second virtual ant shape type to match
+#' @return a \code{\link{fmMatcher}} a matcher that matches when the
+#'     interaction contains the given type. Matches (type1,type2) and
+#'     (type2,type1). Only valid for query on collision or
+#'     interaction, and always matches for position or trajectory
+#'     queries.
+#' @examples
+#' # matches 1 <-> 2 and 2 <-> 1 interactions
+#' fmMatcherInteractionType(1,2)
+NULL

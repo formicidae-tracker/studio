@@ -29,6 +29,9 @@ public:
 
 	static Ptr AntAngleSmallerThan(double angle);
 
+	static Ptr InteractionType(AntShapeTypeID type1,
+	                           AntShapeTypeID type2);
+
 	virtual void SetUpOnce(const ConstAntByID & ants) = 0;
 
 	virtual void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
@@ -36,9 +39,11 @@ public:
 
 	virtual bool Match(fort::myrmidon::AntID ant1,
 	                   fort::myrmidon::AntID ant2,
-	                   const std::vector<InteractionType> & types) = 0;
+	                   const std::vector<fort::myrmidon::InteractionType> & types) = 0;
 
 	virtual void Format(std::ostream & out) const = 0;
+
+	virtual ~Matcher();
 };
 
 } // namespace priv

@@ -45,9 +45,14 @@ Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
 	return std::make_shared<Matcher>(priv::Matcher::AntAngleSmallerThan(angle));
 }
 
+Matcher::Ptr Matcher::InteractionType(AntShapeTypeID type1,
+                                      AntShapeTypeID type2) {
+	return std::make_shared<Matcher>(priv::Matcher::InteractionType(type1,type2));
+}
+
 
 } // namespace myrmidon
-} // namespace fortoio
+} // namespace fort
 
 
 std::ostream & operator<<(std::ostream & out,
