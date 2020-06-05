@@ -169,3 +169,5 @@ option(DOCS_USES_PATCHED_HEADERS "Documentation shoudl use patched system header
 if(BUILD_DOCS)
 	add_subdirectory(docs)
 endif(BUILD_DOCS)
+
+add_subdirectory(misc)

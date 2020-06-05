@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=@PROJECT_VERSION@
+Name=FOrmicidae Tracker Studio
+GenericName=FORT Studio
+Comment=FORT Studio is the GUI to analyze tracking data from the FORmicidae Tracker.
+TryExec=@CMAKE_INSTALL_PREFIX@/bin/fort-studio
+Exec=@CMAKE_INSTALL_PREFIX@/bin/fort-studio
+Icon=fort-studio
+Type=Application
+Terminal=false
+Categories=Science;
+Keywords=FORmicidae Tracker;FORT;
