@@ -6,6 +6,8 @@
 
 #include "Shape.hpp"
 
+#include "Isometry2D.hpp"
+
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -54,7 +56,20 @@ public:
 		return d_r2;
 	}
 
+	inline Capsule Transform(const Isometry2Dd & transform) const {
+		return Capsule(transform * d_c1,
+		               transform * d_c2,
+		               d_r1,
+		               d_r2);
+	}
+
 	bool Contains(const Eigen::Vector2d & point) const override;
+
+	inline bool Intersects(const Capsule & other) const {
+		return Intersect(d_c1,d_c2,d_r1,d_r2,
+		                 other.d_c1,other.d_c2,other.d_r1,other.d_r2);
+	}
+
 
 	AABB ComputeAABB() const override;
 

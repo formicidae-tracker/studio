@@ -1,8 +1,8 @@
 #pragma once
 
-
 #include <QWidget>
 
+#include "Navigatable.hpp"
 
 class QAction;
 
@@ -13,7 +13,7 @@ class VisualizationWidget;
 class ExperimentBridge;
 class TrackingVideoPlayer;
 
-class VisualizationWidget : public QWidget {
+class VisualizationWidget : public QWidget , public Navigatable {
 	Q_OBJECT
 public:
 	explicit VisualizationWidget(QWidget *parent = 0);
@@ -21,13 +21,21 @@ public:
 
 	void setup(ExperimentBridge * experiment);
 
-	QAction * copyCurrentTimeAction() const;
+	QAction * jumpToTimeAction() const;
 
-private slots:
+protected:
+	void setUp(const NavigationAction & actions) override;
+	void tearDown(const NavigationAction & actions) override;
+
+
+
+private slots :
 	void onCopyTimeActionTriggered();
 
+	void jumpToTime();
 private:
+	ExperimentBridge        * d_experiment;
 	Ui::VisualizationWidget * d_ui;
 	TrackingVideoPlayer     * d_videoPlayer;
-	QAction                 * d_copyTimeAction;
+	QAction                 * d_jumpToTimeAction;
 };

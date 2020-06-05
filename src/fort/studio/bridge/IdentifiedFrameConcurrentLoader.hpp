@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <atomic>
+#include <tuple>
 
 #include <fort/studio/MyrmidonTypes.hpp>
 
@@ -23,15 +24,21 @@ public:
 
 	void setExperiment(const fmp::Experiment::ConstPtr & experiment);
 
-	const fmp::IdentifiedFrame::ConstPtr & FrameAt(fmp::MovieFrameID movieID) const;
+	const fm::IdentifiedFrame::ConstPtr & frameAt(fmp::MovieFrameID movieID) const;
+	const fm::CollisionFrame::ConstPtr & collisionAt(fmp::MovieFrameID movieID) const;
+
 
 	void moveToThread(QThread * thread);
 
 public slots:
-	void loadMovieSegment(const fmp::TrackingDataDirectoryConstPtr & tdd,
+	void loadMovieSegment(quint32 spaceID,
+	                      const fmp::TrackingDataDirectoryConstPtr & tdd,
 	                      const fmp::MovieSegmentConstPtr & segment);
 	void clear();
 
+	quint64 findAnt(quint32 antID,
+	                quint64 frameID,
+	                int direction);
 signals:
 	void progressChanged(int done,int toDo);
 	void done(bool);
@@ -46,11 +53,13 @@ private :
 	void setProgress(int done,int toDo);
 
 
-	typedef QHash<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> FramesByMovieID;
-	typedef std::pair<fmp::MovieFrameID,fmp::IdentifiedFrame::ConstPtr> ConcurrentResult;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr>  FramesByMovieID;
+	typedef fmp::DenseMap<fmp::MovieFrameID,fm::CollisionFrame::ConstPtr> CollisionsByMovieID;
+	typedef std::tuple<fmp::MovieFrameID,fm::IdentifiedFrame::ConstPtr,fm::CollisionFrame::ConstPtr> ConcurrentResult;
 
 	fmp::ExperimentConstPtr d_experiment;
 	FramesByMovieID         d_frames;
+	CollisionsByMovieID     d_collisions;
 	int                     d_done,d_toDo;
 
 	std::shared_ptr<std::atomic<bool>> d_abordFlag;

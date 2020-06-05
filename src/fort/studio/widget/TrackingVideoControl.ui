@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>888</width>
-    <height>86</height>
+    <height>89</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -153,6 +153,13 @@
       <widget class="QCheckBox" name="showCheckBox">
        <property name="text">
         <string>Show IDs</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showCollisionsBox">
+       <property name="text">
+        <string>Show Collisions</string>
        </property>
       </widget>
      </item>

@@ -50,8 +50,13 @@ void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
 }
 
 
-const AntByID & Identifier::Ants() const {
+const AntByID & Identifier::Ants() {
 	return Objects();
+}
+
+
+const ConstAntByID & Identifier::CAnts() const {
+	return CObjects();
 }
 
 
@@ -109,8 +114,8 @@ void Identifier::DeleteIdentification(const IdentificationPtr & ident) {
 	}
 
 	auto ant = ident->Target();
-	if ( Ants().find(ant->ID()) == Ants().end() ) {
-		throw UnmanagedObject(ant->ID());
+	if ( Ants().find(ant->AntID()) == Ants().end() ) {
+		throw UnmanagedObject(ant->AntID());
 	}
 
 	auto toEraseAnt = ant->Identifications().begin();
@@ -174,7 +179,7 @@ void Identifier::SortAndCheck(IdentificationList & tagSiblings,
 
 }
 
-Identification::Ptr Identifier::Identify(TagID tag,const Time & t) const {
+Identification::ConstPtr Identifier::Identify(TagID tag,const Time & t) const {
 	auto fi = d_identifications.find(tag);
 	if ( fi == d_identifications.end()) {
 		return Identification::Ptr();
@@ -243,7 +248,7 @@ void Identifier::SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape) {
 	fi->second.erase(ape);
 	fi->second.insert(ape);
 
-	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	auto identification = std::const_pointer_cast<Identification>(Identify(ape->TargetTagID(),ape->Reference().Time()));
 	if (!identification) {
 		return;
 	}
@@ -256,7 +261,7 @@ void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
 		return;
 	}
 	fi->second.erase(ape);
-	auto identification = Identify(ape->TargetTagID(),ape->Reference().Time());
+	auto identification = std::const_pointer_cast<Identification>(Identify(ape->TargetTagID(),ape->Reference().Time()));
 	if ( !identification ) {
 		return;
 	}
@@ -265,6 +270,9 @@ void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
 
 
 void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
+	if ( identification->HasUserDefinedAntPose() == true ) {
+		return;
+	}
 	std::vector<AntPoseEstimateConstPtr> matched;
 	auto & APEs = d_tagPoseEstimates[identification->TagValue()];
 	matched.reserve(APEs.size());
@@ -281,7 +289,7 @@ void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & ide
 	double newAngle;
 	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
 	if ( newPosition != identification->AntPosition() || newAngle != identification->AntAngle() ) {
-		identification->SetAntPosition(newPosition,newAngle);
+		Identification::Accessor::SetAntPosition(*identification,newPosition,newAngle);
 		d_callback(identification);
 	}
 }
@@ -300,7 +308,7 @@ Identifier::Compiled::Compiled(const Identifier::IdentificationByTagID & identif
 Identifier::Compiled::~Compiled() {
 }
 
-Identification::Ptr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
+Identification::ConstPtr Identifier::Compiled::Identify(TagID tagID, const Time & time) const {
 	try {
 		for ( const auto & i : d_identifications.at(tagID+1) ) {
 			if ( i->IsValid(time) == true ) {

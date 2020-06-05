@@ -8,7 +8,7 @@
 #include <QSettings>
 #include <QAbstractItemModel>
 #include <QPointer>
-
+#include <QSortFilterProxyModel>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include "Logger.hpp"
@@ -93,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_experiment(new ExperimentBridge(this))
 	, d_logger( new Logger(this) )
 	, d_loggerWidget(nullptr)
-	, d_lastConnected(nullptr) {
+	, d_lastNavigatable(nullptr) {
 
 	d_ui->setupUi(this);
 
@@ -111,11 +111,12 @@ MainWindow::MainWindow(QWidget *parent)
 	        this,
 	        &MainWindow::onExperimentActivated);
 
-	d_ui->globalProperties->setup(d_experiment);
+	d_ui->globalProperties->setup(d_experiment,d_ui->actionLoadTagCloseUp);
 	d_ui->universeEditor->setup(d_experiment->universe());
 	d_ui->antList->setup(d_experiment->identifier());
-	d_ui->taggingWidget->setup(d_experiment);
+	d_ui->taggingWidget->setup(d_experiment,d_ui->actionLoadTagCloseUp);
 	d_ui->shappingWidget->setup(d_experiment);
+	d_ui->zoningWidget->setup(d_experiment);
 	d_ui->userData->setup(d_experiment->antMetadata());
 
 	d_ui->shappingWidget->setEnabled(false);
@@ -150,12 +151,75 @@ MainWindow::MainWindow(QWidget *parent)
 
 	loadSettings();
 
-	d_ui->menuEdit->addAction(d_ui->visualizeWidget->copyCurrentTimeAction());
-	d_ui->menuEdit->addSeparator();
 	d_ui->menuEdit->addAction(d_ui->taggingWidget->newAntFromTagAction());
 	d_ui->menuEdit->addAction(d_ui->taggingWidget->addIdentificationToAntAction());
 	d_ui->menuEdit->addSeparator();
 	d_ui->menuEdit->addAction(d_ui->taggingWidget->deletePoseEstimationAction());
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->shappingWidget->cloneAntShapeAction());
+
+	d_ui->menuMove->addSeparator();
+	d_ui->menuMove->addAction(d_ui->visualizeWidget->jumpToTimeAction());
+
+	auto sorted = new QSortFilterProxyModel(this);
+	sorted->setSourceModel(d_experiment->statistics()->stats());
+	sorted->setSortRole(Qt::UserRole+1);
+	d_ui->statsView->setModel(sorted);
+
+	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+
+	auto updateComputeStatsAction =
+		[this] () {
+			bool ready = d_experiment->statistics()->isReady();
+			bool outdated = d_experiment->statistics()->isOutdated();
+			d_ui->actionLoadTagStatistics->setEnabled(ready && outdated);
+			d_ui->actionLoadTagStatistics->setText(ready ? tr("Compute Tag Statistics") : tr("Computing Tag Statistics..."));
+		};
+
+	updateComputeStatsAction();
+
+	d_ui->computeStatsButton->setAction(d_ui->actionLoadTagStatistics);
+
+	connect(d_experiment->statistics(),
+	        &StatisticsBridge::ready,
+	        this,updateComputeStatsAction);
+
+	connect(d_experiment->statistics(),
+	        &StatisticsBridge::outdated,
+	        this,updateComputeStatsAction);
+
+	connect(d_ui->actionLoadTagStatistics,
+	        &QAction::triggered,
+	        this,
+	        [this]() {
+		        d_experiment->statistics()->compute();
+	        });
+
+
+	auto updateLoadTagCloseUp =
+		[this] () {
+			bool ready = d_experiment->measurements()->isReady();
+			bool outdated = d_experiment->measurements()->isOutdated();
+			d_ui->actionLoadTagCloseUp->setEnabled(ready && outdated);
+			d_ui->actionLoadTagCloseUp->setText(ready ? tr("Load Tag Close-Ups") : tr("Loading Tag Close-Ups ..."));
+		};
+	updateLoadTagCloseUp();
+
+	connect(d_experiment->measurements(),
+	        &MeasurementBridge::ready,
+	        this,updateLoadTagCloseUp);
+
+	connect(d_experiment->measurements(),
+	        &MeasurementBridge::outdated,
+	        this,updateLoadTagCloseUp);
+
+	connect(d_ui->actionLoadTagCloseUp,
+	        &QAction::triggered,
+	        this,
+	        [this]() {
+		        d_experiment->measurements()->loadTagCloseUp();
+	        });
 
 
 
@@ -207,7 +271,6 @@ void MainWindow::on_actionOpen_triggered() {
 
 	pushRecent();
 }
-
 
 void MainWindow::on_actionQuit_triggered() {
 	this->close();
@@ -434,71 +497,33 @@ void MainWindow::onLoggerWidgetDestroyed() {
 
 
 void MainWindow::setupMoveActions() {
-	// VERY ugly implementation
+	auto jumpTimeAction = d_ui->visualizeWidget->jumpToTimeAction();
+	jumpTimeAction->setEnabled(d_ui->workspaceSelector->currentWidget() == d_ui->visualizeWidget);
 
-	QWidget * newConnected = nullptr;
-	if ( d_ui->shappingWidget->isEnabled() == true ) {
-		newConnected = d_ui->shappingWidget;
-	}
+	NavigationAction actions {
+	                          .NextTag = d_ui->actionNextTag,
+	                          .PreviousTag = d_ui->actionPreviousTag,
+	                          .NextCloseUp = d_ui->actionNextCloseUp,
+	                          .PreviousCloseUp = d_ui->actionPreviousCloseUp,
+	                          .CopyCurrentTime = d_ui->actionCopyTimeFromFrame,
+	};
 
-	if ( d_ui->taggingWidget->isEnabled() == true ) {
-		newConnected = d_ui->taggingWidget;
-	}
 
-	if ( newConnected == d_lastConnected ) {
-		return;
-	}
-
-	if ( d_lastConnected == d_ui->taggingWidget ) {
-		disconnect(d_ui->actionNextTag,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::nextTag);
-		disconnect(d_ui->actionPreviousTag,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::previousTag);
-
-		disconnect(d_ui->actionNextCloseUp,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::nextTagCloseUp);
-		disconnect(d_ui->actionPreviousCloseUp,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::previousTagCloseUp);
-		d_ui->actionNextCloseUp->setEnabled(false);
-		d_ui->actionPreviousCloseUp->setEnabled(false);
+	if ( d_lastNavigatable != nullptr ) {
+		d_lastNavigatable->tearDown(actions);
 		d_ui->actionNextTag->setEnabled(false);
 		d_ui->actionPreviousTag->setEnabled(false);
-	}
-
-	if ( d_lastConnected == d_ui->shappingWidget ) {
-		disconnect(d_ui->actionNextCloseUp,&QAction::triggered,
-		           d_ui->shappingWidget,&AntEditorWidget::nextCloseUp);
-		disconnect(d_ui->actionPreviousCloseUp,&QAction::triggered,
-		           d_ui->shappingWidget,&AntEditorWidget::previousCloseUp);
 		d_ui->actionNextCloseUp->setEnabled(false);
 		d_ui->actionPreviousCloseUp->setEnabled(false);
+		d_ui->actionCopyTimeFromFrame->setEnabled(false);
+		d_lastNavigatable = nullptr;
 	}
 
-	d_lastConnected = newConnected;
-
-	if ( newConnected == d_ui->taggingWidget ) {
-		connect(d_ui->actionNextTag,&QAction::triggered,
-		        d_ui->taggingWidget,&TaggingWidget::nextTag);
-		connect(d_ui->actionPreviousTag,&QAction::triggered,
-		        d_ui->taggingWidget,&TaggingWidget::previousTag);
-
-		connect(d_ui->actionNextCloseUp,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::nextTagCloseUp);
-		connect(d_ui->actionPreviousCloseUp,&QAction::triggered,
-		           d_ui->taggingWidget,&TaggingWidget::previousTagCloseUp);
-		d_ui->actionNextCloseUp->setEnabled(true);
-		d_ui->actionPreviousCloseUp->setEnabled(true);
-		d_ui->actionNextTag->setEnabled(true);
-		d_ui->actionPreviousTag->setEnabled(true);
+	Navigatable* navigatable = dynamic_cast<Navigatable*>(d_ui->workspaceSelector->currentWidget());
+	if ( navigatable == nullptr ) {
+		return;
 	}
+	navigatable->setUp(actions);
 
-	if ( newConnected == d_ui->shappingWidget ) {
-		connect(d_ui->actionNextCloseUp,&QAction::triggered,
-		        d_ui->shappingWidget,&AntEditorWidget::nextCloseUp);
-		connect(d_ui->actionPreviousCloseUp,&QAction::triggered,
-		        d_ui->shappingWidget,&AntEditorWidget::previousCloseUp);
-		d_ui->actionNextCloseUp->setEnabled(true);
-		d_ui->actionPreviousCloseUp->setEnabled(true);
-	}
-
+	d_lastNavigatable = navigatable;
 }

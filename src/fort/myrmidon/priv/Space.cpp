@@ -100,7 +100,11 @@ void Space::Universe::DeleteTrackingDataDirectory(const std::string & URI) {
 	throw UnmanagedTrackingDataDirectory(URI);
 }
 
-const SpaceByID & Space::Universe::Spaces() const {
+const ConstSpaceByID & Space::Universe::CSpaces() const {
+	return d_spaces.CObjects();
+}
+
+const SpaceByID & Space::Universe::Spaces() {
 	return d_spaces.Objects();
 }
 
@@ -136,8 +140,8 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 		                       [&tdd](const std::pair<Space::ID,Space::Ptr> & iter) {
 			                       auto ti = std::find_if(iter.second->d_tdds.begin(),
 			                                              iter.second->d_tdds.end(),
-			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tdd) {
-				                                              return tdd->URI() == tdd->URI();
+			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tddb) {
+				                                              return tdd->URI() == tddb->URI();
 			                                              });
 			                       return ti != iter.second->d_tdds.end();
 		                       });
@@ -221,15 +225,22 @@ Space::Universe::Ptr Space::LockUniverse() const {
 }
 
 std::pair<Space::Ptr,TrackingDataDirectory::ConstPtr>
-Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) const {
+Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) {
+	auto res = CLocateTrackingDataDirectory(tddURI);
+	return std::make_pair(std::const_pointer_cast<Space>(res.first),
+	                      res.second);
+}
+
+std::pair<Space::ConstPtr,TrackingDataDirectory::ConstPtr>
+Space::Universe::CLocateTrackingDataDirectory(const std::string & tddURI) const {
 	auto tddi = d_tddsByURI.find(tddURI) ;
 	if ( tddi == d_tddsByURI.end() ) {
 		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
 	}
 
-	auto si = std::find_if(d_spaces.Objects().begin(),
-	                       d_spaces.Objects().end(),
-	                       [&tddURI]( const std::pair<Space::ID,Space::Ptr> & iter) {
+	auto si = std::find_if(d_spaces.CObjects().begin(),
+	                       d_spaces.CObjects().end(),
+	                       [&tddURI]( const std::pair<Space::ID,Space::ConstPtr> & iter) {
 		                       auto ti = std::find_if(iter.second->d_tdds.begin(),
 		                                              iter.second->d_tdds.end(),
 		                                              [&tddURI]( const TrackingDataDirectory::ConstPtr & tdd) {
@@ -237,21 +248,25 @@ Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) const {
 		                                              });
 		                       return ti != iter.second->d_tdds.end();
 	                       });
-	if ( si ==  d_spaces.Objects().end()) {
+	if ( si ==  d_spaces.CObjects().end()) {
 		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
 	}
 
 	return std::make_pair(si->second,tddi->second);
 }
 
-Space::Ptr Space::Universe::LocateSpace(const std::string & spaceName) const {
-	auto si = std::find_if(d_spaces.Objects().begin(),
-	                       d_spaces.Objects().end(),
-	                       [&spaceName] ( const std::pair<Space::ID,Space::Ptr> & iter) {
+Space::Ptr Space::Universe::LocateSpace(const std::string & spaceName) {
+	return std::const_pointer_cast<Space>(CLocateSpace(spaceName));
+}
+
+Space::ConstPtr Space::Universe::CLocateSpace(const std::string & spaceName) const {
+	auto si = std::find_if(d_spaces.CObjects().begin(),
+	                       d_spaces.CObjects().end(),
+	                       [&spaceName] ( const std::pair<Space::ID,Space::ConstPtr> & iter) {
 		                       return iter.second->Name() == spaceName;
 	                       });
-	if ( si == d_spaces.Objects().end()) {
-		return Space::Ptr();
+	if ( si == d_spaces.CObjects().end()) {
+		return Space::ConstPtr();
 	}
 	return si->second;
 }
@@ -264,9 +279,14 @@ void Space::DeleteZone(Zone::ID ID) {
 	d_zones.DeleteObject(ID);
 }
 
-const ZoneByID & Space::Zones() const {
+const ConstZoneByID & Space::CZones() const {
+	return d_zones.CObjects();
+}
+
+const ZoneByID & Space::Zones() {
 	return d_zones.Objects();
 }
+
 
 
 } //namespace priv

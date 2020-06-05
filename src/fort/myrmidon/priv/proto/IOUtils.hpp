@@ -12,10 +12,10 @@
 #include <fort/myrmidon/Space.pb.h>
 
 #include <fort/myrmidon/Time.hpp>
+#include <fort/myrmidon/Color.hpp>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
-#include <fort/myrmidon/priv/Color.hpp>
 #include <fort/myrmidon/priv/Ant.hpp>
 #include <fort/myrmidon/priv/Shape.hpp>
 
@@ -152,7 +152,7 @@ public:
 	                      const pb::Space & pb);
 
 	static void SaveSpace(pb::Space * pb,
-	                      const SpacePtr & space);
+	                      const SpaceConstPtr & space);
 
 
 	// Loads an Experiment from a protobuf message
@@ -250,13 +250,13 @@ public:
 	//
 	// @pb the protobuf message to read from
 	// @return a <Capsule::Ptr> initialized with the message data
-	static CapsulePtr LoadCapsule(const pb::Capsule & pb);
+	static Capsule LoadCapsule(const pb::Capsule & pb);
 
 	// Saves a Capsule to a message
 	//
 	// @pb the protobuf message to save to
 	// @capsule the <Capsule> to save to
-	static void SaveCapsule(pb::Capsule * pb,const CapsuleConstPtr & capsule);
+	static void SaveCapsule(pb::Capsule * pb,const Capsule & capsule);
 
 
 	static CirclePtr LoadCircle(const pb::Circle & pb);

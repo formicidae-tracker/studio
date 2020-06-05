@@ -29,6 +29,10 @@ class TrackingVideoPlayer : public QObject {
 	Q_PROPERTY(fm::Duration position
 	           READ position
 	           NOTIFY positionChanged);
+	Q_PROPERTY(bool scrollMode
+	           READ scrollMode
+	           WRITE setScrollMode);
+
 public:
 	enum class State {
 		Stopped = 0,
@@ -53,17 +57,37 @@ public:
 	fm::Time start() const;
 
 	bool isSeekReady() const;
+
+	bool scrollMode() const;
+
+	const fmp::MovieSegment::ConstPtr & currentSegment() const;
+
 public slots:
+
+	void togglePlayPause();
 	void pause();
 	void play();
 	void stop();
-	void setMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+	void setMovieSegment(quint32 spaceID,
+	                     const fmp::TrackingDataDirectory::ConstPtr & tdd,
 	                     const fmp::MovieSegment::ConstPtr & segment,
 	                     const fm::Time & start);
 
 	void setPlaybackRate(qreal rate);
 
 	void setPosition(fm::Duration position);
+
+	void jumpNextFrame();
+	void jumpPrevFrame();
+
+	void skipDuration(fm::Duration duration);
+
+	void setTime(const fm::Time & time);
+
+	void setScrollMode(bool scrollMode);
+
+	void jumpNextVisible(fmp::AntID antID, bool backward);
+
 
 signals:
 	void seekReady(bool ready);
@@ -88,7 +112,8 @@ private:
 	void sendToProcess(TrackingVideoFrame frame);
 
 	void stopTask();
-	void bootstrapTask(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	void bootstrapTask(quint32 spaceID,
+	                   const fmp::TrackingDataDirectory::ConstPtr & tdd);
 
 	void displayVideoFrameImpl(const TrackingVideoFrame & frame);
 
@@ -106,6 +131,7 @@ private:
 	fm::Duration                d_duration;
 
 	bool                        d_displayNext;
+	bool                        d_scrollMode;
 
 	size_t                          d_currentTaskID;
 	size_t                          d_currentSeekID;
@@ -129,7 +155,8 @@ public:
 
 	std::shared_ptr<QImage> allocate() const;
 
-	void startLoadingFrom(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	void startLoadingFrom(quint32 spaceID,
+	                      const fmp::TrackingDataDirectory::ConstPtr & tdd);
 
 	void processNewFrame(TrackingVideoFrame frame);
 
@@ -143,7 +170,8 @@ private slots:
 
 	void processNewFrameUnsafe(TrackingVideoFrame frame);
 
-	void startLoadingFromUnsafe(fmp::TrackingDataDirectory::ConstPtr tdd);
+	void startLoadingFromUnsafe(quint32 spaceID,
+	                            fmp::TrackingDataDirectory::ConstPtr tdd);
 
 private:
 	fmp::MovieSegment::ConstPtr       d_segment;

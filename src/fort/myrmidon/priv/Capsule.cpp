@@ -4,6 +4,14 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+Capsule::Capsule()
+	: Shape(Shape::Type::Capsule)
+	, d_c1(0,0)
+	, d_c2(0,0)
+	, d_r1(0)
+	, d_r2(0) {
+}
+
 Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,

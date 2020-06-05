@@ -1,6 +1,12 @@
-#include "TimeValidUTest.hpp"
+#include <iostream>
+
+class TestObject;
+std::ostream & operator<<(std::ostream & out, const TestObject & o );
 
 #include "TimeValid.hpp"
+
+#include "TimeValidUTest.hpp"
+
 
 #include "../UtilsUTest.hpp"
 

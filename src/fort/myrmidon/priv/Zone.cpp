@@ -1,12 +1,13 @@
 #include "Zone.hpp"
 
+#include <iostream>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
 
-Zone::Geometry::Geometry(const std::vector<Shape::ConstPtr> & shapes)
+ZoneGeometry::ZoneGeometry(const std::vector<Shape::ConstPtr> & shapes)
 	: d_shapes(shapes) {
 	d_AABBs.reserve(d_shapes.size());
 	for ( const auto & s : shapes) {
@@ -21,53 +22,72 @@ Zone::Geometry::Geometry(const std::vector<Shape::ConstPtr> & shapes)
 }
 
 
-const std::vector<Shape::ConstPtr> & Zone::Geometry::Shapes() const {
+const std::vector<Shape::ConstPtr> & ZoneGeometry::Shapes() const {
 	return d_shapes;
 }
 
-const AABB & Zone::Geometry::GlobalAABB() const {
+const AABB & ZoneGeometry::GlobalAABB() const {
 	return d_globalAABB;
 }
 
-const std::vector<AABB> & Zone::Geometry::IndividualAABB() const {
+const std::vector<AABB> & ZoneGeometry::IndividualAABB() const {
 	return d_AABBs;
 }
 
-Zone::Definition::Definition(const Zone::Ptr & zone,
-                             Geometry::ConstPtr geometry,
-                             const Time::ConstPtr & start,
-                             const Time::ConstPtr & end)
+bool ZoneGeometry::Contains(const Eigen::Vector2d & point ) const {
+	if ( d_globalAABB.contains(point) == false ) {
+		return false;
+	}
+	auto fi = std::find_if(d_shapes.begin(),
+	                       d_shapes.end(),
+	                       [&point](const Shape::ConstPtr & s ) {
+		                       return s->Contains(point);
+	                       });
+	return fi != d_shapes.end();
+
+}
+
+ZoneDefinition::ZoneDefinition(const Zone::Ptr & zone,
+                               Geometry::ConstPtr geometry,
+                               const Time::ConstPtr & start,
+                               const Time::ConstPtr & end)
 	: d_zone(zone)
 	, d_geometry(geometry) {
 	d_start = start;
 	d_end = end;
 }
 
-const Zone::Geometry::ConstPtr & Zone::Definition::GetGeometry() const {
+const ZoneGeometry::ConstPtr & ZoneDefinition::GetGeometry() const {
 	return d_geometry;
 }
 
-void Zone::Definition::SetGeometry(const Geometry::ConstPtr & geometry) {
+void ZoneDefinition::SetGeometry(const Geometry::ConstPtr & geometry) {
 	d_geometry = geometry;
 }
 
-const Time::ConstPtr & Zone::Definition::Start() const {
+const Time::ConstPtr & ZoneDefinition::Start() const {
 	return d_start;
 }
 
-const Time::ConstPtr & Zone::Definition::End() const {
+const Time::ConstPtr & ZoneDefinition::End() const {
 	return d_end;
 }
 
-void Zone::Definition::SetStart(const Time::ConstPtr & start) {
+void ZoneDefinition::SetStart(const Time::ConstPtr & start) {
 	SetBound(start,d_end);
 }
 
-void Zone::Definition::SetEnd(const Time::ConstPtr & end) {
+void ZoneDefinition::SetEnd(const Time::ConstPtr & end) {
 	SetBound(d_start,end);
 }
 
-void Zone::Definition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+void ZoneDefinition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+	if ( !start == false && !end == false && end->Before(*start) ) {
+		std::ostringstream os;
+		os << "Invalid time range [" << *start << "," << *end << "]";
+		throw std::invalid_argument(os.str());
+	}
+
 	auto zone = d_zone.lock();
 	if ( !zone ) {
 		throw DeletedReference<Zone>();
@@ -93,13 +113,14 @@ Zone::Ptr Zone::Create(ID ZID,const std::string & name,const std::string & paren
 	return res;
 }
 
-Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
-                                          const Time::ConstPtr & start,
-                                          const Time::ConstPtr & end) {
+ZoneDefinition::Ptr Zone::AddDefinition(const std::vector<Shape::ConstPtr> & shapes,
+                                        const Time::ConstPtr & start,
+                                        const Time::ConstPtr & end) {
 	auto itself = d_itself.lock();
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
 	}
+	auto geometry = std::make_shared<Geometry>(shapes);
 	auto res = std::make_shared<Definition>(itself,geometry,start,end);
 	auto oldDefinitions = d_definitions;
 	d_definitions.push_back(res);
@@ -111,8 +132,12 @@ Zone::Definition::Ptr Zone::AddDefinition(const Geometry::ConstPtr & geometry,
 	return res;
 }
 
-const Zone::Definition::List & Zone::Definitions() const {
+const ZoneDefinition::List & Zone::Definitions() {
 	return d_definitions;
+}
+
+const ZoneDefinition::ConstList & Zone::CDefinitions() const {
+	return reinterpret_cast<const ZoneDefinition::ConstList&>(d_definitions);
 }
 
 const std::string & Zone::Name() const {
@@ -127,7 +152,7 @@ Zone::ID Zone::ZoneID() const {
 	return d_ZID;
 }
 
-Zone::Geometry::ConstPtr Zone::AtTime(const Time & t) {
+ZoneGeometry::ConstPtr Zone::AtTime(const Time & t) {
 	for ( const auto & d : d_definitions ) {
 		if ( d->IsValid(t) == true ) {
 			return d->GetGeometry();
@@ -142,6 +167,75 @@ Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
 	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(ZID)).generic_string() ) {
 }
 
+static bool TimePtrEqual(const Time::ConstPtr & a,
+                  const Time::ConstPtr & b) {
+	if ( !a ) {
+		return !b;
+	}
+	if ( !b ) {
+		return false;
+	}
+	return *a == *b;
+}
+
+
+
+bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const {
+	if ( d_definitions.empty() ) {
+		start.reset();
+		end.reset();
+		return true;
+	}
+	Time::ConstPtr lastEnd;
+	for ( const auto & def : d_definitions ) {
+		if ( TimePtrEqual(lastEnd,def->Start()) ) {
+			continue;
+		}
+
+		auto t = def->Start()->Add(-1);
+		try {
+			end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+			return true;
+		} catch ( const std::invalid_argument &) {
+		}
+	}
+
+	if ( !d_definitions.back()->End() == true ) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+	auto t = *d_definitions.back()->End();
+	try {
+		end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
+		return true;
+	} catch ( const std::invalid_argument &) {
+		start.reset();
+		end.reset();
+		return false;
+	}
+}
+
+void Zone::EraseDefinition(size_t index) {
+	if ( index >= d_definitions.size() ) {
+		throw std::out_of_range(std::to_string(index) + " is out of range [0," + std::to_string(d_definitions.size()) + "[");
+	}
+	d_definitions.erase(d_definitions.begin() + index);
+}
+
+
+void Zone::SetName(const std::string & name) {
+	d_name = name;
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::priv::Zone::Definition & definition) {
+	return out << "Zone::Definition";
+}

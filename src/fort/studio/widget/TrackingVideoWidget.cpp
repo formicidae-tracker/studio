@@ -8,6 +8,7 @@
 
 
 #include <QPainter>
+#include <QMouseEvent>
 
 #include <QDebug>
 
@@ -17,6 +18,7 @@ TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	, d_identifier(nullptr)
 	, d_hideLoadingBanner(true)
 	, d_showID(false)
+	, d_showCollisions(false)
 	, d_focusedAntID(0)
 	, d_zoom(1.0)
 	, d_lastFocus(0,0)
@@ -29,6 +31,11 @@ TrackingVideoWidget::~TrackingVideoWidget() {
 bool TrackingVideoWidget::showID() const {
 	return d_showID;
 }
+
+bool TrackingVideoWidget::showCollisions() const {
+	return d_showCollisions;
+}
+
 
 void TrackingVideoWidget::display(TrackingVideoFrame frame) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Received frame:" << frame << std::endl);
@@ -120,6 +127,7 @@ void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
 void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & focusRectangle) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] identification painting on:" << d_frame << std::endl);
 	const auto & tFrame = d_frame.TrackingFrame;
+	const auto & iFrame = d_frame.CollisionFrame;
 	double ratio = double(d_frame.Image->height()) / double(tFrame->Height);
 	const static double ANT_HALF_SIZE = 8.0;
 
@@ -130,6 +138,40 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	painter->setFont(font);
 	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
+
+	if ( !iFrame == false && d_showCollisions == true ) {
+		fmp::DenseMap<quint32,fm::PositionedAnt> positions;
+		for ( const auto & pa : tFrame->Positions ) {
+			positions.insert(std::make_pair(pa.ID,pa));
+		}
+
+		for ( const auto & collision : iFrame->Collisions ) {
+			auto a = d_identifier->ant(collision.IDs.first);
+			auto b = d_identifier->ant(collision.IDs.second);
+
+			if ( !a || !b
+			     || ( hasSolo == true
+			          && a->DisplayStatus() != fmp::Ant::DisplayState::SOLO
+			          && b->DisplayStatus() != fmp::Ant::DisplayState::SOLO) ) {
+				continue;
+			}
+
+			auto aPos = Conversion::fromEigen(ratio * positions.at(a->AntID()).Position);
+			auto bPos = Conversion::fromEigen(ratio * positions.at(b->AntID()).Position);
+
+			if ( focusRectangle.contains(aPos) == false
+			     && focusRectangle.contains(bPos) == false ) {
+				continue;
+			}
+			auto c = Conversion::colorFromFM(a->DisplayColor(),150);
+			painter->setPen(QPen(c,3));
+
+			painter->drawLine(aPos,bPos);
+
+		}
+	}
+
+
 	for ( const auto & pa : tFrame->Positions ) {
 		auto a = d_identifier->ant(pa.ID);
 		if ( !a
@@ -137,7 +179,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 		     || a->DisplayStatus() == fmp::Ant::DisplayState::HIDDEN ) {
 			continue;
 		}
-		QPointF correctedPos(ratio * pa.Position.x(),ratio * pa.Position.y());
+		auto correctedPos = Conversion::fromEigen(ratio * pa.Position);
 
 		if ( focusRectangle.contains(correctedPos) == false ) {
 			continue;
@@ -207,7 +249,7 @@ void TrackingVideoWidget::setZoomFocus(quint32 antID,qreal value) {
 void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
 	if ( !d_frame.Image == true || !d_frame.TrackingFrame ) {
 		if ( reset == true ) {
-			d_lastFocus == QPointF(0,0);
+			d_lastFocus = QPointF(0,0);
 		}
 		return;
 	}
@@ -234,6 +276,15 @@ void TrackingVideoWidget::setShowID(bool show) {
 	emit showIDChanged(show);
 }
 
+void TrackingVideoWidget::setShowCollisions(bool show) {
+	if ( show == d_showCollisions ) {
+		return;
+	}
+	d_showCollisions = show;
+	update();
+	emit showCollisionsChanged(show);
+}
+
 
 void TrackingVideoWidget::setHasTrackingTime(bool value) {
 	if ( value == d_hasTrackingTime ) {
@@ -252,4 +303,22 @@ fm::Time TrackingVideoWidget::trackingTime() const {
 		return fm::Time();
 	}
 	return d_frame.TrackingFrame->FrameTime;
+}
+
+
+void TrackingVideoWidget::mousePressEvent(QMouseEvent * event) {
+	if ( event->button() == Qt::LeftButton ) {
+		emit togglePlayPause();
+	}
+	event->accept();
+}
+
+void TrackingVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
+	if ( event->button() == Qt::LeftButton ) {
+		// qInfo() << "Fullscreen is not implemented";
+
+		// //we already received a click so we toggle again
+		emit togglePlayPause();
+	}
+	event->accept();
 }

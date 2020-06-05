@@ -1,3 +1,5 @@
+#include "Capsule.hpp"
+
 #include "CapsuleUTest.hpp"
 
 #include <random>
@@ -95,7 +97,7 @@ TEST_F(CapsuleUTest,TestCaspuleCollision) {
 		  0.00,0.00,0.00,1.00,0.02,0.30,
 		  0.30,0.00,0.60,0.90,0.02,0.33,
 		  true
-		 }
+		 },
 		};
 
 	for ( const auto & d : testdata ) {

@@ -27,7 +27,7 @@ public:
 
 	const fmp::Ant::TypedCapsuleList & capsules() const;
 
-	fm::Ant::ID selectedID() const;
+	fmp::AntID selectedID() const;
 
 	std::vector<fmp::Identification::ConstPtr> identifications() const;
 
@@ -42,6 +42,8 @@ public slots:
 
 	void addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule);
 	void clearCapsules();
+
+	void cloneShape(bool scaleToSize, bool overwriteShape);
 
 private:
 	void rebuildIdentificationModel();

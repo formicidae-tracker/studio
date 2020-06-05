@@ -108,7 +108,7 @@ void TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
 	}
 
 	for ( const auto & [FID,ref] : tdd->ReferenceCache() ) {
-		lines.push_back([&ref](pb::TrackingDataDirectoryFileLine & line){
+		lines.push_back([ref= std::ref(ref) ](pb::TrackingDataDirectoryFileLine & line){
 			                IOUtils::SaveFrameReference(line.mutable_cachedframe(),
 			                                            ref);
 		                });

@@ -4,7 +4,6 @@
 
 #include <fort/tags/fort-tags.h>
 
-#include <fort/myrmidon/Ant.hpp>
 #include <fort/myrmidon/Time.hpp>
 #include <fort/myrmidon/utils/FileSystem.hpp>
 
@@ -19,6 +18,8 @@
 namespace fort {
 namespace myrmidon {
 namespace priv {
+
+class ExperimentLock;
 
 
 using namespace fort::myrmidon;
@@ -39,10 +40,7 @@ using namespace fort::myrmidon;
 // to anlayse several of them in the same program.
 class Experiment : public FileSystemLocatable {
 public :
-
-
-	typedef std::map<uint32_t,MeasurementConstPtr>     MeasurementByType;
-
+	typedef std::map<uint32_t,MeasurementConstPtr>        MeasurementByType;
 	typedef std::map<std::string,MeasurementByType>       MeasurementByTagCloseUp;
 
 
@@ -57,6 +55,13 @@ public :
 	// @filename the fs::path to the ".myrmidon" file
 	// @return a <Ptr> to the <Experiment>.
 	static Ptr Open(const fs::path & filename);
+
+
+	// Opens an existing experiment given its fs::path
+	// @filename the fs::path to the ".myrmidon" file
+	// @return a <Ptr> to the <Experiment>.
+	static ConstPtr OpenReadOnly(const fs::path & filename);
+
 
 	// Creates a new <Experiment> given a fs::path
 	// @filename the fs::path to the ".myrmidon" file
@@ -84,7 +89,7 @@ public :
 	//  directory referred byt the TrackingDatadirectory.
 	//
 	// Saves the <priv::Experiment> data to the filesystem
-	void Save(const fs::path & filename) const;
+	void Save(const fs::path & filename);
 
 
 	// The absolute path of the Experiment
@@ -107,7 +112,8 @@ public :
 
 	void DeleteSpace(Space::ID spaceID);
 
-	const SpaceByID & Spaces() const;
+	const SpaceByID & Spaces();
+	const ConstSpaceByID & CSpaces() const;
 
 	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
@@ -116,12 +122,19 @@ public :
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
 	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-	LocateTrackingDataDirectory(const std::string & tddURI) const;
-
-	Space::Ptr LocateSpace(const std::string & spaceName) const;
+	LocateTrackingDataDirectory(const std::string & tddURI);
 
 
-	AntPtr CreateAnt(fort::myrmidon::Ant::ID aID = 0);
+	std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+	CLocateTrackingDataDirectory(const std::string & tddURI) const;
+
+
+	Space::ConstPtr CLocateSpace(const std::string & spaceName) const;
+
+	Space::Ptr LocateSpace(const std::string & spaceName);
+
+
+	AntPtr CreateAnt(AntID aID = 0);
 
 	// Accessor to the underlying Identifier
 	//
@@ -133,7 +146,7 @@ public :
 	// ConstAccessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
-	inline const fort::myrmidon::priv::Identifier & ConstIdentifier() const {
+	inline const fort::myrmidon::priv::Identifier & CIdentifier() const {
 		return *d_identifier;
 	}
 
@@ -203,7 +216,9 @@ public :
 
 	void DeleteMeasurementType(MeasurementTypeID MTID);
 
-	const MeasurementTypeByID & MeasurementTypes() const;
+	const ConstMeasurementTypeByID & CMeasurementTypes() const;
+
+	const MeasurementTypeByID & MeasurementTypes();
 
 	// Adds or modifies a Measurement
 	//
@@ -223,11 +238,6 @@ public :
 	// experiment.
 	const MeasurementByTagCloseUp & Measurements() const;
 
-	// Represents a Measurement in mm at a given Time.
-	struct ComputedMeasurement {
-		Time   MTime;
-		double LengthMM;
-	};
 
 	// Computes all Measurement of a type for an Ant
 	//
@@ -235,8 +245,8 @@ public :
 	//         <ComputedMeasurement>
 	// @AID the desired <Ant> designated by its <Ant::ID>
 	// @type the type of measurement we are looking for.
-	void ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
-	                               myrmidon::Ant::ID AID,
+	void ComputeMeasurementsForAnt(ComputedMeasurement::List & result,
+	                               AntID AID,
 	                               MeasurementTypeID type) const;
 
 
@@ -245,17 +255,27 @@ public :
 
 	void DeleteAntShapeType(AntShapeTypeID TypeID);
 
-	const AntShapeTypeByID & AntShapeTypes() const;
+	const ConstAntShapeTypeByID & CAntShapeTypes() const;
+
+	const AntShapeTypeByID & AntShapeTypes();
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
-
 	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+
+	fort::myrmidon::priv::AntMetadataPtr AntMetadataPtr();
+
 
 	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
 
 	void DeleteAntMetadataColumn(const std::string & name);
 
+
+	void CloneAntShape(AntID sourceAntID,
+	                   bool scaleToSize,
+	                   bool overwriteShapes);
+
+	CollisionSolverConstPtr CompileCollisionSolver() const;
 
 
 	// Computes the conventional ratio beween corner size and
@@ -273,15 +293,16 @@ public :
 	// @return the right ratio
 	static double CornerWidthRatio(fort::tags::Family f);
 
+	void UnlockFile();
+
 private:
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
 	                          std::map<std::string,
 	                                   std::map<Time,
-	                                            MeasurementConstPtr,Time::Comparator>>>> SortedMeasurement;
+	                                            MeasurementConstPtr>>>>    SortedMeasurement;
 
-	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementTypePtr> MeasurementTypeContainer;
-
+	typedef AlmostContiguousIDContainer<MeasurementTypeID,MeasurementType> MeasurementTypeContainer;
 
 	Experiment & operator=(const Experiment&) = delete;
 	Experiment(const Experiment&)  = delete;
@@ -307,8 +328,9 @@ private:
 	SortedMeasurement        d_measurements;
 	MeasurementTypeContainer d_measurementTypes;
 
-	AntShapeTypeContainerPtr d_antShapeTypes;
-	AntMetadataPtr           d_antMetadata;
+	AntShapeTypeContainerPtr             d_antShapeTypes;
+	fort::myrmidon::priv::AntMetadataPtr d_antMetadata;
+	std::shared_ptr<ExperimentLock>      d_lock;
 };
 
 } //namespace priv

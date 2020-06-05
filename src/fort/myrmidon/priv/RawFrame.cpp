@@ -61,8 +61,9 @@ const FrameReference & RawFrame::Frame() const {
 	return d_frame;
 }
 
-IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier) const {
+IdentifiedFrame::Ptr RawFrame::IdentifyFrom(const IdentifierIF & identifier,SpaceID spaceID ) const {
 	auto res = std::make_shared<IdentifiedFrame>();
+	res->Space = spaceID;
 	res->FrameTime = Frame().Time();
 	res->Width = d_width;
 	res->Height = d_height;
@@ -75,7 +76,7 @@ IdentifiedFrame::ConstPtr RawFrame::IdentifyFrom(const IdentifierIF & identifier
 			continue;
 		}
 		identification->ComputePositionFromTag(position,angle,Eigen::Vector2d(t.x(),t.y()),t.theta());
-		res->Positions.push_back({position,angle,identification->Target()->ID()});
+		res->Positions.push_back({position,angle,identification->Target()->AntID()});
 
 	}
 	return res;

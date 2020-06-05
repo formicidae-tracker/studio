@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <set>
 
-#include "../Ant.hpp"
 #include "../Time.hpp"
 
 #include "Types.hpp"
@@ -32,7 +31,7 @@ class IdentifierIF {
 public:
 	typedef std::shared_ptr<IdentifierIF>       Ptr;
 	typedef std::shared_ptr<const IdentifierIF> ConstPtr;
-	virtual IdentificationPtr Identify(TagID tagID, const Time & time) const = 0;
+	virtual IdentificationConstPtr Identify(TagID tagID, const Time & time) const = 0;
 };
 
 
@@ -44,7 +43,7 @@ public:
 // be created and deleted through its interface as it the only way to
 // make sure that we respect the non-<OverlappingIdentification>
 // invariant in the library.
-class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,AntPtr> {
+class Identifier : public IdentifierIF, protected AlmostContiguousIDContainer<AntID,Ant> {
 public:
 	// A Pointer to an Identifier
 	typedef std::shared_ptr<Identifier> Ptr;
@@ -57,18 +56,18 @@ public:
 	virtual ~Identifier();
 
 	// A default asking for the next available ID
-	const static fort::myrmidon::Ant::ID NEXT_AVAILABLE_ID = 0;
+	const static AntID NEXT_AVAILABLE_ID = 0;
 
 	// Create an Ant
 	// @ID the desired ID
 	//
-	// Creats a new Ant with the iven ID. It will throw an
+	// Creats a new Ant with the given ID. It will throw an
 	// <AlreadyExistingAnt> if the ID is already used. If
 	// NEXT_AVAILABLE_ID is used, a unique ID will be automatically
 	// chosen.
 	AntPtr CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
 	                 const AntMetadataConstPtr & metadataColumns,
-	                 fort::myrmidon::Ant::ID ID = NEXT_AVAILABLE_ID);
+	                 AntID ID = NEXT_AVAILABLE_ID);
 
 	// Deletes an Ant
 	// @ID the <priv::Ant> to delete
@@ -76,11 +75,16 @@ public:
 	// Deletes an <priv::Ant> from the Identifier. It should have no
 	// Identification targetting her otherwise an exception will be
 	// thrown.
-	void DeleteAnt(fort::myrmidon::Ant::ID );
+	void DeleteAnt(AntID );
 
 	// Gets the Ants in the Identifier
 	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
-	const AntByID & Ants() const;
+	const AntByID & Ants();
+
+	// Gets the Ants in the Identifier
+	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
+	const ConstAntByID & CAnts() const;
+
 
 	// Adds a new Identification
 	// @id the targeted <priv::Ant>
@@ -92,7 +96,7 @@ public:
 	// <OverlappingIdentification> if any exists for the desired
 	// <priv::Ant> or <TagID>.
 	static IdentificationPtr AddIdentification(const Identifier::Ptr & itself,
-	                                           fort::myrmidon::Ant::ID id,
+	                                           AntID id,
 	                                           TagID tagValue,
 	                                           const Time::ConstPtr & start,
 	                                           const Time::ConstPtr & end);
@@ -137,7 +141,7 @@ public:
 	// @tag <TagID> to look for
 	// @frame the frame to look for
 	// @return an <Identification::Ptr> if any exists for that tag at this point in time.
-	IdentificationPtr Identify(TagID tag,const Time & frame) const override;
+	IdentificationConstPtr Identify(TagID tag,const Time & frame) const override;
 
 
 	// Return the first next frame if any where tag is not used
@@ -181,10 +185,10 @@ public:
 		Compiled(const std::unordered_map<TagID,IdentificationList> & identification);
 		virtual ~Compiled();
 
-		IdentificationPtr Identify(TagID tagID, const Time & time) const override;
+		IdentificationConstPtr Identify(TagID tagID, const Time & time) const override;
 
 	private:
-		typedef DenseMap<TagID,IdentificationList> IdentificationsByTagID;
+		typedef DenseMap<TagID,IdentificationConstList> IdentificationsByTagID;
 		IdentificationsByTagID d_identifications;
 	};
 

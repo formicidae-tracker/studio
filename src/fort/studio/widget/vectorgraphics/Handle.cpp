@@ -4,10 +4,9 @@
 #include <QPen>
 #include "VectorialScene.hpp"
 
-const qreal Handle::SIZE = 7;
-const QColor Handle::COLOR = QColor(50,50,50,120);
-const QColor Handle::SELECTED_COLOR = QColor(150,150,150,120);
-
+const qreal Handle::SIZE = 9;
+const QColor Handle::COLOR = QColor(127,127,127,255);
+const QColor Handle::SELECTED_COLOR = QColor(200,200,200,255);
 
 
 QRectF Handle::build() {

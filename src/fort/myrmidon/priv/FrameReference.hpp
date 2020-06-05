@@ -39,6 +39,9 @@ public:
 	// @return a fs::path uniquely identifying the Frame
 	const std::string & URI() const override;
 
+	bool operator<(const FrameReference & other) const;
+
+
 private:
 	std::string          d_parentURI;
 	std::string          d_URI;

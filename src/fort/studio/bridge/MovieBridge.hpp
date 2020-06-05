@@ -23,8 +23,11 @@ public :
 
 	QAbstractItemModel * movieModel();
 
-	std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	std::tuple<quint32,fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
 	tddAndMovieSegment(const QModelIndex & index) const;
+
+	std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	findTime(fmp::SpaceID spaceID, const fm::Time & time);
 
 public slots:
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
@@ -35,11 +38,14 @@ private :
 	const static int IDRole;
 	const static int StartRole;
 	const static int TddRole;
+	const static int SpaceIDRole;
 
 
 	static QList<QStandardItem*> buildSpace(const fmp::SpaceConstPtr & space);
-	static QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectoryConstPtr & tdd);
-	static QList<QStandardItem*> buildMovieSegment(const fmp::TrackingDataDirectoryConstPtr & tdd,
+	static QList<QStandardItem*> buildTDD(quint32 spaceID,
+	                                      const fmp::TrackingDataDirectoryConstPtr & tdd);
+	static QList<QStandardItem*> buildMovieSegment(quint32 spaceID,
+	                                               const fmp::TrackingDataDirectoryConstPtr & tdd,
 	                                               const fmp::MovieSegmentConstPtr & ms,
 	                                               const fm::Time & start,
 	                                               const fm::Time & end);

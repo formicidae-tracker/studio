@@ -128,7 +128,16 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 		                return FrameReference("",0,Time());
 	                };
 
+
 	auto barAntDir = TestSetup::Basedir() / "bar.0000/ants";
+
+	EXPECT_THROW(TagCloseUp::Lister::Create(barAntDir,
+	                                        tags::Family::Undefined,
+	                                         80,
+	                                        resolver);,
+	             std::invalid_argument);
+
+
 	auto lister = TagCloseUp::Lister::Create(barAntDir,
 	                                         tags::Family::Tag36h11,
 	                                         80,
@@ -141,7 +150,9 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	ASSERT_EQ(res.size(),1);
 	EXPECT_EQ(res[0]->TagValue(),0);
 	computed = res[0];
-
+	// need to clear all to save cache
+	loaders.clear();
+	lister.reset();
 	auto cachePath = TagCloseUp::Lister::CacheFilePath(barAntDir);
 	ASSERT_TRUE(fs::is_regular_file(cachePath)) <<
 		cachePath << " does not exist";
@@ -293,10 +304,13 @@ TEST_F(TagCloseUpUTest,CanOpenApriltagFamily) {
 		};
 
 	for (const auto & d : testdata) {
-		EXPECT_NO_THROW({
-				auto f = TagCloseUp::Lister::LoadFamily(d.F);
-				EXPECT_EQ(std::string(f->name),d.Name);
-			});
+		try {
+			auto [f,destructor] = TagCloseUp::Lister::LoadFamily(d.F);
+			EXPECT_EQ(std::string(f->name),d.Name);
+			destructor(f);
+		} catch ( const std::exception & e ) {
+			ADD_FAILURE() << "Could not load family: " << e.what();
+		}
 	}
 
 }

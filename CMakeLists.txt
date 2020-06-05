@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 
-project(fort-studio VERSION 0.1.1
+project(fort-studio VERSION 0.4.0
                     LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
@@ -18,6 +18,9 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(TBB REQUIRED tbb)
+
 find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
 find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
@@ -34,7 +37,7 @@ FetchContent_Declare(fort-tags
 
 FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
-                     GIT_TAG        v0.3.0)
+                     GIT_TAG        v0.4.0)
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
@@ -66,6 +69,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_CPP_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
+                    ${TBB_INCLUDE_DIRS}
                     ${fort-tags_SOURCE_DIR}/include
                     ${HERMES_INCLUDE_DIRS}
                     )
@@ -74,9 +78,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 
-
 include(CheckCXXSourceCompiles)
-
 
 set(CMAKE_REQUIRED_FLAGS "-lstdc++fs")
 
@@ -89,7 +91,6 @@ int main(){
 "
 	USE_CXX17_FS_LIBRARY
 )
-
 
 if(USE_CXX17_FS_LIBRARY)
 	set(CXXFS_LIBRARY "-lstdc++fs")
@@ -145,7 +146,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
         DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake )
 
-
+add_subdirectory(pkgconfig)
 
 add_subdirectory(src)
 
@@ -164,7 +165,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 option(BUILD_DOCS "Builds the documentation" Off)
-
+option(DOCS_USES_PATCHED_HEADERS "Documentation shoudl use patched system headers" Off)
 if(BUILD_DOCS)
 	add_subdirectory(docs)
 endif(BUILD_DOCS)

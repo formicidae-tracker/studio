@@ -9,6 +9,7 @@
 #include <fort/myrmidon/priv/MovieSegment.hpp>
 #include <fort/myrmidon/priv/RawFrame.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
+#include <fort/myrmidon/priv/CollisionSolver.hpp>
 
 #ifdef NDEBUG
 #define FORT_STUDIO_CONC_LOADER_NDEBUG 1
@@ -66,18 +67,28 @@ void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::Const
 	d_experiment = experiment;
 }
 
-const fmp::IdentifiedFrame::ConstPtr &
-IdentifiedFrameConcurrentLoader::FrameAt(fmp::MovieFrameID movieID) const {
-	static fmp::IdentifiedFrame::ConstPtr empty;
-	auto fi = d_frames.find(movieID);
+const fm::IdentifiedFrame::ConstPtr &
+IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
+	static fm::IdentifiedFrame::ConstPtr empty;
+	auto fi = d_frames.find(movieID+1);
 	if ( fi == d_frames.cend() ) {
 		return empty;
 	}
-	return fi.value();
+	return fi->second;
 }
 
+const fm::CollisionFrame::ConstPtr &
+IdentifiedFrameConcurrentLoader::collisionAt(fmp::MovieFrameID movieID) const {
+	static fm::CollisionFrame::ConstPtr empty;
+	auto fi = d_collisions.find(movieID+1);
+	if ( fi == d_collisions.cend() ) {
+		return empty;
+	}
+	return fi->second;
+}
 
-void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDirectory::ConstPtr & tdd,
+void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
+                                                       const fmp::TrackingDataDirectory::ConstPtr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
 		return;
@@ -90,8 +101,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	}
 
 	clear();
-
-	auto identifier = d_experiment->ConstIdentifier().Compile();
+	auto identifier = d_experiment->CIdentifier().Compile();
+	auto solver = d_experiment->CompileCollisionSolver();
 
 	size_t currentLoadingID = ++d_currentLoadingID;
 
@@ -100,7 +111,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	abordFlag->store(false);
 
 	int maxThreadCount = QThreadPool::globalInstance()->maxThreadCount();
-	if ( maxThreadCount <= 0 ) {
+	if ( maxThreadCount < 2 ) {
+		qWarning() << "Increases the work thread to at least 2 from " << maxThreadCount;
 		maxThreadCount = 2;
 		// avoids deadlock on the global instance !!!
 		QThreadPool::globalInstance()->setMaxThreadCount(maxThreadCount);
@@ -118,7 +130,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 	// frames are single threaded read and loaded in memory, and we
 	// spawn instance to compute them.
 	auto load =
-		[tdd,segment,identifier,abordFlag,currentLoadingID,sem,this]() {
+		[tdd,segment,identifier,solver,abordFlag,currentLoadingID,sem,spaceID,this]() {
 			try {
 				auto start = tdd->FrameAt(segment->StartFrame());
 				auto lastFrame = segment->StartFrame() - 1;
@@ -148,15 +160,19 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 					lastFrame = frameID;
 
 					auto loadFrame =
-						[rawFrame,identifier,segment,frameID,this] () -> ConcurrentResult {
+						[rawFrame,identifier,solver,spaceID,segment,frameID,this] () -> ConcurrentResult {
 							CONC_LOADER_DEBUG(std::cerr << "Processing " << rawFrame->Frame().FID() << std::endl);
 							try {
 								auto movieID = segment->ToMovieFrameID(frameID);
-								return std::make_pair(movieID,
-								                      rawFrame->IdentifyFrom(*identifier));
+								auto identified = rawFrame->IdentifyFrom(*identifier,spaceID);
+								auto collisions = solver->ComputeCollisions(identified);
+								return std::make_tuple(movieID,
+								                       identified,
+								                       collisions);
 							} catch( const std::exception & ) {
-								return std::make_pair(segment->EndMovieFrame()+1,
-								                      fmp::IdentifiedFrame::ConstPtr());
+								return std::make_tuple(segment->EndMovieFrame()+1,
+								                       fm::IdentifiedFrame::ConstPtr(),
+								                       fm::CollisionFrame::ConstPtr());
 							}
 						};
 					CONC_LOADER_DEBUG(std::cerr << "Spawning " << frameID << std::endl);
@@ -184,12 +200,13 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 
 						        addDone(1);
 
-						        if ( res.first == segment->EndMovieFrame()+1 ) {
+						        if ( std::get<0>(res) == segment->EndMovieFrame()+1 ) {
 							        // no result for that computation
 							        return;
 						        }
 
-						        d_frames.insert(res.first,res.second);
+						        d_frames.insert(std::make_pair(std::get<0>(res)+1,std::get<1>(res)));
+						        d_collisions.insert(std::make_pair(std::get<0>(res)+1,std::get<2>(res)));
 					        },
 					        Qt::QueuedConnection);
 					watcher->setFuture(future);
@@ -210,6 +227,7 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(const fmp::TrackingDataDi
 void IdentifiedFrameConcurrentLoader::clear() {
 	abordCurrent();
 	d_frames.clear();
+	d_collisions.clear();
 }
 
 
@@ -242,4 +260,34 @@ void IdentifiedFrameConcurrentLoader::setProgress(int doneValue,int toDo) {
 
 void IdentifiedFrameConcurrentLoader::addDone(int done) {
 	setProgress(d_done + done,d_toDo);
+}
+
+quint64 IdentifiedFrameConcurrentLoader::findAnt(quint32 antID,
+                                                 quint64 frameID,
+                                                 int direction) {
+	auto fi = d_frames.find(frameID + 1);
+	if ( d_done == false || fi == d_frames.end() ) {
+		return std::numeric_limits<quint64>::max();
+	}
+
+
+	if ( direction > 0 ) {
+		for ( ; fi != d_frames.end(); ++fi ) {
+			if( fi->second->Contains(antID) == true ) {
+				return fi->first - 1;
+			}
+		}
+		return std::numeric_limits<quint64>::max();
+	}
+
+
+	for ( ; fi != d_frames.begin(); --fi) {
+		if( fi->second->Contains(antID) == true ) {
+			return fi->first - 1;
+		}
+	}
+	if ( fi->second->Contains(antID) == true ) {
+		return fi->first - 1;
+	}
+	return std::numeric_limits<quint64>::max();
 }

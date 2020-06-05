@@ -7,6 +7,8 @@
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
+#include "Navigatable.hpp"
+
 namespace Ui {
 class AntEditorWidget;
 }
@@ -15,13 +17,16 @@ class ExperimentBridge;
 class QStandardItemModel;
 class VectorialScene;
 
-class AntEditorWidget : public QWidget {
+class AntEditorWidget : public QWidget, public Navigatable {
 	Q_OBJECT
 public:
 	explicit AntEditorWidget(QWidget *parent = 0);
 	~AntEditorWidget();
 
 	void setup(ExperimentBridge * experiment);
+
+
+	QAction * cloneAntShapeAction() const;
 
 public slots:
 	void nextCloseUp();
@@ -54,8 +59,15 @@ private slots:
 	void onMeasurementModified(const fmp::MeasurementConstPtr &);
 	void onMeasurementDeleted(QString tcuURI, quint32 mtID);
 
+	void onCopyTime();
+
+	void onCloneShapeActionTriggered();
+
 protected:
 	void changeEvent(QEvent * event) override;
+
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
 private:
 
 
@@ -91,6 +103,7 @@ private:
 
 	void setColorFromType(quint32 typeID);
 
+	void updateCloneAction();
 
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
@@ -100,6 +113,10 @@ private:
 	fmp::TagCloseUp::ConstPtr   d_tcu;
 	VectorialScene            * d_vectorialScene;
 	Mode                        d_mode;
+
 	std::map<uint32_t,QSharedPointer<Vector> > d_vectors;
 	std::map<QSharedPointer<Capsule>,uint32_t> d_capsules;
+
+	QAction * d_copyTimeAction;
+	QAction * d_cloneShapeAction;
 };

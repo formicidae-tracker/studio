@@ -1,5 +1,10 @@
 #include "Experiment.hpp"
 
+#include <unistd.h>
+#include <sys/file.h>
+
+#include <fstream>
+
 #include "ExperimentReadWriter.hpp"
 
 #include "Ant.hpp"
@@ -10,8 +15,14 @@
 #include "AntPoseEstimate.hpp"
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
+#include "Capsule.hpp"
+#include "CollisionSolver.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
+#include <fort/myrmidon/utils/PosixCall.h>
+
+
+#include <fort/myrmidon/utils/Defer.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -50,7 +61,7 @@ Experiment::Experiment(const fs::path & filepath )
 			}
 			for ( const auto & [aID,a] : d_identifier->Ants() ) {
 				if ( a->DataMap().count(name) == 1 ) {
-					throw std::runtime_error("Could not change type for column '" + name + "': ant " + Ant::FormatID(a->ID()) + " already contains data");
+					throw std::runtime_error("Could not change type for column '" + name + "': ant " + a->FormattedID() + " already contains data");
 				}
 			}
 		};
@@ -70,12 +81,63 @@ Experiment::Experiment(const fs::path & filepath )
 	                                              onDefaultChange);
 }
 
+class ExperimentLock {
+public:
+	typedef std::shared_ptr<ExperimentLock>          Ptr;
+	ExperimentLock(const fs::path & filepath, bool shared) {
+
+		int opts = O_RDWR;
+		int lock = LOCK_EX | LOCK_NB;
+		if ( shared == true ) {
+			opts = O_RDONLY;
+			lock = LOCK_SH | LOCK_NB;
+		}
+
+		d_fd = open(filepath.c_str(),opts);
+		if ( d_fd < 0 ) {
+			throw MYRMIDON_SYSTEM_ERROR(open,errno);
+		}
+
+		try {
+			p_call(flock,d_fd,lock);
+		} catch ( std::system_error & e ) {
+			if ( e.code() != std::errc::resource_unavailable_try_again ) {
+				throw std::runtime_error("Could not acquire lock on '"
+				                         + filepath.string()
+				                         + "': " + e.what());
+			}
+
+			if ( shared == true ) {
+				throw std::runtime_error("Could not acquire shared lock on '"
+				                         + filepath.string()
+				                         + "':  another program has write access on it");
+			} else {
+				throw std::runtime_error("Could not acquire exclusive lock on '"
+				                         + filepath.string()
+				                         + "':  another program has write or read access on it");
+			}
+		}
+	}
+
+	~ExperimentLock() {
+		flock(d_fd,LOCK_UN);
+		close(d_fd);
+	}
+
+private:
+	int          d_fd;
+};
+
+
 Experiment::Ptr Experiment::Create(const fs::path & filename) {
-	return Experiment::Ptr(new Experiment(filename));
+	return std::shared_ptr<Experiment>(new Experiment(filename));
 }
 
 Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 	auto absolutePath = fs::absolute(fs::weakly_canonical(filepath));
+	if ( fs::exists(absolutePath) == true ) {
+		throw std::runtime_error("'" + filepath.string() + "' already exists");
+	}
 	auto base = absolutePath;
 	base.remove_filename();
 	auto res = Create(absolutePath);
@@ -85,12 +147,23 @@ Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
 	return res;
 }
 
-
 Experiment::Ptr Experiment::Open(const fs::path & filepath) {
-	return ExperimentReadWriter::Open(filepath);
+	auto lock = std::make_shared<ExperimentLock>(filepath,false);
+	auto res =  ExperimentReadWriter::Open(filepath);
+	res->d_lock = lock;
+	return res;
 }
 
-void Experiment::Save(const fs::path & filepath) const {
+
+Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
+	auto lock = std::make_shared<ExperimentLock>(filepath,true);
+	auto res = ExperimentReadWriter::Open(filepath);
+	res->d_lock = lock;
+	return res;
+}
+
+
+void Experiment::Save(const fs::path & filepath) {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
 	auto newBasedir = fs::weakly_canonical(filepath).parent_path();
 	//TODO: should not be an error.
@@ -98,7 +171,20 @@ void Experiment::Save(const fs::path & filepath) const {
 		throw std::runtime_error("Changing experiment file directory is not yet supported");
 	}
 
+	{
+		std::ofstream touching;
+		touching.open(filepath.c_str(),std::ios_base::app);
+	}
+
+	auto lock = d_lock;
+	if ( !lock || filepath != d_absoluteFilepath ) {
+		lock = std::make_shared<ExperimentLock>(filepath,false);
+	}
 	ExperimentReadWriter::Save(*this,filepath);
+	if ( filepath != d_absoluteFilepath ) {
+		d_absoluteFilepath = filepath;
+	}
+	d_lock = lock;
 }
 
 Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {
@@ -109,8 +195,12 @@ void Experiment::DeleteSpace(Space::ID ID) {
 	d_universe->DeleteSpace(ID);
 }
 
-const SpaceByID & Experiment::Spaces() const {
+const SpaceByID & Experiment::Spaces() {
 	return d_universe->Spaces();
+}
+
+const ConstSpaceByID & Experiment::CSpaces() const {
+	return d_universe->CSpaces();
 }
 
 const Space::Universe::TrackingDataDirectoryByURI &
@@ -338,7 +428,12 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 	if ( fi != cache.end() ) {
 		return fi->second;
 	}
-	auto fDef = TagCloseUp::Lister::LoadFamily(f);
+	auto [fDef,family_destroy] = TagCloseUp::Lister::LoadFamily(f);
+	Defer cleanup([fDef = fDef,
+	               family_destroy = family_destroy]
+	              () {
+		              family_destroy(fDef);
+	              });
 	auto res = double(fDef->width_at_border) / double(fDef->total_width);
 	cache[f] = res;
 	return res;
@@ -349,7 +444,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
                                            MeasurementType::ID type) const {
 	auto afi = d_identifier->Ants().find(AID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant::Ptr>::UnmanagedObject(AID);
+		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(AID);
 	}
 
 	double cornerWidthRatio = CornerWidthRatio(d_family);
@@ -412,18 +507,33 @@ void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
 	d_measurementTypes.DeleteObject(MTID);
 }
 
-const MeasurementTypeByID & Experiment::MeasurementTypes() const {
+const MeasurementTypeByID & Experiment::MeasurementTypes() {
 	return d_measurementTypes.Objects();
 }
 
+const ConstMeasurementTypeByID & Experiment::CMeasurementTypes() const {
+	return d_measurementTypes.CObjects();
+}
+
+std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+Experiment::CLocateTrackingDataDirectory(const std::string & tddURI) const {
+	return d_universe->CLocateTrackingDataDirectory(tddURI);
+}
+
 std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
-Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
+Experiment::LocateTrackingDataDirectory(const std::string & tddURI) {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }
 
-Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
+
+Space::ConstPtr Experiment::CLocateSpace(const std::string & spaceName) const {
+	return d_universe->CLocateSpace(spaceName);
+}
+
+Space::Ptr Experiment::LocateSpace(const std::string & spaceName) {
 	return d_universe->LocateSpace(spaceName);
 }
+
 
 AntShapeType::Ptr Experiment::CreateAntShapeType(const std::string & name,
                                                  AntShapeTypeID typeID) {
@@ -452,8 +562,12 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
 }
 
 
-const AntShapeTypeByID & Experiment::AntShapeTypes() const {
+const AntShapeTypeByID & Experiment::AntShapeTypes() {
 	return d_antShapeTypes->Types();
+}
+
+const ConstAntShapeTypeByID & Experiment::CAntShapeTypes() const {
+	return d_antShapeTypes->CTypes();
 }
 
 AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
@@ -463,6 +577,11 @@ AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
 fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() const {
 	return d_antMetadata;
 }
+
+fort::myrmidon::priv::AntMetadataPtr Experiment::AntMetadataPtr() {
+	return d_antMetadata;
+}
+
 
 AntMetadata::Column::Ptr
 Experiment::AddAntMetadataColumn(const std::string & name,
@@ -494,6 +613,70 @@ void Experiment::DeleteAntMetadataColumn(const std::string & name) {
 	}
 }
 
+
+void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
+                               bool scaleToSize,
+                               bool overwriteShapes) {
+	auto sourceIt = d_identifier->Ants().find(sourceAntID);
+	if ( sourceIt == d_identifier->Ants().cend() ) {
+		throw std::invalid_argument("Cannot find and " + Ant::FormatID(sourceAntID) );
+	}
+
+	auto source = sourceIt->second;
+	if ( source->Capsules().empty() && overwriteShapes == false ) {
+		return;
+	}
+
+	auto computeSize =
+		[this](fort::myrmidon::Ant::ID antID) -> double {
+			std::vector<ComputedMeasurement> measurements;
+			try {
+				ComputeMeasurementsForAnt(measurements,antID,Measurement::HEAD_TAIL_TYPE);
+			} catch ( const std::exception & e ) {
+				return 0.0;
+			}
+			double res = 0.0;
+			for ( const auto & m : measurements ) {
+				res += m.LengthMM / measurements.size();
+			}
+			return res;
+		};
+
+	double baseSize = computeSize(sourceAntID);
+	if ( baseSize == 0.0 && scaleToSize == true ) {
+		throw std::runtime_error("Ant " + Ant::FormatID(sourceAntID) + " has a size of zero");
+	}
+	for ( const auto & [aID,ant] : d_identifier->Ants() ) {
+		if ( aID == sourceAntID
+		     || (overwriteShapes == false && ant->Capsules().empty() == false) ) {
+			continue;
+		}
+		ant->ClearCapsules();
+		double scale = 1.0;
+		if ( scaleToSize == true ) {
+			double antSize = computeSize(aID);
+			if ( antSize > 0.0 ) {
+				scale = antSize / baseSize;
+			}
+		}
+		for ( const auto & [typeID,sourceCapsule] : source->Capsules() ) {
+			auto destCapsule = Capsule(scale * sourceCapsule.C1(),
+			                           scale * sourceCapsule.C2(),
+			                           scale * sourceCapsule.R1(),
+			                           scale * sourceCapsule.R2());
+			ant->AddCapsule(typeID,destCapsule);
+		}
+	}
+}
+
+CollisionSolver::ConstPtr Experiment::CompileCollisionSolver() const {
+	return std::make_shared<CollisionSolver>(d_universe->Spaces(),
+	                                         d_identifier->Ants());
+}
+
+void Experiment::UnlockFile() {
+	d_lock.reset();
+}
 
 } //namespace priv
 } //namespace myrmidon

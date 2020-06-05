@@ -24,7 +24,7 @@ public:
 		fi->second.insert(std::make_pair(Time::SortKey(time),value));
 	}
 
-	inline U & At(const T & key, const Time & t) {
+	inline const U & At(const T & key, const Time & t) const {
 		auto fi = d_map.find(key);
 		if ( fi == d_map.end() || fi->second.empty() ) {
 			throw std::out_of_range("Invalid key");

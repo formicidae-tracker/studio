@@ -27,10 +27,13 @@ set(SRC_FILES Format.cpp
 			  bridge/AntShapeTypeBridge.cpp
 			  bridge/AntMetadataBridge.cpp
 			  bridge/MovieBridge.cpp
+			  bridge/ZoneBridge.cpp
+			  bridge/StatisticsBridge.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
 			  widget/base/QLongSpinBox.cpp
+			  widget/base/QActionButton.cpp
 			  widget/vectorgraphics/VectorialView.cpp
 			  widget/vectorgraphics/VectorialScene.cpp
 			  widget/vectorgraphics/Handle.cpp
@@ -39,6 +42,7 @@ set(SRC_FILES Format.cpp
 			  widget/vectorgraphics/Capsule.cpp
 			  widget/vectorgraphics/Polygon.cpp
 			  widget/vectorgraphics/Circle.cpp
+			  widget/Navigatable.cpp
 			  widget/Logger.cpp
 			  widget/GlobalPropertyWidget.cpp
 			  widget/UniverseEditorWidget.cpp
@@ -59,6 +63,9 @@ set(SRC_FILES Format.cpp
 			  widget/TrackingVideoWidget.cpp
 			  widget/TrackingVideoPlayer.cpp
 			  widget/TrackingVideoControl.cpp
+			  widget/ZoningWidget.cpp
+			  widget/ZonesEditorWidget.cpp
+			  widget/CloneShapeDialog.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -76,10 +83,13 @@ set(HDR_FILES Format.hpp
 			  bridge/AntShapeTypeBridge.hpp
 			  bridge/AntMetadataBridge.hpp
 			  bridge/MovieBridge.hpp
+			  bridge/ZoneBridge.hpp
+			  bridge/StatisticsBridge.hpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
 			  widget/base/QLongSpinBox.hpp
+			  widget/base/QActionButton.hpp
 			  widget/vectorgraphics/VectorialView.hpp
 			  widget/vectorgraphics/VectorialScene.hpp
 			  widget/vectorgraphics/Handle.hpp
@@ -88,6 +98,7 @@ set(HDR_FILES Format.hpp
 			  widget/vectorgraphics/Capsule.hpp
 			  widget/vectorgraphics/Polygon.hpp
 			  widget/vectorgraphics/Circle.hpp
+			  widget/Navigatable.hpp
 			  widget/Logger.hpp
 			  widget/GlobalPropertyWidget.hpp
 			  widget/UniverseEditorWidget.hpp
@@ -108,6 +119,9 @@ set(HDR_FILES Format.hpp
 			  widget/TrackingVideoWidget.hpp
 			  widget/TrackingVideoPlayer.hpp
 			  widget/TrackingVideoControl.hpp
+			  widget/ZoningWidget.hpp
+			  widget/ZonesEditorWidget.hpp
+			  widget/CloneShapeDialog.hpp
 			  )
 
 
@@ -129,6 +143,9 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/UserDataWidget.ui
              widget/VisualizationWidget.ui
              widget/TrackingVideoControl.ui
+             widget/ZoningWidget.ui
+             widget/ZonesEditorWidget.ui
+             widget/CloneShapeDialog.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)
@@ -142,6 +159,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/IdentifierUTest.cpp
                     utest/AntShapeTypeUTest.cpp
                     utest/AntMetadataUTest.cpp
+                    utest/ZoneUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -151,6 +169,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/IdentifierUTest.hpp
                     utest/AntShapeTypeUTest.hpp
                     utest/AntMetadataUTest.hpp
+                    utest/ZoneUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

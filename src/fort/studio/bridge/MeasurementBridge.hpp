@@ -10,49 +10,35 @@
 #include "Bridge.hpp"
 #include <fort/studio/MyrmidonTypes.hpp>
 
-class TagCloseUpLoader : public QObject {
-	Q_OBJECT;
+#include <tuple>
+
+class TagCloseUpLoader {
 public:
-	TagCloseUpLoader(const fmp::TrackingDataDirectoryConstPtr & tdd,
-	                 fort::tags::Family f,
-	                 uint8_t threshold,
-	                 QObject * parent);
+	typedef std::tuple<size_t,std::string,fmp::TagCloseUp::List> Result;
+	TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
+	                 const std::string & tddURI,
+	                 size_t seed);
 
-	void waitForFinished();
-
-	static fmp::TagCloseUp::List load(fmp::TagCloseUp::Lister::Loader l);
-
-	size_t toDo() const;
-	size_t done() const;
-signals:
-	void newTagCloseUp(std::string tddURI,
-	                   fort::tags::Family family,
-	                   uint8_t threshold,
-	                   fmp::TagCloseUp::ConstPtr tcu);
-
-	void progressChanged(size_t done, size_t oldDone);
-public slots:
-	void cancel();
-	void start();
-
-private slots:
-	void onResultReady(int index);
-
+	Result load() const;
 
 private :
-	std::string                                  d_tddURI;
-	QFutureWatcher<fmp::TagCloseUp::List>      * d_futureWatcher;
-	fmp::TagCloseUp::Lister::Ptr                 d_lister;
-	std::vector<fmp::TagCloseUp::Lister::Loader> d_loaders;
-	size_t                                       d_done,d_toDo;
+	fmp::TagCloseUp::Lister::Loader d_loader;
+	std::string                     d_tddURI;
+	size_t                          d_seed;
 };
 
 
 class MeasurementBridge : public Bridge {
 	Q_OBJECT
+	Q_PROPERTY(bool isReady
+	           READ isReady
+	           NOTIFY ready)
+	Q_PROPERTY(bool isOutdated
+	           READ isOutdated
+	           NOTIFY outdated)
 public:
 	MeasurementBridge(QObject * parent);
-
+	~MeasurementBridge();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	QAbstractItemModel * tagCloseUpModel() const;
@@ -68,6 +54,10 @@ public:
 	void queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
 	                     const fmp::IdentificationConstPtr & identification);
 
+	bool isReady() const;
+
+	bool isOutdated() const;
+
 signals:
 	void progressChanged(size_t done, size_t toDo);
 
@@ -77,11 +67,17 @@ signals:
 	void measurementTypeModified(quint32,QString);
 	void measurementTypeDeleted(quint32);
 
+
+	void ready(bool);
+	void outdated(bool);
+
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void onTDDDeleted(const QString &);
 
 	void onDetectionSettingChanged(fort::tags::Family f, uint8_t threshold);
+
+	void loadTagCloseUp();
 
 	void setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                    fmp::MeasurementType::ID MTID,
@@ -97,31 +93,20 @@ public slots:
 	void deleteMeasurementType(const QModelIndex & index);
 private slots:
 
-	void onNewTagCloseUp(std::string tddURI,
-	                     fort::tags::Family f,
-	                     uint8_t Threshold,
-	                     fmp::TagCloseUp::ConstPtr tcu);
-
-	void onLoaderProgressChanged(size_t done, size_t oldDone);
-
 	void onTypeItemChanged(QStandardItem * item);
 
 
 private:
 	typedef std::map<std::string,fmp::TagCloseUp::ConstPtr> CloseUpByPath;
 	typedef std::map<std::string,CloseUpByPath>             CloseUpByTddURI;
-	typedef std::map<std::string,TagCloseUpLoader*>         LoaderByTddURI;
 	typedef std::map<std::string,QStandardItem*>            CountByTcuURI;
 
-	void startAll();
-	void startOne(const fmp::TrackingDataDirectoryConstPtr & tdd);
 	void cancelAll();
-	void cancelOne(const std::string & tddURI);
 
 	void addOneTCU(const std::string & tddURI, const fmp::TagCloseUp::ConstPtr & tcu);
 	void clearTddTCUs(const std::string & tddURI);
 	void clearAllTCUs();
-
+	void setOutdated(bool v);
 
 	QList<QStandardItem*> buildTag(fmp::TagID TID) const;
 	QList<QStandardItem*> buildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
@@ -134,6 +119,9 @@ private:
 	fmp::Experiment::Ptr d_experiment;
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
-	LoaderByTddURI       d_loaders;
-	size_t               d_toDo,d_done;
+	size_t               d_seed;
+	bool                 d_outdated;
+
+	QFutureWatcher<TagCloseUpLoader::Result> *  d_watcher;
+	std::vector<TagCloseUpLoader>               d_loaders;
 };

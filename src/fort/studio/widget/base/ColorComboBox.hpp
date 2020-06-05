@@ -3,10 +3,6 @@
 #include <QComboBox>
 #include <QColor>
 
-#include <fort/myrmidon/priv/Color.hpp>
-
-
-namespace fmp = fort::myrmidon::priv;
 
 class ColorComboBox : public QComboBox {
 	Q_OBJECT
@@ -14,8 +10,6 @@ class ColorComboBox : public QComboBox {
 	           READ color WRITE setColor
 	           NOTIFY colorChanged)
 public:
-	static QIcon  iconFromColor(const QColor & color);
-
 	ColorComboBox(QWidget * parent);
 
 	const QColor & color() const;

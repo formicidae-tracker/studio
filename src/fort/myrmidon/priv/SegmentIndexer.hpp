@@ -34,9 +34,9 @@ public:
 
 	std::vector<Segment> Segments() const;
 
-	const T & Find(FrameID FID) const;
+	std::pair<FrameReference,T> Find(FrameID FID) const;
 
-	const T & Find(const Time & t) const;
+	std::pair<FrameReference,T> Find(const Time & t) const;
 
 private:
 	typedef std::shared_ptr<Segment> SegmentPtr;

@@ -27,6 +27,7 @@ public:
 
 	const fmp::Space::Universe::TrackingDataDirectoryByURI & trackingDataDirectories() const;
 
+	std::map<quint32,QString> spaceNamesByID() const;
 
 public slots:
 	void addSpace(const QString & spaceName);

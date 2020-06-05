@@ -12,6 +12,8 @@
 #include "AntMetadataBridge.hpp"
 #include "MovieBridge.hpp"
 #include "IdentifiedFrameConcurrentLoader.hpp"
+#include "ZoneBridge.hpp"
+#include "StatisticsBridge.hpp"
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -49,6 +51,9 @@ public:
 
 	MovieBridge * movies() const;
 
+	ZoneBridge * zones() const;
+
+	StatisticsBridge * statistics() const;
 public slots:
 
 	bool save();
@@ -71,4 +76,6 @@ private:
 	AntShapeTypeBridge              * d_antShapeTypes;
 	AntMetadataBridge               * d_antMetadata;
 	MovieBridge                     * d_movies;
+	ZoneBridge                      * d_zones;
+	StatisticsBridge                * d_statistics;
 };

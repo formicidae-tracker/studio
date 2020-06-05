@@ -27,7 +27,8 @@ void UniverseUTest::SetUpTestSuite() {
 
 void UniverseUTest::SetUp() {
 	EXPECT_NO_THROW({
-			experiment = fmp::Experiment::NewFile(TestSetup::Basedir() / "universe.myrmidon");
+			experiment = fmp::Experiment::Create(TestSetup::Basedir() / "universe.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "universe.myrmidon");
 			auto foo = experiment->CreateSpace("foo");
 			auto bar = experiment->CreateSpace("bar");
 			foo->AddTrackingDataDirectory(s_foo[0]);

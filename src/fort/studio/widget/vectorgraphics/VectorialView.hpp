@@ -11,6 +11,7 @@ public:
 
 public slots:
 	void resetZoom();
+	void showEntireScene();
 	void setBannerMessage(const QString & name,const QColor & color);
 signals:
 	void zoomed(double zoomFactor);
@@ -20,7 +21,7 @@ protected:
 private:
 	void zoom(double factor);
 
-	bool eventFilter(QObject * object, QEvent * event);
+	bool eventFilter(QObject * object, QEvent * event) override;
 	QPointF d_targetViewportPos,d_targetScenePos;
 	double d_zoomFactorBase;
 	QString d_bannerMessage;

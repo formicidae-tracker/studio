@@ -6,17 +6,45 @@
 #include "TrackingVideoPlayer.hpp"
 
 #include <QAction>
+#include <QShortcut>
 #include <QClipboard>
+#include <QDialog>
+#include <QFormLayout>
+#include <QDialogButtonBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QAbstractButton>
 
 #include <fort/studio/Format.hpp>
 
 
 VisualizationWidget::VisualizationWidget(QWidget *parent)
 	: QWidget(parent)
+	, d_experiment(nullptr)
 	, d_ui(new Ui::VisualizationWidget)
 	, d_videoPlayer(new TrackingVideoPlayer(this))
-	, d_copyTimeAction(new QAction(tr("Copy current Timestamp"),this)) {
+	, d_jumpToTimeAction( new QAction(tr("Jump to Time"),this)) {
 	d_ui->setupUi(this);
+
+	d_jumpToTimeAction->setToolTip(tr("Jump current movie to time"));
+	d_jumpToTimeAction->setShortcut(tr("Ctrl+T"));
+
+	auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
+	auto nextFrameShortcut = new QShortcut(tr("."),this);
+	auto prevFrameShortcut = new QShortcut(tr(","),this);
+
+	auto skipForwardSmallShortcut = new QShortcut(tr("L"),this);
+	auto skipBackwardSmallShortcut = new QShortcut(tr("J"),this);
+
+	auto skipForwardMediumShortcut = new QShortcut(tr("Shift+L"),this);
+	auto skipBackwardMediumShortcut = new QShortcut(tr("Shift+J"),this);
+
+	auto skipForwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+L"),this);
+	auto skipBackwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+J"),this);
+
+	static fm::Duration small = 10 * fm::Duration::Second;
+	static fm::Duration medium = 1 * fm::Duration::Minute;
+	static fm::Duration large = 10 * fm::Duration::Minute;
 
 	connect(d_videoPlayer,
 	        &TrackingVideoPlayer::displayVideoFrame,
@@ -28,19 +56,49 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hideLoadingBanner);
 
-	connect(d_ui->trackingVideoWidget,
-	        &TrackingVideoWidget::hasTrackingTimeChanged,
-	        d_copyTimeAction,
-	        &QAction::setEnabled);
+	connect(d_ui->trackingVideoWidget,&TrackingVideoWidget::togglePlayPause,
+	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
 
-	connect(d_copyTimeAction,
-	        &QAction::triggered,
-	        this,
-	        &VisualizationWidget::onCopyTimeActionTriggered);
+	connect(togglePlayPauseShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::togglePlayPause);
 
-	d_copyTimeAction->setShortcut(QKeySequence(tr("Ctrl+Shift+C")));
-    d_copyTimeAction->setStatusTip(tr("Copy current Frame timestamp to clipboard"));
-    d_copyTimeAction->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
+	connect(nextFrameShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::jumpNextFrame);
+
+	connect(prevFrameShortcut,&QShortcut::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::jumpPrevFrame);
+
+	connect(skipForwardSmallShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(small);
+	             });
+
+	connect(skipBackwardSmallShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-small);
+	             });
+
+	connect(skipForwardMediumShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(medium);
+	             });
+
+	connect(skipBackwardMediumShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-medium);
+	             });
+
+	connect(skipForwardLargeShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(large);
+	             });
+
+	connect(skipBackwardLargeShortcut,&QShortcut::activated,
+	        this,[this]() {
+		             d_videoPlayer->skipDuration(-large);
+	             });
+
+
 }
 
 VisualizationWidget::~VisualizationWidget() {
@@ -48,6 +106,7 @@ VisualizationWidget::~VisualizationWidget() {
 }
 
 void VisualizationWidget::setup(ExperimentBridge * experiment) {
+	d_experiment = experiment;
 	auto movieBridge = experiment->movies();
 
 	d_ui->treeView->setModel(movieBridge->movieModel());
@@ -62,11 +121,12 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	connect(d_ui->treeView,
 	        &QAbstractItemView::activated,
 	        [this,movieBridge] ( const QModelIndex & index ) {
-		        const auto & [tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
-		        if ( !segment == true || !tdd == true) {
+		        const auto & [spaceID,tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
+		        if ( !segment == true || !tdd == true || spaceID == 0) {
 			        return;
 		        }
-		        d_videoPlayer->setMovieSegment(tdd,segment,start);
+		        d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
+		        d_videoPlayer->play();
 	        });
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
@@ -87,7 +147,22 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	        &TrackingVideoWidget::showIDChanged,
 	        d_ui->videoControl,
 	        &TrackingVideoControl::setShowID);
+
+	connect(d_ui->videoControl,
+	        &TrackingVideoControl::showCollisions,
+	        d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::setShowCollisions);
+
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::showCollisionsChanged,
+	        d_ui->videoControl,
+	        &TrackingVideoControl::setShowCollisions);
+
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
+
+	connect(d_jumpToTimeAction,&QAction::triggered,
+	        this,&VisualizationWidget::jumpToTime);
+
 }
 
 
@@ -99,6 +174,117 @@ void VisualizationWidget::onCopyTimeActionTriggered() {
 	QApplication::clipboard()->setText(ToQString(time));
 }
 
-QAction * VisualizationWidget::copyCurrentTimeAction() const {
-	return d_copyTimeAction;
+void VisualizationWidget::setUp(const NavigationAction & actions) {
+	connect(d_ui->trackingVideoWidget,
+	        &TrackingVideoWidget::hasTrackingTimeChanged,
+	        actions.CopyCurrentTime,
+	        &QAction::setEnabled);
+
+	connect(actions.CopyCurrentTime,
+	        &QAction::triggered,
+	        this,
+	        &VisualizationWidget::onCopyTimeActionTriggered);
+
+	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
+}
+
+void VisualizationWidget::tearDown(const NavigationAction & actions) {
+	disconnect(d_ui->trackingVideoWidget,
+	           &TrackingVideoWidget::hasTrackingTimeChanged,
+	           actions.CopyCurrentTime,
+	           &QAction::setEnabled);
+
+	disconnect(actions.CopyCurrentTime,
+	           &QAction::triggered,
+	           this,
+	           &VisualizationWidget::onCopyTimeActionTriggered);
+	actions.CopyCurrentTime->setEnabled(false);
+}
+
+QAction * VisualizationWidget::jumpToTimeAction() const {
+	return d_jumpToTimeAction;
+}
+
+
+void VisualizationWidget::jumpToTime() {
+	if ( d_experiment == nullptr || d_experiment->isActive() == false ) {
+		return;
+	}
+    QDialog dialog(this);
+    dialog.setMinimumWidth(400);
+    dialog.setWindowModality(Qt::ApplicationModal);
+
+    auto layout = new QFormLayout(&dialog);
+    dialog.setLayout(layout);
+
+    auto spaceCombo = new QComboBox(&dialog);
+    for ( const auto & [spaceID,spaceName] : d_experiment->universe()->spaceNamesByID() ) {
+	    spaceCombo->addItem(spaceName,spaceID);
+    }
+    layout->addRow(tr("Space:"),spaceCombo);
+
+    auto lineEdit = new QLineEdit(&dialog);
+    auto warning = lineEdit->addAction(QIcon::fromTheme("dialog-warning"),QLineEdit::TrailingPosition);
+    warning->setVisible(false);
+    layout->addRow(tr("Time:"),lineEdit);
+
+
+    auto buttonBox = new QDialogButtonBox(&dialog);
+
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    auto okButton = buttonBox->buttons()[0];
+    okButton->setEnabled(false);
+    layout->addRow(buttonBox);
+    connect(buttonBox,&QDialogButtonBox::accepted,
+            &dialog,&QDialog::accept);
+    connect(buttonBox,&QDialogButtonBox::rejected,
+            &dialog,&QDialog::reject);
+
+    connect(lineEdit,&QLineEdit::editingFinished,
+            &dialog,[lineEdit,warning,okButton,&dialog](){
+	                    try {
+		                    fm::Time::Parse(ToStdString(lineEdit->text()));
+		                    okButton->setEnabled(true);
+		                    warning->setVisible(false);
+	                    } catch ( const std::exception & e) {
+		                    okButton->setEnabled(false);
+		                    warning->setVisible(true);
+	                    }
+                    });
+
+    QEventLoop loop;
+    connect(&dialog,&QDialog::finished,
+            &loop,&QEventLoop::quit);
+
+    dialog.open();
+    loop.exec();
+
+    if ( dialog.result() == QDialog::Rejected
+         || lineEdit->text().isEmpty() == true ) {
+	    return;
+    }
+
+    fm::Time wanted;
+    try {
+	    wanted = fm::Time::Parse(ToStdString(lineEdit->text()));
+    } catch (  const std::exception & e ) {
+	    return;
+    }
+    auto spaceID = spaceCombo->currentData().toInt();
+    auto [tdd,segment,start] = d_experiment->movies()->findTime(spaceID,
+                                                                wanted);
+
+    if ( !tdd || !segment ) {
+	    qCritical() << "Could not find time " << ToQString(wanted) << " in space "
+	                << spaceCombo->currentText();
+	    return;
+    }
+
+    d_videoPlayer->pause();
+    const auto & currentSegment = d_videoPlayer->currentSegment();
+    if ( !currentSegment == true ||
+         currentSegment->URI() != segment->URI() ) {
+	    d_videoPlayer->setMovieSegment(spaceID,tdd,segment,start);
+    }
+    d_videoPlayer->setTime(wanted);
 }

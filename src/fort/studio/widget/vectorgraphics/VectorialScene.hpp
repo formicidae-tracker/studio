@@ -6,9 +6,10 @@
 
 #include <functional>
 #include <fort/myrmidon/priv/Types.hpp>
+#include <fort/myrmidon/Types.hpp>
 
 
-
+namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
 
@@ -74,7 +75,7 @@ public:
 	void setBackgroundPicture(const QString & path);
 
 
-	void setStaticPolygon(const fmp::Vector2dList & corners,
+	void setStaticPolygon(const fm::Vector2dList & corners,
 	                      const QColor & color);
 	void clearStaticPolygon();
 

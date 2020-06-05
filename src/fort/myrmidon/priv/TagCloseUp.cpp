@@ -113,6 +113,7 @@ TagCloseUp::Lister::Create(const fs::path & absoluteBaseDir,
 }
 
 
+
 TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
                            tags::Family f,
                            uint8_t threshold,
@@ -121,10 +122,15 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	: d_absoluteBaseDir(absoluteBaseDir)
 	, d_family(f)
 	, d_threshold(threshold)
-	, d_resolver(resolver)
-	, d_parsed(0) {
+	, d_resolver(resolver) {
+	PERF_FUNCTION();
+	if ( f == tags::Family::Undefined ) {
+		throw std::invalid_argument("Cannot list for undefined family tag");
+	}
+	d_saveCacheOnDelete = true;
 	try {
 		LoadCache();
+		d_saveCacheOnDelete = false;
 	} catch (const std::exception & e) {
 		if ( forceCache == true ) {
 			throw std::runtime_error(std::string("Could not list from cache: ") + e.what());
@@ -132,8 +138,15 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	}
 }
 
+TagCloseUp::Lister::~Lister() {
+	if ( d_saveCacheOnDelete == true ) {
+		UnsafeSaveCache();
+	}
+}
+
 std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
 TagCloseUp::Lister::ListFiles(const fs::path & path) {
+	PERF_FUNCTION();
 	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
 
 	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
@@ -180,7 +193,7 @@ fs::path TagCloseUp::Lister::CacheFilePath(const fs::path & filepath) {
 	return filepath / "tag-close-up.cache";
 }
 
-std::shared_ptr<apriltag_family_t>
+std::pair<apriltag_family_t*,TagCloseUp::Lister::ATFamilyDestructor>
 TagCloseUp::Lister::LoadFamily(tags::Family family) {
 	struct FamilyInterface {
 		typedef apriltag_family_t* (*Constructor) ();
@@ -207,13 +220,14 @@ TagCloseUp::Lister::LoadFamily(tags::Family family) {
 		oss << "Unsupported family: " << (int)family;
 		throw std::invalid_argument(oss.str());
 	}
-	return std::shared_ptr<apriltag_family_t>(fi->second.c(),fi->second.d);
+	return std::make_pair(fi->second.c(),fi->second.d);
 }
 
 void TagCloseUp::Lister::UnsafeSaveCache() {
 	typedef proto::FileReadWriter<pb::TagCloseUpCacheHeader,pb::TagCloseUp> RW;
 
 	auto cachePath = CacheFilePath(d_absoluteBaseDir);
+
 	pb::TagCloseUpCacheHeader h;
 	h.set_threshold(d_threshold);
 	h.set_family(proto::IOUtils::SaveFamily(d_family));
@@ -231,6 +245,7 @@ void TagCloseUp::Lister::UnsafeSaveCache() {
 }
 
 void TagCloseUp::Lister::LoadCache() {
+	PERF_FUNCTION();
 	typedef proto::FileReadWriter<pb::TagCloseUpCacheHeader,pb::TagCloseUp> RW;
 
 	auto cachePath = CacheFilePath(d_absoluteBaseDir);
@@ -249,16 +264,8 @@ void TagCloseUp::Lister::LoadCache() {
 		                                                   d_absoluteBaseDir,
 		                                                   d_resolver);
 		         auto relativePath = fs::relative(tcu->AbsoluteFilePath(),d_absoluteBaseDir);
-		         std::lock_guard<std::mutex> lock(d_mutex);
-		         auto fi = d_cache.find(relativePath);
-		         if ( fi != d_cache.end() ) {
-			         fi->second.push_back(tcu);
-		         } else {
-			         d_cache[relativePath] = {tcu};
-		         }
+		         d_cache[relativePath].push_back(tcu);
 	         });
-
-	d_cacheModified = false;
 }
 
 
@@ -281,35 +288,39 @@ TagCloseUp::Lister::CreateDetector() {
 	return detector;
 }
 
+TagCloseUp::List TagCloseUp::Lister::LoadFileFromCache(const fs::path & file) {
+	return d_cache.at(file);
+}
+
 TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
                                               FrameID FID,
                                               size_t nbFiles) {
-	Defer cleanup([this,nbFiles]() {
-		              std::lock_guard<std::mutex> lock(d_mutex);
-		              ++d_parsed;
-		              if ( d_cacheModified && d_parsed == nbFiles ) {
-			              UnsafeSaveCache();
-			              d_cacheModified = false;
-		              }
-	              });
-
 	auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
-	{
-		std::lock_guard<std::mutex> lock(d_mutex);
-		auto fi = d_cache.find(relativePath);
-		if ( fi != d_cache.cend() ) {
-			return fi->second;
-		}
-	}
 
 	auto ref = d_resolver(FID);
 
 	std::vector<ConstPtr> tags;
 	apriltag_detector_t * detector = CreateDetector();
-	auto family = LoadFamily(d_family);
-	apriltag_detector_add_family(detector,family.get());
+
+	Defer saveToCache([&,this]() {
+		                  std::lock_guard<std::mutex> lock(d_mutex);
+		                  d_cache.insert(std::make_pair(relativePath,tags));
+	                  });
+
+	auto [family,family_destructor] = LoadFamily(d_family);
+	apriltag_detector_add_family(detector,family);
+	Defer destroyDetector([detector,
+	                       family = family,
+	                       family_destructor = family_destructor ]() {
+		                      apriltag_detector_destroy(detector);
+		                      family_destructor(family);
+	                      });
 
 	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
+
+	if ( imgCv.empty() ) {
+		return tags;
+	}
 
 	image_u8_t img =
 		{
@@ -320,6 +331,9 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		};
 	zarray_t * detections
 		= apriltag_detector_detect(detector,&img);
+	Defer destroyDetections([detections]() {
+							  apriltag_detections_destroy(detections);
+							});
 
 	apriltag_detection * d;
 
@@ -333,14 +347,6 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		                                            d));
 	}
 
-	apriltag_detections_destroy(detections);
-	{
-		std::lock_guard<std::mutex> lock(d_mutex);
-		d_cache.insert(std::make_pair(relativePath,tags));
-		d_cacheModified = true;
-	}
-
-	apriltag_detector_destroy(detector);
 
 	return tags;
 }
@@ -348,18 +354,34 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 
 
 std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
+	PERF_FUNCTION();
 	auto itself = d_itself.lock();
 	if (!itself) {
 		throw DeletedReference<Lister>();
 	}
 
+	std::vector<Loader> res;
+
+	if ( d_saveCacheOnDelete == false ) {
+		res.reserve(d_cache.size());
+		for( const auto & [path,list] : d_cache ) {
+			res.push_back([=,
+			               path = path]() {
+				              return itself->LoadFileFromCache(path);
+			              });
+		}
+
+		return res;
+	}
+
 	auto files = ListFiles(d_absoluteBaseDir);
 	auto nbFiles = files.size();
-	std::vector<Loader> res;
 	res.reserve(files.size());
 
 	for( const auto & [FID,f] : files ) {
-		res.push_back([=]() {
+		res.push_back([=,
+		               f = f,
+		               FID = FID]() {
 			              return itself->LoadFile(f,FID,nbFiles);
 		              });
 	}

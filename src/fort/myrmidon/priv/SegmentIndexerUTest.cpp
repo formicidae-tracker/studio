@@ -55,15 +55,15 @@ TEST_F(SegmentIndexerUTest,CanFindSegment) {
 	};
 
 	for(const auto & d : data) {
-		std::string res;
+		std::pair<FrameReference,std::string> res;
 		EXPECT_NO_THROW({
 				res = d_si.Find(Time::FromTimeT(d.F));
 			});
-		EXPECT_EQ(res,d.Expected);
+		EXPECT_EQ(res.second,d.Expected);
 		EXPECT_NO_THROW({
 				res = d_si.Find(d.F);
 			});
-		EXPECT_EQ(res,d.Expected);
+		EXPECT_EQ(res.second,d.Expected);
 	}
 
 	EXPECT_THROW({

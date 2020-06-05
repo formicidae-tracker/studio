@@ -16,7 +16,8 @@ Identification::Identification(TagID tagValue,
 	, d_tagValue(tagValue)
 	, d_target(target)
 	, d_identifier(identifier)
-	, d_tagSize(DEFAULT_TAG_SIZE) {
+	, d_tagSize(DEFAULT_TAG_SIZE)
+	, d_userDefinedPose(false) {
 }
 
 Time::ConstPtr Identification::Start() const {
@@ -48,18 +49,6 @@ Ant::Ptr Identification::Target() const {
 }
 
 
-OverlappingIdentification::OverlappingIdentification(const Identification & a,
-                                                          const Identification & b)
-	: std::runtime_error(Reason(a,b)){
-}
-
-std::string OverlappingIdentification::Reason(const Identification & a,
-                                              const Identification & b) {
-	std::ostringstream os;
-	os << a << " and " << b << " overlaps";
-	return os.str();
-}
-
 
 Identifier::Ptr Identification::ParentIdentifier() const {
 	auto res = d_identifier.lock();
@@ -84,6 +73,12 @@ void Identification::Accessor::SetStart(Identification & identification,
 void Identification::Accessor::SetEnd(Identification & identification,
                                       const Time::ConstPtr & end) {
 	identification.d_end = end;
+}
+
+void Identification::Accessor::SetAntPosition(Identification & identification,
+                                              const Eigen::Vector2d& position,
+                                              double angle) {
+	identification.SetAntPosition(position,angle);
 }
 
 
@@ -143,6 +138,18 @@ void Identification::ComputePositionFromTag(Eigen::Vector2d & position,
 }
 
 
+void Identification::SetUserDefinedAntPose(const Eigen::Vector2d & antPosition, double antAngle) {
+	d_userDefinedPose = true;
+	SetAntPosition(antPosition,antAngle);
+}
+
+void Identification::ClearUserDefinedAntPose() {
+	auto identifier = ParentIdentifier();
+	d_userDefinedPose = false;
+	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,this);
+}
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
@@ -153,7 +160,7 @@ std::ostream & operator<<(std::ostream & out,
 	out << "Identification{ID:"
 	    << a.TagValue()
 	    << "↦"
-	    << a.Target()->ID()
+	    << a.Target()->AntID()
 	    << ", From:'";
 	if (a.Start()) {
 		out << a.Start()->DebugString();

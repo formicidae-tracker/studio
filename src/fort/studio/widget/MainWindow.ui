@@ -24,7 +24,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -66,6 +66,39 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="statsWidget">
+       <attribute name="title">
+        <string>Stats</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QActionButton" name="computeStatsButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Compute Stats</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="statsView">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="TaggingWidget" name="taggingWidget">
        <attribute name="title">
         <string>Identification</string>
@@ -75,6 +108,11 @@
       <widget class="AntEditorWidget" name="shappingWidget">
        <attribute name="title">
         <string>Ant Editor</string>
+       </attribute>
+      </widget>
+      <widget class="ZoningWidget" name="zoningWidget">
+       <attribute name="title">
+        <string>Zoning</string>
        </attribute>
       </widget>
       <widget class="UserDataWidget" name="userData">
@@ -97,7 +135,7 @@
      <x>0</x>
      <y>0</y>
      <width>1248</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -132,6 +170,7 @@
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
     <addaction name="separator"/>
+    <addaction name="actionCopyTimeFromFrame"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -150,9 +189,17 @@
     <addaction name="actionNextTag"/>
     <addaction name="actionPreviousTag"/>
    </widget>
+   <widget class="QMenu" name="menuCompute">
+    <property name="title">
+     <string>Compute</string>
+    </property>
+    <addaction name="actionLoadTagCloseUp"/>
+    <addaction name="actionLoadTagStatistics"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuMove"/>
+   <addaction name="menuCompute"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
@@ -448,6 +495,27 @@
     <string>Ctrl+Up</string>
    </property>
   </action>
+  <action name="actionCopyTimeFromFrame">
+   <property name="text">
+    <string>Copy current time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionLoadTagCloseUp">
+   <property name="text">
+    <string>Load Tag Close Up</string>
+   </property>
+  </action>
+  <action name="actionLoadTagStatistics">
+   <property name="text">
+    <string>Compute Tag Statsistics</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute Tag Statistics</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -491,6 +559,17 @@
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/VisualizationWidget.hpp</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZoningWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/ZoningWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QActionButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">fort/studio/widget/base/QActionButton.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

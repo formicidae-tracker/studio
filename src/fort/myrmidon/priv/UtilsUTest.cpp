@@ -1,18 +1,20 @@
+#include <fort/myrmidon/Time.hpp>
+
 #include "UtilsUTest.hpp"
 
 #include <fort/myrmidon/UtilsUTest.hpp>
 
 
-::testing::AssertionResult PolygonEqual(const fort::myrmidon::priv::Polygon::ConstPtr &a,
-                                      const fort::myrmidon::priv::Polygon::ConstPtr &b) {
-	if ( a->Size() != b->Size() ) {
+::testing::AssertionResult PolygonEqual(const fort::myrmidon::priv::Polygon &a,
+                                      const fort::myrmidon::priv::Polygon &b) {
+	if ( a.Size() != b.Size() ) {
 		return ::testing::AssertionFailure() << "Polygon a and b have a different number of vertices a:"
-		                                     << a->Size()
+		                                     << a.Size()
 		                                     << " b:"
-		                                     << b->Size();
+		                                     << b.Size();
 	}
-	for ( size_t i = 0; i < a->Size(); ++i ) {
-		auto inter = VectorAlmostEqual(a->Vertex(i),b->Vertex(i));
+	for ( size_t i = 0; i < a.Size(); ++i ) {
+		auto inter = VectorAlmostEqual(a.Vertex(i),b.Vertex(i));
 		if ( !inter ) {
 			return inter << "Vertex " << i << " differs";
 		}
@@ -21,31 +23,31 @@
 }
 
 
-testing::AssertionResult CapsuleEqual(const fort::myrmidon::priv::Capsule::ConstPtr &a,
-                                      const fort::myrmidon::priv::Capsule::ConstPtr &b) {
-	auto inter = VectorAlmostEqual(a->C1(),b->C1());
+testing::AssertionResult CapsuleEqual(const fort::myrmidon::priv::Capsule &a,
+                                      const fort::myrmidon::priv::Capsule &b) {
+	auto inter = VectorAlmostEqual(a.C1(),b.C1());
 	if ( !inter ) {
 		return inter << "Center 1 differs";
 	}
-	inter = VectorAlmostEqual(a->C2(),b->C2());
+	inter = VectorAlmostEqual(a.C2(),b.C2());
 	if ( !inter ) {
 		return inter << "Center 2 differs";
 	}
-	inter = ::testing::internal::CmpHelperFloatingPointEQ<double>("a.C1.radius","a.C1.radius",a->R1(),b->R1());
+	inter = ::testing::internal::CmpHelperFloatingPointEQ<double>("a.C1.radius","a.C1.radius",a.R1(),b.R1());
 	if ( !inter ) {
 		return inter;
 	}
-	return ::testing::internal::CmpHelperFloatingPointEQ<double>("a.C2.radius","b.C2.radius",a->R2(),b->R2());
+	return ::testing::internal::CmpHelperFloatingPointEQ<double>("a.C2.radius","b.C2.radius",a.R2(),b.R2());
 }
 
 
-testing::AssertionResult CircleEqual(const fort::myrmidon::priv::Circle::ConstPtr &a,
-                                       const fort::myrmidon::priv::Circle::ConstPtr &b) {
-	auto inter = VectorAlmostEqual(a->Center(),b->Center());
+testing::AssertionResult CircleEqual(const fort::myrmidon::priv::Circle &a,
+                                     const fort::myrmidon::priv::Circle &b) {
+	auto inter = VectorAlmostEqual(a.Center(),b.Center());
 	if ( !inter ) {
 		return inter << "Center differs";
 	}
-	return ::testing::internal::CmpHelperFloatingPointEQ<double>("a.Radius","b.Radius",a->Radius(),b->Radius());
+	return ::testing::internal::CmpHelperFloatingPointEQ<double>("a.Radius","b.Radius",a.Radius(),b.Radius());
 }
 
 
@@ -63,7 +65,7 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		if ( !aa || !bb ) {
 			return ::testing::AssertionFailure() << "Could not convert to Capsule";
 		}
-		return CapsuleEqual(aa,bb);
+		return CapsuleEqual(*aa,*bb);
 
 	}
 	case fort::myrmidon::priv::Shape::Type::Circle: {
@@ -72,7 +74,7 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		if ( !aa || !bb ) {
 			return ::testing::AssertionFailure() << "Could not convert to Circle";
 		}
-		return CircleEqual(aa,bb);
+		return CircleEqual(*aa,*bb);
 	}
 	case fort::myrmidon::priv::Shape::Type::Polygon: {
 		auto aa = fort::myrmidon::priv::Shape::ToPolygon(a);
@@ -80,14 +82,14 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		if ( !aa || !bb ) {
 			return ::testing::AssertionFailure() << "Could not convert to Polygon";
 		}
-		return PolygonEqual(aa,bb);
+		return PolygonEqual(*aa,*bb);
 	}
 	}
 	return ::testing::AssertionFailure() << "unsupported shape type";
 }
 
-::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::priv::AntStaticValue &a,
-                                               const fort::myrmidon::priv::AntStaticValue &b) {
+::testing::AssertionResult AntStaticValueEqual(const fort::myrmidon::AntStaticValue &a,
+                                               const fort::myrmidon::AntStaticValue &b) {
 	if ( a.index() != b.index() ) {
 		return ::testing::AssertionFailure() << "StaticValue Type differs a:" << a.index()
 		                                     << " b:" <<b.index();
@@ -134,4 +136,14 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		return ::testing::AssertionFailure() << "Unknown type index: " << a.index();
 	}
 	return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult
+AABBAlmostEqual(const fort::myrmidon::priv::AABB & a,
+                const fort::myrmidon::priv::AABB & b) {
+	auto min = VectorAlmostEqual(a.min(),b.min());
+	if ( !min == true ) {
+		return min;
+	}
+	return VectorAlmostEqual(a.max(),b.max());
 }

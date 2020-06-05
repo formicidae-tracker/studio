@@ -36,23 +36,28 @@ void AntShapeTypeContainer::Delete(AntShapeType::ID typeID) {
 	d_container.DeleteObject(typeID);
 }
 
-AntShapeType::ByID::const_iterator
+AntShapeType::ConstByID::const_iterator
 AntShapeTypeContainer::Find(AntShapeType::ID typeID) const {
-	return d_container.Objects().find(typeID);
+	return d_container.CObjects().find(typeID);
 }
 
-AntShapeType::ByID::const_iterator
+AntShapeType::ConstByID::const_iterator
 AntShapeTypeContainer::End() const {
-	return d_container.Objects().cend();
+	return d_container.CObjects().cend();
 }
 
 size_t AntShapeTypeContainer::Count(AntShapeType::ID typeID) const {
 	return d_container.Count(typeID);
 }
 
-const AntShapeType::ByID & AntShapeTypeContainer::Types() const {
+const AntShapeType::ByID & AntShapeTypeContainer::Types() {
 	return d_container.Objects();
 }
+
+const AntShapeType::ConstByID & AntShapeTypeContainer::CTypes() const {
+	return d_container.CObjects();
+}
+
 
 
 } // namespace priv

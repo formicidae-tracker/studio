@@ -14,6 +14,8 @@
 #include "MovieSegment.hpp"
 #include "FrameReference.hpp"
 #include "TagCloseUp.hpp"
+#include "TagStatistics.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -37,7 +39,7 @@ public:
 
 	typedef int32_t                                    UID;
 	typedef SegmentIndexer<std::string>                TrackingIndex;
-	typedef SegmentIndexer<MovieSegment::Ptr>          MovieIndex;
+	typedef SegmentIndexer<MovieSegment::ConstPtr>     MovieIndex;
 	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
 	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
@@ -45,10 +47,10 @@ public:
 	public:
 		const_iterator(const ConstPtr & tdd,uint64_t current);
 
-		//		const_iterator(const ConstPtr & tdd,const RawFrameConstPtr & rawFrame);
-
-		const_iterator & operator=(const const_iterator & other) = delete;
+		const const_iterator & operator=(const const_iterator & other) = delete;
+		const_iterator & operator=(const_iterator && other);
 		const_iterator(const const_iterator & other);
+		const_iterator(const_iterator & other);
 
 		const_iterator& operator++();
 		bool operator==(const const_iterator & other) const;
@@ -123,11 +125,11 @@ public:
 
 	const_iterator FrameAt(FrameID FID) const;
 
-	const_iterator FrameNear(const Time & t) const;
+	const_iterator FrameAfter(const Time & t) const;
 
 	FrameReference FrameReferenceAt(FrameID FID) const;
 
-	FrameReference FrameReferenceNear(const Time & t) const;
+	FrameReference FrameReferenceAfter(const Time & t) const;
 
 	// Opens an actual TrackingDataDirectory on the filesystem
 	// @path path to the tracking data directory.
@@ -160,9 +162,16 @@ public:
 	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
 	                                               uint8_t threshold) const;
 
-private:
-	typedef std::pair<FrameID,Time> TimedFrame;
+	std::map<FrameReference,fs::path> FullFrames() const;
 
+	std::map<FrameReference,fs::path> ComputedFullFrames() const;
+
+	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
+
+private:
+
+	typedef std::pair<FrameID,Time> TimedFrame;
+	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
 
 	std::weak_ptr<const TrackingDataDirectory> d_itself;
 
@@ -177,6 +186,7 @@ private:
 	TrackingIndex::Ptr          d_segments;
 	MovieIndex::Ptr             d_movies;
 	FrameReferenceCacheConstPtr d_referencesByFID;
+	FrameIDByTime               d_frameIDByTime;
 
 	static void CheckPaths(const fs::path & path,
 	                       const fs::path & experimentRoot);
@@ -196,8 +206,14 @@ private:
 	BuildIndexes(const std::string & URI,
 	             Time::MonoclockID monoID,
 	             const std::vector<fs::path> & hermesFile,
-	             const TrackingIndex::Ptr & trackingIndexer,
-	             FrameReferenceCache & cache);
+	             const TrackingIndex::Ptr & trackingIndexer);
+
+	static void BuildCache(const std::string & URI,
+	                       Time::MonoclockID monoID,
+	                       const fs::path & tddPath,
+	                       const TrackingIndex::ConstPtr & trackingIndexer,
+	                       FrameReferenceCache & cache);
+
 
 
 	TrackingDataDirectory(const std::string & uri,
@@ -209,6 +225,11 @@ private:
 	                      const TrackingIndex::Ptr & segments,
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
+
+	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath ) const;
+
+	void ComputeFullFrames() const;
+
 
 	void SaveToCache() const;
 
