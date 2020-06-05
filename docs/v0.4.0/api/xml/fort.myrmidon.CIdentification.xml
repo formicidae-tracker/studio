@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::CIdentification" interface="true" name="CIdentification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>const version of Identification</brief>
+  <doc>Simply a strip down copy of <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> . Its an helper class
+to support const correctness of object and for language binding
+that does not enforce constness, such as R.</doc>
+  <typedef id="fort::myrmidon::CIdentification::ConstPPtr" name="ConstPPtr">
+    <brief>An opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Identification" qualifier=" const" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::CIdentification::CIdentification" name="CIdentification">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot build Identification directly. They must be build
+from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> and accessed from <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+    <argument id="fort::myrmidon::CIdentification::CIdentification::pptr" name="pptr">
+      <doc>opaque pointer to implementation</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::ConstPPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::AntAngle" name="AntAngle">
+    <brief>Gets the Ant angle relatively to the tag rotation</brief>
+    <doc>Gets the Ant position relatively to the tag center. This offset
+is expressed in the tag reference frame.
+
+Angles use standard mathematical orientation. One has to
+remember that the y-axis in image processing is pointing from
+top to bottom, so when looking at the image, positive angle are
+clockwise, which is the opposite of most mathematical drawing
+when y is pointing from bottom to top.
+
+R Version :
+```R
+i$antAngle()
+```
+
+</doc>
+    <return>
+      <doc>the angle in radian between the tag orientation and the
+ant orientation.</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::AntPosition" name="AntPosition">
+    <brief>Gets the Ant position relatively to the tag center</brief>
+    <doc>Gets the Ant position relatively to the tag center. This offset
+is expressed in the tag reference frame.
+
+R Version :
+```R
+i$antPosition()
+```
+
+</doc>
+    <return>
+      <doc>an &amp;lt;Eigen::Vector2d&amp;gt; of the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> center relative to
+the tag center.</doc>
+      <type name="Eigen::Vector2d" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::End" name="End">
+    <brief>Gets the ending validity time</brief>
+    <doc>Identification are valid for [<ref ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::Start">fort::myrmidon::CIdentification::Start</ref>,<ref ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::End">End</ref>[
+
+R Version :
+```R
+i$end()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> after which this Identification is
+unvalid. nullptr represents +∞</doc>
+      <type name="Time::ConstPtr" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::HasUserDefinedAntPose" name="HasUserDefinedAntPose">
+    <brief>Tests if Identification has a user defined pose</brief>
+    <doc>R Version :
+```R
+i$hasUserDefinedAntPose()
+```
+
+</doc>
+    <return>
+      <doc>`true` if the Identification has a user defined pose
+through <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::SetUserDefinedAntPose">fort::myrmidon::Identification::SetUserDefinedAntPose</ref></doc>
+      <type builtin="yes" name="bool" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::Start" name="Start">
+    <brief>Gets the starting validity time</brief>
+    <doc>Identification are valid for [<ref ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::Start">Start</ref>,<ref ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::End">fort::myrmidon::CIdentification::End</ref>[
+
+R Version :
+```R
+i$start()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> after which this Identification is
+valid. nullptr represents -∞</doc>
+      <type name="Time::ConstPtr" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::TagValue" name="TagValue">
+    <brief>Gets the TagID of this Identification</brief>
+    <doc>R Version :
+```R
+i$tagValue()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
+      <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::TargetAntID" name="TargetAntID">
+    <brief>Gets the AntID of the targeted Ant</brief>
+    <doc>R Version :
+```R
+i$targetAntID()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> of the targetted <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CIdentification::ToPrivate" name="ToPrivate">
+    <brief>Private implementation downcaster</brief>
+    <return>
+      <doc>the opaque private implementation</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification::ConstPPtr" />
+    </return>
+  </method>
+</class>

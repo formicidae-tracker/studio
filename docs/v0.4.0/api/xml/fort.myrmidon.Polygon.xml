@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Polygon" interface="true" name="Polygon" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>A closed polygon</brief>
+  <doc>A polygon is defined by a collection of <ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Vertex">Vertex</ref>. Polygon in
+myrmidon are always closed, meaning that there is no need to
+manually close it by setting <ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Vertex">Vertex</ref>(<ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Size">Size</ref>-1) == <ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Vertex">Vertex</ref>(0).
+
+Note that order matters as {(-1,-1),(1,-1),(1,1),(-1,1)} is a
+square, and {(-1,-1),(1,-1),(-1,1),(1,1)} is an hourglass.</doc>
+  <base access="public">
+    <type name="Shape" ref="fort::myrmidon::Shape#fort::myrmidon::Shape" />
+    <brief>Base class for  geometric Shape</brief>
+  </base>
+  <typedef id="fort::myrmidon::Polygon::PPtr" name="PPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Polygon" ref="fort::myrmidon::priv::Polygon#fort::myrmidon::priv::Polygon" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::Polygon::Polygon" name="Polygon">
+    <brief>Public constructor</brief>
+    <doc>R version:
+```R
+p &lt;- fmPolygonCreate(list(c(x1,y1),c(x2,y2),...))
+```</doc>
+    <argument id="fort::myrmidon::Polygon::Polygon::vertices" name="vertices">
+      <doc>the vertices of the polygon</doc>
+      <type name="Vector2dList" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Vector2dList" />
+    </argument>
+  </constructor>
+  <constructor abstract="yes" id="fort::myrmidon::Polygon::Polygon" name="Polygon">
+    <brief>Private implementation constructor</brief>
+    <argument id="fort::myrmidon::Polygon::Polygon::pPolygon" name="pPolygon">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::PPtr" />
+    </argument>
+  </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::Polygon::~Polygon" name="~Polygon" virtual="yes">
+    <brief>virtual destructor</brief>
+  </destructor>
+  <method abstract="yes" id="fort::myrmidon::Polygon::SetVertex" name="SetVertex">
+    <brief>Sets a polygon vertex</brief>
+    <doc>R version:
+```R
+# idx still starts from 0 as in C/C++
+p$setVertex(idx,c(x,y))
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Polygon::SetVertex::i" name="i">
+      <doc>the index of the vertex to modify in [0,<ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Size">fort::myrmidon::Polygon::Size</ref>-1]</doc>
+      <type name="size_t" />
+    </argument>
+    <argument id="fort::myrmidon::Polygon::SetVertex::v" name="v">
+      <doc>the wanted value for the vertex</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Polygon::Size" name="Size">
+    <brief>Gets the number of vertices in the polygon</brief>
+    <doc>R version:
+```R
+p$size()
+```
+
+</doc>
+    <return>
+      <doc>the number of vertices in the Polygon</doc>
+      <type name="size_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Polygon::ToPrivate" name="ToPrivate">
+    <brief>Downcast to private implementation.</brief>
+    <return>
+      <doc>the private implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::PPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Polygon::Vertex" name="Vertex">
+    <brief>Gets a polygon vertex</brief>
+    <doc>R version:
+```R
+# idx still starts from 0 as in C/C++
+p$vertex(idx)
+```
+
+</doc>
+    <return>
+      <doc>a const reference to the wanted vertex</doc>
+      <type name="Eigen::Vector2d" qualifier=" const &amp;" />
+    </return>
+    <argument id="fort::myrmidon::Polygon::Vertex::i" name="i">
+      <doc>the index of the wanted vertex in [0;<ref ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon::Size">fort::myrmidon::Polygon::Size</ref>-1]</doc>
+      <type name="size_t" />
+    </argument>
+  </method>
+</class>

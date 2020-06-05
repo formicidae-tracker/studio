@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Time::Overflow" name="Overflow" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Time values can overflow when performing operation on them.</brief>
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <constructor id="fort::myrmidon::Time::Overflow::Overflow" name="Overflow">
+    <brief>Construct an overflow from a clocktype name</brief>
+    <argument id="fort::myrmidon::Time::Overflow::Overflow::clocktype" name="clocktype">
+      <doc>the clock type to use</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </constructor>
+  <destructor id="fort::myrmidon::Time::Overflow::~Overflow" name="~Overflow" virtual="yes">
+    <brief>default destructor</brief>
+  </destructor>
+</class>

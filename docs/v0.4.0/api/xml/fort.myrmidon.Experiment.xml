@@ -1,0 +1,840 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Experiment" interface="true" name="Experiment" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Entry point of myrmidon API</brief>
+  <doc>Experiment is the main entry point of the myrmidon API. An
+Experiment olds a collection of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>, <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>, <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+and <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> measurement and give access to the identified tracking
+data and basic interaction detection.
+
+## File convention
+
+Experiment are save to the disk in `.myrmidon` files. One can use
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Open">Open</ref>, <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::OpenReadOnly">OpenReadOnly</ref>, <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Save">Save</ref> and <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::NewFile">NewFile</ref> to interact with those
+files.
+
+Experiment saves relative links to the tracking data directory that
+are acquired with the FORT system. These path are relative, so one
+can rename a `.myrmidon` file on the filesystem, but it must keep
+the same relative path to these tracking data directories.
+
+Multiple program can open an Experiment in read-only mode. However
+a single program can at a Time open an Experiment with full access
+( read-only program must have released the Experiment too !!!).</doc>
+  <typedef id="fort::myrmidon::Experiment::PPtr" name="PPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr" qualifier=" const">
+      <template-arguments>
+        <type name="priv::Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::Experiment::Experiment" name="Experiment">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot create an Experiment directly. They must use
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Open">fort::myrmidon::Experiment::Open</ref>, <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::OpenReadOnly">fort::myrmidon::Experiment::OpenReadOnly</ref>, <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Create">fort::myrmidon::Experiment::Create</ref> and <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::NewFile">fort::myrmidon::Experiment::NewFile</ref>.</doc>
+    <argument id="fort::myrmidon::Experiment::Experiment::pExperiment" name="pExperiment">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::PPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AbsoluteFilePath" name="AbsoluteFilePath">
+    <brief>Path to the underlying `.myrmidon` file</brief>
+    <doc>R Version :
+```R
+e$absoluteFilePath()
+```
+
+</doc>
+    <return>
+      <doc>the path to the `.myrmidon` file</doc>
+      <type name="std::__cxx11::string" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AddIdentification" name="AddIdentification">
+    <brief>Adds an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to the Experiment</brief>
+    <doc>Adds an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to the Experiment. <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>
+are valid for [<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddIdentification::start">start</ref>,<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddIdentification::end">end</ref>[. One may obtain a valid time
+range using <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt">fort::myrmidon::Experiment::FreeIdentificationRangeAt</ref>.
+
+R Version :
+```R
+start &lt;- fmTimeParse("XXX")$const_ptr() # or fmTimeInf()
+end &lt;- fmTimeParse("XXX")$const_ptr() # or fmTimeInf()
+e$addIdentification(antID,tagID,start,end)
+```
+
+</doc>
+    <return>
+      <doc>the new <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref></doc>
+      <type name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::AddIdentification::antID" name="antID">
+      <doc>the targetted <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> designated by its <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref></doc>
+      <type name="Ant::ID" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddIdentification::tagID" name="tagID">
+      <doc>the tag to associate with the Ant</doc>
+      <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddIdentification::start" name="start">
+      <doc>the first valid <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>, nullptr means -∞</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddIdentification::end" name="end">
+      <doc>the first invalid <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>, nullptr means +∞</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AddMetadataColumn" name="AddMetadataColumn">
+    <brief>Adds a non-tracking data column</brief>
+    <doc>Adds a non-tracking data column with the given <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddMetadataColumn::name">name</ref> and
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddMetadataColumn::type">type</ref>. <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddMetadataColumn::name">name</ref> should be a non-empty unique string for the
+column.
+
+R Version :
+```R
+# adds a column "alive" of type BOOL and defaults to TRUE
+e$addMetadataColumn("alive",fmAntMetadataType["BOOL"],fmAntStaticBool(TRUE))
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::AddMetadataColumn::name" name="name">
+      <doc>the unique name for the column</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddMetadataColumn::type" name="type">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntMetadataType">fort::myrmidon::AntMetadataType</ref> for the column</doc>
+      <type name="AntMetadataType" ref="fort::myrmidon#fort::myrmidon::AntMetadataType" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddMetadataColumn::defaultValue" name="defaultValue">
+      <doc>the default value for that column</doc>
+      <type name="AntStaticValue" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AddTrackingDataDirectory" name="AddTrackingDataDirectory">
+    <brief>Adds a tracking data directory to Experiment</brief>
+    <doc>Adds a tracking data director acquired with the fort system to
+the wanted <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>.
+
+R Version :
+```R
+e$addTrackingDataDirectory(spaceID,filepath)
+```
+</doc>
+    <return>
+      <doc>the URI used to designate the tdd</doc>
+      <type name="std::__cxx11::string" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::AddTrackingDataDirectory::spaceID" name="spaceID">
+      <doc>the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> the data directory is associated with</doc>
+      <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::AddTrackingDataDirectory::filepath" name="filepath">
+      <doc>path to the directory we want to add</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AntMetadataColumns" name="AntMetadataColumns">
+    <brief>Gets the types for non-tracking data columns</brief>
+    <doc>R Version :
+```R
+e$antMetadataColumns()
+```
+
+</doc>
+    <return>
+      <doc>a pairs of <ref ref="fort::myrmidon#fort::myrmidon::AntMetadataType">fort::myrmidon::AntMetadataType</ref> and <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>
+indexed by column name for all columns defined in the
+experiment.</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="std::__cxx11::string" />
+          <type class="template" name="std::pair">
+            <template-arguments>
+              <type name="AntMetadataType" ref="fort::myrmidon#fort::myrmidon::AntMetadataType" />
+              <type name="AntStaticValue" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+            </template-arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Ants" name="Ants">
+    <brief>Gets the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> in the Experiment</brief>
+    <doc>R Version :
+```R
+e$ants()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> indexed by their <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref> in the Experiment.</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Ant::ID" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+          <type name="Ant" ref="fort::myrmidon::Ant#fort::myrmidon::Ant" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::AntShapeTypeNames" name="AntShapeTypeNames">
+    <brief>Gets the defined Ant shape type</brief>
+    <doc>R Version :
+```R
+e$antShapeTypeNames()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> shape type name by their <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+          <type name="std::__cxx11::string" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Author" name="Author">
+    <brief>The author of the Experiment</brief>
+    <doc>R Version :
+```R
+e$author()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the author name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CAnts" name="CAnts">
+    <brief>Gets the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> in the Experiment</brief>
+    <doc>R Version :
+```R
+e$cAnts()
+```
+
+</doc>
+    <return>
+      <doc>the const <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> indexed by their <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref> in the
+Experiment.</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Ant::ID" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+          <type name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Comment" name="Comment">
+    <brief>Comments about the experiment</brief>
+    <doc>R Version :
+```R
+e$comment()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the Experiment's comment</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Const" name="Const">
+    <brief>Casts down to a CExperiment</brief>
+    <return>
+      <type name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Create" name="Create" static="yes">
+    <brief>Creates a new Experiment without file association</brief>
+    <doc>Creates a new Experiment virtually associated with the desired
+filesystem location. Will not create a file.
+
+R Version :
+```R
+fmExperimentCreate(path)
+```
+
+</doc>
+    <return>
+      <doc>the new empty <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Experiment">fort::myrmidon::Experiment::Experiment</ref></doc>
+      <type name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::Create::filepath" name="filepath">
+      <doc>the wanted filepath</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CreateAnt" name="CreateAnt">
+    <brief>Creates a new <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+    </brief>
+    <doc>R Version :
+```R
+ant &lt;- e$createAnt()
+```
+
+</doc>
+    <return>
+      <doc>the new <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="Ant" ref="fort::myrmidon::Ant#fort::myrmidon::Ant" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CreateAntShapeType" name="CreateAntShapeType">
+    <brief>Creates a new Ant shape type</brief>
+    <doc>Creates a new <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> virtual shape body part type.
+
+R Version :
+```R
+e$createAntShapeType(name)
+```
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> for the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> shape type</doc>
+      <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::CreateAntShapeType::name" name="name">
+      <doc>the user defined name for the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> Shape Type</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CreateMeasurementType" name="CreateMeasurementType">
+    <brief>Creates a measurement type</brief>
+    <doc>R Version :
+```R
+e$createMeasurementType("foo")
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID">fort::myrmidon::MeasurementTypeID</ref> identifying the new measurement
+type</doc>
+      <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::CreateMeasurementType::name" name="name">
+      <doc>the wanted name for the new measurement</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CreateSpace" name="CreateSpace">
+    <brief>Creates a new <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <doc>R Version :
+```R
+e$createSpace(name)
+```
+
+</doc>
+    <return>
+      <doc>the new <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref></doc>
+      <type name="Space" ref="fort::myrmidon::Space#fort::myrmidon::Space" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::CreateSpace::name" name="name">
+      <doc>wanted name for the new <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref></doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CSpaces" name="CSpaces">
+    <brief>Gets the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the Experiment with const access</brief>
+    <doc>R Version :
+```R
+e$cSpaces()
+```
+
+</doc>
+    <return>
+      <doc>a const map of the Experiment <ref ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace">fort::myrmidon::CSpace</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+          <type name="CSpace" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DefaultTagSize" name="DefaultTagSize">
+    <brief>The default physical tag size</brief>
+    <doc>Usually an Ant colony are tagged with a majority of tag of a
+given size. Some individuals (like Queens) may often use a
+bigger tag size that should be set in their
+Identification. This value is used for
+<ref ref="fort::myrmidon::Query#fort::myrmidon::Query::ComputeMeasurementFor">fort::myrmidon::Query::ComputeMeasurementFor</ref>.
+
+myrmidon uses without white border convention for ARTag and
+with white border convention Apriltag.
+
+R Version :
+```R
+e$defaultTagSize()
+```
+
+</doc>
+    <return>
+      <doc>the default tag size for the experiment in mm</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteAntShapeType" name="DeleteAntShapeType">
+    <brief>Removes a virtual Ant shape type</brief>
+    <doc>R Version :
+```R
+e$deleteAntShapeType(shapeTypeID)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteAntShapeType::shapeTypeID" name="shapeTypeID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> of the shape type to remove</doc>
+      <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteIdentification" name="DeleteIdentification">
+    <brief>Deletes an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>
+    </brief>
+    <doc>R Version :
+```R
+# i is the wanted fmIdentification to delete
+e$deleteIdentification(i)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteIdentification::identification" name="identification">
+      <doc>the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to delete</doc>
+      <type name="Identification" qualifier=" const &amp;" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteMeasurementType" name="DeleteMeasurementType">
+    <brief>Deletes a measurement type</brief>
+    <doc>R Version :
+```R
+e$deleteMeasurementType(mTypeID)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteMeasurementType::mTypeID" name="mTypeID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID">fort::myrmidon::MeasurementTypeID</ref> to delete</doc>
+      <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteMetadataColumn" name="DeleteMetadataColumn">
+    <brief>Removes a non-tracking data column.</brief>
+    <doc>R Version :
+```R
+e$deleteMetadataColumn(name)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteMetadataColumn::name" name="name">
+      <doc>the name of the column to remove</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteSpace" name="DeleteSpace">
+    <brief>Deletes a <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <doc>R Version :
+```R
+e$deleteSpace(spaceID)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteSpace::spaceID" name="spaceID">
+      <doc>the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::ID">fort::myrmidon::Space::ID</ref> of the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> we want to delete.</doc>
+      <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::DeleteTrackingDataDirectory" name="DeleteTrackingDataDirectory">
+    <brief>Removes a Tracking Data Directory from the Experiment</brief>
+    <doc>R Version :
+```R
+e$deleteTrackingDataDirectory(uri)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::DeleteTrackingDataDirectory::URI" name="URI">
+      <doc>the URI of the tracking data directory to remove</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Family" name="Family">
+    <brief>The kind of tag used in the Experiment</brief>
+    <doc>R Version :
+```R
+f &lt;- e$family()
+names(which( f == fmTagFamily ) )
+```
+
+</doc>
+    <return>
+      <doc>the family of tag used in the Experiment</doc>
+      <type name="tags::Family" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::FreeIdentificationRangeAt" name="FreeIdentificationRangeAt">
+    <brief>Queries for a valid time range</brief>
+    <doc>Queries for a valid time range for a given <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> and
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>. The result will be a range [<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::start">start</ref>,<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::end">end</ref>[ containing
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::time">time</ref> where <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::tagID">tagID</ref> is not used. If it returns false <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::start">start</ref>
+and <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::FreeIdentificationRangeAt::end">end</ref> will be resetted if such a range does not exists.
+
+R Version :
+```R
+# initializes return value as fmTimeCPtr
+start &lt;- new ( FortMyrmidon::fmTimeCPtr )
+end &lt;- new ( FortMyrmidon::fmTimeCPtr )
+e$freeIdentificationRangeAt(start,end,tagID,time)
+```
+
+</doc>
+    <return>
+      <doc>`true` if such a range exist, false otherwise.</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::FreeIdentificationRangeAt::start" name="start">
+      <doc>return value by reference for the start of the range</doc>
+      <type name="Time::ConstPtr" qualifier=" &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::FreeIdentificationRangeAt::end" name="end">
+      <doc>return value by reference for the end of the range</doc>
+      <type name="Time::ConstPtr" qualifier=" &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::FreeIdentificationRangeAt::tagID" name="tagID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> we want a range for</doc>
+      <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::FreeIdentificationRangeAt::time" name="time">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> that must be included in the result time range</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::GetDataInformations" name="GetDataInformations">
+    <brief>Gets tracking data statistics about the Experiment</brief>
+    <doc>R Version :
+```R
+e$getDataInformations()
+```
+
+</doc>
+    <return>
+      <doc>an <ref ref="fort::myrmidon::ExperimentDataInfo#fort::myrmidon::ExperimentDataInfo">fort::myrmidon::ExperimentDataInfo</ref> list of informations</doc>
+      <type name="ExperimentDataInfo" ref="fort::myrmidon::ExperimentDataInfo#fort::myrmidon::ExperimentDataInfo" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::MeasurementTypeNames" name="MeasurementTypeNames">
+    <brief>Gets the Experiment defined measurement type</brief>
+    <doc>R Version :
+```R
+e$measurementTypeNames()
+```
+
+</doc>
+    <return>
+      <doc>a map of measurement type name by their <ref ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID">fort::myrmidon::MeasurementTypeID</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+          <type name="std::__cxx11::string" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Name" name="Name">
+    <brief>The name of the Experiment.</brief>
+    <doc>R Version :
+```R
+# initializes return value as fmTimeCPtr
+start &lt;- new ( FortMyrmidon::fmTimeCPtr )
+end &lt;- new ( FortMyrmidon::fmTimeCPtr )
+e$freeIdentificationRangeAt(start,end,tagID,time)
+```
+
+R Version :
+```R
+e$name()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the Experiment's name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::NewFile" name="NewFile" static="yes">
+    <brief>Creates a new Experiment file</brief>
+    <doc>Creates a new Experiment at the wanted filesystem
+location. Will throw an error if a file already exists at this
+location.
+
+R Version :
+```R
+fmExperimentNewFile(path)
+```
+
+</doc>
+    <return>
+      <doc>the new empty <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Experiment">fort::myrmidon::Experiment::Experiment</ref></doc>
+      <type name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::NewFile::filepath" name="filepath">
+      <doc>the wanted filepath</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Open" name="Open" static="yes">
+    <brief>Opens an Experiment with full access</brief>
+    <doc>Opens an Experiment with full access to a `.myrmidon`
+file. Only a single program can open the same myrmidon file
+with full access (read only access must be closed).
+
+R Version :
+```R
+fmExperimentOpen(path)
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Experiment">fort::myrmidon::Experiment::Experiment</ref></doc>
+      <type name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::Open::filepath" name="filepath">
+      <doc>the path to the wanted file</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::OpenReadOnly" name="OpenReadOnly" static="yes">
+    <brief>Opens a read only Experiment</brief>
+    <doc>Opens an Experiment with read only access to a `.myrmidon`
+file. Only a single program can open the same myrmidon file
+with full access (read only access must be closed).
+
+R Version :
+```R
+fmExperimentOpenReadOnly(path)
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment">fort::myrmidon::CExperiment</ref></doc>
+      <type name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::OpenReadOnly::filepath" name="filepath">
+      <doc>the path to the wanted file.</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::RenameAntMetadataColumn" name="RenameAntMetadataColumn">
+    <brief>Renames a non-tracking data column</brief>
+    <doc>R Version :
+```R
+e$renameAntMetadataColumn(oldName,newName)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::RenameAntMetadataColumn::oldName" name="oldName">
+      <doc>the current name of the column to rename</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::RenameAntMetadataColumn::newName" name="newName">
+      <doc>the new wanted name for that column.</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Save" name="Save">
+    <brief>Saves the Experiment</brief>
+    <doc>Saves the Experiment to its location. It is forbidden to change
+its parent directory (but file renaming is permitted).
+
+R Version :
+```R
+e$save(path)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::Save::filepath" name="filepath">
+      <doc>the desired filesystem location to save the Experiment to</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetAntMetadataColumnType" name="SetAntMetadataColumnType">
+    <brief>Changes the type of a non-tracking data column</brief>
+    <doc>R Version :
+```R
+e$setAntMetadataColumnType("alive",fmAntMetadataType["STRING"],fmAntStaticString("yes"))
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetAntMetadataColumnType::name" name="name">
+      <doc>the name of the column</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::SetAntMetadataColumnType::type" name="type">
+      <doc>the new wanted type.</doc>
+      <type name="AntMetadataType" ref="fort::myrmidon#fort::myrmidon::AntMetadataType" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::SetAntMetadataColumnType::defaultValue" name="defaultValue">
+      <doc>the new wantet default value</doc>
+      <type name="AntStaticValue" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetAntShapeTypeName" name="SetAntShapeTypeName">
+    <brief>Changes the name of an Ant Shape type</brief>
+    <doc>R Version :
+```R
+e$setAntShapeTypeName(shapeTypeID,name)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetAntShapeTypeName::shapeTypeID" name="shapeTypeID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> of the shape type to rename</doc>
+      <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::SetAntShapeTypeName::name" name="name">
+      <doc>the new name for the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> shape typex</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetAuthor" name="SetAuthor">
+    <brief>Sets the Experiment's author</brief>
+    <doc>R Version :
+```R
+e$setAuthor(author)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetAuthor::author" name="author">
+      <doc>the new value for the Experiement's author</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetComment" name="SetComment">
+    <brief>Sets the comment of the Experiment</brief>
+    <doc>R Version :
+```R
+e$setComment(comment)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetComment::comment" name="comment">
+      <doc>the wnated Experiment's comment</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetDefaultTagSize" name="SetDefaultTagSize">
+    <brief>Sets the default tag siye in mm</brief>
+    <doc>R Version :
+```R
+# sets the tag size to 0.7 mm
+e$setDefaultTagSize(0.7)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetDefaultTagSize::defaultTagSize" name="defaultTagSize">
+      <doc>the tag size in mm ( the one defined on tag sheet )</doc>
+      <type builtin="yes" name="double" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetFamily" name="SetFamily">
+    <brief>Sets the kind of tag used in the Experiment</brief>
+    <doc>R Version :
+```R
+e$setFamily(fmTagFamily["TAG_36H11"])
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetFamily::tf" name="tf">
+      <doc>the tag that are used in the Experiment</doc>
+      <type name="tags::Family" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetMeasurementTypeName" name="SetMeasurementTypeName">
+    <brief>Sets the name of a measurement type</brief>
+    <doc>R Version :
+```R
+e$setMeasurementTypeName(mTypeID,"bar")
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetMeasurementTypeName::mTypeID" name="mTypeID">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID">fort::myrmidon::MeasurementTypeID</ref> to modify</doc>
+      <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+    </argument>
+    <argument id="fort::myrmidon::Experiment::SetMeasurementTypeName::name" name="name">
+      <doc>the wanted name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetName" name="SetName">
+    <brief>Sets the Experiment's name.</brief>
+    <doc>R Version :
+```R
+e$setName(name)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetName::name" name="name">
+      <doc>the new <ref ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">fort::myrmidon::priv::Experiment</ref> name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::SetThreshold" name="SetThreshold">
+    <brief>Sets the detection threshold</brief>
+    <doc>R Version :
+```R
+e$setThreshold(th)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::SetThreshold::th" name="th">
+      <doc>the threshold to use.</doc>
+      <type name="uint8_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Spaces" name="Spaces">
+    <brief>Gets the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the Experiment</brief>
+    <doc>R Version :
+```R
+e$spaces()
+```
+
+</doc>
+    <return>
+      <doc>a map of the Experiment <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> by their <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::ID">fort::myrmidon::Space::ID</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+          <type name="Space" ref="fort::myrmidon::Space#fort::myrmidon::Space" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::Threshold" name="Threshold">
+    <brief>The threshold used for tag detection</brief>
+    <doc>R Version :
+```R
+e$threshold()
+```
+
+</doc>
+    <return>
+      <doc>the threshold used for detection</doc>
+      <type name="uint8_t" />
+    </return>
+  </method>
+</class>

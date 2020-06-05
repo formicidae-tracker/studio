@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<category id="manual_measurement" name="manual_measurement" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Ant manual measurement</brief>
+  <doc># Ant manual measurement
+
+Using the FORT studio gui, one can make manual Ant measurement on high
+resolution frames. One can defines several measurement type with the
+GUI or using <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::CreateMeasurementType">fort::myrmidon::Experiment::CreateMeasurementType</ref>, rename them with
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::SetMeasurementTypeName">fort::myrmidon::Experiment::SetMeasurementTypeName</ref> or delete them
+with <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::DeleteMeasurementType">fort::myrmidon::Experiment::DeleteMeasurementType</ref>
+
+Measurement made with the GUI can be accessed though
+<ref ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement">fort::myrmidon::ComputedMeasurement</ref> using
+<ref ref="fort::myrmidon::Query#fort::myrmidon::Query::ComputeMeasurementFor">fort::myrmidon::Query::ComputeMeasurementFor</ref>. These computed
+measurement returns a value in millimeters, estimated from the tag
+image size, and the value of
+&amp;lt;fort::myrmidon::Identification::TagSize&amp;gt;. One can defines at default
+tag size for all identification at the experiment level using
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::SetDefaultTagSize">fort::myrmidon::Experiment::SetDefaultTagSize</ref> and only redefine this
+tag size for particular identification using
+&amp;lt;fort::myrmidon::Identification::SetTagSize&amp;gt;. The latter should be
+used for Queens per example that often uses a tag of a different size.
+
+The tag size value in mm should use the normal tag size convention for
+the family used. For example, ARTag defines their size from the inner
+black border, and apriltag from the outer white border (if
+applicable). To sets this field use the size written on the tag
+sheets.</doc>
+</category>
