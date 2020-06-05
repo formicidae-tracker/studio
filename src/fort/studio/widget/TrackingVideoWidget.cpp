@@ -49,6 +49,7 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[widget] Paint Event with frame:" << d_frame << std::endl);
 
 	QPainter painter(this);
+	painter.setRenderHint(QPainter::SmoothPixmapTransform,true);
 	painter.fillRect(rect(),QColor(0,0,0));
 	if ( !d_frame.Image == true ) {
 		return;
@@ -84,6 +85,7 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	if ( !d_frame.TrackingFrame == false && d_identifier != nullptr ) {
 		QPainter imagePainter(&image);
 		imagePainter.setRenderHint(QPainter::Antialiasing,true);
+		imagePainter.setRenderHint(QPainter::TextAntialiasing,true);
 		paintIdentifiedAnt(&imagePainter,sourceRect);
 	}
 
@@ -134,7 +136,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	painter->setPen(Qt::NoPen);
 
 	auto font = painter->font();
-	font.setPointSizeF(font.pointSizeF() * double(d_frame.Image->height()) / double(height()) * 0.6);
+	font.setPointSizeF(font.pointSizeF() * double(d_frame.Image->height()) / double(height()) * 0.8);
 	painter->setFont(font);
 	auto metrics = QFontMetrics(font);
 	bool hasSolo = d_identifier->numberSoloAnt() != 0;
