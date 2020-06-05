@@ -106,18 +106,6 @@
     e1$nanoseconds() == e2$nanoseconds()
 )
 
-#' Different operator for fmDuration
-#'
-#' @param e1 the first fmDuration to compare
-#' @param e2 the second fmDuration to compare
-#' @return \code{TRUE} if \code{e1 != e2}
-#' @examples
-#' \dontrun{
-#' fmSecond(1) != fmMinute(1)
-#' # outputs TRUE
-#' fmSecond(60) != fmMinute(1)
-#' # outputs FALSE (as 60s == 1m)
-#' }
 `!=.Rcpp_fmDuration` <- function(e1, e2) (
     e1$nanoseconds() != e2$nanoseconds()
 )
