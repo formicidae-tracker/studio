@@ -143,9 +143,13 @@ make check
 ## Other language bindings
 
 Some bindings are available for other language such as R. These are
-not port of the myrmidon API, but wrapper for theses languages and
-theyr require you to install libfort-myrmidon locally, by preference
-using package managers.
+not port of the myrmidon API, but wrapper for theses languages.  They
+require you to install the myrmidon API with development file locally,
+by preference using package manager `libfort-myrmidon-dev` package.
+
+``` bash
+sudo apt install libfort-myrmidon-dev
+```
 
 ### R bindings
 
