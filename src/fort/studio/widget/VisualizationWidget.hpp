@@ -17,7 +17,7 @@ class VisualizationWidget : public QWidget , public Navigatable {
 	Q_OBJECT
 public:
 	explicit VisualizationWidget(QWidget *parent = 0);
-	~VisualizationWidget();
+	virtual ~VisualizationWidget();
 
 	void setup(ExperimentBridge * experiment);
 

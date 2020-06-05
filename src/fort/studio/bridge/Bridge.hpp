@@ -12,7 +12,7 @@ class Bridge : public QObject {
 	           NOTIFY activated)
 public:
 	Bridge(QObject * parent);
-
+	virtual ~Bridge();
 	bool isModified() const;
 
 	virtual bool isActive() const = 0;

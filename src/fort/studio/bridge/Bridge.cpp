@@ -1,6 +1,7 @@
 #include "Bridge.hpp"
 
 
+Bridge::~Bridge() {}
 
 Bridge::Bridge(QObject * parent)
 	: d_modified(false) {

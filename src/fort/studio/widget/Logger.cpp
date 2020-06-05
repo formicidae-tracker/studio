@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <QDebug>
 
+Logger::~Logger() {}
+
 Logger::Logger(QObject * parent)
 	: QObject(parent)
 	, d_model(new QStandardItemModel(this)) {

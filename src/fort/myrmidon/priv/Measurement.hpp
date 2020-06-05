@@ -44,6 +44,8 @@ public:
 	            const Eigen::Vector2d & endFromTag,
 	            double tagSizePx);
 
+	virtual ~Measurement();
+
 	const std::string & URI() const override;
 
 	std::string TagCloseUpURI() const;

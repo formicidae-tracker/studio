@@ -81,6 +81,8 @@ Experiment::Experiment(const fs::path & filepath )
 	                                              onDefaultChange);
 }
 
+Experiment::~Experiment() {}
+
 class ExperimentLock {
 public:
 	typedef std::shared_ptr<ExperimentLock>          Ptr;

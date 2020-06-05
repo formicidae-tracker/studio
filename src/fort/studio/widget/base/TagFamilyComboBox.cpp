@@ -1,6 +1,7 @@
 #include "TagFamilyComboBox.hpp"
 
 
+TagFamilyComboBox::~TagFamilyComboBox() {}
 
 TagFamilyComboBox::TagFamilyComboBox(QWidget * parent)
 	: QComboBox(parent)

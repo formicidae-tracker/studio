@@ -20,6 +20,8 @@ UniverseBridge::UniverseBridge( QObject * parent)
 
 }
 
+UniverseBridge::~UniverseBridge(){}
+
 bool UniverseBridge::isActive() const {
 	return d_experiment.get() != NULL;
 }

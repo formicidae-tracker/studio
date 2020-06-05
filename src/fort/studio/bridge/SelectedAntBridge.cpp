@@ -25,6 +25,8 @@ SelectedAntBridge::SelectedAntBridge(IdentifierBridge * parent)
 
 }
 
+SelectedAntBridge::~SelectedAntBridge() {}
+
 bool SelectedAntBridge::isActive() const {
 	return d_ant.get() != NULL;
 }

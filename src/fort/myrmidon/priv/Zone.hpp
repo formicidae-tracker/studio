@@ -57,7 +57,7 @@ public:
 	               Geometry::ConstPtr geometry,
 	               const Time::ConstPtr & start,
 	               const Time::ConstPtr & end);
-
+	virtual ~ZoneDefinition();
 	const Geometry::ConstPtr & GetGeometry() const;
 
 	void SetGeometry(const Geometry::ConstPtr & geometry);
@@ -87,6 +87,7 @@ public:
 	typedef ZoneGeometry   Geometry;
 	typedef ZoneDefinition Definition;
 
+	virtual ~Zone();
 
 	static Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
 

@@ -8,6 +8,7 @@
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
+ExperimentBridge::~ExperimentBridge() {}
 
 ExperimentBridge::ExperimentBridge(QObject * parent)
 	: Bridge(parent)

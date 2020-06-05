@@ -11,6 +11,7 @@ class ColorComboBox : public QComboBox {
 	           NOTIFY colorChanged)
 public:
 	ColorComboBox(QWidget * parent);
+	virtual ~ColorComboBox();
 
 	const QColor & color() const;
 

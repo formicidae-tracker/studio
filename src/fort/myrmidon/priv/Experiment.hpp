@@ -80,6 +80,9 @@ public :
 	// @return a <Ptr> to the empty <Experiment>
 	static Ptr NewFile(const fs::path & filename);
 
+
+	virtual ~Experiment();
+
 	// Saves te Experiment to the filesystem
 	// @filename the path to save too
 	//

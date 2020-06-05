@@ -29,6 +29,7 @@ public :
 	                const Eigen::Vector2d & headFromTag,
 	                const Eigen::Vector2d & tailFromTag);
 
+	virtual ~AntPoseEstimate();
 
 	const std::string & URI() const override;
 

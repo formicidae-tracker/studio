@@ -13,6 +13,8 @@ SelectedIdentificationBridge::SelectedIdentificationBridge(QObject * parent)
 	: Bridge(parent) {
 }
 
+SelectedIdentificationBridge::~SelectedIdentificationBridge() {}
+
 bool SelectedIdentificationBridge::isActive() const {
 	return d_identification.get() != NULL;
 }

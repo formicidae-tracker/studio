@@ -114,6 +114,8 @@ Space::Space(ID spaceID, const std::string & name, const Universe::Ptr & univers
 	SetName(name);
 }
 
+Space::~Space() {}
+
 const Space::Universe::TrackingDataDirectoryByURI &
 Space::Universe::TrackingDataDirectories() const {
 	return d_tddsByURI;

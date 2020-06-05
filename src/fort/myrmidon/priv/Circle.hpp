@@ -16,7 +16,7 @@ public:
 	Circle();
 	Circle(const Eigen::Vector2d & center,
 	       double radius);
-
+	virtual ~Circle();
 	inline void SetCenter(const Eigen::Vector2d & center) {
 		d_center = center;
 	}

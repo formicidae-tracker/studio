@@ -13,7 +13,7 @@ class IdentificationEditorWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit IdentificationEditorWidget(QWidget *parent = 0);
-	~IdentificationEditorWidget();
+	virtual ~IdentificationEditorWidget();
 
 	void setup(ExperimentBridge * experiment);
 

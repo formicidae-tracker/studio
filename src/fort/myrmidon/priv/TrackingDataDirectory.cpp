@@ -33,6 +33,9 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+TrackingDataDirectory::~TrackingDataDirectory() {}
+
+
 TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const std::string & uri,
                                                               const fs::path & absoluteFilePath,
                                                               uint64_t startFrame,

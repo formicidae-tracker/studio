@@ -14,7 +14,7 @@ class AntIdentificationWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit AntIdentificationWidget(QWidget *parent = 0);
-	~AntIdentificationWidget();
+	virtual ~AntIdentificationWidget();
 
 	void setup(ExperimentBridge * experiment);
 private slots :

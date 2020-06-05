@@ -11,6 +11,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+IdentifierIF::~IdentifierIF() {}
+
 
 Identifier::UnmanagedIdentification::UnmanagedIdentification(const Identification & ident) noexcept
 	: std::runtime_error([&ident](){

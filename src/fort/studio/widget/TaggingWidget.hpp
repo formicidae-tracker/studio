@@ -28,7 +28,7 @@ class TaggingWidget : public QWidget, public Navigatable {
     Q_OBJECT
 public:
     explicit TaggingWidget(QWidget *parent = 0);
-	~TaggingWidget();
+	virtual ~TaggingWidget();
 
 	void setup(ExperimentBridge * experiment,
 	           QAction * loadTagCloseUpAction);
