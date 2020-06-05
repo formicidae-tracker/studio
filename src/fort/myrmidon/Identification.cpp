@@ -102,6 +102,8 @@ OverlappingIdentification::OverlappingIdentification(const priv::Identification 
 	: std::runtime_error(Reason(a,b)){
 }
 
+OverlappingIdentification::~OverlappingIdentification() {}
+
 std::string OverlappingIdentification::Reason(const priv::Identification & a,
                                               const priv::Identification & b) noexcept {
 	std::ostringstream os;

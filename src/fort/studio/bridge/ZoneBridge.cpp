@@ -10,6 +10,8 @@ const int ZoneBridge::DataRole = Qt::UserRole+2;
 
 Q_DECLARE_METATYPE(ZoneBridge::FullFrame)
 
+ZoneBridge::~ZoneBridge() {}
+
 ZoneBridge::ZoneBridge(QObject * parent)
 	: Bridge(parent)
 	, d_spaceModel(new QStandardItemModel(this))
@@ -568,6 +570,7 @@ void ZoneBridge::selectTime(const fm::Time & time) {
 	rebuildChildBridges();
 }
 
+ZoneDefinitionBridge::~ZoneDefinitionBridge() {}
 
 ZoneDefinitionBridge::ZoneDefinitionBridge(const fmp::Zone::ConstPtr & zone,
                                            const fmp::Zone::Definition::Ptr & ptr)

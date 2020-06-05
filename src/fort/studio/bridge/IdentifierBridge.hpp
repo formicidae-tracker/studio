@@ -23,6 +23,7 @@ class IdentifierBridge : public Bridge {
 
 public:
 	IdentifierBridge(QObject * parent);
+	virtual ~IdentifierBridge();
 
 	QAbstractItemModel * antModel() const;
 

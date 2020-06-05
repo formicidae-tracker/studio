@@ -128,6 +128,8 @@ MovieSegment::MovieSegment(MovieID ID,
 	}
 }
 
+MovieSegment::~MovieSegment() {}
+
 FrameID MovieSegment::StartFrame() const {
 	return d_trackingStart;
 }

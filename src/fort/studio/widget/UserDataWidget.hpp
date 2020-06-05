@@ -12,7 +12,7 @@ class UserDataWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit UserDataWidget(QWidget *parent = 0);
-	~UserDataWidget();
+	virtual ~UserDataWidget();
 
 	void setup(AntMetadataBridge * metadata);
 

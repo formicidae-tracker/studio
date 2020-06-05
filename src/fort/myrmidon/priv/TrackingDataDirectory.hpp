@@ -81,6 +81,8 @@ public:
 
 	static UID GetUID(const fs::path & absoluteFilePath);
 
+	virtual ~TrackingDataDirectory();
+
 	inline UID GetUID() const {
 		return d_uid;
 	}

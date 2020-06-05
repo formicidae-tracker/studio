@@ -16,7 +16,7 @@ class TrackingVideoControl : public QWidget {
 	Q_OBJECT
 public:
 	explicit TrackingVideoControl(QWidget *parent = 0);
-	~TrackingVideoControl();
+	virtual ~TrackingVideoControl();
 
 	void setup(TrackingVideoPlayer * player,
 	           IdentifierBridge * identifier);

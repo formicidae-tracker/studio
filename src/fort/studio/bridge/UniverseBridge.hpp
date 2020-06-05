@@ -15,6 +15,7 @@ class UniverseBridge : public Bridge {
 public:
 
 	UniverseBridge(QObject * parent);
+	virtual ~UniverseBridge();
 
 	QAbstractItemModel * model();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);

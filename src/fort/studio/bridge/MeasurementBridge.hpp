@@ -38,7 +38,7 @@ class MeasurementBridge : public Bridge {
 	           NOTIFY outdated)
 public:
 	MeasurementBridge(QObject * parent);
-	~MeasurementBridge();
+	virtual ~MeasurementBridge();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	QAbstractItemModel * tagCloseUpModel() const;

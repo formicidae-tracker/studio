@@ -23,6 +23,7 @@ class SelectedIdentificationBridge : public Bridge  {
 
 public:
 	SelectedIdentificationBridge(QObject * parent);
+	virtual ~SelectedIdentificationBridge();
 
 	bool isActive() const override;
 

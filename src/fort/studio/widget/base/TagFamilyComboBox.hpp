@@ -11,6 +11,7 @@ class TagFamilyComboBox : public QComboBox {
 public :
 
 	TagFamilyComboBox(QWidget * parent);
+	virtual ~TagFamilyComboBox();
 
 	fort::tags::Family family() const;
 

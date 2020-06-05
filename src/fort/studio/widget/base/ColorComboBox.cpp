@@ -4,6 +4,8 @@
 
 #include <QColorDialog>
 
+ColorComboBox::~ColorComboBox() {}
+
 ColorComboBox::ColorComboBox(QWidget * parent)
 	: QComboBox(parent)
 	, d_color(QColor()) {

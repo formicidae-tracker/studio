@@ -40,6 +40,8 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 
 }
 
+IdentifierBridge::~IdentifierBridge() {}
+
 bool IdentifierBridge::isActive() const {
 	return d_experiment.get() != NULL;
 }

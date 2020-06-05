@@ -19,7 +19,7 @@ class FrameFinderDialog : public QDialog {
 public:
 	explicit FrameFinderDialog(UniverseBridge * universe,
 	                           QWidget *parent = 0);
-	~FrameFinderDialog();
+	virtual ~FrameFinderDialog();
 
 	static fmp::FrameReference::ConstPtr Get(UniverseBridge * universe,
 	                                         QWidget * parent);

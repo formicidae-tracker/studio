@@ -13,6 +13,7 @@ class Logger : public QObject {
 	Q_OBJECT
 public:
 	Logger(QObject * parent);
+	virtual ~Logger();
 
 	QStandardItemModel * model();
 
@@ -34,7 +35,7 @@ class LoggerWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit LoggerWidget(Logger * logger, QWidget * parent = 0);
-	~LoggerWidget();
+	virtual ~LoggerWidget();
 
 private slots:
 	void onDisplayLogLevelChanged(int);

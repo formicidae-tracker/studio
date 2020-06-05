@@ -13,7 +13,7 @@ public:
 	typedef std::shared_ptr<const Polygon> ConstPtr;
 
 	Polygon(const Vector2dList & vertices);
-	~Polygon();
+	virtual ~Polygon();
 
 	size_t Size() const;
 

@@ -13,7 +13,7 @@ class MeasurementTypeWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit MeasurementTypeWidget(QWidget *parent = nullptr);
-	~MeasurementTypeWidget();
+	virtual ~MeasurementTypeWidget();
 
 	void setup(MeasurementBridge * measurements);
 

@@ -24,6 +24,8 @@ public:
 	        double r1,
 	        double r2);
 
+	virtual ~Capsule();
+
 	inline void SetC1(const Eigen::Vector2d & c1) {
 		d_c1 = c1;
 	}
