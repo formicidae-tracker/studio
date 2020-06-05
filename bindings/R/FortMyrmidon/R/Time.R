@@ -77,18 +77,6 @@
     e1$equals(e2)
 )
 
-#' Difference operator for fmTime
-#'
-#' @param e1 the first fmTime to compare
-#' @param e2 the second fmTime to compare
-#' @return \code{TRUE} if \code{e1} and  \code{e2} do ont represents the same time at nanoseconds precision
-#' @examples
-#' \dontrun{
-#' fmTimeParse("2020-01-29T08:00:00.000Z") == fmTimeParse("2020-01-29T08:00:00.000Z")
-#' # outputs FALSE
-#' fmTimeParse("2020-01-29T08:00:00.000Z") == fmTimeParse("2020-01-29T08:00:00.000Z")$add(1)
-#' # outpus TRUE (1ns difference)
-#' }
 `!=.Rcpp_fmTime` <- function(e1, e2) (
     !e1$equals(e2)
 )

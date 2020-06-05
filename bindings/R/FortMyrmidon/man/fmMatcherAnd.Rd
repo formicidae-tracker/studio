@@ -17,5 +17,5 @@ a \code{\link{fmMatcher}} a matcher that matches when all
 }
 \examples{
 # a fmMatcher that matches two criterion (could be more)
-fmMatcherAnd(list(fmMatcherAntColumn("group","worker"),fmMatcherAntID(42)))
+fmMatcherAnd(list(fmMatcherAntColumn("group",fmAntStaticString("worker")),fmMatcherAntID(42)))
 }

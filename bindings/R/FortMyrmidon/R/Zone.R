@@ -1,6 +1,6 @@
 #' @name fmZoneDefinition
 #' @title Reference Class wrapper for the C++
-#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}{fort::myrmidon::ZoneDefinition}
 #'     class
 #'
 #' @field geometry
@@ -16,7 +16,7 @@
 #' @field setEnd
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition::SetEnd}{fort::myrmidon::ZoneDefinition::SetEnd}
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' # sets the geomtery of a zone zd to two circle
 #' zd$setGeometry(list(fmCircleCreate(c(0,0),3),fmCircleCreate(c(10,10,10))))
 #' }
@@ -24,7 +24,7 @@ NULL
 
 #' @name fmCZoneDefinition
 #' @title Reference Class wrapper for the C++
-#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}{fort::myrmidon::CZoneDefinition}
 #'     class
 #'
 #' @field geometry
@@ -37,7 +37,7 @@ NULL
 
 #' @name fmZone
 #' @title Reference Class wrapper for the c++
-#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}{fort::myrmidon::Zone}
 #'     class
 #'
 #' @field addDefinition
@@ -59,7 +59,7 @@ NULL
 
 #' @name fmCZone
 #' @title Reference Class wrapper for the c++
-#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CZone/fort::myrmidon::CZone}
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CZone/fort::myrmidon::CZone}{fort::myrmidon::CZone}
 #'     class
 #'
 #' @field cDefinitions

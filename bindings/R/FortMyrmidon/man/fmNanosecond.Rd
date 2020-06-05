@@ -13,8 +13,8 @@ a fmDuration representing the wanted amount of nanoseconds
 Creates a fmDuration which is a multiple of a nanosecond
 }
 \examples{
-fmNanoseconds(2)
+fmNanosecond(2)
 # outputs 2ns
-fmNanoseconds(1.1)
+fmNanosecond(1.1)
 # outputs 1ns, nanoseconds is the smallest available value
 }

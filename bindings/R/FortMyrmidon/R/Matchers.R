@@ -29,7 +29,7 @@ NULL
 #'     subMatcher matches
 #' @examples
 #' # a fmMatcher that matches two criterion (could be more)
-#' fmMatcherAnd(list(fmMatcherAntColumn("group","worker"),fmMatcherAntID(42)))
+#' fmMatcherAnd(list(fmMatcherAntColumn("group",fmAntStaticString("worker")),fmMatcherAntID(42)))
 NULL
 
 #' @name fmMatcherOr
@@ -40,7 +40,10 @@ NULL
 #'     sub-fmMatcher matches
 #' @examples
 #' # a fmMatcher that matches any two criterion (could be more)
-#' fmMatcherOr(list(fmMatcherAntColumn("group","workers"),fmMatcherAntColumn("group","nurses")))
+#' fmMatcherOr(list(fmMatcherAntColumn("group",
+#'                                     fmAntStaticString("workers")),
+#'                  fmMatcherAntColumn("group",
+#'                                     fmAntStaticString("nurses"))))
 NULL
 
 #' @name fmMatcherAntID
@@ -63,7 +66,7 @@ NULL
 #'     value of an ant matches the criterion
 #' @examples
 #' # a fmMatcher that matches when ant value "group" is "nurses"
-#' fmMatcherAntColumn("group","nurses")
+#' fmMatcherAntColumn("group",fmAntStaticString("nurses"))
 NULL
 
 #' @name fmMatcherAntDistanceGreaterThan

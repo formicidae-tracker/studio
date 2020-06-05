@@ -17,5 +17,8 @@ a \code{\link{fmMatcher}} a matcher that matches when any
 }
 \examples{
 # a fmMatcher that matches any two criterion (could be more)
-fmMatcherOr(list(fmMatcherAntColumn("group","workers"),fmMatcherAntColumn("group","nurses")))
+fmMatcherOr(list(fmMatcherAntColumn("group",
+                                    fmAntStaticString("workers")),
+                 fmMatcherAntColumn("group",
+                                    fmAntStaticString("nurses"))))
 }

@@ -3,11 +3,11 @@
 \name{fmZoneDefinition}
 \alias{fmZoneDefinition}
 \title{Reference Class wrapper for the C++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}{fort::myrmidon::ZoneDefinition}
     class}
 \description{
 Reference Class wrapper for the C++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::ZoneDefinition/fort::myrmidon::ZoneDefinition}{fort::myrmidon::ZoneDefinition}
     class
 }
 \section{Fields}{
@@ -27,7 +27,7 @@ Reference Class wrapper for the C++
 }}
 
 \examples{
-\dontrun {
+\dontrun{
 # sets the geomtery of a zone zd to two circle
 zd$setGeometry(list(fmCircleCreate(c(0,0),3),fmCircleCreate(c(10,10,10))))
 }

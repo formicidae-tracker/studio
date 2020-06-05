@@ -98,7 +98,7 @@ public:
 	//
 	// R Version :
 	// ```R
-	// fmMatcherAntColumn("group","nurses")
+	// fmMatcherAntColumn("group",fmAntStaticString("nurses"))
 	// ```
 	//
 	// @return a <Ptr> that matches <Ant> with the value matching that
