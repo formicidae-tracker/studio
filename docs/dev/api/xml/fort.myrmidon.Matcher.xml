@@ -117,7 +117,7 @@ criterion.
 
 R Version :
 ```R
-fmMatcherAntColumn("group","nurses")
+fmMatcherAntColumn("group",fmAntStaticString("nurses"))
 ```
 
 </doc>
