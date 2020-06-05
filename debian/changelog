@@ -1,4 +1,4 @@
-fort-studio (0.4.0-0ubuntu1) UNRELEASED; urgency=medium
+fort-studio (0.4.0-0ubuntu1) focal; urgency=medium
 
   * New upstream release 0.4.0
   * Installs freedesktop entries for menu
