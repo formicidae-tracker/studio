@@ -17,4 +17,4 @@ override_dh_auto_test:
 	dh_auto_test -- "ARGS=-E fort-studio"
 
 override_dh_auto_configure:
-	DEB_CFLAGS_MAINT_STRIP="-O2" DEB_CFLAGS_MAINT_APPEND="-O3" dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
+	DEB_CFLAGS_MAINT_STRIP="-O2" DEB_CFLAGS_MAINT_APPEND="-O3" dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DBUILD_XDESKTOP_ENTRY=On
