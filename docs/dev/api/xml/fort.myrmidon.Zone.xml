@@ -19,30 +19,32 @@ to query where an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmi
 
 ## Geometric definition
 
-Zone have time valid <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">Definition</ref>. In most cases there would be a
-single <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">Definition</ref> for any <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Zone">Zone</ref> valid for ]-∞,+∞[ <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>, but it
-is possible to assign different <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::Geometry">Definition::Geometry</ref> for
-different time range using multiple <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">Definition</ref>.
+Zone have time valid <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref>. In most cases there would be
+a single <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref> for any <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Zone">Zone</ref> valid for ]-∞,+∞[ <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>,
+but it is possible to assign different <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::Geometry">fort::myrmidon::ZoneDefinition::Geometry</ref> for
+different time range using multiple <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref>.
 
-<ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">Definition</ref> are manipulated using <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::AddDefinition">AddDefinition</ref> and
+<ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref> are manipulated using <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::AddDefinition">AddDefinition</ref> and
 <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::EraseDefinition">EraseDefinition</ref>.</doc>
-  <class name="Definition" ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">
-    <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Zone">fort::myrmidon::Zone::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
-    </brief>
-  </class>
   <typedef id="fort::myrmidon::Zone::ByID" name="ByID">
     <brief>A map of Zone indexed by <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ZoneID">fort::myrmidon::Zone::ZoneID</ref>
     </brief>
-    <type name="std::map&lt;unsigned int, std::shared_ptr&lt;fort::myrmidon::Zone&gt;, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, std::shared_ptr&lt;fort::myrmidon::Zone&gt; &gt; &gt; &gt;" />
+    <type class="template" name="std::map">
+      <template-arguments>
+        <type name="ID" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID" />
+        <type name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Zone::ConstByID" name="ConstByID">
-    <brief>A map of const Zone indexed by <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ZoneID">fort::myrmidon::Zone::ZoneID</ref>
+    <brief>A map of const CZone indexed by <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ZoneID">fort::myrmidon::Zone::ZoneID</ref>
     </brief>
-    <type name="std::map&lt;unsigned int, std::shared_ptr&lt;const fort::myrmidon::Zone&gt;, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, std::shared_ptr&lt;const fort::myrmidon::Zone&gt; &gt; &gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::Zone::ConstPtr" name="ConstPtr">
-    <brief>A const pointer to a Zone</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Zone&gt;" />
+    <type class="template" name="std::map">
+      <template-arguments>
+        <type name="ID" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID" />
+        <type name="CZone" ref="fort::myrmidon::CZone#fort::myrmidon::CZone" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Zone::ID" name="ID">
     <brief>A Space-unique ID</brief>
@@ -52,11 +54,11 @@ different time range using multiple <ref ref="fort::myrmidon::Zone::Definition#f
   </typedef>
   <typedef id="fort::myrmidon::Zone::PPtr" name="PPtr">
     <brief>Opaque pointer for implementation</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Zone&gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::Zone::Ptr" name="Ptr">
-    <brief>A pointer to a Zone</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Zone&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Zone" ref="fort::myrmidon::priv::Zone#fort::myrmidon::priv::Zone" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Zone::Zone" name="Zone">
     <brief>Private implementation constructor</brief>
@@ -69,13 +71,20 @@ accessed from <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmi
   </constructor>
   <method abstract="yes" id="fort::myrmidon::Zone::AddDefinition" name="AddDefinition">
     <brief>Adds a new timed Definition</brief>
-    <doc>Adds a new timed <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref> valid for
+    <doc>Adds a new timed <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref> valid for
 [<ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::AddDefinition::start">start</ref>,<ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::AddDefinition::end">end</ref>[. nullptr means -/+∞.
+
+R version:
+```R
+z$addDefinition(list(fmCircle(c(x,y),r),...),
+fmTimeParse("XXX")$const_ptr(), # const_ptr() needed to convert to fmTimeCPtr
+fmTimeParse("YYY")$const_ptr()) # const_ptr() needed to convert to fmTimeCPtr
+```
 
 </doc>
     <return>
-      <doc>a <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::Ptr">fort::myrmidon::Zone::Definition::Ptr</ref> for the new <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref></doc>
-      <type name="Definition::Ptr" ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::Ptr" />
+      <doc>the new <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref></doc>
+      <type name="ZoneDefinition" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition" />
     </return>
     <argument id="fort::myrmidon::Zone::AddDefinition::geometry" name="geometry">
       <doc>the shape of the Zone as a <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList">fort::myrmidon::Shape::ConstList</ref></doc>
@@ -91,24 +100,33 @@ accessed from <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmi
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::CDefinitions" name="CDefinitions">
-    <brief>const access to the Zone <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref>
-    </brief>
+    <brief>const access to the ZoneDefinition</brief>
+    <doc>R version:
+```R
+z$cDefinitions()
+```
+
+</doc>
     <return>
-      <doc>a <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::ConstList">fort::myrmidon::Zone::Definition::ConstList</ref> of <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref> for this Zone</doc>
-      <type name="Definition::ConstList" ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::ConstList" />
+      <doc>a <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::ConstList">fort::myrmidon::ZoneDefinition::ConstList</ref> of <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref> for this Zone</doc>
+      <type name="ZoneDefinition::ConstList" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::ConstList" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::Definitions" name="Definitions">
-    <brief>the Zone <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref>
-    </brief>
+    <brief>Gets Zone's ZoneDefinition</brief>
+    <doc>R version:
+```R
+z$definitions()
+```
+
+</doc>
     <return>
-      <doc>a <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::List">fort::myrmidon::Zone::Definition::List</ref> of <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref> for this Zone</doc>
-      <type name="Definition::List" ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition::List" />
+      <doc>a <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::List">fort::myrmidon::ZoneDefinition::List</ref> of <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">fort::myrmidon::ZoneDefinition</ref> for this Zone</doc>
+      <type name="ZoneDefinition::List" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::List" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::EraseDefinition" name="EraseDefinition">
-    <brief>Removes a <ref ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">fort::myrmidon::Zone::Definition</ref>
-    </brief>
+    <brief>Removes a ZoneDefinition</brief>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -119,6 +137,12 @@ accessed from <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmi
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::Name" name="Name">
     <brief>Gets Zone name</brief>
+    <doc>R version:
+```R
+z$name()
+```
+
+</doc>
     <return>
       <doc>the Zone name</doc>
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
@@ -126,7 +150,12 @@ accessed from <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmi
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::SetName" name="SetName">
     <brief>Sets the Zone name</brief>
-    <doc>There are no restrictions on Zone name</doc>
+    <doc>R version:
+```R
+z$setName(name)
+```
+
+There are no restrictions on Zone name</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -139,6 +168,11 @@ accessed from <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmi
     <brief>Gets the Zone ID</brief>
     <doc>Gets the Zone <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID">fort::myrmidon::Zone::ID</ref>. <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID">fort::myrmidon::Zone::ID</ref> are unique within a <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>, but two
 Zone in different <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> can have the same <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID">fort::myrmidon::Zone::ID</ref>.
+
+R version:
+```R
+z$zoneID()
+```
 
 </doc>
     <return>

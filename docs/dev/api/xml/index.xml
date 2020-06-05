@@ -91,8 +91,17 @@ interactions or trajectories.
         <brief>Defines a trajectory for an <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref>
         </brief>
       </struct>
+      <class name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt">
+        <brief>const version of Ant</brief>
+      </class>
       <class name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
         <brief>A capsule</brief>
+      </class>
+      <class name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment">
+        <brief>const version of Experiment</brief>
+      </class>
+      <class name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification">
+        <brief>const version of Identification</brief>
       </class>
       <class name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
         <brief>A circle</brief>
@@ -107,6 +116,15 @@ interactions or trajectories.
       <struct name="ComputedMeasurement" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement">
         <brief>Represents a Measurement in mm at a given Time.</brief>
       </struct>
+      <class name="CSpace" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace">
+        <brief>const version of Space</brief>
+      </class>
+      <class name="CZone" ref="fort::myrmidon::CZone#fort::myrmidon::CZone">
+        <brief>const version of Zone</brief>
+      </class>
+      <class name="CZoneDefinition" ref="fort::myrmidon::CZoneDefinition#fort::myrmidon::CZoneDefinition">
+        <brief>const version of ZoneDefinition</brief>
+      </class>
       <class name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration">
         <brief>The time ellapsed between two <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
         </brief>
@@ -168,10 +186,10 @@ interactions or trajectories.
       </struct>
       <class name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone">
         <brief>A tracking region where interaction are computed.</brief>
-        <class name="Definition" ref="fort::myrmidon::Zone::Definition#fort::myrmidon::Zone::Definition">
-          <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Zone">fort::myrmidon::Zone::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
-          </brief>
-        </class>
+      </class>
+      <class name="ZoneDefinition" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">
+        <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+        </brief>
       </class>
     </namespace>
   </namespace>
@@ -285,6 +303,32 @@ Please note that null pointer formats to `+/-∞`
     <argument id="operator&lt;&lt;::color" name="color">
       <doc>the <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> to format</doc>
       <type name="fort::myrmidon::Color" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Color" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats an Identification to an std::ostream</brief>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the stream to format to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::identification" name="identification">
+      <doc>the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to format</doc>
+      <type name="fort::myrmidon::Identification" qualifier=" const &amp;" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <return>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::m" name="m">
+      <type name="fort::myrmidon::Matcher" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher" />
     </argument>
   </function>
   <report name="Documentation generator" ref="report" />

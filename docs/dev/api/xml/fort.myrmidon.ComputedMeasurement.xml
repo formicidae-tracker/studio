@@ -14,6 +14,10 @@ in the image.</doc>
   </field>
   <typedef id="fort::myrmidon::ComputedMeasurement::List" name="List">
     <brief>A list of measurement</brief>
-    <type name="std::vector&lt;fort::myrmidon::ComputedMeasurement, std::allocator&lt;fort::myrmidon::ComputedMeasurement&gt; &gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="ComputedMeasurement" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement" />
+      </template-arguments>
+    </type>
   </typedef>
 </struct>

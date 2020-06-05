@@ -14,10 +14,6 @@ interaction between Ant could be measured. I.e. <ref ref="fort::myrmidon::Ant#fo
 <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> won't report interactions.
 
 <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> are manipulated with <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::CreateZone">CreateZone</ref> and <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::DeleteZone">DeleteZone</ref>.</doc>
-  <typedef id="fort::myrmidon::Space::ConstPtr" name="ConstPtr">
-    <brief>A const pointer to a Space</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Space&gt;" />
-  </typedef>
   <typedef id="fort::myrmidon::Space::ID" name="ID">
     <brief>A unique ID for a Space</brief>
     <doc><ref ref="fort::myrmidon::Space#fort::myrmidon::Space::SpaceID">fort::myrmidon::Space::SpaceID</ref> are unique within an <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref></doc>
@@ -25,11 +21,11 @@ interaction between Ant could be measured. I.e. <ref ref="fort::myrmidon::Ant#fo
   </typedef>
   <typedef id="fort::myrmidon::Space::PPtr" name="PPtr">
     <brief>Opaque pointer for implementation</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Space&gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::Space::Ptr" name="Ptr">
-    <brief>A pointer to a Space</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Space&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Space" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Space::Space" name="Space">
     <brief>Private implementation constructor</brief>
@@ -42,9 +38,15 @@ accessed from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">f
   </constructor>
   <method abstract="yes" id="fort::myrmidon::Space::CreateZone" name="CreateZone">
     <brief>Creates a new Zone in this Space</brief>
+    <doc>R version:
+```R
+zoneID &lt;- s$createZone(name)
+```
+
+</doc>
     <return>
-      <doc>a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Ptr">fort::myrmidon::Zone::Ptr</ref> for the new created Zone</doc>
-      <type name="Zone::Ptr" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Ptr" />
+      <doc>the new created <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref></doc>
+      <type name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone" />
     </return>
     <argument id="fort::myrmidon::Space::CreateZone::name" name="name">
       <doc>the <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Name">fort::myrmidon::Zone::Name</ref></doc>
@@ -53,6 +55,12 @@ accessed from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">f
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::CZones" name="CZones">
     <brief>Gets the Zones in this space (const)</brief>
+    <doc>R version:
+```R
+s$cZones()
+```
+
+</doc>
     <return>
       <doc>a map of <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ConstByID">fort::myrmidon::Zone::ConstByID</ref> of all <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in this Space.</doc>
       <type name="Zone::ConstByID" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ConstByID" />
@@ -60,6 +68,10 @@ accessed from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">f
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::DeleteZone" name="DeleteZone">
     <brief>Deletes a Zone in this Space.</brief>
+    <doc>R version:
+```R
+s$deleteZone(zoneID)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -70,10 +82,21 @@ accessed from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">f
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::LocateMovieFrame" name="LocateMovieFrame">
     <brief>Locates a movie file and frame number</brief>
+    <doc>R version:
+```R
+s$locateMovieFrame(fmTimeParse("XXX"))
+```
+
+</doc>
     <return>
       <doc>a pair of an absolute file path to the movie file, and
 the wanted movie frame number.</doc>
-      <type name="std::pair&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, unsigned long&gt;" />
+      <type class="template" name="std::pair">
+        <template-arguments>
+          <type name="std::__cxx11::string" />
+          <type name="uint64_t" />
+        </template-arguments>
+      </type>
     </return>
     <argument id="fort::myrmidon::Space::LocateMovieFrame::time" name="time">
       <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
@@ -84,6 +107,11 @@ the wanted movie frame number.</doc>
     <doc>Gets the Space name. Space names should be unique, valid
 non-empty filename.
 
+R version:
+```R
+s$name()
+```
+
 </doc>
     <return>
       <doc>the Space name</doc>
@@ -93,7 +121,12 @@ non-empty filename.
   <method abstract="yes" id="fort::myrmidon::Space::SetName" name="SetName">
     <brief>Gets the Space name</brief>
     <doc>Gets the Space name. Space names should be unique, valid
-non-empty filename.</doc>
+non-empty filename.
+
+R version:
+```R
+s$setName(name)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -104,6 +137,12 @@ non-empty filename.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::SpaceID" name="SpaceID">
     <brief>Gets the Space ID</brief>
+    <doc>R version:
+```R
+s$spaceID()
+```
+
+</doc>
     <return>
       <doc>this Space <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::ID">fort::myrmidon::Space::ID</ref>;</doc>
       <type name="ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
@@ -111,6 +150,12 @@ non-empty filename.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::Zones" name="Zones">
     <brief>Gets the Zones in this space</brief>
+    <doc>R version:
+```R
+s$zones()
+```
+
+</doc>
     <return>
       <doc>a map of <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ByID">fort::myrmidon::Zone::ByID</ref> of all <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in this Space.</doc>
       <type name="Zone::ByID" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ByID" />

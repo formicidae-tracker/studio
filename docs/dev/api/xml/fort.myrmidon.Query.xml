@@ -2,23 +2,41 @@
 <class id="fort::myrmidon::Query" interface="true" name="Query" xmlns="http://jessevdk.github.com/cldoc/1.0">
   <brief>namespace priv</brief>
   <typedef id="fort::myrmidon::Query::CollisionData" name="CollisionData">
-    <brief>Data returned by &amp;lt;CollideFrame&amp;gt;.</brief>
-    <type name="std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt;" />
+    <brief>Data returned by <ref ref="fort::myrmidon::Query#fort::myrmidon::Query::CollideFrames">fort::myrmidon::Query::CollideFrames</ref>.</brief>
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="IdentifiedFrame::ConstPtr" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame::ConstPtr" />
+        <type name="CollisionFrame::ConstPtr" ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame::ConstPtr" />
+      </template-arguments>
+    </type>
   </typedef>
   <method abstract="yes" id="fort::myrmidon::Query::CollideFrames" name="CollideFrames" static="yes">
     <brief>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> in data frame</brief>
     <doc>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> between ants in frames, data will be reported
-sequencially, space by space.</doc>
+ordered by time.
+
+R version:
+```R
+fmQueryCollideFrames(experiment,
+start = NULL,
+end = NULL,
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::Query::CollideFrames::experiment" name="experiment">
       <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
     </argument>
     <argument id="fort::myrmidon::Query::CollideFrames::result" name="result">
       <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
-      <type name="std::vector&lt;std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt;, std::allocator&lt;std::pair&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::shared_ptr&lt;const fort::myrmidon::CollisionFrame&gt; &gt; &gt; &gt;" qualifier=" &amp;" />
+      <type class="template" name="std::vector" qualifier=" &amp;">
+        <template-arguments>
+          <type name="CollisionData" ref="fort::myrmidon::Query#fort::myrmidon::Query::CollisionData" />
+        </template-arguments>
+      </type>
     </argument>
     <argument id="fort::myrmidon::Query::CollideFrames::start" name="start">
       <doc>the start time for the query use nullptr for the starts
@@ -30,24 +48,111 @@ of the experiment.</doc>
 experiment</doc>
       <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
     </argument>
+    <argument id="fort::myrmidon::Query::CollideFrames::singleThread" name="singleThread">
+      <doc>run this query on a single thread</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::CollideFramesFunctor" name="CollideFramesFunctor" static="yes">
+    <brief>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> in data frame - functor version</brief>
+    <doc>Finds <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> between ants in frames, data will be reported
+ordered by time. This version aimed to be used by language bindings to
+avoid large data copy.
+
+R version:
+```R
+fmQueryCollideFrames(experiment,
+start = NULL,
+end = NULL,
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::CollideFramesFunctor::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFramesFunctor::storeData" name="storeData">
+      <doc>a functor to store the data as it is produced</doc>
+      <type class="template" name="std::function">
+        <template-arguments>
+          <type class="function">
+            <result>
+              <type builtin="yes" name="void" />
+            </result>
+            <arguments>
+              <type class="template" name="std::pair" qualifier=" const &amp;">
+                <template-arguments>
+                  <type class="template" name="std::shared_ptr">
+                    <template-arguments>
+                      <type name="IdentifiedFrame" qualifier=" const" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame" />
+                    </template-arguments>
+                  </type>
+                  <type class="template" name="std::shared_ptr">
+                    <template-arguments>
+                      <type name="CollisionFrame" qualifier=" const" ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame" />
+                    </template-arguments>
+                  </type>
+                </template-arguments>
+              </type>
+            </arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFramesFunctor::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFramesFunctor::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::CollideFramesFunctor::singleThread" name="singleThread">
+      <type builtin="yes" name="bool" />
+    </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Query::ComputeAntInteractions" name="ComputeAntInteractions" static="yes">
     <brief>Computes interactions for ants</brief>
     <doc>Computes interactions for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
-in time, first interacting Ant by firs interacting Ant.</doc>
+by ending time.
+
+R version:
+```R
+fmQueryComputeAntInteractions(experiment,
+start = NULL,
+end = NULL,
+maximuGap = fmSecond(1),
+matcher = NULL,
+singleThreaded = FALSE,
+showProgress = FALSE,
+reportTrajectories = FALSE)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::Query::ComputeAntInteractions::experiment" name="experiment">
       <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
     </argument>
     <argument id="fort::myrmidon::Query::ComputeAntInteractions::trajectories" name="trajectories">
       <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
-      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt; &gt; &gt;" qualifier=" &amp;" />
+      <type class="template" name="std::vector" qualifier=" &amp;">
+        <template-arguments>
+          <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+        </template-arguments>
+      </type>
     </argument>
     <argument id="fort::myrmidon::Query::ComputeAntInteractions::interactions" name="interactions">
-      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntInteraction&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntInteraction&gt; &gt; &gt;" qualifier=" &amp;" />
+      <type class="template" name="std::vector" qualifier=" &amp;">
+        <template-arguments>
+          <type name="AntInteraction::ConstPtr" ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction::ConstPtr" />
+        </template-arguments>
+      </type>
     </argument>
     <argument id="fort::myrmidon::Query::ComputeAntInteractions::start" name="start">
       <doc>the start time for the query use nullptr for the starts
@@ -67,18 +172,247 @@ trajectory in two</doc>
     <argument id="fort::myrmidon::Query::ComputeAntInteractions::matcher" name="matcher">
       <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
 intensive queries.</doc>
-      <type name="Matcher::Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+      <type name="Matcher::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractions::singleThread" name="singleThread">
+      <doc>run this query on a single thread</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeAntInteractionsFunctor" name="ComputeAntInteractionsFunctor" static="yes">
+    <brief>Computes interactions for ants - functor version</brief>
+    <doc>Computes interactions for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
+by ending time. This version aimed to be used by language bindings to
+avoid large data copy.
+
+R version:
+```R
+fmQueryComputeAntInteractions(experiment,
+start = NULL,
+end = NULL,
+maximuGap = fmSecond(1),
+matcher = NULL,
+singleThreaded = FALSE,
+showProgress = FALSE,
+reportTrajectories = FALSE)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::storeTrajectory" name="storeTrajectory">
+      <doc>a functor to store/convert trajectories</doc>
+      <type class="template" name="std::function">
+        <template-arguments>
+          <type class="function">
+            <result>
+              <type builtin="yes" name="void" />
+            </result>
+            <arguments>
+              <type class="template" name="std::shared_ptr" qualifier=" const &amp;">
+                <template-arguments>
+                  <type name="AntTrajectory" qualifier=" const" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory" />
+                </template-arguments>
+              </type>
+            </arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::storeInteraction" name="storeInteraction">
+      <doc>a functor to store/convert interaction</doc>
+      <type class="template" name="std::function">
+        <template-arguments>
+          <type class="function">
+            <result>
+              <type builtin="yes" name="void" />
+            </result>
+            <arguments>
+              <type class="template" name="std::shared_ptr" qualifier=" const &amp;">
+                <template-arguments>
+                  <type name="AntInteraction" qualifier=" const" ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction" />
+                </template-arguments>
+              </type>
+            </arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::maximumGap" name="maximumGap">
+      <doc>the maximal undetected duration before cutting the
+trajectory in two</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::matcher" name="matcher">
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
+intensive queries.</doc>
+      <type name="Matcher::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntInteractionsFunctor::singleThread" name="singleThread">
+      <doc>run this query on a single thread</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeAntTrajectories" name="ComputeAntTrajectories" static="yes">
+    <brief>Computes trajectories for ants</brief>
+    <doc>Computes trajectories for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
+by ending time
+
+R version:
+```R
+fmQueryComputeAntTrajectories(experiment,
+start = NULL,
+end = NULL,
+maximuGap = fmSecond(1),
+matcher = NULL,
+computeZones = FALSE
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::trajectories" name="trajectories">
+      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
+      <type class="template" name="std::vector" qualifier=" &amp;">
+        <template-arguments>
+          <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::maximumGap" name="maximumGap">
+      <doc>the maximal undetected duration before cutting the
+trajectory in two</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::matcher" name="matcher">
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
+intensive queries.</doc>
+      <type name="Matcher::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::computeZones" name="computeZones">
+      <doc>enables ant zone computation, but slower query</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectories::singleThread" name="singleThread">
+      <doc>run this query on a single thread</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor" name="ComputeAntTrajectoriesFunctor" static="yes">
+    <brief>Computes trajectories for ants - functor version</brief>
+    <doc>Computes trajectories for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
+by ending time. This version aimed to be used by language bindings to
+avoid large data copy.
+
+R version:
+```R
+fmQueryComputeAntTrajectories(experiment,
+start = NULL,
+end = NULL,
+maximuGap = fmSecond(1),
+matcher = NULL,
+computeZones = FALSE
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::storeTrajectory" name="storeTrajectory">
+      <doc>a functor to store/covert the data</doc>
+      <type class="template" name="std::function">
+        <template-arguments>
+          <type class="function">
+            <result>
+              <type builtin="yes" name="void" />
+            </result>
+            <arguments>
+              <type class="template" name="std::shared_ptr" qualifier=" const &amp;">
+                <template-arguments>
+                  <type name="AntTrajectory" qualifier=" const" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory" />
+                </template-arguments>
+              </type>
+            </arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::maximumGap" name="maximumGap">
+      <doc>the maximal undetected duration before cutting the
+trajectory in two</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::matcher" name="matcher">
+      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
+intensive queries.</doc>
+      <type name="Matcher::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::computeZones" name="computeZones">
+      <doc>enables ant zone computation, but slower query</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+    <argument id="fort::myrmidon::Query::ComputeAntTrajectoriesFunctor::singleThread" name="singleThread">
+      <doc>run this query on a single thread</doc>
+      <type builtin="yes" name="bool" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Query::ComputeMeasurementFor" name="ComputeMeasurementFor" static="yes">
     <brief>Computes all measurement for an Ant</brief>
+    <doc>R version:
+```R
+fmQueryComputeMeasurementFor(experiment,antID,mTypeID)
+```
+
+</doc>
     <return>
       <doc>a <ref ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement::List">fort::myrmidon::ComputedMeasurement::List</ref> of the Measurement for the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
       <type name="ComputedMeasurement::List" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement::List" />
     </return>
     <argument id="fort::myrmidon::Query::ComputeMeasurementFor::experiment" name="experiment">
       <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
     </argument>
     <argument id="fort::myrmidon::Query::ComputeMeasurementFor::antID" name="antID">
       <doc>the desired <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
@@ -91,65 +425,48 @@ intensive queries.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Query::ComputeTagStatistics" name="ComputeTagStatistics" static="yes">
     <brief>Computes <ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">fort::myrmidon::TagStatistics</ref> for an experiment</brief>
+    <doc>R version:
+```R
+fmQueryComputeTagStatistics(experiment)
+```
+
+</doc>
     <return>
       <doc>the tag statistics index by <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref></doc>
       <type name="TagStatistics::ByTagID" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::ByTagID" />
     </return>
     <argument id="fort::myrmidon::Query::ComputeTagStatistics::experiment" name="experiment">
       <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
-    </argument>
-  </method>
-  <method abstract="yes" id="fort::myrmidon::Query::ComputeTrajectories" name="ComputeTrajectories" static="yes">
-    <brief>Computes trajectories for ants</brief>
-    <doc>Computes trajectories for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Those will be reported ordered
-in time, ant by ant.</doc>
-    <return>
-      <type builtin="yes" name="void" />
-    </return>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::experiment" name="experiment">
-      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
-    </argument>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::trajectories" name="trajectories">
-      <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> and <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref></doc>
-      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::AntTrajectory&gt; &gt; &gt;" qualifier=" &amp;" />
-    </argument>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::start" name="start">
-      <doc>the start time for the query use nullptr for the starts
-of the experiment.</doc>
-      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
-    </argument>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::end" name="end">
-      <doc>the end time for the query, use nullptr for the end of the
-experiment</doc>
-      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
-    </argument>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::maximumGap" name="maximumGap">
-      <doc>the maximal undetected duration before cutting the
-trajectory in two</doc>
-      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
-    </argument>
-    <argument id="fort::myrmidon::Query::ComputeTrajectories::matcher" name="matcher">
-      <doc>a <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to specify more precise, less memory
-intensive queries.</doc>
-      <type name="Matcher::Ptr" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher::Ptr" />
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Query::IdentifyFrames" name="IdentifyFrames" static="yes">
     <brief>Identifies ants in frames</brief>
-    <doc>Identifies Ants in frames, data will be reported squencially,
-space by space.</doc>
+    <doc>Identifies Ants in frames, data will be reported ordered by time.
+
+R version:
+```R
+fmQueryIdentifyFrames(experiment,
+start = NULL,
+end = NULL,
+computeZones = FALSE,
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::Query::IdentifyFrames::experiment" name="experiment">
       <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
-      <type name="Experiment::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::ConstPtr" />
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
     </argument>
     <argument id="fort::myrmidon::Query::IdentifyFrames::result" name="result">
       <doc>the resulting <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref></doc>
-      <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::IdentifiedFrame&gt; &gt; &gt;" qualifier=" &amp;" />
+      <type class="template" name="std::vector" qualifier=" &amp;">
+        <template-arguments>
+          <type name="IdentifiedFrame::ConstPtr" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame::ConstPtr" />
+        </template-arguments>
+      </type>
     </argument>
     <argument id="fort::myrmidon::Query::IdentifyFrames::start" name="start">
       <doc>the start time for the query use nullptr for the starts
@@ -160,6 +477,72 @@ of the experiment.</doc>
       <doc>the end time for the query, use nullptr for the end of the
 experiment</doc>
       <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::computeZones" name="computeZones">
+      <doc>should compute zones for, makes computation slower</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFrames::singleThreaded" name="singleThreaded">
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Query::IdentifyFramesFunctor" name="IdentifyFramesFunctor" static="yes">
+    <brief>Identifies ants in frames - functor version</brief>
+    <doc>Identifies Ants in frames, data will be reported ordered by
+time.  This version aimed to be used by language bindings to
+avoid large data copy.
+
+R version:
+```R
+fmQueryIdentifyFrames(experiment,
+start = NULL,
+end = NULL,
+computeZones = FALSE,
+singleThreaded = FALSE,
+showProgress = FALSE)
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::experiment" name="experiment">
+      <doc>the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to query for</doc>
+      <type name="CExperiment" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::storeData" name="storeData">
+      <doc>a functor to store/convert the data</doc>
+      <type class="template" name="std::function">
+        <template-arguments>
+          <type class="function">
+            <result>
+              <type builtin="yes" name="void" />
+            </result>
+            <arguments>
+              <type class="template" name="std::shared_ptr" qualifier=" const &amp;">
+                <template-arguments>
+                  <type name="IdentifiedFrame" qualifier=" const" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame" />
+                </template-arguments>
+              </type>
+            </arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::start" name="start">
+      <doc>the start time for the query use nullptr for the starts
+of the experiment.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::end" name="end">
+      <doc>the end time for the query, use nullptr for the end of the
+experiment</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::computeZones" name="computeZones">
+      <doc>should compute zones for, makes computation slower</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+    <argument id="fort::myrmidon::Query::IdentifyFramesFunctor::singleThreaded" name="singleThreaded">
+      <type builtin="yes" name="bool" />
     </argument>
   </method>
 </class>

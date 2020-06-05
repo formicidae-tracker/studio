@@ -8,31 +8,51 @@ methods to convert from and to opaque Shape.</doc>
   <subclass access="public" name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
     <brief>A capsule</brief>
   </subclass>
-  <subclass access="public" name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
-    <brief>A circle</brief>
-  </subclass>
   <subclass access="public" name="Polygon" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">
     <brief>A closed polygon</brief>
   </subclass>
+  <subclass access="public" name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
+    <brief>A circle</brief>
+  </subclass>
   <typedef id="fort::myrmidon::Shape::ConstList" name="ConstList">
     <brief>A const list of Shape</brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::Shape&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::Shape&gt; &gt; &gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="ConstPtr" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPtr" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Shape::ConstPList" name="ConstPList">
     <brief>An opaque const list Shape</brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt; &gt; &gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="ConstPPtr" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPPtr" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Shape::ConstPPtr" name="ConstPPtr">
     <brief>An opaque private pointer</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::priv::Shape&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Shape" qualifier=" const" ref="fort::myrmidon::priv::Shape#fort::myrmidon::priv::Shape" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Shape::ConstPtr" name="ConstPtr">
     <brief>A const pointer to a Shape</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Shape&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Shape" qualifier=" const" ref="fort::myrmidon::Shape#fort::myrmidon::Shape" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Shape::Ptr" name="Ptr">
     <brief>A pointer to a Shape</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Shape&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Shape" ref="fort::myrmidon::Shape#fort::myrmidon::Shape" />
+      </template-arguments>
+    </type>
   </typedef>
   <destructor abstract="yes" id="fort::myrmidon::Shape::~Shape" name="~Shape" virtual="yes">
     <brief>Default destructor</brief>

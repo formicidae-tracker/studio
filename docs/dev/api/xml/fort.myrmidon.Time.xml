@@ -49,7 +49,11 @@ Every time are considered UTC.</doc>
   </class>
   <typedef id="fort::myrmidon::Time::ConstPtr" name="ConstPtr">
     <brief>A const pointer to a Time</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Time&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Time" qualifier=" const" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Time::MonoclockID" name="MonoclockID">
     <brief>ID for a Monotonic Clock</brief>
@@ -57,7 +61,11 @@ Every time are considered UTC.</doc>
   </typedef>
   <typedef id="fort::myrmidon::Time::Ptr" name="Ptr">
     <brief>A pointer to a Time</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Time&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Time::SortableKey" name="SortableKey">
     <brief>An object optimized for std::map or std::set keys</brief>
@@ -65,13 +73,24 @@ Every time are considered UTC.</doc>
 used as a computationnaly efficient key in std::map or
 std::set. please note that this key has lost any monotonic
 information.</doc>
-    <type name="std::pair&lt;long, int&gt;" />
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="int64_t" />
+        <type name="int32_t" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Time::Time" name="Time">
     <brief>Zero time constructor</brief>
   </constructor>
   <method abstract="yes" id="fort::myrmidon::Time::Add" name="Add">
     <brief>Adds a Duration to a Time</brief>
+    <doc>R version:
+```R
+newT &lt;- t$add(fmSecond(1)) # a copy of t with one added second
+```
+
+</doc>
     <return>
       <doc>a new <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> distant by <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Add::d">d</ref> from this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
       <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
@@ -83,6 +102,12 @@ information.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::After" name="After">
     <brief>Reports if this time is after t</brief>
+    <doc>R version:
+```R
+t1$after(t2) # return TRUE if t1 &gt; t2
+```
+
+</doc>
     <return>
       <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is strictly after <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::After::t">t</ref></doc>
       <type builtin="yes" name="bool" />
@@ -94,6 +119,12 @@ information.</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Before" name="Before">
     <brief>Reports if this time is before t</brief>
+    <doc>R version:
+```R
+t1$before(t2) # return TRUE if t1 &lt; t2
+```
+
+</doc>
     <return>
       <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is strictly before <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Before::t">t</ref></doc>
       <type builtin="yes" name="bool" />
@@ -116,6 +147,12 @@ standard c++ formatting operator on &amp;lt;std::ostream&amp;gt;.
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Equals" name="Equals">
     <brief>Reports if this time is the same than t</brief>
+    <doc>R version:
+```R
+t1$equals(t2) # return TRUE if t1 == t2
+```
+
+</doc>
     <return>
       <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is the same than <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Equals::t">t</ref></doc>
       <type builtin="yes" name="bool" />
@@ -129,6 +166,7 @@ standard c++ formatting operator on &amp;lt;std::ostream&amp;gt;.
     <brief>Creates a Time from a protobuf Timestamp</brief>
     <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from a protobuf Timestamp. The
 <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> will not have any monotonic clock value.
+
 </doc>
     <return>
       <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
@@ -151,6 +189,7 @@ is the caller responsability to manage <ref ref="fort::myrmidon::Time#fort::myrm
 mixing timestamp issued from different clocks. Nothing prevent
 you to use <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK">fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK</ref> for the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::FromTimestampAndMonotonic::monoID">monoID</ref> value but
 the behavior manipulating resulting times is undefined.
+
 </doc>
     <return>
       <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> with associated
@@ -188,6 +227,7 @@ will not have any monotonic clock value.
     <brief>Creates a Time from `struct timeval`</brief>
     <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from `struct timeval`. The
 <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> will not have any monotonic clock value.
+
 </doc>
     <return>
       <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
@@ -262,6 +302,12 @@ Duration ellapsed = Time::Now().Sub(start);
 
 Will always return a positive <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>, even if the wall clock
 has been reset between the two calls to <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Now">Now</ref>
+
+R version:
+```R
+t &lt;- fmTimeNow()
+```
+
 </doc>
     <return>
       <doc>the current <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
@@ -329,6 +375,12 @@ has been reset between the two calls to <ref ref="fort::myrmidon::Time#fort::myr
 date string format, i.e. string of the form
 `1972-01-01T10:00:20.021-05:00`. It is merely a wrapper from
 google::protobuf::time_util functions.
+
+R version:
+```R
+t &lt;- fmTimeParse("1972-01-01T00:00:00.000Z")
+```
+
 </doc>
     <return>
       <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
@@ -345,6 +397,11 @@ google::protobuf::time_util functions.
 d. Currently only multiple of <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration::Second">fort::myrmidon::Duration::Second</ref> and power of
 10 of <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration::Nanosecond">fort::myrmidon::Duration::Nanosecond</ref> which are smaller than a second
 are supported.
+
+R version:
+```R
+newT &lt;- t$round(fmSecond(1)) # a copy of t rounded at the nearest second
+```
 
 </doc>
     <return>
@@ -385,6 +442,13 @@ value).
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Sub" name="Sub">
     <brief>Computes time difference with another time</brief>
+    <doc>R version:
+```R
+# gets the fmDuration between t1 and t2
+t1$sub(t2)
+```
+
+</doc>
     <return>
       <doc>a <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> representing the time ellapsed between
 `this` and <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Sub::t">t</ref>. It could be negative.</doc>
@@ -416,6 +480,7 @@ value).
     <brief>Converts to a `time_t`</brief>
     <doc>Converts to a `time_t`. Please note that time_t have a maximal
 resolution of a second.
+
 </doc>
     <return>
       <doc>`time_t`representing the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.</doc>

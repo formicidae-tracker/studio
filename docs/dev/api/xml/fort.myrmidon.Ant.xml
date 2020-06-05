@@ -54,10 +54,6 @@ More complete informations can be found in <ref ref="ant_interaction#ant_interac
       <brief>Ant is visible and all non-soloed ant will be hidden.</brief>
     </enumvalue>
   </enum>
-  <typedef id="fort::myrmidon::Ant::ConstPtr" name="ConstPtr">
-    <brief>A const pointer to an Ant</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Ant&gt;" />
-  </typedef>
   <typedef id="fort::myrmidon::Ant::ID" name="ID">
     <brief>The ID of an Ant.</brief>
     <doc>ID are unique within an Experiment.</doc>
@@ -65,11 +61,11 @@ More complete informations can be found in <ref ref="ant_interaction#ant_interac
   </typedef>
   <typedef id="fort::myrmidon::Ant::PPtr" name="PPtr">
     <brief>Opaque pointer to implementation</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Ant&gt;" qualifier=" const" />
-  </typedef>
-  <typedef id="fort::myrmidon::Ant::Ptr" name="Ptr">
-    <brief>A pointer to a an Ant</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Ant&gt;" />
+    <type class="template" name="std::shared_ptr" qualifier=" const">
+      <template-arguments>
+        <type name="priv::Ant" ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Ant::Ant" name="Ant">
     <brief>Private implementation constructor</brief>
@@ -83,7 +79,12 @@ from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrm
   <method abstract="yes" id="fort::myrmidon::Ant::AddCapsule" name="AddCapsule">
     <brief>Adds a Capsule to the Ant virtual shape</brief>
     <doc>Adds a <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">fort::myrmidon::Capsule</ref> to the Ant virtual shape, associated with the
-<ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> body part.</doc>
+<ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> body part.
+
+R Version :
+```R
+ant$addCapsule(shapeTypeID,fmCapsuleCreate(c(x1,y1),c(x2,y2),r1,r2))
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -93,12 +94,18 @@ from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrm
     </argument>
     <argument id="fort::myrmidon::Ant::AddCapsule::capsule" name="capsule">
       <doc>the <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">fort::myrmidon::Capsule</ref></doc>
-      <type name="Capsule::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::ConstPtr" />
+      <type name="Capsule" qualifier=" const &amp;" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::AntID" name="AntID">
     <brief>Gets the ID of an Ant</brief>
     <doc>Ants gets an unique ID in an experiment.
+
+R Version :
+```R
+ant$antID()
+```
+
 </doc>
     <return>
       <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref> of the Ant</doc>
@@ -107,6 +114,12 @@ from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrm
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::Capsules" name="Capsules">
     <brief>Gets all part of this ant</brief>
+    <doc>R Version :
+```R
+ant$capsulues()
+```
+
+</doc>
     <return>
       <doc>a <ref ref="fort::myrmidon#fort::myrmidon::TypedCapsuleList">fort::myrmidon::TypedCapsuleList</ref> representing the virtual shape of
 the Ant</doc>
@@ -115,25 +128,38 @@ the Ant</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::CIdentifications" name="CIdentifications">
     <brief>Gets the const Identifications for this Ant</brief>
-    <doc>Gets the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstPtr">fort::myrmidon::Identification::ConstPtr</ref> targetting this Ant. These
+    <doc>Gets the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> targetting this Ant. These
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> will always be sorted in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> and not
 overlapping.
 
+R Version :
+```R
+ant$cIdentifications()
+```
+
 </doc>
     <return>
-      <doc>an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList">fort::myrmidon::Identification::ConstList</ref> copy of all
-<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstPtr">fort::myrmidon::Identification::ConstPtr</ref></doc>
+      <doc>a  <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList">fort::myrmidon::Identification::ConstList</ref></doc>
       <type name="Identification::ConstList" ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::ClearCapsules" name="ClearCapsules">
     <brief>Deletes all virtual shape parts</brief>
+    <doc>R Version :
+```R
+ant$clearCapsules()
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::DeleteCapsule" name="DeleteCapsule">
     <brief>Delete a part of the virtual shape</brief>
+    <doc>R Version :
+```R
+# ATTENTION, index are still starting from 0
+ant$deleteCapsule(index)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -144,7 +170,13 @@ overlapping.
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::DeleteValue" name="DeleteValue">
     <brief>Removes any value defined for a time</brief>
-    <doc>Removes any value defined at a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.</doc>
+    <doc>Removes any value defined at a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.
+
+R Version :
+```R
+time &lt;- fmTimeParse("XXXX")$const_ptr() # could also be fmTimeInf()
+ant$deleteValue(name,time)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -160,6 +192,12 @@ overlapping.
   <method abstract="yes" id="fort::myrmidon::Ant::DisplayColor" name="DisplayColor">
     <brief>Gets the Display Color of an Ant</brief>
     <doc>Each Ant has a defined color for display.
+
+R Version :
+```R
+ant$displayColor()
+```
+
 </doc>
     <return>
       <doc>a const reference to the <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> used to display the Ant</doc>
@@ -175,7 +213,15 @@ different <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState">fort:
 they are no Ant which are <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref>
 * <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::HIDDEN">fort::myrmidon::Ant::DisplayState::HIDDEN</ref>: the Ant is not displayed
 * <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref>: the Ant is visible and
-all non <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref> Ant are shown.
+all non <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref> Ant are shown
+
+R Version :
+```R
+s &lt;- ant$displayStatus()
+# to get the name of the value
+names(which( s == fmAntDisplayState ) )
+```
+
 </doc>
     <return>
       <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState">fort::myrmidon::Ant::DisplayState</ref> for this Ant.</doc>
@@ -186,6 +232,12 @@ all non <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">f
     <brief>Gets the ID of the Ant formatted as a string.</brief>
     <doc>By Convention <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref> are formatted using hexadecimal notation (as
 opposed to tag that are formatted decimal).
+
+R Version :
+```R
+ant$formattedID()
+```
+
 </doc>
     <return>
       <doc>a string with the formatted ID</doc>
@@ -197,6 +249,11 @@ opposed to tag that are formatted decimal).
     <doc>Gets the value for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::GetValue::name">name</ref> at <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::GetValue::time">time</ref>. Values are set with
 <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue">fort::myrmidon::Ant::SetValue</ref>. If no value is sets prior to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::GetValue::time">time</ref> (including -∞),
 it will be using the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> default one.
+
+R Version :
+```R
+ant$getValue(name,time)
+```
 
 </doc>
     <return>
@@ -218,25 +275,39 @@ it will be using the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experi
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> will always be sorted in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> and not
 overlapping.
 
+R Version :
+```R
+ant$identifications()
+```
+
 </doc>
     <return>
       <doc>an <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::List">fort::myrmidon::Identification::List</ref> copy of all
-<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Ptr">fort::myrmidon::Identification::Ptr</ref></doc>
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref></doc>
       <type name="Identification::List" ref="fort::myrmidon::Identification#fort::myrmidon::Identification::List" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::SetDisplayColor" name="SetDisplayColor">
     <brief>Sets the Ant display color</brief>
+    <doc>R Version :
+```R
+ant$setDisplayColor(color = fmRGBColor(r,g,b))
+```
+
+</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
     <argument id="fort::myrmidon::Ant::SetDisplayColor::color" name="color">
-      <doc>the new <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> for the Ant</doc>
       <type name="Color" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Color" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::SetDisplayStatus" name="SetDisplayStatus">
     <brief>Sets the Ant display state.</brief>
+    <doc>R Version :
+```R
+ant$setDisplayStatus(fmAntDisplayState["SOLO"])
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -250,7 +321,13 @@ overlapping.
     <doc>Sets <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::name">name</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::value">value</ref> starting from <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::time">time</ref>. If <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::time">time</ref> is
 nullptr, sets the starting <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::value">value</ref> for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::name">name</ref>. <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::GetValue">fort::myrmidon::Ant::GetValue</ref> is
 always defined even if user does not define value for nullptr
-<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::time">time</ref> has the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> default value will be used.</doc>
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue::time">time</ref> has the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> default value will be used.
+
+R Version :
+```R
+time &lt;- fmTimeParse("XXXX")$const_ptr() # could also be fmTimeInf()
+ant$setValue(name,value,time)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>

@@ -5,7 +5,7 @@
 
 The myrmidon API provides tracking analysis utilities.
 
-The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">Experiment</ref> that observe <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">Ant</ref> objects.</doc>
+The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">Experiment</ref> that observe <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">Ant</ref> objects.</doc>
   <variable id="fort::myrmidon::HEAD_TAIL_MEASUREMENT_TYPE" name="HEAD_TAIL_MEASUREMENT_TYPE">
     <brief>Mandatory measurement type for any <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>
     </brief>
@@ -25,8 +25,17 @@ The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::
     <brief>Defines a trajectory for an <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref>
     </brief>
   </struct>
+  <class name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt">
+    <brief>const version of Ant</brief>
+  </class>
   <class name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
     <brief>A capsule</brief>
+  </class>
+  <class name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment">
+    <brief>const version of Experiment</brief>
+  </class>
+  <class name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification">
+    <brief>const version of Identification</brief>
   </class>
   <class name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
     <brief>A circle</brief>
@@ -41,6 +50,15 @@ The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::
   <struct name="ComputedMeasurement" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement">
     <brief>Represents a Measurement in mm at a given Time.</brief>
   </struct>
+  <class name="CSpace" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace">
+    <brief>const version of Space</brief>
+  </class>
+  <class name="CZone" ref="fort::myrmidon::CZone#fort::myrmidon::CZone">
+    <brief>const version of Zone</brief>
+  </class>
+  <class name="CZoneDefinition" ref="fort::myrmidon::CZoneDefinition#fort::myrmidon::CZoneDefinition">
+    <brief>const version of ZoneDefinition</brief>
+  </class>
   <class name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration">
     <brief>The time ellapsed between two <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
     </brief>
@@ -100,38 +118,32 @@ The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::
   <class name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone">
     <brief>A tracking region where interaction are computed.</brief>
   </class>
+  <class name="ZoneDefinition" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">
+    <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+    </brief>
+  </class>
   <enum class="yes" id="fort::myrmidon::AntMetadataType" name="AntMetadataType">
     <brief>Types for non-tracking data column</brief>
-    <enumvalue id="fort::myrmidon::AntMetadataType::Bool" name="Bool" value="0">
+    <enumvalue id="fort::myrmidon::AntMetadataType::BOOL" name="BOOL" value="0">
       <brief>A boolean</brief>
     </enumvalue>
-    <enumvalue id="fort::myrmidon::AntMetadataType::Int" name="Int" value="1">
+    <enumvalue id="fort::myrmidon::AntMetadataType::INT" name="INT" value="1">
       <brief>An integer</brief>
     </enumvalue>
-    <enumvalue id="fort::myrmidon::AntMetadataType::Double" name="Double" value="2">
+    <enumvalue id="fort::myrmidon::AntMetadataType::DOUBLE" name="DOUBLE" value="2">
       <brief>a float</brief>
     </enumvalue>
-    <enumvalue id="fort::myrmidon::AntMetadataType::String" name="String" value="3">
+    <enumvalue id="fort::myrmidon::AntMetadataType::STRING" name="STRING" value="3">
       <brief>a std::string</brief>
     </enumvalue>
-    <enumvalue id="fort::myrmidon::AntMetadataType::Time" name="Time" value="4">
-      <brief>a <ref ref="fort::myrmidon#fort::myrmidon::AntMetadataType::Time">Time</ref>
+    <enumvalue id="fort::myrmidon::AntMetadataType::TIME" name="TIME" value="4">
+      <brief>a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
       </brief>
     </enumvalue>
   </enum>
-  <typedef id="fort::myrmidon::AntConstPtr" name="AntConstPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ConstPtr">fort::myrmidon::Ant::ConstPtr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Ant&gt;" />
-  </typedef>
   <typedef id="fort::myrmidon::AntID" name="AntID">
     <brief>Forward declaration for Ant::ID</brief>
     <type name="uint32_t" />
-  </typedef>
-  <typedef id="fort::myrmidon::AntPtr" name="AntPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::Ptr">fort::myrmidon::Ant::Ptr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Ant&gt;" />
   </typedef>
   <typedef id="fort::myrmidon::AntShapeTypeID" name="AntShapeTypeID">
     <brief>ID for Ant virtual body parts</brief>
@@ -142,42 +154,62 @@ The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::
   <typedef id="fort::myrmidon::AntStaticValue" name="AntStaticValue">
     <brief>A named value</brief>
     <doc>AntStaticValue holds a value for a <ref ref="named_values#named_values">named_values</ref>.</doc>
-    <type name="std::variant&lt;bool, int, double, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, fort::myrmidon::Time&gt;" />
+    <type class="template" name="std::variant">
+      <template-arguments>
+        <type builtin="yes" name="bool" />
+        <type name="int32_t" />
+        <type builtin="yes" name="double" />
+        <type name="std::__cxx11::string" />
+        <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::CapsuleConstPtr" name="CapsuleConstPtr">
     <brief>Forward declaration for <ref ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule::ConstPtr">fort::myrmidon::Capsule::ConstPtr</ref> and <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstPtr">fort::myrmidon::Shape::ConstPtr</ref>
     </brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Capsule&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Capsule" qualifier=" const" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::CapsulePtr" name="CapsulePtr">
     <brief>Forward declaration for <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape::Ptr">fort::myrmidon::Shape::Ptr</ref>
     </brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Capsule&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Color" name="Color">
     <brief>Defines a RGB color</brief>
     <doc>Defines a RGB color, specified in this order.</doc>
-    <type name="std::tuple&lt;unsigned char, unsigned char, unsigned char&gt;" />
+    <type class="template" name="std::tuple">
+      <template-arguments>
+        <type name="uint8_t" />
+        <type name="uint8_t" />
+        <type name="uint8_t" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::IdentificationConstList" name="IdentificationConstList">
-    <brief>Forward declaratio  for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList">fort::myrmidon::Identification::ConstList</ref>
+    <brief>Forward declaration  for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList">fort::myrmidon::Identification::ConstList</ref>
     </brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::Identification&gt; &gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::IdentificationConstPtr" name="IdentificationConstPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstPtr">fort::myrmidon::Identification::ConstPtr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Identification&gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::IdentificationList" name="IdentificationList">
-    <brief>Forward declaratio  for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::List">fort::myrmidon::Identification::List</ref>
+    <brief>Forward declaration  for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::List">fort::myrmidon::Identification::List</ref>
     </brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::Identification&gt; &gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::IdentificationPtr" name="IdentificationPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Ptr">fort::myrmidon::Identification::Ptr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Identification&gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::InteractionID" name="InteractionID">
     <brief>Designates an interaction between two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
@@ -186,7 +218,12 @@ The main entr point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::
 <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref>. InteractionID are always constructed such as the first ID
 is strictly smaller than the second ID, so it ensures uniqueness of
 the InteractionID to reports interactions.</doc>
-    <type name="std::pair&lt;unsigned int, unsigned int&gt;" />
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+        <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::InteractionType" name="InteractionType">
     <brief>Designates an interaction type for an interaction.</brief>
@@ -194,7 +231,12 @@ the InteractionID to reports interactions.</doc>
 <ref ref="fort::myrmidon#fort::myrmidon::InteractionID">fort::myrmidon::InteractionID</ref>, there are no order on the interaction types, as
 the first item refers to the <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> for the first <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
 and the second one for the second Ant.</doc>
-    <type name="std::pair&lt;unsigned int, unsigned int&gt;" />
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+        <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::MeasurementTypeID" name="MeasurementTypeID">
     <brief>ID for manual measurements</brief>
@@ -204,51 +246,59 @@ and the second one for the second Ant.</doc>
   <typedef id="fort::myrmidon::PositionedAntList" name="PositionedAntList">
     <brief>A List of <ref ref="fort::myrmidon::PositionedAnt#fort::myrmidon::PositionedAnt">fort::myrmidon::PositionedAnt</ref>
     </brief>
-    <type name="std::vector&lt;fort::myrmidon::PositionedAnt, Eigen::aligned_allocator&lt;fort::myrmidon::PositionedAnt&gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::SpaceConstPtr" name="SpaceConstPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::ConstPtr">fort::myrmidon::Space::ConstPtr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Space&gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="PositionedAnt" ref="fort::myrmidon::PositionedAnt#fort::myrmidon::PositionedAnt" />
+        <type class="template" name="Eigen::aligned_allocator">
+          <template-arguments>
+            <type name="PositionedAnt" ref="fort::myrmidon::PositionedAnt#fort::myrmidon::PositionedAnt" />
+          </template-arguments>
+        </type>
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::SpaceID" name="SpaceID">
     <brief>forward declaration for <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::ID">fort::myrmidon::Space::ID</ref>
     </brief>
     <type name="uint32_t" />
   </typedef>
-  <typedef id="fort::myrmidon::SpacePtr" name="SpacePtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Space#fort::myrmidon::Space::Ptr">fort::myrmidon::Space::Ptr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Space&gt;" />
-  </typedef>
   <typedef id="fort::myrmidon::TagID" name="TagID">
     <brief>The ID for a tag</brief>
-    <doc>As explained in <ref ref="ant_identification#ant_identification">ant_identification</ref> myrmidon doesn't allows to
-access tracking tag data directly, but through the definition of
-<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> and <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>.</doc>
+    <doc>The ID for a tag. As explained in <ref ref="ant_identification#ant_identification">ant_identification</ref> myrmidon
+doesn't allows to access tracking tag data directly, but through
+the definition of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> and <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>.</doc>
     <type name="uint32_t" />
   </typedef>
   <typedef id="fort::myrmidon::TypedCapsuleList" name="TypedCapsuleList">
     <brief>A list of Ant virtual shape part</brief>
-    <type name="std::vector&lt;std::pair&lt;unsigned int, std::shared_ptr&lt;const fort::myrmidon::Capsule&gt; &gt;, std::allocator&lt;std::pair&lt;unsigned int, std::shared_ptr&lt;const fort::myrmidon::Capsule&gt; &gt; &gt; &gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type class="template" name="std::pair">
+          <template-arguments>
+            <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+            <type name="Capsule" qualifier=" const" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule" />
+          </template-arguments>
+        </type>
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Vector2dList" name="Vector2dList">
     <brief>A List of 2D Vector</brief>
-    <type name="std::vector&lt;Eigen::Matrix&lt;double, 2, 1, 0, 2, 1&gt;, Eigen::aligned_allocator&lt;Eigen::Matrix&lt;double, 2, 1, 0, 2, 1&gt; &gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::ZoneConstPtr" name="ZoneConstPtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ConstPtr">fort::myrmidon::Zone::ConstPtr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Zone&gt;" />
+    <doc>A List of 2D Vector</doc>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="Eigen::Vector2d" />
+        <type class="template" name="Eigen::aligned_allocator">
+          <template-arguments>
+            <type name="Eigen::Vector2d" />
+          </template-arguments>
+        </type>
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::ZoneID" name="ZoneID">
     <brief>forward declaration for <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ID">fort::myrmidon::Zone::ID</ref>
     </brief>
     <type name="uint32_t" />
-  </typedef>
-  <typedef id="fort::myrmidon::ZonePtr" name="ZonePtr">
-    <brief>Forward declaration for <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Ptr">fort::myrmidon::Zone::Ptr</ref>
-    </brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Zone&gt;" />
   </typedef>
 </namespace>

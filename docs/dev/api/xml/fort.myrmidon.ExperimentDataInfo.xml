@@ -18,6 +18,11 @@
   <field id="fort::myrmidon::ExperimentDataInfo::Spaces" name="Spaces">
     <brief>Data infos for all <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
     </brief>
-    <type name="std::map&lt;unsigned int, fort::myrmidon::SpaceDataInfo, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;const unsigned int, fort::myrmidon::SpaceDataInfo&gt; &gt; &gt;" />
+    <type class="template" name="std::map">
+      <template-arguments>
+        <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
+        <type name="SpaceDataInfo" ref="fort::myrmidon::SpaceDataInfo#fort::myrmidon::SpaceDataInfo" />
+      </template-arguments>
+    </type>
   </field>
 </struct>

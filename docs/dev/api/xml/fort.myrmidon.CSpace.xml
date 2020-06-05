@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::CSpace" interface="true" name="CSpace" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>const version of Space</brief>
+  <doc>Simply a strip down copy of <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> . Its an helper class
+to support const correctness of object and for language binding
+that does not enforce constness, such as R.</doc>
+  <typedef id="fort::myrmidon::CSpace::ConstPPtr" name="ConstPPtr">
+    <brief>Opaque pointer for implementation</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Space" qualifier=" const" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::CSpace::CSpace" name="CSpace">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot build Space directly. They must be build and
+accessed from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>.</doc>
+    <argument id="fort::myrmidon::CSpace::CSpace::pSpace" name="pSpace">
+      <doc>opaque pointer to implementation</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace::ConstPPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::CSpace::CZones" name="CZones">
+    <brief>Gets the Zones in this space (const)</brief>
+    <doc>R version:
+```R
+s$cZones()
+```
+
+</doc>
+    <return>
+      <doc>a map of <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ConstByID">fort::myrmidon::Zone::ConstByID</ref> of all <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in this Space.</doc>
+      <type name="Zone::ConstByID" ref="fort::myrmidon::Zone#fort::myrmidon::Zone::ConstByID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CSpace::LocateMovieFrame" name="LocateMovieFrame">
+    <brief>Locates a movie file and frame number</brief>
+    <return>
+      <doc>a pair of an absolute file path to the movie file, and
+the wanted movie frame number.</doc>
+      <type class="template" name="std::pair">
+        <template-arguments>
+          <type name="std::__cxx11::string" />
+          <type name="uint64_t" />
+        </template-arguments>
+      </type>
+    </return>
+    <argument id="fort::myrmidon::CSpace::LocateMovieFrame::time" name="time">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CSpace::Name" name="Name">
+    <brief>Gets the Space name</brief>
+    <doc>Gets the Space name. Space names should be unique, valid
+non-empty filename.
+
+R version:
+```R
+s$name()
+```
+
+</doc>
+    <return>
+      <doc>the Space name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CSpace::SpaceID" name="SpaceID">
+    <brief>Gets the Space ID</brief>
+    <doc>R version:
+```R
+s$spaceID()
+```
+
+</doc>
+    <return>
+      <doc>this Space <ref ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace::SpaceID">SpaceID</ref>;</doc>
+      <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
+    </return>
+  </method>
+</class>

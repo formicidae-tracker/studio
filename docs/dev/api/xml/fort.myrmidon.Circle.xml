@@ -7,10 +7,18 @@
   </base>
   <typedef id="fort::myrmidon::Circle::PPtr" name="PPtr">
     <brief>Opaque pointer to implementation</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Circle&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Circle" ref="fort::myrmidon::priv::Circle#fort::myrmidon::priv::Circle" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Circle::Circle" name="Circle">
     <brief>public constructor</brief>
+    <doc>R version:
+```R
+c &lt;- fmCircleCreate(c(x,y),r)
+```</doc>
     <argument id="fort::myrmidon::Circle::Circle::center" name="center">
       <doc>the center of the circle</doc>
       <type name="Eigen::Vector2d" qualifier=" const &amp;" />
@@ -32,6 +40,12 @@
   </destructor>
   <method abstract="yes" id="fort::myrmidon::Circle::Center" name="Center">
     <brief>Gets the center of the circle</brief>
+    <doc>R version:
+```R
+c$center()
+```
+
+</doc>
     <return>
       <doc>a reference to the center of the circle</doc>
       <type name="Eigen::Vector2d" qualifier=" const &amp;" />
@@ -39,6 +53,12 @@
   </method>
   <method abstract="yes" id="fort::myrmidon::Circle::Radius" name="Radius">
     <brief>Gets the radius of the circle</brief>
+    <doc>R version:
+```R
+c$radius()
+```
+
+</doc>
     <return>
       <doc>the circle's radius</doc>
       <type builtin="yes" name="double" />
@@ -46,6 +66,10 @@
   </method>
   <method abstract="yes" id="fort::myrmidon::Circle::SetCenter" name="SetCenter">
     <brief>Sets the center of the circle</brief>
+    <doc>R version:
+```R
+c$setCenter(c(x,y))
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -56,6 +80,10 @@
   </method>
   <method abstract="yes" id="fort::myrmidon::Circle::SetRadius" name="SetRadius">
     <brief>Sets the radius of the circle</brief>
+    <doc>R version:
+```R
+c$setRadius(radius)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -63,5 +91,12 @@
       <doc>the radius of the circle</doc>
       <type builtin="yes" name="double" />
     </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Circle::ToPrivate" name="ToPrivate">
+    <brief>Downcast to private implementation.</brief>
+    <return>
+      <doc>the private implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::Circle#fort::myrmidon::Circle::PPtr" />
+    </return>
   </method>
 </class>

@@ -32,24 +32,28 @@ pointing from the top of the image to the bottom, positive angles
 appears clockwise.
 </doc>
   <typedef id="fort::myrmidon::Identification::ConstList" name="ConstList">
-    <brief>A const list of Identification</brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;const fort::myrmidon::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;const fort::myrmidon::Identification&gt; &gt; &gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::Identification::ConstPtr" name="ConstPtr">
-    <brief>A const pointer to an Identification</brief>
-    <type name="std::shared_ptr&lt;const fort::myrmidon::Identification&gt;" />
+    <brief>A list of Identification</brief>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Identification::List" name="List">
     <brief>A list of Identification</brief>
-    <type name="std::vector&lt;std::shared_ptr&lt;fort::myrmidon::Identification&gt;, std::allocator&lt;std::shared_ptr&lt;fort::myrmidon::Identification&gt; &gt; &gt;" />
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+      </template-arguments>
+    </type>
   </typedef>
   <typedef id="fort::myrmidon::Identification::PPtr" name="PPtr">
     <brief>An opaque pointer to implementation</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::priv::Identification&gt;" />
-  </typedef>
-  <typedef id="fort::myrmidon::Identification::Ptr" name="Ptr">
-    <brief>A pointer to an Identification</brief>
-    <type name="std::shared_ptr&lt;fort::myrmidon::Identification&gt;" />
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::Identification" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+      </template-arguments>
+    </type>
   </typedef>
   <constructor abstract="yes" id="fort::myrmidon::Identification::Identification" name="Identification">
     <brief>Private implementation constructor</brief>
@@ -71,6 +75,11 @@ top to bottom, so when looking at the image, positive angle are
 clockwise, which is the opposite of most mathematical drawing
 when y is pointing from bottom to top.
 
+R Version :
+```R
+i$antAngle()
+```
+
 </doc>
     <return>
       <doc>the angle in radian between the tag orientation and the
@@ -83,6 +92,11 @@ ant orientation.</doc>
     <doc>Gets the Ant position relatively to the tag center. This offset
 is expressed in the tag reference frame.
 
+R Version :
+```R
+i$antPosition()
+```
+
 </doc>
     <return>
       <doc>an &amp;lt;Eigen::Vector2d&amp;gt; of the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> center relative to
@@ -94,7 +108,12 @@ the tag center.</doc>
     <brief>Clears any user defined pose.</brief>
     <doc>Clears any user defined pose for this Identification. Myrmidon
 will re-compute the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> pose from measurement made in FORT
-Studio.</doc>
+Studio.
+
+R Version :
+```R
+i$clearUserDefiniedAntPose()
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -102,6 +121,11 @@ Studio.</doc>
   <method abstract="yes" id="fort::myrmidon::Identification::End" name="End">
     <brief>Gets the ending validity time</brief>
     <doc>Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">End</ref>[
+
+R Version :
+```R
+i$end()
+```
 
 </doc>
     <return>
@@ -112,6 +136,12 @@ unvalid. nullptr represents +∞</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Identification::HasUserDefinedAntPose" name="HasUserDefinedAntPose">
     <brief>Tests if Identification has a user defined pose</brief>
+    <doc>R Version :
+```R
+i$hasUserDefinedAntPose()
+```
+
+</doc>
     <return>
       <doc>`true` if the Identification has a user defined pose
 through <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::SetUserDefinedAntPose">fort::myrmidon::Identification::SetUserDefinedAntPose</ref></doc>
@@ -125,7 +155,13 @@ method will throw any <ref ref="fort::myrmidon::OverlappingIdentification#fort::
 modification will create any collision for the same <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
 the same <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. In such a case the boundaries remain unchanged.
 
-Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[</doc>
+Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[
+
+R Version :
+```R
+# const_ptr is needed to cast fmTime to fmTimeCPtr
+i$setEnd(fmTimeParse("XXX")$const_ptr())
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -142,7 +178,13 @@ method will throw any <ref ref="fort::myrmidon::OverlappingIdentification#fort::
 modification will create any collision for the same <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
 the same <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. In such a case the boundaries remain unchanged.
 
-Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[</doc>
+Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[
+
+R Version :
+```R
+# const_ptr is needed to cast fmTime to fmTimeCPtr
+i$setStart(fmTimeParse("XXX")$const_ptr())
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -154,6 +196,10 @@ represent -∞</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Identification::SetUserDefinedAntPose" name="SetUserDefinedAntPose">
     <brief>Sets a user defined Ant pose</brief>
+    <doc>R Version :
+```R
+i$setUserDefinedAntPose(c(x,y),angle)
+```</doc>
     <return>
       <type builtin="yes" name="void" />
     </return>
@@ -171,6 +217,11 @@ center, expressed in the tag reference frame.</doc>
     <brief>Gets the starting validity time</brief>
     <doc>Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[
 
+R Version :
+```R
+i$start()
+```
+
 </doc>
     <return>
       <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> after which this Identification is
@@ -180,9 +231,34 @@ valid. nullptr represents -∞</doc>
   </method>
   <method abstract="yes" id="fort::myrmidon::Identification::TagValue" name="TagValue">
     <brief>Gets the TagID of this Identification</brief>
+    <doc>R Version :
+```R
+i$tagValue()
+```
+
+</doc>
     <return>
       <doc>the <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
       <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Identification::TargetAntID" name="TargetAntID">
+    <brief>Gets the AntID of the targeted Ant</brief>
+    <doc>R Version :
+```R
+i$targetAntID()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntID">fort::myrmidon::AntID</ref> of the targetted <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref></doc>
+      <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Identification::ToConst" name="ToConst">
+    <brief>Put</brief>
+    <return>
+      <type name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Identification::ToPrivate" name="ToPrivate">
