@@ -73,6 +73,7 @@ template<> SEXP wrap(const IdentifiedFrame::ConstPtr & frame) {
 
 
 	Data.attr("names") = colNames;
+	Data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,n);
 	Data.attr("class") = "data.frame";
 	Rcpp::S4 res("fmIdentifiedFrame");
 
@@ -238,6 +239,7 @@ SEXP wrap(const AntTrajectory::ConstPtr & at) {
 		names.push_back("Zone");
 	}
 	data.attr("names") = names;
+	data.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,nPoints);
 	data.attr("class") = "data.frame";
 
 	Rcpp::S4 res("fmAntTrajectory");
