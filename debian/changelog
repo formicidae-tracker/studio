@@ -1,3 +1,9 @@
+fort-studio (0.4.0-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New upstream release 0.4.0
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Fri, 05 Jun 2020 11:56:05 +0200
+
 fort-studio (0.3.0-0ubuntu1) bionic; urgency=medium
 
   * New upstream 0.3.0 release
