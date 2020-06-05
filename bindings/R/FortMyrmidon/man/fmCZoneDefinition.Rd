@@ -3,11 +3,11 @@
 \name{fmCZoneDefinition}
 \alias{fmCZoneDefinition}
 \title{Reference Class wrapper for the C++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}{fort::myrmidon::CZoneDefinition}
     class}
 \description{
 Reference Class wrapper for the C++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::XCZoneDefinition/fort::myrmidon::CZoneDefinition}{fort::myrmidon::CZoneDefinition}
     class
 }
 \section{Fields}{

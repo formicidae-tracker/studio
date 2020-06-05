@@ -3,11 +3,11 @@
 \name{fmZone}
 \alias{fmZone}
 \title{Reference Class wrapper for the c++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}{fort::myrmidon::Zone}
     class}
 \description{
 Reference Class wrapper for the c++
-    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}
+    \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Zone/fort::myrmidon::Zone}{fort::myrmidon::Zone}
     class
 }
 \section{Fields}{

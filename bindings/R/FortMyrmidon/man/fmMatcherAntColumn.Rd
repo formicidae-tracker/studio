@@ -19,5 +19,5 @@ a \code{\link{fmMatcher}} a matcher that matches when the
 }
 \examples{
 # a fmMatcher that matches when ant value "group" is "nurses"
-fmMatcherAntColumn("group","nurses")
+fmMatcherAntColumn("group",fmAntStaticString("nurses"))
 }

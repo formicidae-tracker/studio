@@ -9,7 +9,7 @@
 #' # outputs 2.0003s
 #' }
 `+.Rcpp_fmDuration` <- function(e1, e2) (
-    new(FortMyrmidon::fmDuration, e1$nanoseconds() + e2$nanoseconds())
+    fmNanosecond(e1$nanoseconds() + e2$nanoseconds())
 )
 
 #' Substract operator for fmDuration
@@ -23,7 +23,7 @@
 #' # outputs 999ms
 #' }
 `-.Rcpp_fmDuration` <- function(e1, e2) (
-    new(FortMyrmidon::fmDuration, e1$nanoseconds() - e2$nanoseconds())
+    fmNanosecond(e1$nanoseconds() - e2$nanoseconds())
 )
 
 #' Comparison operator for fmDuration
@@ -188,9 +188,9 @@ NULL
 #' @param v the wanted number of nanoseconds
 #' @return a fmDuration representing the wanted amount of nanoseconds
 #' @examples
-#' fmNanoseconds(2)
+#' fmNanosecond(2)
 #' # outputs 2ns
-#' fmNanoseconds(1.1)
+#' fmNanosecond(1.1)
 #' # outputs 1ns, nanoseconds is the smallest available value
 NULL
 
