@@ -185,13 +185,13 @@ void AntEditorWidget::setShappingMode() {
 	auto antToOrig = tagToOrig * identification->AntToTagTransform();
 	for ( const auto & [stID,c] : d_experiment->selectedAnt()->capsules() ) {
 		qWarning() << "Got " << ToQString(c);
-		Eigen::Vector2d c1 = antToOrig * c->C1();
-		Eigen::Vector2d c2 = antToOrig * c->C2();
+		Eigen::Vector2d c1 = antToOrig * c.C1();
+		Eigen::Vector2d c2 = antToOrig * c.C2();
 		setColorFromType(stID);
 		auto capsule = d_vectorialScene->appendCapsule(QPointF(c1.x(),c1.y()),
 		                                               QPointF(c2.x(),c2.y()),
-		                                               c->R1(),
-		                                               c->R2());
+		                                               c.R1(),
+		                                               c.R2());
 		d_capsules.insert(std::make_pair(capsule,stID));
 		connect(capsule.data(),
 		        &Shape::updated,

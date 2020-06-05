@@ -6,6 +6,8 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+Matcher::~Matcher() {}
+
 Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 	class AndMatcher : public Matcher {
 	private:
@@ -14,6 +16,7 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 		AndMatcher(const std::vector<Ptr> & matchers)
 			: d_matchers(matchers) {
 		}
+		virtual ~AndMatcher() {}
 		void SetUpOnce(const ConstAntByID & ants) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
 			              [&ants](const Ptr & matcher) { matcher->SetUpOnce(ants); });
@@ -28,13 +31,23 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & type) override {
+		           const std::vector<fort::myrmidon::InteractionType> & type) override {
 			for ( const auto & m : d_matchers ) {
 				if ( m->Match(ant1,ant2,type) == false ) {
 					return false;
 				}
 			}
 			return true;
+		}
+
+		void Format(std::ostream & out ) const override {
+			std::string prefix = "( ";
+			for ( const auto & m : d_matchers ) {
+				out << prefix;
+				m->Format(out);
+				prefix = " && ";
+			}
+			out << " )";
 		}
 	};
 
@@ -49,6 +62,7 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 		OrMatcher(const std::vector<Ptr> &  matchers)
 			: d_matchers(matchers) {
 		}
+		virtual ~OrMatcher() {}
 		void SetUpOnce(const ConstAntByID & ants) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
 			              [&ants](const Ptr & matcher) { matcher->SetUpOnce(ants); });
@@ -63,7 +77,7 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & types) override {
+		           const std::vector<fort::myrmidon::InteractionType> & types) override {
 			for ( const auto & m : d_matchers ) {
 				if ( m->Match(ant1,ant2,types) == true ) {
 					return true;
@@ -71,6 +85,17 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 			}
 			return false;
 		}
+
+		void Format(std::ostream & out ) const override {
+			std::string prefix = "( ";
+			for ( const auto & m : d_matchers ) {
+				out << prefix;
+				m->Format(out);
+				prefix = " || ";
+			}
+			out << " )";
+		}
+
 	};
 	return std::make_shared<OrMatcher>(matchers);
 }
@@ -83,6 +108,7 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 		AntIDMatcher (AntID ant)
 			: d_id(ant) {
 		}
+		virtual ~AntIDMatcher() {}
 		void SetUpOnce(const ConstAntByID & ants) override {
 		}
 
@@ -92,12 +118,17 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & types) override {
+		           const std::vector<fort::myrmidon::InteractionType> & types) override {
 			if ( ant2 != 0 && ant2 == d_id ) {
 				return true;
 			}
 			return ant1 == d_id;
 		}
+
+		void Format(std::ostream & out ) const override {
+			out << "Ant.ID == " << Ant::FormatID(d_id);
+		}
+
 	};
 	return std::make_shared<AntIDMatcher>(ID);
 }
@@ -115,6 +146,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 			: d_name(name)
 			, d_value(value){
 		}
+		virtual ~AntColumnMatcher() {}
 		void SetUpOnce(const ConstAntByID & ants) override {
 			d_ants = ants;
 		}
@@ -136,7 +168,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<InteractionType> & type) override {
+		           const std::vector<fort::myrmidon::InteractionType> & types) override {
 			auto fi = d_ants.find(ant2);
 			if ( fi != d_ants.end()
 			     && fi->second->GetValue(d_name,d_time) == d_value ) {
@@ -149,6 +181,11 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 			}
 			return fi->second->GetValue(d_name,d_time) == d_value;
 		}
+
+		void Format(std::ostream & out ) const override {
+			out << "Ant.'" << d_name << "' == " << d_value;
+		}
+
 	};
 	return std::make_shared<AntColumnMatcher>(name,value);
 }
@@ -163,6 +200,7 @@ public:
 		: d_distanceSquare(distance * distance)
 		, d_greater(greater) {
 	}
+	virtual ~AntDistanceMatcher() {}
 	void SetUpOnce(const ConstAntByID & ants) override {
 	}
 
@@ -179,7 +217,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<InteractionType> & type) override {
+	           const std::vector<fort::myrmidon::InteractionType> & types) override {
 		auto fi1 = d_positions.find(ant1);
 		auto fi2 = d_positions.find(ant2);
 		if ( fi1 == d_positions.end() || fi2 == d_positions.end() ) {
@@ -195,6 +233,10 @@ public:
 			return d_distanceSquare > sDist;
 		}
 	}
+
+	void Format(std::ostream & out ) const override {
+		out << "Distance(Ant1, Ant2) " << (d_greater == true ? ">" : "<" ) << " " << std::sqrt(d_distanceSquare);
+	}
 };
 
 
@@ -208,7 +250,7 @@ public:
 		: d_angle(Isometry2Dd(angle,{0,0}).angle())
 		, d_greater(greater) {
 	}
-
+	virtual ~AntAngleMatcher() {}
 	void SetUpOnce(const ConstAntByID & ants) override {
 
 	}
@@ -226,7 +268,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<InteractionType> & type) override {
+	           const std::vector<fort::myrmidon::InteractionType> & types) override {
 		auto fi1 = d_angles.find(ant1);
 		auto fi2 = d_angles.find(ant2);
 		if ( fi1 == d_angles.end() || fi2 == d_angles.end() ) {
@@ -240,7 +282,85 @@ public:
 		}
 	};
 
+	void Format(std::ostream & out ) const override {
+		out << "Angle(Ant1, Ant2) " << (d_greater == true ? ">" : "<" ) << " " << d_angle;
+	}
+
+
 };
+
+
+class InteractionTypeSingleMatcher : public Matcher {
+private:
+	AntShapeTypeID d_type;
+public:
+	InteractionTypeSingleMatcher (AntShapeTypeID type)
+		: d_type(type) {
+	}
+	virtual ~InteractionTypeSingleMatcher() {}
+	void SetUpOnce(const ConstAntByID & ants) override {
+	}
+
+	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
+	           const CollisionFrame::ConstPtr & collisionFrame) override {
+	}
+
+	bool Match(fort::myrmidon::AntID ant1,
+	           fort::myrmidon::AntID ant2,
+	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+		if (ant2 == 0) { return true; }
+		return std::find_if(types.cbegin(),
+		                    types.cend(),
+		                    [this](const fort::myrmidon::InteractionType & it) {
+			                    return it.first == d_type && it.second == d_type;
+		                    }) != types.cend();
+	}
+
+	void Format(std::ostream & out ) const override {
+		out << "InteractionType (" << d_type << " - " << d_type << ")";
+	}
+};
+
+class InteractionTypeDualMatcher : public Matcher {
+private:
+	AntShapeTypeID d_type1,d_type2;
+public:
+	InteractionTypeDualMatcher(AntShapeTypeID type1,AntShapeTypeID type2) {
+		if ( type1 < type2 ) {
+			d_type1 = type1;
+			d_type2 = type2;
+		} else if ( type1 > type2 ) {
+			d_type1 = type2;
+			d_type2 = type1;
+		} else {
+			throw std::runtime_error("type1 must be different than type2");
+		}
+	}
+	virtual ~InteractionTypeDualMatcher() {}
+	void SetUpOnce(const ConstAntByID & ants) override {
+	}
+
+	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
+	           const CollisionFrame::ConstPtr & collisionFrame) override {
+	}
+
+	bool Match(fort::myrmidon::AntID ant1,
+	           fort::myrmidon::AntID ant2,
+	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+		if (ant2 == 0) { return true; }
+		return std::find_if(types.cbegin(),
+		                    types.cend(),
+		                    [this](const fort::myrmidon::InteractionType & it) {
+			                    return (it.first == d_type1 && it.second == d_type2)
+				                    || (it.first == d_type2 && it.second == d_type1);
+		                    }) != types.cend();
+	}
+
+	void Format(std::ostream & out ) const override {
+		out << "InteractionType (" << d_type1 << " - " << d_type2 << ")";
+	}
+};
+
 
 Matcher::Ptr Matcher::AntDistanceSmallerThan(double distance) {
 	return std::make_shared<AntDistanceMatcher>(distance,false);
@@ -258,7 +378,19 @@ Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
 	return std::make_shared<AntAngleMatcher>(angle,false);
 }
 
+Matcher::Ptr Matcher::InteractionType(AntShapeTypeID type1,
+                                      AntShapeTypeID type2) {
+	if ( type1 != type2 ) {
+		return std::make_shared<InteractionTypeDualMatcher>(type1,type2);
+	}
+	return std::make_shared<InteractionTypeSingleMatcher>(type1);
+}
 
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+std::ostream & operator<<(std::ostream & out, const fort::myrmidon::priv::Matcher & m) {
+	m.Format(out);
+	return out;
+}

@@ -18,9 +18,9 @@ namespace myrmidon {
 
 // The ID for a tag
 //
-// As explained in <ant_identification> myrmidon doesn't allows to
-// access tracking tag data directly, but through the definition of
-// <Ant> and <Identification>.
+// The ID for a tag. As explained in <ant_identification> myrmidon
+// doesn't allows to access tracking tag data directly, but through
+// the definition of <Ant> and <Identification>.
 typedef uint32_t TagID;
 
 // A named value
@@ -28,6 +28,8 @@ typedef uint32_t TagID;
 // AntStaticValue holds a value for a <named_values>.
 typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 
+// A List of 2D Vector
+//
 // A List of 2D Vector
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 
@@ -49,20 +51,20 @@ const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
 
 
 // A list of Ant virtual shape part
-typedef std::vector<std::pair<AntShapeTypeID,CapsuleConstPtr>>                 TypedCapsuleList;
+typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 
 // Types for non-tracking data column
 enum class AntMetadataType {
                             // A boolean
-                            Bool = 0,
+                            BOOL = 0,
                             // An integer
-                            Int,
+                            INT,
                             // a float
-                            Double,
+                            DOUBLE,
                             // a std::string
-                            String,
+                            STRING,
                             // a <Time>
-                            Time,
+                            TIME,
 };
 
 // Represents a Measurement in mm at a given Time.
@@ -88,39 +90,23 @@ struct TagStatistics {
 	enum CountHeader {
 	    // Number of time the <TagID> was seen in the <Experiment>
 		TOTAL_SEEN        = 0,
-		// Number of time the <TagID> was seen multiple time in the
-		// same Frame.
+		// Number of time the <TagID> was seen multiple time in the same Frame.
 		MULTIPLE_SEEN     = 1,
-		// Number of time their was a gap less than 500 milliseconds
-		// were the tracking was lost.
+		// Number of time their was a gap less than 500 milliseconds were the tracking was lost.
 		GAP_500MS         = 2,
-		// Number of time their was a gap less than 1 second were the
-		// tracking was lost.
+		// Number of time their was a gap less than 1 second were the tracking was lost.
 		GAP_1S            = 3,
-		// Number of time their was a gap less than 10 seconds were
-		// the tracking was lost.
+		// Number of time their was a gap less than 10 seconds were the tracking was lost.
 		GAP_10S           = 4,
-		// Number of times their was a gap less than 1 minute were the
-		// tracking was lost. Innacurate if there are more than one
-		// <Space> in the experiment.
+		// Number of times their was a gap less than 1 minute were the tracking was lost. Innacurate if there are more than one <Space> in the experiment.
 		GAP_1M            = 5,
-		// Number of times their was a gap less than 10 minutes were the
-		// tracking was lost. Innacurate if there are more than one
-		// <Space> in the experiment.
+		// Number of times their was a gap less than 10 minutes were the tracking was lost. Innacurate if there are more than one <Space> in the experiment.
 		GAP_10M           = 6,
-		// Number of times their was a gap less than 1 hour were the
-		// tracking was lost. Innacurate if there are more than one
-		// <Space> in the experiment.
+		// Number of times their was a gap less than 1 hour were the tracking was lost. Innacurate if there are more than one <Space> in the experiment.
 		GAP_1H            = 7,
-		// Number of times their was a gap less than 10 hours were the
-		// tracking was lost. Innacurate if there are more than one
-		// <Space> in the experiment.
+		// Number of times their was a gap less than 10 hours were the tracking was lost. Innacurate if there are more than one <Space> in the experiment.
 		GAP_10H           = 8,
-		// Number of times their was a gap of more than 10 hours were
-		// the tracking was lost. If using multiple space in an
-		// experiment, consider only smaller gap, and add all columns
-		// from <GAP_1M> up to this one to consider only gap bigger
-		// than 10S.
+		// Number of times their was a gap of more than 10 hours were the tracking was lost. If using multiple space in an experiment, consider only smaller gap, and add all columns from <GAP_1M> up to this one to consider only gap bigger than 10S.
 		GAP_MORE          = 9,
 	};
 
@@ -152,6 +138,8 @@ typedef std::vector<PositionedAnt,Eigen::aligned_allocator<PositionedAnt>> Posit
 // A visual frame were <Ant> have been identified from their <TagID>
 struct IdentifiedFrame {
 	// A pointer to an IdentifiedFrame
+	typedef std::shared_ptr<IdentifiedFrame>       Ptr;
+	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
 	// The <Time> at which this frame was taken.
 	Time              FrameTime;
@@ -163,6 +151,8 @@ struct IdentifiedFrame {
 	size_t            Width;
 	// The list of identified <Ant> in the frame
 	PositionedAntList Positions;
+	// optionnal Zones for ants
+	std::vector<ZoneID> Zones;
 	// Tests if the frame contains an <Ant>
 	// @antID the <AntID> of the <Ant> to test for.
 	//
@@ -187,15 +177,19 @@ typedef std::pair<AntShapeTypeID,AntShapeTypeID> InteractionType;
 
 // Defines an interaction between two <Ant> ponctual in <Time>
 struct Collision {
-	// The <AntID> of the two Ants interacting. note that the
+	// The <AntID> of the two Ants interacting.
+	//
+	// The <AntID> of the two Ants interacting. Please note that the
 	// constraint `IDS.first < IDs.second` is always maintained to
 	// ensure uniqueness of IDs for <AntInteraction>.
 	InteractionID                IDs;
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
-	std::vector<InteractionType> InteractionTypes;
+	std::vector<InteractionType> Types;
+	// Reports the <Zone> where the interaction happened.
+	//
 	// Reports the <Zone> where the interaction happened, the
-	// corresponding <Space> is reported in <CollisionFrame>. 0
-	// means the default zone.
+	// corresponding <Space> is reported in <CollisionFrame>. 0 means
+	// the default zone.
 	ZoneID                       Zone;
 };
 
@@ -205,14 +199,11 @@ struct CollisionFrame {
 	typedef std::shared_ptr<const CollisionFrame> ConstPtr;
 	// The <Time> when the interaction happens
 	Time                   FrameTime;
-	// Reports the <Space> where all the <Collision>
-	// happens.
+	// Reports the <Space> this frame is taken from
 	SpaceID                Space;
 	// The <Collision> happenning at <FrameTime>
 	std::vector<Collision> Collisions;
 
-	// The zone any <Ant> is in.
-	std::map<AntID,ZoneID> AntZones;
 };
 
 // Defines a trajectory for an <Ant>
@@ -222,16 +213,29 @@ struct AntTrajectory {
 
 	// Reports the <AntID> of the <Ant> this trajectory refers to.
 	AntID   Ant;
-	// Reports the <Space> this trajectory is taking place
+	// Reports the <Space> this trajectory is taking place.
 	SpaceID Space;
-	// Reports the starting <Time> of this trajectory. <Nanoseconds>
-	// are reference to <Start>.
+	// Reports the starting <Time> of this trajectory.
+	//
+	// Reports the starting <Time> of this trajectory. <Positions>
+	// first column are second offset from this time.
 	Time    Start;
-	// Reports the position in the frame of the <Ant>,x,y and angle in
-	// radians.
-	Eigen::Matrix<double,Eigen::Dynamic,3> Positions;
-	// Reports the difference in ns of all position to <Start>.
-	std::vector<uint64_t>                  Nanoseconds;
+	// Reports the time and position in the frame.
+	//
+	// Reports the time and position in the frame.
+	//
+	// * first column: offset in second since <Start>
+	// * second and third column: X,Y position in the image
+	// * fourth column: Angle in ]-π,π], in trigonometric
+	//   orientation. As in images Y axis points bottom, positove
+	//   angle appears clockwise.
+	Eigen::Matrix<double,Eigen::Dynamic,4> Positions;
+	// Reports zone of ant if asked.
+	//
+	// Optional vector of either size 0 or Data.rows(). O value means
+	// currentlty not in a zone.
+	std::vector<uint32_t>                  Zones;
+	Time End() const;
 };
 
 // Defines an interaction between two Ants
@@ -239,14 +243,21 @@ struct AntInteraction {
 	// A pointer to the interaction structure
 	typedef std::shared_ptr<const AntInteraction> ConstPtr;
 
-	// The IDs of the two <Ant>. Always reports `IDs.first <
+	// The IDs of the two <Ant>.
+	//
+	// The ID of the two <Ant>. Always reports `IDs.first <
 	// IDs.second`.
 	InteractionID                      IDs;
-	// Reports the the virtual shape body part that were in contact
-	// during the interaction.
+	// Virtual shape body part that were in contact.
+	//
+	// Virtual shape body part that were in contact during the
+	// interaction.
 	std::vector<InteractionType>       Types;
+	// Reports the <AntTrajectory> of each Ant.
+	//
 	// Reports the <AntTrajectory> of each Ant during the
-	// interaction. The Trajectory are truncated to the interaction.
+	// interaction. The Trajectory are truncated to the interaction
+	// timing.
 	std::pair<AntTrajectory::ConstPtr,
 	          AntTrajectory::ConstPtr> Trajectories;
 	// Reports the <Time> the interaction starts

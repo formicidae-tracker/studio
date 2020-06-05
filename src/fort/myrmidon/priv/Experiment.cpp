@@ -117,11 +117,9 @@ public:
 				                         + "':  another program has write or read access on it");
 			}
 		}
-		std::cerr << "Locked " << filepath << std::endl;
 	}
 
 	~ExperimentLock() {
-		std::cerr << "Unlocked " << std::endl;
 		flock(d_fd,LOCK_UN);
 		close(d_fd);
 	}
@@ -662,10 +660,10 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 			}
 		}
 		for ( const auto & [typeID,sourceCapsule] : source->Capsules() ) {
-			auto destCapsule = std::make_shared<Capsule>(scale * sourceCapsule->C1(),
-			                                             scale * sourceCapsule->C2(),
-			                                             scale * sourceCapsule->R1(),
-			                                             scale * sourceCapsule->R2());
+			auto destCapsule = Capsule(scale * sourceCapsule.C1(),
+			                           scale * sourceCapsule.C2(),
+			                           scale * sourceCapsule.R1(),
+			                           scale * sourceCapsule.R2());
 			ant->AddCapsule(typeID,destCapsule);
 		}
 	}

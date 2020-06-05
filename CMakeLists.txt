@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 
-project(fort-studio VERSION 0.3.0
+project(fort-studio VERSION 0.4.0
                     LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
@@ -78,9 +78,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 
-
 include(CheckCXXSourceCompiles)
-
 
 set(CMAKE_REQUIRED_FLAGS "-lstdc++fs")
 
@@ -93,7 +91,6 @@ int main(){
 "
 	USE_CXX17_FS_LIBRARY
 )
-
 
 if(USE_CXX17_FS_LIBRARY)
 	set(CXXFS_LIBRARY "-lstdc++fs")
@@ -149,7 +146,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
         DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake )
 
-
+add_subdirectory(pkgconfig)
 
 add_subdirectory(src)
 

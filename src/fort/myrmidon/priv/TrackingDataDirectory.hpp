@@ -164,9 +164,12 @@ public:
 
 	std::map<FrameReference,fs::path> FullFrames() const;
 
+	std::map<FrameReference,fs::path> ComputedFullFrames() const;
+
 	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
 
 private:
+
 	typedef std::pair<FrameID,Time> TimedFrame;
 	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
 
@@ -203,8 +206,14 @@ private:
 	BuildIndexes(const std::string & URI,
 	             Time::MonoclockID monoID,
 	             const std::vector<fs::path> & hermesFile,
-	             const TrackingIndex::Ptr & trackingIndexer,
-	             FrameReferenceCache & cache);
+	             const TrackingIndex::Ptr & trackingIndexer);
+
+	static void BuildCache(const std::string & URI,
+	                       Time::MonoclockID monoID,
+	                       const fs::path & tddPath,
+	                       const TrackingIndex::ConstPtr & trackingIndexer,
+	                       FrameReferenceCache & cache);
+
 
 
 	TrackingDataDirectory(const std::string & uri,
@@ -216,6 +225,11 @@ private:
 	                      const TrackingIndex::Ptr & segments,
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
+
+	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath ) const;
+
+	void ComputeFullFrames() const;
+
 
 	void SaveToCache() const;
 

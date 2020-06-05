@@ -218,7 +218,7 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 
 	for(const auto & d: testdata) {
 		Eigen::Vector2d dA(d.AX,d.AY),dB(d.BX,d.BY);
-		auto dC = std::make_shared<Capsule>(dA,dB,d.AR,d.BR);
+		Capsule dC(dA,dB,d.AR,d.BR);
 		pb::Capsule c,expected;
 		IOUtils::SaveVector(expected.mutable_c1(),dA);
 		IOUtils::SaveVector(expected.mutable_c2(),dB);
@@ -259,7 +259,7 @@ TEST_F(IOUtilsUTest,CircleIO) {
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCircle(c);
-		EXPECT_TRUE(CircleEqual(res,dC));
+		EXPECT_TRUE(CircleEqual(*res,*dC));
 	}
 }
 
@@ -284,7 +284,7 @@ TEST_F(IOUtilsUTest,PolygonIO) {
 		EXPECT_TRUE(MessageEqual(p,expected));
 
 		auto res = IOUtils::LoadPolygon(p);
-		EXPECT_TRUE(PolygonEqual(res,dP));
+		EXPECT_TRUE(PolygonEqual(*res,*dP));
 	}
 }
 
@@ -346,7 +346,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 	struct TestData {
 		std::vector<IdentificationData> IData;
-		std::vector<CapsulePtr>         Capsules;
+		std::vector<Capsule>            Capsules;
 		Color                           DisplayColor;
 		Ant::DisplayState               DisplayState;
 		AntDataMap                      DataMap;
@@ -368,12 +368,12 @@ TEST_F(IOUtilsUTest,AntIO) {
 		     },
 		    },
 		    {
-		     std::make_shared<Capsule>(Eigen::Vector2d(2.0,-4.0),
-		                               Eigen::Vector2d(23.1,-7.3),
-		                               1.0,2.0),
-		     std::make_shared<Capsule>(Eigen::Vector2d(13.0,23.0),
-		                               Eigen::Vector2d(6.1,8.9),
-		                               5.0,-3.0)
+		     Capsule(Eigen::Vector2d(2.0,-4.0),
+		             Eigen::Vector2d(23.1,-7.3),
+		             1.0,2.0),
+		     Capsule(Eigen::Vector2d(13.0,23.0),
+		             Eigen::Vector2d(6.1,8.9),
+		             5.0,-3.0)
 		    },
 		    {127,56,94},
 		    Ant::DisplayState::SOLO,
@@ -396,8 +396,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
-	e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
-	e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+	e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
+	e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
@@ -614,11 +614,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			st->set_id(3);
 			st->set_name("antenna-right");
 
-			e->AddAntMetadataColumn("alive",AntMetadata::Type::Bool);
+			e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
 			auto c = expected.add_antmetadata();
 			c->set_name("alive");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(false));
-			e->AddAntMetadataColumn("group",AntMetadata::Type::String);
+			e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 			c = expected.add_antmetadata();
 			c->set_name("group");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(std::string()));

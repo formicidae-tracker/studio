@@ -16,8 +16,8 @@ void AntUTest::SetUp() {
 	shapeTypes->Create("antennas",2);
 
 	antMetadata = std::make_shared<AntMetadata>();
-	AntMetadata::Create(antMetadata,"dead",AntMetadata::Type::Bool);
-	AntMetadata::Create(antMetadata,"group",AntMetadata::Type::String);
+	AntMetadata::Create(antMetadata,"dead",AntMetadata::Type::BOOL);
+	AntMetadata::Create(antMetadata,"group",AntMetadata::Type::STRING);
 
 	ant = std::make_shared<Ant>(shapeTypes,
 	                            antMetadata,
@@ -33,14 +33,13 @@ void AntUTest::TearDown() {
 
 
 TEST_F(AntUTest,CapsuleEdition) {
-	auto capsule = std::make_shared<Capsule>(Eigen::Vector2d(0,0),
-	                                         Eigen::Vector2d(1,1),
-	                                         0.1,
-	                                         0.1);
+	Capsule capsule(Eigen::Vector2d(0,0),
+	                Eigen::Vector2d(1,1),
+	                0.1,
+	                0.1);
 
 
-	EXPECT_THROW(ant->AddCapsule(3,Capsule::Ptr()),std::invalid_argument);
-	EXPECT_THROW(ant->AddCapsule(1,Capsule::Ptr()),std::invalid_argument);
+	EXPECT_THROW(ant->AddCapsule(3,Capsule()),std::invalid_argument);
 	EXPECT_NO_THROW({
 			ant->AddCapsule(1,capsule);
 			ant->AddCapsule(2,capsule);

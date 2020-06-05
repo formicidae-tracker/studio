@@ -1,0 +1,20 @@
+Package: FortMyrmidon
+Type: Package
+Title: R Bindings to the FORT myrmidon C++ API
+Version: 0.4
+Date: 2020-05-22
+Author: Alexandre Tuleu
+Maintainer: Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
+Description: This package are R Bindings to the FORT myrmidon C++ API,
+ a library to analyze the tracking data made by the FORmicidae Tracker
+ system. It lest you access all primitive defined in the FORT GUI,
+ like the Ant obkject, their metadata, their identification priitive
+ (relation to a TagID), measurement. It can also perfom complex
+ queries to identify Ant duringt the experiment, detect their
+ collision with other individual, construct their trajectories and
+ finally estimate their timed intercation with other individuals.
+License: LGPL-3
+Imports: Rcpp (>= 1.0.4), methods
+LinkingTo: Rcpp
+RoxygenNote: 7.1.0
+Encoding: UTF-8

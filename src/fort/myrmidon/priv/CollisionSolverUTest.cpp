@@ -16,9 +16,9 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-IdentifiedFrame::ConstPtr  CollisionSolverUTest::frame;
-Space::Universe::Ptr       CollisionSolverUTest::universe;
-AntByID                    CollisionSolverUTest::ants;
+IdentifiedFrame::Ptr     CollisionSolverUTest::frame;
+Space::Universe::Ptr     CollisionSolverUTest::universe;
+AntByID                  CollisionSolverUTest::ants;
 CollisionFrame::ConstPtr CollisionSolverUTest::collisions;
 
 void debugToImage(const IdentifiedFrame::ConstPtr & frame,
@@ -36,11 +36,11 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 		auto antIso = Isometry2Dd(p.Angle,p.Position);
 		for ( const auto & [t,c] : ant->Capsules() ) {
 			auto color = t == 1 ? cv::Scalar(0,255,0) : cv::Scalar(255,0,255);
-			auto cc = c->Transform(antIso);
+			auto cc = c.Transform(antIso);
 			auto center1 = cv::Point(cc.C1().x(),cc.C1().y())/3;
 			auto center2 = cv::Point(cc.C2().x(),cc.C2().y())/3;
-			cv::circle(debug,center1,c->R1()/3,color,2);
-			cv::circle(debug,center2,c->R2()/3,color,2);
+			cv::circle(debug,center1,c.R1()/3,color,2);
+			cv::circle(debug,center2,c.R2()/3,color,2);
 			cv::line(debug,center1,center2,color,2);
 		}
 	}
@@ -89,16 +89,16 @@ void CollisionSolverUTest::SetUpTestSuite() {
 		auto ant = std::make_shared<Ant>(shapeTypes,
 		                                 metadata,
 		                                 i+1);
-		ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(40+noise(e1),0),
-		                                            Eigen::Vector2d(-100+2*noise(e1),0),
-		                                            40+noise(e1),
-		                                            60+noise(e1)));
-		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,10),
-		                                            Eigen::Vector2d(60,50),
-		                                            25,40));
-		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,-10),
-		                                            Eigen::Vector2d(60,-50),
-		                                            25,40));
+		ant->AddCapsule(1,Capsule(Eigen::Vector2d(40+noise(e1),0),
+		                          Eigen::Vector2d(-100+2*noise(e1),0),
+		                          40+noise(e1),
+		                          60+noise(e1)));
+		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,10),
+		                          Eigen::Vector2d(60,50),
+		                          25,40));
+		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,-10),
+		                          Eigen::Vector2d(60,-50),
+		                          25,40));
 
 		ants.insert(std::make_pair(ant->AntID(),ant));
 
@@ -157,9 +157,9 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 			Isometry2Dd aIso(a.Angle,a.Position);
 			Isometry2Dd bIso(b.Angle,b.Position);
 			for ( const auto & [aType,aC] : aAnt->Capsules() ) {
-				Capsule aCapsule = aC->Transform(aIso);
+				Capsule aCapsule = aC.Transform(aIso);
 				for ( const auto & [bType,bC] : bAnt->Capsules() ) {
-					Capsule bCapsule = bC->Transform(bIso);
+					Capsule bCapsule = bC.Transform(bIso);
 					if ( aCapsule.Intersects(bCapsule) == true ) {
 						res.push_back(std::make_pair(aType,bType));
 					}
@@ -191,11 +191,11 @@ TEST_F(CollisionSolverUTest,TestE2E) {
 	                                                  ants);
 	CollisionFrame::ConstPtr res;
 	EXPECT_THROW({
-			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 2;
+			frame->Space = 2;
 			res = solver->ComputeCollisions(frame);
 		},std::invalid_argument);
 	EXPECT_NO_THROW({
-			std::const_pointer_cast<IdentifiedFrame>(frame)->Space = 1;
+			frame->Space = 1;
 			res = solver->ComputeCollisions(frame);
 		});
 	for ( const auto & inter : collisions->Collisions ) {
@@ -210,13 +210,13 @@ TEST_F(CollisionSolverUTest,TestE2E) {
 			continue;
 		}
 
-		for ( const auto & type : inter.InteractionTypes ) {
-			auto ti = std::find_if(fi->InteractionTypes.begin(),
-			                       fi->InteractionTypes.end(),
+		for ( const auto & type : inter.Types ) {
+			auto ti = std::find_if(fi->Types.begin(),
+			                       fi->Types.end(),
 			                       [&type] ( const InteractionType & tested ) {
 				                       return tested == type;
 			                       });
-			if ( ti == fi->InteractionTypes.end() ) {
+			if ( ti == fi->Types.end() ) {
 				auto aName = type.first == 1 ? "body" : "antennas";
 				auto bName = type.second == 1 ? "body" : "antennas";
 				ADD_FAILURE() << "Collision between " << Ant::FormatID(inter.IDs.first)

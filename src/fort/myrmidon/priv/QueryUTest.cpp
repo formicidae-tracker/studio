@@ -63,8 +63,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	std::vector<IdentifiedFrame::ConstPtr> identifieds;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      {},
 			                      {});
 		});
@@ -78,8 +79,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	auto t = experiment->CSpaces().begin()->second->TrackingDataDirectories().front()->StartDate();
 	identifieds.clear();
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      {},
 			                      std::make_shared<Time>(t.Add(1)));
 		});
@@ -87,8 +89,9 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 
 	identifieds.clear();
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(identifieds);
 			Query::IdentifyFrames(experiment,
-			                      identifieds,
+			                      inserter,
 			                      std::make_shared<Time>(t.Add(1)),
 			                      {});
 		});
@@ -104,17 +107,18 @@ TEST_F(QueryUTest,InteractionFrame) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
-				                                            Eigen::Vector2d(0,-10),
-				                                            10,10));
+				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
+				                          Eigen::Vector2d(0,-10),
+				                          10,10));
 			}
 		});
 
 	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(collisionData);
 			Query::CollideFrames(experiment,
-			                     collisionData,
+			                     inserter,
 			                     {},{});
 		});
 
@@ -142,8 +146,9 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 
 	ASSERT_NO_THROW({
+			auto inserter = std::back_inserter(trajectories);
 			Query::ComputeTrajectories(experiment,
-			                           trajectories,
+			                           inserter,
 			                           {},
 			                           {},
 			                           20000 * Duration::Millisecond,
@@ -155,9 +160,8 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	for( const auto & trajectory : trajectories ) {
 		EXPECT_EQ(trajectory->Ant,1);
 		EXPECT_EQ(trajectory->Space,1);
-		ASSERT_EQ(trajectory->Nanoseconds.size(),1000);
 		ASSERT_EQ(trajectory->Positions.rows(),1000);
-		EXPECT_EQ(trajectory->Nanoseconds.front(),0);
+		EXPECT_EQ(trajectory->Positions(0,0),0);
 	}
 
 }
@@ -171,18 +175,20 @@ TEST_F(QueryUTest,InteractionComputation) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
-				                                            Eigen::Vector2d(0,-10),
-				                                            10,10));
+				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
+				                          Eigen::Vector2d(0,-10),
+				                          10,10));
 			}
 		});
 
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 	std::vector<AntInteraction::ConstPtr> interactions;
 	ASSERT_NO_THROW({
+			auto trajInserter = std::back_inserter(trajectories);
+			auto interInserter = std::back_inserter(interactions);
 			Query::ComputeAntInteractions(experiment,
-			                              trajectories,
-			                              interactions,
+			                              trajInserter,
+			                              interInserter,
 			                              {},
 			                              {},
 			                              220 * Duration::Millisecond,

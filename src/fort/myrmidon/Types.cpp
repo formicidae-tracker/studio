@@ -13,6 +13,13 @@ bool IdentifiedFrame::Contains(uint64_t antID) const {
 	                    }) != Positions.cend();
 }
 
+Time AntTrajectory::End() const {
+	if ( Positions.rows() == 0 ) {
+		return Start;
+	}
+	return Start.Add(Positions(Positions.rows()-1,0) * Duration::Second);
+}
+
 } // namespace myrmidon
 } // namespace fort
 

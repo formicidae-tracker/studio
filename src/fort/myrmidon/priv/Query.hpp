@@ -22,50 +22,78 @@ public:
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
 	                                 TagStatistics::ByTagID & result);
 
+	template < typename OutputIter>
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::vector<IdentifiedFrame::ConstPtr> & result,
+	                           OutputIter & output,
 	                           const Time::ConstPtr & start,
-	                           const Time::ConstPtr & end);
+	                           const Time::ConstPtr & end,
+	                           bool computeZones = false,
+	                           bool singleThreaded = false);
 
+	template <typename OutputIter>
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
-	                          std::vector<CollisionData> & result,
+	                          OutputIter & output,
 	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end);
+	                          const Time::ConstPtr & end,
+	                          bool singleThreaded = false);
 
+	template <typename OutputIter>
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
-	                                std::vector<AntTrajectory::ConstPtr> & trajectories,
+	                                OutputIter & output,
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
-	                                Matcher::Ptr matcher = Matcher::Ptr());
+	                                const Matcher::Ptr & matcher = Matcher::Ptr(),
+	                                bool computeZones = false,
+	                                bool singleThreaded = false);
 
+	template <typename TrajectoryOutputIter,
+	          typename InteractionOutputIter>
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                   std::vector<AntInteraction::ConstPtr> & interactions,
+	                                   TrajectoryOutputIter & trajectories,
+	                                   InteractionOutputIter & interactions,
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
-	                                   Matcher::Ptr matcher = Matcher::Ptr());
+	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
+	                                   bool singleThreaded = false);
 
 
 private:
 	typedef std::pair<TrackingDataDirectory::const_iterator,
 	                  TrackingDataDirectory::const_iterator> DataRange;
-	typedef std::vector<std::pair<Space::ID,DataRange>>      DataRangeWithSpace;
+	typedef std::map<Space::ID,std::vector<DataRange>>       DataRangeBySpaceID;
 	typedef std::pair<Space::ID,RawFrameConstPtr>            RawData;
 
 	struct BuildingTrajectory {
-		Space::ID SpaceID;
-		Time Start,Last;
-		std::vector<double> DataPoints;
-		std::vector<uint64_t> Durations;
-		AntTrajectory::ConstPtr Terminate(AntID antID) const;
+		AntID                 Ant;
+		Space::ID             SpaceID;
+		Time                  Start,Last;
+		std::vector<double>   DataPoints;
+		std::vector<double>   Durations;
+		std::vector<uint32_t> Zones;
+		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
+		                   const PositionedAnt & ant,
+		                   const ZoneID * zone);
+		void Append(const IdentifiedFrame::ConstPtr & frame,
+		            const PositionedAnt & ant,
+		            const ZoneID * zone);
+
+		AntTrajectory::ConstPtr Terminate() const;
+
 	};
 
 	struct BuildingInteraction {
 		InteractionID             IDs;
 		Time Start,Last;
 		std::set<InteractionType> Types;
+		BuildingInteraction(const Collision & collision,
+		                    const Time & curTime);
+
+		void Append(const Collision & collision,
+		            const Time & curTime);
+
+
 		AntInteraction::ConstPtr Terminate(const BuildingTrajectory & a,
 		                                   const BuildingTrajectory & b) const;
 	};
@@ -77,23 +105,34 @@ private:
 	static void BuildRange(const Experiment::ConstPtr & experiment,
 	                       const Time::ConstPtr & start,
 	                       const Time::ConstPtr & end,
-	                       DataRangeWithSpace & ranges);
+	                       DataRangeBySpaceID & ranges);
 
-	static std::function<RawData(tbb::flow_control&)>
-	LoadData(const DataRangeWithSpace & ranges,
-	         DataRangeWithSpace::iterator & rangeIter,
-	         TrackingDataDirectory::const_iterator & dataIter);
+	class DataLoader {
+	public:
+		DataLoader(const DataRangeBySpaceID & dataRanges);
+
+		RawData operator()( tbb::flow_control & fc) const;
+		RawData operator()() const;
+	private:
+		typedef std::map<Space::ID,std::vector<DataRange>::const_iterator> RangesIteratorByID;
+		typedef std::map<Space::ID,TrackingDataDirectory::const_iterator> DataIteratorByID;
+		const DataRangeBySpaceID & d_dataRanges;
+		std::shared_ptr<RangesIteratorByID> d_rangeIterators;
+		std::shared_ptr<DataIteratorByID>   d_dataIterators;
+
+	};
+
 
 	static std::function<void(const IdentifiedFrame::ConstPtr &)>
-	BuildTrajectories(std::vector<AntTrajectory::ConstPtr> & result,
+	BuildTrajectories(std::function<void(const AntTrajectory::ConstPtr&)> store,
 	                  BuildingTrajectoryData & building,
 	                  Duration maxGap,
 	                  const Matcher::Ptr & matcher);
 
 
 	static std::function<void(const CollisionData &)>
-	BuildInteractions(std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                  std::vector<AntInteraction::ConstPtr> & interactions,
+	BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> storeTrajectory,
+	                  std::function<void(const AntInteraction::ConstPtr&)> storeInteraction,
 	                  BuildingTrajectoryData & currentTrajectories,
 	                  BuildingInteractionData & currentInteractions,
 	                  Duration maxGap,
@@ -107,3 +146,6 @@ private:
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
+
+
+#include "Query.impl.hpp"

@@ -16,7 +16,7 @@ protected:
 
 	static CollisionFrame::ConstPtr NaiveCollisions();
 
-	static IdentifiedFrame::ConstPtr frame;
+	static IdentifiedFrame::Ptr      frame;
 	static Space::Universe::Ptr      universe;
 	static AntByID                   ants;
 	static CollisionFrame::ConstPtr  collisions;

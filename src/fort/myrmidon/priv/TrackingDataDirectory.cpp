@@ -3,6 +3,7 @@
 #include "RawFrame.hpp"
 
 #include <mutex>
+#include <tbb/parallel_for.h>
 
 #include <fort/hermes/Error.h>
 #include <fort/hermes/FileContext.h>
@@ -14,6 +15,12 @@
 #include "TimeUtils.hpp"
 
 #include <fort/myrmidon/priv/proto/TDDCache.hpp>
+
+#include <fort/myrmidon/utils/Defer.hpp>
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio.hpp>
 
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
@@ -195,21 +202,88 @@ void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<
 	                                      });
 }
 
+void TrackingDataDirectory::BuildCache(const std::string & URI,
+                                       Time::MonoclockID monoID,
+                                       const fs::path & tddPath,
+                                       const TrackingIndex::ConstPtr & trackingIndexer,
+                                       FrameReferenceCache & cache) {
+	struct CacheSegment {
+		std::string AbsoluteFilePath;
+		std::set<FrameID> ToFind;
+		std::vector<Time>    Times;
+		void Load(Time::MonoclockID monoID) {
+			Times.clear();
+			Times.reserve(ToFind.size());
+
+			fort::hermes::FileContext fc(AbsoluteFilePath,false);
+			fort::hermes::FrameReadout ro;
+			bool first = true;
+			for ( auto iter = ToFind.cbegin(); iter != ToFind.cend() ;) {
+				try {
+					fc.Read(&ro);
+					FrameID curFID = ro.frameid();
+					Time curTime = TimeFromFrameReadout(ro,monoID);
+					if ( *iter == curFID ) {
+						Times.push_back(curTime);
+						++iter;
+					}
+				} catch ( const fort::hermes::EndOfFile & ) {
+
+				} catch ( const std::exception & e ) {
+					throw std::runtime_error("[TDD.BuildCache]: Could not find frame "
+					                         + std::to_string(*iter) + ": " +  e.what());
+				}
+			}
+		}
+	};
+
+	std::map<std::string,CacheSegment> toFind;
+	std::vector<CacheSegment> flattened;
+	for ( const auto & [frameID,neededRef] : cache ) {
+		const auto & [ref,file] = trackingIndexer->Find(frameID);
+		toFind[file].ToFind.insert(frameID);
+		toFind[file].ToFind.insert(ref.FID());
+	}
+	flattened.reserve(toFind.size());
+	for ( auto & [file,segment] : toFind ) {
+		segment.AbsoluteFilePath = (tddPath / file).string();
+		flattened.push_back(segment);
+	}
+
+	// do the parrallel computations
+	tbb::parallel_for(tbb::blocked_range<size_t>(0,flattened.size()),
+	                  [&flattened,monoID](const tbb::blocked_range<size_t> & range) {
+		                  for ( size_t idx = range.begin();
+		                        idx != range.end();
+		                        ++idx ) {
+			                  flattened[idx].Load(monoID);
+		                  }
+	                  });
+	// merge all
+	for ( const auto & segment : flattened ) {
+		size_t i = 0;
+		for ( const auto & frameID : segment.ToFind ) {
+			const auto & time = segment.Times[i];
+			cache[frameID] = FrameReference(URI,frameID,time);
+			++i;
+		}
+	}
+
+}
+
 
 std::pair<TrackingDataDirectory::TimedFrame,TrackingDataDirectory::TimedFrame>
 TrackingDataDirectory::BuildIndexes(const std::string & URI,
                                     Time::MonoclockID monoID,
                                     const std::vector<fs::path> & hermesFiles,
-                                    const TrackingIndex::Ptr & trackingIndexer,
-                                    FrameReferenceCache & cache) {
+                                    const TrackingIndex::Ptr & trackingIndexer) {
 
 	uint64_t start,end;
 	Time startDate,endDate;
 
-	fort::hermes::FrameReadout ro,lastRo;
+	fort::hermes::FrameReadout ro;
 	bool first = true;
-	std::shared_ptr<fort::hermes::FileContext> fc,prevFc;
-	auto cacheIter = cache.begin();
+	std::shared_ptr<fort::hermes::FileContext> fc;
 
 	for (const auto & f : hermesFiles ) {
 		try {
@@ -227,57 +301,16 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 			FrameReference curReference(URI,curFID,startTime);
 			trackingIndexer->Insert(curReference,
 			                        f.filename().generic_string());
-
-			if ( cacheIter != cache.end() && cacheIter->first == curFID ) {
-				cacheIter->second = curReference;
-				++cacheIter;
-			}
-
-			if (!prevFc) {
-				prevFc = fc;
-				lastRo = ro;
-				continue;
-			}
-
-			bool ok = true;
-			for(; ok == true && cacheIter != cache.end() && cacheIter->first < curFID; ++cacheIter ) {
-				while (lastRo.frameid() < cacheIter->first) {
-					try {
-						prevFc->Read(&lastRo);
-					} catch ( const std::exception & e ) {
-						ok = false;
-					}
-				}
-
-				Time curTime = TimeFromFrameReadout(lastRo,monoID);
-
-				cacheIter->second = FrameReference(URI,
-				                                   lastRo.frameid(),
-				                                   curTime);
-			}
-
-			if ( cacheIter != cache.end() && cacheIter->first == curFID ) {
-				cacheIter->second = curReference;
-				++cacheIter;
-			}
-
-			prevFc = fc;
-			lastRo = ro;
-
 		} catch ( const std::exception & e) {
 			throw std::runtime_error("Could not extract frame from " +  f.string() + ": " + e.what());
 		}
 	}
+
 	try {
 		for (;;) {
 			fc->Read(&ro);
 			end = ro.frameid();
 			endDate = TimeFromFrameReadout(ro,monoID);
-
-			if ( cacheIter != cache.end() && cacheIter->first == end ) {
-				cacheIter->second = FrameReference(URI,end,endDate);
-				++cacheIter;
-			}
 
 			//we add 1 nanosecond to transform the valid range from
 			//[start;end[ to [start;end] by making it
@@ -286,12 +319,12 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 			endDate = endDate.Add(1);
 		}
 	} catch ( const fort::hermes::EndOfFile &) {
-		// we add the last frame to the cache
-		cache.insert(std::make_pair(end,FrameReference(URI,end,endDate.Add(-1))));
 		//DO nothing, we just reached EOF
 	} catch ( const std::exception & e) {
 		throw std::runtime_error("Could not extract last frame from " +  hermesFiles.back().string() + ": " + e.what());
 	}
+
+
 
 	return std::make_pair(std::make_pair(start,startDate),
 	                      std::make_pair(end,endDate));
@@ -299,7 +332,6 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 }
 
 TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
-
 	CheckPaths(filepath,experimentRoot);
 
 	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
@@ -319,11 +351,9 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	auto referenceCache = std::make_shared<FrameReferenceCache>();
 
 	LookUpFiles(absoluteFilePath,hermesFiles,moviesPaths);
-
 	if ( hermesFiles.empty() ) {
 		throw std::invalid_argument(filepath.string() + " does not contains any .hermes file");
 	}
-
 	LoadMovieSegments(moviesPaths,URI.generic_string(),movies);
 	for(const auto & m : movies) {
 		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI.generic_string(),0,Time())));
@@ -340,8 +370,18 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	auto bounds = BuildIndexes(URI.generic_string(),
 	                           monoID,
 	                           hermesFiles,
-	                           ti,
-	                           *referenceCache);
+	                           ti);
+
+	BuildCache(URI.generic_string(),
+	           monoID,
+	           absoluteFilePath,
+	           ti,
+	           *referenceCache);
+	// caches the last frame
+	referenceCache->insert(std::make_pair(bounds.second.first,
+	                                      FrameReference(URI.generic_string(),
+	                                                     bounds.second.first,
+	                                                     bounds.second.second.Add(-1))));
 	Time emptyTime;
 
 	for(const auto & m : movies) {
@@ -561,6 +601,8 @@ void TrackingDataDirectory::SaveToCache() const {
 const TagCloseUp::Lister::Ptr
 TrackingDataDirectory::TagCloseUpLister(tags::Family f,
                                         uint8_t threshold) const {
+	PERF_FUNCTION();
+
 	auto locked = Itself();
 	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
 	                                  f,
@@ -572,10 +614,10 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 
 
 std::map<FrameReference,fs::path>
-TrackingDataDirectory::FullFrames() const {
+TrackingDataDirectory::FullFramesFor(const fs::path & subpath) const {
 	std::map<FrameReference,fs::path> res;
 
-	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / "ants");
+	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / subpath);
 	for(const auto & [FID,fileAndFilter] : listing) {
 		if ( !fileAndFilter.second == true ) {
 			res.insert(std::make_pair(FrameReferenceAt(FID),fileAndFilter.first));
@@ -584,6 +626,48 @@ TrackingDataDirectory::FullFrames() const {
 
 	return res;
 }
+
+void TrackingDataDirectory::ComputeFullFrames() const {
+	auto firstFrame = *begin();
+	int width = firstFrame->Width();
+	int height = firstFrame->Height();
+	const auto & ms = d_movies->Segments();
+	fs::create_directory(AbsoluteFilePath() / "ants/computed");
+	tbb::parallel_for(tbb::blocked_range<size_t>(0,ms.size()),
+	                  [this,
+	                   &ms,
+	                   width,
+	                   height](const tbb::blocked_range<size_t> & range) {
+		                  for ( size_t i = range.begin();
+		                        i != range.end();
+		                        ++i ) {
+			                  cv::VideoCapture capture(ms[i].second->AbsoluteFilePath().c_str());
+			                  cv::Mat frame,scaled;
+			                  capture >> frame;
+			                  cv::resize(frame,scaled,cv::Size(width,height),cv::INTER_CUBIC);
+			                  auto filename = "frame_" + std::to_string(ms[i].second->ToTrackingFrameID(0)) + ".png";
+			                  auto imgPath = AbsoluteFilePath() / "ants/computed" / filename;
+			                  cv::imwrite(imgPath.c_str(),scaled);
+		                  }
+	                  });
+
+
+
+}
+
+std::map<FrameReference,fs::path>
+TrackingDataDirectory::FullFrames() const {
+	return FullFramesFor("ants");
+}
+
+std::map<FrameReference,fs::path>
+TrackingDataDirectory::ComputedFullFrames() const {
+	if ( fs::is_directory(AbsoluteFilePath() / "ants/computed") == false ) {
+		ComputeFullFrames();
+	}
+	return FullFramesFor("ants/computed");
+}
+
 
 std::vector<TagStatisticsHelper::Loader>
 TrackingDataDirectory::StatisticsLoader() const {
