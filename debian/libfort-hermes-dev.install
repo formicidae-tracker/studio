@@ -1,2 +1,3 @@
 usr/lib/libfort-hermes.so
 usr/include/fort/hermes/hermes.h
+usr/lib/pkgconfig/fort-hermes.pc
