@@ -19,7 +19,7 @@ class TrackingVideoWidget : public QWidget {
 
 public:
 	explicit TrackingVideoWidget(QWidget * parent = nullptr);
-	~TrackingVideoWidget();
+	virtual ~TrackingVideoWidget();
 
 
 	void setup(IdentifierBridge *identifier);

@@ -14,7 +14,7 @@ class AntListWidget : public QWidget {
     Q_OBJECT
 public:
 	explicit AntListWidget(QWidget *parent = nullptr);
-    ~AntListWidget();
+    virtual ~AntListWidget();
 
 	void setup(IdentifierBridge *);
 

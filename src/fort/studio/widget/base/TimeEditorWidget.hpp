@@ -22,7 +22,7 @@ class TimeEditorWidget : public QWidget {
 	           NOTIFY timeChanged)
 public:
 	explicit TimeEditorWidget(QWidget *parent = 0);
-	~TimeEditorWidget();
+	virtual ~TimeEditorWidget();
 
 	fm::Time::ConstPtr time() const;
 

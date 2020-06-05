@@ -12,6 +12,9 @@ Circle::Circle(const Eigen::Vector2d & center,
 	, d_radius(radius) {
 }
 
+Circle::~Circle() {
+}
+
 
 bool Circle::Contains(const Eigen::Vector2d & point) const {
 	return (point - d_center).squaredNorm() <= d_radius*d_radius;

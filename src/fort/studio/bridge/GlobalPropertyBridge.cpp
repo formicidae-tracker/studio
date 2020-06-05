@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+GlobalPropertyBridge::~GlobalPropertyBridge() {}
+
 GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
 	: Bridge(parent) {
 }

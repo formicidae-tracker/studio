@@ -57,6 +57,8 @@ ZoneDefinition::ZoneDefinition(const Zone::Ptr & zone,
 	d_end = end;
 }
 
+ZoneDefinition::~ZoneDefinition() {}
+
 const ZoneGeometry::ConstPtr & ZoneDefinition::GetGeometry() const {
 	return d_geometry;
 }
@@ -160,6 +162,8 @@ ZoneGeometry::ConstPtr Zone::AtTime(const Time & t) {
 	}
 	return Geometry::ConstPtr();
 }
+
+Zone::~Zone() {}
 
 Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
 	: d_ZID(ZID)

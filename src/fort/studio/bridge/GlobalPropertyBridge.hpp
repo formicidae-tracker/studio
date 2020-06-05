@@ -31,6 +31,7 @@ class GlobalPropertyBridge : public Bridge {
 
 public:
 	GlobalPropertyBridge(QObject * parent);
+	virtual ~GlobalPropertyBridge();
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 

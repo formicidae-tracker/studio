@@ -15,7 +15,7 @@ class CloneShapeDialog : public QDialog {
 public:
 	explicit CloneShapeDialog(ExperimentBridge * experiment,
 	                          QWidget *parent = 0);
-	~CloneShapeDialog();
+	virtual ~CloneShapeDialog();
 
 	struct CloneOptions {
 		bool OverwriteShapes;

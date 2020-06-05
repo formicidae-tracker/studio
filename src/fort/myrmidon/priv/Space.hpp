@@ -140,6 +140,8 @@ public:
 		TrackingDataDirectoryByURI d_tddsByURI;
 	};
 
+	virtual ~Space();
+
 	const std::string & URI() const override;
 
 	const std::string & Name() const;

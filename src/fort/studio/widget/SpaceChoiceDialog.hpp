@@ -13,7 +13,7 @@ class SpaceChoiceDialog : public QDialog {
 public:
 	explicit SpaceChoiceDialog(UniverseBridge * universe,
 	                           QWidget *parent = nullptr);
-	~SpaceChoiceDialog();
+	virtual ~SpaceChoiceDialog();
 
 	static QString Get(UniverseBridge * universe,
 	                   QWidget * parent);

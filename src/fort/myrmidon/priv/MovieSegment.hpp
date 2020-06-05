@@ -35,6 +35,8 @@ public:
 	             MovieFrameID endMovieID,
 	             const ListOfOffset & offset);
 
+	virtual ~MovieSegment();
+
 	MovieID ID() const;
 
 	FrameID StartFrame() const;

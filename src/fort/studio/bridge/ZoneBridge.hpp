@@ -15,7 +15,7 @@ class ZoneDefinitionBridge : public Bridge {
 public:
 	ZoneDefinitionBridge(const fmp::Zone::ConstPtr & zone,
 	                     const fmp::Zone::Definition::Ptr & ptr);
-
+	virtual ~ZoneDefinitionBridge();
 	bool isActive() const override;
 
 	const fmp::Zone::Geometry & geometry() const;
@@ -36,7 +36,7 @@ class ZoneBridge : public Bridge {
 	Q_OBJECT
 public :
 	ZoneBridge(QObject * parent);
-
+	virtual ~ZoneBridge();
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isActive() const override;

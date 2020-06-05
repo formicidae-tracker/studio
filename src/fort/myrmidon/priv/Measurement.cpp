@@ -38,6 +38,8 @@ Measurement::Measurement(const std::string & parentURI,
 	, d_tagSizePx(tagSizePx) {
 }
 
+Measurement::~Measurement() {}
+
 const std::string & Measurement::URI() const{
 	return d_URI;
 }

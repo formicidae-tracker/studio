@@ -363,6 +363,7 @@ public:
 	// @b the second overlapping identification
 	OverlappingIdentification(const priv::Identification & a,
 	                          const priv::Identification & b) noexcept;
+	virtual ~OverlappingIdentification();
 private:
 	static std::string Reason(const priv::Identification & a,
 	                          const priv::Identification & b) noexcept;

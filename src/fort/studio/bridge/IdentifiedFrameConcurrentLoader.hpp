@@ -18,7 +18,7 @@ class IdentifiedFrameConcurrentLoader : public QObject {
 	           NOTIFY done)
 public:
 	explicit IdentifiedFrameConcurrentLoader(QObject * parent = nullptr);
-	~IdentifiedFrameConcurrentLoader();
+	virtual ~IdentifiedFrameConcurrentLoader();
 
 	bool isDone() const;
 

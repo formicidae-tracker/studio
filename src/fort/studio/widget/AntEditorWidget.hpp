@@ -21,7 +21,7 @@ class AntEditorWidget : public QWidget, public Navigatable {
 	Q_OBJECT
 public:
 	explicit AntEditorWidget(QWidget *parent = 0);
-	~AntEditorWidget();
+	virtual ~AntEditorWidget();
 
 	void setup(ExperimentBridge * experiment);
 

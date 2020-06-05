@@ -13,7 +13,7 @@ class AntShapeTypeEditorWidget : public QWidget {
 
 public:
 	explicit AntShapeTypeEditorWidget(QWidget *parent = 0);
-	~AntShapeTypeEditorWidget();
+	virtual ~AntShapeTypeEditorWidget();
 
 	void setup(AntShapeTypeBridge * shapeTypes);
 

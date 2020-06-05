@@ -22,7 +22,7 @@ class ExperimentBridge : public Bridge {
 public:
 
 	ExperimentBridge(QObject * parent = NULL);
-
+	virtual ~ExperimentBridge();
 	const fs::path & absoluteFilePath() const;
 
 	bool isActive() const override;

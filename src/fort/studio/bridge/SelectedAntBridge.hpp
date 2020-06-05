@@ -16,7 +16,7 @@ class SelectedAntBridge : public Bridge {
 	Q_OBJECT
 public:
 	SelectedAntBridge(IdentifierBridge * parent);
-
+	virtual ~SelectedAntBridge();
 	bool isActive() const override;
 
 	void setExperiment(const fmp::ExperimentPtr & experiment);

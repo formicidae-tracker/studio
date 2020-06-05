@@ -15,7 +15,7 @@ class UniverseEditorWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit UniverseEditorWidget(QWidget *parent = 0);
-	~UniverseEditorWidget();
+	virtual ~UniverseEditorWidget();
 
 	void setup(UniverseBridge * universe);
 

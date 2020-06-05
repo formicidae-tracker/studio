@@ -12,7 +12,7 @@ class ZonesEditorWidget : public QWidget {
 	Q_OBJECT
 public:
 	explicit ZonesEditorWidget(QWidget *parent = 0);
-	~ZonesEditorWidget();
+	virtual ~ZonesEditorWidget();
 
 	void setup(ZoneBridge * zones);
 

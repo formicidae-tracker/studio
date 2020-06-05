@@ -18,7 +18,7 @@ class ZoningWidget : public QWidget , public Navigatable{
 	Q_OBJECT
 public:
 	explicit ZoningWidget(QWidget *parent = 0);
-	~ZoningWidget();
+	virtual ~ZoningWidget();
 
 	void setup(ExperimentBridge * experiment);
 

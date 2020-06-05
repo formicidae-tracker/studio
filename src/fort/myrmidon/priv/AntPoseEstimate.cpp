@@ -46,6 +46,8 @@ AntPoseEstimate::AntPoseEstimate(const FrameReference & reference,
 	d_y = center.y();
 }
 
+AntPoseEstimate::~AntPoseEstimate() {}
+
 const std::string & AntPoseEstimate::URI() const {
 	return d_URI;
 }

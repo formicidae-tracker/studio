@@ -11,7 +11,6 @@ Capsule::Capsule()
 	, d_r1(0)
 	, d_r2(0) {
 }
-
 Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,
@@ -22,6 +21,9 @@ Capsule::Capsule(const Eigen::Vector2d & c1,
 	, d_r1(r1)
 	, d_r2(r2) {
 }
+
+Capsule::~Capsule() {}
+
 
 template <typename T>
 inline T clamp(T value, T lower, T upper) {
