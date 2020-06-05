@@ -32,7 +32,11 @@ return values.
     <type documented="46" name="field" undocumented="0" />
     <type documented="24" name="constructor" undocumented="0" />
     <type documented="8" name="variable" undocumented="0" />
-    <type documented="5" name="destructor" undocumented="0" />
+    <type documented="5" name="destructor" undocumented="1">
+      <undocumented id="fort::myrmidon::OverlappingIdentification::~OverlappingIdentification" name="~OverlappingIdentification">
+        <location column="2" file="src/fort/myrmidon/Identification.hpp" line="366" />
+      </undocumented>
+    </type>
     <type documented="34" name="class" undocumented="0" />
     <type documented="18" name="enumvalue" undocumented="0" />
   </coverage>

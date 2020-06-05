@@ -20,4 +20,5 @@ exception.</doc>
       <type name="priv::Identification" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
     </argument>
   </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::OverlappingIdentification::~OverlappingIdentification" name="~OverlappingIdentification" virtual="yes" />
 </class>
