@@ -1,8 +1,10 @@
-fort-studio (0.4.0-0ubuntu1~bionic1) bionic; urgency=medium
+fort-studio (0.4.1-0ubuntu1) focal; urgency=medium
 
-  * Backport from focal to bionic
+  * New upstream release v0.4.1
+  * Adds missing dev dependencies on libfort-tags-dev, libapriltag-dev
+    and lifort-hermes-cpp-dev
 
- -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Fri, 05 Jun 2020 14:43:24 +0200
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Sat, 06 Jun 2020 13:42:40 +0200
 
 fort-studio (0.4.0-0ubuntu1) focal; urgency=medium
 

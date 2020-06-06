@@ -8,7 +8,7 @@ endif(USE_CXX17_FS_LIBRARY)
 if(${OpenCV_VERSION} VERSION_GREATER_EQUAL "4.0.0")
 	set(OPENCV_PKG_REQUIRE opencv4)
 else(${OpenCV_VERSION} VERSION_GREATER_EQUAL "4.0.0")
-	set(OPENCV_PKG_REQUIRE opencv3)
+	set(OPENCV_PKG_REQUIRE opencv)
 endif(${OpenCV_VERSION} VERSION_GREATER_EQUAL "4.0.0")
 
 configure_file(${PKG_FILE} fort-myrmidon.pc @ONLY)
