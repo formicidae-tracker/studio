@@ -39,7 +39,8 @@ Description: visual fiducial system for robotics - runtime
 Package: libfort-tags-dev
 Section: libdevel
 Architecture: any
-Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends}
+Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends},
+ libapriltag-dev
 Description: fiducial markers for the FORmicidae Tracker - dev files
  Actual fiducial markers (tags) used for the FORmicidae Tracker
  project (https://github.com/formicidae-tracker/)
@@ -103,7 +104,8 @@ Description: Tracking data IO for the FORmicidae Tracker - c runtime
 Package: libfort-myrmidon-dev
 Section: libdevel
 Architecture: any
-Depends: libfort-myrmidon0.4 (= ${binary:Version}), ${misc:Depends}
+Depends: libfort-myrmidon0.4 (= ${binary:Version}), ${misc:Depends},
+ libfort-tags-dev, libfort-hermes-cpp-dev
 Description: Experiment data API for the FORmicidae Tracker - dev files
  This library provides an API to access and edit experimental data for
  the FORmicidae Tracker project.
