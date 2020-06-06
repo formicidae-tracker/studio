@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Palette" interface="true" name="Palette" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>A collection of colors for visualization</brief>
+  <doc>A Palette defines a collection of <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref>.
+
+The <ref ref="fort::myrmidon::Palette#fort::myrmidon::Palette::Default">Default</ref> palette contains 7 color-blind friendly color.</doc>
+  <method abstract="yes" id="fort::myrmidon::Palette::At" name="At" virtual="yes">
+    <brief>Gets the color for given index.</brief>
+    <return>
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> at <ref ref="fort::myrmidon::Palette#fort::myrmidon::Palette::At::index">index</ref></doc>
+      <type name="Color" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Color" />
+    </return>
+    <argument id="fort::myrmidon::Palette::At::index" name="index">
+      <doc>the index in [0;<ref ref="fort::myrmidon::Palette#fort::myrmidon::Palette::Size">fort::myrmidon::Palette::Size</ref>[</doc>
+      <type name="size_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Palette::Default" name="Default" static="yes">
+    <brief>A color-blind friendly palette</brief>
+    <return>
+      <doc>a Palette with 7 color-blind friendly <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref></doc>
+      <type name="Palette" qualifier=" const &amp;" ref="fort::myrmidon::Palette#fort::myrmidon::Palette" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Palette::Size" name="Size" virtual="yes">
+    <brief>The size of the Palette</brief>
+    <return>
+      <doc>the number of <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> in the Palette.</doc>
+      <type name="size_t" />
+    </return>
+  </method>
+</class>

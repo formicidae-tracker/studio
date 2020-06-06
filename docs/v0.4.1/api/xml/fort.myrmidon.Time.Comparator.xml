@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::Time::Comparator" name="Comparator" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <method id="fort::myrmidon::Time::Comparator::operator()" name="operator()">
+    <return>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::Comparator::operator()::a" name="a">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+    <argument id="fort::myrmidon::Time::Comparator::operator()::b" name="b">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+</class>

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::AntInteraction" name="AntInteraction" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines an interaction between two Ants</brief>
+  <field id="fort::myrmidon::AntInteraction::IDs" name="IDs">
+    <brief>The IDs of the two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>.</brief>
+    <doc>The ID of the two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Always reports `IDs.first &lt;
+IDs.second`.</doc>
+    <type name="InteractionID" ref="fort::myrmidon#fort::myrmidon::InteractionID" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Types" name="Types">
+    <brief>Virtual shape body part that were in contact.</brief>
+    <doc>Virtual shape body part that were in contact during the
+interaction.</doc>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="InteractionType" ref="fort::myrmidon#fort::myrmidon::InteractionType" />
+      </template-arguments>
+    </type>
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Trajectories" name="Trajectories">
+    <brief>Reports the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> of each Ant.</brief>
+    <doc>Reports the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> of each Ant during the
+interaction. The Trajectory are truncated to the interaction
+timing.</doc>
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+        <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+      </template-arguments>
+    </type>
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Start" name="Start">
+    <brief>Reports the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the interaction starts</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::End" name="End">
+    <brief>Reports the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the interaction ends</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <typedef id="fort::myrmidon::AntInteraction::ConstPtr" name="ConstPtr">
+    <brief>A pointer to the interaction structure</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="AntInteraction" qualifier=" const" ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction" />
+      </template-arguments>
+    </type>
+  </typedef>
+</struct>

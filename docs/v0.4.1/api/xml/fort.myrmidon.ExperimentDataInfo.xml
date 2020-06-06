@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::ExperimentDataInfo" name="ExperimentDataInfo" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Reports global tracking data stats for an <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>
+  </brief>
+  <field id="fort::myrmidon::ExperimentDataInfo::Frames" name="Frames">
+    <brief>The number of tracked frame in the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>
+    </brief>
+    <type name="uint64_t" />
+  </field>
+  <field id="fort::myrmidon::ExperimentDataInfo::Start" name="Start">
+    <brief>The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> of the first tracked frame</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::ExperimentDataInfo::End" name="End">
+    <brief>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> of the last tracked frame</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::ExperimentDataInfo::Spaces" name="Spaces">
+    <brief>Data infos for all <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type class="template" name="std::map">
+      <template-arguments>
+        <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
+        <type name="SpaceDataInfo" ref="fort::myrmidon::SpaceDataInfo#fort::myrmidon::SpaceDataInfo" />
+      </template-arguments>
+    </type>
+  </field>
+</struct>
