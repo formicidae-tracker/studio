@@ -39,7 +39,7 @@ func Execute() error {
 		return fmt.Errorf("Missing file to fix")
 	}
 
-	fixers := []Fixer{}
+	fixers := []Fixer{FixMeasurement}
 
 	if opts.Verbose == true {
 		fixers = append([]Fixer{PrintLine}, fixers...)
@@ -82,7 +82,7 @@ func Execute() error {
 			keepIt, err := f(&l)
 			if err != nil {
 				good = false
-				log.Printf("Got error on line %d: %s", err)
+				log.Printf("Got error on line %d: %s", line, err)
 			}
 			if keepIt == false {
 				keep = false
