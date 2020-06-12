@@ -1,4 +1,4 @@
-module github.com/formicidae-tracker/studio/bindings/go/fort_mymidon_pb
+module github.com/formicidae-tracker/studio/bindings/go/fort_myrmidon_pb
 
 go 1.14
 
