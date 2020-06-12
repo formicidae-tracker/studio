@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	fmpb "../../bindings/go/fort_myrmidon_pb"
+	fmpb "github.com/formicidae-tracker/studio/bindings/go/fort_myrmidon_pb"
 )
 
 func FixMeasurement(l *fmpb.FileLine) (bool, error) {

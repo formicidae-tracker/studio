@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	fmpb "../../bindings/go/fort_myrmidon_pb"
+	fmpb "github.com/formicidae-tracker/studio/bindings/go/fort_myrmidon_pb"
 	"github.com/golang/protobuf/proto"
 	"github.com/jessevdk/go-flags"
 )

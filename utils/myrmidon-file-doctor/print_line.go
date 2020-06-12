@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	fmpb "../../bindings/go/fort_myrmidon_pb"
+	fmpb "github.com/formicidae-tracker/studio/bindings/go/fort_myrmidon_pb"
 )
 
 func PrintExperiment(e *fmpb.Experiment) {
