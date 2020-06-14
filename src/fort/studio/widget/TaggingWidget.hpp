@@ -69,6 +69,7 @@ private slots:
 
 private:
 	void selectRow(int tagRow, int tcuRow);
+	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::TaggingWidget     * d_ui;
 	QSortFilterProxyModel * d_sortedModel;

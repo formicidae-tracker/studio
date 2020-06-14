@@ -76,6 +76,11 @@ QPointF Vector::endPos() const {
 	return d_end->pos();
 }
 
+void Vector::setStartPos(const QPointF & pos) {
+	d_start->setPos(pos);
+	rebuild();
+}
+
 void Vector::setEndPos(const QPointF & pos) {
 	d_end->setPos(pos);
 	rebuild();

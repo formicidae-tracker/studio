@@ -79,7 +79,7 @@ public slots:
 
 	void loadTagCloseUp();
 
-	void setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
+	bool setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                    fmp::MeasurementType::ID MTID,
 	                    QPointF start,
 	                    QPointF end);
