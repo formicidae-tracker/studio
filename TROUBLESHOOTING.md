@@ -33,4 +33,4 @@ with SSL support as they did not found libssl-dev when they were first
 built. It is a common R issue.
 
 You will need to install `libssl-dev` and reinstall and reload the
-package `git2r` to enable https support.
+package `git2r` in R to enable https support.
