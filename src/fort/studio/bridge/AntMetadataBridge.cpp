@@ -630,7 +630,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 			         << item->data(Qt::UserRole+3).toString()
 			         << " to " << item->text();
 			ant->DeleteValue(name,time);
-			ant->SetValue(name,value,newTime);
+			ant->SetValue(name,value,newTime,true);
 			qInfo() << "Changed timed change " << nameItem->text()
 			        << " from " << item->data(Qt::UserRole+3).toString()
 			        << " to " << item->text();
