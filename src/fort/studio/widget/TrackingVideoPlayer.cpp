@@ -138,7 +138,7 @@ void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
 		d_start = start;
 		d_duration = d_interval * d_task->numberOfFrame();
 		emit durationChanged(start,d_duration,d_task->fps());
-		d_timer->setInterval(d_interval.Milliseconds() / computeRate(d_rate));
+		d_timer->setInterval(d_interval.Milliseconds() / d_rate * computeRate(d_rate));
 		d_position = 0;
 		emit positionChanged(d_position);
 		setSeekReady(false);
@@ -191,7 +191,7 @@ void TrackingVideoPlayer::setPlaybackRate(qreal rate) {
 	d_rate = rate;
 	auto pRate = computeRate(d_rate);
 	if ( d_interval.Nanoseconds() != 0 ) {
-		d_timer->setInterval(d_interval.Milliseconds() / pRate);
+		d_timer->setInterval(d_interval.Milliseconds() / d_rate * pRate);
 	}
 	if ( d_task != nullptr ) {
 		d_task->setRate(pRate);

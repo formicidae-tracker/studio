@@ -108,7 +108,7 @@ private slots:
 
 	void setSeekReady(bool value);
 private:
-	const static size_t BUFFER_SIZE = 3;
+	const static size_t BUFFER_SIZE = 9;
 
 	void sendToProcess(TrackingVideoFrame frame);
 
