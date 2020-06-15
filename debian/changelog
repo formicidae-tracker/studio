@@ -1,3 +1,9 @@
+fort-studio (0.4.2-0ubuntu1) focal; urgency=medium
+
+  * New upstream release v0.4.2
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Mon, 15 Jun 2020 20:37:10 +0200
+
 fort-studio (0.4.1-0ubuntu1) focal; urgency=medium
 
   * New upstream release v0.4.1
