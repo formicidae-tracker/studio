@@ -413,8 +413,11 @@ void TrackingVideoPlayer::jumpPrevFrame() {
 	if ( d_rate != 1.0 ) {
 		setPlaybackRate(1.0);
 	}
-
+#if CV_MAJOR_VERSION == 4
 	setPosition(d_position - fm::Duration::Millisecond);
+#else
+	setPosition(d_position - d_interval);
+#endif
 }
 
 void TrackingVideoPlayer::skipDuration(fm::Duration duration) {
@@ -489,7 +492,6 @@ TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
 	if ( d_capture.isOpened() == false ) {
 		throw std::runtime_error("Could not open '" + segment->AbsoluteFilePath().string() + "'");
 	}
-
 	d_width = d_capture.get(cv::CAP_PROP_FRAME_WIDTH);
 	d_height = d_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
 	d_expectedFrameDuration = double(fm::Duration::Second.Nanoseconds()) / d_capture.get(cv::CAP_PROP_FPS);
