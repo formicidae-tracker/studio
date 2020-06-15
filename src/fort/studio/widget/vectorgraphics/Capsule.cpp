@@ -90,6 +90,7 @@ QPointF Capsule::c2Pos() const {
 	return d_c2->pos();
 }
 
+
 void Capsule::setC2AndRadiusFromPos(const QPointF & pos) {
 	auto c1 = ToEigen(d_c1->pos());
 	auto c2 = ToEigen(pos);
@@ -136,7 +137,6 @@ void Capsule::paint(QPainter * painter,
 
 }
 
-
 void Capsule::updateCenter(Handle * center) {
 	Handle * other = nullptr;
 	if ( center == d_c1 ) {
@@ -147,10 +147,12 @@ void Capsule::updateCenter(Handle * center) {
 		//likely an internal logic error, we won't do anything
 		return;
 	}
+
 	Eigen::Vector2d CC = ToEigen(center->pos()) - ToEigen(other->pos());
 	double distance = CC.norm();
 	if ( distance < MIN_DISTANCE ) {
-		auto newPos = ToEigen(other->pos()) + MIN_DISTANCE / distance * CC;
+		auto newPos = ToEigen(other->pos());
+		newPos +=  (MIN_DISTANCE / distance) * CC;
 		center->setPos(newPos.x(),newPos.y());
 		distance = MIN_DISTANCE;
 	}
