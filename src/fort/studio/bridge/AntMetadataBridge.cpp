@@ -414,7 +414,7 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 
 void AntMetadataBridge::selectRow(int row) {
 	d_timedChangeModel->clear();
-	d_timedChangeModel->setHorizontalHeaderLabels({tr("Column Name"),tr("Date"),tr("Value")});
+	d_timedChangeModel->setHorizontalHeaderLabels({tr("Column Name"),tr("From Date"),tr("Target Value")});
 
 	if ( !d_experiment || row < 0 || row > d_dataModel->rowCount() ) {
 		setSelectedAntID(0);
