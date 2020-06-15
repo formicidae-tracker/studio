@@ -298,12 +298,12 @@ void MeasurementBridge::clearAllTCUs() {
 	d_counts.clear();
 }
 
-void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
+bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
                                        fmp::MeasurementType::ID MTID,
                                        QPointF start,
                                        QPointF end) {
 	if ( !d_experiment ) {
-		return;
+		return false;
 	}
 
 	auto tddURI = tcu->Frame().ParentURI();
@@ -313,7 +313,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	     || fi == d_closeups.end()
 	     || fi->second.count(tcu->URI()) == 0 ) {
 		qWarning() << "Not setting measurement: unknown '" << tcu->URI().c_str() << "'";
-		return;
+		return false;
 	}
 
 	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
@@ -331,7 +331,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	} catch (const std::exception & e ) {
 		qCritical() << "Could not set measurement '"
 		            << m->URI().c_str() << "': " << e.what();
-		return;
+		return false;
 	}
 
 
@@ -340,6 +340,7 @@ void MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 
 	setModified(true);
 	emit measurementModified(m);
+	return true;
 }
 
 void MeasurementBridge::deleteMeasurement(const std::string & mURI) {

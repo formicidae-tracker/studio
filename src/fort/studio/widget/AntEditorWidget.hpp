@@ -105,6 +105,9 @@ private:
 
 	void updateCloneAction();
 
+
+	void setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID);
+
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
 	Ui::AntEditorWidget       * d_ui;

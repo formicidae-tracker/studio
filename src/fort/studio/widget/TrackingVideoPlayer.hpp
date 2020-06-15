@@ -92,7 +92,7 @@ public slots:
 signals:
 	void seekReady(bool ready);
 
-	void durationChanged(fm::Time start,fm::Duration duration);
+	void durationChanged(fm::Time start,fm::Duration duration,double fps);
 	void positionChanged(fm::Duration duration);
 
 	void playbackRateChanged(qreal rate);
@@ -109,6 +109,7 @@ private slots:
 	void setSeekReady(bool value);
 private:
 	const static size_t BUFFER_SIZE = 3;
+
 	void sendToProcess(TrackingVideoFrame frame);
 
 	void stopTask();
@@ -116,6 +117,8 @@ private:
 	                   const fmp::TrackingDataDirectory::ConstPtr & tdd);
 
 	void displayVideoFrameImpl(const TrackingVideoFrame & frame);
+
+	static size_t computeRate(double rate);
 
 	TrackingVideoPlayerTask             * d_task;
 	IdentifiedFrameConcurrentLoader     * d_loader;
@@ -146,6 +149,7 @@ Q_OBJECT
 public:
 	explicit TrackingVideoPlayerTask(size_t taskID,
 	                                 const fmp::MovieSegment::ConstPtr & segment,
+	                                 size_t rate,
 	                                 IdentifiedFrameConcurrentLoader * loader);
 
 	virtual ~TrackingVideoPlayerTask();
@@ -162,6 +166,8 @@ public:
 
 	void seek(size_t seekID, fm::Duration);
 
+	void setRate(size_t rate);
+
 signals:
 	void newFrame(size_t taskID, size_t seekID, TrackingVideoFrame frame);
 
@@ -173,10 +179,13 @@ private slots:
 	void startLoadingFromUnsafe(quint32 spaceID,
 	                            fmp::TrackingDataDirectory::ConstPtr tdd);
 
+	void setRateUnsafe(size_t rate);
+
 private:
 	fmp::MovieSegment::ConstPtr       d_segment;
 	cv::VideoCapture                  d_capture;
 	IdentifiedFrameConcurrentLoader * d_loader;
 	int                               d_width,d_height;
-	size_t                            d_taskID,d_seekID;
+	size_t                            d_taskID,d_seekID,d_rate;
+	fm::Duration                      d_expectedFrameDuration;
 };

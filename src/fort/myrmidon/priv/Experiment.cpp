@@ -324,17 +324,33 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 
 	auto ref = fi->second->FrameReferenceAt(FID);
 
+	Measurement::ConstPtr oldM;
+	try {
+		oldM = d_measurementByURI.at(m->TagCloseUpURI()).at(m->Type());
+	} catch ( const std::exception & e) {
+
+	}
+
 	d_measurementByURI[m->TagCloseUpURI()][m->Type()] = m;
 	d_measurements[m->Type()][TID][tddURI][ref.Time()] = m;
 
 	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
 		return;
 	}
-
-	d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
-	                                                                   TID,
-	                                                                   m->EndFromTag(),
-	                                                                   m->StartFromTag()));
+	try {
+		d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
+		                                                                   TID,
+		                                                                   m->EndFromTag(),
+		                                                                   m->StartFromTag()));
+	} catch ( const std::exception & e) {
+		if ( oldM ) {
+			d_measurementByURI[m->TagCloseUpURI()][m->Type()] = oldM;
+			d_measurements[m->Type()][TID][tddURI][ref.Time()] = oldM;
+		} else {
+			DeleteMeasurement(m->URI());
+		}
+		throw;
+	}
 }
 
 void Experiment::DeleteMeasurement(const std::string & URI) {
