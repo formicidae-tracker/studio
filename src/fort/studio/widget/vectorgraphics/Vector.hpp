@@ -26,6 +26,7 @@ public:
 
 	QPointF endPos() const;
 
+	void setStartPos(const QPointF & pos);
 	void setEndPos(const QPointF & pos);
 
 protected:

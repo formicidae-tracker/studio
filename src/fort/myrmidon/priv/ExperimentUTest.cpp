@@ -451,6 +451,84 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 }
 
+TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
+	TrackingDataDirectory::ConstPtr foo0;
+	Space::Ptr s;
+	ASSERT_NO_THROW({
+			e = Experiment::NewFile(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");
+			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
+			s = e->CreateSpace("box");
+			s->AddTrackingDataDirectory(foo0);
+			e->SetFamily(tags::Family::Tag36ARTag);
+			e->SetDefaultTagSize(1.0);
+		});
+
+	auto ant = e->CreateAnt();
+	auto ident = Identifier::AddIdentification(e->Identifier(),
+	                                           ant->AntID(),
+	                                           1,
+	                                           Time::ConstPtr(),
+	                                           Time::ConstPtr());
+
+
+	auto tcuPath = fs::path(foo0->URI())
+			/ "frames"
+			/ std::to_string(foo0->StartFrame() + 42)
+			/ "closeups"
+			/ std::to_string(1);
+	// this measurement is subpixel value, it should throw an exception when set to an experiment
+	auto m = std::make_shared<Measurement>(tcuPath.generic_string(),
+	                                       1,
+	                                       Eigen::Vector2d(0.5,0),
+	                                       Eigen::Vector2d(0,0),
+	                                       1.0);
+	ComputedMeasurement::List lengths;
+	ASSERT_NO_THROW({
+			e->ComputeMeasurementsForAnt(lengths,1,1);
+		});
+	ASSERT_EQ(lengths.size(),0);
+	EXPECT_THROW({
+			e->SetMeasurement(m);
+		},std::invalid_argument);
+	ASSERT_NO_THROW({
+			e->ComputeMeasurementsForAnt(lengths,1,1);
+		});
+	// measurement should not have been stored as it fails
+	EXPECT_EQ(lengths.size(),0);
+
+	m = std::make_shared<Measurement>(tcuPath.generic_string(),
+	                                  1,
+	                                  Eigen::Vector2d(20,0),
+	                                  Eigen::Vector2d(0,0),
+	                                  1.0);
+	ASSERT_NO_THROW({
+			e->SetMeasurement(m);
+		});
+	ASSERT_NO_THROW({
+			e->ComputeMeasurementsForAnt(lengths,1,1);
+		});
+	ASSERT_EQ(lengths.size(),1);
+	auto antPosition = ident->AntPosition();
+	auto antAngle = ident->AntAngle();
+
+	m = std::make_shared<Measurement>(tcuPath.generic_string(),
+	                                  1,
+	                                  Eigen::Vector2d(0.5,0),
+	                                  Eigen::Vector2d(0,0),
+	                                  1.0);
+	EXPECT_THROW({
+			e->SetMeasurement(m);
+		},std::invalid_argument);
+	ASSERT_NO_THROW({
+			e->ComputeMeasurementsForAnt(lengths,1,1);
+		});
+	// old measurment should have been kept;
+	EXPECT_EQ(lengths.size(),1);
+	EXPECT_EQ(antPosition,ident->AntPosition());
+	EXPECT_EQ(antAngle,ident->AntAngle());
+}
+
+
 TEST_F(ExperimentUTest,CornerWidthRatioForFamilies) {
 	struct TestData {
 		tags::Family F;

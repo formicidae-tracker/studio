@@ -59,13 +59,13 @@ VectorialScene::VectorialScene(QObject * parent)
 					auto pos = e->scenePos();
 					vector->setEndPos(pos);
 					d_vectors.push_back(vector);
-					emit vectorCreated(vector);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
 						this->d_mouseMove = this->d_editMoveEH;
 						this->d_mouseRelease = this->d_editReleaseEH;
 					}
+					emit vectorCreated(vector);
 				};
 		};
 
@@ -90,13 +90,13 @@ VectorialScene::VectorialScene(QObject * parent)
 					auto pos = e->scenePos();
 					capsule->setC2AndRadiusFromPos(pos);
 					d_capsules.push_back(capsule);
-					emit capsuleCreated(capsule);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
 						d_mouseMove = d_editMoveEH;
 						d_mouseRelease = d_editReleaseEH;
 					}
+					emit capsuleCreated(capsule);
 				};
 		};
 
@@ -121,13 +121,13 @@ VectorialScene::VectorialScene(QObject * parent)
 					auto pos = e->scenePos();
 					circle->setRadiusFromPos(pos);
 					d_circles.push_back(circle);
-					emit circleCreated(circle);
 					if ( d_once == true ) {
 						setMode(Mode::Edit);
 					} else {
 						d_mouseMove = d_editMoveEH;
 						d_mouseRelease = d_editReleaseEH;
 					}
+					emit circleCreated(circle);
 				};
 		};
 
@@ -151,12 +151,12 @@ VectorialScene::VectorialScene(QObject * parent)
 					         || ( e->button() == Qt::LeftButton && dist < Handle::SIZE) ) ) {
 						polygon->close();
 						d_polygons.push_back(polygon);
-						emit polygonCreated(polygon);
 						if ( d_once == true ) {
 							setMode(Mode::Edit);
 						} else {
 							d_mousePress = d_insertPolygonPressEH;
 						}
+						emit polygonCreated(polygon);
 						return;
 					}
 					if ( e->button() != Qt::LeftButton ) {

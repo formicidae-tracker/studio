@@ -509,10 +509,7 @@ void AntEditorWidget::onVectorUpdated() {
 		qDebug() << "[AntEditorWidget]: could not find back sender";
 		return;
 	}
-	d_experiment->measurements()->setMeasurement(d_tcu,
-	                                             fi->first,
-	                                             fi->second->startPos(),
-	                                             fi->second->endPos());
+	setMeasurement(fi->second,fi->first);
 }
 
 void AntEditorWidget::onVectorCreated(QSharedPointer<Vector> vector) {
@@ -534,15 +531,16 @@ void AntEditorWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 		return;
 	}
 
-	d_experiment->measurements()->setMeasurement(d_tcu,
-	                                             measurementType->MTID(),
-	                                             vector->startPos(),
-	                                             vector->endPos());
+	if ( d_experiment->measurements()->setMeasurement(d_tcu,
+	                                                  measurementType->MTID(),
+	                                                  vector->startPos(),
+	                                                  vector->endPos()) == false ) {
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		return;
+	}
 
-	connect(vector.data(),
-	        &Shape::updated,
-	        this,
-	        &AntEditorWidget::onVectorUpdated);
+	connect(vector.data(),&Shape::updated,
+	        this,&AntEditorWidget::onVectorUpdated);
 
 	d_vectors.insert(std::make_pair(measurementType->MTID(),vector));
 }
@@ -688,6 +686,27 @@ void AntEditorWidget::clearScene() {
 }
 
 
+void AntEditorWidget::setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID) {
+	if ( !d_experiment || !d_tcu ) {
+		return;
+	}
+
+	d_experiment->measurements()->setMeasurement(d_tcu,
+	                                             mtID,
+	                                             vector->startPos(),
+	                                             vector->endPos());
+	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),mtID);
+	if ( !m ) {
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+	} else {
+		fmp::Isometry2Dd tagToOrig(d_tcu->TagAngle(),d_tcu->TagPosition());
+		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
+		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
+		vector->setStartPos(QPointF(start.x(),start.y()));
+		vector->setEndPos(QPointF(end.x(),end.y()));
+	}
+}
+
 void AntEditorWidget::changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID) {
 	auto fi = findVector(vector);
 	if ( !d_tcu
@@ -702,10 +721,7 @@ void AntEditorWidget::changeVectorType(Vector * vector,fmp::MeasurementTypeID mt
 	}
 	d_vectors.insert(std::make_pair(mtID,fi->second));
 	fi->second->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(mtID)));
-	d_experiment->measurements()->setMeasurement(d_tcu,
-	                                             mtID,
-	                                             fi->second->startPos(),
-	                                             fi->second->endPos());
+	setMeasurement(fi->second,mtID);
 	d_vectorialScene->update();
 	d_vectors.erase(fi);
 }

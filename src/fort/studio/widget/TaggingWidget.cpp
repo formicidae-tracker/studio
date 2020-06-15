@@ -392,30 +392,41 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 		onIdentificationAntPositionChanged(ident);
 	}
 
+	setGraphicsFromMeasurement(tcu);
+	d_tcu = tcu;
+	updateActionStates();
+}
 
+
+void TaggingWidget::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu) {
 	auto m = d_measurements->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		d_vectorialScene->setOnce(true);
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
+		d_vectorialScene->clearVectors();
 	} else {
 		fmp::Isometry2Dd tagToOrig(tcu->TagAngle(),tcu->TagPosition());
 		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
 		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
 
-		auto vector = d_vectorialScene->appendVector(QPointF(start.x(),
-		                                                     start.y()),
-		                                             QPointF(end.x(),
-		                                                     end.y()));
-		connect(vector.data(),
-		        &Shape::updated,
-		        this,
-		        &TaggingWidget::onVectorUpdated);
+		QSharedPointer<Vector> vector;
+		if ( d_vectorialScene->vectors().isEmpty() ) {
+			vector = d_vectorialScene->appendVector(QPointF(start.x(),
+			                                                start.y()),
+			                                        QPointF(end.x(),
+			                                                end.y()));
+			connect(vector.data(),
+			        &Shape::updated,
+			        this,
+			        &TaggingWidget::onVectorUpdated);
+
+		} else {
+			vector = d_vectorialScene->vectors()[0];
+		}
+
 
 		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 	}
-
-	d_tcu = tcu;
-	updateActionStates();
 }
 
 
@@ -429,12 +440,14 @@ void TaggingWidget::onVectorUpdated() {
 		return;
 	}
 	auto vector = d_vectorialScene->vectors()[0];
-	auto imageToTag = d_tcu->ImageToTag();
 
 	d_measurements->setMeasurement(d_tcu,
 	                               fmp::Measurement::HEAD_TAIL_TYPE,
 	                               vector->startPos(),
 	                               vector->endPos());
+
+	setGraphicsFromMeasurement(d_tcu);
+
 	updateActionStates();
 }
 
@@ -443,10 +456,17 @@ void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 		qDebug() << "[TaggingWidget]: Vector created without TCU";
 		return;
 	}
-	d_measurements->setMeasurement(d_tcu,
-	                               fmp::Measurement::HEAD_TAIL_TYPE,
-	                               vector->startPos(),
-	                               vector->endPos());
+
+	if ( d_measurements->setMeasurement(d_tcu,
+	                                    fmp::Measurement::HEAD_TAIL_TYPE,
+	                                    vector->startPos(),
+	                                    vector->endPos()) == false ) {
+
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
+		updateActionStates();
+		return;
+	};
 
 	connect(vector.data(),
 	        &Shape::updated,

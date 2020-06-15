@@ -414,7 +414,7 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 
 void AntMetadataBridge::selectRow(int row) {
 	d_timedChangeModel->clear();
-	d_timedChangeModel->setHorizontalHeaderLabels({tr("Column Name"),tr("Date"),tr("Value")});
+	d_timedChangeModel->setHorizontalHeaderLabels({tr("Column Name"),tr("From Date"),tr("Target Value")});
 
 	if ( !d_experiment || row < 0 || row > d_dataModel->rowCount() ) {
 		setSelectedAntID(0);
@@ -630,7 +630,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 			         << item->data(Qt::UserRole+3).toString()
 			         << " to " << item->text();
 			ant->DeleteValue(name,time);
-			ant->SetValue(name,value,newTime);
+			ant->SetValue(name,value,newTime,true);
 			qInfo() << "Changed timed change " << nameItem->text()
 			        << " from " << item->data(Qt::UserRole+3).toString()
 			        << " to " << item->text();

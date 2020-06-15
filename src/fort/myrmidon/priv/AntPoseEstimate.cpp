@@ -40,7 +40,6 @@ AntPoseEstimate::AntPoseEstimate(const FrameReference & reference,
 		throw std::invalid_argument("Too small difference between head and tail position ("
 		                            + std::to_string(diff.norm()) + " pixels)");
 	}
-
 	d_angle = std::atan2(diff.y(),diff.x());
 	d_x = center.x();
 	d_y = center.y();

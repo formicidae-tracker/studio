@@ -18,6 +18,8 @@ TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	d_ui->comboBox->addItem("x 2.00",2.0);
 	d_ui->comboBox->addItem("x 4.00",4.0);
 	d_ui->comboBox->addItem("x 8.00",8.0);
+	d_ui->comboBox->addItem("x 16.00",16.0);
+	d_ui->comboBox->addItem("x 32.00",32.0);
 
 }
 
@@ -60,6 +62,9 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 	        d_ui->positionSlider,
 	        &QWidget::setEnabled);
 	d_ui->positionSlider->setEnabled(d_player->isSeekReady());
+
+	connect(d_player,&TrackingVideoPlayer::playbackRateChanged,
+	        this,&TrackingVideoControl::onPlayerPlaybackRateChanged);
 
 	onPlayerPlaybackRateChanged(d_player->playbackRate());
 	d_identifier = identifier;
@@ -120,9 +125,11 @@ void TrackingVideoControl::onPlayerPositionChanged(fm::Duration position) {
 	}
 }
 
-void TrackingVideoControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration) {
+void TrackingVideoControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration,double fps) {
 	d_ui->positionSlider->setMinimum(0);
 	d_ui->positionSlider->setMaximum(duration.Milliseconds());
+
+
 	if ( d_player != nullptr ) {
 		onPlayerPositionChanged(d_player->position());
 	}

@@ -30,11 +30,22 @@
 </p>
 
 ## About the project
-<!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
-The Studio is a Graphical User Interface to manage and visualize large Ant tracking datasets. It is used to create Ant Metadata project files (.myrmidon). Those files catalog ant identification with the help of fiducial tags, and other properties such as size and shapes and user metadata. The yrmidon API a C/C++ provides an interface to access a tracking data set efficiently. Its goal is to provide a user friendly API to help researchers focus more on the data analysis and less on C++ code usability.
+<!--[![Product Name Screen
+Shot][product-screenshot]](https://example.com)--> The Studio is a
+Graphical User Interface to manage and visualize large Ant tracking
+datasets. It is used to create Ant Metadata project files
+(.myrmidon). Those files catalog ant identification with the help of
+fiducial tags, and other properties such as size and shapes and user
+metadata. The myrmidon API a C/C++ provides an interface to access a
+tracking data set efficiently. Its goal is to provide a user friendly
+API to help researchers focus more on the data analysis and less on
+C++ code usability.
 
 
 ## Getting Started
+
+There are two method for installing `myrmidon` and FORT studio: the
+preferred one, using debian packages or from sources.
 
 ### Installation from Debian packages (Ubuntu 18.04)
 
@@ -44,7 +55,7 @@ package repository hosted at https://packages.tuleu.science .
 * NOTE: Only bionic and focal based distribution and their derivative
   such as Mint Tina are supported at this moment *
 
-#### Add packages.tuleu.science repository to your sources
+#### 1. Add packages.tuleu.science repository to your sources
 
 *NOTE: this step is only required once, and may produce errors if runned a second time*
 
@@ -53,13 +64,16 @@ Add the repository public key to your apt keyring. *You will be prompted for you
 wget -O - https://packages.tuleu.science/pubkey.gpg | sudo apt-key add -
 ```
 
-Append the reporsitory to your sources. *Please only run this command once and use a text editor on* `/etc/apt/sources.list.d/packages.tuleu.science.list` *if you need to correct any error*
+Append the reporsitory to your sources. *Please only run this command
+once and use a text editor on*
+`/etc/apt/sources.list.d/packages.tuleu.science.list` *if you need to
+correct any error*
 
 ```bash
 echo "deb https://packages.tuleu.science/ubuntu bionic main" | sudo tee /etc/apt/sources.list.d/packages.tuleu.science.list
 ```
 
-#### Install/Update FORT Studio
+#### 2. Install/Update FORT Studio
 
 Simply use the usual commands :
 
@@ -79,17 +93,19 @@ sudo apt upgrade
 Here are some of the provided packages you can install on your system:
 
 * `fort-studio` : the FORT Studio graphical interface
-* `libfort-myrmidon-dev` : the myrmidon public API development file
+* `libfort-myrmidon-dev` : the myrmidon public API development file, required for R bindings.
 * `libfort-hermes-cpp-dev` : API to directly read tracking data frame in C++ from the network or from `.hermes`, not recommended for end-user
 * `libfort-hermes-dev` : C binding to `libfort-hermes-cpp-dev`
 
-### Instalation from sources
+### Alternate method: installation from sources
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. As this stade of the project no release and binary distribution is yet available.
+These instructions will get you a copy of the project up and running
+on your local machine for development and testing purposes. As this
+stade of the project no release and binary distribution is yet
+available.
 
-#### Prerequesites
+#### 1. Prerequesites
 
-*At this moment, this project was only tested on Ubuntu 18.04 and Debian 10 using the default gcc compiler provided by these distributions*
 
 The main dependencies for this project are:
   * a C++17 compiler (tested with gcc 7.4 and 8.3)
@@ -107,17 +123,8 @@ The main dependencies for this project are:
  sudo apt install build-essentials cmake libeigen3-dev qtbase5-dev libprotobuf-dev protobuf-compiler libasio-dev
  ```
 
-*__Note__: On Ubuntu 18.04 the lack of support for C++17 std::filesystem, protobuf(>= 3.3.0) and a recent cmake, you will need to performs the following commands:*
 
-```bash
-wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
-sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
-sudo add-apt-repository ppa:maarten-fonville/protobuf
-sudo apt update
-sudo apt install cmake libprotobuf-dev protobuf-compiler libboost-dev libboost-filesystem-dev
-```
-
-#### Installing from sources
+#### 2. Building and compilatiion
 
 Download the latest sources and compile them with cmake:
 
@@ -130,7 +137,7 @@ cmake ../
 make
 ```
 
-#### Running the unit tests
+#### 3. Running the unit tests
 
 Unit tests for the myrmidon API are runned through gtest, which is
 automatically downloaded by the cmake build process. A `check` target
@@ -179,6 +186,11 @@ Now in R simply use `devtools::install`
 ``` R
 devtools::install()
 ```
+
+## Troubleshouting
+
+Some common installation issues are documentend under [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
 
 ## Contributing
 
