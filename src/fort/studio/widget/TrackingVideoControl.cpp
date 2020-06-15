@@ -63,6 +63,9 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 	        &QWidget::setEnabled);
 	d_ui->positionSlider->setEnabled(d_player->isSeekReady());
 
+	connect(d_player,&TrackingVideoPlayer::playbackRateChanged,
+	        this,&TrackingVideoControl::onPlayerPlaybackRateChanged);
+
 	onPlayerPlaybackRateChanged(d_player->playbackRate());
 	d_identifier = identifier;
 	connect(d_identifier->selectedAnt(),

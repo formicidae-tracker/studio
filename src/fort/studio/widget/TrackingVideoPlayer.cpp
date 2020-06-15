@@ -237,8 +237,13 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 	}
 
 	if ( seekID != d_currentSeekID ) {
-		VIDEO_PLAYER_DEBUG(std::cerr << "[Player] Mismatching seekID " << seekID << " (expected:" << d_currentSeekID << "):  displaying current frame anyway"  << frame << std::endl);
-		displayVideoFrameImpl(frame);
+		VIDEO_PLAYER_DEBUG(std::cerr << "[Player] Mismatching seekID " << seekID << " (expected:" << d_currentSeekID << ")"<< std::endl;);
+		if ( d_scrollMode == true ) {
+			VIDEO_PLAYER_DEBUG(std::cerr << "[Player] in scroll mode, so displaying current frame anyway"  << frame << std::endl);
+			displayVideoFrameImpl(frame);
+		} else {
+			d_task->processNewFrame(frame);
+		}
 		return;
 	}
 
@@ -329,6 +334,14 @@ void TrackingVideoPlayer::onTimerTimeout() {
 		});
 	d_frames.erase(last,d_frames.end());
 
+	if ( d_frames.empty() ==  true
+	     && deleted.empty() == false
+	     && computeRate(d_rate) > 1 ) {
+		VIDEO_PLAYER_DEBUG(std::cerr << "[Player] reset time to " << deleted.back().StartPos << std::endl);
+		d_position = deleted.back().StartPos;
+	}
+
+
 	//removes expired frames
 	for ( const auto & f: deleted ) {
 		VIDEO_PLAYER_DEBUG(std::cerr << "[Player] Will release " << f << std::endl);
@@ -385,14 +398,23 @@ void TrackingVideoPlayer::jumpNextFrame() {
 	if ( d_state != State::Paused) {
 		return;
 	}
-	onTimerTimeout();
+	if ( d_rate != 1.0 ) {
+		setPlaybackRate(1.0);
+		setPosition(d_position + d_interval);
+	} else {
+		onTimerTimeout();
+	}
 }
 
 void TrackingVideoPlayer::jumpPrevFrame() {
 	if ( d_state != State::Paused || d_displayNext == true) {
 		return;
 	}
-	setPosition(d_position - d_interval);
+	if ( d_rate != 1.0 ) {
+		setPlaybackRate(1.0);
+	}
+
+	setPosition(d_position - fm::Duration::Millisecond);
 }
 
 void TrackingVideoPlayer::skipDuration(fm::Duration duration) {
