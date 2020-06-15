@@ -66,7 +66,8 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 	        d_videoPlayer,&TrackingVideoPlayer::jumpNextFrame);
 
 	connect(prevFrameShortcut,&QShortcut::activated,
-	        d_videoPlayer,&TrackingVideoPlayer::jumpPrevFrame);
+	        d_videoPlayer,&TrackingVideoPlayer::jumpPrevFrame,
+	        Qt::QueuedConnection);
 
 	connect(skipForwardSmallShortcut,&QShortcut::activated,
 	        this,[this]() {

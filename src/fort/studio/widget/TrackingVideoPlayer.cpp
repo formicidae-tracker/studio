@@ -132,13 +132,13 @@ void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
 	d_segment = segment;
 
 	try {
-		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment,d_loader);
+		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
 		d_currentSeekID = 0;
 		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
 		d_start = start;
 		d_duration = d_interval * d_task->numberOfFrame();
-		emit durationChanged(start,d_duration);
-		d_timer->setInterval(d_interval.Milliseconds() / d_rate);
+		emit durationChanged(start,d_duration,d_task->fps());
+		d_timer->setInterval(d_interval.Milliseconds() / computeRate(d_rate));
 		d_position = 0;
 		emit positionChanged(d_position);
 		setSeekReady(false);
@@ -180,14 +180,21 @@ void TrackingVideoPlayer::stop() {
 	emit playbackStateChanged(d_state);
 }
 
+size_t TrackingVideoPlayer::computeRate(double rate) {
+	return std::max(1.0,std::floor(rate/4));
+}
 
 void TrackingVideoPlayer::setPlaybackRate(qreal rate) {
 	if ( rate == d_rate || rate <= 0.0 ) {
 		return;
 	}
 	d_rate = rate;
+	auto pRate = computeRate(d_rate);
 	if ( d_interval.Nanoseconds() != 0 ) {
-		d_timer->setInterval(d_interval.Milliseconds() / d_rate);
+		d_timer->setInterval(d_interval.Milliseconds() / pRate);
+	}
+	if ( d_task != nullptr ) {
+		d_task->setRate(pRate);
 	}
 	emit playbackRateChanged(rate);
 }
@@ -250,8 +257,18 @@ void TrackingVideoPlayer::onNewVideoFrame(size_t taskID, size_t seekID, Tracking
 		return;
 	}
 
+
+
 	if (d_displayNext == true ) {
+		if ( d_position == frame.StartPos ) {
+			// avoids forward deadlock while jumping next frame, can
+			// happen depending on OpenCV implementation.
+			VIDEO_PLAYER_DEBUG(std::cerr << "Frame did not advance forward, releasing it" << std::endl);
+			d_task->processNewFrame(frame);
+			return;
+		}
 		VIDEO_PLAYER_DEBUG(std::cerr << "Displaying first frame " << frame << " size: " << d_frames.size() << std::endl);
+
 		d_displayNext = false;
 		d_position = frame.StartPos;
 		displayVideoFrameImpl(frame);
@@ -278,7 +295,7 @@ void printFrames (const std::deque<TrackingVideoFrame> & frames ) {
 #endif
 
 void TrackingVideoPlayer::onTimerTimeout() {
-	d_position = d_position + d_interval;
+	d_position = d_position + d_interval * computeRate(d_rate);
 	VIDEO_PLAYER_DEBUG(std::cerr << "[Player] Current position is " << d_position << std::endl);
 	emit positionChanged(d_position);
 
@@ -365,14 +382,14 @@ void TrackingVideoPlayer::togglePlayPause() {
 }
 
 void TrackingVideoPlayer::jumpNextFrame() {
-	if ( d_state != State::Paused ) {
+	if ( d_state != State::Paused) {
 		return;
 	}
-	setPosition(d_position + d_interval);
+	onTimerTimeout();
 }
 
 void TrackingVideoPlayer::jumpPrevFrame() {
-	if ( d_state != State::Paused ) {
+	if ( d_state != State::Paused || d_displayNext == true) {
 		return;
 	}
 	setPosition(d_position - d_interval);
@@ -438,20 +455,22 @@ void TrackingVideoPlayer::jumpNextVisible(fmp::AntID antID, bool backward) {
 
 TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
                                                  const fmp::MovieSegment::ConstPtr & segment,
+                                                 size_t rate,
                                                  IdentifiedFrameConcurrentLoader * loader)
 	: QObject(nullptr)
 	, d_segment(segment)
 	, d_capture(segment->AbsoluteFilePath().c_str())
 	, d_loader(loader)
 	, d_taskID(taskID)
-	, d_seekID(0) {
+	, d_seekID(0)
+	, d_rate(std::max(size_t(1),rate)) {
 	if ( d_capture.isOpened() == false ) {
 		throw std::runtime_error("Could not open '" + segment->AbsoluteFilePath().string() + "'");
 	}
 
 	d_width = d_capture.get(cv::CAP_PROP_FRAME_WIDTH);
 	d_height = d_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
-
+	d_expectedFrameDuration = double(fm::Duration::Second.Nanoseconds()) / d_capture.get(cv::CAP_PROP_FPS);
 }
 
 TrackingVideoPlayerTask::~TrackingVideoPlayerTask() {
@@ -480,27 +499,41 @@ void TrackingVideoPlayerTask::seek(size_t seekID, fm::Duration position) {
 	                           Q_ARG(fm::Duration,position));
 }
 
+void TrackingVideoPlayerTask::setRate(size_t rate) {
+	VIDEO_PLAYER_DEBUG({
+			std::cerr << "[task] set Rate: " << rate << std::endl;
+		});
+	metaObject()->invokeMethod(this,"setRateUnsafe",Qt::BlockingQueuedConnection,
+	                           Q_ARG(size_t,rate));
+}
+
+void TrackingVideoPlayerTask::setRateUnsafe(size_t rate) {
+	d_rate = std::max(rate,size_t(1));
+}
+
 void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
 	VIDEO_PLAYER_DEBUG({
 			std::cerr << "[task] Processing Image " << frame.Image.get() << std::endl;
 			std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 
-	frame.FrameID = d_capture.get(cv::CAP_PROP_POS_FRAMES);
-	frame.StartPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond;
+	for ( size_t i = 0; i < d_rate; ++i ) {
+		frame.FrameID = d_capture.get(cv::CAP_PROP_POS_FRAMES);
+		if ( d_capture.grab() == false ) {
+			VIDEO_PLAYER_DEBUG(std::cerr << "[task] Could not capture Image " << frame.Image.get() << std::endl);
 
-	if ( d_capture.grab() == false ) {
-		VIDEO_PLAYER_DEBUG(std::cerr << "[task] Could not capture Image " << frame.Image.get() << std::endl);
-
-		frame.FrameID = std::numeric_limits<fmp::MovieFrameID>::max();
-		emit newFrame(d_taskID,d_seekID,frame);
-		return;
+			frame.FrameID = std::numeric_limits<fmp::MovieFrameID>::max();
+			emit newFrame(d_taskID,d_seekID,frame);
+			return;
+		}
 	}
 
 	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(frame.Image->constBits()),frame.Image->bytesPerLine());
 	d_capture.retrieve(mat);
 
 	frame.EndPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond;
+	frame.StartPos = frame.EndPos - d_expectedFrameDuration;
+
 
 	VIDEO_PLAYER_DEBUG({
 			std::cerr << "[task] emitting new Frame Image " << frame << " on seek " << d_seekID << std::endl;
@@ -522,6 +555,9 @@ void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fm::Duration position) {
 		std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 	d_seekID = seekID;
+	if ( d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond == position ) {
+		return;
+	}
 	d_capture.set(cv::CAP_PROP_POS_MSEC,qint64(position.Milliseconds()));
 };
 
