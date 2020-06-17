@@ -3,6 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,8 +11,9 @@ import (
 	"strings"
 
 	fmpb "github.com/formicidae-tracker/studio/bindings/go/fort_myrmidon_pb"
-	"github.com/golang/protobuf/proto"
 	"github.com/jessevdk/go-flags"
+	"google.golang.org/protobuf/encoding/protowire"
+	"google.golang.org/protobuf/proto"
 )
 
 type Fixer func(*fmpb.FileLine) (bool, error)
@@ -26,6 +28,32 @@ func ResultName(filename string) string {
 	ext := filepath.Ext(filename)
 	baseNoExt := strings.TrimSuffix(filepath.Base(filename), ext)
 	return filepath.Join(dir, fmt.Sprintf("%s-fixed%s", baseNoExt, ext))
+}
+
+func DecodeMessage(data []byte, m proto.Message) (int, error) {
+	messageSize, byteSize := protowire.ConsumeVarint(data)
+	if byteSize < 0 {
+		return 0, protowire.ParseError(byteSize)
+	}
+	finalSize := byteSize + int(messageSize)
+	return finalSize, proto.Unmarshal(data[byteSize:finalSize], m)
+}
+
+func EncodeMessage(m proto.Message, w io.Writer) (int, error) {
+	data, err := proto.Marshal(m)
+	if err != nil {
+		return 0, err
+	}
+	dataSize := protowire.AppendVarint(nil, uint64(len(data)))
+	n, err := w.Write(dataSize)
+	if err != nil {
+		return n, err
+	}
+	n, err = w.Write(data)
+	if err != nil {
+		return len(dataSize) + n, err
+	}
+	return len(data) + len(dataSize), nil
 }
 
 func Execute() error {
@@ -60,11 +88,11 @@ func Execute() error {
 	}
 	f.Close()
 	h := fmpb.FileHeader{}
-	buffer := proto.NewBuffer(data)
-	err = buffer.DecodeMessage(proto.MessageV1(&h))
+	n, err := DecodeMessage(data, &h)
 	if err != nil {
 		return err
 	}
+	data = data[n:]
 	log.Printf("Got a myrmidon file version %d.%d", h.MajorVersion, h.MinorVersion)
 
 	lines := []fmpb.FileLine{}
@@ -73,10 +101,11 @@ func Execute() error {
 	for {
 		line += 1
 		l := fmpb.FileLine{}
-		err := buffer.DecodeMessage(proto.MessageV1(&l))
+		n, err := DecodeMessage(data, &l)
 		if err != nil {
 			return err
 		}
+		data = data[n:]
 		keep := true
 		for _, f := range fixers {
 			keepIt, err := f(&l)
@@ -92,7 +121,7 @@ func Execute() error {
 			lines = append(lines, l)
 		}
 
-		if len(buffer.Unread()) == 0 {
+		if len(data) == 0 {
 			break
 		}
 	}
@@ -104,17 +133,6 @@ func Execute() error {
 		return nil
 	}
 
-	outBuffer := proto.NewBuffer(nil)
-	err = outBuffer.EncodeMessage(proto.MessageV1(&h))
-	if err != nil {
-		return err
-	}
-	for _, l := range lines {
-		err = outBuffer.EncodeMessage(proto.MessageV1(&l))
-		if err != nil {
-			return err
-		}
-	}
 	outF, err := os.Create(ResultName(args[0]))
 	if err != nil {
 		return err
@@ -122,8 +140,18 @@ func Execute() error {
 	defer outF.Close()
 	gwriter := gzip.NewWriter(outF)
 	defer gwriter.Close()
-	_, err = gwriter.Write(outBuffer.Bytes())
-	return err
+
+	_, err = EncodeMessage(&h, gwriter)
+	if err != nil {
+		return err
+	}
+	for _, l := range lines {
+		_, err = EncodeMessage(&l, gwriter)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
