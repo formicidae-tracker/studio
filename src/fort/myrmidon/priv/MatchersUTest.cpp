@@ -234,7 +234,7 @@ TEST_F(MatchersUTest,Formatting) {
 		= {
 		   {
 		    Matcher::AntIDMatcher(1),
-		    "Ant.ID == 0x0001",
+		    "Ant.ID == 001",
 		   },
 		   {
 		    Matcher::AntColumnMatcher("foo",42.3),

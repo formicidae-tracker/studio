@@ -13,8 +13,7 @@ namespace priv {
 
 std::string Ant::FormatID(ID ID) {
 	std::ostringstream os;
-	os << "0x" << std::setw(4) << std::setfill('0') << std::hex
-	   << std::uppercase << ID;
+	os << std::setw(3) << std::setfill('0') << ID;
 	return os.str();
 }
 

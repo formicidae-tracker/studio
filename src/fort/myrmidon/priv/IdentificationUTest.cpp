@@ -183,8 +183,12 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 			                                        Time::ConstPtr());
 		});
 
+	std::ostringstream oss;
+	oss << *ant2ID2;
+	EXPECT_EQ(oss.str(),"Identification{ID:0x000 ↦ 2, From:'{Time:1970-01-01T00:00:00Z}', To:'+∞'}");
 
 }
+
 
 
 } // namespace priv
