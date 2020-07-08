@@ -15,8 +15,14 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		MeasurementType::ID MTID;
 	};
 
+	//it should be able to extract both from hexadecimal on decimal to avoid opening issues
 	std::vector<TestData> testdata =
 		{
+		 { "/foo/bar/baz/frames/234/closeups/0x159","/foo/bar/baz",
+		   234,
+		   345,
+		   42,
+		 },
 		 { "/foo/bar/baz/frames/234/closeups/345","/foo/bar/baz",
 		   234,
 		   345,
@@ -45,7 +51,7 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		          d.FID);
 
 		EXPECT_EQ(TID,
-		          d.TID);
+		          d.TID) << "When testing " << d.ParentURI;
 
 	}
 
@@ -58,11 +64,11 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		 {"/measurements/?","cannot parse MeasurementType::ID"},
 		 {"/measurement/32","no 'measurements' in URI"},
 		 {"-/measurements/32","cannot parse TagID"},
-		 {"/closeup/35/measurements/32","no 'closeups' in URI"},
-		 {"a/closeups/35/measurements/32","cannot parse FrameID"},
-		 {"frame/234568923312/closeups/35/measurements/32","no 'frames' in URI"},
+		 {"/closeup/0x023/measurements/32","no 'closeups' in URI"},
+		 {"a/closeups/0x023/measurements/32","cannot parse FrameID"},
+		 {"frame/234568923312/closeups/0x023/measurements/32","no 'frames' in URI"},
 		 {"frames/234568923312/closeups/35/measurements/32","no URI for TrackingDataDirectory"},
-		 {"/frames/234568923312/closeups/35/measurements/32","no URI for TrackingDataDirectory"},
+		 {"/frames/234568923312/closeups/0x023/measurements/32","no URI for TrackingDataDirectory"},
 		};
 
 	for (const auto & d :errordata) {

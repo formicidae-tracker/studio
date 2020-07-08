@@ -373,7 +373,7 @@ void Experiment::DeleteMeasurement(const std::string & URI) {
 	}
 
 
-	auto tagCloseUpURI = fs::path(tddURI) / "frames" / std::to_string(FID) / "closeups" / std::to_string(tagID);
+	auto tagCloseUpURI = fs::path(tddURI) / "frames" / std::to_string(FID) / "closeups" / FormatTagID(tagID);
 	auto fi = d_measurementByURI.find(tagCloseUpURI.generic_string());
 	if ( fi == d_measurementByURI.end() ){
 		throw std::runtime_error("Unknown measurement '"

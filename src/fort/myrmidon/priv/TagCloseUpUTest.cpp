@@ -20,14 +20,14 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 
 	std::vector<TestData> data
 		= {
-		   {"",0,0,"/frames/0/closeups/0"},
-		   {"",2134,34,"/frames/2134/closeups/34"},
-		   {"foo",42,43,"foo/frames/42/closeups/43"},
-		   {"foo/bar/baz",42,56,"foo/bar/baz/frames/42/closeups/56"},
+		   {"",0,0,"/frames/0/closeups/0x000"},
+		   {"",2134,34,"/frames/2134/closeups/0x022"},
+		   {"foo",42,43,"foo/frames/42/closeups/0x02b"},
+		   {"foo/bar/baz",42,56,"foo/bar/baz/frames/42/closeups/0x038"},
 	};
 
 	if (fs::path::preferred_separator == '\\') {
-		data.push_back({"foo\bar\baz",42,103,"foo/bar/baz/frames/42/closeups/103"});
+		data.push_back({"foo\bar\baz",42,103,"foo/bar/baz/frames/42/closeups/0x067"});
 	}
 
 	Vector2dList corners =
@@ -47,7 +47,7 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 		std::ostringstream os;
 		os << t;
 		EXPECT_EQ(os.str(),d.Expected);
-		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FID) / "closeups" / std::to_string(d.TID);
+		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FID) / "closeups" / FormatTagID(d.TID);
 		EXPECT_EQ(t.URI(), expectedURI);
 	}
 

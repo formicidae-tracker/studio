@@ -66,7 +66,7 @@ public:
 
 private:
 	Eigen::Vector2d     d_start,d_end;
-	MeasurementType::ID d_TID;
+	MeasurementType::ID d_mtID;
 	std::string         d_URI;
 	double              d_tagSizePx;
 

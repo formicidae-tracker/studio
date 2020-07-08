@@ -34,7 +34,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        double angle,
                        const Vector2dList & corners)
 	: d_reference(reference)
-	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(tid)).generic_string() )
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / FormatTagID(tid)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(tid)
 	, d_tagPosition(position)
@@ -50,7 +50,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
                        const apriltag_detection_t * d)
 	: d_reference(reference)
-	, d_URI( (fs::path(d_reference.URI()) / "closeups" / std::to_string(d->id)).generic_string() )
+	, d_URI( (fs::path(d_reference.URI()) / "closeups" / FormatTagID(d->id)).generic_string() )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(d->id)
 	, d_tagPosition(d->c[0],d->c[1])
@@ -434,5 +434,6 @@ double TagCloseUp::Squareness() const {
 
 std::ostream& operator<<(std::ostream & out,
                          const fort::myrmidon::priv::TagCloseUp & p) {
-	return out << p.Frame() << "/closeups/" << p.TagValue();
+	return out << p.Frame() << "/closeups/"
+	           << fort::myrmidon::priv::FormatTagID(p.TagValue());
 }

@@ -27,14 +27,14 @@ MeasurementType::ID MeasurementType::MTID() const {
 const MeasurementType::ID Measurement::HEAD_TAIL_TYPE = 1;
 
 Measurement::Measurement(const std::string & parentURI,
-                         MeasurementType::ID TID,
+                         MeasurementType::ID mtID,
                          const Eigen::Vector2d & startFromTag,
                          const Eigen::Vector2d & endFromTag,
                          double tagSizePx)
 	: d_start(startFromTag)
 	, d_end(endFromTag)
-	, d_TID(TID)
-	, d_URI( (fs::path(parentURI) / "measurements" / std::to_string(TID)).generic_string() )
+	, d_mtID(mtID)
+	, d_URI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string() )
 	, d_tagSizePx(tagSizePx) {
 }
 
@@ -50,7 +50,7 @@ std::string Measurement::TagCloseUpURI() const {
 
 
 MeasurementType::ID Measurement::Type() const {
-	return d_TID;
+	return d_mtID;
 }
 
 const Eigen::Vector2d & Measurement::StartFromTag() const {
@@ -79,7 +79,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		}
 		URI = URI.parent_path();
 		try {
-			TID = std::stoul(URI.filename().string());
+			TID = std::stoul(URI.filename().string(),NULL,0);
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse TagID");
 		}
