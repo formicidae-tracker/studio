@@ -4,6 +4,11 @@
 #include <fort/studio/Format.hpp>
 #include <fort/studio/bridge/AntMetadataBridge.hpp>
 
+
+#include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
+
+
+
 #include <QDebug>
 
 UserDataWidget::UserDataWidget(QWidget *parent)

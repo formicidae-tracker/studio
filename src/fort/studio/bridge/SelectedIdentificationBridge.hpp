@@ -2,7 +2,8 @@
 
 #include "Bridge.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
 
 class SelectedIdentificationBridge : public Bridge  {
 	Q_OBJECT

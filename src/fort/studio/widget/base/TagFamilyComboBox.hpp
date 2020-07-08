@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QComboBox>
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Types.hpp>
 
 class TagFamilyComboBox : public QComboBox {
 	Q_OBJECT

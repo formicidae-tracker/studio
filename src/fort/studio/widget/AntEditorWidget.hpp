@@ -2,7 +2,9 @@
 
 #include <QWidget>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
+#include <fort/studio/MyrmidonTypes/Measurement.hpp>
+#include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
 
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>

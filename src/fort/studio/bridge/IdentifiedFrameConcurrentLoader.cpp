@@ -11,6 +11,9 @@
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
 #include <fort/myrmidon/priv/CollisionSolver.hpp>
 
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
+
+
 #ifdef NDEBUG
 #define FORT_STUDIO_CONC_LOADER_NDEBUG 1
 #endif

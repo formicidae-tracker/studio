@@ -16,6 +16,7 @@
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
 #include <fort/studio/Format.hpp>
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
 ZoningWidget::ZoningWidget(QWidget *parent)

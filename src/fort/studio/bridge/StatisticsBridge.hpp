@@ -2,7 +2,9 @@
 
 #include "Bridge.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
+
 #include <QFutureWatcher>
 
 class QStandardItemModel;

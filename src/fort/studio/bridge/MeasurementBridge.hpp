@@ -8,7 +8,10 @@
 #include <fort/myrmidon/priv/Measurement.hpp>
 
 #include "Bridge.hpp"
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Types.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/Measurement.hpp>
+#include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
 
 #include <tuple>
 

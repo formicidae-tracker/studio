@@ -9,6 +9,10 @@
 
 #include <fort/studio/Format.hpp>
 
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+#include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
+
 AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	: Bridge(parent)
 	, d_columnModel(new QStandardItemModel(this))

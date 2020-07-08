@@ -18,6 +18,8 @@
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
+
 
 
 TaggingWidget::TaggingWidget(QWidget *parent)

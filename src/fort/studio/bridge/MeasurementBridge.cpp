@@ -8,6 +8,10 @@
 
 #include <fort/myrmidon/utils/Defer.hpp>
 
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
+
+
 TagCloseUpLoader::TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
                                    const std::string & tddURI,
                                    size_t seed)

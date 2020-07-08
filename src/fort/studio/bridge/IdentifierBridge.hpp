@@ -4,7 +4,11 @@
 
 #include <fort/myrmidon/priv/Experiment.hpp>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
+#include <fort/studio/MyrmidonTypes/Color.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+
 #include "Bridge.hpp"
 
 class QModelIndex;

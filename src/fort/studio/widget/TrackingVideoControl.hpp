@@ -4,7 +4,7 @@
 
 #include "TrackingVideoPlayer.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
 
 namespace Ui {
 class TrackingVideoControl;

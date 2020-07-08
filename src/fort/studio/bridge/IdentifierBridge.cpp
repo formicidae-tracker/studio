@@ -4,6 +4,7 @@
 #include <QItemSelection>
 
 #include <fort/studio/Format.hpp>
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 #include <fort/myrmidon/priv/Identifier.hpp>
 

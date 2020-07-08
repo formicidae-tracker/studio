@@ -4,7 +4,7 @@
 
 #include <fort/myrmidon/priv/Experiment.hpp>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Types.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 
