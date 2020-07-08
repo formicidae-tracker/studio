@@ -42,6 +42,9 @@ class Ant;
 //   this Ant at any given <Time>. I.e. <Identification::Start> and
 //   <Identification::End> must not overlap for a given Ant.
 //
+// One would use <IdentifiedAt> to obtain the <TagID> that identifies
+// an Ant at a given <Time>.
+//
 // ## Visualization property
 //
 // Visualization of <Experiment> data is done through
@@ -78,6 +81,23 @@ public:
 		// Ant is visible and all non-soloed ant will be hidden.
 		SOLO    = 2
 	};
+
+
+	// Gets the TagID identifying this Ant at a given time.
+	// @time the <Time> for which we want the identification
+	//
+	// Gets the <TagID> identifying this Ant at a given. There may not
+	// have an identification at this given time, an an exception will be thrown.
+	// R version:
+	// ```R
+	// ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+	// ```
+	//
+	// @return a <TagID> that identify this ant at this time if it
+	// exists (throw an exception otherwise)
+	TagID IdentifiedAt(const Time &) const;
+
+
 
 	// Gets the const Identifications for this Ant
 	//
@@ -304,6 +324,22 @@ private:
 // that does not enforce constness, such as R.
 class CAnt {
 public:
+	// Gets the TagID identifying this Ant at a given time.
+	// @time the <Time> for which we want the identification
+	//
+	// Gets the <TagID> identifying this Ant at a given. There may not
+	// have an identification at this given time, an an exception will be thrown.
+	// R version:
+	// ```R
+	// ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+	// ```
+	//
+	// @return a <TagID> that identify this ant at this time if it
+	// exists (throw an exception otherwise)
+	TagID IdentifiedAt(const Time &) const;
+
+
+
 	// Gets the const Identifications for this Ant
 	//
 	// Gets the <Identification> targetting this Ant. These

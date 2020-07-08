@@ -218,6 +218,20 @@ void Ant::CompileData() {
 }
 
 
+TagID Ant::IdentifiedAt(const Time & time) const {
+	auto fi = std::find_if(d_identifications.cbegin(),
+	                       d_identifications.cend(),
+	                       [time](const auto & i) {
+		                       return i->IsValid(time);
+	                       });
+	if ( fi == d_identifications.end() ) {
+		std::ostringstream oss;
+		oss << "Ant " << FormattedID() << " is not identified at " << time;
+		throw std::runtime_error(oss.str());
+	}
+	return (*fi)->TagValue();
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort
