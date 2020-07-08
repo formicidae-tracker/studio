@@ -86,7 +86,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		ants.insert(a);
 	}
 
-	for ( const auto & [AID,a] : ants) {
+	for ( const auto & [antID,a] : ants) {
 		d_model->invisibleRootItem()->appendRow(buildAnt(a));
 	}
 
@@ -117,55 +117,55 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 	return ant;
 }
 
-void IdentifierBridge::deleteAnt(fm::Ant::ID AID) {
-	auto item = findAnt(AID);
+void IdentifierBridge::deleteAnt(fm::Ant::ID antID) {
+	auto item = findAnt(antID);
 	if ( !d_experiment || item == NULL) {
-		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(AID).c_str();
+		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(antID).c_str();
 		return;
 	}
 
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteAnt("
-		         << fmp::Ant::FormatID(AID).c_str() << ")";
-		d_experiment->Identifier()->DeleteAnt(AID);
+		         << fmp::Ant::FormatID(antID).c_str() << ")";
+		d_experiment->Identifier()->DeleteAnt(antID);
 	} catch (const std::exception & e) {
-		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(AID).c_str()
+		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(antID).c_str()
 		            << "': " << e.what();
 		return;
 	}
 
-	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(AID).c_str();
+	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(antID).c_str();
 
 	d_model->removeRows(item->row(),1);
 	setModified(true);
-	emit antDeleted(AID);
+	emit antDeleted(antID);
 }
 
 
-fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID AID,
-                                                             fmp::TagID TID,
+fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
+                                                             fmp::TagID tagID,
                                                              const fm::Time::ConstPtr & start,
                                                              const fm::Time::ConstPtr & end) {
 
-	auto item = findAnt(AID);
+	auto item = findAnt(antID);
 
 	if ( !d_experiment || item == NULL ) {
-		qWarning() << "Not Adding Identification to Ant " << fmp::Ant::FormatID(AID).c_str();
+		qWarning() << "Not Adding Identification to Ant " << fmp::Ant::FormatID(antID).c_str();
 		return fmp::Identification::Ptr();
 	}
 
 	fmp::Identification::Ptr identification;
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifider::AddIdentification( "
-		         << fmp::Ant::FormatID(AID).c_str()
-		         << "," << TID
+		         << fmp::Ant::FormatID(antID).c_str()
+		         << "," << fmp::FormatTagID(tagID).c_str()
 		         <<  "," << ToQString(start,"-")
 		         << "," << ToQString(end,"+") << ")";
 		identification = fmp::Identifier::AddIdentification(d_experiment->Identifier(),
-		                                                    AID,TID,start,end);
+		                                                    antID,tagID,start,end);
 	} catch (const std::exception & e) {
-		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(AID).c_str()
-		            << "↤" << TID
+		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(antID).c_str()
+		            << " ↤ " << fmp::FormatTagID(tagID).c_str()
 		            << " [" << ToQString(start,"-")
 		            << ";" << ToQString(end,"+")
 		            << "]: " << e.what();
@@ -218,7 +218,7 @@ QString IdentifierBridge::formatAntName(const fmp::Ant::Ptr & ant) {
 	}
 	QString prefix = " ↤ {";
 	for ( const auto & t : tags ) {
-		res += prefix + QString::number(t);
+		res += prefix + fmp::FormatTagID(t).c_str();
 		prefix = ",";
 	}
 	return res + "}";
@@ -266,27 +266,12 @@ QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	return Conversion::iconFromFM(c);
 }
 
-QString IdentifierBridge::formatIdentification(const fmp::Identification::Ptr & ident) {
-	std::ostringstream os;
-	os << "↤ " << ident->TagValue();
-	if ( ident->Start() ) {
-		os << "[" << ident->Start()->DebugString();
-	} else {
-		os << "]-∞";
-	}
-	if ( ident->End() ) {
-		os << ";" << ident->End()->DebugString() << "[";
-	} else {
-		os << "+∞[";
-	}
-	return os.str().c_str();
-}
 
 
-QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID AID) const {
-	auto items = d_model->findItems(fmp::Ant::FormatID(AID).c_str(), Qt::MatchStartsWith);
+QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID antID) const {
+	auto items = d_model->findItems(fmp::Ant::FormatID(antID).c_str(), Qt::MatchStartsWith);
 	if ( items.size() != 1 ) {
-		qDebug() << "Could not find Ant " << fmp::Ant::FormatID(AID).c_str();
+		qDebug() << "Could not find Ant " << fmp::Ant::FormatID(antID).c_str();
 		return NULL;
 	}
 	return items[0];
@@ -421,20 +406,20 @@ void IdentifierBridge::setAntDisplayColor(const QItemSelection & selection,
 
 void IdentifierBridge::deleteSelection(const QItemSelection & selection) {
 	std::set<fmp::Identification::Ptr> toDeleteIdentifications;
-	std::set<fm::Ant::ID> toDeleteAID;
+	std::set<fm::Ant::ID> toDeleteAntID;
 	doOnSelection(selection,
 	              [&,this](const fmp::Ant::Ptr & ant,
 	                     QStandardItem *) {
 		              for( const auto & i : ant->Identifications() ) {
 			              toDeleteIdentifications.insert(i);
 		              }
-		              toDeleteAID.insert(ant->AntID());
+		              toDeleteAntID.insert(ant->AntID());
 	              });
 
 	for ( const auto & i : toDeleteIdentifications ) {
 		deleteIdentification(i);
 	}
-	for ( const auto & AID : toDeleteAID ) {
+	for ( const auto & AID : toDeleteAntID ) {
 		deleteAnt(AID);
 	}
 }

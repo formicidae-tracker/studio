@@ -274,7 +274,7 @@ QList<QStandardItem*> ZoneBridge::buildSpace(const fmp::Space::Ptr & space) cons
 		i->setData(typeData,TypeRole);
 		i->setData(data,DataRole);
 	}
-	for ( const auto & [zID,zone] : space->Zones() ) {
+	for ( const auto & [zoneID,zone] : space->Zones() ) {
 		res[0]->appendRow(buildZone(zone));
 	}
 	return res;

@@ -123,7 +123,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	          identification);
 	auto m = identifier->antModel();
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "001 ↤ {1}");
+	          "001 ↤ {0x001}");
 
 	identification = identifier->addIdentification(ant->AntID(),
 	                                               2,
@@ -134,7 +134,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_EQ(identificationCreated.last().at(0).value<fmp::Identification::ConstPtr>(),
 	          identification);
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "001 ↤ {1,2}");
+	          "001 ↤ {0x001,0x002}");
 
 	EXPECT_EQ(modified.count(),1);
 
@@ -150,7 +150,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_EQ(identificationDeleted.last().at(0).value<fmp::Identification::ConstPtr>(),
 	          identification);
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "001 ↤ {1}");
+	          "001 ↤ {0x001}");
 
 }
 

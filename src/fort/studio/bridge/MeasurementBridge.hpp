@@ -83,15 +83,15 @@ public slots:
 	void loadTagCloseUp();
 
 	bool setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
-	                    fmp::MeasurementType::ID MTID,
+	                    fmp::MeasurementType::ID mtID,
 	                    QPointF start,
 	                    QPointF end);
 
 	void deleteMeasurement(const std::string & mURI);
 
-	void setMeasurementType(quint32 MTID, const QString & name);
+	void setMeasurementType(quint32 mtID, const QString & name);
 
-	void deleteMeasurementType(quint32 MTID);
+	void deleteMeasurementType(quint32 mtID);
 
 	void deleteMeasurementType(const QModelIndex & index);
 private slots:
@@ -111,7 +111,7 @@ private:
 	void clearAllTCUs();
 	void setOutdated(bool v);
 
-	QList<QStandardItem*> buildTag(fmp::TagID TID) const;
+	QList<QStandardItem*> buildTag(fmp::TagID tagID) const;
 	QList<QStandardItem*> buildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
 	QList<QStandardItem*> buildType(const fmp::MeasurementType::Ptr & type) const;
 
