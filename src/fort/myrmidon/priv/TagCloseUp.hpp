@@ -87,6 +87,10 @@ public:
 	                                      const Eigen::Vector2d & c2,
 	                                      const Eigen::Vector2d & c3);
 
+	static std::string FormatURI(const std::string & tddURI,
+	                             FrameID frameID,
+	                             TagID tagID);
+
 	TagCloseUp(const fs::path & absoluteFilePath,
 	           const FrameReference & reference,
 	           TagID tid,

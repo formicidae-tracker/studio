@@ -521,7 +521,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		= {
 		   {
 		    Eigen::Vector2d(12.356,-23.0),Eigen::Vector2d(42.8,0.00024),
-		    "foo/bar/frames/1234/closeups/342",
+		    "foo/bar/frames/1234/closeups/0x156",
 		    1,
 		    34.256
 		   },

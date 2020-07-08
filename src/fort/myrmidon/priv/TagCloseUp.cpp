@@ -26,17 +26,23 @@ double TagCloseUp::ComputeAngleFromCorners(const Eigen::Vector2d & c0,
 	return atan2(delta.y(),delta.x());
 }
 
+std::string TagCloseUp::FormatURI(const std::string & tddURI,
+                                  FrameID frameID,
+                                  TagID tagID) {
+	return (fs::path(tddURI) / "frames" / std::to_string(frameID) /  "closeups" / FormatTagID(tagID)).generic_string();
+}
+
 
 TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
-                       TagID tid,
+                       TagID tagID,
                        const Eigen::Vector2d & position,
                        double angle,
                        const Vector2dList & corners)
 	: d_reference(reference)
-	, d_URI( (fs::path(d_reference.URI()) / "closeups" / FormatTagID(tid)).generic_string() )
+	, d_URI(FormatURI(reference.ParentURI(),reference.FID(),tagID))
 	, d_absoluteFilePath(absoluteFilePath)
-	, d_tagID(tid)
+	, d_tagID(tagID)
 	, d_tagPosition(position)
 	, d_tagAngle(angle)
 	, d_corners(corners) {
@@ -50,7 +56,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
                        const apriltag_detection_t * d)
 	: d_reference(reference)
-	, d_URI( (fs::path(d_reference.URI()) / "closeups" / FormatTagID(d->id)).generic_string() )
+	, d_URI( FormatURI(reference.ParentURI(),reference.FID(),d->id) )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(d->id)
 	, d_tagPosition(d->c[0],d->c[1])

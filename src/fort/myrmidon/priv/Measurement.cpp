@@ -1,6 +1,8 @@
 #include "Measurement.hpp"
 
 
+#include "TagCloseUp.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -34,8 +36,19 @@ Measurement::Measurement(const std::string & parentURI,
 	: d_start(startFromTag)
 	, d_end(endFromTag)
 	, d_mtID(mtID)
-	, d_URI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string() )
 	, d_tagSizePx(tagSizePx) {
+	// We ensure a correctly formatted URI
+	std::string tddURI;
+	FrameID frameID;
+	TagID tagID;
+	DecomposeURI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string(),
+	              tddURI,
+	              frameID,
+	              tagID,
+	              mtID);
+
+	d_URI = (fs::path(TagCloseUp::FormatURI(tddURI,frameID,tagID)) / "measurements" / std::to_string(d_mtID)).generic_string();
+
 }
 
 Measurement::~Measurement() {}
