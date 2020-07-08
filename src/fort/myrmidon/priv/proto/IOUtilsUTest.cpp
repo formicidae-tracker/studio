@@ -913,10 +913,10 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		                                         d.Angle,
 		                                         d.Corners);
 
-		auto resolver = [&d](FrameID FID) {
+		auto resolver = [&d](FrameID frameID) {
 			                return FrameReference(d.Reference.ParentURI(),
-			                                      FID,
-			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.FID())) * Duration::Second));
+			                                      frameID,
+			                                      d.Reference.Time().Add( (int64_t(frameID) - int64_t(d.Reference.FrameID())) * Duration::Second));
 		                };
 
 
@@ -928,7 +928,7 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		for (const auto & c : d.Corners ) {
 			IOUtils::SaveVector(expected.add_corners(),c);
 		}
-		expected.set_frameid(d.Reference.FID());
+		expected.set_frameid(d.Reference.FrameID());
 		expected.set_imagepath(d.Filepath.generic_string());
 
 		IOUtils::SaveTagCloseUp(&pbRes,dTCU,basedir);

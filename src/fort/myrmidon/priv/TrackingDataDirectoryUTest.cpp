@@ -47,7 +47,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			// Can make mistakes about path extraction quite easily
 			EXPECT_EQ(segments[i].first.URI(),
 			          tdd->TrackingSegments().Segments()[i].first.URI());
-			EXPECT_EQ(segments[i].first.FID(),tdd->TrackingSegments().Segments()[i].first.FID());
+			EXPECT_EQ(segments[i].first.FrameID(),tdd->TrackingSegments().Segments()[i].first.FrameID());
 			EXPECT_TRUE(TimeEqual(segments[i].first.Time(),tdd->TrackingSegments().Segments()[i].first.Time()));
 			EXPECT_EQ(segments[i].second,tdd->TrackingSegments().Segments()[i].second);
 		}
@@ -59,7 +59,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 
 		for ( auto it = tdd->begin(); it != tdd->end() ; ++it) {
 			auto f = *it;
-			EXPECT_EQ(f->Frame().FID(),i);
+			EXPECT_EQ(f->Frame().FrameID(),i);
 			ASSERT_EQ(f->Tags().size(),2);
 			EXPECT_EQ(f->Tags().Get(0).id(),123);
 			EXPECT_EQ(f->Tags().Get(1).id(),124);
@@ -69,7 +69,7 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		std::cerr << "Iterating over all frames from " <<  tddPath << " took " << iterEnd.Sub(iterStart) << std::endl;
 		i = tdd->EndFrame()-3;
 		for( auto it = tdd->FrameAt(tdd->EndFrame()-3); it != tdd->end(); ++it ) {
-			EXPECT_EQ((*it)->Frame().FID(),i);
+			EXPECT_EQ((*it)->Frame().FrameID(),i);
 			ASSERT_EQ((*it)->Tags().size(),2);
 			EXPECT_EQ((*it)->Tags().Get(0).id(),123);
 			EXPECT_EQ((*it)->Tags().Get(1).id(),124);
@@ -188,7 +188,7 @@ TEST_F(TrackingDataDirectoryUTest,AlmostRandomAccess) {
 			auto next = tdd->FrameAfter(tdd->StartDate().Add(1));
 			EXPECT_EQ(++iter,next);
 			auto iterLast = tdd->FrameAfter(tdd->EndDate().Add(-1));
-			EXPECT_EQ((*iterLast)->Frame().FID(),tdd->EndFrame());
+			EXPECT_EQ((*iterLast)->Frame().FrameID(),tdd->EndFrame());
 			auto iterEnd = tdd->FrameAfter(tdd->EndDate());
 			EXPECT_EQ(iterEnd,tdd->end());
 		});
@@ -199,9 +199,9 @@ TEST_F(TrackingDataDirectoryUTest,AlmostRandomAccess) {
 
 	EXPECT_NO_THROW({
 			auto ref = tdd->FrameReferenceAfter(tdd->StartDate());
-			EXPECT_EQ(ref.FID(),tdd->StartFrame());
+			EXPECT_EQ(ref.FrameID(),tdd->StartFrame());
 			ref = tdd->FrameReferenceAfter(tdd->StartDate().Add(1));
-			EXPECT_EQ(ref.FID(),tdd->StartFrame()+1);
+			EXPECT_EQ(ref.FrameID(),tdd->StartFrame()+1);
 		});
 
 }

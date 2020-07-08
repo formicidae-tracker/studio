@@ -29,13 +29,13 @@ inline void SegmentIndexer<T>::Insert(const Segment & s) {
 template <typename T>
 inline void SegmentIndexer<T>::Insert(const FrameReference & ref, const T & value) {
 	//makes some test to respect invariant
-	auto ffi = d_byID.lower_bound(ref.FID());
+	auto ffi = d_byID.lower_bound(ref.FrameID());
 	auto tfi = d_byTime.lower_bound(ref.Time());
 	if ( (ffi != d_byID.end() && tfi == d_byTime.end() ) ||
 	     (ffi == d_byID.end() && tfi != d_byTime.end() ) ||
 	     (ffi != d_byID.end() && tfi != d_byTime.end() && ffi->second != tfi->second ) ) {
 		std::ostringstream os;
-		os << "Wanted segment timing {Frame: " << ref.FID();
+		os << "Wanted segment timing {Frame: " << ref.FrameID();
 		if ( ffi != d_byID.end() ) {
 			os << "(previous: " << ffi->first << ") ";
 		} else {
@@ -53,7 +53,7 @@ inline void SegmentIndexer<T>::Insert(const FrameReference & ref, const T & valu
 
 	auto toInsert = std::make_shared<SegmentIndexer<T>::Segment>(ref,value);
 
-	d_byID.insert(std::make_pair(ref.FID(),toInsert));
+	d_byID.insert(std::make_pair(ref.FrameID(),toInsert));
 	d_byTime.insert(std::make_pair(ref.Time(),toInsert));
 }
 

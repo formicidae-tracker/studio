@@ -143,14 +143,14 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 					// We may jump frame number if there is no data,
 					// it may be the last frame on the MovieSegment
 					// that is jumped.
-					if ( !rawFrame  || rawFrame->Frame().FID() > segment->EndFrame() ) {
+					if ( !rawFrame  || rawFrame->Frame().FrameID() > segment->EndFrame() ) {
 						CONC_LOADER_DEBUG(std::cerr << "marking " <<segment->EndFrame() - lastFrame << " done" << std::endl);
 						//mark all jumped frame done
 						this->metaObject()->invokeMethod(this,"addDone",Qt::QueuedConnection,
 						                                 Q_ARG(int,segment->EndFrame() - lastFrame));
 						break;
 					}
-					auto frameID = rawFrame->Frame().FID();
+					auto frameID = rawFrame->Frame().FrameID();
 					//we mark all jumped frame done
 					CONC_LOADER_DEBUG(std::cerr << "advanced " << frameID - lastFrame << std::endl);
 					if ( (frameID - lastFrame) > 1 ) {

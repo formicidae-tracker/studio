@@ -241,7 +241,7 @@ QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPt
 	auto tcuItem = new QStandardItem(tcu->URI().c_str());
 	tcuItem->setEditable(false);
 	tcuItem->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
-	tcuItem->setData(qulonglong(tcu->Frame().FID()),Qt::UserRole+2);
+	tcuItem->setData(qulonglong(tcu->Frame().FrameID()),Qt::UserRole+2);
 	size_t mCount = countMeasurementsForTCU(tcu->URI());
 
 	auto measurementCounts = new QStandardItem(QString("%1").arg(mCount));

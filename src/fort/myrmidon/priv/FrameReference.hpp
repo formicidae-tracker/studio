@@ -17,7 +17,7 @@ public:
 	FrameReference();
 
 	FrameReference(const std::string & parentURI,
-	               FrameID frameID,
+	               priv::FrameID frameID,
 	               const fort::myrmidon::Time & Time);
 
 	virtual ~FrameReference();
@@ -32,7 +32,7 @@ public:
 	// The FrameID of the frame
 	//
 	// @return the <FrameID> of the designated frame
-	FrameID FID() const;
+	priv::FrameID FrameID() const;
 
 	// A Path uniquely defining the FramePointer
 	//
@@ -45,7 +45,7 @@ public:
 private:
 	std::string          d_parentURI;
 	std::string          d_URI;
-	FrameID              d_id;
+	priv::FrameID        d_id;
 	fort::myrmidon::Time d_time;
 };
 

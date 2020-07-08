@@ -40,7 +40,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        double angle,
                        const Vector2dList & corners)
 	: d_reference(reference)
-	, d_URI(FormatURI(reference.ParentURI(),reference.FID(),tagID))
+	, d_URI(FormatURI(reference.ParentURI(),reference.FrameID(),tagID))
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(tagID)
 	, d_tagPosition(position)
@@ -56,7 +56,7 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
                        const FrameReference & reference,
                        const apriltag_detection_t * d)
 	: d_reference(reference)
-	, d_URI( FormatURI(reference.ParentURI(),reference.FID(),d->id) )
+	, d_URI( FormatURI(reference.ParentURI(),reference.FrameID(),d->id) )
 	, d_absoluteFilePath(absoluteFilePath)
 	, d_tagID(d->id)
 	, d_tagPosition(d->c[0],d->c[1])

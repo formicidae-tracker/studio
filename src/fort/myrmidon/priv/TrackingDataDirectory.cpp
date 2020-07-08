@@ -245,7 +245,7 @@ void TrackingDataDirectory::BuildCache(const std::string & URI,
 	for ( const auto & [frameID,neededRef] : cache ) {
 		const auto & [ref,file] = trackingIndexer->Find(frameID);
 		toFind[file].ToFind.insert(frameID);
-		toFind[file].ToFind.insert(ref.FID());
+		toFind[file].ToFind.insert(ref.FrameID());
 	}
 	flattened.reserve(toFind.size());
 	for ( auto & [file,segment] : toFind ) {
@@ -390,7 +390,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	for(const auto & m : movies) {
 		auto fi = referenceCache->find(m->StartFrame());
 		if (fi == referenceCache->cend() ||
-		    ( fi->second.FID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
+		    ( fi->second.FrameID() == 0 && fi->second.Time().Equals(emptyTime) ) ) {
 			std::ostringstream oss;
 			oss << "[MovieIndexing] Could not find FrameReference for FrameID " << m->StartFrame();
 			throw std::logic_error(oss.str());
@@ -401,7 +401,7 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	std::vector<FrameID> toErase;
 	toErase.reserve(referenceCache->size());
 	for ( const auto & [FID,ref] : *referenceCache ) {
-		if (ref.FID() == 0 && ref.Time().Equals(emptyTime) ) {
+		if (ref.FrameID() == 0 && ref.Time().Equals(emptyTime) ) {
 			toErase.push_back(FID);
 		}
 	}
@@ -490,7 +490,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 	if ( d_current > parent->d_endFrame ) {
 		return NULLPTR;
 	}
-	while ( !d_frame || d_frame->Frame().FID() < d_current) {
+	while ( !d_frame || d_frame->Frame().FrameID() < d_current) {
 		if ( !d_file ) {
 			auto p = parent->d_absoluteFilePath / parent->d_segments->Find(d_current).second;
 			d_file = std::unique_ptr<fort::hermes::FileContext>(new fort::hermes::FileContext(p.string()));
@@ -507,8 +507,8 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 			return NULLPTR;
 		}
 	}
-	if ( d_frame->Frame().FID() > d_current ) {
-		d_current = d_frame->Frame().FID();
+	if ( d_frame->Frame().FrameID() > d_current ) {
+		d_current = d_frame->Frame().FrameID();
 	}
 	return d_frame;
 }
@@ -542,7 +542,7 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAfter(const Ti
 		    << StartDate() << ",+∞[";
 		throw std::out_of_range(oss.str());
 	}
-	auto iter = FrameAt(d_segments->Find(t).first.FID());
+	auto iter = FrameAt(d_segments->Find(t).first.FrameID());
 	Time curTime = (*iter)->Frame().Time();
 	if (curTime == t) {
 		return iter;
