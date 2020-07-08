@@ -67,7 +67,7 @@ func Execute() error {
 		return fmt.Errorf("Missing file to fix")
 	}
 
-	fixers := []Fixer{FixMeasurement}
+	fixers := []Fixer{FixMeasurement, FixTagCloseUpURI}
 
 	if opts.Verbose == true {
 		fixers = append([]Fixer{PrintLine}, fixers...)
