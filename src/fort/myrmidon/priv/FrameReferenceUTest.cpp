@@ -5,9 +5,9 @@
 TEST_F(FrameReferenceUTest,CanBeFormatted) {
 
 	struct TestData {
-		fs::path Path;
-		fs::path ExpectedParentPath;
-		uint64_t FID;
+		fs::path    Path;
+		fs::path    ExpectedParentPath;
+		uint64_t    FrameID;
 		std::string Expected;
 	};
 
@@ -27,7 +27,7 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 
 	for(const auto & d : data ) {
 		fort::myrmidon::priv::FrameReference a(d.Path.generic_string(),
-		                                       d.FID,
+		                                       d.FrameID,
 		                                       fort::myrmidon::Time::FromTimeT(0));
 		std::ostringstream os;
 		os << a;
@@ -35,7 +35,7 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 		EXPECT_EQ(os.str(),d.Expected);
 
 		EXPECT_EQ(a.ParentURI(),d.ExpectedParentPath);
-		auto expectedURI = d.ExpectedParentPath / "frames" / std::to_string(d.FID);
+		auto expectedURI = d.ExpectedParentPath / "frames" / std::to_string(d.FrameID);
 		EXPECT_EQ(a.URI(), expectedURI);
 	}
 

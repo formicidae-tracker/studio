@@ -61,7 +61,7 @@ public:
 		       bool forceCache = false);
 
 		List LoadFile(const FileAndFilter & f,
-		              FrameID FID,
+		              FrameID frameID,
 		              size_t nbFiles);
 
 		List LoadFileFromCache(const fs::path & file);

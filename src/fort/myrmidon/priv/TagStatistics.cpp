@@ -161,8 +161,8 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 	hermes::FrameReadout ro;
 
 	struct LastSeen {
-		FrameID FID;
-		Time    FrameTime;
+		priv::FrameID FrameID;
+		Time          FrameTime;
 	};
 
 
@@ -211,16 +211,16 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 			} else {
 				auto & last = lastSeens.at(key);
 				auto & tagStats = stats.at(key);
-				if ( last.FID == current ) {
+				if ( last.FrameID == current ) {
 					tagStats.Counts(TagStatistics::CountHeader::MULTIPLE_SEEN) += 1;
 				} else {
 					tagStats.Counts(TagStatistics::CountHeader::TOTAL_SEEN) += 1;
-					if ( last.FID < current-1) {
+					if ( last.FrameID < current-1) {
 						UpdateGaps(tagStats,last.FrameTime,currentTime);
 					}
 					tagStats.LastSeen = currentTime;
 				}
-				last.FID = current;
+				last.FrameID = current;
 				last.FrameTime = currentTime;
 			}
 		}

@@ -12,10 +12,10 @@ namespace priv {
 
 TEST_F(TagCloseUpUTest,CanBeFormatted) {
 	struct TestData {
-		fs::path Path;
-		FrameID FID;
-		TagID   TID;
-		std::string Expected;
+		fs::path      Path;
+		priv::FrameID FrameID;
+		priv::TagID   TagID;
+		std::string   Expected;
 	};
 
 	std::vector<TestData> data
@@ -40,14 +40,14 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 
 	for(const auto & d : data ) {
 		FrameReference a(d.Path.generic_string(),
-		                 d.FID,
+		                 d.FrameID,
 		                 fort::myrmidon::Time::FromTimeT(0));
-		TagCloseUp t(TestSetup::Basedir() / "foo", a,d.TID,Eigen::Vector2d::Zero(),0.0,corners);
+		TagCloseUp t(TestSetup::Basedir() / "foo", a,d.TagID,Eigen::Vector2d::Zero(),0.0,corners);
 		fs::path expectedParentPath(d.Path.generic_string().empty() ? "/" : d.Path);
 		std::ostringstream os;
 		os << t;
 		EXPECT_EQ(os.str(),d.Expected);
-		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FID) / "closeups" / FormatTagID(d.TID);
+		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FrameID) / "closeups" / FormatTagID(d.TagID);
 		EXPECT_EQ(t.URI(), expectedURI);
 	}
 
@@ -112,7 +112,7 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	auto files = TagCloseUp::Lister::ListFiles(TestSetup::Basedir() / "foo.0000/ants");
 	auto expectedFiles = TestSetup::CloseUpFilesForPath(TestSetup::Basedir() / "foo.0000");
 	ASSERT_EQ(files.size(),expectedFiles.size());
-	for (const auto & [FID,ff] : files ) {
+	for (const auto & [frameID,ff] : files ) {
 		auto fi = expectedFiles.find(ff.first);
 		if ( fi == expectedFiles.end()) {
 			ADD_FAILURE() << "Returned unexpected file " << ff.first.generic_string();

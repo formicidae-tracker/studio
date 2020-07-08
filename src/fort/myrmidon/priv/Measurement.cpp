@@ -76,13 +76,13 @@ const Eigen::Vector2d & Measurement::EndFromTag() const {
 
 void Measurement::DecomposeURI(const std::string & measurementURI,
                                std::string & tddURI,
-                               FrameID & FID,
-                               TagID & TID,
-                               MeasurementType::ID & MTID) {
+                               FrameID & frameID,
+                               TagID & tagID,
+                               MeasurementType::ID & mtID) {
 	fs::path URI = measurementURI;
 	try {
 		try {
-			MTID = std::stoul(URI.filename().string());
+			mtID = std::stoul(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse MeasurementType::ID");
 		}
@@ -92,7 +92,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		}
 		URI = URI.parent_path();
 		try {
-			TID = std::stoul(URI.filename().string(),NULL,0);
+			tagID = std::stoul(URI.filename().string(),NULL,0);
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse TagID");
 		}
@@ -102,7 +102,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		}
 		URI = URI.parent_path();
 		try {
-			FID = std::stoull(URI.filename().string());
+			frameID = std::stoull(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse FrameID");
 		}

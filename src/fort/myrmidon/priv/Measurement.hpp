@@ -52,9 +52,9 @@ public:
 
 	static void DecomposeURI(const std::string & URI,
 	                         std::string & tddURI,
-	                         FrameID & FID,
-	                         TagID & TID,
-	                         MeasurementType::ID & MTID);
+	                         FrameID & frameID,
+	                         TagID & tagID,
+	                         MeasurementType::ID & mtID);
 
 
 	MeasurementType::ID Type() const;

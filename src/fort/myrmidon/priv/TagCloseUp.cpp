@@ -170,21 +170,21 @@ TagCloseUp::Lister::ListFiles(const fs::path & path) {
 
 		std::smatch ID;
 		std::string filename = de.path().filename().string();
-		FrameID FID;
+		FrameID frameID;
 		if(std::regex_search(filename,ID,singleRx) && ID.size() > 2) {
 			std::istringstream IDS(ID.str(1));
 			std::istringstream FrameS(ID.str(2));
-			auto TID = std::make_shared<TagID>(0);
+			auto tagID = std::make_shared<TagID>(0);
 
-			IDS >> *(TID);
-			FrameS >> FID;
-			res.insert(std::make_pair(FID,std::make_pair(de.path(),TID)));
+			IDS >> *(tagID);
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),tagID)));
 			continue;
 		}
 		if(std::regex_search(filename,ID,multiRx) && ID.size() > 1) {
 			std::istringstream FrameS(ID.str(1));
-			FrameS >> FID;
-			res.insert(std::make_pair(FID,std::make_pair(de.path(),std::shared_ptr<TagID>())));
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),std::shared_ptr<TagID>())));
 			continue;
 		}
 
@@ -299,11 +299,11 @@ TagCloseUp::List TagCloseUp::Lister::LoadFileFromCache(const fs::path & file) {
 }
 
 TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
-                                              FrameID FID,
+                                              FrameID frameID,
                                               size_t nbFiles) {
 	auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
 
-	auto ref = d_resolver(FID);
+	auto ref = d_resolver(frameID);
 
 	std::vector<ConstPtr> tags;
 	apriltag_detector_t * detector = CreateDetector();
@@ -384,11 +384,11 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	auto nbFiles = files.size();
 	res.reserve(files.size());
 
-	for( const auto & [FID,f] : files ) {
+	for( const auto & [frameID,f] : files ) {
 		res.push_back([=,
 		               f = f,
-		               FID = FID]() {
-			              return itself->LoadFile(f,FID,nbFiles);
+		               frameID = frameID]() {
+			              return itself->LoadFile(f,frameID,nbFiles);
 		              });
 	}
 

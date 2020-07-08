@@ -224,9 +224,9 @@ void TrackingDataDirectory::BuildCache(const std::string & URI,
 			for ( auto iter = ToFind.cbegin(); iter != ToFind.cend() ;) {
 				try {
 					fc.Read(&ro);
-					FrameID curFID = ro.frameid();
+					FrameID curFrameID = ro.frameid();
 					Time curTime = TimeFromFrameReadout(ro,monoID);
-					if ( *iter == curFID ) {
+					if ( *iter == curFrameID ) {
 						Times.push_back(curTime);
 						++iter;
 					}
@@ -300,8 +300,8 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 				first = false;
 			}
 
-			FrameID curFID = ro.frameid();
-			FrameReference curReference(URI,curFID,startTime);
+			FrameID curFrameID = ro.frameid();
+			FrameReference curReference(URI,curFrameID,startTime);
 			trackingIndexer->Insert(curReference,
 			                        f.filename().generic_string());
 		} catch ( const std::exception & e) {
@@ -364,8 +364,8 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 	}
 
 	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
-	for(const auto & [FID,s] : snapshots) {
-		referenceCache->insert(std::make_pair(FID,FrameReference(URI.generic_string(),0,Time())));
+	for(const auto & [frameID,s] : snapshots) {
+		referenceCache->insert(std::make_pair(frameID,FrameReference(URI.generic_string(),0,Time())));
 	}
 
 	Time::MonoclockID monoID = GetUID(absoluteFilePath);
@@ -400,15 +400,15 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	std::vector<FrameID> toErase;
 	toErase.reserve(referenceCache->size());
-	for ( const auto & [FID,ref] : *referenceCache ) {
+	for ( const auto & [frameID,ref] : *referenceCache ) {
 		if (ref.FrameID() == 0 && ref.Time().Equals(emptyTime) ) {
-			toErase.push_back(FID);
+			toErase.push_back(frameID);
 		}
 	}
 
-	for( auto FID : toErase ) {
-		std::cerr << "[CacheCleaning] Could not find FrameReference for FrameID " << FID << std::endl;
-		referenceCache->erase(FID);
+	for( auto frameID : toErase ) {
+		std::cerr << "[CacheCleaning] Could not find FrameReference for FrameID " << frameID << std::endl;
+		referenceCache->erase(frameID);
 	}
 
 
@@ -557,12 +557,12 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAfter(const Ti
 }
 
 
-FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID FID) const {
-	auto fi = d_referencesByFID->find(FID);
+FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID frameID) const {
+	auto fi = d_referencesByFID->find(frameID);
 	if ( fi != d_referencesByFID->cend() ) {
 		return fi->second;
 	}
-	return (*FrameAt(FID))->Frame();
+	return (*FrameAt(frameID))->Frame();
 }
 
 FrameReference TrackingDataDirectory::FrameReferenceAfter(const Time & t) const {
@@ -621,9 +621,9 @@ TrackingDataDirectory::FullFramesFor(const fs::path & subpath) const {
 	std::map<FrameReference,fs::path> res;
 
 	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / subpath);
-	for(const auto & [FID,fileAndFilter] : listing) {
+	for(const auto & [frameID,fileAndFilter] : listing) {
 		if ( !fileAndFilter.second == true ) {
-			res.insert(std::make_pair(FrameReferenceAt(FID),fileAndFilter.first));
+			res.insert(std::make_pair(FrameReferenceAt(frameID),fileAndFilter.first));
 		}
 	}
 

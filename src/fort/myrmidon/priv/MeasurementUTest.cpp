@@ -10,8 +10,8 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 
 	struct TestData {
 		std::string         ParentURI,TDDURI;
-		FrameID             FID;
-		TagID               TID;
+		priv::FrameID       FrameID;
+		priv::TagID         TagID;
 		MeasurementType::ID MTID;
 	};
 
@@ -38,20 +38,20 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		              1.0);
 
 		std::string         tddURI;
-		FrameID             FID;
-		TagID               TID;
-		MeasurementType::ID MTID;
+		FrameID             frameID;
+		TagID               tagID;
+		MeasurementType::ID mtID;
 
-		EXPECT_NO_THROW(Measurement::DecomposeURI(m.URI(),tddURI,FID,TID,MTID));
+		EXPECT_NO_THROW(Measurement::DecomposeURI(m.URI(),tddURI,frameID,tagID,mtID));
 
 		EXPECT_EQ(tddURI,
 		          d.TDDURI);
 
-		EXPECT_EQ(FID,
-		          d.FID);
+		EXPECT_EQ(frameID,
+		          d.FrameID);
 
-		EXPECT_EQ(TID,
-		          d.TID) << "When testing " << d.ParentURI;
+		EXPECT_EQ(tagID,
+		          d.TagID) << "When testing " << d.ParentURI;
 
 	}
 
@@ -74,15 +74,15 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 	for (const auto & d :errordata) {
 		try {
 			std::string         tddURI;
-			FrameID             FID;
-			TagID               TID;
-			MeasurementType::ID MTID;
+			FrameID             frameID;
+			TagID               tagID;
+			MeasurementType::ID mtID;
 
 			Measurement::DecomposeURI(d.URI,
 			                          tddURI,
-			                          FID,
-			                          TID,
-			                          MTID);
+			                          frameID,
+			                          tagID,
+			                          mtID);
 			ADD_FAILURE() << "It throw nothing";
 		} catch(const std::runtime_error & e) {
 			EXPECT_EQ("Invalid URI '" + d.URI + "':" + d.Reason,
