@@ -50,11 +50,8 @@ public:
 
 	std::string TagCloseUpURI() const;
 
-	static void DecomposeURI(const std::string & URI,
-	                         std::string & tddURI,
-	                         FrameID & frameID,
-	                         TagID & tagID,
-	                         MeasurementType::ID & mtID);
+	static std::tuple<std::string,FrameID,TagID,MeasurementType::ID>
+	DecomposeURI(const std::string & URI);
 
 
 	MeasurementType::ID Type() const;

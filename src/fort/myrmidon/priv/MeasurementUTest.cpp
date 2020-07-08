@@ -36,22 +36,20 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 		              Eigen::Vector2d(),
 		              Eigen::Vector2d(),
 		              1.0);
+		try {
+			auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(m.URI());
 
-		std::string         tddURI;
-		FrameID             frameID;
-		TagID               tagID;
-		MeasurementType::ID mtID;
+			EXPECT_EQ(tddURI,
+			          d.TDDURI);
 
-		EXPECT_NO_THROW(Measurement::DecomposeURI(m.URI(),tddURI,frameID,tagID,mtID));
+			EXPECT_EQ(frameID,
+			          d.FrameID);
 
-		EXPECT_EQ(tddURI,
-		          d.TDDURI);
-
-		EXPECT_EQ(frameID,
-		          d.FrameID);
-
-		EXPECT_EQ(tagID,
-		          d.TagID) << "When testing " << d.ParentURI;
+			EXPECT_EQ(tagID,
+			          d.TagID) << "When testing " << d.ParentURI;
+		} catch (const std::exception & e ) {
+			ADD_FAILURE() << "Unexpected exception: " << e.what();
+		}
 
 	}
 
@@ -73,16 +71,7 @@ TEST_F(MeasurementUTest,CanDecomposeURI) {
 
 	for (const auto & d :errordata) {
 		try {
-			std::string         tddURI;
-			FrameID             frameID;
-			TagID               tagID;
-			MeasurementType::ID mtID;
-
-			Measurement::DecomposeURI(d.URI,
-			                          tddURI,
-			                          frameID,
-			                          tagID,
-			                          mtID);
+			auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(d.URI);
 			ADD_FAILURE() << "It throw nothing";
 		} catch(const std::runtime_error & e) {
 			EXPECT_EQ("Invalid URI '" + d.URI + "':" + d.Reason,

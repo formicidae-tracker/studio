@@ -38,15 +38,7 @@ Measurement::Measurement(const std::string & parentURI,
 	, d_mtID(mtID)
 	, d_tagSizePx(tagSizePx) {
 	// We ensure a correctly formatted URI
-	std::string tddURI;
-	FrameID frameID;
-	TagID tagID;
-	DecomposeURI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string(),
-	              tddURI,
-	              frameID,
-	              tagID,
-	              mtID);
-
+	auto [tddURI,frameID,tagID,mtIDIgnored] = DecomposeURI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string());
 	d_URI = (fs::path(TagCloseUp::FormatURI(tddURI,frameID,tagID)) / "measurements" / std::to_string(d_mtID)).generic_string();
 
 }
@@ -74,12 +66,14 @@ const Eigen::Vector2d & Measurement::EndFromTag() const {
 	return d_end;
 }
 
-void Measurement::DecomposeURI(const std::string & measurementURI,
-                               std::string & tddURI,
-                               FrameID & frameID,
-                               TagID & tagID,
-                               MeasurementType::ID & mtID) {
+std::tuple<std::string,FrameID,TagID,MeasurementType::ID>
+Measurement::DecomposeURI(const std::string & measurementURI) {
+	std::string tddURI;
+	FrameID frameID;
+	TagID  tagID;
+	MeasurementType::ID mtID;
 	fs::path URI = measurementURI;
+
 	try {
 		try {
 			mtID = std::stoul(URI.filename().string());
@@ -119,6 +113,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		                         + measurementURI
 		                         + "':" + e.what());
 	}
+	return std::make_tuple(tddURI,frameID,tagID,mtID);
 }
 
 double Measurement::TagSizePx() const {

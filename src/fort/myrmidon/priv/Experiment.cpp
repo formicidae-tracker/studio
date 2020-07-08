@@ -310,11 +310,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 		throw std::runtime_error("Unknown MeasurementType::ID " + std::to_string(m->Type()));
 	}
 
-	std::string tddURI;
-	FrameID frameID;
-	TagID tagID;
-	MeasurementType::ID mtID;
-	Measurement::DecomposeURI(m->URI(),tddURI,frameID,tagID,mtID);
+	auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(m->URI());
 	auto fi = d_universe->TrackingDataDirectories().find(tddURI);
 	if ( fi == d_universe->TrackingDataDirectories().end() ) {
 		std::ostringstream oss;
@@ -354,11 +350,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 }
 
 void Experiment::DeleteMeasurement(const std::string & URI) {
-	std::string tddURI;
-	FrameID frameID;
-	TagID tagID;
-	MeasurementType::ID mtID;
-	Measurement::DecomposeURI(URI,tddURI,frameID,tagID,mtID);
+	auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(URI);
 
 	auto tfi = d_universe->TrackingDataDirectories().find(tddURI);
 	if ( tfi == d_universe->TrackingDataDirectories().end() ) {

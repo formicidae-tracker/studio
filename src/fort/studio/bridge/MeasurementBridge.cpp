@@ -347,14 +347,8 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	if ( !d_experiment ) {
 		return;
 	}
-	quint32 mtID,tagID;
-	fmp::FrameID frameID;
-	std::string tddURI;
-	fmp::Measurement::DecomposeURI(mURI,
-	                               tddURI,
-	                               frameID,
-	                               tagID,
-	                               mtID);
+
+	auto [tddURI,frameID,tagID,mtID] = fmp::Measurement::DecomposeURI(mURI);
 
 	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
 	auto ci = d_counts.find(tcuURI);
