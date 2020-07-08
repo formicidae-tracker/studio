@@ -527,7 +527,7 @@ fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tc
 
 void MeasurementBridge::queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
                                         const fmp::IdentificationConstPtr & identification) {
-	auto items = d_tcuModel->findItems(QString("tags/%1").arg(identification->TagValue()));
+	auto items = d_tcuModel->findItems(QString("tags/%1").arg(fmp::FormatTagID(identification->TagValue()).c_str()));
 	if ( items.isEmpty() == true ) {
 		return;
 	}
