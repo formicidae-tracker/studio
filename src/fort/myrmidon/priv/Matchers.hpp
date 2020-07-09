@@ -39,7 +39,7 @@ public:
 
 	virtual bool Match(fort::myrmidon::AntID ant1,
 	                   fort::myrmidon::AntID ant2,
-	                   const std::vector<fort::myrmidon::InteractionType> & types) = 0;
+	                   const fort::myrmidon::InteractionTypes & types) = 0;
 
 	virtual void Format(std::ostream & out) const = 0;
 

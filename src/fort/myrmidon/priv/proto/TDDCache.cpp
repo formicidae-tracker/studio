@@ -60,14 +60,14 @@ TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath
 		                 }
 		                 if ( line.has_cachedframe() == true ) {
 			                 auto ref = IOUtils::LoadFrameReference(line.cachedframe(),URI,monoID);
-			                 cache->insert(std::make_pair(ref.FID(),ref));
+			                 cache->insert(std::make_pair(ref.FrameID(),ref));
 		                 }
 	                 });
 
 	return TrackingDataDirectory::Create(URI,
 	                                     absoluteFilePath,
-	                                     start.FID(),
-	                                     end.FID(),
+	                                     start.FrameID(),
+	                                     end.FrameID(),
 	                                     start.Time(),
 	                                     end.Time(),
 	                                     ti,
@@ -107,7 +107,7 @@ void TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
 		                });
 	}
 
-	for ( const auto & [FID,ref] : tdd->ReferenceCache() ) {
+	for ( const auto & [frameID,ref] : tdd->ReferenceCache() ) {
 		lines.push_back([ref= std::ref(ref) ](pb::TrackingDataDirectoryFileLine & line){
 			                IOUtils::SaveFrameReference(line.mutable_cachedframe(),
 			                                            ref);

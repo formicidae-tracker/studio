@@ -327,6 +327,23 @@ Identifier::Compiled::ConstPtr Identifier::Compile() const {
 	return std::make_shared<Compiled>(d_identifications);
 }
 
+std::map<AntID,TagID> Identifier::IdentificationsAt(const Time & time,
+                                                    bool removeUnidentifiedAnt) const {
+	std::map<AntID,TagID> res;
+	for ( const auto & [antID,a] : CAnts() ) {
+		try {
+			auto tagID = a->IdentifiedAt(time);
+			res[antID] = tagID;
+		} catch ( const std::exception & e) {
+			if (removeUnidentifiedAnt == false ) {
+				res[antID] = std::numeric_limits<TagID>::max();
+			}
+		}
+	}
+	return res;
+}
+
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

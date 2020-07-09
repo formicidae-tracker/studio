@@ -104,7 +104,7 @@ Description: Tracking data IO for the FORmicidae Tracker - c runtime
 Package: libfort-myrmidon-dev
 Section: libdevel
 Architecture: any
-Depends: libfort-myrmidon0.4 (= ${binary:Version}), ${misc:Depends},
+Depends: libfort-myrmidon0.5 (= ${binary:Version}), ${misc:Depends},
  libfort-tags-dev, libfort-hermes-cpp-dev
 Description: Experiment data API for the FORmicidae Tracker - dev files
  This library provides an API to access and edit experimental data for
@@ -113,7 +113,7 @@ Description: Experiment data API for the FORmicidae Tracker - dev files
  .
  This package contains header and development files
 
-Package: libfort-myrmidon0.4
+Package: libfort-myrmidon0.5
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}

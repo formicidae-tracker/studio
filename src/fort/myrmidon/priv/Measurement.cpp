@@ -1,6 +1,8 @@
 #include "Measurement.hpp"
 
 
+#include "TagCloseUp.hpp"
+
 
 namespace fort {
 namespace myrmidon {
@@ -27,15 +29,18 @@ MeasurementType::ID MeasurementType::MTID() const {
 const MeasurementType::ID Measurement::HEAD_TAIL_TYPE = 1;
 
 Measurement::Measurement(const std::string & parentURI,
-                         MeasurementType::ID TID,
+                         MeasurementType::ID mtID,
                          const Eigen::Vector2d & startFromTag,
                          const Eigen::Vector2d & endFromTag,
                          double tagSizePx)
 	: d_start(startFromTag)
 	, d_end(endFromTag)
-	, d_TID(TID)
-	, d_URI( (fs::path(parentURI) / "measurements" / std::to_string(TID)).generic_string() )
+	, d_mtID(mtID)
 	, d_tagSizePx(tagSizePx) {
+	// We ensure a correctly formatted URI
+	auto [tddURI,frameID,tagID,mtIDIgnored] = DecomposeURI( (fs::path(parentURI) / "measurements" / std::to_string(mtID)).generic_string());
+	d_URI = (fs::path(TagCloseUp::FormatURI(tddURI,frameID,tagID)) / "measurements" / std::to_string(d_mtID)).generic_string();
+
 }
 
 Measurement::~Measurement() {}
@@ -50,7 +55,7 @@ std::string Measurement::TagCloseUpURI() const {
 
 
 MeasurementType::ID Measurement::Type() const {
-	return d_TID;
+	return d_mtID;
 }
 
 const Eigen::Vector2d & Measurement::StartFromTag() const {
@@ -61,15 +66,17 @@ const Eigen::Vector2d & Measurement::EndFromTag() const {
 	return d_end;
 }
 
-void Measurement::DecomposeURI(const std::string & measurementURI,
-                               std::string & tddURI,
-                               FrameID & FID,
-                               TagID & TID,
-                               MeasurementType::ID & MTID) {
+std::tuple<std::string,FrameID,TagID,MeasurementType::ID>
+Measurement::DecomposeURI(const std::string & measurementURI) {
+	std::string tddURI;
+	FrameID frameID;
+	TagID  tagID;
+	MeasurementType::ID mtID;
 	fs::path URI = measurementURI;
+
 	try {
 		try {
-			MTID = std::stoul(URI.filename().string());
+			mtID = std::stoul(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse MeasurementType::ID");
 		}
@@ -79,7 +86,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		}
 		URI = URI.parent_path();
 		try {
-			TID = std::stoul(URI.filename().string());
+			tagID = std::stoul(URI.filename().string(),NULL,0);
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse TagID");
 		}
@@ -89,7 +96,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		}
 		URI = URI.parent_path();
 		try {
-			FID = std::stoull(URI.filename().string());
+			frameID = std::stoull(URI.filename().string());
 		} catch( const std::exception & e) {
 			throw std::runtime_error("cannot parse FrameID");
 		}
@@ -106,6 +113,7 @@ void Measurement::DecomposeURI(const std::string & measurementURI,
 		                         + measurementURI
 		                         + "':" + e.what());
 	}
+	return std::make_tuple(tddURI,frameID,tagID,mtID);
 }
 
 double Measurement::TagSizePx() const {

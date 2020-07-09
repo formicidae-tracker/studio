@@ -4,7 +4,8 @@
 
 #include <QList>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
 
 class QStandardItemModel;
 class QStandardItem;

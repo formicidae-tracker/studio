@@ -48,6 +48,7 @@ void fmCAnt_show(const fort::myrmidon::CAnt * ant) {
 RCPP_MODULE(ant) {
 	Rcpp::class_<fort::myrmidon::CAnt>("fmCAnt")
 		.const_method("show",&fmCAnt_show)
+		.const_method("identifiedAt",&fort::myrmidon::CAnt::IdentifiedAt)
 		.const_method("cIdentifications",&fort::myrmidon::CAnt::CIdentifications)
 		.const_method("antID",&fort::myrmidon::CAnt::AntID)
 		.const_method("formattedID",&fort::myrmidon::CAnt::FormattedID)
@@ -59,6 +60,7 @@ RCPP_MODULE(ant) {
 
 	Rcpp::class_<fort::myrmidon::Ant>("fmAnt")
 		.const_method("show",&fmAnt_show)
+		.const_method("identifiedAt",&fort::myrmidon::Ant::IdentifiedAt)
 		.const_method("cIdentifications",&fort::myrmidon::Ant::CIdentifications)
 		.method("identifications",&fort::myrmidon::Ant::Identifications)
 		.const_method("antID",&fort::myrmidon::Ant::AntID)

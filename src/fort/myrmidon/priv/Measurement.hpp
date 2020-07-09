@@ -50,11 +50,8 @@ public:
 
 	std::string TagCloseUpURI() const;
 
-	static void DecomposeURI(const std::string & URI,
-	                         std::string & tddURI,
-	                         FrameID & FID,
-	                         TagID & TID,
-	                         MeasurementType::ID & MTID);
+	static std::tuple<std::string,FrameID,TagID,MeasurementType::ID>
+	DecomposeURI(const std::string & URI);
 
 
 	MeasurementType::ID Type() const;
@@ -66,7 +63,7 @@ public:
 
 private:
 	Eigen::Vector2d     d_start,d_end;
-	MeasurementType::ID d_TID;
+	MeasurementType::ID d_mtID;
 	std::string         d_URI;
 	double              d_tagSizePx;
 

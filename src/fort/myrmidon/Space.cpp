@@ -73,7 +73,7 @@ std::pair<std::string,uint64_t> CSpace::LocateMovieFrame(const Time & time) cons
 		auto ref = tdd->FrameReferenceAfter(time);
 		auto movieSegment = tdd->MovieSegments().Find(time);
 
-		auto movieFrameID = movieSegment.second->ToMovieFrameID(ref.FID());
+		auto movieFrameID = movieSegment.second->ToMovieFrameID(ref.FrameID());
 		return std::make_pair(movieSegment.second->AbsoluteFilePath().string(),movieFrameID);
 	}
 	std::ostringstream oss;

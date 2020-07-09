@@ -78,7 +78,7 @@ TEST_F(IdentifierUTest,AntModificationTest) {
 	          ant);
 	ASSERT_EQ(m->rowCount(),1);
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          std::string("0x0001 <no-tags>"));
+	          std::string("001 <no-tags>"));
 
 	identifier->setExperiment(experiment);
 	EXPECT_FALSE(identifier->isModified());
@@ -123,7 +123,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	          identification);
 	auto m = identifier->antModel();
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "0x0001 ↤ {1}");
+	          "001 ↤ {0x001}");
 
 	identification = identifier->addIdentification(ant->AntID(),
 	                                               2,
@@ -134,7 +134,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_EQ(identificationCreated.last().at(0).value<fmp::Identification::ConstPtr>(),
 	          identification);
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "0x0001 ↤ {1,2}");
+	          "001 ↤ {0x001,0x002}");
 
 	EXPECT_EQ(modified.count(),1);
 
@@ -150,7 +150,7 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 	EXPECT_EQ(identificationDeleted.last().at(0).value<fmp::Identification::ConstPtr>(),
 	          identification);
 	EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-	          "0x0001 ↤ {1}");
+	          "001 ↤ {0x001}");
 
 }
 
@@ -442,9 +442,9 @@ TEST_F(IdentifierUTest,AntListWidgetTest) {
 	EXPECT_EQ(m->rowCount(),2);
 	if ( m->rowCount() >=2 ) {
 		EXPECT_EQ(ToStdString(m->data(m->index(0,0)).toString()),
-		          "0x0001 <no-tags>");
+		          "001 <no-tags>");
 		EXPECT_EQ(ToStdString(m->data(m->index(1,0)).toString()),
-		          "0x000A <no-tags>");
+		          "010 <no-tags>");
 	}
 	EXPECT_EQ(ToStdString(ui->antLabel->text()),
 	          "Number: 10");

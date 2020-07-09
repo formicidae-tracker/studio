@@ -125,11 +125,11 @@ public:
 		return d_endIterator;
 	}
 
-	const_iterator FrameAt(FrameID FID) const;
+	const_iterator FrameAt(FrameID frameID) const;
 
 	const_iterator FrameAfter(const Time & t) const;
 
-	FrameReference FrameReferenceAt(FrameID FID) const;
+	FrameReference FrameReferenceAt(FrameID frameID) const;
 
 	FrameReference FrameReferenceAfter(const Time & t) const;
 

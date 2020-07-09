@@ -5,7 +5,7 @@
 #include <fort/studio/Format.hpp>
 
 #include <fort/studio/bridge/IdentifierBridge.hpp>
-
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 #include <QPainter>
 #include <QMouseEvent>

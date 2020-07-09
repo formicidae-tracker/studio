@@ -1,5 +1,4 @@
-#include "MyrmidonTypes.hpp"
-
+#include "Conversion.hpp"
 
 QColor Conversion::colorFromFM(const fm::Color & color, int opacity) {
 	return QColor(std::get<0>(color),

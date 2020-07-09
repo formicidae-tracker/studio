@@ -195,6 +195,26 @@ public:
 
 	Compiled::ConstPtr Compile() const;
 
+
+	// Gets AntID <- TagID correspondances at a given time
+	// @time the wanted <Time> to query for the correspondances
+	// @removeUnidentifiedAnt if `true`, just do not report
+	//                        unidentified at this time. If `false`
+	//                        `std::numeric_limits<TagID>::max()` will
+	//                        be returned as a TagID for unidentified
+	//                        Ant (or `NA` for R).
+	//
+	// R Version
+	// ```R
+	// # will report NA for unidentified Ant
+	// e$identificationsAt(fmTimeParse("2029-11-02T23:42:00.000Z"),FALSE)
+	// ```
+	//
+	// @return a map with the correspondance between AntID and TagID. Unidentified Ant will be ommi
+	std::map<AntID,TagID> IdentificationsAt(const Time & time,
+	                                        bool removeUnidentifiedAnt = true) const;
+
+
 private:
 	class AntPoseEstimateComparator {
 	public:

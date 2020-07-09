@@ -259,17 +259,17 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 
 		while(!IDs.empty()) {
 			for( int i = 0; i < 9 && !IDs.empty() ; ++i) {
-				auto FID = b + i;
-				auto TID = IDs.back();
+				auto frameID = b + i;
+				auto tagID = IDs.back();
 				IDs.resize(IDs.size()-1);
 				std::ostringstream single,multi;
-				single << "ant_" << TID << "_frame_" << FID << ".png";
-				multi << "frame_" << FID << ".png";
+				single << "ant_" << tagID << "_frame_" << frameID << ".png";
+				multi << "frame_" << frameID << ".png";
 				auto singleTouchPath = basedir / single.str();
 				auto multiTouchPath = basedir / multi.str();
 				std::ofstream singleTouch(singleTouchPath.c_str());
 				std::ofstream multiTouch(multiTouchPath.c_str());
-				s_closeUpFiles[parentPath].insert(std::make_pair(singleTouchPath,std::make_shared<uint32_t>(TID)));
+				s_closeUpFiles[parentPath].insert(std::make_pair(singleTouchPath,std::make_shared<uint32_t>(tagID)));
 				s_closeUpFiles[parentPath].insert(std::make_pair(multiTouchPath,std::shared_ptr<uint32_t>()));
 			}
 		}

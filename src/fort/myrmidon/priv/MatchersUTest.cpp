@@ -29,7 +29,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+	           const fort::myrmidon::InteractionTypes & types) override {
 		return d_value;
 	};
 
@@ -50,7 +50,7 @@ public:
 	                        const CollisionFrame::ConstPtr & i),(override));
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
 	                        fort::myrmidon::AntID b,
-	                        const std::vector<fort::myrmidon::InteractionType> & types), (override));
+	                        const fort::myrmidon::InteractionTypes & types), (override));
 	MOCK_METHOD(void,Format,(std::ostream & out), (const override));
 };
 
@@ -234,7 +234,7 @@ TEST_F(MatchersUTest,Formatting) {
 		= {
 		   {
 		    Matcher::AntIDMatcher(1),
-		    "Ant.ID == 0x0001",
+		    "Ant.ID == 001",
 		   },
 		   {
 		    Matcher::AntColumnMatcher("foo",42.3),

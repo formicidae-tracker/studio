@@ -1,6 +1,6 @@
 #include "ColorComboBox.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 #include <QColorDialog>
 
@@ -12,7 +12,7 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 
 	addItem(tr("Custom Color"),QColor());
 	insertSeparator(count());
-	const auto & palette = fmp::Palette::Default();
+	const auto & palette = fm::Palette::Default();
 	for( size_t i = 0 ; i < palette.Size(); ++i ) {
 		auto color = Conversion::colorFromFM(palette.At(i));
 		addItem(Conversion::iconFromFM(palette.At(i)),

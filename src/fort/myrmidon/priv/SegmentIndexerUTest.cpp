@@ -31,7 +31,7 @@ TEST_F(SegmentIndexerUTest,CanStoreAnIndex) {
 
 	ASSERT_EQ(res.size(),d_testdata.size());
 	for(size_t i =0 ; i < res.size(); ++i ){
-		EXPECT_EQ(res[i].first.FID(),d_testdata[i].first.FID()) << " for segment " << i;
+		EXPECT_EQ(res[i].first.FrameID(),d_testdata[i].first.FrameID()) << " for segment " << i;
 		EXPECT_TRUE(res[i].first.Time().Equals(d_testdata[i].first.Time())) << " for segment " << i;
 		EXPECT_EQ(res[i].second,d_testdata[i].second) << " for segment " << i;
 	}

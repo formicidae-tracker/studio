@@ -18,6 +18,8 @@
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
+
 
 
 TaggingWidget::TaggingWidget(QWidget *parent)
@@ -198,7 +200,7 @@ void TaggingWidget::addIdentification() {
 
 	fm::Time::ConstPtr start,end;
 	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
-		qCritical() << "TagID:" << d_tcu->TagValue()
+		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "
 		            << ToQString(d_tcu->Frame().Time());
 		return;
@@ -222,7 +224,7 @@ void TaggingWidget::newAnt() {
 	}
 	fm::Time::ConstPtr start,end;
 	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
-		qCritical() << "TagID:" << d_tcu->TagValue()
+		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "
 		            << ToQString(d_tcu->Frame().Time());
 		return;

@@ -3,11 +3,11 @@
 #include <QStandardItemModel>
 #include <QDebug>
 
-#include <fort/myrmidon/priv/Experiment.hpp>
-#include <fort/myrmidon/priv/AntShapeType.hpp>
-
 #include <fort/studio/Format.hpp>
 
+#include <fort/studio/MyrmidonTypes/AntShapeType.hpp>
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 AntShapeTypeBridge::AntShapeTypeBridge(QObject * parent)
 	: Bridge(parent)
@@ -125,7 +125,7 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 	auto id = new QStandardItem(QString::number(shapeType->TypeID()));
 	id->setEditable(false);
 	id->setData(data);
-	auto icon = Conversion::iconFromFM(fmp::Palette::Default().At(shapeType->TypeID()));
+	auto icon = Conversion::iconFromFM(fm::Palette::Default().At(shapeType->TypeID()));
 	auto name = new QStandardItem(ToQString(shapeType->Name()));
 	name->setEditable(true);
 	name->setData(data);

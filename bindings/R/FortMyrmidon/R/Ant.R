@@ -3,6 +3,8 @@
 #' @description This is a wrapper for the C++ class
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CAnt}{fort::myrmidon::CAnt}
 #'
+#' @field identifiedAt
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CAnt/fort::myrmidon::CAnt::IdentifiedAt}{fort::myrmidon::CAnt::IdentifiedAt}
 #' @field cIdentifications
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::CAnt/fort::myrmidon::CAnt::CIdentifications}{fort::myrmidon::CAnt::CIdentifications}
 #' @field antID
@@ -28,6 +30,8 @@ NULL
 #' @description This is a wrapper for the C++ class
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant}{fort::myrmidon::Ant}
 #'
+#' @field identifiedAt
+#'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::IdentifiedAt}{fort::myrmidon::Ant::IdentifiedAt}
 #' @field cIdentifications
 #'     \href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::CIdentifications}{fort::myrmidon::Ant::CIdentifications}
 #' @field identifications

@@ -521,7 +521,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 		= {
 		   {
 		    Eigen::Vector2d(12.356,-23.0),Eigen::Vector2d(42.8,0.00024),
-		    "foo/bar/frames/1234/closeups/342",
+		    "foo/bar/frames/1234/closeups/0x156",
 		    1,
 		    34.256
 		   },
@@ -913,10 +913,10 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		                                         d.Angle,
 		                                         d.Corners);
 
-		auto resolver = [&d](FrameID FID) {
+		auto resolver = [&d](FrameID frameID) {
 			                return FrameReference(d.Reference.ParentURI(),
-			                                      FID,
-			                                      d.Reference.Time().Add( (int64_t(FID) - int64_t(d.Reference.FID())) * Duration::Second));
+			                                      frameID,
+			                                      d.Reference.Time().Add( (int64_t(frameID) - int64_t(d.Reference.FrameID())) * Duration::Second));
 		                };
 
 
@@ -928,7 +928,7 @@ TEST_F(IOUtilsUTest,TagCloseUpIO) {
 		for (const auto & c : d.Corners ) {
 			IOUtils::SaveVector(expected.add_corners(),c);
 		}
-		expected.set_frameid(d.Reference.FID());
+		expected.set_frameid(d.Reference.FrameID());
 		expected.set_imagepath(d.Filepath.generic_string());
 
 		IOUtils::SaveTagCloseUp(&pbRes,dTCU,basedir);

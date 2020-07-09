@@ -8,6 +8,10 @@
 
 #include <fort/myrmidon/utils/Defer.hpp>
 
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
+
+
 TagCloseUpLoader::TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
                                    const std::string & tddURI,
                                    size_t seed)
@@ -78,7 +82,7 @@ void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		return;
 	}
 
-	for (const auto & [MTID,type] : d_experiment->MeasurementTypes()) {
+	for (const auto & [mtID,type] : d_experiment->MeasurementTypes()) {
 		d_typeModel->appendRow(buildType(type));
 	}
 
@@ -218,16 +222,16 @@ void MeasurementBridge::cancelAll() {
 	clearAllTCUs();
 }
 
-QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID TID) const {
-	auto tagItem = new QStandardItem(QString("tags/%1").arg(TID));
+QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID tagID) const {
+	auto tagItem = new QStandardItem(QString("tags/%1").arg(fmp::FormatTagID(tagID).c_str()));
 	tagItem->setEditable(false);
-	tagItem->setData(TID,Qt::UserRole+1);
-	tagItem->setData(TID,Qt::UserRole+2);
+	tagItem->setData(tagID,Qt::UserRole+1);
+	tagItem->setData(tagID,Qt::UserRole+2);
 	QList<QStandardItem*> res = {tagItem};
 	for ( size_t i = 0; i < 2; ++i ) {
 		auto dummyItem = new QStandardItem("");
 		dummyItem->setEditable(false);
-		dummyItem->setData(TID,Qt::UserRole+1);
+		dummyItem->setData(tagID,Qt::UserRole+1);
 		res.push_back(dummyItem);
 	}
 	return res;
@@ -241,7 +245,7 @@ QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPt
 	auto tcuItem = new QStandardItem(tcu->URI().c_str());
 	tcuItem->setEditable(false);
 	tcuItem->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
-	tcuItem->setData(qulonglong(tcu->Frame().FID()),Qt::UserRole+2);
+	tcuItem->setData(qulonglong(tcu->Frame().FrameID()),Qt::UserRole+2);
 	size_t mCount = countMeasurementsForTCU(tcu->URI());
 
 	auto measurementCounts = new QStandardItem(QString("%1").arg(mCount));
@@ -257,7 +261,7 @@ void MeasurementBridge::addOneTCU(const std::string & tddURI,
 	auto target = tcu->TagValue();
 
 	QString tagPath = QString("tags/%1");
-	tagPath = tagPath.arg(target);
+	tagPath = tagPath.arg(fmp::FormatTagID(target).c_str());
 
 	auto items = d_tcuModel->findItems(tagPath);
 	QStandardItem * tagItem = NULL;
@@ -299,7 +303,7 @@ void MeasurementBridge::clearAllTCUs() {
 }
 
 bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
-                                       fmp::MeasurementType::ID MTID,
+                                       fmp::MeasurementType::ID mtID,
                                        QPointF start,
                                        QPointF end) {
 	if ( !d_experiment ) {
@@ -319,7 +323,7 @@ bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
 	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(end.x(),end.y());
 	auto m = std::make_shared<fmp::Measurement>(tcu->URI(),
-	                                            MTID,
+	                                            mtID,
 	                                            startFromTag,
 	                                            endFromTag,
 	                                            tcu->TagSizePx());
@@ -347,14 +351,8 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	if ( !d_experiment ) {
 		return;
 	}
-	quint32 mtID,tagID;
-	fmp::FrameID frameID;
-	std::string tddURI;
-	fmp::Measurement::DecomposeURI(mURI,
-	                               tddURI,
-	                               frameID,
-	                               tagID,
-	                               mtID);
+
+	auto [tddURI,frameID,tagID,mtID] = fmp::Measurement::DecomposeURI(mURI);
 
 	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
 	auto ci = d_counts.find(tcuURI);
@@ -392,19 +390,19 @@ size_t MeasurementBridge::countMeasurementsForTCU(const std::string & tcuPath) c
 }
 
 
-void MeasurementBridge::setMeasurementType(quint32 MTID, const QString & name) {
+void MeasurementBridge::setMeasurementType(quint32 mtID, const QString & name) {
 	if ( !d_experiment ) {
 		return;
 	}
 	try {
-		auto fi = d_experiment->MeasurementTypes().find(MTID);
+		auto fi = d_experiment->MeasurementTypes().find(mtID);
 		if ( fi == d_experiment->MeasurementTypes().end() ) {
 			qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::CreateMeasurement('" << name << "')";
 			auto type = d_experiment->CreateMeasurementType(ToStdString(name));
-			MTID = type->MTID();
+			mtID = type->MTID();
 			d_typeModel->appendRow(buildType(type));
 		} else {
-			auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,0);
+			auto items = d_typeModel->findItems(QString::number(mtID),Qt::MatchExactly,0);
 			if ( items.size() != 1 ) {
 				throw std::logic_error("Internal type model error");
 			}
@@ -413,13 +411,13 @@ void MeasurementBridge::setMeasurementType(quint32 MTID, const QString & name) {
 			d_typeModel->item(items[0]->row(),1)->setText(name);
 		}
 	} catch ( const std::exception & e) {
-		qCritical() << "Could not set MeasurementType " << MTID << " to '" << name << "': " << e.what();
+		qCritical() << "Could not set MeasurementType " << mtID << " to '" << name << "': " << e.what();
 	}
 
-	qInfo() << "Set MeasurementType " << MTID
+	qInfo() << "Set MeasurementType " << mtID
 	        << " name to '" << name << "'";
 	setModified(true);
-	emit measurementTypeModified(MTID,name);
+	emit measurementTypeModified(mtID,name);
 }
 
 void MeasurementBridge::deleteMeasurementType(const QModelIndex & index) {
@@ -432,40 +430,40 @@ void MeasurementBridge::deleteMeasurementType(const QModelIndex & index) {
 	deleteMeasurementType(mtype->MTID());
 }
 
-void MeasurementBridge::deleteMeasurementType(quint32 MTID) {
+void MeasurementBridge::deleteMeasurementType(quint32 mtID) {
 	if ( !d_experiment ) {
 		return;
 	}
 
 	try {
-		auto items = d_typeModel->findItems(QString::number(MTID),Qt::MatchExactly,1);
+		auto items = d_typeModel->findItems(QString::number(mtID),Qt::MatchExactly,1);
 		if ( items.size() != 1 ) {
 			throw std::logic_error("Internal type model error");
 		}
 		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::Experiment::DeleteMeasurementType("
-		         << MTID << ")";
-		d_experiment->DeleteMeasurementType(MTID);
+		         << mtID << ")";
+		d_experiment->DeleteMeasurementType(mtID);
 		d_typeModel->removeRows(items[0]->row(),1);
 	} catch (const std::exception & e) {
-		qCritical() << "Could not delete MeasurementType " << MTID << ": " << e.what();
+		qCritical() << "Could not delete MeasurementType " << mtID << ": " << e.what();
 		return;
 	}
 
-	qInfo() << "Deleted MeasurementType " << MTID;
+	qInfo() << "Deleted MeasurementType " << mtID;
 	setModified(true);
-	emit measurementTypeDeleted(MTID);
+	emit measurementTypeDeleted(mtID);
 }
 
 QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::Ptr & type) const {
-	auto mtid =new QStandardItem(QString::number(type->MTID()));
-	mtid->setEditable(false);
-	mtid->setData(QVariant::fromValue(type));
+	auto mtID =new QStandardItem(QString::number(type->MTID()));
+	mtID->setEditable(false);
+	mtID->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
 	auto icon = Conversion::iconFromFM(fmp::Palette::Default().At(type->MTID()));
 	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);
-	return {name,mtid};
+	return {name,mtID};
 }
 
 void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
@@ -529,7 +527,7 @@ fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tc
 
 void MeasurementBridge::queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
                                         const fmp::IdentificationConstPtr & identification) {
-	auto items = d_tcuModel->findItems(QString("tags/%1").arg(identification->TagValue()));
+	auto items = d_tcuModel->findItems(QString("tags/%1").arg(fmp::FormatTagID(identification->TagValue()).c_str()));
 	if ( items.isEmpty() == true ) {
 		return;
 	}

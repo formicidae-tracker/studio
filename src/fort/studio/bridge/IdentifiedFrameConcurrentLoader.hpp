@@ -7,7 +7,9 @@
 #include <atomic>
 #include <tuple>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/MovieSegment.hpp>
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 

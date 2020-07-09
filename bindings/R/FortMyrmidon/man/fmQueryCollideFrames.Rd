@@ -14,8 +14,8 @@ fmQueryCollideFrames(
 }
 \arguments{
 \item{experiment}{the \code{\link{fmCExperiment}} to query for, use
-\code{e$const} if you didn't opened the experiment in read
-only mode.}
+\code{e$const} if you didn't opened the experiment in read only
+mode.}
 
 \item{start}{the starting time for the query. Data which were
 acquire before that time will not be reported. Could be NULL
@@ -35,10 +35,13 @@ standard error output. It may not be portable behavior on all
 OS.}
 }
 \value{
-a list of two lists. \code{$positions} a list of
-    \linkS4class{fmIdentifiedFrame}, and \code{$collisions} a list
-    of \linkS4class{fmCollisionFrame}. Both list refers to the same
-    time and are ordered in time.
+a list of 4 elements a) \code{frames}, b) \code{positions}
+    the two as in \code{\link{fmQueryIdentifyFrames}}, c)
+    \code{collisions} a \code{data.frame} summarizing collision in
+    each \code{frames}, and d) \code{types} a list of \code{matrix}
+    with two column, indicating in the first column, the capsule
+    type of the first ant, interacting in the second column the
+    capsule type interacting in the second ant.
 }
 \description{
 Computes ant position and collision during the

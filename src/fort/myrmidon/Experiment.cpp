@@ -382,6 +382,16 @@ ExperimentDataInfo CExperiment::GetDataInformations() const {
 	return res;
 }
 
+std::map<AntID,TagID> Experiment::IdentificationsAt(const Time & time,
+                                                    bool removeUnidentifiedAnt) const {
+	return d_p->CIdentifier().IdentificationsAt(time,removeUnidentifiedAnt);
+}
+
+std::map<AntID,TagID> CExperiment::IdentificationsAt(const Time & time,
+                                                    bool removeUnidentifiedAnt) const {
+	return d_p->CIdentifier().IdentificationsAt(time,removeUnidentifiedAnt);
+}
+
 CExperiment Experiment::Const() const {
 	return CExperiment(d_p);
 }

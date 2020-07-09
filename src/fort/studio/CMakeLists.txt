@@ -14,7 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
-              MyrmidonTypes.cpp
+              MyrmidonTypes/Conversion.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
 			  bridge/MeasurementBridge.cpp
@@ -69,7 +69,20 @@ set(SRC_FILES Format.cpp
 			  )
 
 set(HDR_FILES Format.hpp
-              MyrmidonTypes.hpp
+              MyrmidonTypes/Ant.hpp
+              MyrmidonTypes/AntMetadata.hpp
+              MyrmidonTypes/AntShapeType.hpp
+              MyrmidonTypes/Color.hpp
+              MyrmidonTypes/Conversion.hpp
+              MyrmidonTypes/Experiment.hpp
+              MyrmidonTypes/Identification.hpp
+              MyrmidonTypes/Measurement.hpp
+              MyrmidonTypes/MovieSegment.hpp
+              MyrmidonTypes/Space.hpp
+              MyrmidonTypes/TagCloseUp.hpp
+              MyrmidonTypes/TrackingDataDirectory.hpp
+              MyrmidonTypes/Types.hpp
+              MyrmidonTypes/Zone.hpp
               Utils.hpp
 			  bridge/Bridge.hpp
 			  bridge/UniverseBridge.hpp

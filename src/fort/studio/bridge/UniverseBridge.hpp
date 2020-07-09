@@ -5,7 +5,8 @@
 
 #include <fort/myrmidon/priv/Experiment.hpp>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/Space.hpp>
 
 class QAbstractItemModel;
 

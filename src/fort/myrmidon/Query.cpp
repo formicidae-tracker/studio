@@ -10,21 +10,6 @@ namespace fort {
 namespace myrmidon {
 
 
-template <typename T>
-class WrapFunctor {
-public:
-	typedef std::function<void(const T &)> StoreFunction;
-	WrapFunctor(const StoreFunction & functor)
-		: d_functor(functor) {
-	}
-	inline void operator=(const T & t) const {
-		d_functor(t);
-	}
-private:
-	StoreFunction d_functor;
-};
-
-
 ComputedMeasurement::List Query::ComputeMeasurementFor(const CExperiment & experiment,
                                                        Ant::ID antID,
                                                        MeasurementTypeID mTypeID) {
@@ -46,8 +31,7 @@ void Query::IdentifyFramesFunctor(const CExperiment & experiment,
                                   const Time::ConstPtr & end,
                                   bool computeZones,
                                   bool singleThreaded) {
-	WrapFunctor inserter(storeData);
-	priv::Query::IdentifyFrames(experiment.d_p,inserter,start,end,computeZones,singleThreaded);
+	priv::Query::IdentifyFrames(experiment.d_p,storeData,start,end,computeZones,singleThreaded);
 }
 
 
@@ -57,8 +41,11 @@ void Query::IdentifyFrames(const CExperiment & experiment,
                            const Time::ConstPtr & end,
                            bool computeZones,
                            bool singleThread) {
-	auto backInserter = std::back_inserter(result);
-	priv::Query::IdentifyFrames(experiment.d_p,backInserter,start,end,computeZones,singleThread);
+	priv::Query::IdentifyFrames(experiment.d_p,
+	                            [&result] (const IdentifiedFrame::ConstPtr & i) {
+		                            result.push_back(i);
+	                            },
+	                            start,end,computeZones,singleThread);
 }
 
 
@@ -67,8 +54,7 @@ void Query::CollideFramesFunctor(const CExperiment & experiment,
                                  const Time::ConstPtr & start,
                                  const Time::ConstPtr & end,
                                  bool singleThread) {
-	WrapFunctor backInserter(storeData);
-	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end,singleThread);
+	priv::Query::CollideFrames(experiment.d_p,storeData,start,end,singleThread);
 }
 
 
@@ -77,8 +63,11 @@ void Query::CollideFrames(const CExperiment & experiment,
                           const Time::ConstPtr & start,
                           const Time::ConstPtr & end,
                           bool singleThread) {
-	auto backInserter = std::back_inserter(result);
-	priv::Query::CollideFrames(experiment.d_p,backInserter,start,end,singleThread);
+	priv::Query::CollideFrames(experiment.d_p,
+	                           [&result](const CollisionData & data) {
+		                           result.push_back(data);
+	                           },
+	                           start,end,singleThread);
 }
 
 void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
@@ -89,9 +78,8 @@ void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
                                           const Matcher::Ptr & matcher,
                                           bool computeZones,
                                           bool singleThread) {
-	WrapFunctor backInserter(storeTrajectory);
 	priv::Query::ComputeTrajectories(experiment.d_p,
-	                                 backInserter,
+	                                 storeTrajectory,
 	                                 start,
 	                                 end,
 	                                 maximumGap,
@@ -110,9 +98,10 @@ void Query::ComputeAntTrajectories(const CExperiment & experiment,
                                    const Matcher::Ptr & matcher,
                                    bool computeZones,
                                    bool singleThread) {
-	auto backInserter = std::back_inserter(trajectories);
 	priv::Query::ComputeTrajectories(experiment.d_p,
-	                                 backInserter,
+	                                 [&trajectories](const AntTrajectory::ConstPtr & trajectory) {
+		                                 trajectories.push_back(trajectory);
+	                                 },
 	                                 start,
 	                                 end,
 	                                 maximumGap,
@@ -122,19 +111,16 @@ void Query::ComputeAntTrajectories(const CExperiment & experiment,
 }
 
 void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
-                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
-                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
+                                          std::function<void ( const AntTrajectory::ConstPtr&) > storeTrajectory,
+                                          std::function<void ( const AntInteraction::ConstPtr&) > storeInteraction,
                                           const Time::ConstPtr & start,
                                           const Time::ConstPtr & end,
                                           Duration maximumGap,
                                           const Matcher::Ptr & matcher,
                                           bool singleThread) {
-	WrapFunctor trajInserter(storeTrajectory);
-	WrapFunctor interInserter(storeInteraction);
-
 	priv::Query::ComputeAntInteractions(experiment.d_p,
-	                                    trajInserter,
-	                                    interInserter,
+	                                    storeTrajectory,
+	                                    storeInteraction,
 	                                    start,
 	                                    end,
 	                                    maximumGap,
@@ -151,12 +137,13 @@ void Query::ComputeAntInteractions(const CExperiment & experiment,
                                    Duration maximumGap,
                                    const Matcher::Ptr & matcher,
                                    bool singleThread) {
-	auto trajInserter = std::back_inserter(trajectories);
-	auto interInserter = std::back_inserter(interactions);
-
 	priv::Query::ComputeAntInteractions(experiment.d_p,
-	                                    trajInserter,
-	                                    interInserter,
+	                                    [&trajectories](const AntTrajectory::ConstPtr & trajectory) {
+		                                    trajectories.push_back(trajectory);
+	                                    },
+	                                    [&interactions](const AntInteraction::ConstPtr & interaction) {
+		                                    interactions.push_back(interaction);
+	                                    },
 	                                    start,
 	                                    end,
 	                                    maximumGap,

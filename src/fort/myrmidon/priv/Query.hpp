@@ -22,24 +22,21 @@ public:
 	static void ComputeTagStatistics(const Experiment::ConstPtr & experiment,
 	                                 TagStatistics::ByTagID & result);
 
-	template < typename OutputIter>
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           OutputIter & output,
+	                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
 	                           const Time::ConstPtr & start,
 	                           const Time::ConstPtr & end,
 	                           bool computeZones = false,
 	                           bool singleThreaded = false);
 
-	template <typename OutputIter>
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
-	                          OutputIter & output,
+	                          std::function<void (const CollisionData & data) > storeData,
 	                          const Time::ConstPtr & start,
 	                          const Time::ConstPtr & end,
 	                          bool singleThreaded = false);
 
-	template <typename OutputIter>
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
-	                                OutputIter & output,
+	                                std::function<void (const AntTrajectory::ConstPtr &)> storeData,
 	                                const Time::ConstPtr & start,
 	                                const Time::ConstPtr & end,
 	                                Duration maximumGap,
@@ -47,17 +44,14 @@ public:
 	                                bool computeZones = false,
 	                                bool singleThreaded = false);
 
-	template <typename TrajectoryOutputIter,
-	          typename InteractionOutputIter>
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-	                                   TrajectoryOutputIter & trajectories,
-	                                   InteractionOutputIter & interactions,
+	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
+	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,
 	                                   const Time::ConstPtr & start,
 	                                   const Time::ConstPtr & end,
 	                                   Duration maximumGap,
 	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool singleThreaded = false);
-
 
 private:
 	typedef std::pair<TrackingDataDirectory::const_iterator,
@@ -86,7 +80,7 @@ private:
 	struct BuildingInteraction {
 		InteractionID             IDs;
 		Time Start,Last;
-		std::set<InteractionType> Types;
+		std::set<std::pair<AntShapeTypeID,AntShapeTypeID>> Types;
 		BuildingInteraction(const Collision & collision,
 		                    const Time & curTime);
 

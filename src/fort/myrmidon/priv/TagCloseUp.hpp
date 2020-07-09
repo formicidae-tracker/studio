@@ -61,7 +61,7 @@ public:
 		       bool forceCache = false);
 
 		List LoadFile(const FileAndFilter & f,
-		              FrameID FID,
+		              FrameID frameID,
 		              size_t nbFiles);
 
 		List LoadFileFromCache(const fs::path & file);
@@ -86,6 +86,10 @@ public:
 	                                      const Eigen::Vector2d & c1,
 	                                      const Eigen::Vector2d & c2,
 	                                      const Eigen::Vector2d & c3);
+
+	static std::string FormatURI(const std::string & tddURI,
+	                             FrameID frameID,
+	                             TagID tagID);
 
 	TagCloseUp(const fs::path & absoluteFilePath,
 	           const FrameReference & reference,

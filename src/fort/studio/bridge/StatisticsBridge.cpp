@@ -81,7 +81,7 @@ void StatisticsBridge::rebuildModel() {
 
 	for ( const auto & [tagID,tagStats] : d_stats ) {
 		QList<QStandardItem*> row;
-		row.push_back(new QStandardItem(QString::number(tagStats.ID)));
+		row.push_back(new QStandardItem(fmp::FormatTagID(tagStats.ID).c_str()));
 		row.back()->setData(tagStats.ID);
 		row.push_back(new QStandardItem(ToQString(tagStats.FirstSeen)));
 		row.back()->setData(ToQString(tagStats.FirstSeen));

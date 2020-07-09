@@ -10,6 +10,8 @@ This is a wrapper for the C++ class
 \section{Fields}{
 
 \describe{
+\item{\code{identifiedAt}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::IdentifiedAt}{fort::myrmidon::Ant::IdentifiedAt}}
+
 \item{\code{cIdentifications}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::CIdentifications}{fort::myrmidon::Ant::CIdentifications}}
 
 \item{\code{identifications}}{\href{https://formicidae-tracker.github.io/studio/docs/latest/api/#fort::myrmidon::Ant/fort::myrmidon::Ant::Identifications}{fort::myrmidon::Ant::Identifications}}
