@@ -19,8 +19,8 @@ TEST_F(AntPoseEstimateUTest,HaveAnURI) {
 		{
 		 {
 		  FrameReference("foo",2,Time()),
-		  123,
-		  "foo/frames/2/estimates/123",
+		  0x123,
+		  "foo/frames/2/estimates/0x123",
 		 },
 		};
 

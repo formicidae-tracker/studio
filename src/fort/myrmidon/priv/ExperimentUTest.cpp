@@ -190,8 +190,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		});
 
 
-	auto tcuPath = fs::path(foo0->URI()) / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
-	auto badPath = fs::path("bar.0000") / "frames" / std::to_string(foo0->StartFrame()) / "closeups/21";
+	auto tcuPath = fs::path(foo0->URI()) / "frames" / std::to_string(foo0->StartFrame()) / "closeups/0x015";
+	auto badPath = fs::path("bar.0000") / "frames" / std::to_string(foo0->StartFrame()) / "closeups/0x015";
 
 	auto goodCustom = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                                Measurement::HEAD_TAIL_TYPE+1,
@@ -283,7 +283,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			/ "frames"
 			/ std::to_string(md.TDD->StartFrame() + md.Offset)
 			/ "closeups"
-			/ std::to_string(md.TID);
+			/ FormatTagID(md.TID);
 
 		auto m = std::make_shared<Measurement>(tcuPath.generic_string(),
 		                                       md.MTID,
@@ -291,7 +291,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		                                       Eigen::Vector2d(0,0),
 		                                       1.0);
 		paths.push_back(m->URI());
-		e->SetMeasurement(m);
+		ASSERT_NO_THROW(e->SetMeasurement(m));
 	}
 
 	//Now we add a super Ant
@@ -378,7 +378,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 
 	for ( const auto & uri : paths ) {
-		e->DeleteMeasurement(uri);
+		ASSERT_NO_THROW(e->DeleteMeasurement(uri));
 	}
 	//deleting all measurements set the position to 0
 
@@ -388,15 +388,15 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	                              Eigen::Vector2d(0.0,0.0)));
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("none/frames/23/closeups/43/measurements/1");
+			e->DeleteMeasurement("none/frames/23/closeups/0x01a/measurements/1");
 		},std::invalid_argument);
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("foo.0000/frames/0/closeups/43/measurements/1");
+			e->DeleteMeasurement("foo.0000/frames/0/closeups/0x01a/measurements/1");
 		},std::runtime_error);
 
 	EXPECT_THROW({
-			e->DeleteMeasurement("foo.0000/frames/0/closeups/21/measurements/34");
+			e->DeleteMeasurement("foo.0000/frames/0/closeups/0x015/measurements/34");
 		},std::runtime_error);
 
 	EXPECT_NO_THROW({
@@ -475,7 +475,7 @@ TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
 			/ "frames"
 			/ std::to_string(foo0->StartFrame() + 42)
 			/ "closeups"
-			/ std::to_string(1);
+			/ FormatTagID(1);
 	// this measurement is subpixel value, it should throw an exception when set to an experiment
 	auto m = std::make_shared<Measurement>(tcuPath.generic_string(),
 	                                       1,

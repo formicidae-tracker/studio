@@ -58,7 +58,6 @@ fort::myrmidon::Time::ConstPtr fmTimeCPtr_fromAnySEXP(SEXP exp) {
 	using namespace fort::myrmidon;
 
 	if ( exp == R_NilValue ) {
-		std::cerr << "nil" << std::endl;
 		return Time::ConstPtr();
 	}
 

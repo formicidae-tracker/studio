@@ -11,6 +11,14 @@ Ant::Ant(const PPtr & pAnt)
 	: d_p(pAnt) {
 }
 
+TagID Ant::IdentifiedAt(const Time & time) const {
+	return d_p->IdentifiedAt(time);
+}
+
+TagID CAnt::IdentifiedAt(const Time & time) const {
+	return d_p->IdentifiedAt(time);
+}
+
 Identification::ConstList Ant::CIdentifications() const {
 	return FORT_MYRMIDON_CONST_HELPER(Ant,CIdentifications);
 }

@@ -53,7 +53,7 @@ TEST_F(RawFrameUTest,ExtractsDataFromHermes) {
 
 	for (auto  m : {&withData,&withError}) {
 		auto res = RawFrame::Create("foo",*m,mID);
-		EXPECT_EQ(res->Frame().FID(),frameID);
+		EXPECT_EQ(res->Frame().FrameID(),frameID);
 		auto expectedTime = time;
 		if ( m->error() != fort::hermes::FrameReadout_Error_NO_ERROR ) {
 			// strip monotonic values on errored frame, has timestamp is always null

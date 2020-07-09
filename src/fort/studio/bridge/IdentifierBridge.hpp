@@ -4,7 +4,11 @@
 
 #include <fort/myrmidon/priv/Experiment.hpp>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
+#include <fort/studio/MyrmidonTypes/Color.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+
 #include "Bridge.hpp"
 
 class QModelIndex;
@@ -44,7 +48,7 @@ public:
 
 	SelectedAntBridge * selectedAnt() const;
 
-	fmp::Ant::ConstPtr ant(fmp::AntID aID) const;
+	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -62,7 +66,7 @@ signals:
 	void numberHiddenAntChanged(quint32 numberSolo);
 public slots:
 	fmp::Ant::Ptr createAnt();
-	void deleteAnt(quint32 AID);
+	void deleteAnt(quint32 antID);
 	void deleteSelection(const QItemSelection & selection);
 
 	fmp::Identification::Ptr addIdentification(quint32 antID,
@@ -81,7 +85,6 @@ private slots:
 
 	void onItemChanged(QStandardItem *);
 private:
-	static QString formatIdentification(const fmp::Identification::Ptr & ident);
 	static QString formatAntName(const fmp::Ant::Ptr & ant);
 
 	static QIcon antDisplayColor(const fmp::Ant::Ptr & ant);
@@ -93,7 +96,7 @@ private:
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
-	QStandardItem * findAnt(fmp::AntID AID) const;
+	QStandardItem * findAnt(fmp::AntID antID) const;
 
 	void doOnSelection(const QItemSelection & selection,
 	                   const std::function<void (const fmp::Ant::Ptr & ant,

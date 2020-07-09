@@ -16,6 +16,7 @@
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
 #include <fort/studio/Format.hpp>
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
 ZoningWidget::ZoningWidget(QWidget *parent)
@@ -216,9 +217,9 @@ void ZoningWidget::onShapeRemoved(QSharedPointer<Shape> shape) {
 	     || fi == d_shapes.end() ) {
 		return;
 	}
-	auto zID = fi->second;
+	auto zoneID = fi->second;
 	d_shapes.erase(fi);
-	rebuildGeometry(zID);
+	rebuildGeometry(zoneID);
 }
 
 
@@ -249,17 +250,17 @@ void ZoningWidget::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
 	}
 
 	for ( const auto & b : bridges ) {\
-		auto zID = b->zone().ZoneID();
-		d_definitions.insert(std::make_pair(zID,b));
-		auto colorFM = fmp::Palette::Default().At(zID);
+		auto zoneID = b->zone().ZoneID();
+		d_definitions.insert(std::make_pair(zoneID,b));
+		auto colorFM = fmp::Palette::Default().At(zoneID);
 		auto color = Conversion::colorFromFM(colorFM);
 		d_ui->comboBox->addItem(Conversion::iconFromFM(colorFM),
 		                        ToQString(b->zone().Name()),
-		                        quint32(zID));
+		                        quint32(zoneID));
 
 		d_vectorialScene->setColor(color);
 		for ( const auto & s : b->geometry().Shapes() ) {
-			appendShape(s,zID);
+			appendShape(s,zoneID);
 		}
 
 	}
@@ -267,7 +268,7 @@ void ZoningWidget::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
 
 
 void ZoningWidget::appendShape(const fmp::Shape::ConstPtr & s,
-                               fmp::Zone::ID zID) {
+                               fmp::Zone::ID zoneID) {
 	QSharedPointer<Shape> newShape;
 	if ( auto p = std::dynamic_pointer_cast<const fmp::Polygon>(s) ) {
 		if ( p->Size() > 2 ) {
@@ -299,7 +300,7 @@ void ZoningWidget::appendShape(const fmp::Shape::ConstPtr & s,
 	        this,[this,newShape]{
 		             rebuildGeometry(newShape);
 	             });
-	d_shapes.insert(std::make_pair(newShape,zID));
+	d_shapes.insert(std::make_pair(newShape,zoneID));
 }
 
 
@@ -312,15 +313,15 @@ void ZoningWidget::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
 	rebuildGeometry(fi->second);
 }
 
-void ZoningWidget::rebuildGeometry(fmp::Zone::ID zID ) {
-	auto fi = d_definitions.find(zID);
+void ZoningWidget::rebuildGeometry(fmp::Zone::ID zoneID ) {
+	auto fi = d_definitions.find(zoneID);
 	if ( fi == d_definitions.end()) {
 		return;
 	}
 	std::vector<fmp::Shape::ConstPtr> shapes;
 
-	for ( const auto & [shape,zID_] : d_shapes ) {
-		if ( zID != zID_) {
+	for ( const auto & [shape,zoneID_] : d_shapes ) {
+		if ( zoneID != zoneID_) {
 			continue;
 		}
 		shapes.push_back(convertShape(shape));
@@ -384,19 +385,19 @@ void ZoningWidget::onSceneModeChanged(VectorialScene::Mode mode) {
 
 
 void ZoningWidget::on_comboBox_currentIndexChanged(int) {
-	auto zID = currentZoneID();
+	auto zoneID = currentZoneID();
 
-	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zID)));
+	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
 
 	for ( const auto item : d_vectorialScene->selectedItems() ) {
 		if ( auto v = dynamic_cast<Shape*>(item) ) {
-			changeShapeType(v,zID);
+			changeShapeType(v,zoneID);
 		}
 	}
 }
 
 
-void ZoningWidget::changeShapeType(Shape * shape, fmp::Zone::ID zID) {
+void ZoningWidget::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
 	auto fi = std::find_if(d_shapes.begin(),
 	                       d_shapes.end(),
 	                       [shape](const std::pair<QSharedPointer<Shape>,fmp::Zone::ID> & iter ) -> bool {
@@ -406,9 +407,9 @@ void ZoningWidget::changeShapeType(Shape * shape, fmp::Zone::ID zID) {
 		return;
 	}
 	auto oldZoneID = fi->second;
-	fi->second = zID;
-	fi->first->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zID)));
-	rebuildGeometry(zID);
+	fi->second = zoneID;
+	fi->first->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
+	rebuildGeometry(zoneID);
 	rebuildGeometry(oldZoneID);
 
 }

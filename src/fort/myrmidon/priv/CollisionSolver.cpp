@@ -148,18 +148,23 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 	kdt->ComputeCollisions(inserter);
 
 	// now do the actual collisions
-	std::map<InteractionID,std::set<InteractionType> > res;
+	std::map<InteractionID,std::set<std::pair<uint32_t,uint32_t>>> res;
 	for ( const auto & coarse : possibleCollisions ) {
 		if ( coarse.first.C.Intersects(coarse.second.C) == true ) {
 			InteractionID ID = std::make_pair(coarse.first.ID,coarse.second.ID);
-			InteractionType type = std::make_pair(coarse.first.TypeID,coarse.second.TypeID);
+			auto type = std::make_pair(coarse.first.TypeID,coarse.second.TypeID);
 			res[ID].insert(type);
 		}
 	}
 	result.reserve(result.size() + res.size());
 	for ( const auto & [ID,interactionSet] : res ) {
-		std::vector<InteractionType> interactions(interactionSet.size());
-		std::copy(interactionSet.cbegin(),interactionSet.cend(),interactions.begin());
+		InteractionTypes interactions(interactionSet.size(),2);
+		size_t i = 0;
+		for ( const auto & t : interactionSet ) {
+			interactions(i,0) = t.first;
+			interactions(i,1) = t.second;
+			++i;
+		}
 		result.push_back(Collision{ID,interactions,zoneID});
 	}
 

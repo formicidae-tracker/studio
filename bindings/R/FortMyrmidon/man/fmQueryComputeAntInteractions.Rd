@@ -12,7 +12,8 @@ fmQueryComputeAntInteractions(
   matcher = NULL,
   singleThreaded = FALSE,
   showProgress = FALSE,
-  reportTrajectories = FALSE
+  reportGlobalTrajectories = FALSE,
+  reportLocalTrajectories = FALSE
 )
 }
 \arguments{
@@ -51,19 +52,25 @@ multi-threading synchronization impacts performances.}
 standard error output. It may not be portable behavior on all
 OS.}
 
-\item{reportTrajectories}{enables trajectory report in the
-\linkS4class{fmAntInteraction} objects. Due to the memory model
-of R, just copying this data from C++ to R will have a huge
-impact on performance ( may double computation time).}
+\item{reportGlobalTrajectories}{enables gloabl trajectory report in
+the result. If enabled two line in the resulting list will be
+added, as described by the output of
+\code{\link{fmQueryComputeAntTrajectories}}.}
+
+\item{reportLocalTajectories}{for each interaction, copy the
+trajectory of each ant during that interaction. They will be
+reported in the final list objects as \code{ant1trajectory} and
+\code{ant2Trajectory}. If this option is not chosen, the mean
+position of each ant will be added in the main
+\code{interaction} \code{data.frame}, and two additionnal list
+\code{zone1} and \code{zone2} will be added to the main
+list. For each line of interactions, they contains a vector of
+all zone the corresponding ant was during that interaction.}
 }
 \value{
-a list of two list. \code{$trajectories} is a list of
-    \linkS4class{fmAntTrajectory}. \code{$interactions} is a list
-    of \linkS4class{fmAntInteraction}. both list are ordered in
-    ending of the corresponding object. Since Trajectory objects
-    may span longer in time than interactions, the two lists do not
-    have matching element (unlike the result of
-    \code{\link{fmCollideFrames}}).
+a list with at list an element called \code{interactions}
+    \code{data.frame} summarising all interactions. Other elements
+    depends on the choice of othere report options.
 }
 \description{
 Computes ant interactions and trajectories during the

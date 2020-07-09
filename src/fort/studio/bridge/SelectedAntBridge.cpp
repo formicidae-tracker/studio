@@ -86,7 +86,7 @@ void SelectedAntBridge::rebuildIdentificationModel() {
 
 	for ( const auto & ident : d_ant->Identifications() ) {
 		auto data = QVariant::fromValue(ident);
-		auto tag = new QStandardItem(QString::number(ident->TagValue()));
+		auto tag = new QStandardItem(fmp::FormatTagID(ident->TagValue()).c_str());
 		tag->setEditable(false);
 		tag->setData(data);
 		double sizeValue = ident->TagSize();

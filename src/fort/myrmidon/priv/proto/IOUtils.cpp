@@ -441,7 +441,7 @@ FrameReference IOUtils::LoadFrameReference(const pb::TimedFrame & pb,
 
 void IOUtils::SaveFrameReference(pb::TimedFrame * pb,
                                  const FrameReference & ref) {
-		pb->set_frameid(ref.FID());
+		pb->set_frameid(ref.FrameID());
 		SaveTime(pb->mutable_time(),ref.Time());
 }
 
@@ -536,7 +536,7 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 
 	pb->Clear();
 
-	pb->set_frameid(tcu->Frame().FID());
+	pb->set_frameid(tcu->Frame().FrameID());
 	pb->set_imagepath(fs::relative(tcu->AbsoluteFilePath(),absoluteBasedir).generic_string());
 	SaveVector(pb->mutable_position(),tcu->TagPosition());
 	pb->set_angle(tcu->TagAngle());

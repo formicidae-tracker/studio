@@ -5,6 +5,11 @@
 
 #include <fort/studio/Format.hpp>
 
+#include <fort/studio/MyrmidonTypes/Zone.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/Space.hpp>
+
+
 const int ZoneBridge::TypeRole = Qt::UserRole+1;
 const int ZoneBridge::DataRole = Qt::UserRole+2;
 
@@ -269,7 +274,7 @@ QList<QStandardItem*> ZoneBridge::buildSpace(const fmp::Space::Ptr & space) cons
 		i->setData(typeData,TypeRole);
 		i->setData(data,DataRole);
 	}
-	for ( const auto & [zID,zone] : space->Zones() ) {
+	for ( const auto & [zoneID,zone] : space->Zones() ) {
 		res[0]->appendRow(buildZone(zone));
 	}
 	return res;

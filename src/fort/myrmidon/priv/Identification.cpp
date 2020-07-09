@@ -158,8 +158,8 @@ void Identification::ClearUserDefinedAntPose() {
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::priv::Identification & a) {
 	out << "Identification{ID:"
-	    << a.TagValue()
-	    << "↦"
+	    << fort::myrmidon::FormatTagID(a.TagValue())
+	    << " ↦ "
 	    << a.Target()->AntID()
 	    << ", From:'";
 	if (a.Start()) {

@@ -6,7 +6,7 @@ namespace priv {
 
 std::string AntPoseEstimate::BuildURI(const FrameReference & reference,
                                    TagID tid) {
-	return (fs::path(reference.URI()) / "estimates" / std::to_string(tid)).generic_string();
+	return (fs::path(reference.URI()) / "estimates" / FormatTagID(tid)).generic_string();
 }
 
 

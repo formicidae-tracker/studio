@@ -9,6 +9,10 @@
 
 #include <fort/studio/Format.hpp>
 
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+#include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
+
 AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	: Bridge(parent)
 	, d_columnModel(new QStandardItemModel(this))
@@ -304,10 +308,10 @@ void AntMetadataBridge::rebuildDataModel() {
 	d_dataModel->setHorizontalHeaderLabels(labels);
 
 
-	for ( const auto & [aID,ant] : ants ) {
+	for ( const auto & [antID,ant] : ants ) {
 		auto antData = QVariant::fromValue(ant);
 
-		auto antLabel = new QStandardItem(ToQString(fmp::Ant::FormatID(aID)));
+		auto antLabel = new QStandardItem(ToQString(fmp::Ant::FormatID(antID)));
 		antLabel->setEditable(false);
 		antLabel->setData(antData);
 		size_t count = 0;
@@ -455,11 +459,11 @@ quint32 AntMetadataBridge::selectedAntID() const {
 	return d_selectedAntID;
 }
 
-void AntMetadataBridge::setSelectedAntID(quint32 ID) {
-	if ( d_selectedAntID == ID ) {
+void AntMetadataBridge::setSelectedAntID(quint32 antID) {
+	if ( d_selectedAntID == antID ) {
 		return;
 	}
-	d_selectedAntID = ID;
+	d_selectedAntID = antID;
 	emit selectedAntIDChanged(d_selectedAntID);
 }
 

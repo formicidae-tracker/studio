@@ -2,7 +2,9 @@
 
 #include <QObject>
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/MovieSegment.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
 
 #include <opencv2/videoio.hpp>
 

@@ -186,16 +186,18 @@ Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
 	: IDs(collision.IDs)
 	, Start(curTime)
 	, Last(curTime) {
-	for ( const auto & type : collision.Types ) {
-		Types.insert(type);
+	for ( size_t i = 0; i < collision.Types.rows(); ++i ) {
+		Types.insert(std::make_pair(collision.Types(i,0),
+		                            collision.Types(i,1)));
 	}
 }
 
 void Query::BuildingInteraction::Append(const Collision & collision,
                                         const Time & curTime) {
 	Last = curTime;
-	for ( const auto & type : collision.Types ) {
-		Types.insert(type);
+	for ( size_t i = 0; i < collision.Types.rows(); ++i ) {
+		Types.insert(std::make_pair(collision.Types(i,0),
+		                            collision.Types(i,1)));
 	}
 }
 
@@ -203,8 +205,13 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
                                                                const BuildingTrajectory & b ) const {
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = IDs;
+	res->Space = a.SpaceID;
+	res->Types = InteractionTypes(Types.size(),2);
+	size_t i = 0;
 	for ( const auto & type : Types ) {
-		res->Types.push_back(type);
+		res->Types(i,0) = type.first;
+		res->Types(i,1) = type.second;
+		++i;
 	}
 	auto cutTrajectory
 		= [this](const BuildingTrajectory & t) {
@@ -398,6 +405,278 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 	       };
 
 }
+
+void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
+                           std::function<void ( const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
+                           const Time::ConstPtr & start,
+                           const Time::ConstPtr & end,
+                           bool computeZones,
+                           bool singleThread) {
+	auto identifier = experiment->CIdentifier().Compile();
+	CollisionSolver::ConstPtr collider;
+	if ( computeZones == true ) {
+		collider = experiment->CompileCollisionSolver();
+	}
+	DataRangeBySpaceID ranges;
+	BuildRange(experiment,start,end,ranges);
+	if ( ranges.empty() ) {
+		return;
+	}
+
+	if (singleThread == true ) {
+		DataLoader loader(ranges);
+		for(;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			if ( collider ) {
+				auto zoner = collider->ZonerFor(identified);
+				identified->Zones.reserve(identified->Positions.size());
+				for ( const auto & p : identified->Positions ) {
+					identified->Zones.push_back(zoner->LocateAnt(p));
+				}
+			}
+			storeDataFunctor(identified);
+		}
+		return;
+	}
+
+	tbb::filter_t<void,RawData>
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
+
+	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
+		computeData(tbb::filter::parallel,
+		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
+			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            if ( collider ) {
+				            auto zoner = collider->ZonerFor(identified);
+				            identified->Zones.reserve(identified->Positions.size());
+				            for ( const auto & p : identified->Positions ) {
+					            identified->Zones.push_back(zoner->LocateAnt(p));
+				            }
+			            }
+			            return identified;
+		            });
+
+
+	tbb::filter_t<IdentifiedFrame::ConstPtr,void>
+		storeData(tbb::filter::serial_in_order,
+		          storeDataFunctor);
+
+	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
+}
+
+void Query::CollideFrames(const Experiment::ConstPtr & experiment,
+                          std::function<void (const CollisionData &)> storeDataFunctor,
+                          const Time::ConstPtr & start,
+                          const Time::ConstPtr & end,
+                          bool singleThreaded) {
+	auto identifier = experiment->CIdentifier().Compile();
+	auto solver = experiment->CompileCollisionSolver();
+	DataRangeBySpaceID ranges;
+	BuildRange(experiment,start,end,ranges);
+	if ( ranges.empty() ) {
+		return;
+	}
+
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			auto collided = solver->ComputeCollisions(identified);
+			storeDataFunctor({identified,collided});
+		}
+		return;
+	}
+
+	tbb::filter_t<void,RawData >
+		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
+
+	tbb::filter_t<RawData,
+	              CollisionData>
+		computeData(tbb::filter::parallel,
+		            [identifier,solver](const RawData & rawData ) -> CollisionData {
+			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+			            auto interacted = solver->ComputeCollisions(identified);
+			            return std::make_pair(identified,interacted);
+		            });
+
+
+	tbb::filter_t<CollisionData,void>
+		storeData(tbb::filter::serial_in_order,
+		          storeDataFunctor);
+
+	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
+
+}
+
+void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
+                                std::function<void (const AntTrajectory::ConstPtr &)> storeDataFunctor,
+                                const Time::ConstPtr & start,
+                                const Time::ConstPtr & end,
+                                Duration maximumGap,
+                                const Matcher::Ptr & matcher,
+                                bool computeZones,
+                                bool singleThreaded) {
+	auto identifier = experiment->CIdentifier().Compile();
+	CollisionSolver::ConstPtr collider;
+	if ( computeZones == true ) {
+		collider = experiment->CompileCollisionSolver();
+	}
+	if ( matcher ) {
+		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
+	}
+	DataRangeBySpaceID ranges;
+	BuildRange(experiment,start,end,ranges);
+	if ( ranges.empty() ) {
+		return;
+	}
+	BuildingTrajectoryData currentTrajectories;
+	auto computeTrajectoriesFunction =
+		BuildTrajectories(storeDataFunctor,
+		                  currentTrajectories,
+		                  maximumGap,
+		                  matcher);
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			if ( collider ) {
+				auto zoner = collider->ZonerFor(identified);
+				identified->Zones.reserve(identified->Positions.size());
+				for ( const auto & p : identified->Positions ) {
+					identified->Zones.push_back(zoner->LocateAnt(p));
+				}
+			}
+			computeTrajectoriesFunction(identified);
+		}
+	} else {
+		tbb::filter_t<void,RawData>
+			loadData(tbb::filter::serial_in_order,DataLoader(ranges));
+
+		std::string currentTddURI;
+		tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
+			computeData(tbb::filter::parallel,
+			            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
+				            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+				            if ( collider ) {
+					            auto zoner = collider->ZonerFor(identified);
+					            identified->Zones.reserve(identified->Positions.size());
+					            for ( const auto & p : identified->Positions ) {
+						            identified->Zones.push_back(zoner->LocateAnt(p));
+					            }
+				            }
+				            return identified;
+			            });
+
+		tbb::filter_t<IdentifiedFrame::ConstPtr,void>
+			computeTrajectories(tbb::filter::serial_in_order,
+			                    computeTrajectoriesFunction);
+
+		tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
+		                       loadData & computeData & computeTrajectories);
+	}
+
+	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
+		auto res = bTrajectory.Terminate();
+		if ( res ) {
+			storeDataFunctor(res);
+		}
+	}
+}
+
+void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
+                                   std::function<void ( const AntTrajectory::ConstPtr &) > storeTrajectory,
+                                   std::function<void ( const AntInteraction::ConstPtr &) > storeInteraction,
+                                   const Time::ConstPtr & start,
+                                   const Time::ConstPtr & end,
+                                   Duration maximumGap,
+                                   const Matcher::Ptr & matcher,
+                                   bool singleThreaded) {
+
+	auto identifier = experiment->CIdentifier().Compile();
+	auto solver = experiment->CompileCollisionSolver();
+
+	if ( matcher ) {
+		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
+	}
+	DataRangeBySpaceID ranges;
+	BuildRange(experiment,start,end,ranges);
+	if ( ranges.empty() ) {
+		return;
+	}
+
+	BuildingTrajectoryData currentTrajectories;
+	BuildingInteractionData currentInteractions;
+	auto buildInteractionsFunction =
+		BuildInteractions(storeTrajectory,
+		                  storeInteraction,
+		                  currentTrajectories,
+		                  currentInteractions,
+		                  maximumGap,
+		                  matcher);
+
+	if ( singleThreaded == true ) {
+		DataLoader loader(ranges);
+		for (;;) {
+			auto raw = loader();
+			if ( std::get<0>(raw) == 0 ) {
+				break;
+			}
+			auto identified  = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
+			auto collided = solver->ComputeCollisions(identified);
+			buildInteractionsFunction({identified,collided});
+		}
+	} else {
+
+		tbb::filter_t<void,RawData>
+			loadData(tbb::filter::serial_in_order,DataLoader(ranges));
+
+		tbb::filter_t<RawData,CollisionData>
+			computeData(tbb::filter::parallel,
+			            [identifier,solver](const RawData & rawData ) -> CollisionData {
+				            auto identified  = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
+				            auto interacted = solver->ComputeCollisions(identified);
+				            return std::make_pair(identified,interacted);
+			            });
+
+
+		tbb::filter_t<CollisionData,void>
+			computeInteractions(tbb::filter::serial_in_order,
+			                    buildInteractionsFunction);
+
+		tbb::parallel_pipeline(std::thread::hardware_concurrency() * 2,
+		                       loadData & computeData & computeInteractions);
+	}
+
+	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
+		auto res = bTrajectory.Terminate();
+		if ( res ) {
+			storeTrajectory(res);
+		}
+	}
+
+	for ( const auto & [IDs,bInteraction] : currentInteractions ) {
+		auto res = bInteraction.Terminate(currentTrajectories.at(IDs.first),
+		                                  currentTrajectories.at(IDs.second));
+		if ( res ) {
+			storeInteraction(res);
+		}
+	}
+}
+
+
+
 
 
 } // namespace priv

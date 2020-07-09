@@ -12,22 +12,22 @@ namespace priv {
 
 TEST_F(TagCloseUpUTest,CanBeFormatted) {
 	struct TestData {
-		fs::path Path;
-		FrameID FID;
-		TagID   TID;
-		std::string Expected;
+		fs::path      Path;
+		priv::FrameID FrameID;
+		priv::TagID   TagID;
+		std::string   Expected;
 	};
 
 	std::vector<TestData> data
 		= {
-		   {"",0,0,"/frames/0/closeups/0"},
-		   {"",2134,34,"/frames/2134/closeups/34"},
-		   {"foo",42,43,"foo/frames/42/closeups/43"},
-		   {"foo/bar/baz",42,56,"foo/bar/baz/frames/42/closeups/56"},
+		   {"",0,0,"/frames/0/closeups/0x000"},
+		   {"",2134,34,"/frames/2134/closeups/0x022"},
+		   {"foo",42,43,"foo/frames/42/closeups/0x02b"},
+		   {"foo/bar/baz",42,56,"foo/bar/baz/frames/42/closeups/0x038"},
 	};
 
 	if (fs::path::preferred_separator == '\\') {
-		data.push_back({"foo\bar\baz",42,103,"foo/bar/baz/frames/42/closeups/103"});
+		data.push_back({"foo\bar\baz",42,103,"foo/bar/baz/frames/42/closeups/0x067"});
 	}
 
 	Vector2dList corners =
@@ -40,14 +40,14 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 
 	for(const auto & d : data ) {
 		FrameReference a(d.Path.generic_string(),
-		                 d.FID,
+		                 d.FrameID,
 		                 fort::myrmidon::Time::FromTimeT(0));
-		TagCloseUp t(TestSetup::Basedir() / "foo", a,d.TID,Eigen::Vector2d::Zero(),0.0,corners);
+		TagCloseUp t(TestSetup::Basedir() / "foo", a,d.TagID,Eigen::Vector2d::Zero(),0.0,corners);
 		fs::path expectedParentPath(d.Path.generic_string().empty() ? "/" : d.Path);
 		std::ostringstream os;
 		os << t;
 		EXPECT_EQ(os.str(),d.Expected);
-		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FID) / "closeups" / std::to_string(d.TID);
+		auto expectedURI = expectedParentPath / "frames" /std::to_string(d.FrameID) / "closeups" / FormatTagID(d.TagID);
 		EXPECT_EQ(t.URI(), expectedURI);
 	}
 
@@ -112,7 +112,7 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	auto files = TagCloseUp::Lister::ListFiles(TestSetup::Basedir() / "foo.0000/ants");
 	auto expectedFiles = TestSetup::CloseUpFilesForPath(TestSetup::Basedir() / "foo.0000");
 	ASSERT_EQ(files.size(),expectedFiles.size());
-	for (const auto & [FID,ff] : files ) {
+	for (const auto & [frameID,ff] : files ) {
 		auto fi = expectedFiles.find(ff.first);
 		if ( fi == expectedFiles.end()) {
 			ADD_FAILURE() << "Returned unexpected file " << ff.first.generic_string();

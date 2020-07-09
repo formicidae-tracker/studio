@@ -15,6 +15,8 @@
 #include <fort/studio/widget/CloneShapeDialog.hpp>
 #include <fort/studio/Utils.hpp>
 
+#include <fort/studio/MyrmidonTypes/Conversion.hpp>
+
 
 
 AntEditorWidget::AntEditorWidget(QWidget *parent)

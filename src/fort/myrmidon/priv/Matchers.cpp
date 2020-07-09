@@ -31,7 +31,7 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<fort::myrmidon::InteractionType> & type) override {
+		           const fort::myrmidon::InteractionTypes & type) override {
 			for ( const auto & m : d_matchers ) {
 				if ( m->Match(ant1,ant2,type) == false ) {
 					return false;
@@ -77,7 +77,7 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<fort::myrmidon::InteractionType> & types) override {
+		           const fort::myrmidon::InteractionTypes & types) override {
 			for ( const auto & m : d_matchers ) {
 				if ( m->Match(ant1,ant2,types) == true ) {
 					return true;
@@ -118,7 +118,7 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<fort::myrmidon::InteractionType> & types) override {
+		           const fort::myrmidon::InteractionTypes & types) override {
 			if ( ant2 != 0 && ant2 == d_id ) {
 				return true;
 			}
@@ -168,7 +168,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 
 		bool Match(fort::myrmidon::AntID ant1,
 		           fort::myrmidon::AntID ant2,
-		           const std::vector<fort::myrmidon::InteractionType> & types) override {
+		           const fort::myrmidon::InteractionTypes & types) override {
 			auto fi = d_ants.find(ant2);
 			if ( fi != d_ants.end()
 			     && fi->second->GetValue(d_name,d_time) == d_value ) {
@@ -217,7 +217,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+	           const fort::myrmidon::InteractionTypes & types) override {
 		auto fi1 = d_positions.find(ant1);
 		auto fi2 = d_positions.find(ant2);
 		if ( fi1 == d_positions.end() || fi2 == d_positions.end() ) {
@@ -268,7 +268,7 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+	           const fort::myrmidon::InteractionTypes & types) override {
 		auto fi1 = d_angles.find(ant1);
 		auto fi2 = d_angles.find(ant2);
 		if ( fi1 == d_angles.end() || fi2 == d_angles.end() ) {
@@ -307,13 +307,14 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+	           const fort::myrmidon::InteractionTypes & types) override {
 		if (ant2 == 0) { return true; }
-		return std::find_if(types.cbegin(),
-		                    types.cend(),
-		                    [this](const fort::myrmidon::InteractionType & it) {
-			                    return it.first == d_type && it.second == d_type;
-		                    }) != types.cend();
+		for ( size_t i = 0; i < types.rows(); ++i ) {
+			if ( types.row(i) == Eigen::Matrix<uint32_t,1,2>(d_type,d_type) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void Format(std::ostream & out ) const override {
@@ -346,14 +347,16 @@ public:
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
-	           const std::vector<fort::myrmidon::InteractionType> & types) override {
+	           const fort::myrmidon::InteractionTypes & types) override {
 		if (ant2 == 0) { return true; }
-		return std::find_if(types.cbegin(),
-		                    types.cend(),
-		                    [this](const fort::myrmidon::InteractionType & it) {
-			                    return (it.first == d_type1 && it.second == d_type2)
-				                    || (it.first == d_type2 && it.second == d_type1);
-		                    }) != types.cend();
+		for ( size_t i = 0; i < types.rows(); ++i ) {
+			if ( types.row(i) == Eigen::Matrix<uint32_t,1,2>(d_type1,d_type2)
+			     || types.row(i) == Eigen::Matrix<uint32_t,1,2>(d_type2,d_type1)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	void Format(std::ostream & out ) const override {

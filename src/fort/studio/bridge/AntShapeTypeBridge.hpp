@@ -2,9 +2,9 @@
 
 #include "Bridge.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
-
 #include <QList>
+
+#include <fort/studio/MyrmidonTypes/AntShapeType.hpp>
 
 class QAbstractItemModel;
 class QStandardItemModel;

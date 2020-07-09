@@ -12,7 +12,7 @@ FrameReference::FrameReference()
 }
 
 FrameReference::FrameReference(const std::string & parentURI,
-                               FrameID frameID,
+                               priv::FrameID frameID,
                                const fort::myrmidon::Time & time)
 	: d_parentURI(parentURI.empty() ? "/" : parentURI)
 	, d_URI( (fs::path(d_parentURI) / "frames" / std::to_string(frameID)).generic_string() )
@@ -26,7 +26,7 @@ const Time & FrameReference::Time() const {
 	return d_time;
 }
 
-FrameID FrameReference::FID() const {
+FrameID FrameReference::FrameID() const {
 	return d_id;
 }
 

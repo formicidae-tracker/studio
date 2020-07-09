@@ -6,6 +6,11 @@
 
 #include <fort/studio/Format.hpp>
 
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+#include <fort/studio/MyrmidonTypes/MovieSegment.hpp>
+#include <fort/studio/MyrmidonTypes/Time.hpp>
+
+
 const int MovieBridge::PtrRole = Qt::UserRole+1;
 const int MovieBridge::IDRole  = Qt::UserRole+2;
 const int MovieBridge::StartRole  = Qt::UserRole+3;

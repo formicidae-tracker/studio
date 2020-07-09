@@ -78,6 +78,19 @@ TEST_F(AntUTest,StaticDataTest) {
 
 }
 
+TEST_F(AntUTest,IDFormatting) {
+	std::vector<std::pair<AntID,std::string>> testdata
+		= {
+		   {1,"001"},
+		   {10,"010"},
+	};
+
+	for( const auto & d : testdata ) {
+		EXPECT_EQ(Ant::FormatID(d.first),d.second);
+	}
+
+}
+
 } // namespace priv
 } // namespace myrmidon
 } // namespace fort

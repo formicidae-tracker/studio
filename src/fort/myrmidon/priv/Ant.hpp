@@ -58,6 +58,20 @@ public:
 	// Its destructor
 	~Ant();
 
+	// Gets the TagID identifying this Ant at a given time.
+	// @time the <Time> for which we want the identification
+	//
+	// Gets the <TagID> identifying this Ant at a given. There may not
+	// have an identification at this given time, an an exception will be thrown.
+	// R version:
+	// ```R
+	// ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+	// ```
+	//
+	// @return a <TagID> that identify this ant at this time if it
+	// exists (throw an exception otherwise)
+	TagID IdentifiedAt(const Time &) const;
+
 	// The Identification::List associated with this priv::Ant.
 	//
 	// A sorted <Identification::List> associated with this

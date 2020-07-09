@@ -15,8 +15,8 @@ fmQueryIdentifyFrames(
 }
 \arguments{
 \item{experiment}{the \code{\link{fmCExperiment}} to query for, use
-\code{e$const} if you didn't opened the experiment in read
-only mode.}
+\code{e$const} if you didn't opened the experiment in read only
+mode.}
 
 \item{start}{the starting time for the query. Data which were
 acquire before that time will not be reported. Could be NULL
@@ -40,7 +40,11 @@ standard error output. It may not be portable behavior on all
 OS.}
 }
 \value{
-a list of \linkS4class{fmIdentifiedFrame}, ordered in time.
+a list of two element a) \code{frames} : a
+    \code{data.frame} summarizing the time and space of each frame,
+    and b) \code{position} a list of data.frame with the position
+    of each ant for that frame. Each element of this list
+    correspond to the same row in \code{frames}
 }
 \description{
 Computes ant position during the experiment

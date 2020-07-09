@@ -2,6 +2,7 @@
 #include "ui_AntMetadataWidget.h"
 
 #include <fort/studio/bridge/AntMetadataBridge.hpp>
+#include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
 
 #include <QStyledItemDelegate>
 #include <QDebug>

@@ -151,7 +151,7 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 	auto collides =
 		[](const PositionedAnt & a,
 		   const PositionedAnt & b) {
-			std::vector<InteractionType> res;
+			std::vector<std::pair<uint32_t,uint32_t>> res;
 			auto aAnt = ants.at(a.ID);
 			auto bAnt = ants.at(b.ID);
 			Isometry2Dd aIso(a.Angle,a.Position);
@@ -165,7 +165,13 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 					}
 				}
 			}
-			return res;
+			InteractionTypes asM(res.size(),2);
+			for ( size_t i = 0; i < res.size(); ++i) {
+				asM(i,0) = res[i].first;
+				asM(i,1) = res[i].second;
+			}
+
+			return asM;
 		};
 
 	auto res = std::make_shared<CollisionFrame>();
@@ -174,7 +180,7 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 		for ( size_t i = 0; i < ants.size(); ++i) {
 			for ( size_t j = i+1; j < ants.size(); ++j ) {
 				auto collisions = collides(ants[i],ants[j]);
-				if ( !collisions.empty() )  {
+				if ( collisions.rows() != 0 )  {
 					res->Collisions.push_back({std::make_pair(ants[i].ID,ants[j].ID),
 					                             collisions,
 					                             zID});
@@ -210,15 +216,18 @@ TEST_F(CollisionSolverUTest,TestE2E) {
 			continue;
 		}
 
-		for ( const auto & type : inter.Types ) {
-			auto ti = std::find_if(fi->Types.begin(),
-			                       fi->Types.end(),
-			                       [&type] ( const InteractionType & tested ) {
-				                       return tested == type;
-			                       });
-			if ( ti == fi->Types.end() ) {
-				auto aName = type.first == 1 ? "body" : "antennas";
-				auto bName = type.second == 1 ? "body" : "antennas";
+
+		for ( size_t i = 0; i < inter.Types.rows(); ++i ) {
+			bool good = false;
+			for (size_t j = 0; j < fi->Types.rows(); ++j) {
+				if ( inter.Types.row(i) == fi->Types.row(j) ) {
+					good = true;
+					break;
+				}
+			}
+			if ( good == false ) {
+				auto aName = inter.Types(i,0) == 1 ? "body" : "antennas";
+				auto bName = inter.Types(i,1) == 1 ? "body" : "antennas";
 				ADD_FAILURE() << "Collision between " << Ant::FormatID(inter.IDs.first)
 				              << " and " << Ant::FormatID(inter.IDs.second)
 				              << " is missing collision " << aName << "-" << bName;

@@ -34,7 +34,7 @@ public:
 
 	std::vector<Segment> Segments() const;
 
-	std::pair<FrameReference,T> Find(FrameID FID) const;
+	std::pair<FrameReference,T> Find(FrameID frameID) const;
 
 	std::pair<FrameReference,T> Find(const Time & t) const;
 

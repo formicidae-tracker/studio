@@ -4,7 +4,7 @@
 
 #include "Bridge.hpp"
 
-#include <fort/studio/MyrmidonTypes.hpp>
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
 
 class QAbstractItemModel;
 class QStandardItemModel;

@@ -17,8 +17,8 @@ fmQueryComputeAntTrajectories(
 }
 \arguments{
 \item{experiment}{the \code{\link{fmCExperiment}} to query for, use
-\code{e$const} if you didn't opened the experiment in read
-only mode.}
+\code{e$const} if you didn't opened the experiment in read only
+mode.}
 
 \item{start}{the starting time for the query. Data which were
 acquire before that time will not be reported. Could be NULL
@@ -53,8 +53,12 @@ standard error output. It may not be portable behavior on all
 OS.}
 }
 \value{
-a list of \linkS4class{fmAntTrajectory}, ordered in ending
-    time.
+a list of two elements: a) \code{summaryTrajectories} a
+    \code{data.frame} summarizing the ant, start time, and space of
+    each trajectories reported, and b) \code{trajectories} a list
+    of \code{data.frame} with the data point for every
+    trajectories. Each element of this list correspond to the same
+    row in the summary \code{data.frame}
 }
 \description{
 Computes ant trajectories during the experiment
