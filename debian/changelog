@@ -1,3 +1,10 @@
+fort-studio (0.5.0-0ubuntu1) focal; urgency=medium
+
+  * New upstream release v0.5.0
+  * Changes libfort-myrmidon0.4 package name to libfort-myrmidon0.5
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Thu, 09 Jul 2020 21:15:55 +0200
+
 fort-studio (0.4.2-0ubuntu1) focal; urgency=medium
 
   * New upstream release v0.4.2
