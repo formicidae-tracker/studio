@@ -203,6 +203,7 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
                                                                const BuildingTrajectory & b ) const {
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = IDs;
+	res->Space = a.SpaceID;
 	for ( const auto & type : Types ) {
 		res->Types.push_back(type);
 	}

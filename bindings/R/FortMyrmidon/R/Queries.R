@@ -1,105 +1,10 @@
-#' a S4 class that describes ant position
-#'
-#' @field frameTime the time of the frame as a POSIXct
-#' @field width the width of the image
-#' @field height the height of the image
-#' @field space the associated \code{\link{fmSpace$spaceId}} with the
-#'     frame
-#' @field data a data.frame with the ID,X,Y Angle and optionally the
-#'     ZoneID of the Ant in this frame
-setClass("fmIdentifiedFrame", representation(
-                                  "frameTime" = "POSIXct",
-                                  "width"     = "integer",
-                                  "height"    = "integer",
-                                  "space"     = "integer",
-                                  "data"      = "data.frame"
-                              ))
-
-#' a S4 class that describes ant collision (instantaneous interaction)
-#'
-#' @description describes an instantaneous interaction between two
-#'     ants. We always have \code{ant1} < \code{ant2} to ensure
-#'     uniqueness of the (ant1,ant2) couple.
-#'
-#' @field ant1 the ID of the first ant
-#' @field ant2 the ID of the second ant
-#' @field zone the ID of the zone where the collision happens
-#' @field types a 2 column matrix with the virtual shape ID of the ant
-#'     interacting, first column refers to the first ant, and second
-#'     column to the second ant.
-setClass("fmCollision",
-         representation(
-             "ant1"  = "integer",
-             "ant2"  = "integer",
-             "zone"  = "integer",
-             "types" = "matrix"
-         )
-         )
-
-#' a S4 class that describes ant collisions at a time
-#'
-#'
-#' @field frameTime the time of the frame as a POSIXct
-#' @field space the associated \code{\link{fmSpace$spaceId}} with the
-#'     frame
-#' @field collisions a list of \code{\link{fmCollision}} of the collision
-#'     happening in that space and time.
-setClass("fmCollisionFrame",
-         representation(
-             "frameTime"  = "POSIXct",
-             "space"      = "integer",
-             "collisions" = "list"
-         )
-         )
-
-#' A S4 class describing an Ant trajectory
-#'
-#' @field ant the id of the ant
-#' @field space the space this trajectory is happening
-#' @field start the start of the trajectory as a POSIXct
-#' @field positions a data.frame with the time,X,Y, Angle and optionally the
-#'     ZoneID of the Ant. Time are second offsets from start.
-setClass("fmAntTrajectory",
-         representation(
-             "ant"       = "integer",
-             "space"     = "integer",
-             "start"     = "POSIXct",
-             "positions" = "data.frame"
-         )
-         )
-
-#' A S4 class describing an interaction between two ant
-#'
-#' @field ant1 the id of the first ant
-#' @field ant2 the id of the second ant
-#' @field start the start of the interaction as a POSIXct
-#' @field end the end of the interaction as a POSIXct
-#' @field types a 2 column matrix with the virtual shape ID of the ant
-#'     interacting, first column refers to the first ant, and second
-#'     column to the second ant.
-#' @field ant1Trajectory the trajectory of the first ant during the
-#'     interaction, optionally reported.
-#' @field ant2Trajectory the trajectory of the second ant during the
-#'     interaction, optionally reported.
-setClass("fmAntInteraction",
-         representation(
-             "ant1"           = "integer",
-             "ant2"           = "integer",
-             "start"          = "POSIXct",
-             "end"            = "POSIXct",
-             "types"          = "matrix",
-             "ant1Trajectory" = "fmAntTrajectory",
-             "ant2Trajectory" = "fmAntTrajectory"
-         )
-         )
-
 options("digits.secs" = 6)
 
 #' Computes ant position during the experiment
 #'
 #' @param experiment the \code{\link{fmCExperiment}} to query for, use
-#'     \code{e$const} if you didn't opened the experiment in read
-#'     only mode.
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
@@ -116,7 +21,11 @@ options("digits.secs" = 6)
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @return a list of \linkS4class{fmIdentifiedFrame}, ordered in time.
+#' @return a list of two element a) \code{frames} : a
+#'     \code{data.frame} summarizing the time and space of each frame,
+#'     and b) \code{position} a list of data.frame with the position
+#'     of each ant for that frame. Each element of this list
+#'     correspond to the same row in \code{frames}
 fmQueryIdentifyFrames <- function (experiment,
                                    start = NULL,
                                    end = NULL,
@@ -140,8 +49,8 @@ fmQueryIdentifyFrames <- function (experiment,
 #'     collision detection).
 #'
 #' @param experiment the \code{\link{fmCExperiment}} to query for, use
-#'     \code{e$const} if you didn't opened the experiment in read
-#'     only mode.
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
@@ -155,10 +64,13 @@ fmQueryIdentifyFrames <- function (experiment,
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @return a list of two lists. \code{$positions} a list of
-#'     \linkS4class{fmIdentifiedFrame}, and \code{$collisions} a list
-#'     of \linkS4class{fmCollisionFrame}. Both list refers to the same
-#'     time and are ordered in time.
+#' @return a list of 4 elements a) \code{frames}, b) \code{positions}
+#'     the two as in \code{\link{fmQueryIdentifyFrames}}, c)
+#'     \code{collisions} a \code{data.frame} summarizing collision in
+#'     each \code{frames}, and d) \code{types} a list of \code{matrix}
+#'     with two column, indicating in the first column, the capsule
+#'     type of the first ant, interacting in the second column the
+#'     capsule type interacting in the second ant.
 fmQueryCollideFrames <- function (experiment,
                                   start = NULL,
                                   end = NULL,
@@ -175,8 +87,8 @@ fmQueryCollideFrames <- function (experiment,
 #' Computes ant trajectories during the experiment
 #'
 #' @param experiment the \code{\link{fmCExperiment}} to query for, use
-#'     \code{e$const} if you didn't opened the experiment in read
-#'     only mode.
+#'     \code{e$const} if you didn't opened the experiment in read only
+#'     mode.
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
@@ -202,8 +114,12 @@ fmQueryCollideFrames <- function (experiment,
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @return a list of \linkS4class{fmAntTrajectory}, ordered in ending
-#'     time.
+#' @return a list of two elements: a) \code{summaryTrajectories} a
+#'     \code{data.frame} summarizing the ant, start time, and space of
+#'     each trajectories reported, and b) \code{trajectories} a list
+#'     of \code{data.frame} with the data point for every
+#'     trajectories. Each element of this list correspond to the same
+#'     row in the summary \code{data.frame}
 fmQueryComputeAntTrajectories <- function (experiment,
                                            start = NULL,
                                            end = NULL,
@@ -261,17 +177,22 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @param reportTrajectories enables trajectory report in the
-#'     \linkS4class{fmAntInteraction} objects. Due to the memory model
-#'     of R, just copying this data from C++ to R will have a huge
-#'     impact on performance ( may double computation time).
-#' @return a list of two list. \code{$trajectories} is a list of
-#'     \linkS4class{fmAntTrajectory}. \code{$interactions} is a list
-#'     of \linkS4class{fmAntInteraction}. both list are ordered in
-#'     ending of the corresponding object. Since Trajectory objects
-#'     may span longer in time than interactions, the two lists do not
-#'     have matching element (unlike the result of
-#'     \code{\link{fmCollideFrames}}).
+#' @param reportGlobalTrajectories enables gloabl trajectory report in
+#'     the result. If enabled two line in the resulting list will be
+#'     added, as described by the output of
+#'     \code{\link{fmQueryComputeAntTrajectories}}.
+#' @param reportLocalTajectories for each interaction, copy the
+#'     trajectory of each ant during that interaction. They will be
+#'     reported in the final list objects as \code{ant1trajectory} and
+#'     \code{ant2Trajectory}. If this option is not chosen, the mean
+#'     position of each ant will be added in the main
+#'     \code{interaction} \code{data.frame}, and two additionnal list
+#'     \code{zone1} and \code{zone2} will be added to the main
+#'     list. For each line of interactions, they contains a vector of
+#'     all zone the corresponding ant was during that interaction.
+#' @return a list with at list an element called \code{interactions}
+#'     \code{data.frame} summarising all interactions. Other elements
+#'     depends on the choice of othere report options.
 fmQueryComputeAntInteractions <- function (experiment,
                                            start = NULL,
                                            end = NULL,
@@ -279,7 +200,8 @@ fmQueryComputeAntInteractions <- function (experiment,
                                            matcher = NULL,
                                            singleThreaded = FALSE,
                                            showProgress = FALSE,
-                                           reportTrajectories = FALSE) {
+                                           reportGlobalTrajectories = FALSE,
+                                           reportLocalTrajectories = FALSE) {
     if ( is.null(matcher) ) {
         matcher = fmMatcherAny();
     }
@@ -289,9 +211,10 @@ fmQueryComputeAntInteractions <- function (experiment,
                                           fmTimeCPtrFromAnySEXP(end),
                                           maximumGap,
                                           matcher,
+                                          reportGlobaTrajectories,
+                                          reportLocalTrajectories,
                                           singleThreaded,
-                                          showProgress,
-                                          reportTrajectories))
+                                          showProgress))
 }
 
 #' @name fmQueryComputeMeasurementFor

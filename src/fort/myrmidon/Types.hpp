@@ -264,6 +264,8 @@ struct AntInteraction {
 	Time                               Start;
 	// Reports the <Time> the interaction ends
 	Time                               End;
+	// Reports the <SpaceID> where the interaction happend
+	SpaceID                            Space;
 };
 
 

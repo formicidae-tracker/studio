@@ -7,6 +7,8 @@
 #include "ant_static_value.h"
 #include "map.hpp"
 
+#include <fort/myrmidon/Types.hpp>
+
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::TrackingDataDirectoryInfo)
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::SpaceDataInfo)
 RCPP_EXPOSED_CLASS_NODECL(fort::myrmidon::ExperimentDataInfo)
@@ -79,6 +81,37 @@ void fmExperimentDataInfo_show(const fort::myrmidon::ExperimentDataInfo * i) {
 	Rcpp::Rcout << "  ])\n])\n";
 }
 
+
+Rcpp::DataFrame fmCExperimentWrapIdentifications(const std::map<fort::myrmidon::AntID,fort::myrmidon::TagID> & data) {
+	Rcpp::NumericVector antIDs(data.size()),tagIDs(data.size());
+	Rcpp::CharacterVector tagIDStr(data.size());
+	size_t i = 0;
+	for ( const auto & [antID,tagID] : data ) {
+		antIDs[i] = antID;
+		tagIDs[i] = tagID == std::numeric_limits<fort::myrmidon::TagID>::max() ? NA_INTEGER : tagID;
+		tagIDStr[i] = fort::myrmidon::FormatTagID(tagID);
+		++i;
+	}
+
+	auto res = Rcpp::DataFrame::create(Rcpp::_["tagDecimalValue"] = tagIDs,
+	                                   Rcpp::_["antID"]  = antIDs);
+	res.names() = tagIDStr;
+	return res;
+}
+
+Rcpp::DataFrame fmCExperimentIdentificationsAt(const fort::myrmidon::CExperiment * e,
+                                               const fort::myrmidon::Time & t,
+                                               bool removeUnidentified = true) {
+	return fmCExperimentWrapIdentifications(e->IdentificationsAt(t,removeUnidentified));
+}
+
+Rcpp::DataFrame fmExperimentIdentificationsAt(const fort::myrmidon::Experiment * e,
+                                              const fort::myrmidon::Time & t,
+                                              bool removeUnidentified = true) {
+	return fmCExperimentWrapIdentifications(e->IdentificationsAt(t,removeUnidentified));
+}
+
+
 FM_IMPLEMENT_MAPUINT32(AntID,Ant)
 FM_IMPLEMENT_MAPUINT32(AntID,CAnt)
 FM_IMPLEMENT_MAPUINT32(SpaceID,CSpace)
@@ -126,6 +159,7 @@ RCPP_MODULE(experiment) {
 
 	Rcpp::class_<fort::myrmidon::CExperiment>("fmCExperiment")
 		.const_method("show",&fmCExperiment_show)
+		.const_method("identificationsAt",&fmCExperimentIdentificationsAt)
 		.const_method("absoluteFilePath",&fort::myrmidon::CExperiment::AbsoluteFilePath)
 		.const_method("cSpaces",&fort::myrmidon::CExperiment::CSpaces)
 		.const_method("cAnts",&fort::myrmidon::CExperiment::CAnts)
@@ -145,6 +179,7 @@ RCPP_MODULE(experiment) {
 
 	Rcpp::class_<fort::myrmidon::Experiment>("fmExperiment")
 		.const_method("show",&fmExperiment_show)
+		.const_method("identificationsAt",&fmExperimentIdentificationsAt)
 		.method("save",&fort::myrmidon::Experiment::Save)
 		.const_method("absoluteFilePath",&fort::myrmidon::Experiment::AbsoluteFilePath)
 		.method("createSpace",&fort::myrmidon::Experiment::CreateSpace)
