@@ -208,9 +208,9 @@ TEST_F(QueryUTest,InteractionComputation) {
 	for (const auto & interaction : interactions ) {
 		EXPECT_EQ(interaction->IDs.first,1);
 		EXPECT_EQ(interaction->IDs.second,2);
-		EXPECT_EQ(interaction->Types.size(),1);
-		EXPECT_EQ(interaction->Types.front(),
-		          std::make_pair(1U,1U));
+		EXPECT_EQ(interaction->Types.rows(),1);
+		EXPECT_EQ(interaction->Types(0,0),1U);
+		EXPECT_EQ(interaction->Types(0,1),1U);
 		EXPECT_EQ(interaction->Trajectories.first->Start,
 		          interaction->Start);
 		EXPECT_EQ(interaction->Trajectories.second->Start,

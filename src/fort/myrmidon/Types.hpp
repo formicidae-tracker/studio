@@ -167,13 +167,14 @@ struct IdentifiedFrame {
 // is strictly smaller than the second ID, so it ensures uniqueness of
 // the InteractionID to reports interactions.
 typedef std::pair<AntID,AntID>                   InteractionID;
-// Designates an interaction type for an interaction.
+
+// Designates list of interaction type for an interaction.
 //
-// Designates an interaction type for an interaction. Unline
-// <InteractionID>, there are no order on the interaction types, as
-// the first item refers to the <AntShapeTypeID> for the first <Ant>
-// and the second one for the second Ant.
-typedef std::pair<AntShapeTypeID,AntShapeTypeID> InteractionType;
+// Designates an interaction type for an interaction. Each line
+// represent a colliding capsules type. First column the first ant and
+// the second column the second ant.
+typedef Eigen::Matrix<uint32_t,Eigen::Dynamic,2> InteractionTypes;
+
 
 // Defines an interaction between two <Ant> ponctual in <Time>
 struct Collision {
@@ -184,7 +185,7 @@ struct Collision {
 	// ensure uniqueness of IDs for <AntInteraction>.
 	InteractionID                IDs;
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
-	std::vector<InteractionType> Types;
+	InteractionTypes Types;
 	// Reports the <Zone> where the interaction happened.
 	//
 	// Reports the <Zone> where the interaction happened, the
@@ -252,7 +253,7 @@ struct AntInteraction {
 	//
 	// Virtual shape body part that were in contact during the
 	// interaction.
-	std::vector<InteractionType>       Types;
+	InteractionTypes                  Types;
 	// Reports the <AntTrajectory> of each Ant.
 	//
 	// Reports the <AntTrajectory> of each Ant during the

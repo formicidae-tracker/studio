@@ -211,7 +211,7 @@ fmQueryComputeAntInteractions <- function (experiment,
                                           fmTimeCPtrFromAnySEXP(end),
                                           maximumGap,
                                           matcher,
-                                          reportGlobaTrajectories,
+                                          reportGlobalTrajectories,
                                           reportLocalTrajectories,
                                           singleThreaded,
                                           showProgress))

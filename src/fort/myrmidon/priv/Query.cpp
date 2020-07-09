@@ -186,16 +186,18 @@ Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
 	: IDs(collision.IDs)
 	, Start(curTime)
 	, Last(curTime) {
-	for ( const auto & type : collision.Types ) {
-		Types.insert(type);
+	for ( size_t i = 0; i < collision.Types.rows(); ++i ) {
+		Types.insert(std::make_pair(collision.Types(i,0),
+		                            collision.Types(i,1)));
 	}
 }
 
 void Query::BuildingInteraction::Append(const Collision & collision,
                                         const Time & curTime) {
 	Last = curTime;
-	for ( const auto & type : collision.Types ) {
-		Types.insert(type);
+	for ( size_t i = 0; i < collision.Types.rows(); ++i ) {
+		Types.insert(std::make_pair(collision.Types(i,0),
+		                            collision.Types(i,1)));
 	}
 }
 
@@ -204,8 +206,12 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = IDs;
 	res->Space = a.SpaceID;
+	res->Types = InteractionTypes(Types.size(),2);
+	size_t i = 0;
 	for ( const auto & type : Types ) {
-		res->Types.push_back(type);
+		res->Types(i,0) = type.first;
+		res->Types(i,1) = type.second;
+		++i;
 	}
 	auto cutTrajectory
 		= [this](const BuildingTrajectory & t) {

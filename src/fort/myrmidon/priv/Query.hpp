@@ -80,7 +80,7 @@ private:
 	struct BuildingInteraction {
 		InteractionID             IDs;
 		Time Start,Last;
-		std::set<InteractionType> Types;
+		std::set<std::pair<AntShapeTypeID,AntShapeTypeID>> Types;
 		BuildingInteraction(const Collision & collision,
 		                    const Time & curTime);
 

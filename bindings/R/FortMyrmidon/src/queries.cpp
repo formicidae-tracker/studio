@@ -12,6 +12,14 @@
 
 using namespace fort::myrmidon;
 
+#define Vectorize(...) {__VA_ARGS__}
+#define CreateDataFrameOptimized(VarName,elements,names,nrows ) \
+	Rcpp::List VarName(elements); \
+	VarName.attr("names") = Rcpp::CharacterVector(names); \
+	VarName.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,(nrows)); \
+	VarName.attr("class") = "data.frame"
+
+
 std::tuple<Rcpp::IntegerVector,Rcpp::NumericVector,Rcpp::NumericVector,Rcpp::NumericVector>
 fmPositionData_asR(const PositionedAntList & ants) {
 		size_t n = ants.size();
@@ -37,16 +45,18 @@ SEXP fmIdentifiedFrames_asR(std::vector<IdentifiedFrame::ConstPtr> & frames, boo
 	for ( auto & f : frames ) {
 		auto [IDs,X,Y,Angle] = fmPositionData_asR(f->Positions);
 		if ( withZone == true ) {
-			positions[i] = DataFrame::create(_["antID"] = IDs,
-			                                 _["x"] = X,
-			                                 _["y"] = Y,
-			                                 _["angle"] = Angle,
-			                                 _["zone"] = IntegerVector(f->Zones.begin(),f->Zones.end()));
+			CreateDataFrameOptimized(df,
+			                         Vectorize(IDs,X,Y,Angle, IntegerVector(f->Zones.begin(),f->Zones.end())),
+			                         Vectorize("antID","x","y","angle","zone"),
+			                         IDs.size());
+
+			positions[i] = df;
 		} else {
-			positions[i] = DataFrame::create(_["antID"] = IDs,
-			                                 _["x"] = X,
-			                                 _["y"] = Y,
-			                                 _["angle"] = Angle);
+			CreateDataFrameOptimized(df,
+			                         Vectorize(IDs,X,Y,Angle),
+			                         Vectorize("antID","x","y","angle"),
+			                         IDs.size());
+			positions[i] = df;
 		}
 
 		time[i] = fmTime_asR(f->FrameTime);
@@ -65,12 +75,14 @@ SEXP fmIdentifiedFrames_asR(std::vector<IdentifiedFrame::ConstPtr> & frames, boo
 }
 
 
-
-SEXP fmInteractionType_asR(const std::vector<InteractionType> & it ) {
-	// ugly reinterpret cast, but the memory layout is right
-	return Rcpp::IntegerMatrix(it.size(),
-	                           2,
-	                           reinterpret_cast<const std::vector<uint32_t>*>(&(it))->begin());
+std::string fmInteractionTypes_asStr(const InteractionTypes & types ) {
+	std::ostringstream res;
+	for ( size_t i = 0; i < types.rows(); ++i ) {
+		res << types(i,0) <<  "-" <<  types(i,1) << ",";
+	}
+	auto ress = res.str();
+	ress.pop_back();
+	return ress;
 }
 
 SEXP fmCollisionData_asR(std::vector<Query::CollisionData> & frames ) {
@@ -79,18 +91,19 @@ SEXP fmCollisionData_asR(std::vector<Query::CollisionData> & frames ) {
 	DatetimeVector time(frames.size());
 	IntegerVector width(frames.size()),height(frames.size()),space(frames.size());
 
-	std::vector<IntegerMatrix> types;
+	std::vector<std::string> types;
 	std::vector<AntID> ant1IDs,ant2IDs;
 	std::vector<size_t> frameRowIndex;
 	std::vector<ZoneID> zone;
 	size_t i = 0;
 	for ( auto & [identified,collided] : frames) {
 		auto [IDs,X,Y,Angle] = fmPositionData_asR(identified->Positions);
-		positions[i] = Rcpp::DataFrame::create(Rcpp::_["antID"] = IDs,
-		                                       Rcpp::_["x"] = X,
-		                                       Rcpp::_["y"] = Y,
-		                                       Rcpp::_["angle"] = Angle,
-		                                       Rcpp::_["zone"] = IntegerVector(identified->Zones.cbegin(),identified->Zones.cend()));
+		CreateDataFrameOptimized(df,
+		                         Vectorize(IDs,X,Y,Angle, IntegerVector(identified->Zones.begin(),identified->Zones.end())),
+		                         Vectorize("antID","x","y","angle","zone"),
+		                         IDs.size());
+
+		positions[i] = df;
 
 		time[i] = fmTime_asR(identified->FrameTime);
 		width[i] = identified->Width;
@@ -102,13 +115,12 @@ SEXP fmCollisionData_asR(std::vector<Query::CollisionData> & frames ) {
 			ant1IDs.push_back(collision.IDs.first);
 			ant2IDs.push_back(collision.IDs.second);
 			zone.push_back(collision.Zone);
-			types.push_back(fmInteractionType_asR(collision.Types));
+			types.push_back(fmInteractionTypes_asStr(collision.Types));
 		}
 		++i;
 		identified.reset();
 		collided.reset();
 	}
-
 	return List::create(_["frames"] = DataFrame::create(_["time"] = time,
 	                                                    _["space"] = space,
 	                                                    _["width"] = width,
@@ -117,9 +129,9 @@ SEXP fmCollisionData_asR(std::vector<Query::CollisionData> & frames ) {
 	                    _["collisions"] = DataFrame::create(_["ant1"] = IntegerVector(ant1IDs.begin(),ant1IDs.end()),
 	                                                        _["ant2"] = IntegerVector(ant2IDs.begin(),ant2IDs.end()),
 	                                                        _["zone"] = IntegerVector(zone.begin(),zone.end()),
-	                                                        _["frameRowIndex"] = IntegerVector(frameRowIndex.begin(),
-		                     frameRowIndex.end())),
-	                    _["types"] = List(types.begin(),types.end()));
+	                                                        _["types"] = CharacterVector(types.cbegin(),types.cend()),
+	                                                        _["frames_row_index"] = IntegerVector(frameRowIndex.begin(),
+		                     frameRowIndex.end())));
 }
 
 Rcpp::DataFrame fmAntTrajectoryPosition_asR(const AntTrajectory::ConstPtr & trajectory) {
@@ -131,17 +143,18 @@ Rcpp::DataFrame fmAntTrajectoryPosition_asR(const AntTrajectory::ConstPtr & traj
  	numericVectorFromEigen(y,trajectory->Positions,2,nPoints);
  	numericVectorFromEigen(angle,trajectory->Positions,3,nPoints);
 	if ( trajectory->Zones.empty() == false ) {
-		return DataFrame::create(_["time"] = time,
-		                         _["x"] = x,
-		                         _["y"] = y,
-		                         _["angle"] = angle,
-		                         _["zone"] = IntegerVector(trajectory->Zones.cbegin(),
-		                                                   trajectory->Zones.cend()));
+		CreateDataFrameOptimized(df,
+		                         Vectorize(time,x,y,angle, IntegerVector(trajectory->Zones.cbegin(),trajectory->Zones.cend())),
+		                         Vectorize("time","x","y","angle","zone"),
+		                         trajectory->Positions.rows());
+		return df;
 	}
-	return DataFrame::create(_["time"] = time,
-	                         _["x"] = x,
-	                         _["y"] = y,
-	                         _["angle"] = angle);
+	CreateDataFrameOptimized(df,
+	                         Vectorize(time,x,y,angle),
+	                         Vectorize("time","x","y","angle"),
+	                         trajectory->Positions.rows());
+
+	return df;
 }
 
 
@@ -168,13 +181,15 @@ fmAntTrajectories_asR(const std::vector<AntTrajectory::ConstPtr> & trajectories)
 
 }
 
-std::tuple<Rcpp::DataFrame,Rcpp::List,Rcpp::List,Rcpp::List>
+std::tuple<Rcpp::DataFrame,Rcpp::List,Rcpp::List>
 fmAntInteractions_asR(std::vector<AntInteraction::ConstPtr> & interactions) {
 	using namespace Rcpp;
 	auto n = interactions.size();
-	List ant1Trajectory(n),ant2Trajectory(n),types(n);
+	List ant1Trajectory(n),ant2Trajectory(n);
 	IntegerVector ant1(n),ant2(n),space(n);
 	DatetimeVector start(n),end(n);
+	CharacterVector types(n);
+
 	size_t i = 0;
 	for ( auto & interaction : interactions ) {
 		ant1[i] = interaction->IDs.first;
@@ -183,10 +198,10 @@ fmAntInteractions_asR(std::vector<AntInteraction::ConstPtr> & interactions) {
 		end[i] = fmTime_asR(interaction->End);
 		space[i] = interaction->Space;
 
-		types[i] = fmInteractionType_asR(interaction->Types);
+		types[i] = fmInteractionTypes_asStr(interaction->Types);
 
-		ant1Trajectory[n] = fmAntTrajectoryPosition_asR(interaction->Trajectories.first);
-		ant2Trajectory[n] = fmAntTrajectoryPosition_asR(interaction->Trajectories.second);
+		ant1Trajectory[i] = fmAntTrajectoryPosition_asR(interaction->Trajectories.first);
+		ant2Trajectory[i] = fmAntTrajectoryPosition_asR(interaction->Trajectories.second);
 
 		++i;
 		interaction.reset();
@@ -196,26 +211,27 @@ fmAntInteractions_asR(std::vector<AntInteraction::ConstPtr> & interactions) {
 	                          _["ant2"] = ant2,
 	                          _["start"] = start,
 	                          _["end"] = end,
-	                          _["space"] = space),
-	        types,
+	                          _["space"] = space,
+	                          _["types"]  = types),
 	        ant1Trajectory,
 	        ant2Trajectory};
 }
 
-std::tuple<Rcpp::DataFrame,Rcpp::List,Rcpp::List,Rcpp::List>
+
+Rcpp::DataFrame
 fmAntInteractionsSummarized_asR(std::vector<AntInteraction::ConstPtr> & interactions,
                                std::vector<double> & meanAnt1,
                                std::vector<double> & meanAnt2,
-                               const std::vector<std::vector<ZoneID>> & zoneAnt1,
-                               const std::vector<std::vector<ZoneID>> & zoneAnt2) {
+                                const std::vector<std::string> & zoneAnt1,
+                                const std::vector<std::string> & zoneAnt2) {
 	using namespace Rcpp;
 	auto n = interactions.size();
-	List types(n),zones1(n),zones2(n);
-	size_t i = 0;
+
 	IntegerVector ant1(n),ant2(n),space(n);
 	DatetimeVector start(n),end(n);
+	CharacterVector types(n);
 
-
+	size_t i = 0;
 	for ( auto & interaction : interactions) {
 		ant1[i] = interaction->IDs.first;
 		ant2[i] = interaction->IDs.second;
@@ -223,12 +239,8 @@ fmAntInteractionsSummarized_asR(std::vector<AntInteraction::ConstPtr> & interact
 		end[i] = fmTime_asR(interaction->End);
 		space[i] = interaction->Space;
 
-		types[i] = fmInteractionType_asR(interaction->Types);
+		types[i] = fmInteractionTypes_asStr(interaction->Types);
 
-		zones1[i] = NumericVector(zoneAnt1[i].cbegin(),
-		                          zoneAnt1[i].cend());
-		zones2[i] = NumericVector(zoneAnt2[i].cbegin(),
-		                          zoneAnt2[i].cend());
 		++i;
 		interaction.reset();
 	}
@@ -249,20 +261,20 @@ fmAntInteractionsSummarized_asR(std::vector<AntInteraction::ConstPtr> & interact
 	numericVectorFromEigen(angle2mean,mean2,2,n);
 
 	// now we can put everything in data.frame
-	return { DataFrame::create(_["ant1"] = ant1,
-	                           _["ant2"] = ant2,
-	                           _["start"] = start,
-	                           _["end"] = end,
-	                           _["space"] = space,
-	                           _["x_1_mean"] = x1mean,
-	                           _["y_1_mean"] = y1mean,
-	                           _["angle_1_mean"] = angle1mean,
-	                           _["x_2_mean"] = x2mean,
-	                           _["y_2_mean"] = y2mean,
-	                           _["angle_2_mean"] = angle2mean),
-	         types,
-	         zones1,
-	         zones2 };
+	return DataFrame::create(_["ant1"] = ant1,
+	                         _["ant2"] = ant2,
+	                         _["start"] = start,
+	                         _["end"] = end,
+	                         _["space"] = space,
+	                         _["types"] = types,
+	                         _["ant1_x_mean"] = x1mean,
+	                         _["ant1_y_mean"] = y1mean,
+	                         _["ant1_angle_mean"] = angle1mean,
+	                         _["ant2_x_mean"] = x2mean,
+	                         _["ant2_y_mean"] = y2mean,
+	                         _["ant2_angle_mean"] = angle2mean,
+	                         _["ant1_zones"] = CharacterVector(zoneAnt1.cbegin(),zoneAnt1.cend()),
+	                         _["ant2_zones"] = CharacterVector(zoneAnt2.cbegin(),zoneAnt2.cend()));
 }
 
 Rcpp::DataFrame fmQuery_computeMeasurementFor(const CExperiment & experiment,
@@ -482,7 +494,7 @@ SEXP fmQueryComputeAntTrajectories(const CExperiment & experiment,
 	SET_PD("R Conversion");
 	auto [summary,trajectories] = fmAntTrajectories_asR(res_);
 	CLEAR_PD();
-	return Rcpp::List::create(Rcpp::_["trajectorySummary"] = summary,
+	return Rcpp::List::create(Rcpp::_["trajectory_summary"] = summary,
 	                          Rcpp::_["trajectories"] = trajectories);
 }
 
@@ -493,10 +505,17 @@ double meanUS(const std::vector<Duration> & durations) {
 }
 
 
-std::pair<Eigen::Vector3d,std::vector<ZoneID>> SummarizeTrajectory(const AntTrajectory::ConstPtr & trajectory) {
+std::pair<Eigen::Vector3d,std::string> SummarizeTrajectory(const AntTrajectory::ConstPtr & trajectory) {
 	std::set<ZoneID> set(trajectory->Zones.begin(),trajectory->Zones.end());
+	std::ostringstream oss;
+	for ( const auto & zone : set ) {
+		oss << zone << ",";
+	}
+	std::string zones(oss.str());
+	zones.pop_back();
+
 	return {trajectory->Positions.block(0,1,trajectory->Positions.rows(),3).colwise().mean(),
-	        {set.begin(),set.end()}};
+	        zones};
 }
 
 SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
@@ -510,19 +529,26 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
                                    bool showProgress ) {
 
 	std::vector<AntTrajectory::ConstPtr> resTrajectories;
+
+	DECLARE_PD();
+
+	SET_PD("Processing");
+
 	std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectories =
-		[&resTrajectories](const AntTrajectory::ConstPtr & trajectory ) {
+		[&resTrajectories,&pd](const AntTrajectory::ConstPtr & trajectory ) {
 			resTrajectories.push_back(trajectory);
+			pd->ShowProgress(trajectory->End());
 		};
 	if ( reportGlobalTrajectories ==  false ) {
 		//drop the data instead of storing it
-		storeTrajectories = [](const AntTrajectory::ConstPtr &) {
+		storeTrajectories = [&pd](const AntTrajectory::ConstPtr & trajectory) {
+			                    pd->ShowProgress(trajectory->End());
 		                  };
 	}
 
 	std::vector<AntInteraction::ConstPtr>  resInteractions;
 	std::vector<double> meanAnt1,meanAnt2;
-	std::vector<std::vector<ZoneID>> zone1,zone2;
+	std::vector<std::string> zone1,zone2;
 
 	std::function<void (const AntInteraction::ConstPtr &)> storeInteractions =
 		[&resInteractions](const AntInteraction::ConstPtr & interaction) {
@@ -558,8 +584,6 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 			};
 	}
 
-	DECLARE_PD();
-	SET_PD("Processing");
 	Query::ComputeAntInteractionsFunctor(experiment,
 	                                     storeTrajectories,
 	                                     storeInteractions,
@@ -578,21 +602,16 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 
 	SET_PD("R interaction conversion");
 	if (reportLocalTrajectories == true ) {
-		auto [interactions,types,t1,t2] = fmAntInteractions_asR(resInteractions);
+		auto [interactions,t1,t2] = fmAntInteractions_asR(resInteractions);
 		res["interactions"] = interactions;
-		res["types"] = types;
 		res["ant1Trajectory"] = t1;
 		res["ant2Trajectory"] = t2;
 	} else {
-		auto [interactions,types,z1,z2] = fmAntInteractionsSummarized_asR(resInteractions,
-		                                                                  meanAnt1,
-		                                                                  meanAnt2,
-		                                                                  zone1,
-		                                                                  zone2);
-		res["interactions"] = interactions;
-		res["types"] = types;
-		res["ant1zones"] = z1;
-		res["ant2zones"] = z2;
+		res["interactions"] = fmAntInteractionsSummarized_asR(resInteractions,
+		                                                      meanAnt1,
+		                                                      meanAnt2,
+		                                                      zone1,
+		                                                      zone2);
 	}
 	CLEAR_PD();
 	return res;
