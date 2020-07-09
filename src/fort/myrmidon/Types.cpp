@@ -20,6 +20,12 @@ Time AntTrajectory::End() const {
 	return Start.Add(Positions(Positions.rows()-1,0) * Duration::Second);
 }
 
+std::string FormatTagID(TagID tagID) {
+	std::ostringstream oss;
+	oss << "0x" << std::hex << std::setfill('0') << std::setw(3) << tagID;
+	return oss.str();
+}
+
 } // namespace myrmidon
 } // namespace fort
 

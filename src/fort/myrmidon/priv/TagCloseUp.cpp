@@ -441,5 +441,5 @@ double TagCloseUp::Squareness() const {
 std::ostream& operator<<(std::ostream & out,
                          const fort::myrmidon::priv::TagCloseUp & p) {
 	return out << p.Frame() << "/closeups/"
-	           << fort::myrmidon::priv::FormatTagID(p.TagValue());
+	           << fort::myrmidon::FormatTagID(p.TagValue());
 }

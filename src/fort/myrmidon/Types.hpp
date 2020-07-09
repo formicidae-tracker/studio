@@ -311,6 +311,11 @@ struct ExperimentDataInfo {
 	std::map<SpaceID,SpaceDataInfo> Spaces;
 };
 
+// Formats a TagID to convention format
+// @tagID the <TagID> to format
+//
+// @return <tagID> formatted to the myrmidon convetion for <TagID>.
+std::string FormatTagID(TagID tagID);
 
 }
 }

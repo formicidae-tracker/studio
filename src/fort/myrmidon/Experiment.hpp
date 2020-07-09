@@ -218,8 +218,6 @@ public :
 	std::map<AntID,TagID> IdentificationsAt(const Time & time,
 	                                        bool removeUnidentifiedAnt = true) const;
 
-
-
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<const priv::Experiment> ConstPPtr;
 
