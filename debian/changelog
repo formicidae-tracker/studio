@@ -1,3 +1,9 @@
+fort-studio (0.5.0-0ubuntu1~bionic1) bionic; urgency=medium
+
+  * Backport from focal to bionic
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Thu, 09 Jul 2020 21:32:30 +0200
+
 fort-studio (0.5.0-0ubuntu1) focal; urgency=medium
 
   * New upstream release v0.5.0
