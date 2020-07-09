@@ -432,7 +432,7 @@ fmQueryComputeTagStatistics(experiment)
 
 </doc>
     <return>
-      <doc>the tag statistics index by <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref></doc>
+      <doc>the tag statistics index by <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref></doc>
       <type name="TagStatistics::ByTagID" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::ByTagID" />
     </return>
     <argument id="fort::myrmidon::Query::ComputeTagStatistics::experiment" name="experiment">

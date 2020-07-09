@@ -10,17 +10,20 @@ hexadecimal to display an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID"
 
 ## Identification
 
-Instead of working directly with <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> myrmidon uses
-<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to relates <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to an Ant. An Ant could have
-different <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>, allowing us to use different <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to
+Instead of working directly with <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> myrmidon uses
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to relates <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to an Ant. An Ant could have
+different <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>, allowing us to use different <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to
 refer to the same individual. Myrmidon ensures the following
 invariant:
 
-* At any <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> there is only a single <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used to designate an
+* At any <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> there is only a single <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used to designate an
 Ant
 * For any Ant, there only a single <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> that designate
 this Ant at any given <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>. I.e. <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref> and
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref> must not overlap for a given Ant.
+
+One would use <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::IdentifiedAt">IdentifiedAt</ref> to obtain the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> that identifies
+an Ant at a given <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.
 
 ## Visualization property
 
@@ -286,6 +289,25 @@ ant$identifications()
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref></doc>
       <type name="Identification::List" ref="fort::myrmidon::Identification#fort::myrmidon::Identification::List" />
     </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Ant::IdentifiedAt" name="IdentifiedAt">
+    <brief>Gets the TagID identifying this Ant at a given time.</brief>
+    <doc>Gets the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> identifying this Ant at a given. There may not
+have an identification at this given time, an an exception will be thrown.
+R version:
+```R
+ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> that identify this ant at this time if it
+exists (throw an exception otherwise)</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+    </return>
+    <argument id="fort::myrmidon::Ant::IdentifiedAt::" name="">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::SetDisplayColor" name="SetDisplayColor">
     <brief>Sets the Ant display color</brief>

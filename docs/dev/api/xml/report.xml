@@ -12,7 +12,7 @@ return values.
 3. [References](#report/references): Unresolved cross references.
 </doc>
   <coverage>
-    <type documented="7" name="function" undocumented="1">
+    <type documented="8" name="function" undocumented="1">
       <undocumented id="operator&lt;&lt;" name="operator&lt;&lt;">
         <location column="1" file="src/fort/myrmidon/Matchers.hpp" line="14" />
       </undocumented>
@@ -24,12 +24,12 @@ return values.
     <type documented="2" name="templatetypeparameter" undocumented="0" />
     <type documented="3" name="enum" undocumented="0" />
     <type documented="3" name="namespace" undocumented="0" />
-    <type documented="234" name="method" undocumented="1">
+    <type documented="238" name="method" undocumented="1">
       <undocumented id="fort::myrmidon::AntTrajectory::End" name="End">
-        <location column="2" file="src/fort/myrmidon/Types.hpp" line="238" />
+        <location column="2" file="src/fort/myrmidon/Types.hpp" line="239" />
       </undocumented>
     </type>
-    <type documented="46" name="field" undocumented="0" />
+    <type documented="47" name="field" undocumented="0" />
     <type documented="24" name="constructor" undocumented="0" />
     <type documented="8" name="variable" undocumented="0" />
     <type documented="5" name="destructor" undocumented="1">
@@ -101,9 +101,19 @@ return values.
       <location column="2" file="src/fort/myrmidon/Identification.hpp" line="346" />
       <undocumented-return />
     </function>
+    <function id="fort::myrmidon::Ant::IdentifiedAt" name="IdentifiedAt">
+      <location column="2" file="src/fort/myrmidon/Ant.hpp" line="98" />
+      <undocumented name="" />
+      <misspelled name="time" />
+    </function>
     <function id="fort::myrmidon::Ant::SetDisplayColor" name="SetDisplayColor">
-      <location column="2" file="src/fort/myrmidon/Ant.hpp" line="157" />
+      <location column="2" file="src/fort/myrmidon/Ant.hpp" line="177" />
       <undocumented name="color" />
+    </function>
+    <function id="fort::myrmidon::CAnt::IdentifiedAt" name="IdentifiedAt">
+      <location column="2" file="src/fort/myrmidon/Ant.hpp" line="339" />
+      <undocumented name="" />
+      <misspelled name="time" />
     </function>
     <function id="fort::myrmidon::CSpace::LocateMovieFrame" name="LocateMovieFrame">
       <location column="2" file="src/fort/myrmidon/Space.hpp" line="66" />
@@ -114,7 +124,7 @@ return values.
       <undocumented name="time" />
     </function>
     <function id="fort::myrmidon::Experiment::Const" name="Const">
-      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="783" />
+      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="818" />
       <undocumented-return />
     </function>
     <function id="fort::myrmidon::Query::IdentifyFramesFunctor" name="IdentifyFramesFunctor">
@@ -183,7 +193,7 @@ return values.
       </doctype>
     </method>
     <function id="operator&lt;&lt;" name="operator&lt;&lt;">
-      <location column="1" file="src/fort/myrmidon/Types.hpp" line="324" />
+      <location column="1" file="src/fort/myrmidon/Types.hpp" line="332" />
       <doctype component="out" name="params">
         <ref name="std::ostream" />
       </doctype>

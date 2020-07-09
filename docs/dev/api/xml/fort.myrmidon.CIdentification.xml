@@ -116,8 +116,8 @@ i$tagValue()
 
 </doc>
     <return>
-      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
-      <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+      <doc>the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CIdentification::TargetAntID" name="TargetAntID">

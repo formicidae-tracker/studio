@@ -11,11 +11,7 @@ ensure uniqueness of IDs for <ref ref="fort::myrmidon::AntInteraction#fort::myrm
   </field>
   <field id="fort::myrmidon::Collision::Types" name="Types">
     <brief>Reports all virtual <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> interacting between the two Ants.</brief>
-    <type class="template" name="std::vector">
-      <template-arguments>
-        <type name="InteractionType" ref="fort::myrmidon#fort::myrmidon::InteractionType" />
-      </template-arguments>
-    </type>
+    <type name="InteractionTypes" ref="fort::myrmidon#fort::myrmidon::InteractionTypes" />
   </field>
   <field id="fort::myrmidon::Collision::Zone" name="Zone">
     <brief>Reports the <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision::Zone">Zone</ref> where the interaction happened.</brief>

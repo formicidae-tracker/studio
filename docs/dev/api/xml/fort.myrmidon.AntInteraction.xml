@@ -11,11 +11,7 @@ IDs.second`.</doc>
     <brief>Virtual shape body part that were in contact.</brief>
     <doc>Virtual shape body part that were in contact during the
 interaction.</doc>
-    <type class="template" name="std::vector">
-      <template-arguments>
-        <type name="InteractionType" ref="fort::myrmidon#fort::myrmidon::InteractionType" />
-      </template-arguments>
-    </type>
+    <type name="InteractionTypes" ref="fort::myrmidon#fort::myrmidon::InteractionTypes" />
   </field>
   <field id="fort::myrmidon::AntInteraction::Trajectories" name="Trajectories">
     <brief>Reports the <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> of each Ant.</brief>
@@ -36,6 +32,10 @@ timing.</doc>
   <field id="fort::myrmidon::AntInteraction::End" name="End">
     <brief>Reports the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> the interaction ends</brief>
     <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::AntInteraction::Space" name="Space">
+    <brief>Reports the <ref ref="fort::myrmidon#fort::myrmidon::SpaceID">fort::myrmidon::SpaceID</ref> where the interaction happend</brief>
+    <type name="SpaceID" ref="fort::myrmidon#fort::myrmidon::SpaceID" />
   </field>
   <typedef id="fort::myrmidon::AntInteraction::ConstPtr" name="ConstPtr">
     <brief>A pointer to the interaction structure</brief>

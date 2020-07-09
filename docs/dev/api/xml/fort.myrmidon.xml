@@ -71,11 +71,11 @@ The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon:
     </brief>
   </struct>
   <class name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification">
-    <brief>Relates <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+    <brief>Relates <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
     </brief>
   </class>
   <struct name="IdentifiedFrame" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">
-    <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
+    <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
     </brief>
   </struct>
   <class name="Matcher" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">
@@ -107,7 +107,7 @@ The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon:
     </brief>
   </struct>
   <struct name="TagStatistics" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">
-    <brief>Statistics about a <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
+    <brief>Statistics about a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
   </struct>
   <class name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time">
     <brief>A point in time</brief>
@@ -225,16 +225,16 @@ the InteractionID to reports interactions.</doc>
       </template-arguments>
     </type>
   </typedef>
-  <typedef id="fort::myrmidon::InteractionType" name="InteractionType">
-    <brief>Designates an interaction type for an interaction.</brief>
-    <doc>Designates an interaction type for an interaction. Unline
-<ref ref="fort::myrmidon#fort::myrmidon::InteractionID">fort::myrmidon::InteractionID</ref>, there are no order on the interaction types, as
-the first item refers to the <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref> for the first <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
-and the second one for the second Ant.</doc>
-    <type class="template" name="std::pair">
+  <typedef id="fort::myrmidon::InteractionTypes" name="InteractionTypes">
+    <brief>Designates list of interaction type for an interaction.</brief>
+    <doc>Designates an interaction type for an interaction. Each line
+represent a colliding capsules type. First column the first ant and
+the second column the second ant.</doc>
+    <type class="template" name="Eigen::Matrix">
       <template-arguments>
-        <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
-        <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+        <type name="uint32_t" />
+        <type name="" />
+        <type name="" />
       </template-arguments>
     </type>
   </typedef>
@@ -262,11 +262,8 @@ and the second one for the second Ant.</doc>
     </brief>
     <type name="uint32_t" />
   </typedef>
-  <typedef id="fort::myrmidon::TagID" name="TagID">
+  <typedef name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID">
     <brief>The ID for a tag</brief>
-    <doc>The ID for a tag. As explained in <ref ref="ant_identification#ant_identification">ant_identification</ref> myrmidon
-doesn't allows to access tracking tag data directly, but through
-the definition of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> and <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>.</doc>
     <type name="uint32_t" />
   </typedef>
   <typedef id="fort::myrmidon::TypedCapsuleList" name="TypedCapsuleList">

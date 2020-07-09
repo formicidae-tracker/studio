@@ -137,11 +137,11 @@ interactions or trajectories.
         </brief>
       </struct>
       <class name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification">
-        <brief>Relates <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+        <brief>Relates <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
         </brief>
       </class>
       <struct name="IdentifiedFrame" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">
-        <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
+        <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
         </brief>
       </struct>
       <class name="Matcher" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">
@@ -173,7 +173,7 @@ interactions or trajectories.
         </brief>
       </struct>
       <struct name="TagStatistics" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">
-        <brief>Statistics about a <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
+        <brief>Statistics about a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
       </struct>
       <class name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time">
         <brief>A point in time</brief>
@@ -191,6 +191,10 @@ interactions or trajectories.
         <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
         </brief>
       </class>
+      <typedef name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID">
+        <brief>The ID for a tag</brief>
+        <type name="uint32_t" />
+      </typedef>
     </namespace>
   </namespace>
   <function id="operator*" name="operator*">

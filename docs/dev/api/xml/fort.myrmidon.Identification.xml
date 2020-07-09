@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <class id="fort::myrmidon::Identification" interface="true" name="Identification" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <brief>Relates <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+  <brief>Relates <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
   </brief>
-  <doc>An Identification relates a <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>.
+  <doc>An Identification relates a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>.
 
 ## Time definition
 
@@ -152,7 +152,7 @@ through <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification:
     <brief>Sets the ending validity time for this Identification</brief>
     <doc>Sets the endibf validity <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> for this Identification. This
 method will throw any <ref ref="fort::myrmidon::OverlappingIdentification#fort::myrmidon::OverlappingIdentification">fort::myrmidon::OverlappingIdentification</ref> if such
-modification will create any collision for the same <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
+modification will create any collision for the same <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
 the same <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. In such a case the boundaries remain unchanged.
 
 Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[
@@ -175,7 +175,7 @@ represent +∞</doc>
     <brief>Sets the starting validity time for this Identification</brief>
     <doc>Sets the starting validity <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> for this Identification. This
 method will throw any <ref ref="fort::myrmidon::OverlappingIdentification#fort::myrmidon::OverlappingIdentification">fort::myrmidon::OverlappingIdentification</ref> if such
-modification will create any collision for the same <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
+modification will create any collision for the same <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or
 the same <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. In such a case the boundaries remain unchanged.
 
 Identification are valid for [<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::Start">fort::myrmidon::Identification::Start</ref>,<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::End">fort::myrmidon::Identification::End</ref>[
@@ -238,8 +238,8 @@ i$tagValue()
 
 </doc>
     <return>
-      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
-      <type name="TagID" ref="fort::myrmidon#fort::myrmidon::TagID" />
+      <doc>the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> used by this Identification</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Identification::TargetAntID" name="TargetAntID">

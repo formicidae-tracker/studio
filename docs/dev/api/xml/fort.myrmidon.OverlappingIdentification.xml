@@ -2,7 +2,7 @@
 <class id="fort::myrmidon::OverlappingIdentification" interface="true" name="OverlappingIdentification" xmlns="http://jessevdk.github.com/cldoc/1.0">
   <brief>Exception when two <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> overlaps in time.</brief>
   <doc>Two <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> overlaps in time if they have overlapping
-boundary and they either use the same <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or targets the same
+boundary and they either use the same <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or targets the same
 <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. This is an invariant condition that should never happen and
 modification that will break this invariant will throw this
 exception.</doc>

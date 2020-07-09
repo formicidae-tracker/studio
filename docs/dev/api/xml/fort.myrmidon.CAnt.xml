@@ -147,4 +147,23 @@ ant$getValue(name,time)
       <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
     </argument>
   </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::IdentifiedAt" name="IdentifiedAt">
+    <brief>Gets the TagID identifying this Ant at a given time.</brief>
+    <doc>Gets the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> identifying this Ant at a given. There may not
+have an identification at this given time, an an exception will be thrown.
+R version:
+```R
+ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> that identify this ant at this time if it
+exists (throw an exception otherwise)</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+    </return>
+    <argument id="fort::myrmidon::CAnt::IdentifiedAt::" name="">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
 </class>

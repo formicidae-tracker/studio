@@ -6,12 +6,12 @@
 The main object of interest in myrmidon are <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>, designated by their
 <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref>. Their position is acquired by the FORT
 system using fiducial marker, but the general philosophy of myrmidon
-is to hide the direct <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> value for this tracking
-data, and asks user to relate <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to the wanted
+is to hide the direct <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> value for this tracking
+data, and asks user to relate <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to the wanted
 <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> object using
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref>. The main reason is that with long
 tracking experiment, some ant will need to be re-tagged, and one may
-need to associate several <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to track the same
+need to associate several <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to track the same
 <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. Also in practice fiducial tag cannot be always
 be aligned and centered on the insect body. Then
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> also contains data in order to make
@@ -23,7 +23,7 @@ Usually this steps will be performed through the FORT Studio graphical
 interface. However one would be able to add <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> in
 an <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> with
 <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::CreateAnt">fort::myrmidon::Experiment::CreateAnt</ref> and then associate
-<ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> with that <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> using
+<ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> with that <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> using
 <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddIdentification">fort::myrmidon::Experiment::AddIdentification</ref>.
 
 <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> have <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> validity,
@@ -38,8 +38,8 @@ To ensure soundness of the tracking database, in an
 <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>, myrmidon is ensuring that at a given
 <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>:
 
- * Only one <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> is used to designat an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
- * Only one <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> is targeted by any <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>.
+ * Only one <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> is used to designat an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+ * Only one <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> is targeted by any <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>.
 
 
 ## Automatic and manual pose estimation

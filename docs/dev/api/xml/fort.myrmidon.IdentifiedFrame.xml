@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <struct id="fort::myrmidon::IdentifiedFrame" interface="true" name="IdentifiedFrame" xmlns="http://jessevdk.github.com/cldoc/1.0">
-  <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
+  <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
   </brief>
   <field id="fort::myrmidon::IdentifiedFrame::FrameTime" name="FrameTime">
     <brief>The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> at which this frame was taken.</brief>
