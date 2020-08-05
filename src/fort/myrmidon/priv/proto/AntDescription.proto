@@ -8,7 +8,7 @@ import "Shapes.proto";
 import "AntMetadata.proto";
 import "Vector2d.proto";
 
-message UserDefinedPose {
+message IdentificationPose {
 	Vector2d position = 1;
 	double   angle    = 2;
 }
@@ -18,7 +18,8 @@ message Identification {
 	google.protobuf.Timestamp Start           = 2;
 	google.protobuf.Timestamp End             = 3;
 	double                    TagSize         = 4;
-	UserDefinedPose           userdefinedpose = 5;
+	IdentificationPose        UserDefinedPose = 5;
+	IdentificationPose        CachedPose      = 6;
 };
 
 // message Metadata {
