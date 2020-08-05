@@ -318,7 +318,7 @@ private:
 	fs::path             d_basedir;
 	Space::Universe::Ptr d_universe;
 	IdentifierPtr        d_identifier;
-
+	bool                 d_dataless;
 
 	std::string        d_name;
 	std::string        d_author;

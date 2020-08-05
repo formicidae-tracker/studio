@@ -36,7 +36,8 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
-	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>())
+	, d_dataless(false) {
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
 
 	auto onNameChange =
@@ -311,8 +312,10 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	}
 
 	auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(m->URI());
+	Measurement::ConstPtr oldM;
+
 	auto fi = d_universe->TrackingDataDirectories().find(tddURI);
-	if ( fi == d_universe->TrackingDataDirectories().end() ) {
+	if ( fi == d_universe->TrackingDataDirectories().end()  ) {
 		std::ostringstream oss;
 		oss << "Unknown data directory '" << tddURI << "'";
 		throw std::invalid_argument(oss.str());
@@ -320,7 +323,6 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 
 	auto ref = fi->second->FrameReferenceAt(frameID);
 
-	Measurement::ConstPtr oldM;
 	try {
 		oldM = d_measurementByURI.at(m->TagCloseUpURI()).at(m->Type());
 	} catch ( const std::exception & e) {
@@ -333,6 +335,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
 		return;
 	}
+
 	try {
 		d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
 		                                                                   tagID,
