@@ -289,6 +289,29 @@ public:
 	// @return the <CExperiment>
 	static CExperiment OpenReadOnly(const std::string & filepath);
 
+
+	// Opens an Experiment without associated tracking data
+	// @filepath the path to the wanted file.
+	//
+	// Opens an Experiment to a `.myrmidon` file without opening its
+	// associated tracking data. Please also note that the file will
+	// be opened in Read Only mode. This functionalities is useful to
+	// be able to parse the Ant desciption list, and for example
+	// identify or collides ants from realtime tracking data acquired
+	// over the network.
+	//
+	// Only a single program can open the same myrmidon file with full
+	// access (read only access must be closed).
+	//
+	//
+	// R Version :
+	// ```R
+	// fmExperimentOpenDataLess(path)
+	// ```
+	//
+	// @return the <CExperiment>
+	static CExperiment OpenDataLess(const std::string & filepath);
+
 	// Creates a new Experiment file
 	// @filepath the wanted filepath
 	//

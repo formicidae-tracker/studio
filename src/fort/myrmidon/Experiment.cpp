@@ -21,6 +21,11 @@ CExperiment Experiment::OpenReadOnly(const std::string & filepath) {
 	return CExperiment(priv::Experiment::OpenReadOnly(filepath));
 }
 
+CExperiment Experiment::OpenDataLess(const std::string & filepath) {
+	// its ok to const cast as we cast back as a const
+	return CExperiment(priv::Experiment::OpenDataLess(filepath));
+}
+
 Experiment Experiment::NewFile(const std::string & filepath) {
 	return Experiment(priv::Experiment::NewFile(filepath));
 }
