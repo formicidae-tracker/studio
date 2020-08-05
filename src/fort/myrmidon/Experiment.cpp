@@ -1,6 +1,7 @@
 #include "Experiment.hpp"
 
 #include "priv/Experiment.hpp"
+#include "priv/TrackingSolver.hpp"
 #include "priv/AntShapeType.hpp"
 #include "priv/Identifier.hpp"
 #include "priv/Measurement.hpp"
@@ -402,9 +403,36 @@ CExperiment Experiment::Const() const {
 }
 
 
+TrackingSolver Experiment::CompileTrackingSolver() const {
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->CIdentifier().Compile(),
+	                                                             d_p->CompileCollisionSolver()));
+}
+
+TrackingSolver CExperiment::CompileTrackingSolver() const {
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->CIdentifier().Compile(),
+	                                                             d_p->CompileCollisionSolver()));
+}
+
+
 CExperiment::CExperiment(const ConstPPtr & pExperiment)
 	: d_p(pExperiment) {
 }
+
+
+TrackingSolver::TrackingSolver(const PPtr & pTracker)
+	: d_p(pTracker) {
+}
+
+
+IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameReadout & frame,
+                                                Space::ID spaceID) const {
+	return d_p->IdentifyFrame(frame,spaceID);
+}
+
+CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr & identified) const {
+	return d_p->CollideFrame(identified);
+}
+
 
 
 
