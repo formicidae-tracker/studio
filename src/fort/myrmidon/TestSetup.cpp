@@ -355,7 +355,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	fm::pb::FileHeader header;
 
 	header.set_majorversion(0);
-	header.set_minorversion(1);
+	header.set_minorversion(2);
 	fm::pb::FileLine l;
 
 	auto myrmidonFile = s_testdir / "test.myrmidon";

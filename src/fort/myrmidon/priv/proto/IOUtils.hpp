@@ -149,7 +149,8 @@ public:
 	static void SaveZone(pb::Zone * pb, const ZoneConstPtr & zone);
 
 	static void LoadSpace(const ExperimentPtr & e,
-	                      const pb::Space & pb);
+	                      const pb::Space & pb,
+	                      bool loadTrackingDataDirectory = true);
 
 	static void SaveSpace(pb::Space * pb,
 	                      const SpaceConstPtr & space);

@@ -334,14 +334,18 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 }
 
 void IOUtils::LoadSpace(const Experiment::Ptr & e,
-                        const pb::Space & pb) {
+                        const pb::Space & pb,
+                        bool loadTrackingDataDirectory) {
 	auto s = e->CreateSpace(pb.name(),pb.id());
+	for ( const auto & zPb : pb.zones() ) {
+		LoadZone(s,zPb);
+	}
+	if ( loadTrackingDataDirectory == false ) {
+		return;
+	}
 	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
 		auto tdd = TrackingDataDirectory::Open(e->Basedir() / tddRelPath, e->Basedir());
 		s->AddTrackingDataDirectory(tdd);
-	}
-	for ( const auto & zPb : pb.zones() ) {
-		LoadZone(s,zPb);
 	}
 }
 

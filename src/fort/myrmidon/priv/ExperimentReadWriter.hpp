@@ -45,7 +45,7 @@ public:
 	// as the file format is free to use this own function if its
 	// comes from a third party library. The implementation is allowed
 	// to throw std::exception
-	virtual ExperimentPtr DoOpen(const fs::path & filename) = 0;
+	virtual ExperimentPtr DoOpen(const fs::path & filename, bool dataLess) = 0;
 
 	// Actually saves an Experiment on the filesystem
 	// @experiment the <priv::Experiment> to save
