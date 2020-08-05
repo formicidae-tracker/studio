@@ -65,7 +65,7 @@ public:
 	//
 	// Opens a file with the preferred file format. This method can
 	// throws std:exception
-	static ExperimentPtr Open(const fs::path & filename);
+	static ExperimentPtr Open(const fs::path & filename, bool dataLess = false);
 
 	// Saves a file with the preferred file format
 	// @experiment the <priv::Experiment> to save

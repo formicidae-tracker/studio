@@ -110,7 +110,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		    true,
 		    Eigen::Vector3d(1,2,0.15)
 		   },
-
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
@@ -139,7 +138,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 			IOUtils::SaveVector(e->mutable_position(),d.Pose.block<2,1>(0,0));
 			e->set_angle(d.Pose.z());
 		}
-
 
 		expected.set_id(d.Value);
 		expected.set_tagsize(d.TagSize);

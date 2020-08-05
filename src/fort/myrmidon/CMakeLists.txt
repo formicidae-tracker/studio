@@ -184,6 +184,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/SpaceUTest.cpp
                     priv/ZoneUTest.cpp
                     priv/ExperimentUTest.cpp
+                    priv/ExperimentDataLessUTest.cpp
                     priv/TimeUtilsUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
                     priv/AntUTest.cpp
@@ -223,6 +224,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ZoneUTest.hpp
                     priv/ExperimentUTest.hpp
+                    priv/ExperimentDataLessUTest.hpp
                     priv/TimeUtilsUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp
                     priv/AntUTest.hpp

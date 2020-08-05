@@ -32,15 +32,15 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename, bool dat
 		                 semver::version maxSupportedVersion("0.2.0");
 		                 if ( fileVersion >  maxSupportedVersion) {
 			                 std::ostringstream os;
-			                 os << "unexpected myrmidon file version " << fileVersion
+			                 os << "Unexpected myrmidon file version " << fileVersion
 			                    << " in " << filename
-			                    << " can only works with 0.1.0 or 0.2.0";
+			                    << ": can only works with 0.1.0 or 0.2.0";
 			                 throw std::runtime_error(os.str());
 		                 }
 		                 if ( dataLess == true && fileVersion < dataLessSupportBoundaryVersion ) {
 			                 throw std::runtime_error("Uncorrect myrmidon file version "
 			                                          + fileVersion.to_string()
-			                                          + ":  data-less opening is only supported from file version 0.2 and upward");
+			                                          + ": data-less opening is only supported for myrmidon file version above 0.2.0");
 		                 }
 	                 },
 	                 [&measurements,&res,filename,dataLess](const pb::FileLine & line) {

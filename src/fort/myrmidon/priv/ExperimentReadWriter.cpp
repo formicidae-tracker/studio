@@ -15,9 +15,9 @@ ExperimentReadWriter::~ExperimentReadWriter() {
 }
 
 
-Experiment::Ptr ExperimentReadWriter::Open(const fs::path & filename) {
+Experiment::Ptr ExperimentReadWriter::Open(const fs::path & filename, bool dataLess) {
 	proto::ExperimentReadWriter pbRW;
-	return pbRW.DoOpen(filename);
+	return pbRW.DoOpen(filename,dataLess);
 }
 
 void ExperimentReadWriter::Save(const Experiment & experiment, const fs::path & filename) {

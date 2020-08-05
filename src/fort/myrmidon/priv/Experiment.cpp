@@ -36,8 +36,8 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_threshold(40)
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
-	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>())
-	, d_dataless(false) {
+	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
+
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
 
 	auto onNameChange =
@@ -165,6 +165,12 @@ Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
 	return res;
 }
 
+Experiment::ConstPtr Experiment::OpenDataLess(const fs::path & filepath) {
+	auto lock = std::make_shared<ExperimentLock>(filepath,true);
+	auto res = ExperimentReadWriter::Open(filepath,true);
+	res->d_lock = lock;
+	return res;
+}
 
 void Experiment::Save(const fs::path & filepath) {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
