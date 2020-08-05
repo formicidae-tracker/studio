@@ -39,6 +39,11 @@ FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
                      GIT_TAG        v0.4.0)
 
+FetchContent_Declare(semver
+                     GIT_REPOSITORY https://github.com/Neargye/semver.git
+                     GIT_TAG        v0.2.2)
+
+
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
 	FetchContent_Populate(googletest)
@@ -64,6 +69,13 @@ if(NOT hermes_POPULATED)
 endif(NOT hermes_POPULATED)
 set(HERMES_INCLUDE_DIRS ${hermes_SOURCE_DIR}/src ${hermes_BINARY_DIR}/src)
 
+FetchContent_GetProperties(semver)
+if(NOT semver_POPULATED)
+	FetchContent_Populate(semver)
+	add_subdirectory(${semver_SOURCE_DIR} ${semver_BINARY_DIR})
+endif(NOT semver_POPULATED)
+set(SEMVER_INCLUDE_DIRS ${semver_SOURCE_DIR}/include)
+
 
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
@@ -72,6 +84,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${TBB_INCLUDE_DIRS}
                     ${fort-tags_SOURCE_DIR}/include
                     ${HERMES_INCLUDE_DIRS}
+                    ${SEMVER_INCLUDE_DIRS}
                     )
 
 set(CMAKE_CXX_STANDARD 17)
