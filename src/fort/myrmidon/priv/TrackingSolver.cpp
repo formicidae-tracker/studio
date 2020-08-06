@@ -6,10 +6,11 @@ namespace myrmidon {
 namespace priv {
 
 
-TrackingSolver::TrackingSolver(const Identifier::Compiled::ConstPtr & identifier,
+TrackingSolver::TrackingSolver(const std::shared_ptr<const Identifier> & identifier,
                                const CollisionSolver::ConstPtr & solver)
-	: d_identifier(identifier)
+	: d_rawIdentifier(identifier)
 	, d_solver(solver) {
+	d_identifier = d_rawIdentifier->Compile();
 }
 
 IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameReadout & frame,
@@ -37,6 +38,15 @@ IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameRead
 CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr & identified) const {
 	return d_solver->ComputeCollisions(identified);
 }
+
+AntID TrackingSolver::IdentifyTag(TagID tagID, const Time & time) {
+	auto identification = d_identifier->Identify(tagID,time);
+	if ( ! identification ) {
+		return 0;
+	}
+	return identification->Target()->AntID();
+}
+
 
 } // namespace priv
 } // namespace myrmidon

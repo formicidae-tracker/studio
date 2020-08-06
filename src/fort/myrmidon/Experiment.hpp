@@ -30,6 +30,14 @@ class Query;
 
 class TrackingSolver {
 public :
+
+	// Identifies a single tag
+	// @tagID the TagID to identify
+	// @time the time to consider to identify the tag
+	//
+	// @return 0 if the tag is not idnetified, or the corresponding ID
+	AntID IdentifyTag(TagID tagID, const Time & time);
+
 	// Identifies Ants from a `fort::hermes::FrameReadout`
 	// @frame the `fort::hermes::FrameReadout` to identify
 	// @spaceID the spaceID the frame correspond to

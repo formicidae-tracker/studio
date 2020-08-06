@@ -14,8 +14,16 @@ class TrackingSolver {
 public :
 	typedef std::shared_ptr<const TrackingSolver> ConstPtr;
 
-	TrackingSolver(const Identifier::Compiled::ConstPtr & identifier,
+	TrackingSolver(const std::shared_ptr<const Identifier> & identifier,
 	               const CollisionSolver::ConstPtr & solver);
+
+	// Identifies a single tag
+	// @tagID the TagID to identify
+	// @time the time to consider to identify the tag
+	//
+	// @return 0 if the tag is not idnetified, or the corresponding ID
+	AntID IdentifyTag(TagID tagID, const Time & time);
+
 
 	// Identifies Ants from a `fort::hermes::FrameReadout`
 	// @frame the `fort::hermes::FrameReadout` to identify
@@ -34,8 +42,9 @@ public :
 	// @return a <CollisionFrame> with all current Ant collisions.
 	CollisionFrame::ConstPtr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
 private :
-	Identifier::Compiled::ConstPtr d_identifier;
-	CollisionSolver::ConstPtr      d_solver;
+	std::shared_ptr<const Identifier> d_rawIdentifier;
+	Identifier::Compiled::ConstPtr    d_identifier;
+	CollisionSolver::ConstPtr         d_solver;
 
 };
 

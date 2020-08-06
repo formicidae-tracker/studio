@@ -404,12 +404,13 @@ CExperiment Experiment::Const() const {
 
 
 TrackingSolver Experiment::CompileTrackingSolver() const {
-	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->CIdentifier().Compile(),
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->Identifier(),
 	                                                             d_p->CompileCollisionSolver()));
 }
 
 TrackingSolver CExperiment::CompileTrackingSolver() const {
-	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->CIdentifier().Compile(),
+	// ok to const cast here as the identifier is immediatly casted back to a const.
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(std::const_pointer_cast<priv::Experiment>(d_p)->Identifier(),
 	                                                             d_p->CompileCollisionSolver()));
 }
 
@@ -433,6 +434,10 @@ CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr
 	return d_p->CollideFrame(identified);
 }
 
+
+AntID TrackingSolver::IdentifyTag(TagID tagID, const Time & time) {
+	return d_p->IdentifyTag(tagID,time);
+}
 
 
 
