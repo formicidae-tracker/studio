@@ -143,14 +143,15 @@ if(UNIT_TEST_CHECK_TIMING)
 	add_definitions("-DMYRMIDON_TEST_TIMING")
 endif(UNIT_TEST_CHECK_TIMING)
 
-set(INCLUDE_INSTALL_DIR include/fort/myrmidon)
+set(INCLUDE_PATH include)
+set(INCLUDE_INSTALL_DIR ${INCLUDE_PATH}/fort/myrmidon)
 set(LIB_INSTALL_DIR lib )
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(FortMyrmidonConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
 	INSTALL_DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake
-	PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR)
+	PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR INCLUDE_PATH)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion )
