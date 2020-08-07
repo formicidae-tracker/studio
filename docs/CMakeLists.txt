@@ -16,6 +16,7 @@ add_custom_target(docs-api
 	        -I/usr/include/eigen3
 	        -I${fort-tags_SOURCE_DIR}/include
 	        -I${APRILTAG_INCLUDE_DIRS}
+	        -I${FORT_HERMES_BINARY_DIR}/include
 	        -I${PROJECT_BINARY_DIR}/src/
 	        ${PATCHED_SYSTEM_HEADERS_INCLUDE}
 	        --std=c++17
