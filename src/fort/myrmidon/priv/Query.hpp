@@ -60,12 +60,13 @@ private:
 	typedef std::pair<Space::ID,RawFrameConstPtr>            RawData;
 
 	struct BuildingTrajectory {
-		AntID                 Ant;
-		Space::ID             SpaceID;
-		Time                  Start,Last;
+		std::shared_ptr<AntTrajectory> Trajectory;
+
+		Time                  Last;
 		std::vector<double>   DataPoints;
 		std::vector<double>   Durations;
 		std::vector<uint32_t> Zones;
+
 		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
 		                   const PositionedAnt & ant,
 		                   const ZoneID * zone);

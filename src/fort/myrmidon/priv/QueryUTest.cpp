@@ -211,9 +211,17 @@ TEST_F(QueryUTest,InteractionComputation) {
 		EXPECT_EQ(interaction->Types.rows(),1);
 		EXPECT_EQ(interaction->Types(0,0),1U);
 		EXPECT_EQ(interaction->Types(0,1),1U);
-		EXPECT_EQ(interaction->Trajectories.first->Start,
+
+		auto segmentStart =
+			[](const AntTrajectorySegment &s) {
+				Duration ellapsed = s.Trajectory->Positions(s.Begin,0) * double(Duration::Second.Nanoseconds());
+				return s.Trajectory->Start.Add(ellapsed);
+			};
+
+
+		EXPECT_EQ(segmentStart(interaction->Trajectories.first),
 		          interaction->Start);
-		EXPECT_EQ(interaction->Trajectories.second->Start,
+		EXPECT_EQ(segmentStart(interaction->Trajectories.second),
 		          interaction->Start);
 	}
 }

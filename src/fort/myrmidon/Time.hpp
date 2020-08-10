@@ -275,7 +275,6 @@ private:
 };
 
 
-
 // A point in time
 //
 // <myrmidon::Time> represents a point in time. Why re-implementing
@@ -665,6 +664,8 @@ private:
 } // namespace myrmidon
 
 } // namespace fort
+
+
 
 // Operator for <fort::myrmidon::Duration> multiplication
 // @a a signed integer

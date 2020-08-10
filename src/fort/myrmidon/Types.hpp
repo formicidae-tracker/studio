@@ -239,6 +239,20 @@ struct AntTrajectory {
 	Time End() const;
 };
 
+// Defines a sub segment of a trajectory
+struct AntTrajectorySegment {
+	// The refering trajectory
+	AntTrajectory::ConstPtr Trajectory;
+
+	// The starting index of the segment in the referring trajectory.
+	size_t Begin;
+	// The index after the last index in the referring trajectory.
+	size_t End;
+};
+
+
+
+
 // Defines an interaction between two Ants
 struct AntInteraction {
 	// A pointer to the interaction structure
@@ -259,8 +273,8 @@ struct AntInteraction {
 	// Reports the <AntTrajectory> of each Ant during the
 	// interaction. The Trajectory are truncated to the interaction
 	// timing.
-	std::pair<AntTrajectory::ConstPtr,
-	          AntTrajectory::ConstPtr> Trajectories;
+	std::pair<AntTrajectorySegment,
+	          AntTrajectorySegment> Trajectories;
 	// Reports the <Time> the interaction starts
 	Time                               Start;
 	// Reports the <Time> the interaction ends

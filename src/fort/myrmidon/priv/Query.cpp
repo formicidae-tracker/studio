@@ -141,15 +141,19 @@ inline bool MonoIDMismatch(const Time & a,
 Query::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
                                               const PositionedAnt & ant,
                                               const ZoneID * zone)
-	: Ant(ant.ID)
-	, SpaceID(frame->Space)
-	, Start(frame->FrameTime)
+	: Trajectory(std::make_shared<AntTrajectory>())
 	, Last(frame->FrameTime)
 	, DataPoints({ant.Position.x(),ant.Position.y(),ant.Angle})
 	, Durations({0.0}) {
+	Trajectory->Ant = ant.ID;
+	Trajectory->Start = frame->FrameTime;
+	Trajectory->Space = frame->Space;
+
 	if ( zone != nullptr ) {
 		Zones.push_back(*zone);
 	}
+
+
 }
 
 
@@ -157,7 +161,7 @@ void Query::BuildingTrajectory::Append(const IdentifiedFrame::ConstPtr & frame,
                                        const PositionedAnt & ant,
                                        const ZoneID * zone) {
 	Last = frame->FrameTime;
-	Durations.push_back(frame->FrameTime.Sub(Start).Seconds());
+	Durations.push_back(frame->FrameTime.Sub(Trajectory->Start).Seconds());
 	DataPoints.insert(DataPoints.end(),
 	                  {ant.Position.x(),ant.Position.y(),ant.Angle});
 	if ( zone != nullptr ) {
@@ -169,16 +173,12 @@ AntTrajectory::ConstPtr Query::BuildingTrajectory::Terminate() const {
 	if ( Durations.size() < 2 ) {
 		return AntTrajectory::ConstPtr();
 	}
-	auto res = std::make_shared<AntTrajectory>();
-	res->Space = SpaceID;
-	res->Ant = Ant;
-	res->Start = Start;
 	size_t nPoints = Durations.size();
-	res->Positions.resize(nPoints,4);
-	res->Positions.block(0,1,nPoints,3) = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],nPoints,3);
-	res->Positions.block(0,0,nPoints,1) = Eigen::Map<const Eigen::VectorXd>(&Durations[0],nPoints);
-	res->Zones = Zones;
-	return res;
+	Trajectory->Positions.resize(nPoints,4);
+	Trajectory->Positions.block(0,1,nPoints,3) = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],nPoints,3);
+	Trajectory->Positions.block(0,0,nPoints,1) = Eigen::Map<const Eigen::VectorXd>(&Durations[0],nPoints);
+	Trajectory->Zones = Zones;
+	return Trajectory;
 }
 
 Query::BuildingInteraction::BuildingInteraction(const Collision & collision,
@@ -203,9 +203,12 @@ void Query::BuildingInteraction::Append(const Collision & collision,
 
 AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTrajectory & a,
                                                                const BuildingTrajectory & b ) const {
+	if (Start == Last ) {
+		return AntInteraction::ConstPtr();
+	}
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = IDs;
-	res->Space = a.SpaceID;
+	res->Space = a.Trajectory->Space;
 	res->Types = InteractionTypes(Types.size(),2);
 	size_t i = 0;
 	for ( const auto & type : Types ) {
@@ -213,30 +216,25 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 		res->Types(i,1) = type.second;
 		++i;
 	}
-	auto cutTrajectory
+	auto findTrajectorySubSegment
 		= [this](const BuildingTrajectory & t) {
-			  auto res = std::const_pointer_cast<AntTrajectory>(t.Terminate());
-			  if ( !res ) {
-				  throw std::runtime_error("No trajectory");
-			  }
-			  double toTrim = Start.Sub(t.Start).Seconds();
-			  size_t idx = 0;
-			  for ( ; idx < res->Positions.rows(); ++idx ) {
-				  if ( res->Positions(idx,0) >= toTrim ) {
+			  double startTime = Start.Sub(t.Trajectory->Start).Seconds();
+			  auto startIter = t.Durations.cbegin();
+			  for ( ; startIter != t.Durations.cend(); ++startIter ) {
+				  if ( *startIter >= startTime ) {
 					  break;
 				  }
 			  }
-			  res->Start = Start;
-			  res->Positions = res->Positions.block(idx,0,res->Positions.rows()-idx,4).eval();
-			  res->Positions.block(0,0,res->Positions.rows(),1).array() -= res->Positions(0,0);
+			  AntTrajectorySegment res
+				  = {
+				     .Trajectory = t.Trajectory,
+				     .Begin = size_t(startIter - t.Durations.cbegin()),
+				     .End = t.Durations.size(),
+			  };
 			  return res;
-		  };\
-	try {
-		res->Trajectories.first = cutTrajectory(a);
-		res->Trajectories.second = cutTrajectory(b);
-	} catch ( const std::exception & e ) {
-		return AntInteraction::ConstPtr();
-	}
+		  };
+	res->Trajectories.first = findTrajectorySubSegment(a);
+	res->Trajectories.second = findTrajectorySubSegment(b);
 	res->Start = Start;
 	res->End = Last;
 	return res;
@@ -271,7 +269,7 @@ Query::BuildTrajectories(std::function<void(const AntTrajectory::ConstPtr &)> st
 			       if ( fi != building.end() ) {
 				       if ( MonoIDMismatch(curTime,fi->second.Last) == true
 				            || curTime.Sub(fi->second.Last) > maxGap
-				            || data->Space != fi->second.SpaceID) {
+				            || data->Space != fi->second.Trajectory->Space) {
 					       auto res = fi->second.Terminate();
 					       if ( res ) {
 						       storeResult(res);
@@ -331,7 +329,7 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 			       if ( fi != currentTrajectories.end() ) {
 				       if ( MonoIDMismatch(curTime,fi->second.Last)
 				            || curTime.Sub(fi->second.Last) > maxGap
-				            || std::get<0>(data)->Space != fi->second.SpaceID) {
+				            || std::get<0>(data)->Space != fi->second.Trajectory->Space) {
 					       std::vector<InteractionID> toRemove;
 					       for ( const auto & [IDs,interaction] : currentInteractions ) {
 						       if ( IDs.first != pa.ID && IDs.second != pa.ID ) {
