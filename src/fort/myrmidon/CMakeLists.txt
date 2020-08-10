@@ -270,6 +270,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     fort-tags
                                     ${OpenCV_LIBS}
                                     ${TBB_LIBRARIES}
+                                    Threads::Threads
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

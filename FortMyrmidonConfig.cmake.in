@@ -14,7 +14,7 @@ find_package(FortTags 1.2.0 REQUIRED)
 find_package(OpenCV REQUIRED core imgcodecs imgproc)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
-
+find_package(Threads REQUIRED)
 
 @PACKAGE_INIT@
 
@@ -29,6 +29,7 @@ set(FORT_MYRMIDON_LIBRARIES ${FORT_MYRMIDON_LIBRARY}
                             ${FORT_HERMES_CPP_LIBRARIES}
                             ${FORT_TAGS_LIBRARIES}
                             ${OpenCV_LIBS}
-                            ${FORT_MYRMIDON_FS_LIBRARY})
+                            ${FORT_MYRMIDON_FS_LIBRARY}
+                            Threads::Threads)
 
 check_required_components(FortMyrmidon)
