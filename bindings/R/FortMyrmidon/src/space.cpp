@@ -3,17 +3,19 @@
 #include "zone.h"
 #include "time.h"
 
-#include "map.hpp"
 
 namespace Rcpp {
 template <> SEXP wrap(const std::pair<std::string,uint64_t> & locatedMovieFrame);
+
+template <> SEXP wrap(const std::map<fort::myrmidon::ZoneID,fort::myrmidon::CZone> & v);
+template <> SEXP wrap(const std::map<fort::myrmidon::ZoneID,fort::myrmidon::Zone> & v);
+
 }
+
+
 
 #include <Rcpp.h>
 
-
-FM_IMPLEMENT_MAPUINT32(ZoneID,CZone)
-FM_IMPLEMENT_MAPUINT32(ZoneID,Zone)
 
 
 void fmCSpace_show(const fort::myrmidon::CSpace * s) {
@@ -29,9 +31,6 @@ void fmSpace_show(const fort::myrmidon::Space * s) {
 }
 
 RCPP_MODULE(space) {
-	FM_DECLARE_MAPUINT32(ZoneID,CZone,"fmCZoneByID");
-	FM_DECLARE_MAPUINT32(ZoneID,Zone,"fmZoneByID");
-
 
 	Rcpp::class_<fort::myrmidon::CSpace>("fmCSpace")
 		.const_method("show",&fmCSpace_show)
@@ -64,5 +63,40 @@ template <> SEXP wrap(const std::pair<std::string,uint64_t> & locatedMovieFrame)
 	return res;
 }
 
+template <> SEXP wrap(const std::map<fort::myrmidon::ZoneID,fort::myrmidon::CZone> & v) {
+	List res,objects(v.size());
+	CharacterVector names(v.size());
+	IntegerVector ID(v.size());
+	int i = 0;
+	for ( const auto & [zoneID,zone] : v ) {
+		objects[i] = zone;
+		names[i] = zone.Name();
+		ID[i] = zoneID;
+		++i;
+	}
+
+	res["summary"] = DataFrame::create(_["name"] = names,
+	                                   _["ID"] = ID);
+	res["objects"] = objects;
+	return res;
+}
+
+template <> SEXP wrap(const std::map<fort::myrmidon::ZoneID,fort::myrmidon::Zone> & v) {
+	List res,objects(v.size());
+	CharacterVector names(v.size());
+	IntegerVector ID(v.size());
+	int i = 0;
+	for ( const auto & [zoneID,zone] : v ) {
+		objects[i] = zone;
+		names[i] = zone.Name();
+		ID[i] = zoneID;
+		++i;
+	}
+
+	res["summary"] = DataFrame::create(_["name"] = names,
+	                                   _["ID"] = ID);
+	res["objects"] = objects;
+	return res;
+}
 
 }

@@ -57,7 +57,13 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 	} else {
 		res->SetTagSize(Identification::DEFAULT_TAG_SIZE);
 	}
-
+	if (pb.has_cachedpose() ) {
+		Eigen::Vector2d antPosition;
+		LoadVector(antPosition,pb.cachedpose().position());
+		Identification::Accessor::SetAntPosition(*res,
+		                                         antPosition,
+		                                         pb.cachedpose().angle());
+	}
 	if ( pb.has_userdefinedpose() ) {
 		Eigen::Vector2d antPosition;
 		LoadVector(antPosition,pb.userdefinedpose().position());
@@ -80,11 +86,16 @@ void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
 		pb->set_tagsize(ident->TagSize());
 	}
 
+	fort::myrmidon::pb::IdentificationPose * poseToSave = nullptr;
+
 	if ( ident->HasUserDefinedAntPose() == true ) {
-		auto udpPb = pb->mutable_userdefinedpose();
-		SaveVector(udpPb->mutable_position(),ident->AntPosition());
-		udpPb->set_angle(ident->AntAngle());
+		poseToSave = pb->mutable_userdefinedpose();
+	} else {
+		poseToSave = pb->mutable_cachedpose();
 	}
+
+	SaveVector(poseToSave->mutable_position(),ident->AntPosition());
+	poseToSave->set_angle(ident->AntAngle());
 }
 
 
@@ -334,14 +345,18 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 }
 
 void IOUtils::LoadSpace(const Experiment::Ptr & e,
-                        const pb::Space & pb) {
+                        const pb::Space & pb,
+                        bool loadTrackingDataDirectory) {
 	auto s = e->CreateSpace(pb.name(),pb.id());
+	for ( const auto & zPb : pb.zones() ) {
+		LoadZone(s,zPb);
+	}
+	if ( loadTrackingDataDirectory == false ) {
+		return;
+	}
 	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
 		auto tdd = TrackingDataDirectory::Open(e->Basedir() / tddRelPath, e->Basedir());
 		s->AddTrackingDataDirectory(tdd);
-	}
-	for ( const auto & zPb : pb.zones() ) {
-		LoadZone(s,zPb);
 	}
 }
 

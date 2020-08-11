@@ -17,7 +17,7 @@
 NULL
 
 #' @name fmMatcherAny
-#' @title \code{\link{fmMatcher}} a matcher tha matches anything
+#' @title \code{\link{fmMatcherAny}} a matcher that matches anything
 #' @return a \code{\link{fmMatcher}} a matcher that matches anything
 NULL
 

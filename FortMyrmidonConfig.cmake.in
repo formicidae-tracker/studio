@@ -14,10 +14,22 @@ find_package(FortTags 1.2.0 REQUIRED)
 find_package(OpenCV REQUIRED core imgcodecs imgproc)
 find_package(Protobuf 3.3.0 REQUIRED)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
+find_package(Threads REQUIRED)
 
 @PACKAGE_INIT@
 
-set_and_check(FORT_MYRMIDON_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@" ${EIGEN3_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS} ${FORT_TAGS_INCLUDE_DIRS} ${OPENCV_INCLUDE_DIRS} ${FORT_MYRMIDON_FS_INCLUDE_DIRS})
-set_and_check(FORT_MYRMIDON_LIBRARIES "@PACKAGE_LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@fort-myrmidon@CMAKE_SHARED_LIBRARY_SUFFIX@" ${PROTOBUF_LIBRARIES} ${FORT_HERMES_CPP_LIBRARIES} ${FORT_TAGS_LIBRARIES} ${OpenCV_LIBS} ${FORT_MYRMIDON_FS_LIBRARY})
+set_and_check(FORT_MYRMIDON_INCLUDE_DIR "@PACKAGE_INCLUDE_PATH@")
+set(FORT_MYRMIDON_INCLUDE_DIRS ${FORT_MYRMIDON_INCLUDE_DIR}
+                               ${EIGEN3_INCLUDE_DIRS}
+                               ${FORT_HERMES_CPP_INCLUDE_DIRS}
+                               ${FORT_TAGS_INCLUDE_DIRS}
+                               )
+set_and_check(FORT_MYRMIDON_LIBRARY "@PACKAGE_LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@fort-myrmidon@CMAKE_SHARED_LIBRARY_SUFFIX@")
+set(FORT_MYRMIDON_LIBRARIES ${FORT_MYRMIDON_LIBRARY}
+                            ${FORT_HERMES_CPP_LIBRARIES}
+                            ${FORT_TAGS_LIBRARIES}
+                            ${OpenCV_LIBS}
+                            ${FORT_MYRMIDON_FS_LIBRARY}
+                            Threads::Threads)
 
 check_required_components(FortMyrmidon)

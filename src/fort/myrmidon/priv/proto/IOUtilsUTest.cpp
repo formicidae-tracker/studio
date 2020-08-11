@@ -87,21 +87,21 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		    0.0,
 		    123,
 		    false,
-		    Eigen::Vector3d()
+		    Eigen::Vector3d(1,2,0.3)
 		   },
 		   {
 		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
 		    2.3,
 		    23,
 		    false,
-		    Eigen::Vector3d()
+		    Eigen::Vector3d(3,2,0.1)
 		   },
 		   {
 		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
 		    0.0,
 		    34,
 		    false,
-		    Eigen::Vector3d()
+		    Eigen::Vector3d(4,5,0.0)
 		   },
 		   {
 		    Time::ConstPtr(),Time::ConstPtr(),
@@ -110,7 +110,6 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		    true,
 		    Eigen::Vector3d(1,2,0.15)
 		   },
-
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir()/ "test.myrmidon");
@@ -132,8 +131,13 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 			auto e = expected.mutable_userdefinedpose();
 			IOUtils::SaveVector(e->mutable_position(),d.Pose.block<2,1>(0,0));
 			e->set_angle(d.Pose.z());
+		} else {
+			Identification::Accessor::SetAntPosition(*ident,
+			                                         d.Pose.block<2,1>(0,0),d.Pose.z());
+			auto e = expected.mutable_cachedpose();
+			IOUtils::SaveVector(e->mutable_position(),d.Pose.block<2,1>(0,0));
+			e->set_angle(d.Pose.z());
 		}
-
 
 		expected.set_id(d.Value);
 		expected.set_tagsize(d.TagSize);
@@ -156,9 +160,9 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
 		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
 		if ( d.HasPose == false ) {
-			EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),0);
-			EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),0);
-			EXPECT_FLOAT_EQ(finalIdent->AntAngle(),0);
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),d.Pose.x());
+			EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),d.Pose.y());
+			EXPECT_FLOAT_EQ(finalIdent->AntAngle(),d.Pose.z());
 		} else {
 			EXPECT_TRUE(VectorAlmostEqual(finalIdent->AntPosition(),
 			                              d.Pose.block<2,1>(0,0)));

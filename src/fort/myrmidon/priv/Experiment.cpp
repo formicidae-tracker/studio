@@ -37,6 +37,7 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
 	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
+
 	CreateMeasurementType("head-tail",Measurement::HEAD_TAIL_TYPE);
 
 	auto onNameChange =
@@ -164,6 +165,12 @@ Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
 	return res;
 }
 
+Experiment::ConstPtr Experiment::OpenDataLess(const fs::path & filepath) {
+	auto lock = std::make_shared<ExperimentLock>(filepath,true);
+	auto res = ExperimentReadWriter::Open(filepath,true);
+	res->d_lock = lock;
+	return res;
+}
 
 void Experiment::Save(const fs::path & filepath) {
 	auto basedir = fs::weakly_canonical(d_absoluteFilepath).parent_path();
@@ -311,8 +318,10 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	}
 
 	auto [tddURI,frameID,tagID,mtID] = Measurement::DecomposeURI(m->URI());
+	Measurement::ConstPtr oldM;
+
 	auto fi = d_universe->TrackingDataDirectories().find(tddURI);
-	if ( fi == d_universe->TrackingDataDirectories().end() ) {
+	if ( fi == d_universe->TrackingDataDirectories().end()  ) {
 		std::ostringstream oss;
 		oss << "Unknown data directory '" << tddURI << "'";
 		throw std::invalid_argument(oss.str());
@@ -320,7 +329,6 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 
 	auto ref = fi->second->FrameReferenceAt(frameID);
 
-	Measurement::ConstPtr oldM;
 	try {
 		oldM = d_measurementByURI.at(m->TagCloseUpURI()).at(m->Type());
 	} catch ( const std::exception & e) {
@@ -333,6 +341,7 @@ void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	if (m->Type() != Measurement::HEAD_TAIL_TYPE) {
 		return;
 	}
+
 	try {
 		d_identifier->SetAntPoseEstimate(std::make_shared<AntPoseEstimate>(ref,
 		                                                                   tagID,
@@ -687,6 +696,7 @@ CollisionSolver::ConstPtr Experiment::CompileCollisionSolver() const {
 void Experiment::UnlockFile() {
 	d_lock.reset();
 }
+
 
 } //namespace priv
 } //namespace myrmidon

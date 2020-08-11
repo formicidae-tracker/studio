@@ -6,6 +6,8 @@
 
 #include "Time.hpp"
 
+#include "semver.hpp"
+
 class TestSetup : public ::testing::EmptyTestEventListener {
 public:
 	inline static const fs::path & Basedir() {
@@ -40,6 +42,7 @@ private:
 
 	static void CreateSnapshotFiles(std::vector<uint64_t> bounds,
 	                                const fs::path & basedir);
+	static void CreateMyrmidonFile(const std::string & name, const semver::version & version );
 
 	static fs::path s_testdir;
 	static std::map<fs::path,std::pair<fort::myrmidon::Time,fort::myrmidon::Time> > s_times;

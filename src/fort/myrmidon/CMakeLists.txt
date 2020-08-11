@@ -93,6 +93,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/TagStatistics.hpp
                       priv/Query.hpp
                       priv/Matchers.hpp
+                      priv/TrackingSolver.hpp
                       )
 
 
@@ -150,6 +151,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/TagStatistics.cpp
                       priv/Query.cpp
                       priv/Matchers.cpp
+                      priv/TrackingSolver.cpp
                       )
 
 set(SRC_FILES ForwardDeclaration.cpp
@@ -184,6 +186,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     priv/SpaceUTest.cpp
                     priv/ZoneUTest.cpp
                     priv/ExperimentUTest.cpp
+                    priv/ExperimentDataLessUTest.cpp
                     priv/TimeUtilsUTest.cpp
                     priv/TrackingDataDirectoryUTest.cpp
                     priv/AntUTest.cpp
@@ -223,6 +226,7 @@ set(HDR_UTEST_FILES TimeUTest.hpp
                     priv/SpaceUTest.hpp
                     priv/ZoneUTest.hpp
                     priv/ExperimentUTest.hpp
+                    priv/ExperimentDataLessUTest.hpp
                     priv/TimeUtilsUTest.hpp
                     priv/TrackingDataDirectoryUTest.hpp
                     priv/AntUTest.hpp
@@ -266,6 +270,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     fort-tags
                                     ${OpenCV_LIBS}
                                     ${TBB_LIBRARIES}
+                                    Threads::Threads
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

@@ -9,7 +9,7 @@
 
 #include "FileReadWriter.hpp"
 #include "IOUtils.hpp"
-
+#include "semver.hpp"
 namespace fort {
 namespace myrmidon {
 namespace priv {
@@ -18,21 +18,32 @@ namespace proto {
 ExperimentReadWriter::ExperimentReadWriter() {}
 ExperimentReadWriter::~ExperimentReadWriter() {}
 
-Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
+Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename, bool dataLess) {
 	typedef FileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
 	auto res = Experiment::Create(filename);
 	std::vector<Measurement::ConstPtr> measurements;
 	ReadWriter::Read(filename,
-	                 [filename](const pb::FileHeader & h) {
-		                 if (h.majorversion() != 0 || h.minorversion() != 1 ) {
+	                 [filename,dataLess](const pb::FileHeader & h) {
+		                 semver::version fileVersion{uint8_t(h.majorversion()),
+		                                             uint8_t(h.minorversion()),
+		                                             0};
+
+		                 semver::version dataLessSupportBoundaryVersion("0.2.0");
+		                 semver::version maxSupportedVersion("0.2.0");
+		                 if ( fileVersion >  maxSupportedVersion) {
 			                 std::ostringstream os;
-			                 os << "unexpected version " << h.majorversion() << "." << h.minorversion()
+			                 os << "Unexpected myrmidon file version " << fileVersion
 			                    << " in " << filename
-			                    << " can only works with 0.1";
+			                    << ": can only works with 0.1.0 or 0.2.0";
 			                 throw std::runtime_error(os.str());
 		                 }
+		                 if ( dataLess == true && fileVersion < dataLessSupportBoundaryVersion ) {
+			                 throw std::runtime_error("Uncorrect myrmidon file version "
+			                                          + fileVersion.to_string()
+			                                          + ": data-less opening is only supported for myrmidon file version above 0.2.0");
+		                 }
 	                 },
-	                 [&measurements,&res,filename](const pb::FileLine & line) {
+	                 [&measurements,&res,filename,dataLess](const pb::FileLine & line) {
 		                 if (line.has_experiment() == true ) {
 			                 IOUtils::LoadExperiment(res, line.experiment());
 		                 }
@@ -41,14 +52,15 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename) {
 			                 IOUtils::LoadAnt(res, line.antdescription());
 		                 }
 
-		                 if (line.has_measurement() == true ) {
+		                 if (line.has_measurement() == true && dataLess == false ) {
 			                 measurements.push_back(IOUtils::LoadMeasurement(line.measurement()));
 		                 }
 
 		                 if (line.has_space() == true ) {
-			                 IOUtils::LoadSpace(res,line.space());
+			                 IOUtils::LoadSpace(res,line.space(),dataLess == false);
 		                 }
 	                 });
+
 	for ( const auto & m : measurements ) {
 		res->SetMeasurement(m);
 	}
@@ -61,7 +73,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 	typedef FileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
 	pb::FileHeader h;
 	h.set_majorversion(0);
-	h.set_minorversion(1);
+	h.set_minorversion(2);
 
 	std::vector<std::function < void ( pb::FileLine &) > > lines;
 

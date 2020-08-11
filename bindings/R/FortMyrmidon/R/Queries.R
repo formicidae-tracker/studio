@@ -8,9 +8,9 @@ options("digits.secs" = 6)
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param computeZones reports the user defined zone for the
 #'     ants. otherwise the data.frame will be smaller and the
 #'     computation faster.
@@ -54,9 +54,9 @@ fmQueryIdentifyFrames <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param singleThreaded perform a single threaded query. Could be
 #'     faster for small experiment in number of Ant as identification
 #'     is mostly IO bounded and the overhead induced by
@@ -92,17 +92,17 @@ fmQueryCollideFrames <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param maximumGap the maximum gap in tracking before cutting the
 #'     trajectory in two different object. Use an insanely large value
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
 #'     trajectory). Trajectory will always be cut when an ant moves
 #'     from a space to another.
-#' @param matcher a \linkS4class{fmMatcher} to reduce the query to
+#' @param matcher a \link{fmMatcher} to reduce the query to
 #'     wanted criterion. You can use \code{NULL} or
-#'     \code{\link{fmMatcherAny()}} to match anything. Matcher that
+#'     \code{\link{fmMatcherAny}()} to match anything. Matcher that
 #'     requires two ant will match anything.
 #' @param computeZones reports the user defined zone for the
 #'     ants. otherwise the data.frame will be smaller and the
@@ -155,17 +155,17 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param maximumGap the maximum gap in tracking before cutting the
 #'     trajectory in two different object. Use an insanely large value
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
 #'     trajectory). Trajectories and Interactions will always be cut
 #'     when an ant moves from a space to another.
-#' @param matcher a \linkS4class{fmMatcher} to reduce the query to
+#' @param matcher a \link{fmMatcher} to reduce the query to
 #'     wanted criterion. You can use \code{NULL} or
-#'     \code{\link{fmMatcherAny()}} to match anything. Matcher that
+#'     \code{\link{fmMatcherAny}()} to match anything. Matcher that
 #'     requires two ant will match conditionally only for the
 #'     interaction detection, but will always match for interaction
 #'     detection. Matcher that addresses a single ant will match
@@ -177,19 +177,12 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @param reportGlobalTrajectories enables gloabl trajectory report in
-#'     the result. If enabled two line in the resulting list will be
+#' @param reportTrajectories enables global trajectory report in the
+#'     result. If enabled two lines in the resulting list will be
 #'     added, as described by the output of
-#'     \code{\link{fmQueryComputeAntTrajectories}}.
-#' @param reportLocalTajectories for each interaction, copy the
-#'     trajectory of each ant during that interaction. They will be
-#'     reported in the final list objects as \code{ant1trajectory} and
-#'     \code{ant2Trajectory}. If this option is not chosen, the mean
-#'     position of each ant will be added in the main
-#'     \code{interaction} \code{data.frame}, and two additionnal list
-#'     \code{zone1} and \code{zone2} will be added to the main
-#'     list. For each line of interactions, they contains a vector of
-#'     all zone the corresponding ant was during that interaction.
+#'     \code{\link{fmQueryComputeAntTrajectories}}. Each interaction
+#'     will also refers to these two lines, providing the index of the
+#'     corresponding for each ant,
 #' @return a list with at list an element called \code{interactions}
 #'     \code{data.frame} summarising all interactions. Other elements
 #'     depends on the choice of othere report options.
@@ -200,8 +193,7 @@ fmQueryComputeAntInteractions <- function (experiment,
                                            matcher = NULL,
                                            singleThreaded = FALSE,
                                            showProgress = FALSE,
-                                           reportGlobalTrajectories = FALSE,
-                                           reportLocalTrajectories = FALSE) {
+                                           reportTrajectories = FALSE) {
     if ( is.null(matcher) ) {
         matcher = fmMatcherAny();
     }
@@ -211,8 +203,7 @@ fmQueryComputeAntInteractions <- function (experiment,
                                           fmTimeCPtrFromAnySEXP(end),
                                           maximumGap,
                                           matcher,
-                                          reportGlobalTrajectories,
-                                          reportLocalTrajectories,
+                                          reportTrajectories,
                                           singleThreaded,
                                           showProgress))
 }

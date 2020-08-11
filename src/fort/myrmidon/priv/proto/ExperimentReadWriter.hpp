@@ -19,7 +19,7 @@ public:
 	virtual ~ExperimentReadWriter();
 
 	// Implements DoOpen
-	virtual ExperimentPtr DoOpen(const fs::path & filename);
+	virtual ExperimentPtr DoOpen(const fs::path & filename, bool dataLess = false);
 
 	// Implements DoSave
 	virtual void DoSave(const Experiment & experiment, const fs::path & filename);

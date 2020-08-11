@@ -7,40 +7,17 @@ Build-Depends: debhelper (>= 10), cmake (>=3.11), libeigen3-dev,
  protobuf-compiler, git, libboost-filesystem-dev, ca-certificates,
  imagemagick, librsvg2-bin
 Standards-Version: 4.5.0
-Section: science
+Section: testing/science
 Homepage: https://github.com/formicidae-tracker/studio
 Vcs-Git: https://github.com/formicidae-tracker/studio.git
 Vcs-Browser: https://github.com/formicidae-tracker/studio
 
-Package: libapriltag-dev
-Section: libdevel
-Architecture: any
-Depends: libapriltag3 (= ${binary:Version}), ${misc:Depends}
-Description: visual fiducial system for robotics - dev files
- AprilTag is a robust and flexible visual fiducial system popular in
- robotics research. AprilTag 3, which includes a faster (>2x)
- detector, improved detection rate on small tags, flexible tag
- layouts, and pose estimation.
- .
- This package contains header and development files
-
-Package: libapriltag3
-Section: libs
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: visual fiducial system for robotics - runtime
- AprilTag is a robust and flexible visual fiducial system popular in
- robotics research. AprilTag 3, which includes a faster (>2x)
- detector, improved detection rate on small tags, flexible tag
- layouts, and pose estimation.
- .
- This package contains library runtime
 
 Package: libfort-tags-dev
-Section: libdevel
+Section: testing/libdevel
 Architecture: any
-Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends},
- libapriltag-dev
+Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends}
+Conflicts: libapriltag-dev
 Description: fiducial markers for the FORmicidae Tracker - dev files
  Actual fiducial markers (tags) used for the FORmicidae Tracker
  project (https://github.com/formicidae-tracker/)
@@ -49,7 +26,7 @@ Description: fiducial markers for the FORmicidae Tracker - dev files
 
 Package: libfort-tags1
 Architecture: any
-Section: libs
+Section: testing/libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: fiducial markers for the FORmicidae Tracker - runtime
  Actual fiducial markers (tags) used for the FORmicidae Tracker
@@ -58,9 +35,9 @@ Description: fiducial markers for the FORmicidae Tracker - runtime
  This package contains library runtime
 
 Package: libfort-hermes-cpp-dev
-Section: libdevel
+Section: testing/libdevel
 Architecture: any
-Depends: libfort-hermes-cpp0.3 (= ${binary:Version}), ${misc:Depends}
+Depends: libfort-hermes-cpp0.4 (= ${binary:Version}), ${misc:Depends}
 Description: Tracking data IO for the FORmicidae Tracker - c++ dev files
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
@@ -68,10 +45,11 @@ Description: Tracking data IO for the FORmicidae Tracker - c++ dev files
  .
  This package contains c++ header and development files
 
-Package: libfort-hermes-cpp0.3
+Package: libfort-hermes-cpp0.4
 Architecture: any
-Section: libs
+Section: testing/libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfort-hermes-cpp0.3
 Description: Tracking data IO for the FORmicidae Tracker - c++ runtime
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
@@ -80,9 +58,9 @@ Description: Tracking data IO for the FORmicidae Tracker - c++ runtime
  This package contains the library c++ runtime
 
 Package: libfort-hermes-dev
-Section: libdevel
+Section: testing/libdevel
 Architecture: any
-Depends: libfort-hermes0.3 (= ${binary:Version}), ${misc:Depends}
+Depends: libfort-hermes0.4 (= ${binary:Version}), ${misc:Depends}
 Description: Tracking data IO for the FORmicidae Tracker - c dev files
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
@@ -90,10 +68,11 @@ Description: Tracking data IO for the FORmicidae Tracker - c dev files
  .
  This package contains c header and development files
 
-Package: libfort-hermes0.3
+Package: libfort-hermes0.4
 Architecture: any
-Section: libs
+Section: testing/libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfort-hermes0.3
 Description: Tracking data IO for the FORmicidae Tracker - c runtime
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
@@ -102,9 +81,9 @@ Description: Tracking data IO for the FORmicidae Tracker - c runtime
  This package contains the library c runtime
 
 Package: libfort-myrmidon-dev
-Section: libdevel
+Section: testing/libdevel
 Architecture: any
-Depends: libfort-myrmidon0.5 (= ${binary:Version}), ${misc:Depends},
+Depends: libfort-myrmidon0.6 (= ${binary:Version}), ${misc:Depends},
  libfort-tags-dev, libfort-hermes-cpp-dev
 Description: Experiment data API for the FORmicidae Tracker - dev files
  This library provides an API to access and edit experimental data for
@@ -113,9 +92,9 @@ Description: Experiment data API for the FORmicidae Tracker - dev files
  .
  This package contains header and development files
 
-Package: libfort-myrmidon0.5
+Package: libfort-myrmidon0.6
 Architecture: any
-Section: libs
+Section: testing/libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Experiment data API for the FORmicidae Tracker - runtime
  This library provides an API to access and edit experimental data for
