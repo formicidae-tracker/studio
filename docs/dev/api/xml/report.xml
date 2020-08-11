@@ -18,26 +18,30 @@ return values.
       </undocumented>
     </type>
     <type documented="5" name="category" undocumented="0" />
-    <type documented="63" name="typedef" undocumented="0" />
+    <type documented="64" name="typedef" undocumented="0" />
     <type documented="1" name="methodtemplate" undocumented="0" />
     <type documented="11" name="struct" undocumented="0" />
     <type documented="2" name="templatetypeparameter" undocumented="0" />
     <type documented="3" name="enum" undocumented="0" />
     <type documented="3" name="namespace" undocumented="0" />
-    <type documented="238" name="method" undocumented="1">
+    <type documented="244" name="method" undocumented="1">
       <undocumented id="fort::myrmidon::AntTrajectory::End" name="End">
         <location column="2" file="src/fort/myrmidon/Types.hpp" line="239" />
       </undocumented>
     </type>
     <type documented="47" name="field" undocumented="0" />
-    <type documented="24" name="constructor" undocumented="0" />
+    <type documented="25" name="constructor" undocumented="0" />
     <type documented="8" name="variable" undocumented="0" />
     <type documented="5" name="destructor" undocumented="1">
       <undocumented id="fort::myrmidon::OverlappingIdentification::~OverlappingIdentification" name="~OverlappingIdentification">
         <location column="2" file="src/fort/myrmidon/Identification.hpp" line="366" />
       </undocumented>
     </type>
-    <type documented="34" name="class" undocumented="0" />
+    <type documented="35" name="class" undocumented="1">
+      <undocumented id="fort::myrmidon::priv::TrackingSolver" name="TrackingSolver">
+        <location column="1" file="src/fort/myrmidon/Experiment.hpp" line="18" />
+      </undocumented>
+    </type>
     <type documented="18" name="enumvalue" undocumented="0" />
   </coverage>
   <arguments>
@@ -124,7 +128,7 @@ return values.
       <undocumented name="time" />
     </function>
     <function id="fort::myrmidon::Experiment::Const" name="Const">
-      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="818" />
+      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="913" />
       <undocumented-return />
     </function>
     <function id="fort::myrmidon::Query::IdentifyFramesFunctor" name="IdentifyFramesFunctor">
@@ -222,6 +226,13 @@ return values.
         <ref name="fort::myrmidon::Identification::SetTagSize" />
       </doctype>
     </category>
+    <method id="fort::myrmidon::Experiment::OpenDataLess" name="OpenDataLess">
+      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="376" />
+      <doctype name="doc">
+        <ref name="IdentifyFrame" />
+        <ref name="CollideFrame" />
+      </doctype>
+    </method>
     <class id="fort::myrmidon::Matcher" name="Matcher">
       <location column="1" file="src/fort/myrmidon/Matchers.hpp" line="10" />
       <location column="1" file="src/fort/myrmidon/Matchers.hpp" line="42" />

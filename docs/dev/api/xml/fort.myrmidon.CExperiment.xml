@@ -126,6 +126,17 @@ e$family()
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </return>
   </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::CompileTrackingSolver" name="CompileTrackingSolver">
+    <brief>Compiles a TrackingSolver</brief>
+    <doc>Compiles a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref>, typically use to identify and
+collide frame from live tracking data.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref> for the experiment.</doc>
+      <type name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver" />
+    </return>
+  </method>
   <method abstract="yes" id="fort::myrmidon::CExperiment::CSpaces" name="CSpaces">
     <brief>Gets the Space in the Experiment with const access</brief>
     <doc>R Version :

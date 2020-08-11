@@ -115,6 +115,9 @@ The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon:
   <struct name="TrackingDataDirectoryInfo" ref="fort::myrmidon::TrackingDataDirectoryInfo#fort::myrmidon::TrackingDataDirectoryInfo">
     <brief>Reports information about a tracking data directory.</brief>
   </struct>
+  <class name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">
+    <brief>Identifies and Collides Ant from raw tracking data</brief>
+  </class>
   <class name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone">
     <brief>A tracking region where interaction are computed.</brief>
   </class>

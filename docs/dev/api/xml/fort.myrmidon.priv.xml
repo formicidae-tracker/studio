@@ -39,6 +39,7 @@ of exported classes in <ref ref="fort::myrmidon#fort::myrmidon">fort::myrmidon</
   <class name="Space" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space">
     <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
   </class>
+  <class name="TrackingSolver" ref="fort::myrmidon::priv::TrackingSolver#fort::myrmidon::priv::TrackingSolver" />
   <class name="Zone" ref="fort::myrmidon::priv::Zone#fort::myrmidon::priv::Zone">
     <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
   </class>

@@ -35,11 +35,11 @@ interactions or trajectories.
   <category name="named_values" ref="named_values#named_values">
     <brief>Non-tracking timed data</brief>
   </category>
-  <category name="queries" ref="queries#queries">
-    <brief>Complex queries and matchers.</brief>
-  </category>
   <category name="ant_identification" ref="ant_identification#ant_identification">
     <brief>Ant Identification mechanism</brief>
+  </category>
+  <category name="queries" ref="queries#queries">
+    <brief>Complex queries and matchers.</brief>
   </category>
   <namespace name="fort" ref="fort#fort">
     <brief>the FORmidae Tracker namespace</brief>
@@ -74,6 +74,7 @@ interactions or trajectories.
         <class name="Space" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space">
           <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
         </class>
+        <class name="TrackingSolver" ref="fort::myrmidon::priv::TrackingSolver#fort::myrmidon::priv::TrackingSolver" />
         <class name="Zone" ref="fort::myrmidon::priv::Zone#fort::myrmidon::priv::Zone">
           <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
         </class>
@@ -184,6 +185,9 @@ interactions or trajectories.
       <struct name="TrackingDataDirectoryInfo" ref="fort::myrmidon::TrackingDataDirectoryInfo#fort::myrmidon::TrackingDataDirectoryInfo">
         <brief>Reports information about a tracking data directory.</brief>
       </struct>
+      <class name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">
+        <brief>Identifies and Collides Ant from raw tracking data</brief>
+      </class>
       <class name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone">
         <brief>A tracking region where interaction are computed.</brief>
       </class>

@@ -241,6 +241,17 @@ e$comment()
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </return>
   </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::CompileTrackingSolver" name="CompileTrackingSolver">
+    <brief>Compiles a TrackingSolver</brief>
+    <doc>Compiles a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref>, typically use to identify and
+collide frame from live tracking data.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref> for the experiment.</doc>
+      <type name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver" />
+    </return>
+  </method>
   <method abstract="yes" id="fort::myrmidon::Experiment::Const" name="Const">
     <brief>Casts down to a CExperiment</brief>
     <return>
@@ -635,6 +646,35 @@ fmExperimentOpen(path)
     </return>
     <argument id="fort::myrmidon::Experiment::Open::filepath" name="filepath">
       <doc>the path to the wanted file</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Experiment::OpenDataLess" name="OpenDataLess" static="yes">
+    <brief>Opens an Experiment without associated tracking data</brief>
+    <doc>Opens an Experiment to a `.myrmidon` file without opening its
+associated tracking data. Please also note that the file will
+be opened in Read Only mode. This functionalities is useful to
+be able to parse the Ant desciption list, and for example
+identify or collides ants from realtime tracking data acquired
+over the network. When opened in 'data-less' mode, no tracking
+data, tag statistic or measurement will be returned ( the
+experiment will appear empty ). However &amp;lt;IdentifyFrame&amp;gt; and
+&amp;lt;CollideFrame&amp;gt; will work as expected as the user is required to
+provide the data to these function.
+
+
+R Version :
+```R
+fmExperimentOpenDataLess(path)
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment">fort::myrmidon::CExperiment</ref></doc>
+      <type name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment" />
+    </return>
+    <argument id="fort::myrmidon::Experiment::OpenDataLess::filepath" name="filepath">
+      <doc>the path to the wanted file.</doc>
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </argument>
   </method>
