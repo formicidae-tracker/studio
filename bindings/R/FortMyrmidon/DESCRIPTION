@@ -1,7 +1,7 @@
 Package: FortMyrmidon
 Type: Package
 Title: R Bindings to the FORT myrmidon C++ API
-Version: 0.5.1
+Version: 0.6.0
 Date: 2020-07-08
 Author: Alexandre Tuleu
 Maintainer: Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>
