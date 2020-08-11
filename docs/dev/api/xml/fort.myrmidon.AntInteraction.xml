@@ -20,8 +20,8 @@ interaction. The Trajectory are truncated to the interaction
 timing.</doc>
     <type class="template" name="std::pair">
       <template-arguments>
-        <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
-        <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+        <type name="AntTrajectorySegment" ref="fort::myrmidon::AntTrajectorySegment#fort::myrmidon::AntTrajectorySegment" />
+        <type name="AntTrajectorySegment" ref="fort::myrmidon::AntTrajectorySegment#fort::myrmidon::AntTrajectorySegment" />
       </template-arguments>
     </type>
   </field>

@@ -25,6 +25,9 @@ The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon:
     <brief>Defines a trajectory for an <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref>
     </brief>
   </struct>
+  <struct name="AntTrajectorySegment" ref="fort::myrmidon::AntTrajectorySegment#fort::myrmidon::AntTrajectorySegment">
+    <brief>Defines a sub segment of a trajectory</brief>
+  </struct>
   <class name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt">
     <brief>const version of Ant</brief>
   </class>

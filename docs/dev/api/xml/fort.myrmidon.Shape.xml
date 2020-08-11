@@ -8,11 +8,11 @@ methods to convert from and to opaque Shape.</doc>
   <subclass access="public" name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
     <brief>A capsule</brief>
   </subclass>
-  <subclass access="public" name="Polygon" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">
-    <brief>A closed polygon</brief>
-  </subclass>
   <subclass access="public" name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
     <brief>A circle</brief>
+  </subclass>
+  <subclass access="public" name="Polygon" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">
+    <brief>A closed polygon</brief>
   </subclass>
   <typedef id="fort::myrmidon::Shape::ConstList" name="ConstList">
     <brief>A const list of Shape</brief>
