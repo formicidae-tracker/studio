@@ -1,6 +1,7 @@
 #include "Experiment.hpp"
 
 #include "priv/Experiment.hpp"
+#include "priv/TrackingSolver.hpp"
 #include "priv/AntShapeType.hpp"
 #include "priv/Identifier.hpp"
 #include "priv/Measurement.hpp"
@@ -19,6 +20,11 @@ Experiment Experiment::Open(const std::string & filepath) {
 CExperiment Experiment::OpenReadOnly(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
 	return CExperiment(priv::Experiment::OpenReadOnly(filepath));
+}
+
+CExperiment Experiment::OpenDataLess(const std::string & filepath) {
+	// its ok to const cast as we cast back as a const
+	return CExperiment(priv::Experiment::OpenDataLess(filepath));
 }
 
 Experiment Experiment::NewFile(const std::string & filepath) {
@@ -397,8 +403,40 @@ CExperiment Experiment::Const() const {
 }
 
 
+TrackingSolver Experiment::CompileTrackingSolver() const {
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->Identifier(),
+	                                                             d_p->CompileCollisionSolver()));
+}
+
+TrackingSolver CExperiment::CompileTrackingSolver() const {
+	// ok to const cast here as the identifier is immediatly casted back to a const.
+	return TrackingSolver(std::make_shared<priv::TrackingSolver>(std::const_pointer_cast<priv::Experiment>(d_p)->Identifier(),
+	                                                             d_p->CompileCollisionSolver()));
+}
+
+
 CExperiment::CExperiment(const ConstPPtr & pExperiment)
 	: d_p(pExperiment) {
+}
+
+
+TrackingSolver::TrackingSolver(const PPtr & pTracker)
+	: d_p(pTracker) {
+}
+
+
+IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameReadout & frame,
+                                                Space::ID spaceID) const {
+	return d_p->IdentifyFrame(frame,spaceID);
+}
+
+CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr & identified) const {
+	return d_p->CollideFrame(identified);
+}
+
+
+AntID TrackingSolver::IdentifyTag(TagID tagID, const Time & time) {
+	return d_p->IdentifyTag(tagID,time);
 }
 
 

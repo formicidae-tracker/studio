@@ -36,6 +36,12 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+
+namespace proto {
+class IOUtils;
+class IOUtilsUTest_IdentificationIO_Test;
+}
+
 // An Identification relates TagID to an Ant
 //
 // An <priv::Identification> relates <TagID> to an <priv::Ant>.
@@ -175,6 +181,8 @@ public:
 	public:
 		friend class Identifier;
 		friend class IdentificationUTest;
+		friend class proto::IOUtils;
+		friend class proto::IOUtilsUTest_IdentificationIO_Test;
 	};
 
 

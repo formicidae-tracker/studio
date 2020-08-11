@@ -279,6 +279,70 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 
 namespace fm=fort::myrmidon;
 
+void TestSetup::CreateMyrmidonFile(const std::string & name,
+                                   const semver::version & version) {
+	//creates data
+	fm::pb::Experiment e;
+
+	e.set_author("myrmidon-tests");
+	e.set_name("myrmidon test data");
+	e.set_comment("automatically generated data");
+	e.set_threshold(42);
+	e.set_tagfamily(fm::pb::TAG16H5);
+
+	auto mt = e.add_custommeasurementtypes();
+	mt->set_id(1);
+	mt->set_name("head-tail");
+
+	fm::pb::FileHeader header;
+
+	header.set_majorversion(version.major);
+	header.set_minorversion(version.minor);
+	fm::pb::FileLine l;
+
+	auto myrmidonFile = s_testdir / name;
+	int fd = open(myrmidonFile.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644 );
+	if ( fd <= 0 ) {
+		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + myrmidonFile.string() + "',O_RDONLY | O_BINARY)");
+	}
+	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
+	file->SetCloseOnDelete(true);
+	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
+
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(header, gunziped.get()) ) {
+		throw std::runtime_error("could not write header message");
+	}
+
+	l.set_allocated_experiment(&e);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+		throw std::runtime_error("could not write experiment data");
+	}
+	l.release_experiment();
+
+	fort::myrmidon::pb::Space s;
+	s.set_id(1);
+	s.set_name("box");
+	s.add_trackingdatadirectories("foo.0000");
+
+	l.set_allocated_space(&s);
+	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+		throw std::runtime_error("could not write space data");
+	}
+	l.release_space();
+
+	for (size_t i = 1; i <=3; ++i) {
+		fort::myrmidon::pb::AntDescription a;
+		a.set_id(i);
+		priv::proto::IOUtils::SaveColor(a.mutable_color(),Palette::Default().At(0));
+		l.set_allocated_antdescription(&a);
+		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
+			throw std::runtime_error("could not write ant data " + std::to_string(i));
+		}
+		l.release_antdescription();
+	}
+
+}
+
 // Called before any test activity starts.
 void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  {
 	std::cerr << "Setting up test data" << std::endl;
@@ -288,6 +352,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	auto tmppath = fs::temp_directory_path() / os.str();
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
+
 	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000"};
 	auto bardirs = {"bar.0000"};
 
@@ -339,66 +404,9 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 	}
 
-	//creates data
-	fm::pb::Experiment e;
-
-	e.set_author("myrmidon-tests");
-	e.set_name("myrmidon test data");
-	e.set_comment("automatically generated data");
-	e.set_threshold(42);
-	e.set_tagfamily(fm::pb::TAG16H5);
-
-	auto mt = e.add_custommeasurementtypes();
-	mt->set_id(1);
-	mt->set_name("head-tail");
-
-	fm::pb::FileHeader header;
-
-	header.set_majorversion(0);
-	header.set_minorversion(1);
-	fm::pb::FileLine l;
-
-	auto myrmidonFile = s_testdir / "test.myrmidon";
-	int fd = open(myrmidonFile.c_str(),O_CREAT | O_TRUNC | O_RDWR | O_BINARY,0644 );
-	if ( fd <= 0 ) {
-		throw std::system_error(errno,MYRMIDON_SYSTEM_CATEGORY(),"open('" + myrmidonFile.string() + "',O_RDONLY | O_BINARY)");
-	}
-	auto file = std::make_shared<google::protobuf::io::FileOutputStream>(fd);
-	file->SetCloseOnDelete(true);
-	auto gunziped = std::make_shared<google::protobuf::io::GzipOutputStream>(file.get());
-
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(header, gunziped.get()) ) {
-		throw std::runtime_error("could not write header message");
-	}
-
-	l.set_allocated_experiment(&e);
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-		throw std::runtime_error("could not write experiment data");
-	}
-	l.release_experiment();
-
-	fort::myrmidon::pb::Space s;
-	s.set_id(1);
-	s.set_name("box");
-	s.add_trackingdatadirectories("foo.0000");
-
-	l.set_allocated_space(&s);
-	if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-		throw std::runtime_error("could not write space data");
-	}
-	l.release_space();
-
-	for (size_t i = 1; i <=3; ++i) {
-		fort::myrmidon::pb::AntDescription a;
-		a.set_id(i);
-		priv::proto::IOUtils::SaveColor(a.mutable_color(),Palette::Default().At(0));
-		l.set_allocated_antdescription(&a);
-		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
-			throw std::runtime_error("could not write ant data " + std::to_string(i));
-		}
-		l.release_antdescription();
-	}
-
+	CreateMyrmidonFile("test.myrmidon",semver::version("0.2.0"));
+	CreateMyrmidonFile("test-0.1.myrmidon",semver::version("0.1.0"));
+	CreateMyrmidonFile("test-future.myrmidon",semver::version("42.42.42"));
 
 }
 

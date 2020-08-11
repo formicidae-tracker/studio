@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 
-project(fort-studio VERSION 0.5.0
+project(fort-studio VERSION 0.6.0
                     LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
@@ -33,11 +33,16 @@ FetchContent_Declare(googletest
 
 FetchContent_Declare(fort-tags
                      GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.2.2)
+                     GIT_TAG        v1.3.0)
 
 FetchContent_Declare(hermes
                      GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
                      GIT_TAG        v0.4.0)
+
+FetchContent_Declare(semver
+                     GIT_REPOSITORY https://github.com/Neargye/semver.git
+                     GIT_TAG        v0.2.2)
+
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
@@ -64,6 +69,13 @@ if(NOT hermes_POPULATED)
 endif(NOT hermes_POPULATED)
 set(HERMES_INCLUDE_DIRS ${hermes_SOURCE_DIR}/src ${hermes_BINARY_DIR}/src)
 
+FetchContent_GetProperties(semver)
+if(NOT semver_POPULATED)
+	FetchContent_Populate(semver)
+	add_subdirectory(${semver_SOURCE_DIR} ${semver_BINARY_DIR})
+endif(NOT semver_POPULATED)
+set(SEMVER_INCLUDE_DIRS ${semver_SOURCE_DIR}/include)
+
 
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
@@ -72,6 +84,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${TBB_INCLUDE_DIRS}
                     ${fort-tags_SOURCE_DIR}/include
                     ${HERMES_INCLUDE_DIRS}
+                    ${SEMVER_INCLUDE_DIRS}
                     )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -130,14 +143,15 @@ if(UNIT_TEST_CHECK_TIMING)
 	add_definitions("-DMYRMIDON_TEST_TIMING")
 endif(UNIT_TEST_CHECK_TIMING)
 
-set(INCLUDE_INSTALL_DIR include/fort/myrmidon)
+set(INCLUDE_PATH include)
+set(INCLUDE_INSTALL_DIR ${INCLUDE_PATH}/fort/myrmidon)
 set(LIB_INSTALL_DIR lib )
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(FortMyrmidonConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfig.cmake
 	INSTALL_DESTINATION ${LIB_INSTALL_DIR}/FortMyrmidon/cmake
-	PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR)
+	PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR INCLUDE_PATH)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/FortMyrmidonConfigVersion.cmake
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion )

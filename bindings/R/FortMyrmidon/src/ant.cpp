@@ -14,22 +14,35 @@ template <> SEXP wrap(const fort::myrmidon::TypedCapsuleList & l );
 
 }
 
-
 #include "Rcpp.h"
 
 namespace Rcpp {
 
 template <> SEXP wrap(const fort::myrmidon::TypedCapsuleList & l ) {
-	List capsules,shapeTypes;
+	IntegerVector types;
+	NumericVector c1X,c1Y,c1Radius,c2X,c2Y,c2Radius;
+	List objects;
 
-	for ( const auto & [shapeType,c] : l ) {
-		capsules.push_back(c);
-		shapeTypes.push_back(shapeType);
+	for ( const auto & [shapeTypeID,c] : l ) {
+		types.push_back(shapeTypeID);
+		c1X.push_back(c.C1().x());
+		c1Y.push_back(c.C1().y());
+		c1Radius.push_back(c.R1());
+		c2X.push_back(c.C2().x());
+		c2Y.push_back(c.C2().y());
+		c2Radius.push_back(c.R2());
+		objects.push_back(c);
 	}
 
 	List res;
-	res["capsules"] = capsules;
-	res["shapeTypes"] = shapeTypes;
+	res["summary"] = DataFrame::create(_["typeID"] = types,
+	                                   _["c1.x"] = c1X,
+	                                   _["c1.y"] = c1Y,
+	                                   _["c1.radius"] = c1Radius,
+	                                   _["c2.x"] = c2X,
+	                                   _["c2.y"] = c2Y,
+	                                   _["c2.radius"] = c2Radius);
+	res["objects"] = objects;
 	return res;
 }
 

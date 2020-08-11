@@ -98,7 +98,10 @@ void Execute(int argc, char ** argv) {
 	if ( !f ) {
 		throw std::runtime_error("Could not open vga.fon");
 	}
-	fread(fontdata,4096,1,f);
+	int res = fread(fontdata,4096,1,f);
+	if ( res != 4096 ) {
+		throw std::runtime_error("Could not read full font data");
+	}
 	fclose(f);
 
 	auto tdd = fmp::TrackingDataDirectory::Open(argv[1],"./");

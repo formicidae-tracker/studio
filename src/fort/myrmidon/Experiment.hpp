@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <fort/tags/fort-tags.h>
+#include <fort/hermes/FrameReadout.pb.h>
 
 #include "Types.hpp"
 #include "Ant.hpp"
@@ -14,9 +15,62 @@ namespace myrmidon {
 namespace priv {
 // private <fort::myrmidon::priv> Implementation
 class Experiment;
+class TrackingSolver;
 } // namespace priv
 
+
 class Query;
+
+
+// Identifies and Collides Ant from raw tracking data
+//
+// This class lets the user to manually identify and track ants from
+// raw tracking data, as for example, obtained from a network stream
+// with `fort::hermes`
+
+class TrackingSolver {
+public :
+
+	// Identifies a single tag
+	// @tagID the TagID to identify
+	// @time the time to consider to identify the tag
+	//
+	// @return 0 if the tag is not idnetified, or the corresponding ID
+	AntID IdentifyTag(TagID tagID, const Time & time);
+
+	// Identifies Ants from a `fort::hermes::FrameReadout`
+	// @frame the `fort::hermes::FrameReadout` to identify
+	// @spaceID the spaceID the frame correspond to
+	//
+	// @return an <IdentifiedFrame> with all identified ant (without zone)
+	IdentifiedFrame::Ptr IdentifyFrame(const fort::hermes::FrameReadout & frame,
+	                                   Space::ID spaceID) const;
+
+	// Collides Ants from an IdentifiedFrame
+	// @identified the <IdentifiedFrame> with the ant position data.
+	//
+	// Collides Ants from an <IdentifiedFrame>. <identified> will be
+	// modified to contains for each Ant its current zone.
+	//
+	// @return a <CollisionFrame> with all current Ant collisions.
+	CollisionFrame::ConstPtr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
+
+	// Opaque pointer to implementation
+	typedef const std::shared_ptr<priv::TrackingSolver> PPtr;
+
+	// Private implementation constructor
+	// @pTracker opaque pointer to implementation
+	//
+	// User cannot create a TrackingSolver directly. They must use
+	// <Experiment::CompileTrackingSolver> and
+	// <CExperiment::CompileTrackingSolver>.
+	TrackingSolver(const PPtr & pTracker);
+private:
+
+	PPtr d_p;
+};
+
+
 
 // const version of Experiment
 //
@@ -218,6 +272,14 @@ public :
 	std::map<AntID,TagID> IdentificationsAt(const Time & time,
 	                                        bool removeUnidentifiedAnt = true) const;
 
+	// Compiles a TrackingSolver
+	//
+	// Compiles a <TrackingSolver>, typically use to identify and
+	// collide frame from live tracking data.
+	//
+	// @return a <TrackingSolver> for the experiment.
+	TrackingSolver CompileTrackingSolver() const;
+
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<const priv::Experiment> ConstPPtr;
 
@@ -288,6 +350,30 @@ public:
 	//
 	// @return the <CExperiment>
 	static CExperiment OpenReadOnly(const std::string & filepath);
+
+
+	// Opens an Experiment without associated tracking data
+	// @filepath the path to the wanted file.
+	//
+	// Opens an Experiment to a `.myrmidon` file without opening its
+	// associated tracking data. Please also note that the file will
+	// be opened in Read Only mode. This functionalities is useful to
+	// be able to parse the Ant desciption list, and for example
+	// identify or collides ants from realtime tracking data acquired
+	// over the network. When opened in 'data-less' mode, no tracking
+	// data, tag statistic or measurement will be returned ( the
+	// experiment will appear empty ). However <IdentifyFrame> and
+	// <CollideFrame> will work as expected as the user is required to
+	// provide the data to these function.
+	//
+	//
+	// R Version :
+	// ```R
+	// fmExperimentOpenDataLess(path)
+	// ```
+	//
+	// @return the <CExperiment>
+	static CExperiment OpenDataLess(const std::string & filepath);
 
 	// Creates a new Experiment file
 	// @filepath the wanted filepath
@@ -813,6 +899,15 @@ public:
 	                                        bool removeUnidentifiedAnt = true) const;
 
 	/* cldoc:end-category() */
+
+	// Compiles a TrackingSolver
+	//
+	// Compiles a <TrackingSolver>, typically use to identify and
+	// collide frame from live tracking data.
+	//
+	// @return a <TrackingSolver> for the experiment.
+	TrackingSolver CompileTrackingSolver() const;
+
 
 	// Casts down to a CExperiment
 	CExperiment Const() const;

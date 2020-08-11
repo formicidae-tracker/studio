@@ -198,7 +198,11 @@ add_library(fort-studio-common STATIC ${SRC_FILES}
                                       ${RCC_FILES}
                                       )
 
-target_link_libraries(fort-studio-common Qt5::Widgets Qt5::Concurrent fort-myrmidon fort-tags)
+target_link_libraries(fort-studio-common Qt5::Widgets
+                                         Qt5::Concurrent
+                                         fort-myrmidon
+                                         fort-tags
+                                         Threads::Threads)
 
 add_executable(fort-studio main.cpp)
 

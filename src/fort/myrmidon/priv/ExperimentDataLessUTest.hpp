@@ -2,22 +2,19 @@
 
 #include <gtest/gtest.h>
 
-#include "ForwardDeclaration.hpp"
+#include <fort/myrmidon/priv/Experiment.hpp>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class ExperimentUTest : public ::testing::Test {
+class ExperimentDataLessUTest : public ::testing::Test {
 protected:
-
 	void SetUp();
 	void TearDown();
 
-
-	ExperimentPtr e;
+	fs::path experimentPath;
 };
-
 
 } // namespace priv
 } // namespace myrmidon

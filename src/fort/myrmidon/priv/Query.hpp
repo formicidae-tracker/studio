@@ -44,6 +44,10 @@ public:
 	                                bool computeZones = false,
 	                                bool singleThreaded = false);
 
+
+	// computes trajectories and interactions. Bad invariant
+	// optimization: interactions will always be saved before
+	// trajectories. But there are no test.
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,
@@ -60,12 +64,13 @@ private:
 	typedef std::pair<Space::ID,RawFrameConstPtr>            RawData;
 
 	struct BuildingTrajectory {
-		AntID                 Ant;
-		Space::ID             SpaceID;
-		Time                  Start,Last;
+		std::shared_ptr<AntTrajectory> Trajectory;
+
+		Time                  Last;
 		std::vector<double>   DataPoints;
 		std::vector<double>   Durations;
 		std::vector<uint32_t> Zones;
+
 		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
 		                   const PositionedAnt & ant,
 		                   const ZoneID * zone);

@@ -599,6 +599,28 @@ TEST_F(ExperimentUTest,AntMetadataManipulation) {
 
 }
 
+TEST_F(ExperimentUTest,OldFilesAreOpenable) {
+	EXPECT_NO_THROW({
+			Experiment::OpenReadOnly(TestSetup::Basedir() / "test-0.1.myrmidon");
+		});
+}
+
+TEST_F(ExperimentUTest,WillNotOpenFileQhichAreTooRecent) {
+	auto path = TestSetup::Basedir() / "test-future.myrmidon";
+
+	try {
+		Experiment::OpenReadOnly(path);
+		ADD_FAILURE() << "Opening " << path << " should have thrown a std::runtime_error";
+	} catch ( const std::runtime_error & e) {
+		std::ostringstream expected;
+		expected << "Unexpected myrmidon file version 42.42.0 in "
+		         << path
+		         << ": can only works with 0.1.0 or 0.2.0";
+		EXPECT_EQ(expected.str(),e.what());
+
+	}
+}
+
 
 } //namespace priv
 } //namespace myrmidon

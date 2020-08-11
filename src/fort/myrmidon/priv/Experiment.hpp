@@ -62,6 +62,15 @@ public :
 	// @return a <Ptr> to the <Experiment>.
 	static ConstPtr OpenReadOnly(const fs::path & filename);
 
+	// Opens an existing experiment given its fs::path, without
+	// opening any actual data.
+	//
+	// @filename the fs::path to the ".myrmidon" file
+	//
+	// @return a <Ptr> to the <Experiment>.
+	static ConstPtr OpenDataLess(const fs::path & filename);
+
+
 
 	// Creates a new <Experiment> given a fs::path
 	// @filename the fs::path to the ".myrmidon" file
@@ -318,7 +327,6 @@ private:
 	fs::path             d_basedir;
 	Space::Universe::Ptr d_universe;
 	IdentifierPtr        d_identifier;
-
 
 	std::string        d_name;
 	std::string        d_author;
