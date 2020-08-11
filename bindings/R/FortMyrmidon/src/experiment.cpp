@@ -5,7 +5,6 @@
 #include "identification.h"
 #include "time.h"
 #include "ant_static_value.h"
-#include "map.hpp"
 
 #include <fort/myrmidon/Types.hpp>
 
@@ -17,7 +16,18 @@ namespace Rcpp {
 
 template <> SEXP wrap(const std::map<std::string,std::pair<fort::myrmidon::AntMetadataType,fort::myrmidon::AntStaticValue> > & data);
 
-template <> SEXP wrap( const std::vector<fort::myrmidon::TrackingDataDirectoryInfo> & tddInfos);
+
+template <> SEXP wrap( const std::map<fort::myrmidon::AntID,fort::myrmidon::Ant> & ants);
+
+template <> SEXP wrap( const std::map<fort::myrmidon::AntID,fort::myrmidon::CAnt> & ants );
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::Space> & spaces);
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::CSpace> & spaces);
+
+template <> SEXP wrap( const std::map<fort::myrmidon::MeasurementTypeID,std::string> & types);
+
+template <> SEXP wrap( const fort::myrmidon::ExperimentDataInfo & infos);
 
 }
 
@@ -35,52 +45,6 @@ void fmExperiment_show(const fort::myrmidon::Experiment * e) {
 	Rcpp::Rcout << "fmExperiment ( Path= '"  << e->AbsoluteFilePath()
 	            << "' )\n";
 }
-
-void fmTrackingDataDirectoryInfo_show_indent(const fort::myrmidon::TrackingDataDirectoryInfo * i,const std::string & indent) {
-	Rcpp::Rcout << indent << "fmTrackingDataDirectoryInfo ([\n"
-	            << indent << "  uri = '" << i->URI << "'\n"
-	            << indent << "  path = '" << i->AbsoluteFilePath << "'\n"
-	            << indent << "  frames = " << i->Frames << "\n"
-	            << indent << "  start = " << i->Start << "\n"
-	            << indent << "  end = " << i->End << "\n"
-	            << indent << "])\n";
-}
-
-void fmTrackingDataDirectoryInfo_show(const fort::myrmidon::TrackingDataDirectoryInfo * i ) {
-	fmTrackingDataDirectoryInfo_show_indent(i,"");
-}
-
-void fmSpaceDataInfo_show_indent(const fort::myrmidon::SpaceDataInfo * i, const std::string & indent) {
-	Rcpp::Rcout << indent << "fmSpaceDataInfo ([\n"
-	            << indent << "  uri = '" << i->URI << "'\n"
-	            << indent << "  name = '" << i->Name << "'\n"
-	            << indent << "  frames = " << i->Frames << "\n"
-	            << indent << "  start = " << i->Start << "\n"
-	            << indent << "  end = " << i->End << "\n"
-	            << indent << "  trackingDataDirectories = ([\n";
-
-	for ( const auto & tddi : i->TrackingDataDirectories ) {
-		fmTrackingDataDirectoryInfo_show_indent(&tddi,indent + "  ");
-	}
-	Rcpp::Rcout << indent << "  ])\n" << indent << "])\n";
-}
-
-void fmSpaceDataInfo_show(const fort::myrmidon::SpaceDataInfo * i) {
-	fmSpaceDataInfo_show_indent(i,"");
-}
-
-void fmExperimentDataInfo_show(const fort::myrmidon::ExperimentDataInfo * i) {
-	Rcpp::Rcout << "fmExperimentDataInfo ([\n"
-	            << "  frames = " << i->Frames << "\n"
-	            << "  start = " << i->Start << "\n"
-	            << "  end = "  << i->End << "\n"
-	            << "  spaces = ([\n";
-	for ( const auto & [spaceID,spaceInfo] : i->Spaces ) {
-		fmSpaceDataInfo_show_indent(&spaceInfo,"  ");
-	}
-	Rcpp::Rcout << "  ])\n])\n";
-}
-
 
 Rcpp::DataFrame fmCExperimentWrapIdentifications(const std::map<fort::myrmidon::AntID,fort::myrmidon::TagID> & data) {
 	Rcpp::NumericVector antIDs(data.size()),tagIDs(data.size());
@@ -112,50 +76,9 @@ Rcpp::DataFrame fmExperimentIdentificationsAt(const fort::myrmidon::Experiment *
 }
 
 
-FM_IMPLEMENT_MAPUINT32(AntID,Ant)
-FM_IMPLEMENT_MAPUINT32(AntID,CAnt)
-FM_IMPLEMENT_MAPUINT32(SpaceID,CSpace)
-FM_IMPLEMENT_MAPUINT32(SpaceID,Space)
-FM_IMPLEMENT_MAPUINT32_WITH_DETAILS(MeasurementTypeID,string,fort::myrmidon,std,{ Rcpp::Rcout << "'" << v << "'\n"; })
-FM_IMPLEMENT_MAPUINT32(SpaceID,SpaceDataInfo)
 
 
 RCPP_MODULE(experiment) {
-	FM_DECLARE_MAPUINT32(AntID,Ant,"fmAntByID");
-	FM_DECLARE_MAPUINT32(AntID,CAnt,"fmCAntByID");
-	FM_DECLARE_MAPUINT32(SpaceID,Space,"fmSpaceByID");
-	FM_DECLARE_MAPUINT32(SpaceID,CSpace,"fmCSpaceByID");
-	FM_DECLARE_MAPUINT32(MeasurementTypeID,string,"fmMeasurementTypeNameByID");
-	FM_DECLARE_MAPUINT32(SpaceID,SpaceDataInfo,"fmSpaceDataInfoByID");
-
-	Rcpp::class_<fort::myrmidon::TrackingDataDirectoryInfo>("fmTrackingDataDirectoryInfo")
-		.const_method("show",&fmTrackingDataDirectoryInfo_show)
-		.field_readonly("uri",&fort::myrmidon::TrackingDataDirectoryInfo::URI)
-		.field_readonly("absoluteFilePath",&fort::myrmidon::TrackingDataDirectoryInfo::AbsoluteFilePath)
-		.field_readonly("frames",&fort::myrmidon::TrackingDataDirectoryInfo::Frames)
-		.field_readonly("start",&fort::myrmidon::TrackingDataDirectoryInfo::Start)
-		.field_readonly("end",&fort::myrmidon::TrackingDataDirectoryInfo::End)
-		;
-
-	Rcpp::class_<fort::myrmidon::SpaceDataInfo>("fmSpaceDataInfo")
-		.const_method("show",&fmSpaceDataInfo_show)
-		.field_readonly("uri",&fort::myrmidon::SpaceDataInfo::URI)
-		.field_readonly("name",&fort::myrmidon::SpaceDataInfo::Name)
-		.field_readonly("frames",&fort::myrmidon::SpaceDataInfo::Frames)
-		.field_readonly("start",&fort::myrmidon::SpaceDataInfo::Start)
-		.field_readonly("end",&fort::myrmidon::SpaceDataInfo::End)
-		.field_readonly("trackingDataDirectories",&fort::myrmidon::SpaceDataInfo::TrackingDataDirectories)
-		;
-
-
-	Rcpp::class_<fort::myrmidon::ExperimentDataInfo>("fmExperimentDataInfo")
-		.const_method("show",&fmExperimentDataInfo_show)
-		.field_readonly("frames",&fort::myrmidon::ExperimentDataInfo::Frames)
-		.field_readonly("start",&fort::myrmidon::ExperimentDataInfo::Start)
-		.field_readonly("end",&fort::myrmidon::ExperimentDataInfo::End)
-		.field_readonly("spaces",&fort::myrmidon::ExperimentDataInfo::Spaces)
-		;
-
 
 	Rcpp::class_<fort::myrmidon::CExperiment>("fmCExperiment")
 		.const_method("show",&fmCExperiment_show)
@@ -245,13 +168,130 @@ template <> SEXP wrap(const std::map<std::string,std::pair<fort::myrmidon::AntMe
 }
 
 
-template <> SEXP wrap( const std::vector<fort::myrmidon::TrackingDataDirectoryInfo> & tddInfos) {
-	List res;
-	for ( const auto & i : tddInfos ) {
-		res.push_back(i);
+template <> SEXP wrap( const std::map<fort::myrmidon::AntID,fort::myrmidon::Ant> & ants) {
+	CharacterVector formattedID(ants.size());
+	IntegerVector antIDs(ants.size());
+	List objects(ants.size()),res;
+	size_t i = 0;
+	for ( const auto & [antID,ant] : ants ) {
+		formattedID[i] = ant.FormattedID();
+		antIDs[i] = antID;
+		objects[i] = ant;
+		i++;
 	}
+	res["summary"] = DataFrame::create(_["antID"]  = antIDs,
+	                                   _["formattedID"]  = formattedID);
+	res["objects"] = objects;
 	return res;
 }
+
+template <> SEXP wrap( const std::map<fort::myrmidon::AntID,fort::myrmidon::CAnt> & ants ) {
+	CharacterVector formattedID(ants.size());
+	IntegerVector antIDs(ants.size());
+	List objects(ants.size()),res;
+	size_t i = 0;
+	for ( const auto & [antID,ant] : ants ) {
+		formattedID[i] = ant.FormattedID();
+		antIDs[i] = antID;
+		objects[i] = ant;
+		i++;
+	}
+	res["summary"] = DataFrame::create(_["antID"]  = antIDs,
+	                                   _["formattedID"]  = formattedID);
+	res["objects"] = objects;
+	return res;
+}
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::Space> & spaces) {
+	CharacterVector names(spaces.size());
+	IntegerVector spaceIDs(spaces.size());
+	List objects(spaces.size()),res;
+	size_t i = 0;
+	for ( const auto & [spaceID,space] : spaces ) {
+		names[i] = space.Name();
+		spaceIDs[i] = spaceID;
+		objects[i] = space;
+		i++;
+	}
+	res["summary"] = DataFrame::create(_["spaceID"]  = spaceIDs,
+	                                   _["name"]  = names);
+	res["objects"] = objects;
+	return res;
+}
+
+template <> SEXP wrap( const std::map<fort::myrmidon::SpaceID,fort::myrmidon::CSpace> & spaces)  {
+	CharacterVector names(spaces.size());
+	IntegerVector spaceIDs(spaces.size());
+	List objects(spaces.size()),res;
+	size_t i = 0;
+	for ( const auto & [spaceID,space] : spaces ) {
+		names[i] = space.Name();
+		spaceIDs[i] = spaceID;
+		objects[i] = space;
+		i++;
+	}
+	res["summary"] = DataFrame::create(_["spaceID"]  = spaceIDs,
+	                                   _["name"]  = names);
+	res["objects"] = objects;
+	return res;
+}
+
+template <> SEXP wrap( const std::map<fort::myrmidon::MeasurementTypeID,std::string> & types) {
+	IntegerVector IDs(types.size());
+	CharacterVector names(types.size());
+	size_t i = 0;
+	for ( const auto & [typeID,name] : types ) {
+		IDs[i] = typeID;
+		names[i] = name;
+		++i;
+	}
+	return DataFrame::create(_["typeID"] = IDs,
+	                         _["name"] = names);
+}
+
+template <> SEXP wrap( const fort::myrmidon::ExperimentDataInfo & infos) {
+	CharacterVector tddURIs,tddPaths,spaceURIs,spaceNames;
+	IntegerVector tddFrames,spaceIDs,spaceFrames;
+	DatetimeVector tddStart(0),tddEnd(0),spaceStart(0),spaceEnd(0);
+
+
+	for ( const auto & [spaceID,space] : infos.Spaces) {
+		for ( const auto & tdd : space.TrackingDataDirectories ) {
+			tddURIs.push_back(tdd.URI);
+			tddPaths.push_back(tdd.AbsoluteFilePath);
+			tddFrames.push_back(tdd.Frames);
+			tddStart.push_back(fmTime_asR(tdd.Start));
+			tddEnd.push_back(fmTime_asR(tdd.End));
+
+			spaceIDs.push_back(spaceID);
+			spaceURIs.push_back(space.URI);
+			spaceNames.push_back(space.Name);
+			spaceFrames.push_back(space.Frames);
+			spaceStart.push_back(fmTime_asR(space.Start));
+			spaceEnd.push_back(fmTime_asR(space.End));
+		}
+	}
+	spaceStart.attr("class") = "POSIXct";
+	spaceEnd.attr("class") = "POSIXct";
+	tddStart.attr("class") = "POSIXct";
+	tddEnd.attr("class") = "POSIXct";
+	List res;
+	res["frames"] = infos.Frames;
+	res["start"]  = fmTime_asR(infos.Start);
+	res["end"] = fmTime_asR(infos.End);
+	res["details"] = DataFrame::create(_["space.ID"]     = spaceIDs,
+	                                   _["space.name"]   = spaceNames,
+	                                   _["space.frames"] = spaceFrames,
+	                                   _["space.start"]  = spaceStart,
+	                                   _["space.end"]    = spaceEnd,
+	                                   _["tdd.URI"]      = tddURIs,
+	                                   _["tdd.path"]     = tddPaths,
+	                                   _["tdd.frames"]   = tddFrames,
+	                                   _["tdd.start"]    = tddStart,
+	                                   _["tdd.end"]      = tddEnd);
+	return res;
+}
+
 
 
 }
