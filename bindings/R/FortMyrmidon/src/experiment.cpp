@@ -95,7 +95,7 @@ Rcpp::DataFrame fmCExperimentWrapIdentifications(const std::map<fort::myrmidon::
 
 	auto res = Rcpp::DataFrame::create(Rcpp::_["tagDecimalValue"] = tagIDs,
 	                                   Rcpp::_["antID"]  = antIDs);
-	res.names() = tagIDStr;
+	res.attr("row.names") = tagIDStr;
 	return res;
 }
 

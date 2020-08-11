@@ -58,19 +58,19 @@ SEXP fmTagStatistics_asR(const TagStatistics::ByTagID & tagStats ) {
 		++i;
 	}
 
-	auto res = Rcpp::DataFrame::create(Rcpp::_["TagIDDecimal"] = TagID,
-	                                   Rcpp::_["First Seen"] = FirstSeen,
-	                                   Rcpp::_["Last Seen"] = LastSeen,
-	                                   Rcpp::_["Count"] = Count,
-	                                   Rcpp::_["Multiple Seen"] = Multiple,
-	                                   Rcpp::_["Gap < 500ms"] = Gap500,
-	                                   Rcpp::_["Gap < 1s"] = Gap1s,
-	                                   Rcpp::_["Gap < 10s"] = Gap10s,
-	                                   Rcpp::_["Gap < 1m"] = Gap1m,
-	                                   Rcpp::_["Gap < 10m"] = Gap10m,
-	                                   Rcpp::_["Gap < 1h"] = Gap1h,
-	                                   Rcpp::_["Gap < 10h"] = Gap10h,
-	                                   Rcpp::_["Gap >= 10h"] = GapMore);
+	auto res = Rcpp::DataFrame::create(Rcpp::_["tagDecimalValue"] = TagID,
+	                                   Rcpp::_["firstSeen"] = FirstSeen,
+	                                   Rcpp::_["lastSeen"] = LastSeen,
+	                                   Rcpp::_["count"] = Count,
+	                                   Rcpp::_["multipleSeen"] = Multiple,
+	                                   Rcpp::_["gap500ms"] = Gap500,
+	                                   Rcpp::_["gap1s"] = Gap1s,
+	                                   Rcpp::_["gap10s"] = Gap10s,
+	                                   Rcpp::_["gap1m"] = Gap1m,
+	                                   Rcpp::_["gap10m"] = Gap10m,
+	                                   Rcpp::_["gap1h"] = Gap1h,
+	                                   Rcpp::_["gap10h"] = Gap10h,
+	                                   Rcpp::_["gap10h"] = GapMore);
 
 	res.attr("row.names") = TagName;
 	return res;
