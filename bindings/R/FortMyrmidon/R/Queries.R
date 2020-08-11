@@ -8,9 +8,9 @@ options("digits.secs" = 6)
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param computeZones reports the user defined zone for the
 #'     ants. otherwise the data.frame will be smaller and the
 #'     computation faster.
@@ -54,9 +54,9 @@ fmQueryIdentifyFrames <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param singleThreaded perform a single threaded query. Could be
 #'     faster for small experiment in number of Ant as identification
 #'     is mostly IO bounded and the overhead induced by
@@ -92,9 +92,9 @@ fmQueryCollideFrames <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param maximumGap the maximum gap in tracking before cutting the
 #'     trajectory in two different object. Use an insanely large value
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
@@ -155,9 +155,9 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #' @param start the starting time for the query. Data which were
 #'     acquire before that time will not be reported. Could be NULL
 #'     for -∞, a POSIXct a fmTime or fmTimeCPtr object.
-#' @param end the starting time for the query. Data which were acquire
-#'     after that time will not be reported. Could be NULL for +∞, a
-#'     POSIXct a fmTime or fmTimeCPtr object/
+#' @param end the ending time for the query. Data which were acquire
+#'     after or at that exact time will not be reported. Could be NULL
+#'     for +∞, a POSIXct a fmTime or fmTimeCPtr object
 #' @param maximumGap the maximum gap in tracking before cutting the
 #'     trajectory in two different object. Use an insanely large value
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
