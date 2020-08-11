@@ -24,9 +24,9 @@ mode.}
 acquire before that time will not be reported. Could be NULL
 for -∞, a POSIXct a fmTime or fmTimeCPtr object.}
 
-\item{end}{the starting time for the query. Data which were acquire
-after that time will not be reported. Could be NULL for +∞, a
-POSIXct a fmTime or fmTimeCPtr object/}
+\item{end}{the ending time for the query. Data which were acquire
+after or at that exact time will not be reported. Could be NULL
+for +∞, a POSIXct a fmTime or fmTimeCPtr object}
 
 \item{maximumGap}{the maximum gap in tracking before cutting the
 trajectory in two different object. Use an insanely large value
@@ -34,9 +34,9 @@ trajectory in two different object. Use an insanely large value
 trajectory). Trajectory will always be cut when an ant moves
 from a space to another.}
 
-\item{matcher}{a \linkS4class{fmMatcher} to reduce the query to
+\item{matcher}{a \link{fmMatcher} to reduce the query to
 wanted criterion. You can use \code{NULL} or
-\code{\link{fmMatcherAny()}} to match anything. Matcher that
+\code{\link{fmMatcherAny}()} to match anything. Matcher that
 requires two ant will match anything.}
 
 \item{computeZones}{reports the user defined zone for the

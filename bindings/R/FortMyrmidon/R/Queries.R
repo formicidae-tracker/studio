@@ -100,9 +100,9 @@ fmQueryCollideFrames <- function (experiment,
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
 #'     trajectory). Trajectory will always be cut when an ant moves
 #'     from a space to another.
-#' @param matcher a \linkS4class{fmMatcher} to reduce the query to
+#' @param matcher a \link{fmMatcher} to reduce the query to
 #'     wanted criterion. You can use \code{NULL} or
-#'     \code{\link{fmMatcherAny()}} to match anything. Matcher that
+#'     \code{\link{fmMatcherAny}()} to match anything. Matcher that
 #'     requires two ant will match anything.
 #' @param computeZones reports the user defined zone for the
 #'     ants. otherwise the data.frame will be smaller and the
@@ -163,9 +163,9 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #'     ( such as \code{fmHour(24*365)} to disable cutting of
 #'     trajectory). Trajectories and Interactions will always be cut
 #'     when an ant moves from a space to another.
-#' @param matcher a \linkS4class{fmMatcher} to reduce the query to
+#' @param matcher a \link{fmMatcher} to reduce the query to
 #'     wanted criterion. You can use \code{NULL} or
-#'     \code{\link{fmMatcherAny()}} to match anything. Matcher that
+#'     \code{\link{fmMatcherAny}()} to match anything. Matcher that
 #'     requires two ant will match conditionally only for the
 #'     interaction detection, but will always match for interaction
 #'     detection. Matcher that addresses a single ant will match

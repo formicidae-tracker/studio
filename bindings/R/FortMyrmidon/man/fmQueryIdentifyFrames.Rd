@@ -22,9 +22,9 @@ mode.}
 acquire before that time will not be reported. Could be NULL
 for -∞, a POSIXct a fmTime or fmTimeCPtr object.}
 
-\item{end}{the starting time for the query. Data which were acquire
-after that time will not be reported. Could be NULL for +∞, a
-POSIXct a fmTime or fmTimeCPtr object/}
+\item{end}{the ending time for the query. Data which were acquire
+after or at that exact time will not be reported. Could be NULL
+for +∞, a POSIXct a fmTime or fmTimeCPtr object}
 
 \item{computeZones}{reports the user defined zone for the
 ants. otherwise the data.frame will be smaller and the
