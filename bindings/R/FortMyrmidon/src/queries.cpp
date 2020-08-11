@@ -315,13 +315,6 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 			needsIndexing[interaction->Trajectories.second.Trajectory.get()].second.push_back(interactionIndex);
 			ant1Indexing.Push(interaction->Trajectories.first);
 			ant2Indexing.Push(interaction->Trajectories.second);
-			static Time lastTime;
-			if ( interaction->End.Sub(lastTime) > 10 * Duration::Minute ) {
-				lastTime = interaction->End;
-				std::cerr << "indexStageAreaSize: " << needsIndexing.size() << std::endl;
-
-			}
-
 		};
 
 	if ( reportTrajectories == false ) {
