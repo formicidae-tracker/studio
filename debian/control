@@ -49,6 +49,7 @@ Package: libfort-hermes-cpp0.4
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfort-hermes-cpp0.3
 Description: Tracking data IO for the FORmicidae Tracker - c++ runtime
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
@@ -71,6 +72,7 @@ Package: libfort-hermes0.4
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfort-hermes0.3
 Description: Tracking data IO for the FORmicidae Tracker - c runtime
  This library provides IO function to read or write tracking data from
  file or network stream for the FORmicidae Tracker project
