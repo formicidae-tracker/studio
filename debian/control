@@ -113,7 +113,7 @@ Description: Experiment data API for the FORmicidae Tracker - dev files
  .
  This package contains header and development files
 
-Package: libfort-myrmidon0.5
+Package: libfort-myrmidon0.6
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
