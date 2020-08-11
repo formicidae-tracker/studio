@@ -657,13 +657,6 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 		                       loadData & computeData & computeInteractions);
 	}
 
-	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
-		auto res = bTrajectory.Terminate();
-		if ( res ) {
-			storeTrajectory(res);
-		}
-	}
-
 	for ( const auto & [IDs,bInteraction] : currentInteractions ) {
 		auto res = bInteraction.Terminate(currentTrajectories.at(IDs.first),
 		                                  currentTrajectories.at(IDs.second));
@@ -671,6 +664,14 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 			storeInteraction(res);
 		}
 	}
+
+	for ( const auto & [antID,bTrajectory] : currentTrajectories ) {
+		auto res = bTrajectory.Terminate();
+		if ( res ) {
+			storeTrajectory(res);
+		}
+	}
+
 }
 
 
