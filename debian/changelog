@@ -1,4 +1,4 @@
-fort-studio (0.6.0-0ubuntu1) focal; urgency=medium
+fort-studio (0.6.0-0ubuntu1~dev1) focal; urgency=medium
 
   * New upstream release v0.6.0
   * Removes legacy package libapriltag3 and libapriltag-dev
