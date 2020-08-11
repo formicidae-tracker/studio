@@ -12,35 +12,12 @@ Homepage: https://github.com/formicidae-tracker/studio
 Vcs-Git: https://github.com/formicidae-tracker/studio.git
 Vcs-Browser: https://github.com/formicidae-tracker/studio
 
-Package: libapriltag-dev
-Section: libdevel
-Architecture: any
-Depends: libapriltag3 (= ${binary:Version}), ${misc:Depends}
-Description: visual fiducial system for robotics - dev files
- AprilTag is a robust and flexible visual fiducial system popular in
- robotics research. AprilTag 3, which includes a faster (>2x)
- detector, improved detection rate on small tags, flexible tag
- layouts, and pose estimation.
- .
- This package contains header and development files
-
-Package: libapriltag3
-Section: libs
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: visual fiducial system for robotics - runtime
- AprilTag is a robust and flexible visual fiducial system popular in
- robotics research. AprilTag 3, which includes a faster (>2x)
- detector, improved detection rate on small tags, flexible tag
- layouts, and pose estimation.
- .
- This package contains library runtime
 
 Package: libfort-tags-dev
 Section: libdevel
 Architecture: any
-Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends},
- libapriltag-dev
+Depends: libfort-tags1 (= ${binary:Version}), ${misc:Depends}
+Conflicts: libapriltag-dev
 Description: fiducial markers for the FORmicidae Tracker - dev files
  Actual fiducial markers (tags) used for the FORmicidae Tracker
  project (https://github.com/formicidae-tracker/)
