@@ -326,13 +326,12 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 	if ( reportTrajectories == false ) {
 		storeInteractions =
 			[&](const AntInteraction::ConstPtr & interaction) {
-				auto smallerInteraction = std::make_shared<AntInteraction>(AntInteraction{
-					    .IDs = interaction->IDs,
-					    .Types = interaction->Types,
-					    .Start = interaction->Start,
-					    .End = interaction->End,
-					    .Space = interaction->Space,
-					});
+				auto smallerInteraction = std::make_shared<AntInteraction>();
+				smallerInteraction->IDs = interaction->IDs;
+				smallerInteraction->Types = interaction->Types;
+				smallerInteraction->Start = interaction->Start;
+				smallerInteraction->End = interaction->End;
+				smallerInteraction->Space = interaction->Space;
 
 				resInteractions.push_back(smallerInteraction);
 
