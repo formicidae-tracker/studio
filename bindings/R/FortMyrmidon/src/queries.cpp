@@ -42,7 +42,7 @@ SEXP fmTagStatistics_asR(const TagStatistics::ByTagID & tagStats ) {
 	size_t i = 0;
 	for(const auto & [tagID,stat] : tagStats) {
 		TagID[i] = stat.ID;
-		TagName[nTags] = fort::myrmidon::FormatTagID(stat.ID);
+		TagName[i] = fort::myrmidon::FormatTagID(stat.ID);
 		FirstSeen[i] = fmTime_asR(stat.FirstSeen);
 		LastSeen[i] = fmTime_asR(stat.LastSeen);
 		Count[i] = stat.Counts(TagStatistics::TOTAL_SEEN);
@@ -58,7 +58,7 @@ SEXP fmTagStatistics_asR(const TagStatistics::ByTagID & tagStats ) {
 		++i;
 	}
 
-	auto res = Rcpp::DataFrame::create(Rcpp::_["TagID"] = TagID,
+	auto res = Rcpp::DataFrame::create(Rcpp::_["TagIDDecimal"] = TagID,
 	                                   Rcpp::_["First Seen"] = FirstSeen,
 	                                   Rcpp::_["Last Seen"] = LastSeen,
 	                                   Rcpp::_["Count"] = Count,
@@ -71,7 +71,8 @@ SEXP fmTagStatistics_asR(const TagStatistics::ByTagID & tagStats ) {
 	                                   Rcpp::_["Gap < 1h"] = Gap1h,
 	                                   Rcpp::_["Gap < 10h"] = Gap10h,
 	                                   Rcpp::_["Gap >= 10h"] = GapMore);
-	res.names() = TagName;
+
+	res.attr("row.names") = TagName;
 	return res;
 }
 
