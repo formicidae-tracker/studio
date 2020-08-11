@@ -12,8 +12,7 @@ fmQueryComputeAntInteractions(
   matcher = NULL,
   singleThreaded = FALSE,
   showProgress = FALSE,
-  reportGlobalTrajectories = FALSE,
-  reportLocalTrajectories = FALSE
+  reportTrajectories = FALSE
 )
 }
 \arguments{
@@ -25,9 +24,9 @@ mode.}
 acquire before that time will not be reported. Could be NULL
 for -∞, a POSIXct a fmTime or fmTimeCPtr object.}
 
-\item{end}{the starting time for the query. Data which were acquire
-after that time will not be reported. Could be NULL for +∞, a
-POSIXct a fmTime or fmTimeCPtr object/}
+\item{end}{the ending time for the query. Data which were acquire
+after or at that exact time will not be reported. Could be NULL
+for +∞, a POSIXct a fmTime or fmTimeCPtr object}
 
 \item{maximumGap}{the maximum gap in tracking before cutting the
 trajectory in two different object. Use an insanely large value
@@ -35,9 +34,9 @@ trajectory in two different object. Use an insanely large value
 trajectory). Trajectories and Interactions will always be cut
 when an ant moves from a space to another.}
 
-\item{matcher}{a \linkS4class{fmMatcher} to reduce the query to
+\item{matcher}{a \link{fmMatcher} to reduce the query to
 wanted criterion. You can use \code{NULL} or
-\code{\link{fmMatcherAny()}} to match anything. Matcher that
+\code{\link{fmMatcherAny}()} to match anything. Matcher that
 requires two ant will match conditionally only for the
 interaction detection, but will always match for interaction
 detection. Matcher that addresses a single ant will match
@@ -52,20 +51,12 @@ multi-threading synchronization impacts performances.}
 standard error output. It may not be portable behavior on all
 OS.}
 
-\item{reportGlobalTrajectories}{enables gloabl trajectory report in
-the result. If enabled two line in the resulting list will be
+\item{reportTrajectories}{enables global trajectory report in the
+result. If enabled two lines in the resulting list will be
 added, as described by the output of
-\code{\link{fmQueryComputeAntTrajectories}}.}
-
-\item{reportLocalTajectories}{for each interaction, copy the
-trajectory of each ant during that interaction. They will be
-reported in the final list objects as \code{ant1trajectory} and
-\code{ant2Trajectory}. If this option is not chosen, the mean
-position of each ant will be added in the main
-\code{interaction} \code{data.frame}, and two additionnal list
-\code{zone1} and \code{zone2} will be added to the main
-list. For each line of interactions, they contains a vector of
-all zone the corresponding ant was during that interaction.}
+\code{\link{fmQueryComputeAntTrajectories}}. Each interaction
+will also refers to these two lines, providing the index of the
+corresponding for each ant,}
 }
 \value{
 a list with at list an element called \code{interactions}

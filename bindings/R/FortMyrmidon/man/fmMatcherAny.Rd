@@ -2,10 +2,10 @@
 % Please edit documentation in R/Matchers.R
 \name{fmMatcherAny}
 \alias{fmMatcherAny}
-\title{\code{\link{fmMatcher}} a matcher tha matches anything}
+\title{\code{\link{fmMatcherAny}} a matcher that matches anything}
 \value{
 a \code{\link{fmMatcher}} a matcher that matches anything
 }
 \description{
-\code{\link{fmMatcher}} a matcher tha matches anything
+\code{\link{fmMatcherAny}} a matcher that matches anything
 }
