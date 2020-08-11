@@ -9,4 +9,4 @@ Requires: protobuf >= 3.3.0 , eigen3
 Requires.private: @OPENCV_PKG_REQUIRE@
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lfort-myrmidon -lfort-hermes-cpp -lfort-tags -lapriltag @PKG_FS_LIBRARY@
+Libs: -L${libdir} -lfort-myrmidon -lfort-hermes-cpp -lfort-tags @PKG_FS_LIBRARY@
