@@ -49,16 +49,17 @@ void Query::BuildRange(const Experiment::ConstPtr & experiment,
                        const Time::ConstPtr & start,
                        const Time::ConstPtr & end,
                        DataRangeBySpaceID & ranges) {
-
 	const auto & spaces = experiment->CSpaces();
 	for ( const auto & [spaceID,space] : spaces ) {
 		for ( const auto & tdd : space->TrackingDataDirectories() ) {
 			TrackingDataDirectory::const_iterator ibegin(tdd->begin()),iend(tdd->end());
 			if ( !start == false ) {
-				if (start->Before(tdd->StartDate()) == true) {
+				if ( tdd->EndDate().Before(*start) == true ) {
 					continue;
 				}
-				ibegin = tdd->FrameAfter(*start);
+				if ( start->After(tdd->StartDate()) == true ) {
+					ibegin = tdd->FrameAfter(*start);
+				}
 			}
 			if (!end == false ) {
 				if (end->Before(tdd->StartDate()) == true ) {

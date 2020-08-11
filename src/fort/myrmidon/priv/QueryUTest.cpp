@@ -90,15 +90,19 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	EXPECT_EQ(identifieds.size(),1);
 
 	identifieds.clear();
-	ASSERT_NO_THROW({
-			Query::IdentifyFrames(experiment,
-			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
-				                      identifieds.push_back(i);
-			                      },
-			                      std::make_shared<Time>(t.Add(1)),
-			                      {});
-		});
-	EXPECT_EQ(identifieds.size(),999);
+	try {
+		Query::IdentifyFrames(experiment,
+		                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
+			                      identifieds.push_back(i);
+		                      },
+		                      std::make_shared<Time>(t.Add(1)),
+		                      {});
+	} catch ( const std::exception & e) {
+		ADD_FAILURE() << "Unexpected exception: " << e.what();
+		return;
+	}
+	// we just have removed the first frame
+	EXPECT_EQ(identifieds.size(),2999);
 }
 
 TEST_F(QueryUTest,InteractionFrame) {
@@ -224,6 +228,56 @@ TEST_F(QueryUTest,InteractionComputation) {
 		EXPECT_EQ(segmentStart(interaction->Trajectories.second),
 		          interaction->Start);
 	}
+}
+
+
+TEST_F(QueryUTest,FrameSelection) {
+	ASSERT_NO_THROW({
+			experiment->CreateAnt(1);
+			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
+		});
+
+	auto firstDate = experiment->CSpaces().at(1)->TrackingDataDirectories().front()->StartDate();
+
+	std::vector<IdentifiedFrame::ConstPtr> frames;
+
+	// issue 138, should select all frames
+	Query::IdentifyFrames(experiment,
+	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+		                      frames.push_back(f);
+	                      },
+	                      std::make_shared<Time>(firstDate),
+	                      {});
+
+	EXPECT_FALSE(frames.empty());
+	frames.clear();
+
+	//selects the first frame
+	Query::IdentifyFrames(experiment,
+	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+		                      frames.push_back(f);
+	                      },
+	                      std::make_shared<Time>(firstDate),
+	                      std::make_shared<Time>(firstDate.Add(1)));
+
+	ASSERT_EQ(frames.size(),1);
+	ASSERT_EQ(frames[0]->FrameTime,firstDate);
+
+	frames.clear();
+	// won't access any
+	Query::IdentifyFrames(experiment,
+	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+		                      frames.push_back(f);
+	                      },
+	                      std::make_shared<Time>(firstDate),
+	                      std::make_shared<Time>(firstDate));
+
+	ASSERT_EQ(frames.size(),0);
+
+
+
+
+
 }
 
 
