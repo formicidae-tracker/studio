@@ -274,6 +274,8 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 
 	std::vector<AntTrajectory::ConstPtr> resTrajectories;
 	std::vector<AntInteraction::ConstPtr>  resInteractions;
+
+	std::map<const AntTrajectory*,std::pair<std::vector<size_t>,std::vector<size_t>>> needsIndexing;
 	TrajectorySummary ant1Summary,ant2Summary;
 	TrajectoryIndexing ant1Indexing,ant2Indexing;
 
@@ -282,8 +284,17 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 	SET_PD("Processing");
 
 	std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectories =
-		[&resTrajectories,&pd](const AntTrajectory::ConstPtr & trajectory ) {
+		[&resTrajectories,&pd,&needsIndexing,&ant1Indexing,&ant2Indexing](const AntTrajectory::ConstPtr & trajectory ) {
+			// R indexes starts at 1
+			size_t trajectoryIndex = resTrajectories.size() +1 ;
 			resTrajectories.push_back(trajectory);
+			for ( const auto & interactionIndex : needsIndexing[trajectory.get()].first ) {
+				ant1Indexing.RowIndexes[interactionIndex] = trajectoryIndex;
+			}
+			for ( const auto & interactionIndex : needsIndexing[trajectory.get()].second ) {
+				ant2Indexing.RowIndexes[interactionIndex] = trajectoryIndex;
+			}
+			needsIndexing.erase(trajectory.get());
 			pd->ShowProgress(trajectory->End());
 		};
 	if ( reportTrajectories ==  false ) {
@@ -296,8 +307,20 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 
 
 	std::function<void (const AntInteraction::ConstPtr &)> storeInteractions =
-		[&resInteractions](const AntInteraction::ConstPtr & interaction) {
+		[&resInteractions,&needsIndexing,&ant1Indexing,&ant2Indexing](const AntInteraction::ConstPtr & interaction) {
+			size_t interactionIndex = resInteractions.size();
 			resInteractions.push_back(interaction);
+			needsIndexing[interaction->Trajectories.first.Trajectory.get()].first.push_back(interactionIndex);
+			needsIndexing[interaction->Trajectories.second.Trajectory.get()].second.push_back(interactionIndex);
+			ant1Indexing.Push(interaction->Trajectories.first);
+			ant2Indexing.Push(interaction->Trajectories.second);
+			static Time lastTime;
+			if ( interaction->End.Sub(lastTime) > 10 * Duration::Minute ) {
+				lastTime = interaction->End;
+				std::cerr << "indexStageAreaSize: " << needsIndexing.size() << std::endl;
+
+			}
+
 		};
 
 	if ( reportTrajectories == false ) {
@@ -330,6 +353,11 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 	                                     maximuGap,
 	                                     matcher,
 	                                     singleThreaded);
+
+	if ( needsIndexing.size() != 0 ) {
+		throw std::runtime_error("Missing " + std::to_string(needsIndexing.size()) + " index(es)");
+	}
+
 	Rcpp::List res;
 	if (reportTrajectories == true ) {
 		SET_PD("R trajectory conversion");

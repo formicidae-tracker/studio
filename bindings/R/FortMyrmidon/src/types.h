@@ -24,6 +24,7 @@ fmAntTrajectories_asR(const std::vector<fort::myrmidon::AntTrajectory::ConstPtr>
 
 struct TrajectoryIndexing {
 	std::vector<size_t> RowIndexes,SubRowStart,SubRowEnd;
+	void Push(const fort::myrmidon::AntTrajectorySegment & segment);
 };
 
 struct TrajectorySummary {

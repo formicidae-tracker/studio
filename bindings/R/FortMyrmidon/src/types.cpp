@@ -16,6 +16,13 @@ void TrajectorySummary::Push(const Eigen::Vector3d & mean,
 }
 
 
+void TrajectoryIndexing::Push(const fort::myrmidon::AntTrajectorySegment & segment) {
+	RowIndexes.push_back(0);
+	// R is 1 indexed and last index includes range.
+	SubRowStart.push_back(segment.Begin+1);
+	SubRowEnd.push_back(segment.End);
+}
+
 
 #define Vectorize(...) {__VA_ARGS__}
 #define CreateDataFrameOptimized(VarName,elements,names,nrows ) \
