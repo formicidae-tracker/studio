@@ -44,6 +44,10 @@ public:
 	                                bool computeZones = false,
 	                                bool singleThreaded = false);
 
+
+	// computes trajectories and interactions. Bad invariant
+	// optimization: interactions will always be saved before
+	// trajectories. But there are no test.
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,

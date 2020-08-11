@@ -523,12 +523,14 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
                                    const Time::ConstPtr & endTime,
                                    const Duration & maximuGap,
                                    const Matcher::Ptr & matcher,
-                                   bool reportGlobalTrajectories,
-                                   bool reportLocalTrajectories,
+                                   bool reportTrajectories,
                                    bool singleThreaded,
                                    bool showProgress ) {
 
 	std::vector<AntTrajectory::ConstPtr> resTrajectories;
+	std::vector<AntInteraction::ConstPtr>  resInteractions;
+	std::vector<double> meanAnt1,meanAnt2;
+	std::vector<std::string> zone1,zone2;
 
 	DECLARE_PD();
 
@@ -539,16 +541,14 @@ SEXP fmQueryComputeAntInteractions(const CExperiment & experiment,
 			resTrajectories.push_back(trajectory);
 			pd->ShowProgress(trajectory->End());
 		};
-	if ( reportGlobalTrajectories ==  false ) {
+	if ( reportTrajectories ==  false ) {
 		//drop the data instead of storing it
 		storeTrajectories = [&pd](const AntTrajectory::ConstPtr & trajectory) {
 			                    pd->ShowProgress(trajectory->End());
 		                  };
 	}
 
-	std::vector<AntInteraction::ConstPtr>  resInteractions;
-	std::vector<double> meanAnt1,meanAnt2;
-	std::vector<std::string> zone1,zone2;
+
 
 	std::function<void (const AntInteraction::ConstPtr &)> storeInteractions =
 		[&resInteractions](const AntInteraction::ConstPtr & interaction) {

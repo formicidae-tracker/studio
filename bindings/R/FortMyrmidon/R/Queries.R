@@ -177,19 +177,12 @@ fmQueryComputeAntTrajectories <- function (experiment,
 #' @param showProgress display the progress of the computation on the
 #'     standard error output. It may not be portable behavior on all
 #'     OS.
-#' @param reportGlobalTrajectories enables gloabl trajectory report in
-#'     the result. If enabled two line in the resulting list will be
+#' @param reportTrajectories enables global trajectory report in the
+#'     result. If enabled two lines in the resulting list will be
 #'     added, as described by the output of
-#'     \code{\link{fmQueryComputeAntTrajectories}}.
-#' @param reportLocalTajectories for each interaction, copy the
-#'     trajectory of each ant during that interaction. They will be
-#'     reported in the final list objects as \code{ant1trajectory} and
-#'     \code{ant2Trajectory}. If this option is not chosen, the mean
-#'     position of each ant will be added in the main
-#'     \code{interaction} \code{data.frame}, and two additionnal list
-#'     \code{zone1} and \code{zone2} will be added to the main
-#'     list. For each line of interactions, they contains a vector of
-#'     all zone the corresponding ant was during that interaction.
+#'     \code{\link{fmQueryComputeAntTrajectories}}. Each interaction
+#'     will also refers to these two lines, providing the index of the
+#'     corresponding for each ant,
 #' @return a list with at list an element called \code{interactions}
 #'     \code{data.frame} summarising all interactions. Other elements
 #'     depends on the choice of othere report options.
@@ -200,8 +193,7 @@ fmQueryComputeAntInteractions <- function (experiment,
                                            matcher = NULL,
                                            singleThreaded = FALSE,
                                            showProgress = FALSE,
-                                           reportGlobalTrajectories = FALSE,
-                                           reportLocalTrajectories = FALSE) {
+                                           reportTrajectories = FALSE) {
     if ( is.null(matcher) ) {
         matcher = fmMatcherAny();
     }
@@ -211,8 +203,7 @@ fmQueryComputeAntInteractions <- function (experiment,
                                           fmTimeCPtrFromAnySEXP(end),
                                           maximumGap,
                                           matcher,
-                                          reportGlobalTrajectories,
-                                          reportLocalTrajectories,
+                                          reportTrajectories,
                                           singleThreaded,
                                           showProgress))
 }
