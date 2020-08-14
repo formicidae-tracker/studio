@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::CAnt" interface="true" name="CAnt" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>const version of Ant</brief>
+  <doc>Simply a strip down copy of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> . Its an helper class
+to support const correctness of object and for language binding
+that does not enforce constness, such as R.</doc>
+  <typedef id="fort::myrmidon::CAnt::ConstPPtr" name="ConstPPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr" qualifier=" const">
+      <template-arguments>
+        <type name="priv::Ant" qualifier=" const" ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::CAnt::CAnt" name="CAnt">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot build Ant directly. They must be build and accessed
+from <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>.</doc>
+    <argument id="fort::myrmidon::CAnt::CAnt::pAnt" name="pAnt">
+      <doc>opaque pointer to implementation</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::ConstPPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::CAnt::AntID" name="AntID">
+    <brief>Gets the ID of an Ant</brief>
+    <doc>Ants gets an unique ID in an experiment.
+
+R Version :
+```R
+ant$antID()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::AntID">AntID</ref> of the Ant</doc>
+      <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::Capsules" name="Capsules">
+    <brief>Gets all part of this ant</brief>
+    <doc>R Version :
+```R
+ant$capsules()
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon#fort::myrmidon::TypedCapsuleList">fort::myrmidon::TypedCapsuleList</ref> representing the virtual shape of
+the Ant</doc>
+      <type name="TypedCapsuleList" ref="fort::myrmidon#fort::myrmidon::TypedCapsuleList" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::CIdentifications" name="CIdentifications">
+    <brief>Gets the const Identifications for this Ant</brief>
+    <doc>Gets the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> targetting this Ant. These
+<ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> will always be sorted in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> and not
+overlapping.
+
+R Version :
+```R
+ant$cIdentifications()
+```
+
+</doc>
+    <return>
+      <doc>a  <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList">fort::myrmidon::Identification::ConstList</ref></doc>
+      <type name="Identification::ConstList" ref="fort::myrmidon::Identification#fort::myrmidon::Identification::ConstList" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::DisplayColor" name="DisplayColor">
+    <brief>Gets the Display Color of an Ant</brief>
+    <doc>Each Ant has a defined color for display.
+
+R Version :
+```R
+ant$displayColor()
+```
+
+</doc>
+    <return>
+      <doc>a const reference to the <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> used to display the Ant</doc>
+      <type name="Color" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Color" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::DisplayStatus" name="DisplayStatus">
+    <brief>Gets the Ant display state</brief>
+    <doc>When interacting with the FORT Studio, any Ant has
+different <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState">fort::myrmidon::Ant::DisplayState</ref> :
+
+* <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::VISIBLE">fort::myrmidon::Ant::DisplayState::VISIBLE</ref>: the Ant is visible if
+they are no Ant which are <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref>
+* <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::HIDDEN">fort::myrmidon::Ant::DisplayState::HIDDEN</ref>: the Ant is not displayed
+* <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref>: the Ant is visible and
+all non <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState::SOLO">fort::myrmidon::Ant::DisplayState::SOLO</ref> Ant are shown.
+
+R Version :
+```R
+ant$displayStatus()
+# to get the name of the value
+names(which( s == fmAntDisplayState ) )
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState">fort::myrmidon::Ant::DisplayState</ref> for this Ant.</doc>
+      <type name="Ant::DisplayState" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::DisplayState" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::FormattedID" name="FormattedID">
+    <brief>Gets the ID of the Ant formatted as a string.</brief>
+    <doc>By Convention <ref ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::AntID">fort::myrmidon::CAnt::AntID</ref> are formatted using hexadecimal notation (as
+opposed to tag that are formatted decimal).
+
+R Version :
+```R
+ant$formattedID()
+```
+
+</doc>
+    <return>
+      <doc>a string with the formatted ID</doc>
+      <type name="std::__cxx11::string" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::GetValue" name="GetValue">
+    <brief>Gets non-tracking data value</brief>
+    <doc>Gets the value for <ref ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::GetValue::name">name</ref> at <ref ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::GetValue::time">time</ref>. Values are set with
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue">fort::myrmidon::Ant::SetValue</ref>. If no value is sets prior to <ref ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt::GetValue::time">time</ref> (including
+-∞), it will be using the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> default one.
+
+R Version :
+```R
+ant$getValue(name,time)
+```
+
+</doc>
+    <return>
+      <doc>the wanted <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref></doc>
+      <type name="AntStaticValue" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+    </return>
+    <argument id="fort::myrmidon::CAnt::GetValue::name" name="name">
+      <doc>the name of the non-tracking data value</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::CAnt::GetValue::time" name="time">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> we want the value for</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CAnt::IdentifiedAt" name="IdentifiedAt">
+    <brief>Gets the TagID identifying this Ant at a given time.</brief>
+    <doc>Gets the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> identifying this Ant at a given. There may not
+have an identification at this given time, an an exception will be thrown.
+R version:
+```R
+ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> that identify this ant at this time if it
+exists (throw an exception otherwise)</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+    </return>
+    <argument id="fort::myrmidon::CAnt::IdentifiedAt::" name="">
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+</class>

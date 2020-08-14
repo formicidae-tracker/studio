@@ -1,0 +1,500 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class abstract="true" id="fort::myrmidon::Time" name="Time" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>A point in time</brief>
+  <doc><ref ref="fort::myrmidon::Time#fort::myrmidon::Time">Time</ref> represents a point in time. Why re-implementing
+one of this object and not using a `struct timeval` or a
+`std::chrono` ? We are dealing with long living experiment on
+heterogenous systems. Under this circunstances, we would like also
+to measure precise time difference. For this purpose we could use
+the framegrabber monolotic clock, which is timestamping every frame
+we acquired.
+
+Well the issue is that we cannot solely rely on this clock, as we
+may have several computers each with their own monolithic clock. Or
+even with a single computer, every time we started the tracking we
+must assume a new monotonic clock.
+
+We could use the wall clock but this clock may be resetted any
+time, and we would end up with issue where a time difference
+between two consecutive frames could be negative.
+
+Inspired from golang [time.Time](https://golang.org/pkg/time#Time)
+we propose an Object that store both a Wall time, and a Monotonic
+timestamp. But here we could have different monotonic timestamp. We
+try, whenever its possible (both <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">Time</ref> have a monotonic
+time, and they are issued from the same monotonic clock), use that
+value for time differences and comparisons. Otherwise the Wall
+clock value will be used with the issue regarding the jitter or
+Wall clock reset.
+
+Differentiaing Monotonic clock is done through <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">MonoclockID</ref>
+values. The 0 value is reserved for the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK">SYSTEM_MONOTONIC_CLOCK</ref>
+and which is used by <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Now">Now</ref>. When reading saved monotonic Timestamp
+from the filesystem (as it is the case when reading data from
+different `TrackingDataDirectory` ), care must be taken to assign
+different <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">MonoclockID</ref> for each of those reading. This class does
+not enforce any mechanism. The only entry point to define the
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">MonoclockID</ref> is through the utility function
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time::FromTimestampAndMonotonic">FromTimestampAndMonotonic</ref>.
+
+Every time are considered UTC.</doc>
+  <variable id="fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK" name="SYSTEM_MONOTONIC_CLOCK">
+    <brief>The current system monotonic clock.</brief>
+    <doc>The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">fort::myrmidon::Time::MonoclockID</ref> reserved for the current system ( aka
+`CLOCK_MONOTONIC`).</doc>
+    <type name="MonoclockID" qualifier=" const" ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID" />
+  </variable>
+  <class name="Overflow" ref="fort::myrmidon::Time::Overflow#fort::myrmidon::Time::Overflow">
+    <brief>Time values can overflow when performing operation on them.</brief>
+  </class>
+  <typedef id="fort::myrmidon::Time::ConstPtr" name="ConstPtr">
+    <brief>A const pointer to a Time</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Time" qualifier=" const" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <typedef id="fort::myrmidon::Time::MonoclockID" name="MonoclockID">
+    <brief>ID for a Monotonic Clock</brief>
+    <type name="uint32_t" />
+  </typedef>
+  <typedef id="fort::myrmidon::Time::Ptr" name="Ptr">
+    <brief>A pointer to a Time</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <typedef id="fort::myrmidon::Time::SortableKey" name="SortableKey">
+    <brief>An object optimized for std::map or std::set keys</brief>
+    <doc><ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">SortableKey</ref> is an object constructed from current <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Time">fort::myrmidon::Time::Time</ref> and <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Time">fort::myrmidon::Time::Time</ref> to be
+used as a computationnaly efficient key in std::map or
+std::set. please note that this key has lost any monotonic
+information.</doc>
+    <type class="template" name="std::pair">
+      <template-arguments>
+        <type name="int64_t" />
+        <type name="int32_t" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::Time::Time" name="Time">
+    <brief>Zero time constructor</brief>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::Time::Add" name="Add">
+    <brief>Adds a Duration to a Time</brief>
+    <doc>R version:
+```R
+newT &lt;- t$add(fmSecond(1)) # a copy of t with one added second
+```
+
+</doc>
+    <return>
+      <doc>a new <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> distant by <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Add::d">d</ref> from this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::Add::d" name="d">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to add</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::After" name="After">
+    <brief>Reports if this time is after t</brief>
+    <doc>R version:
+```R
+t1$after(t2) # return TRUE if t1 &gt; t2
+```
+
+</doc>
+    <return>
+      <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is strictly after <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::After::t">t</ref></doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::After::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to test against</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Before" name="Before">
+    <brief>Reports if this time is before t</brief>
+    <doc>R version:
+```R
+t1$before(t2) # return TRUE if t1 &lt; t2
+```
+
+</doc>
+    <return>
+      <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is strictly before <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Before::t">t</ref></doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::Before::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to test against</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::DebugString" name="DebugString">
+    <brief>Builds a debug string</brief>
+    <doc>This method is useful for internal debugging. Prefer the
+standard c++ formatting operator on &amp;lt;std::ostream&amp;gt;.
+
+</doc>
+    <return>
+      <doc>a debug string with the complete time internal state.</doc>
+      <type name="std::__cxx11::string" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Equals" name="Equals">
+    <brief>Reports if this time is the same than t</brief>
+    <doc>R version:
+```R
+t1$equals(t2) # return TRUE if t1 == t2
+```
+
+</doc>
+    <return>
+      <doc>`true` if this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> is the same than <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Equals::t">t</ref></doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::Equals::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to test against</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::FromTimestamp" name="FromTimestamp" static="yes">
+    <brief>Creates a Time from a protobuf Timestamp</brief>
+    <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from a protobuf Timestamp. The
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> will not have any monotonic clock value.
+
+</doc>
+    <return>
+      <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::FromTimestamp::timestamp" name="timestamp">
+      <doc>the `google.protobuf.Timestamp` message</doc>
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::FromTimestampAndMonotonic" name="FromTimestampAndMonotonic" static="yes">
+    <brief>Creates a Time from a protobuf Timestamp and an external Monotonic clock</brief>
+    <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from a protobuf Timestamp and an
+external monotonic clock. The two values should correspond to
+the same physical time. It is an helper function to create
+accurate <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from data saved in
+`fort.hermes.FrameReadout` protobuf messages that saves both a
+Wall time value and a framegrabber timestamp for each frame. It
+is the caller responsability to manage <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::FromTimestampAndMonotonic::monoID">monoID</ref> value for not
+mixing timestamp issued from different clocks. Nothing prevent
+you to use <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK">fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK</ref> for the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::FromTimestampAndMonotonic::monoID">monoID</ref> value but
+the behavior manipulating resulting times is undefined.
+
+</doc>
+    <return>
+      <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> with associated
+monotonic data</doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::FromTimestampAndMonotonic::timestamp" name="timestamp">
+      <doc>the `google.protobuf.Timestamp` message</doc>
+      <type name="google::protobuf::Timestamp" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::Time::FromTimestampAndMonotonic::nsecs" name="nsecs">
+      <doc>the external monotonic value in nanoseconds</doc>
+      <type name="uint64_t" />
+    </argument>
+    <argument id="fort::myrmidon::Time::FromTimestampAndMonotonic::monoID" name="monoID">
+      <doc>the external monoID</doc>
+      <type name="MonoclockID" ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::FromTimeT" name="FromTimeT" static="yes">
+    <brief>Creates a Time from `time_t`</brief>
+    <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from `time_t`. The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+will not have any monotonic clock value.
+</doc>
+    <return>
+      <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::FromTimeT::t" name="t">
+      <doc>the time_t value</doc>
+      <type name="time_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::FromTimeval" name="FromTimeval" static="yes">
+    <brief>Creates a Time from `struct timeval`</brief>
+    <doc>Creates a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> from `struct timeval`. The
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> will not have any monotonic clock value.
+
+</doc>
+    <return>
+      <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::FromTimeval::t" name="t">
+      <doc>the `struct timeval`</doc>
+      <type name="timeval" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::HasMono" name="HasMono">
+    <brief>Reports the presence of a monotonic time value</brief>
+    <doc>Reports the presence of a monotonic time value. Only
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> issued by <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Now">fort::myrmidon::Time::Now</ref> or <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::FromTimestampAndMonotonic">fort::myrmidon::Time::FromTimestampAndMonotonic</ref>
+contains a monotonic time value.
+</doc>
+    <return>
+      <doc>`true` if `this` contains a monotonic clock value.</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::MonoFromSecNSec" name="MonoFromSecNSec" static="yes">
+    <brief>Helpers to convert (sec,nsec) to nsec</brief>
+    <doc>Helpers to convert (sec,nsec) to nsec. Throws <ref ref="fort::myrmidon::Time::Overflow#fort::myrmidon::Time::Overflow">fort::myrmidon::Time::Overflow</ref> on
+overflow.
+</doc>
+    <return>
+      <doc>sec * 1e9 + nsec if no overflow</doc>
+      <type name="uint64_t" />
+    </return>
+    <argument id="fort::myrmidon::Time::MonoFromSecNSec::sec" name="sec">
+      <doc>the amount of second</doc>
+      <type name="uint64_t" />
+    </argument>
+    <argument id="fort::myrmidon::Time::MonoFromSecNSec::nsec" name="nsec">
+      <doc>the amount of nanos</doc>
+      <type name="uint64_t" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::MonoID" name="MonoID">
+    <brief>Gets the referred MonoclockID.</brief>
+    <doc>Gets the referred <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">fort::myrmidon::Time::MonoclockID</ref>. It throws &amp;lt;std::exception&amp;gt; if
+this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> has no monotonic clock value (see <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::HasMono">fort::myrmidon::Time::HasMono</ref>).
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID">fort::myrmidon::Time::MonoclockID</ref> designating the monotonic clock the
+monotonic time value refers to.</doc>
+      <type name="MonoclockID" ref="fort::myrmidon::Time#fort::myrmidon::Time::MonoclockID" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::MonotonicValue" name="MonotonicValue">
+    <brief>Gets the monotonic value.</brief>
+    <doc>Gets the monotonic value. It throws std::exception if this
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> has no monotonic clock value (see <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::HasMono">fort::myrmidon::Time::HasMono</ref>).
+</doc>
+    <return>
+      <doc>the monotonic clock value.</doc>
+      <type name="uint64_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Now" name="Now" static="yes">
+    <brief>Gets the current Time</brief>
+    <doc>Gets the current <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>. This time will both have a wall and a
+monotonic clock reading associated with the
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK">fort::myrmidon::Time::SYSTEM_MONOTONIC_CLOCK</ref>. Therefore such idioms:
+
+```
+Time start = Time::Now();
+SomeFunction();
+Duration ellapsed = Time::Now().Sub(start);
+```
+
+Will always return a positive <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>, even if the wall clock
+has been reset between the two calls to <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Now">Now</ref>
+
+R version:
+```R
+t &lt;- fmTimeNow()
+```
+
+</doc>
+    <return>
+      <doc>the current <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+  </method>
+  <method id="fort::myrmidon::Time::operator&lt;" name="operator&lt;">
+    <brief>Less than operator</brief>
+    <return>
+      <doc>`true` if `this &lt; other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::operator&lt;::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to compare to</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Time::operator&lt;=" name="operator&lt;=">
+    <brief>Less or equal operator</brief>
+    <return>
+      <doc>`true` if `this &lt;= other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::operator&lt;=::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to compare to</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Time::operator==" name="operator==">
+    <brief>Equal comparison operator</brief>
+    <return>
+      <doc>`true` if `this == other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::operator==::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to compare to</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Time::operator&gt;" name="operator&gt;">
+    <brief>Greater than operator</brief>
+    <return>
+      <doc>`true` if `this &gt; other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::operator&gt;::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to compare to</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Time::operator&gt;=" name="operator&gt;=">
+    <brief>Greate or equal operator</brief>
+    <return>
+      <doc>`true` if `this &gt;= other`</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::Time::operator&gt;=::other" name="other">
+      <doc>the other <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to compare to</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Parse" name="Parse" static="yes">
+    <brief>Parses from RFC 3339 date string format.</brief>
+    <doc>Parses from [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt)
+date string format, i.e. string of the form
+`1972-01-01T10:00:20.021-05:00`. It is merely a wrapper from
+google::protobuf::time_util functions.
+
+R version:
+```R
+t &lt;- fmTimeParse("1972-01-01T00:00:00.000Z")
+```
+
+</doc>
+    <return>
+      <doc>the converted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::Parse::input" name="input">
+      <doc>the string to parse</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Round" name="Round">
+    <brief>Rounds a Time to a Duration</brief>
+    <doc>Rounds the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to the halp-rounded up <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref>
+d. Currently only multiple of <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration::Second">fort::myrmidon::Duration::Second</ref> and power of
+10 of <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration::Nanosecond">fort::myrmidon::Duration::Nanosecond</ref> which are smaller than a second
+are supported.
+
+R version:
+```R
+newT &lt;- t$round(fmSecond(1)) # a copy of t rounded at the nearest second
+```
+
+</doc>
+    <return>
+      <doc>a new <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> rounded to the wanted duration</doc>
+      <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </return>
+    <argument id="fort::myrmidon::Time::Round::d" name="d">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to round to.</doc>
+      <type name="Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </method>
+  <method id="fort::myrmidon::Time::SortKey" name="SortKey">
+    <brief>Builds a SortableKey for std::map and std::set.</brief>
+    <doc>Builds a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">fort::myrmidon::Time::SortableKey</ref> representing this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+suitable for &amp;lt;std::map&amp;gt; and &amp;lt;std::set&amp;gt;.
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">fort::myrmidon::Time::SortableKey</ref> representing this <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="SortableKey" ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::SortKey" name="SortKey" static="yes">
+    <brief>Builds a SortableKey representing a Time pointer</brief>
+    <doc>Builds a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">fort::myrmidon::Time::SortableKey</ref> representing a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref>. Passing a
+nullptr to this function, will represent the smallest possible
+key possible, which is then mathematically equivalent to -∞
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> (no result of <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Parse">fort::myrmidon::Time::Parse</ref> can represent this
+value).
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">fort::myrmidon::Time::SortableKey</ref> representing the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref></doc>
+      <type name="SortableKey" ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey" />
+    </return>
+    <argument id="fort::myrmidon::Time::SortKey::timePtr" name="timePtr">
+      <doc>the source <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref> to build a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::SortableKey">fort::myrmidon::Time::SortableKey</ref> for.</doc>
+      <type name="ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::Sub" name="Sub">
+    <brief>Computes time difference with another time</brief>
+    <doc>R version:
+```R
+# gets the fmDuration between t1 and t2
+t1$sub(t2)
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> representing the time ellapsed between
+`this` and <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::Sub::t">t</ref>. It could be negative.</doc>
+      <type name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="fort::myrmidon::Time::Sub::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to substract to this one.</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::ToTimestamp" name="ToTimestamp">
+    <brief>Converts to a protobuf Timestamp message</brief>
+    <return>
+      <doc>the protobuf Timestamp representing the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.</doc>
+      <type name="google::protobuf::Timestamp" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::ToTimestamp" name="ToTimestamp">
+    <brief>In-place conversion to a protobuf Timestamp</brief>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::Time::ToTimestamp::timestamp" name="timestamp">
+      <doc>the timestamp to modify to represent the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref></doc>
+      <type name="google::protobuf::Timestamp" qualifier="*" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::ToTimeT" name="ToTimeT">
+    <brief>Converts to a `time_t`</brief>
+    <doc>Converts to a `time_t`. Please note that time_t have a maximal
+resolution of a second.
+
+</doc>
+    <return>
+      <doc>`time_t`representing the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.</doc>
+      <type name="time_t" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::Time::ToTimeval" name="ToTimeval">
+    <brief>Converts to a `struct timeval`</brief>
+    <doc>Converts to a `struct timeval`. Please note that time_t have a maximal
+resolution of a microsecond.
+</doc>
+    <return>
+      <doc>`struct timeval`representing the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.</doc>
+      <type name="timeval" />
+    </return>
+  </method>
+</class>

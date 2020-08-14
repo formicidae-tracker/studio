@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::SpaceDataInfo" name="SpaceDataInfo" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Reports global tracking data stats for a <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+  </brief>
+  <field id="fort::myrmidon::SpaceDataInfo::URI" name="URI">
+    <brief>The URI used to designate the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type name="std::__cxx11::string" />
+  </field>
+  <field id="fort::myrmidon::SpaceDataInfo::Name" name="Name">
+    <brief>The name of the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type name="std::__cxx11::string" />
+  </field>
+  <field id="fort::myrmidon::SpaceDataInfo::Frames" name="Frames">
+    <brief>The number of frame in the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type name="uint64_t" />
+  </field>
+  <field id="fort::myrmidon::SpaceDataInfo::Start" name="Start">
+    <brief>The first <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> present in the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::SpaceDataInfo::End" name="End">
+    <brief>The last <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> present in the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+    </brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::SpaceDataInfo::TrackingDataDirectories" name="TrackingDataDirectories">
+    <brief>Infos for all tracking data directories, ordered in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+    </brief>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="TrackingDataDirectoryInfo" ref="fort::myrmidon::TrackingDataDirectoryInfo#fort::myrmidon::TrackingDataDirectoryInfo" />
+      </template-arguments>
+    </type>
+  </field>
+</struct>

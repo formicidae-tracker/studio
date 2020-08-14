@@ -1,0 +1,346 @@
+<?xml version='1.0' encoding='utf-8'?>
+<index xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>FORmicidae Tracker myrmidon API documentation</brief>
+  <doc># FORmicidae Tracker myrmidon API documentation
+
+This is the C++ documentation of the myrmidon API to access and
+post-process tracking data of the FORmicidae Tracker. The myrmidon API
+provides an efficient interface to perform queries on large Ant colony
+tracking datasets. Given a collection of tracking data acquired from
+the [FORT](https://github.com/formicidae-tracker) system, and metadata
+associated with the colony, it provides an efficient C/C++ interface
+to perform queries on these dataset.
+
+The API is meant to be used with the FORT Studio GUI, has it was
+mainly designed to be used with user manual imput for the
+&amp;lt;fort::myrmdion::Ant&amp;gt; poses.
+
+The main entry point of the API is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> to
+build a database of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> that can then be queried for
+interactions or trajectories.
+
+## Main documentation topics
+
+  * <ref ref="ant_identification#ant_identification">ant_identification</ref> : How do we identify Ant
+  * <ref ref="named_values#named_values">named_values</ref> : Non-tracking Ant Data
+  * <ref ref="ant_interaction#ant_interaction">ant_interaction</ref>: Ant virtual shape and interaction (collision detection)
+  * <ref ref="manual_measurement#manual_measurement">manual_measurement</ref> : how to access manual measurement made in FORT Studio
+  * <ref ref="queries#queries">queries</ref> : how to perform complex queries on the dataset</doc>
+  <category name="manual_measurement" ref="manual_measurement#manual_measurement">
+    <brief>Ant manual measurement</brief>
+  </category>
+  <category name="ant_interaction" ref="ant_interaction#ant_interaction">
+    <brief>Ant Interaction (collision-detection)</brief>
+  </category>
+  <category name="named_values" ref="named_values#named_values">
+    <brief>Non-tracking timed data</brief>
+  </category>
+  <category name="ant_identification" ref="ant_identification#ant_identification">
+    <brief>Ant Identification mechanism</brief>
+  </category>
+  <category name="queries" ref="queries#queries">
+    <brief>Complex queries and matchers.</brief>
+  </category>
+  <namespace name="fort" ref="fort#fort">
+    <brief>the FORmidae Tracker namespace</brief>
+    <namespace name="myrmidon" ref="fort::myrmidon#fort::myrmidon">
+      <brief>myrmidon API namespace</brief>
+      <namespace name="priv" ref="fort::myrmidon::priv#fort::myrmidon::priv">
+        <brief>Private namespace for implementation</brief>
+        <class name="Ant" ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">
+          <brief>private <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> implemenation</brief>
+        </class>
+        <class name="Capsule" ref="fort::myrmidon::priv::Capsule#fort::myrmidon::priv::Capsule">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="Circle" ref="fort::myrmidon::priv::Circle#fort::myrmidon::priv::Circle">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> Implementation</brief>
+        </class>
+        <class name="Identification" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">
+          <brief>private <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> implemenation</brief>
+        </class>
+        <class name="Matcher" ref="fort::myrmidon::priv::Matcher#fort::myrmidon::priv::Matcher">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="Polygon" ref="fort::myrmidon::priv::Polygon#fort::myrmidon::priv::Polygon">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="Shape" ref="fort::myrmidon::priv::Shape#fort::myrmidon::priv::Shape">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="Space" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="TrackingSolver" ref="fort::myrmidon::priv::TrackingSolver#fort::myrmidon::priv::TrackingSolver" />
+        <class name="Zone" ref="fort::myrmidon::priv::Zone#fort::myrmidon::priv::Zone">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+        <class name="ZoneDefinition" ref="fort::myrmidon::priv::ZoneDefinition#fort::myrmidon::priv::ZoneDefinition">
+          <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+        </class>
+      </namespace>
+      <class name="Ant" ref="fort::myrmidon::Ant#fort::myrmidon::Ant">
+        <brief>The main object of interest of any Experiment</brief>
+      </class>
+      <struct name="AntInteraction" ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction">
+        <brief>Defines an interaction between two Ants</brief>
+      </struct>
+      <struct name="AntTrajectory" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">
+        <brief>Defines a trajectory for an <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::Ant">Ant</ref>
+        </brief>
+      </struct>
+      <struct name="AntTrajectorySegment" ref="fort::myrmidon::AntTrajectorySegment#fort::myrmidon::AntTrajectorySegment">
+        <brief>Defines a sub segment of a trajectory</brief>
+      </struct>
+      <class name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt">
+        <brief>const version of Ant</brief>
+      </class>
+      <class name="Capsule" ref="fort::myrmidon::Capsule#fort::myrmidon::Capsule">
+        <brief>A capsule</brief>
+      </class>
+      <class name="CExperiment" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment">
+        <brief>const version of Experiment</brief>
+      </class>
+      <class name="CIdentification" ref="fort::myrmidon::CIdentification#fort::myrmidon::CIdentification">
+        <brief>const version of Identification</brief>
+      </class>
+      <class name="Circle" ref="fort::myrmidon::Circle#fort::myrmidon::Circle">
+        <brief>A circle</brief>
+      </class>
+      <struct name="Collision" ref="fort::myrmidon::Collision#fort::myrmidon::Collision">
+        <brief>Defines an interaction between two <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> ponctual in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+        </brief>
+      </struct>
+      <struct name="CollisionFrame" ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">
+        <brief>Reports all <ref ref="fort::myrmidon::Collision#fort::myrmidon::Collision">fort::myrmidon::Collision</ref> happening at a given time.</brief>
+      </struct>
+      <struct name="ComputedMeasurement" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement">
+        <brief>Represents a Measurement in mm at a given Time.</brief>
+      </struct>
+      <class name="CSpace" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace">
+        <brief>const version of Space</brief>
+      </class>
+      <class name="CZone" ref="fort::myrmidon::CZone#fort::myrmidon::CZone">
+        <brief>const version of Zone</brief>
+      </class>
+      <class name="CZoneDefinition" ref="fort::myrmidon::CZoneDefinition#fort::myrmidon::CZoneDefinition">
+        <brief>const version of ZoneDefinition</brief>
+      </class>
+      <class name="Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration">
+        <brief>The time ellapsed between two <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+        </brief>
+      </class>
+      <class name="Experiment" ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">
+        <brief>Entry point of myrmidon API</brief>
+      </class>
+      <struct name="ExperimentDataInfo" ref="fort::myrmidon::ExperimentDataInfo#fort::myrmidon::ExperimentDataInfo">
+        <brief>Reports global tracking data stats for an <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>
+        </brief>
+      </struct>
+      <class name="Identification" ref="fort::myrmidon::Identification#fort::myrmidon::Identification">
+        <brief>Relates <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>
+        </brief>
+      </class>
+      <struct name="IdentifiedFrame" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">
+        <brief>A visual frame were <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> have been identified from their <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
+        </brief>
+      </struct>
+      <class name="Matcher" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">
+        <brief>Reduces down output of Queries</brief>
+      </class>
+      <class name="OverlappingIdentification" ref="fort::myrmidon::OverlappingIdentification#fort::myrmidon::OverlappingIdentification">
+        <brief>Exception when two <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> overlaps in time.</brief>
+      </class>
+      <class name="Palette" ref="fort::myrmidon::Palette#fort::myrmidon::Palette">
+        <brief>A collection of colors for visualization</brief>
+      </class>
+      <class name="Polygon" ref="fort::myrmidon::Polygon#fort::myrmidon::Polygon">
+        <brief>A closed polygon</brief>
+      </class>
+      <struct name="PositionedAnt" ref="fort::myrmidon::PositionedAnt#fort::myrmidon::PositionedAnt">
+        <brief>A PositionnedAnt gives an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> position and orientation in a</brief>
+      </struct>
+      <class name="Query" ref="fort::myrmidon::Query#fort::myrmidon::Query">
+        <brief>namespace priv</brief>
+      </class>
+      <class name="Shape" ref="fort::myrmidon::Shape#fort::myrmidon::Shape">
+        <brief>Base class for  geometric Shape</brief>
+      </class>
+      <class name="Space" ref="fort::myrmidon::Space#fort::myrmidon::Space">
+        <brief>An homogenous coordinate system for tracking data</brief>
+      </class>
+      <struct name="SpaceDataInfo" ref="fort::myrmidon::SpaceDataInfo#fort::myrmidon::SpaceDataInfo">
+        <brief>Reports global tracking data stats for a <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+        </brief>
+      </struct>
+      <struct name="TagStatistics" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">
+        <brief>Statistics about a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
+      </struct>
+      <class name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time">
+        <brief>A point in time</brief>
+        <class name="Overflow" ref="fort::myrmidon::Time::Overflow#fort::myrmidon::Time::Overflow">
+          <brief>Time values can overflow when performing operation on them.</brief>
+        </class>
+      </class>
+      <struct name="TrackingDataDirectoryInfo" ref="fort::myrmidon::TrackingDataDirectoryInfo#fort::myrmidon::TrackingDataDirectoryInfo">
+        <brief>Reports information about a tracking data directory.</brief>
+      </struct>
+      <class name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">
+        <brief>Identifies and Collides Ant from raw tracking data</brief>
+      </class>
+      <class name="Zone" ref="fort::myrmidon::Zone#fort::myrmidon::Zone">
+        <brief>A tracking region where interaction are computed.</brief>
+      </class>
+      <class name="ZoneDefinition" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition">
+        <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+        </brief>
+      </class>
+      <typedef name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID">
+        <brief>The ID for a tag</brief>
+        <type name="uint32_t" />
+      </typedef>
+    </namespace>
+  </namespace>
+  <function id="operator*" name="operator*">
+    <brief>Operator for <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> multiplication</brief>
+    <return>
+      <doc>`a*b`</doc>
+      <type name="fort::myrmidon::Duration" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </return>
+    <argument id="operator*::a" name="a">
+      <doc>a signed integer</doc>
+      <type name="int64_t" />
+    </argument>
+    <argument id="operator*::b" name="b">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to multiply</doc>
+      <type name="fort::myrmidon::Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats a Duration</brief>
+    <doc>Formats the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to the form
+"1h2m3.4s". Leading zero unit are omitted, and unit smaller than 1s
+uses a smalle unit ms us or ns. The zero duration formats to 0s. It
+mimic golang's
+[time.Duration.String()](https://golang.org/pkg/time/#Duration.String)
+behavior.
+
+</doc>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the std::ostream to format to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::d" name="d">
+      <doc>the <ref ref="fort::myrmidon::Duration#fort::myrmidon::Duration">fort::myrmidon::Duration</ref> to format</doc>
+      <type name="fort::myrmidon::Duration" qualifier=" const &amp;" ref="fort::myrmidon::Duration#fort::myrmidon::Duration" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats to RFC 3339 date string format</brief>
+    <doc>Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
+string format, i.e. string of the form
+`1972-01-01T10:00:20.021Z`. It is merely a wrapper from
+google::protobuf::time_util functions.
+
+</doc>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the output iostream</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to format</doc>
+      <type name="fort::myrmidon::Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats to RFC 3339 date string format</brief>
+    <doc>Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
+string format, i.e. string of the form
+`1972-01-01T10:00:20.021Z`. It is merely a wrapper from
+google::protobuf::time_util functions.
+
+Please note that null pointer formats to `+/-∞`
+
+</doc>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the output iostream</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::t" name="t">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref> to format</doc>
+      <type name="fort::myrmidon::Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>C++ Formatting operator for AntStaticValue</brief>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the &amp;lt;std::ostream&amp;gt; to format the value to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::v" name="v">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref> to format</doc>
+      <type name="fort::myrmidon::AntStaticValue" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>C++ Formatting operator for Color</brief>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the &amp;lt;std::ostream&amp;gt; to format the color to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::color" name="color">
+      <doc>the <ref ref="fort::myrmidon#fort::myrmidon::Color">fort::myrmidon::Color</ref> to format</doc>
+      <type name="fort::myrmidon::Color" qualifier=" const &amp;" ref="fort::myrmidon#fort::myrmidon::Color" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <brief>Formats an Identification to an std::ostream</brief>
+    <return>
+      <doc>a reference to <ref ref="#operator&lt;&lt;::out">out</ref></doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <doc>the stream to format to</doc>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::identification" name="identification">
+      <doc>the <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> to format</doc>
+      <type name="fort::myrmidon::Identification" qualifier=" const &amp;" ref="fort::myrmidon::Identification#fort::myrmidon::Identification" />
+    </argument>
+  </function>
+  <function id="operator&lt;&lt;" name="operator&lt;&lt;">
+    <return>
+      <type name="std::ostream" qualifier=" &amp;" />
+    </return>
+    <argument id="operator&lt;&lt;::out" name="out">
+      <type name="std::ostream" qualifier=" &amp;" />
+    </argument>
+    <argument id="operator&lt;&lt;::m" name="m">
+      <type name="fort::myrmidon::Matcher" qualifier=" const &amp;" ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher" />
+    </argument>
+  </function>
+  <report name="Documentation generator" ref="report" />
+</index>

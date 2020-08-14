@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<category id="named_values" name="named_values" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Non-tracking timed data</brief>
+  <doc># Named values: Non-tracking timed data for Ant
+
+On top of the tracking data acquired with the tracking system
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> can also store timed key based values. Keys are
+non-empty string, and values are <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>,
+i.e. an union of boolean, number string or <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>.
+
+## Defining column and their type.
+
+Non-tracking Ant data, should follow a strict structure. The possible
+key, or column name must be defined with
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AddMetadataColumn">fort::myrmidon::Experiment::AddMetadataColumn</ref>. The column names must
+be unique.
+
+Each column has an assigned <ref ref="fort::myrmidon#fort::myrmidon::AntMetadataType">fort::myrmidon::AntMetadataType</ref>
+specifying which kind of value could be used, and a default
+<ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>. If an <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> doesn't
+specify a value, the default value will be returned.
+
+Column can later be manipulated using
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::DeleteMetadataColumn">fort::myrmidon::Experiment::DeleteMetadataColumn</ref>,
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::RenameAntMetadataColumn">fort::myrmidon::Experiment::RenameAntMetadataColumn</ref> and
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::SetAntMetadataColumnType">fort::myrmidon::Experiment::SetAntMetadataColumnType</ref>.
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::AntMetadataColumns">fort::myrmidon::Experiment::AntMetadataColumns</ref> can be used to get
+current columns name, types and default values.
+
+## Settings and accessing values
+
+Once a column is set, one can use <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::SetValue">fort::myrmidon::Ant::SetValue</ref> to
+set a value starting from a specified time. Values are timed, if no
+value is set prior to a time point, the default value for the column
+will be returned. One can use empty <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref> to
+specify new starting time value for an ant.
+
+Accessing values is performed using
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::GetValue">fort::myrmidon::Ant::GetValue</ref>. It takes a time argument, specifying
+at which time we wnat that value for.</doc>
+</category>

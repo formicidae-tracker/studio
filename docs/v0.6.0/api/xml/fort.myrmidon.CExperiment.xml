@@ -1,0 +1,322 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::CExperiment" interface="true" name="CExperiment" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>const version of Experiment</brief>
+  <doc>Simply a strip down copy of <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> . Its an helper class
+to support const correctness of object and for language binding
+that does not enforce constness, such as R.</doc>
+  <typedef id="fort::myrmidon::CExperiment::ConstPPtr" name="ConstPPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr" qualifier=" const">
+      <template-arguments>
+        <type name="priv::Experiment" qualifier=" const" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::CExperiment::CExperiment" name="CExperiment">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot create an Experiment directly. They must use
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Open">fort::myrmidon::Experiment::Open</ref>, <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::OpenReadOnly">fort::myrmidon::Experiment::OpenReadOnly</ref>,
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::Create">fort::myrmidon::Experiment::Create</ref> and <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::NewFile">fort::myrmidon::Experiment::NewFile</ref>.</doc>
+    <argument id="fort::myrmidon::CExperiment::CExperiment::pExperiment" name="pExperiment">
+      <doc>opaque pointer to implementation</doc>
+      <type name="ConstPPtr" qualifier=" const &amp;" ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::ConstPPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::AbsoluteFilePath" name="AbsoluteFilePath">
+    <brief>Path to the underlying `.myrmidon` file</brief>
+    <doc>R Version :
+```R
+e$absoluteFilePath()
+```
+
+</doc>
+    <return>
+      <doc>the path to the `.myrmidon` file</doc>
+      <type name="std::__cxx11::string" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::AntMetadataColumns" name="AntMetadataColumns">
+    <brief>Gets the types for non-tracking data columns</brief>
+    <doc>R Version :
+```R
+md &lt;- e$antMetadataColumns()
+md$foo # get column name "foo"
+names(which( md$foo$type == fmAntMetadataType )) # get the type ofr "foo"
+md$foo$defaultValue # gets the default value for "foo"
+```
+
+</doc>
+    <return>
+      <doc>a pairs of <ref ref="fort::myrmidon#fort::myrmidon::AntMetadataType">fort::myrmidon::AntMetadataType</ref> and <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref>
+indexed by column name for all columns defined in the
+experiment.</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="std::__cxx11::string" />
+          <type class="template" name="std::pair">
+            <template-arguments>
+              <type name="AntMetadataType" ref="fort::myrmidon#fort::myrmidon::AntMetadataType" />
+              <type name="AntStaticValue" ref="fort::myrmidon#fort::myrmidon::AntStaticValue" />
+            </template-arguments>
+          </type>
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::AntShapeTypeNames" name="AntShapeTypeNames">
+    <brief>Gets the defined Ant shape type</brief>
+    <doc>R Version :
+```R
+e$antShapeTypeNames()
+```
+
+</doc>
+    <return>
+      <doc>the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> shape type name by their <ref ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID">fort::myrmidon::AntShapeTypeID</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
+          <type name="std::__cxx11::string" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::Author" name="Author">
+    <brief>The author of the Experiment</brief>
+    <doc>R Version :
+```R
+e$author()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the author name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::CAnts" name="CAnts">
+    <brief>Gets the <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> in the Experiment</brief>
+    <doc>R Version :
+```R
+e$cAnts()
+```
+
+</doc>
+    <return>
+      <doc>the const <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> indexed by their <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID">fort::myrmidon::Ant::ID</ref> in the
+Experiment.</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Ant::ID" ref="fort::myrmidon::Ant#fort::myrmidon::Ant::ID" />
+          <type name="CAnt" ref="fort::myrmidon::CAnt#fort::myrmidon::CAnt" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::Comment" name="Comment">
+    <brief>Comments about the experiment</brief>
+    <doc>R Version :
+```R
+e$family()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the Experiment's comment</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::CompileTrackingSolver" name="CompileTrackingSolver">
+    <brief>Compiles a TrackingSolver</brief>
+    <doc>Compiles a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref>, typically use to identify and
+collide frame from live tracking data.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver">fort::myrmidon::TrackingSolver</ref> for the experiment.</doc>
+      <type name="TrackingSolver" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::CSpaces" name="CSpaces">
+    <brief>Gets the Space in the Experiment with const access</brief>
+    <doc>R Version :
+```R
+e$cSpaces()
+```
+
+</doc>
+    <return>
+      <doc>a const map of the Experiment <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+          <type name="CSpace" ref="fort::myrmidon::CSpace#fort::myrmidon::CSpace" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::DefaultTagSize" name="DefaultTagSize">
+    <brief>The default physical tag size</brief>
+    <doc>Usually an Ant colony are tagged with a majority of tag of a
+given size. Some individuals (like Queens) may often use a
+bigger tag size that should be set in their
+Identification. This value is used for
+<ref ref="fort::myrmidon::Query#fort::myrmidon::Query::ComputeMeasurementFor">fort::myrmidon::Query::ComputeMeasurementFor</ref>.
+
+myrmidon uses without white border convention for ARTag and
+with white border convention Apriltag.
+
+R Version :
+```R
+f &lt;- e$family()
+# to get its name
+names(which( f == fmTagFamily ) )
+```
+
+</doc>
+    <return>
+      <doc>the default tag size for the experiment in mm</doc>
+      <type builtin="yes" name="double" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::Family" name="Family">
+    <brief>The kind of tag used in the Experiment</brief>
+    <doc>R Version :
+```R
+f &lt;- e$family()
+# to get its name
+names(which( f == fmTagFamilies ) )
+```
+
+</doc>
+    <return>
+      <doc>the family of tag used in the Experiment</doc>
+      <type name="tags::Family" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::FreeIdentificationRangeAt" name="FreeIdentificationRangeAt">
+    <brief>Queries for a valid time range</brief>
+    <doc>Queries for a valid time range for a given <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> and
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>. The result will be a range [<ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::start">start</ref>,<ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::end">end</ref>[ containing
+<ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::time">time</ref> where <ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::tagID">tagID</ref> is not used. If it returns false <ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::start">start</ref>
+and <ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::FreeIdentificationRangeAt::end">end</ref> will be resetted if such a range does not exists.
+
+R Version :
+```R
+# initializes return value as fmTimeCPtr
+start &lt;- new ( FortMyrmidon::fmTimeCPtr )
+end &lt;- new ( FortMyrmidon::fmTimeCPtr )
+e$freeIdentificationRangeAt(start,end,tagID,time)
+```
+
+</doc>
+    <return>
+      <doc>`true` if such a range exist, false otherwise.</doc>
+      <type builtin="yes" name="bool" />
+    </return>
+    <argument id="fort::myrmidon::CExperiment::FreeIdentificationRangeAt::start" name="start">
+      <doc>return value by reference for the start of the range</doc>
+      <type name="Time::ConstPtr" qualifier=" &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::CExperiment::FreeIdentificationRangeAt::end" name="end">
+      <doc>return value by reference for the end of the range</doc>
+      <type name="Time::ConstPtr" qualifier=" &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+    <argument id="fort::myrmidon::CExperiment::FreeIdentificationRangeAt::tagID" name="tagID">
+      <doc>the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> we want a range for</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+    </argument>
+    <argument id="fort::myrmidon::CExperiment::FreeIdentificationRangeAt::time" name="time">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> that must be included in the result time range</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::GetDataInformations" name="GetDataInformations">
+    <brief>Gets tracking data statistics about the Experiment</brief>
+    <doc>R Version :
+```R
+e$getDataInformations()
+```
+
+</doc>
+    <return>
+      <doc>an <ref ref="fort::myrmidon::ExperimentDataInfo#fort::myrmidon::ExperimentDataInfo">fort::myrmidon::ExperimentDataInfo</ref> list of informations</doc>
+      <type name="ExperimentDataInfo" ref="fort::myrmidon::ExperimentDataInfo#fort::myrmidon::ExperimentDataInfo" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::IdentificationsAt" name="IdentificationsAt">
+    <brief>Gets AntID &lt;- TagID correspondances at a given time</brief>
+    <doc>R Version
+```R
+# will report NA for unidentified Ant
+e$identificationsAt(fmTimeParse("2029-11-02T23:42:00.000Z"),FALSE)
+```
+
+</doc>
+    <return>
+      <doc>a map with the correspondance between AntID and TagID. Unidentified Ant will be ommi</doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+          <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+        </template-arguments>
+      </type>
+    </return>
+    <argument id="fort::myrmidon::CExperiment::IdentificationsAt::time" name="time">
+      <doc>the wanted <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to query for the correspondances</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+    <argument id="fort::myrmidon::CExperiment::IdentificationsAt::removeUnidentifiedAnt" name="removeUnidentifiedAnt">
+      <doc>if `true`, just do not report
+unidentified at this time. If `false`
+`std::numeric_limits<ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>::max()` will
+be returned as a TagID for unidentified
+Ant (or `NA` for R).</doc>
+      <type builtin="yes" name="bool" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::MeasurementTypeNames" name="MeasurementTypeNames">
+    <brief>Gets the Experiment defined measurement type</brief>
+    <doc>R Version :
+```R
+e$measurementTypeNames()
+```
+
+</doc>
+    <return>
+      <doc>a map of measurement type name by their <ref ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID">fort::myrmidon::MeasurementTypeID</ref></doc>
+      <type class="template" name="std::map">
+        <template-arguments>
+          <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
+          <type name="std::__cxx11::string" />
+        </template-arguments>
+      </type>
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::Name" name="Name">
+    <brief>The name of the Experiment.</brief>
+    <doc>R Version :
+```R
+e$name()
+```
+
+</doc>
+    <return>
+      <doc>a reference to the Experiment's name</doc>
+      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::CExperiment::Threshold" name="Threshold">
+    <brief>The threshold used for tag detection</brief>
+    <doc>R Version :
+```R
+e$threshold()
+```
+
+</doc>
+    <return>
+      <doc>the threshold used for detection</doc>
+      <type name="uint8_t" />
+    </return>
+  </method>
+</class>

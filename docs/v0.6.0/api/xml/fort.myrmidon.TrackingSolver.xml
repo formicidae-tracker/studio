@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::TrackingSolver" interface="true" name="TrackingSolver" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Identifies and Collides Ant from raw tracking data</brief>
+  <doc>This class lets the user to manually identify and track ants from
+raw tracking data, as for example, obtained from a network stream
+with `fort::hermes`</doc>
+  <typedef id="fort::myrmidon::TrackingSolver::PPtr" name="PPtr">
+    <brief>Opaque pointer to implementation</brief>
+    <type class="template" name="std::shared_ptr" qualifier=" const">
+      <template-arguments>
+        <type name="priv::TrackingSolver" ref="fort::myrmidon::priv::TrackingSolver#fort::myrmidon::priv::TrackingSolver" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::TrackingSolver::TrackingSolver" name="TrackingSolver">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot create a TrackingSolver directly. They must use
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment::CompileTrackingSolver">fort::myrmidon::Experiment::CompileTrackingSolver</ref> and
+<ref ref="fort::myrmidon::CExperiment#fort::myrmidon::CExperiment::CompileTrackingSolver">fort::myrmidon::CExperiment::CompileTrackingSolver</ref>.</doc>
+    <argument id="fort::myrmidon::TrackingSolver::TrackingSolver::pTracker" name="pTracker">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver::PPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::TrackingSolver::CollideFrame" name="CollideFrame">
+    <brief>Collides Ants from an IdentifiedFrame</brief>
+    <doc>Collides Ants from an <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref>. <ref ref="fort::myrmidon::TrackingSolver#fort::myrmidon::TrackingSolver::CollideFrame::identified">identified</ref> will be
+modified to contains for each Ant its current zone.
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref> with all current Ant collisions.</doc>
+      <type name="CollisionFrame::ConstPtr" ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame::ConstPtr" />
+    </return>
+    <argument id="fort::myrmidon::TrackingSolver::CollideFrame::identified" name="identified">
+      <doc>the <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> with the ant position data.</doc>
+      <type name="IdentifiedFrame::Ptr" qualifier=" const &amp;" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame::Ptr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::TrackingSolver::IdentifyFrame" name="IdentifyFrame">
+    <brief>Identifies Ants from a `fort::hermes::FrameReadout`</brief>
+    <return>
+      <doc>an <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> with all identified ant (without zone)</doc>
+      <type name="IdentifiedFrame::Ptr" ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame::Ptr" />
+    </return>
+    <argument id="fort::myrmidon::TrackingSolver::IdentifyFrame::frame" name="frame">
+      <doc>the `fort::hermes::FrameReadout` to identify</doc>
+      <type name="hermes::FrameReadout" qualifier=" const &amp;" />
+    </argument>
+    <argument id="fort::myrmidon::TrackingSolver::IdentifyFrame::spaceID" name="spaceID">
+      <doc>the spaceID the frame correspond to</doc>
+      <type name="Space::ID" ref="fort::myrmidon::Space#fort::myrmidon::Space::ID" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::TrackingSolver::IdentifyTag" name="IdentifyTag">
+    <brief>Identifies a single tag</brief>
+    <return>
+      <doc>0 if the tag is not idnetified, or the corresponding ID</doc>
+      <type name="AntID" ref="fort::myrmidon#fort::myrmidon::AntID" />
+    </return>
+    <argument id="fort::myrmidon::TrackingSolver::IdentifyTag::tagID" name="tagID">
+      <doc>the TagID to identify</doc>
+      <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+    </argument>
+    <argument id="fort::myrmidon::TrackingSolver::IdentifyTag::time" name="time">
+      <doc>the time to consider to identify the tag</doc>
+      <type name="Time" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+    </argument>
+  </method>
+</class>

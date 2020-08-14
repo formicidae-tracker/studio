@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::ComputedMeasurement" name="ComputedMeasurement" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Represents a Measurement in mm at a given Time.</brief>
+  <doc>Measurement in myrmidon are automatically converted to MM given the
+<ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> tag family and size, and the size of the tag measured
+in the image.</doc>
+  <field id="fort::myrmidon::ComputedMeasurement::MTime" name="MTime">
+    <brief>The <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> of the Measurement</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::ComputedMeasurement::LengthMM" name="LengthMM">
+    <brief>the value in mm of the measurement</brief>
+    <type builtin="yes" name="double" />
+  </field>
+  <typedef id="fort::myrmidon::ComputedMeasurement::List" name="List">
+    <brief>A list of measurement</brief>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="ComputedMeasurement" ref="fort::myrmidon::ComputedMeasurement#fort::myrmidon::ComputedMeasurement" />
+      </template-arguments>
+    </type>
+  </typedef>
+</struct>

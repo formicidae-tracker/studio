@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::ZoneDefinition" interface="true" name="ZoneDefinition" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines the geometry of a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> in <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+  </brief>
+  <doc>ZoneDefinition sets for a time range [<ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::Start">Start</ref>,<ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::End">End</ref>[ a <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::Geometry">Geometry</ref>
+for a <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref>. nullptr for <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::Start">Start</ref> or <ref ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::End">End</ref> represents -/+∞.</doc>
+  <typedef id="fort::myrmidon::ZoneDefinition::ConstList" name="ConstList">
+    <brief>A const list of Definition</brief>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="CZoneDefinition" ref="fort::myrmidon::CZoneDefinition#fort::myrmidon::CZoneDefinition" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <typedef id="fort::myrmidon::ZoneDefinition::List" name="List">
+    <brief>A list of Definition</brief>
+    <type class="template" name="std::vector">
+      <template-arguments>
+        <type name="ZoneDefinition" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <typedef id="fort::myrmidon::ZoneDefinition::PPtr" name="PPtr">
+    <brief>Opaque implementation pointer</brief>
+    <type class="template" name="std::shared_ptr">
+      <template-arguments>
+        <type name="priv::ZoneDefinition" ref="fort::myrmidon::priv::ZoneDefinition#fort::myrmidon::priv::ZoneDefinition" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <constructor abstract="yes" id="fort::myrmidon::ZoneDefinition::ZoneDefinition" name="ZoneDefinition">
+    <brief>Private implementation constructor</brief>
+    <doc>User cannot build Defoninition directly. They must be build and
+accessed from <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref>.</doc>
+    <argument id="fort::myrmidon::ZoneDefinition::ZoneDefinition::pDefinition" name="pDefinition">
+      <doc>opaque pointer to implementation</doc>
+      <type name="PPtr" qualifier=" const &amp;" ref="fort::myrmidon::ZoneDefinition#fort::myrmidon::ZoneDefinition::PPtr" />
+    </argument>
+  </constructor>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::End" name="End">
+    <brief>Gets the ending valid time of the Definition</brief>
+    <doc>R version:
+```R
+zd$end()
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref> before which the Definition is
+valid. nullptr means +∞.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::Geometry" name="Geometry">
+    <brief>Gets the geometry of this definition</brief>
+    <doc>R version:
+```R
+zd$geometry()
+```
+
+</doc>
+    <return>
+      <doc>a union of <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape">fort::myrmidon::Shape</ref> defining the geometry</doc>
+      <type name="Shape::ConstList" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList" />
+    </return>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::SetEnd" name="SetEnd">
+    <brief>Sets the last valid time of the Definition</brief>
+    <doc>R version:
+```R
+# const_ptr() is needed to convert to fmTimeCPtr
+zd$setEnd(fmTimeParse()$const_ptr())
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::ZoneDefinition::SetEnd::end" name="end">
+      <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> before which the Definition is
+valid. nullptr means -∞</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::SetGeometry" name="SetGeometry">
+    <brief>Sets the geometry of this definition</brief>
+    <doc>R version:
+```R
+zd$setGeometry(list(fmCircle(c(x,y),r),...))
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::ZoneDefinition::SetGeometry::shapes" name="shapes">
+      <doc>a union of <ref ref="fort::myrmidon::Shape#fort::myrmidon::Shape">fort::myrmidon::Shape</ref> defining the <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone">fort::myrmidon::Zone</ref> geometry.</doc>
+      <type name="Shape::ConstList" qualifier=" const &amp;" ref="fort::myrmidon::Shape#fort::myrmidon::Shape::ConstList" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::SetStart" name="SetStart">
+    <brief>Sets the first valid time of the Definition</brief>
+    <doc>R version:
+```R
+# const_ptr() is needed to convert to fmTimeCPtr
+zd$setStart(fmTimeParse()$const_ptr())
+```</doc>
+    <return>
+      <type builtin="yes" name="void" />
+    </return>
+    <argument id="fort::myrmidon::ZoneDefinition::SetStart::start" name="start">
+      <doc>the first valid <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> for the Definition. nullptr
+means -∞</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </argument>
+  </method>
+  <method abstract="yes" id="fort::myrmidon::ZoneDefinition::Start" name="Start">
+    <brief>Gets the first valid time of the Definition</brief>
+    <doc>R version:
+```R
+zd$start()
+```
+
+</doc>
+    <return>
+      <doc>a <ref ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr">fort::myrmidon::Time::ConstPtr</ref> for the first valid
+time. nullptr means -∞.</doc>
+      <type name="Time::ConstPtr" qualifier=" const &amp;" ref="fort::myrmidon::Time#fort::myrmidon::Time::ConstPtr" />
+    </return>
+  </method>
+</class>

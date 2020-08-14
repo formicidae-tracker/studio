@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<class id="fort::myrmidon::OverlappingIdentification" interface="true" name="OverlappingIdentification" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Exception when two <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> overlaps in time.</brief>
+  <doc>Two <ref ref="fort::myrmidon::Identification#fort::myrmidon::Identification">fort::myrmidon::Identification</ref> overlaps in time if they have overlapping
+boundary and they either use the same <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> or targets the same
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref>. This is an invariant condition that should never happen and
+modification that will break this invariant will throw this
+exception.</doc>
+  <base access="public">
+    <type name="std::runtime_error" />
+  </base>
+  <constructor abstract="yes" id="fort::myrmidon::OverlappingIdentification::OverlappingIdentification" name="OverlappingIdentification">
+    <brief>Default constructor</brief>
+    <argument id="fort::myrmidon::OverlappingIdentification::OverlappingIdentification::a" name="a">
+      <doc>the first overlapping identification</doc>
+      <type name="priv::Identification" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+    </argument>
+    <argument id="fort::myrmidon::OverlappingIdentification::OverlappingIdentification::b" name="b">
+      <doc>the second overlapping identification</doc>
+      <type name="priv::Identification" qualifier=" const &amp;" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification" />
+    </argument>
+  </constructor>
+  <destructor abstract="yes" id="fort::myrmidon::OverlappingIdentification::~OverlappingIdentification" name="~OverlappingIdentification" virtual="yes" />
+</class>

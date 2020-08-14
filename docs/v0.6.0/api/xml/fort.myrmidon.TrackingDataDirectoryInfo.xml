@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::TrackingDataDirectoryInfo" name="TrackingDataDirectoryInfo" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Reports information about a tracking data directory.</brief>
+  <field id="fort::myrmidon::TrackingDataDirectoryInfo::URI" name="URI">
+    <brief>The URI used in the GUI to designate the tracking data directory</brief>
+    <type name="std::__cxx11::string" />
+  </field>
+  <field id="fort::myrmidon::TrackingDataDirectoryInfo::AbsoluteFilePath" name="AbsoluteFilePath">
+    <brief>The absolute filepath on the directory on the system</brief>
+    <type name="std::__cxx11::string" />
+  </field>
+  <field id="fort::myrmidon::TrackingDataDirectoryInfo::Frames" name="Frames">
+    <brief>The number of Frames in this directory</brief>
+    <type name="uint64_t" />
+  </field>
+  <field id="fort::myrmidon::TrackingDataDirectoryInfo::Start" name="Start">
+    <brief>The first frame <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+    </brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::TrackingDataDirectoryInfo::End" name="End">
+    <brief>The last frame <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref>
+    </brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+</struct>

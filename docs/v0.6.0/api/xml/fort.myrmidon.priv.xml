@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<namespace id="fort::myrmidon::priv" name="priv" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Private namespace for implementation</brief>
+  <doc># Private namespace for implementation details
+
+The myrmdion library aims to provide ABI stability using the private
+implementation design pattern: Any public C++ class is only allowed to
+have a pointer to a private implementation class.
+
+All these private implementation are in the priv namespace. User of
+the myrmidon API does not have to know these implementation details.
+
+Any changes in these namespace can break ABI compatibility if the ABI
+of exported classes in <ref ref="fort::myrmidon#fort::myrmidon">fort::myrmidon</ref> are left unchanged.</doc>
+  <class name="Ant" ref="fort::myrmidon::priv::Ant#fort::myrmidon::priv::Ant">
+    <brief>private <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> implemenation</brief>
+  </class>
+  <class name="Capsule" ref="fort::myrmidon::priv::Capsule#fort::myrmidon::priv::Capsule">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="Circle" ref="fort::myrmidon::priv::Circle#fort::myrmidon::priv::Circle">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="Experiment" ref="fort::myrmidon::priv::Experiment#fort::myrmidon::priv::Experiment">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> Implementation</brief>
+  </class>
+  <class name="Identification" ref="fort::myrmidon::priv::Identification#fort::myrmidon::priv::Identification">
+    <brief>private <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> implemenation</brief>
+  </class>
+  <class name="Matcher" ref="fort::myrmidon::priv::Matcher#fort::myrmidon::priv::Matcher">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="Polygon" ref="fort::myrmidon::priv::Polygon#fort::myrmidon::priv::Polygon">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="Shape" ref="fort::myrmidon::priv::Shape#fort::myrmidon::priv::Shape">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="Space" ref="fort::myrmidon::priv::Space#fort::myrmidon::priv::Space">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="TrackingSolver" ref="fort::myrmidon::priv::TrackingSolver#fort::myrmidon::priv::TrackingSolver" />
+  <class name="Zone" ref="fort::myrmidon::priv::Zone#fort::myrmidon::priv::Zone">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+  <class name="ZoneDefinition" ref="fort::myrmidon::priv::ZoneDefinition#fort::myrmidon::priv::ZoneDefinition">
+    <brief>private <ref ref="fort::myrmidon::priv#fort::myrmidon::priv">fort::myrmidon::priv</ref> implementation</brief>
+  </class>
+</namespace>

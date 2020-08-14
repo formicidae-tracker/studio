@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::TagStatistics" name="TagStatistics" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Statistics about a <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> in the experiment.</brief>
+  <enum anonymous="yes" id="fort::myrmidon::TagStatistics::CountHeader" name="CountHeader">
+    <brief>Designating each index of <ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::CountVector">fort::myrmidon::TagStatistics::CountVector</ref>
+    </brief>
+    <enumvalue id="fort::myrmidon::TagStatistics::TOTAL_SEEN" name="TOTAL_SEEN" value="0">
+      <brief>Number of time the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> was seen in the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref>
+      </brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::MULTIPLE_SEEN" name="MULTIPLE_SEEN" value="1">
+      <brief>Number of time the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> was seen multiple time in the same Frame.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_500MS" name="GAP_500MS" value="2">
+      <brief>Number of time their was a gap less than 500 milliseconds were the tracking was lost.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_1S" name="GAP_1S" value="3">
+      <brief>Number of time their was a gap less than 1 second were the tracking was lost.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_10S" name="GAP_10S" value="4">
+      <brief>Number of time their was a gap less than 10 seconds were the tracking was lost.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_1M" name="GAP_1M" value="5">
+      <brief>Number of times their was a gap less than 1 minute were the tracking was lost. Innacurate if there are more than one <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the experiment.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_10M" name="GAP_10M" value="6">
+      <brief>Number of times their was a gap less than 10 minutes were the tracking was lost. Innacurate if there are more than one <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the experiment.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_1H" name="GAP_1H" value="7">
+      <brief>Number of times their was a gap less than 1 hour were the tracking was lost. Innacurate if there are more than one <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the experiment.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_10H" name="GAP_10H" value="8">
+      <brief>Number of times their was a gap less than 10 hours were the tracking was lost. Innacurate if there are more than one <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the experiment.</brief>
+    </enumvalue>
+    <enumvalue id="fort::myrmidon::TagStatistics::GAP_MORE" name="GAP_MORE" value="9">
+      <brief>Number of times their was a gap of more than 10 hours were the tracking was lost. If using multiple space in an experiment, consider only smaller gap, and add all columns from <ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::GAP_1M">fort::myrmidon::TagStatistics::GAP_1M</ref> up to this one to consider only gap bigger than 10S.</brief>
+    </enumvalue>
+  </enum>
+  <field id="fort::myrmidon::TagStatistics::ID" name="ID">
+    <brief>The <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> this statistics refers too</brief>
+    <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+  </field>
+  <field id="fort::myrmidon::TagStatistics::FirstSeen" name="FirstSeen">
+    <brief>The first <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> in the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> this <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> was detected.</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::TagStatistics::LastSeen" name="LastSeen">
+    <brief>The last <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> in the <ref ref="fort::myrmidon::Experiment#fort::myrmidon::Experiment">fort::myrmidon::Experiment</ref> this <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> was detected.</brief>
+    <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
+  </field>
+  <field id="fort::myrmidon::TagStatistics::Counts" name="Counts">
+    <brief>Counts were the tag was seen</brief>
+    <type name="CountVector" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics::CountVector" />
+  </field>
+  <typedef id="fort::myrmidon::TagStatistics::ByTagID" name="ByTagID">
+    <brief>A map of <ref ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics">fort::myrmidon::TagStatistics</ref> indexed by <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>
+    </brief>
+    <type class="template" name="std::map">
+      <template-arguments>
+        <type name="TagID" ref="fort::myrmidon::TagID#fort::myrmidon::TagID" />
+        <type name="TagStatistics" ref="fort::myrmidon::TagStatistics#fort::myrmidon::TagStatistics" />
+      </template-arguments>
+    </type>
+  </typedef>
+  <typedef id="fort::myrmidon::TagStatistics::CountVector" name="CountVector">
+    <brief>A vector of count.</brief>
+    <type class="template" name="Eigen::Matrix">
+      <template-arguments>
+        <type name="uint64_t" />
+        <type name="" />
+        <type name="" />
+      </template-arguments>
+    </type>
+  </typedef>
+</struct>

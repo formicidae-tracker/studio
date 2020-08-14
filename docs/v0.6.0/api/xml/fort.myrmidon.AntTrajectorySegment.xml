@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<struct id="fort::myrmidon::AntTrajectorySegment" name="AntTrajectorySegment" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Defines a sub segment of a trajectory</brief>
+  <field id="fort::myrmidon::AntTrajectorySegment::Trajectory" name="Trajectory">
+    <brief>The refering trajectory</brief>
+    <type name="AntTrajectory::ConstPtr" ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory::ConstPtr" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectorySegment::Begin" name="Begin">
+    <brief>The starting index of the segment in the referring trajectory.</brief>
+    <type name="size_t" />
+  </field>
+  <field id="fort::myrmidon::AntTrajectorySegment::End" name="End">
+    <brief>The index after the last index in the referring trajectory.</brief>
+    <type name="size_t" />
+  </field>
+</struct>

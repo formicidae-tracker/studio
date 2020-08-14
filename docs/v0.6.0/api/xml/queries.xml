@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='utf-8'?>
+<category id="queries" name="queries" xmlns="http://jessevdk.github.com/cldoc/1.0">
+  <brief>Complex queries and matchers.</brief>
+  <doc># Data queries and matcher
+
+Finally, the myrmidon API provides an interface to perform complex
+queries on the tracking data set with the metho defined in the
+<ref ref="fort::myrmidon::Query#fort::myrmidon::Query">fort::myrmidon::Query</ref> class.
+
+## List of query
+
+One can :
+
+* Access manual measurement from the myrmidon API
+* Access individual position within a frame
+* Compute <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> for ants.
+* Compute <ref ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction">fort::myrmidon::AntInteraction</ref> between ants.
+
+All available query are defined in the <ref ref="fort::myrmidon::Query#fort::myrmidon::Query">fort::myrmidon::Query</ref> class.
+
+
+## Object returned.
+
+Queries returns certains object, which aims to be easily translatable
+to other programming languages.
+
+* <ref ref="fort::myrmidon::IdentifiedFrame#fort::myrmidon::IdentifiedFrame">fort::myrmidon::IdentifiedFrame</ref> : a data frame with ant position
+  for a given time, in a given <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+* <ref ref="fort::myrmidon::CollisionFrame#fort::myrmidon::CollisionFrame">fort::myrmidon::CollisionFrame</ref> : a data frame with ant collision
+  for a given time, in a given <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
+* <ref ref="fort::myrmidon::AntTrajectory#fort::myrmidon::AntTrajectory">fort::myrmidon::AntTrajectory</ref> : the timed trajectory for an Ant,
+  in a given <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>. If the ant actually leaves the
+  space, the trrajectory is cutted and two trajectories are reported
+  instead. Timing returned by this object can be safely used for
+  derivation and speed computation. Please note that the timesteps
+  could and should be variable.
+* <ref ref="fort::myrmidon::AntInteraction#fort::myrmidon::AntInteraction">fort::myrmidon::AntInteraction</ref> : a timed interaction between two
+  ants, with the trajectory of the ant.
+
+** TODO ** : a structure to report the Ant zone relatively to time is
+   still needed
+
+## Complex queries: using <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref>
+
+For some query, one can use <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> to build complex queries.
+
+For example one can compute all trajectories for a single
+<ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmidon::Ant</ref> with ID 42 using:
+
+```
+using namespace fort::myrmidon;
+std::vector&lt;AntTrajectory::ConstPtr&gt; trajectories;
+Query::ComputeTrajectories(experiment,
+                           trajectories,
+                           {}, // nullptr for start time == from -∞
+                           {}, //nullptr for end time == until +∞
+                           500 * Duration::Millisecond, // only allows gap of 500ms, otherwise report a new trajectory
+                           Matcher::AntIDMatcher(42));
+```
+
+
+All available matcher, included And or Or combination matcher could be
+found in <ref ref="fort::myrmidon::Matcher#fort::myrmidon::Matcher">fort::myrmidon::Matcher</ref> class.
+
+## examples
+
+### query for a single frame
+
+In order to query for a single frame, simply use the
+<ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> of the frame and <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> + 1 ns
+
+```
+using fort::myrmidon;
+Time frameTime; // time of the wanted frame
+std::vector&lt;CollisionData&gt; collisions; // after query, shoudl have a single element.
+Query::CollideFrame(experiment,
+                    collisions,
+                    std::make_shared&lt;Time&gt;(frameTime),
+                    std::make_shared&lt;Time&gt;(frameTime.Add(1)));
+// 1ns is the minimal gap between two times, only a single frame
+// should be reported. Maybe one of a different space if it happens
+// that two frames have been allegedly taken in the same nanosecond
+// for multispace experiment.
+```
+
+Note: querying Frame by Frame is not advised, as it will be very IO
+inefficient. If you need a sequence of frames, it is better to ask for
+all frames at once. Even if only a few frames are needed, it may be
+more efficient to query for all of them and drop the many unwanted ones.
+
+
+### Gets all the interactions with the nurse group
+
+```
+using fort::myrmidon;
+
+experiment-&gt;AddMetadataColumn("group",AntMetadataType::String,"worker");
+
+// Adds some ant to the "nurse" group
+antA-&gt;SetValue("group",{},"nurse");
+antB-&gt;SetValue("group",{},"nurse");
+
+// query now all interactions with the nurse group
+std::vector&lt;AntTrajectory::ConstPtr&gt; trajectories;
+std::vector&lt;AntInteraction::ConstPtr&gt; interactions;
+Query::ComputeAntInteractions(experiment,
+                              tajectories,
+                              interactions,
+                              {},
+                              {},
+                              2 * Duration::Second,
+                              Matcher::AntColumnMatcher("group","nurse"));
+```</doc>
+</category>
