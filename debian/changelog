@@ -1,8 +1,9 @@
-fort-studio (0.6.0-0ubuntu1~bionic1) bionic; urgency=medium
+fort-studio (0.6.1-0ubuntu1) focal; urgency=medium
 
-  * Bionic backports
+  * New upstream release 0.6.1
+  * Removes forced installed on testing component
 
- -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Wed, 12 Aug 2020 00:22:26 +0200
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Fri, 14 Aug 2020 14:41:24 +0200
 
 fort-studio (0.6.0-0ubuntu1) focal; urgency=medium
 
