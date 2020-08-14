@@ -6,7 +6,6 @@ libdir=${exec_prefix}/lib
 Name: fort-myrmidon
 Description: FORmicidae Tracker analysis API
 Requires: protobuf >= 3.3.0 , eigen3
-Requires.private: @OPENCV_PKG_REQUIRE@
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -lfort-myrmidon -lfort-hermes-cpp -lfort-tags @PKG_FS_LIBRARY@
