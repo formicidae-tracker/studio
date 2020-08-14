@@ -1,3 +1,9 @@
+fort-studio (0.6.0-0ubuntu2) focal; urgency=medium
+
+  * Remoevs forced installed on testing component
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Fri, 14 Aug 2020 14:41:24 +0200
+
 fort-studio (0.6.0-0ubuntu1) focal; urgency=medium
 
   * New upstream release v0.6.0
