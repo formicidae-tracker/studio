@@ -1,6 +1,7 @@
-fort-studio (0.6.0-0ubuntu2) focal; urgency=medium
+fort-studio (0.6.1-0ubuntu1) focal; urgency=medium
 
-  * Remoevs forced installed on testing component
+  * New upstream release 0.6.1
+  * Removes forced installed on testing component
 
  -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Fri, 14 Aug 2020 14:41:24 +0200
 
