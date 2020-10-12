@@ -231,7 +231,12 @@ void TrackingDataDirectory::BuildCache(const std::string & URI,
 						++iter;
 					}
 				} catch ( const fort::hermes::EndOfFile & ) {
-
+					if ( iter != ToFind.end() ) {
+						throw std::runtime_error("Frame "
+						                         + std::to_string(*iter)
+						                         + " is outside of file "
+						                         + AbsoluteFilePath);
+					}
 				} catch ( const std::exception & e ) {
 					throw std::runtime_error("[TDD.BuildCache]: Could not find frame "
 					                         + std::to_string(*iter) + ": " +  e.what());
