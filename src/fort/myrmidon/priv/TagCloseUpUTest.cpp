@@ -131,16 +131,18 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 
 	auto barAntDir = TestSetup::Basedir() / "bar.0000/ants";
 
+	tags::ApriltagOptions detectorOptions;
+	detectorOptions.Family = tags::Family::Undefined;
+	detectorOptions.QuadMinBWDiff = 80;
+
 	EXPECT_THROW(TagCloseUp::Lister::Create(barAntDir,
-	                                        tags::Family::Undefined,
-	                                         80,
+	                                        detectorOptions,
 	                                        resolver);,
 	             std::invalid_argument);
 
-
+	detectorOptions.Family = tags::Family::Tag36h11;
 	auto lister = TagCloseUp::Lister::Create(barAntDir,
-	                                         tags::Family::Tag36h11,
-	                                         80,
+	                                         detectorOptions,
 	                                         resolver);
 	auto loaders = lister->PrepareLoaders();
 	lister.reset();
@@ -159,27 +161,31 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 
 
 	EXPECT_THROW({
+			detectorOptions.Family = tags::Family::Tag36ARTag;
+			detectorOptions.QuadMinBWDiff = 80;
 			// wrong family, won't load from cache
 			TagCloseUp::Lister::Create(barAntDir,
-			                           tags::Family::Tag36ARTag,
-			                           80,
+			                           detectorOptions,
 			                           resolver,
 			                           true);
 		},std::runtime_error);
 
 	EXPECT_THROW({
+			detectorOptions.Family = tags::Family::Tag36h11;
+			detectorOptions.QuadMinBWDiff = 90;
+
 			// wrong threshold, won't load from cache
 			TagCloseUp::Lister::Create(barAntDir,
-			                           tags::Family::Tag36h11,
-			                           90,
+			                           detectorOptions,
 			                           resolver,
 			                           true);
 		},std::runtime_error);
 
 	ASSERT_NO_THROW({
+			detectorOptions.Family = tags::Family::Tag36h11;
+			detectorOptions.QuadMinBWDiff = 80;
 			auto fromCache = TagCloseUp::Lister::Create(barAntDir,
-			                                            tags::Family::Tag36h11,
-			                                            80,
+			                                            detectorOptions,
 			                                            resolver,
 			                                            true);
 			loaders = fromCache->PrepareLoaders();

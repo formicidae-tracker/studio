@@ -612,9 +612,13 @@ TrackingDataDirectory::TagCloseUpLister(tags::Family f,
 	PERF_FUNCTION();
 
 	auto locked = Itself();
+	tags::ApriltagOptions detectorOptions;
+	detectorOptions.QuadMinBWDiff = threshold;
+	detectorOptions.Family = f;
+
+
 	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
-	                                  f,
-	                                  threshold,
+	                                  detectorOptions,
 	                                  [locked](FrameID fid) {
 		                                  return locked->FrameReferenceAt(fid);
 	                                  });

@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 
 #include <fort/tags/fort-tags.h>
+#include <fort/tags/options.hpp>
 
 
 #include "FrameReference.hpp"
@@ -39,24 +40,20 @@ public:
 		static fs::path CacheFilePath(const fs::path & filepath);
 
 		static Ptr Create(const fs::path & absoluteBaseDir,
-		                  tags::Family f,
-		                  uint8_t threshold,
+		                  const  tags::ApriltagOptions & detectorOptions,
 		                  FrameReferenceResolver resolver,
 		                  bool forceCache = false);
 
 
 		std::vector<Loader> PrepareLoaders();
 
-		tags::Family Family() const;
-
-		uint8_t Threshold() const;
+		const tags::ApriltagOptions & DetectorOptions() const;
 
 	private:
 		typedef std::map<fs::path,List> ByLocalFile;
 
 		Lister(const fs::path & absoluteBaseDir,
-		       tags::Family f,
-		       uint8_t threshold,
+		       const tags::ApriltagOptions & detectorOptions,
 		       FrameReferenceResolver resolver,
 		       bool forceCache = false);
 
@@ -74,8 +71,7 @@ public:
 
 		std::weak_ptr<Lister>  d_itself;
 		fs::path               d_absoluteBaseDir;
-		tags::Family           d_family;
-		uint8_t                d_threshold;
+		tags::ApriltagOptions  d_detectorOptions;
 		FrameReferenceResolver d_resolver;
 		std::mutex             d_mutex;
 		ByLocalFile            d_cache;

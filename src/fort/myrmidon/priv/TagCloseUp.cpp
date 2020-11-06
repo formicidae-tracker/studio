@@ -26,6 +26,7 @@ double TagCloseUp::ComputeAngleFromCorners(const Eigen::Vector2d & c0,
 	return atan2(delta.y(),delta.x());
 }
 
+
 std::string TagCloseUp::FormatURI(const std::string & tddURI,
                                   FrameID frameID,
                                   TagID tagID) {
@@ -105,13 +106,11 @@ const Vector2dList & TagCloseUp::Corners() const {
 
 TagCloseUp::Lister::Ptr
 TagCloseUp::Lister::Create(const fs::path & absoluteBaseDir,
-                           tags::Family f,
-                           uint8_t threshold,
+                           const tags::ApriltagOptions & detectorOptions,
                            FrameReferenceResolver resolver,
                            bool forceCache) {
 	Ptr res(new Lister(absoluteBaseDir,
-	                   f,
-	                   threshold,
+	                   detectorOptions,
 	                   resolver,
 	                   forceCache));
 	res->d_itself = res;
@@ -121,16 +120,14 @@ TagCloseUp::Lister::Create(const fs::path & absoluteBaseDir,
 
 
 TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
-                           tags::Family f,
-                           uint8_t threshold,
+                           const tags::ApriltagOptions & detectorOptions,
                            FrameReferenceResolver resolver,
                            bool forceCache)
 	: d_absoluteBaseDir(absoluteBaseDir)
-	, d_family(f)
-	, d_threshold(threshold)
+	, d_detectorOptions(detectorOptions)
 	, d_resolver(resolver) {
 	PERF_FUNCTION();
-	if ( f == tags::Family::Undefined ) {
+	if ( d_detectorOptions.Family == tags::Family::Undefined ) {
 		throw std::invalid_argument("Cannot list for undefined family tag");
 	}
 	d_saveCacheOnDelete = true;
@@ -235,8 +232,8 @@ void TagCloseUp::Lister::UnsafeSaveCache() {
 	auto cachePath = CacheFilePath(d_absoluteBaseDir);
 
 	pb::TagCloseUpCacheHeader h;
-	h.set_threshold(d_threshold);
-	h.set_family(proto::IOUtils::SaveFamily(d_family));
+	h.set_threshold(d_detectorOptions.QuadMinBWDiff);
+	h.set_family(proto::IOUtils::SaveFamily(d_detectorOptions.Family));
 	std::vector<RW::LineWriter> lines;
 	for ( const auto & [p,tcus] : d_cache ) {
 		for (const auto & tcu : tcus ) {
@@ -258,10 +255,10 @@ void TagCloseUp::Lister::LoadCache() {
 
 	RW::Read(cachePath,
 	         [this](const pb::TagCloseUpCacheHeader & pb) {
-		         if ( proto::IOUtils::LoadFamily(pb.family()) != d_family ) {
+		         if ( proto::IOUtils::LoadFamily(pb.family()) != d_detectorOptions.Family ) {
 			         throw std::runtime_error("Mismatched cached tag family");
 		         }
-		         if ( pb.threshold() != d_threshold ) {
+		         if ( pb.threshold() != d_detectorOptions.QuadMinBWDiff ) {
 			         throw std::runtime_error("Mismatched cache threshold");
 		         }
 	         },
@@ -278,21 +275,10 @@ void TagCloseUp::Lister::LoadCache() {
 apriltag_detector_t *
 TagCloseUp::Lister::CreateDetector() {
 	apriltag_detector_t * detector =  apriltag_detector_create();
-
-	detector->qtp.min_white_black_diff = d_threshold;
-
-	detector->nthreads = 1;
-	detector->quad_decimate = 1.0;
-	detector->quad_sigma = 0.0;
-	detector->refine_edges = 0;
-	detector->debug = false;
-	detector->qtp.min_cluster_pixels = 25;
-	detector->qtp.max_nmaxima = 10;
-	detector->qtp.critical_rad = 10.0 * M_PI / 180.0;
-	detector->qtp.max_line_fit_mse = 10.0;
-	detector->qtp.deglitch = 0;
+	d_detectorOptions.SetUpDetector(detector);
 	return detector;
 }
+
 
 TagCloseUp::List TagCloseUp::Lister::LoadFileFromCache(const fs::path & file) {
 	return d_cache.at(file);
@@ -313,7 +299,7 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 		                  d_cache.insert(std::make_pair(relativePath,tags));
 	                  });
 
-	auto [family,family_destructor] = LoadFamily(d_family);
+	auto [family,family_destructor] = LoadFamily(d_detectorOptions.Family);
 	apriltag_detector_add_family(detector,family);
 	Defer destroyDetector([detector,
 	                       family = family,
@@ -395,12 +381,8 @@ std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
 	return res;
 }
 
-tags::Family TagCloseUp::Lister::Family() const {
-	return d_family;
-}
-
-uint8_t TagCloseUp::Lister::Threshold() const {
-	return d_threshold;
+const tags::ApriltagOptions & TagCloseUp::Lister::DetectorOptions() const {
+	return d_detectorOptions;
 }
 
 
