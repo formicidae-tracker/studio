@@ -25,6 +25,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <apriltag/apriltag.h>
+#include <apriltag/tag36h11.h>
 
 #include <fort/myrmidon/priv/proto/IOUtils.hpp>
 

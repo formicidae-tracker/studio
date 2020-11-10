@@ -2,7 +2,7 @@
 
 #include <Eigen/Core>
 
-#include <fort/tags/fort-tags.h>
+#include <fort/tags/fort-tags.hpp>
 #include <fort/tags/options.hpp>
 
 

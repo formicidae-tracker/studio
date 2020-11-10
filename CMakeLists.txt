@@ -25,64 +25,30 @@ find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
 find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
 
-include(FetchContent)
-FetchContent_Declare(googletest
-                     GIT_REPOSITORY https://github.com/google/googletest.git
-                     GIT_TAG        release-1.10.0
-                     )
+include(FetchFortTags)
+include(FetchFortHermes)
+include(FetchSemver)
+include(FetchGoogleTest)
 
-FetchContent_Declare(fort-tags
-                     GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.4.0)
+fetch_google_test(VERSION release-1.10.0)
+fetch_fort_tags(VERSION v1.4.0)
+fetch_fort_hermes(VERSION v0.4.1)
+fetch_semver(VERSION v0.2.2)
 
-FetchContent_Declare(hermes
-                     GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
-                     GIT_TAG        v0.4.0)
-
-FetchContent_Declare(semver
-                     GIT_REPOSITORY https://github.com/Neargye/semver.git
-                     GIT_TAG        v0.2.2)
-
-
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-	FetchContent_Populate(googletest)
-	add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif(NOT googletest_POPULATED)
 include(GoogleTest)
 include(EnableMakeCheck)
 enable_testing()
 enable_make_check()
 
 
-FetchContent_GetProperties(fort-tags)
-if(NOT fort-tags_POPULATED)
-	FetchContent_Populate(fort-tags)
-	add_subdirectory(${fort-tags_SOURCE_DIR} ${fort-tags_BINARY_DIR})
-endif(NOT fort-tags_POPULATED)
-
-
-FetchContent_GetProperties(hermes)
-if(NOT hermes_POPULATED)
-	FetchContent_Populate(hermes)
-	add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})
-endif(NOT hermes_POPULATED)
-set(HERMES_INCLUDE_DIRS ${hermes_SOURCE_DIR}/src ${hermes_BINARY_DIR}/src)
-
-FetchContent_GetProperties(semver)
-if(NOT semver_POPULATED)
-	FetchContent_Populate(semver)
-	add_subdirectory(${semver_SOURCE_DIR} ${semver_BINARY_DIR})
-endif(NOT semver_POPULATED)
-set(SEMVER_INCLUDE_DIRS ${semver_SOURCE_DIR}/include)
 
 
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
-                    ${FORT_HERMES_CPP_INCLUDE_DIRS}
+                    ${FORT_HERMES_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
                     ${TBB_INCLUDE_DIRS}
-                    ${fort-tags_SOURCE_DIR}/include
+                    ${FORT_TAGS_INCLUDE_DIRS}
                     ${HERMES_INCLUDE_DIRS}
                     ${SEMVER_INCLUDE_DIRS}
                     )

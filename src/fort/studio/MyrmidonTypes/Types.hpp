@@ -4,7 +4,7 @@
 
 #include <QObject>
 
-#include <fort/tags/fort-tags.h>
+#include <fort/tags/fort-tags.hpp>
 
 
 Q_DECLARE_METATYPE(std::string)
