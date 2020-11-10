@@ -73,7 +73,6 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
 	                                     d_corners[3]);
 }
 
-
 TagCloseUp::~TagCloseUp() {}
 
 const FrameReference & TagCloseUp::Frame() const {
@@ -127,9 +126,6 @@ TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
 	, d_detectorOptions(detectorOptions)
 	, d_resolver(resolver) {
 	PERF_FUNCTION();
-	if ( d_detectorOptions.Family == tags::Family::Undefined ) {
-		throw std::invalid_argument("Cannot list for undefined family tag");
-	}
 	d_saveCacheOnDelete = true;
 	try {
 		LoadCache();
@@ -290,6 +286,10 @@ TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
 	auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
 
 	auto ref = d_resolver(frameID);
+
+	if ( d_detectorOptions.Family == tags::Family::Undefined ) {
+		return {};
+	}
 
 	std::vector<ConstPtr> tags;
 	apriltag_detector_t * detector = CreateDetector();

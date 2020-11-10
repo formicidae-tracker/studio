@@ -134,21 +134,27 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 	tags::ApriltagOptions detectorOptions;
 	detectorOptions.Family = tags::Family::Undefined;
 	detectorOptions.QuadMinBWDiff = 80;
-
-	EXPECT_THROW(TagCloseUp::Lister::Create(barAntDir,
-	                                        detectorOptions,
-	                                        resolver);,
-	             std::invalid_argument);
-
-	detectorOptions.Family = tags::Family::Tag36h11;
 	auto lister = TagCloseUp::Lister::Create(barAntDir,
 	                                         detectorOptions,
 	                                         resolver);
+
 	auto loaders = lister->PrepareLoaders();
 	lister.reset();
 	ASSERT_EQ(loaders.size(),1);
-	TagCloseUp::ConstPtr computed;
 	auto res = loaders[0]();
+	ASSERT_EQ(res.size(),0);
+	loaders.clear();
+
+	detectorOptions.Family = tags::Family::Tag36h11;
+
+	lister = TagCloseUp::Lister::Create(barAntDir,
+	                                    detectorOptions,
+	                                    resolver);
+	loaders = lister->PrepareLoaders();
+	lister.reset();
+	ASSERT_EQ(loaders.size(),1);
+	TagCloseUp::ConstPtr computed;
+	res = loaders[0]();
 	ASSERT_EQ(res.size(),1);
 	EXPECT_EQ(res[0]->TagValue(),0);
 	computed = res[0];
@@ -191,6 +197,7 @@ TEST_F(TagCloseUpUTest,CanBeLoadedFromFiles) {
 			loaders = fromCache->PrepareLoaders();
 
 		});
+
 	ASSERT_EQ(loaders.size(),1);
 	auto cachedList = loaders[0]();
 	ASSERT_EQ(cachedList.size(),1);
