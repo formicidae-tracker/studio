@@ -16,29 +16,36 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
+
+static void EnsureTagStatisticsAreComputed(const SpaceConstPtr & space) {
+	std::vector<TrackingDataDirectory::Loader> loaders;
+	for ( const auto & tdd : space->TrackingDataDirectories() ) {
+		if ( tdd->TagStatisticsComputed() == true ) {
+			continue;
+		}
+		auto localLoaders = TrackingDataDirectory::PrepareTagStatisticsLoaders(tdd);
+		loaders.insert(loaders.end(),localLoaders.begin(),localLoaders.end());
+	}
+	tbb::parallel_for(tbb::blocked_range<size_t>(0,loaders.size()),
+		                  [&loaders](const tbb::blocked_range<size_t> & range) {
+			                  for ( size_t idx = range.begin();
+			                        idx != range.end();
+			                        ++idx ) {
+				                  loaders[idx]();
+			                  }
+		                  });
+}
+
 void Query::ComputeTagStatistics(const Experiment::ConstPtr & experiment,TagStatistics::ByTagID & result) {
 	std::vector<TagStatistics::ByTagID> allSpaceResult;
 
 	typedef std::vector<TagStatisticsHelper::Loader> StatisticLoaderList;
 	for ( const auto & [spaceID,space] : experiment->CSpaces() ) {
-
-		StatisticLoaderList loaders;
+		EnsureTagStatisticsAreComputed(space);
+		std::vector<TagStatisticsHelper::Timed> spaceResults;
 		for ( const auto & tdd : space->TrackingDataDirectories() ) {
-			auto tddLoaders = tdd->StatisticsLoader();
-			loaders.reserve(loaders.size() + tddLoaders.size());
-			loaders.insert(loaders.end(),tddLoaders.begin(), tddLoaders.end());
+			spaceResults.push_back(tdd->TagStatistics());
 		}
-		std::vector<TagStatisticsHelper::Timed> spaceResults(loaders.size());
-
-		tbb::parallel_for(tbb::blocked_range<size_t>(0,loaders.size()),
-		                  [&loaders,&spaceResults](const tbb::blocked_range<size_t> & range) {
-			                  for ( size_t idx = range.begin();
-			                        idx != range.end();
-			                        ++idx ) {
-				                  spaceResults[idx] = loaders[idx]();
-			                  }
-		                  });
-
 		allSpaceResult.push_back(TagStatisticsHelper::MergeTimed(spaceResults.begin(),spaceResults.end()).TagStats);
 	}
 

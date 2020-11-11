@@ -606,25 +606,6 @@ void TrackingDataDirectory::SaveToCache() const {
 	proto::TDDCache::Save(Itself());
 }
 
-const TagCloseUp::Lister::Ptr
-TrackingDataDirectory::TagCloseUpLister(tags::Family f,
-                                        uint8_t threshold) const {
-	PERF_FUNCTION();
-
-	auto locked = Itself();
-	tags::ApriltagOptions detectorOptions;
-	detectorOptions.QuadMinBWDiff = threshold;
-	detectorOptions.Family = f;
-
-
-	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
-	                                  detectorOptions,
-	                                  [locked](FrameID fid) {
-		                                  return locked->FrameReferenceAt(fid);
-	                                  });
-}
-
-
 std::map<FrameReference,fs::path>
 TrackingDataDirectory::FullFramesFor(const fs::path & subpath) const {
 	std::map<FrameReference,fs::path> res;
@@ -667,30 +648,63 @@ void TrackingDataDirectory::ComputeFullFrames() const {
 
 }
 
-std::map<FrameReference,fs::path>
+
+
+const std::vector<TagCloseUp::Ptr> &
+TrackingDataDirectory::TagCloseUps() const {
+	if ( TagCloseUpsComputed() == false ) {
+		throw ComputedRessourceUnavailable("TagCloseUp");
+	}
+	return *d_tagCloseUps;
+}
+
+
+const std::map<FrameReference,fs::path> &
 TrackingDataDirectory::FullFrames() const {
-	return FullFramesFor("ants");
-}
-
-std::map<FrameReference,fs::path>
-TrackingDataDirectory::ComputedFullFrames() const {
-	if ( fs::is_directory(AbsoluteFilePath() / "ants/computed") == false ) {
-		ComputeFullFrames();
+	if ( FullFramesComputed() == false ) {
+		throw ComputedRessourceUnavailable("FullFrame");
 	}
-	return FullFramesFor("ants/computed");
+	return *d_fullFrames;
 }
 
-
-std::vector<TagStatisticsHelper::Loader>
-TrackingDataDirectory::StatisticsLoader() const {
-	std::vector<TagStatisticsHelper::Loader> res;
-	res.reserve(d_segments->Segments().size());
-	for ( const auto & [ref,segment] : d_segments->Segments() ) {
-		std::string filepath = (AbsoluteFilePath() / segment).string();
-		res.push_back([filepath] () { return TagStatisticsHelper::BuildStats(filepath); });
+const TagStatisticsHelper::Timed &
+TrackingDataDirectory::TagStatistics() const {
+	if ( TagStatisticsComputed() == false ) {
+		throw ComputedRessourceUnavailable("TagStatistics");
 	}
-	return res;
+	return *d_tagStatistics;
 }
+
+
+bool TrackingDataDirectory::TagCloseUpsComputed() const {
+	return !d_tagCloseUps == false;
+}
+
+bool TrackingDataDirectory::TagStatisticsComputed() const {
+	return !d_tagStatistics == false;
+}
+
+bool TrackingDataDirectory::FullFramesComputed() const {
+	return !d_fullFrames == false;
+}
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareTagCloseUpLoaders(const Ptr & itself) {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareTagStatisticsLoaders(const Ptr & itself) {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareFullFrameLoaders(const Ptr & itself) {
+	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+}
+
+
+
 
 
 }

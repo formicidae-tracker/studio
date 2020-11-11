@@ -145,14 +145,14 @@ public:
 	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath, const fs::path & experimentRoot);
 
 	static TrackingDataDirectory::Ptr Create(const std::string & uri,
-	                                              const fs::path & absoluteFilePath,
-	                                              uint64_t startFrame,
-	                                              uint64_t endFrame,
-	                                              const Time & start,
-	                                              const Time & end,
-	                                              const TrackingIndex::Ptr & segments,
-	                                              const MovieIndex::Ptr & movies,
-	                                              const FrameReferenceCacheConstPtr & referenceCache);
+	                                         const fs::path & absoluteFilePath,
+	                                         uint64_t startFrame,
+	                                         uint64_t endFrame,
+	                                         const Time & start,
+	                                         const Time & end,
+	                                         const TrackingIndex::Ptr & segments,
+	                                         const MovieIndex::Ptr & movies,
+	                                         const FrameReferenceCacheConstPtr & referenceCache);
 
 
 	const TrackingIndex & TrackingSegments() const;
@@ -161,14 +161,28 @@ public:
 
 	const FrameReferenceCache & ReferenceCache() const;
 
-	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
-	                                               uint8_t threshold) const;
 
-	std::map<FrameReference,fs::path> FullFrames() const;
+	class ComputedRessourceUnavailable : public std::runtime_error {
+	public:
+		ComputedRessourceUnavailable(const std::string & typeName) noexcept;
+		virtual ~ComputedRessourceUnavailable() noexcept;
+	};
 
-	std::map<FrameReference,fs::path> ComputedFullFrames() const;
+	const std::vector<TagCloseUp::Ptr> & TagCloseUps() const;
+	const std::map<FrameReference,fs::path> & FullFrames() const;
+	const TagStatisticsHelper::Timed & TagStatistics() const;
 
-	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
+
+	bool TagCloseUpsComputed() const;
+	bool TagStatisticsComputed() const;
+	bool FullFramesComputed() const;
+
+	typedef std::function<void()> Loader;
+
+	static std::vector<Loader> PrepareTagCloseUpLoaders(const Ptr & itself);
+	static std::vector<Loader> PrepareTagStatisticsLoaders(const Ptr & itself);
+	static std::vector<Loader> PrepareFullFrameLoaders(const Ptr & itself);
+
 
 private:
 
@@ -214,10 +228,9 @@ private:
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
 
-	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath ) const;
+	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath) const;
 
 	void ComputeFullFrames() const;
-
 
 	void SaveToCache() const;
 
@@ -238,6 +251,12 @@ private:
 	MovieIndex::Ptr             d_movies;
 	FrameReferenceCacheConstPtr d_referencesByFID;
 	FrameIDByTime               d_frameIDByTime;
+
+	// cached data
+	std::shared_ptr<std::vector<TagCloseUp::Ptr>>      d_tagCloseUps;
+	std::shared_ptr<std::map<FrameReference,fs::path>> d_fullFrames;
+	std::shared_ptr<TagStatisticsHelper::Timed>        d_tagStatistics;
+
 
 };
 
