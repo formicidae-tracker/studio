@@ -179,9 +179,9 @@ public:
 
 	typedef std::function<void()> Loader;
 
-	static std::vector<Loader> PrepareTagCloseUpLoaders(const Ptr & itself);
-	static std::vector<Loader> PrepareTagStatisticsLoaders(const Ptr & itself);
-	static std::vector<Loader> PrepareFullFrameLoaders(const Ptr & itself);
+	std::vector<Loader> PrepareTagCloseUpsLoaders();
+	std::vector<Loader> PrepareTagStatisticsLoaders();
+	std::vector<Loader> PrepareFullFramesLoaders();
 
 
 private:

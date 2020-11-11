@@ -648,6 +648,13 @@ void TrackingDataDirectory::ComputeFullFrames() const {
 
 }
 
+TrackingDataDirectory::ComputedRessourceUnavailable::ComputedRessourceUnavailable(const std::string & typeName) noexcept
+	: std::runtime_error("Computed ressource "+ typeName + " is not available") {
+}
+TrackingDataDirectory::ComputedRessourceUnavailable::~ComputedRessourceUnavailable() noexcept {
+}
+
+
 
 
 const std::vector<TagCloseUp::Ptr> &
@@ -689,17 +696,17 @@ bool TrackingDataDirectory::FullFramesComputed() const {
 }
 
 std::vector<TrackingDataDirectory::Loader>
-TrackingDataDirectory::PrepareTagCloseUpLoaders(const Ptr & itself) {
+TrackingDataDirectory::PrepareTagCloseUpsLoaders() {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 }
 
 std::vector<TrackingDataDirectory::Loader>
-TrackingDataDirectory::PrepareTagStatisticsLoaders(const Ptr & itself) {
+TrackingDataDirectory::PrepareTagStatisticsLoaders() {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 }
 
 std::vector<TrackingDataDirectory::Loader>
-TrackingDataDirectory::PrepareFullFrameLoaders(const Ptr & itself) {
+TrackingDataDirectory::PrepareFullFramesLoaders() {
 	throw MYRMIDON_NOT_YET_IMPLEMENTED();
 }
 

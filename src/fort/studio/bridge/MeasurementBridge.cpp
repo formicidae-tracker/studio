@@ -12,22 +12,6 @@
 #include <fort/studio/MyrmidonTypes/Identification.hpp>
 
 
-TagCloseUpLoader::TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
-                                   const std::string & tddURI,
-                                   size_t seed)
-	: d_loader(loader)
-	, d_tddURI(tddURI)
-	, d_seed(seed) {
-}
-
-TagCloseUpLoader::Result TagCloseUpLoader::load() const {
-	try {
-		return std::make_tuple(d_seed,d_tddURI,d_loader());
-	} catch ( const std::exception & e) {
-		qCritical() << "Could not run TagCloseUp loader: " << e.what();
-	}
-	return TagCloseUpLoader::Result();
-}
 
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
@@ -154,43 +138,30 @@ void MeasurementBridge::loadTagCloseUp() {
 
 	d_loaders.clear();
 	for ( const auto & [tddURI,tdd] : d_experiment->TrackingDataDirectories() ) {
-		auto lister =  tdd->TagCloseUpLister(d_experiment->Family(),
-		                                     d_experiment->Threshold());
-		for ( const auto & l : lister->PrepareLoaders() ) {
-			d_loaders.push_back(TagCloseUpLoader(l,tdd->URI(),d_seed));
-		}
+		auto loaders =  tdd->PrepareTagCloseUpsLoaders();
+		d_loaders.insert(d_loaders.end(),loaders.begin(),loaders.end());
 	}
 
-	d_watcher = new QFutureWatcher<TagCloseUpLoader::Result>();
+	d_watcher = new QFutureWatcher<void>();
 
 	connect(d_watcher,
-	        &QFutureWatcher<TagCloseUpLoader::Result>::progressValueChanged,
+	        &QFutureWatcher<void>::progressValueChanged,
 	        this,
 	        [this](int value) {
 		        emit progressChanged(value,d_loaders.size());
 	        },
 	        Qt::QueuedConnection);
 
-	connect(d_watcher,
-	        &QFutureWatcher<TagCloseUpLoader::Result>::resultReadyAt,
-	        this,
-	        [this](int index) {
-		        const auto & [seed,tddURI,tcus] = d_watcher->resultAt(index);
-		        if ( seed != d_seed
-		             || tddURI.empty() == true) {
-			        return;
-		        }
-
-		        for ( const auto & tcu : tcus ) {
-			        addOneTCU(tddURI,tcu);
-		        }
-	        },
-	        Qt::QueuedConnection);
 
 	connect(d_watcher,
-	        &QFutureWatcher<TagCloseUpLoader::Result>::finished,
+	        &QFutureWatcher<void>::finished,
 	        this,
 	        [this] () {
+		        for ( const auto & [tddURI,tdd] : d_experiment->TrackingDataDirectories() ) {
+			        for ( const auto & tcu : tdd->TagCloseUps() ) {
+				        addOneTCU(tddURI,tcu);
+			        }
+		        }
 		        d_loaders.clear();
 		        d_watcher->deleteLater();
 		        d_watcher = nullptr;
@@ -200,8 +171,8 @@ void MeasurementBridge::loadTagCloseUp() {
 
 	emit progressChanged(0,d_loaders.size());
 
-	QFuture<TagCloseUpLoader::Result> future
-		= QtConcurrent::mapped(d_loaders,&TagCloseUpLoader::load);
+	QFuture<void> future
+		= QtConcurrent::map(d_loaders,[](const fmp::TrackingDataDirectory::Loader & l) { l();});
 
 	d_watcher->setFuture(future);
 

@@ -2,7 +2,7 @@
 
 #include <QStandardItemModel>
 #include <QDebug>
-
+#include <QtConcurrent>
 #include <fort/studio/Format.hpp>
 
 #include <fort/studio/MyrmidonTypes/Zone.hpp>
@@ -482,14 +482,15 @@ void ZoneBridge::rebuildFullFrameModel() {
 
 	for ( const auto & tdd : d_selectedSpace->TrackingDataDirectories() ) {
 		const auto & tddFullFrames = tdd->FullFrames();
-		if ( tddFullFrames.empty() == false ) {
-			for ( const auto & [ref,path] : tddFullFrames ) {
-				fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
-			}
-			continue;
+		if ( tdd->FullFramesComputed() == false ) {
+			auto loaders = tdd->PrepareFullFramesLoaders();
+			QtConcurrent::blockingMap(loaders.begin(),loaders.end(),
+			                          []( const fmp::TrackingDataDirectory::Loader & l) {
+				                          l();
+			                          });
 		}
-		for ( const auto & [ref,path] : tdd->ComputedFullFrames() ) {
-			fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
+		for ( const auto & [ref,path] : tdd->FullFrames() ) {
+				fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
 		}
 	}
 

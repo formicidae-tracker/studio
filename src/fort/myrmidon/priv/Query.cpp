@@ -23,7 +23,7 @@ static void EnsureTagStatisticsAreComputed(const SpaceConstPtr & space) {
 		if ( tdd->TagStatisticsComputed() == true ) {
 			continue;
 		}
-		auto localLoaders = TrackingDataDirectory::PrepareTagStatisticsLoaders(tdd);
+		auto localLoaders = tdd->PrepareTagStatisticsLoaders();
 		loaders.insert(loaders.end(),localLoaders.begin(),localLoaders.end());
 	}
 	tbb::parallel_for(tbb::blocked_range<size_t>(0,loaders.size()),

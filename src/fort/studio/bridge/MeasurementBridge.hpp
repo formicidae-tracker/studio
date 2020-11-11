@@ -15,20 +15,6 @@
 
 #include <tuple>
 
-class TagCloseUpLoader {
-public:
-	typedef std::tuple<size_t,std::string,fmp::TagCloseUp::List> Result;
-	TagCloseUpLoader(const fmp::TagCloseUp::Lister::Loader & loader,
-	                 const std::string & tddURI,
-	                 size_t seed);
-
-	Result load() const;
-
-private :
-	fmp::TagCloseUp::Lister::Loader d_loader;
-	std::string                     d_tddURI;
-	size_t                          d_seed;
-};
 
 
 class MeasurementBridge : public Bridge {
@@ -125,6 +111,6 @@ private:
 	size_t               d_seed;
 	bool                 d_outdated;
 
-	QFutureWatcher<TagCloseUpLoader::Result> *  d_watcher;
-	std::vector<TagCloseUpLoader>               d_loaders;
+	QFutureWatcher<void>                            * d_watcher;
+	std::vector<fmp::TrackingDataDirectory::Loader>   d_loaders;
 };
