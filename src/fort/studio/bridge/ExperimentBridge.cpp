@@ -79,7 +79,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryAdded,
 	        d_zones,
-	        [this](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+	        [this](const fmp::TrackingDataDirectory::Ptr & tdd) {
 		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
 	        });
 	connect(d_universe,

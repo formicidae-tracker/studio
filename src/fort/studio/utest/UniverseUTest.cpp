@@ -11,7 +11,7 @@
 #include <QSignalSpy>
 #include <QTest>
 
-fort::myrmidon::priv::TrackingDataDirectory::ConstPtr UniverseUTest::s_foo[3];
+fort::myrmidon::priv::TrackingDataDirectory::Ptr UniverseUTest::s_foo[3];
 
 
 void UniverseUTest::SetUpTestSuite() {
@@ -141,7 +141,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
 	ASSERT_EQ(spaceChangedSignal.count(),2);
 	ASSERT_EQ(tddAdded.count(),1);
-	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::ConstPtr>()->URI(),"foo.0001");
+	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::Ptr>()->URI(),"foo.0001");
 	EXPECT_EQ(spaceChangedSignal.at(1).at(0).value<fmp::Space::Ptr>()->URI(),
 	          "spaces/3");
 

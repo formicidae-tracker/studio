@@ -46,7 +46,7 @@ const fm::TagStatistics & StatisticsBridge::statsForTag(fmp::TagID tagID) const 
 }
 
 
-void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::ConstPtr tdd) {
+void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd) {
 	setOutdated(true);
 }
 

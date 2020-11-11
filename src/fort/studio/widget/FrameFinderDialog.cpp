@@ -39,7 +39,7 @@ fmp::FrameReference::ConstPtr FrameFinderDialog::Get(UniverseBridge * universe,
 	if ( dialog.result() == QDialog::Rejected || dialog.d_ui->comboBox->currentIndex() < 0 ) {
 		return fmp::FrameReference::ConstPtr();
 	}
-	auto tdd = dialog.d_ui->comboBox->currentData().value<fmp::TrackingDataDirectory::ConstPtr>();
+	auto tdd = dialog.d_ui->comboBox->currentData().value<fmp::TrackingDataDirectory::Ptr>();
 	if ( !tdd ) {
 		return fmp::FrameReference::ConstPtr();
 	}
@@ -63,7 +63,7 @@ void FrameFinderDialog::on_comboBox_currentIndexChanged(int index) {
 		d_ui->spinBox->setEnabled(false);
 		return;
 	}
-	auto tdd = d_ui->comboBox->currentData().value<fmp::TrackingDataDirectory::ConstPtr>();
+	auto tdd = d_ui->comboBox->currentData().value<fmp::TrackingDataDirectory::Ptr>();
 	if (!tdd) {
 		d_ui->spinBox->setEnabled(false);
 		return;

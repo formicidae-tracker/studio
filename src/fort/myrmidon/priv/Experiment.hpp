@@ -133,11 +133,11 @@ public :
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
-	std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+	std::pair<Space::Ptr,TrackingDataDirectoryPtr>
 	LocateTrackingDataDirectory(const std::string & tddURI);
 
 
-	std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+	std::pair<Space::ConstPtr,TrackingDataDirectoryPtr>
 	CLocateTrackingDataDirectory(const std::string & tddURI) const;
 
 

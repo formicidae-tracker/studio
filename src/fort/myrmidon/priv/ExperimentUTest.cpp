@@ -134,7 +134,7 @@ void ListAllMeasurements(const Experiment::MeasurementByTagCloseUp & measurement
 }
 
 TEST_F(ExperimentUTest,MeasurementEndToEnd) {
-	TrackingDataDirectory::ConstPtr foo0,foo1;
+	TrackingDataDirectory::Ptr foo0,foo1;
 	Space::Ptr s;
 	ASSERT_NO_THROW({
 			e = Experiment::NewFile(TestSetup::Basedir() / "new-file.myrmidon");
@@ -249,10 +249,10 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 
 	struct MData {
-		TrackingDataDirectory::ConstPtr TDD;
-		size_t                          Offset;
-		TagID                           TID;
-		MeasurementType::ID             MTID;
+		TrackingDataDirectory::Ptr TDD;
+		size_t                     Offset;
+		TagID                      TID;
+		MeasurementType::ID        MTID;
 	};
 	std::vector<MData> mData =
 		{
@@ -452,7 +452,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 }
 
 TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
-	TrackingDataDirectory::ConstPtr foo0;
+	TrackingDataDirectory::Ptr foo0;
 	Space::Ptr s;
 	ASSERT_NO_THROW({
 			e = Experiment::NewFile(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");

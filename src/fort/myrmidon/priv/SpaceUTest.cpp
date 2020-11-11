@@ -9,7 +9,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TrackingDataDirectory::ConstPtr SpaceUTest::s_foo[3];
+TrackingDataDirectory::Ptr SpaceUTest::s_foo[3];
 
 void SpaceUTest::SetUpTestSuite() {
 	s_foo[0] = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",

@@ -7,23 +7,23 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Space::TDDOverlap::TDDOverlap(const TrackingDataDirectory::ConstPtr & a,
-                             const TrackingDataDirectory::ConstPtr & b) noexcept
+Space::TDDOverlap::TDDOverlap(const TrackingDataDirectory::Ptr & a,
+                             const TrackingDataDirectory::Ptr & b) noexcept
 	: std::runtime_error(BuildWhat(a,b))
 	, d_a(a)
 	, d_b(b) {
 }
 
-const TrackingDataDirectoryConstPtr & Space::TDDOverlap::A() const {
+const TrackingDataDirectoryPtr & Space::TDDOverlap::A() const {
 	return d_a;
 }
 
-const TrackingDataDirectoryConstPtr & Space::TDDOverlap::B() const {
+const TrackingDataDirectoryPtr & Space::TDDOverlap::B() const {
 	return d_b;
 }
 
-std::string Space::TDDOverlap::BuildWhat(const TrackingDataDirectory::ConstPtr & a,
-                                        const TrackingDataDirectory::ConstPtr & b) noexcept {
+std::string Space::TDDOverlap::BuildWhat(const TrackingDataDirectory::Ptr & a,
+                                        const TrackingDataDirectory::Ptr & b) noexcept {
 	std::ostringstream oss;
 
 	oss << *a << " and " << *b << " overlaps in time";
@@ -122,7 +122,7 @@ Space::Universe::TrackingDataDirectories() const {
 }
 
 
-void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd) {
+void Space::AddTrackingDataDirectory(const TrackingDataDirectory::Ptr & tdd) {
 	if ( utils::HasPrefix(tdd->URI(),"spaces/") == true ) {
 		throw std::runtime_error("Invalid TDD path '" + tdd->URI() + "': starts with 'spaces/'");
 	}
@@ -142,7 +142,7 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 		                       [&tdd](const std::pair<Space::ID,Space::Ptr> & iter) {
 			                       auto ti = std::find_if(iter.second->d_tdds.begin(),
 			                                              iter.second->d_tdds.end(),
-			                                              [&tdd](const TrackingDataDirectory::ConstPtr & tddb) {
+			                                              [&tdd](const TrackingDataDirectory::Ptr & tddb) {
 				                                              return tdd->URI() == tddb->URI();
 			                                              });
 			                       return ti != iter.second->d_tdds.end();
@@ -161,7 +161,7 @@ void Space::AddTrackingDataDirectory(const TrackingDataDirectory::ConstPtr & tdd
 void Space::DeleteTrackingDataDirectory(const std::string & URI) {
 	auto fi = std::find_if(d_tdds.begin(),
 	                       d_tdds.end(),
-	                       [&URI](const TrackingDataDirectory::ConstPtr & tdd) {
+	                       [&URI](const TrackingDataDirectory::Ptr & tdd) {
 		                       return URI == tdd->URI();
 	                       });
 	if ( fi == d_tdds.end() ) {
@@ -214,7 +214,7 @@ void Space::SetName(const std::string & name) {
 	d_URI = URI.generic_string();
 }
 
-const std::vector<TrackingDataDirectory::ConstPtr> & Space::TrackingDataDirectories() const {
+const std::vector<TrackingDataDirectory::Ptr> & Space::TrackingDataDirectories() const {
 	return d_tdds;
 }
 
@@ -226,18 +226,18 @@ Space::Universe::Ptr Space::LockUniverse() const {
 	return locked;
 }
 
-std::pair<Space::Ptr,TrackingDataDirectory::ConstPtr>
+std::pair<Space::Ptr,TrackingDataDirectory::Ptr>
 Space::Universe::LocateTrackingDataDirectory(const std::string & tddURI) {
 	auto res = CLocateTrackingDataDirectory(tddURI);
 	return std::make_pair(std::const_pointer_cast<Space>(res.first),
 	                      res.second);
 }
 
-std::pair<Space::ConstPtr,TrackingDataDirectory::ConstPtr>
+std::pair<Space::ConstPtr,TrackingDataDirectory::Ptr>
 Space::Universe::CLocateTrackingDataDirectory(const std::string & tddURI) const {
 	auto tddi = d_tddsByURI.find(tddURI) ;
 	if ( tddi == d_tddsByURI.end() ) {
-		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
+		return std::make_pair(Space::Ptr(),TrackingDataDirectory::Ptr());
 	}
 
 	auto si = std::find_if(d_spaces.CObjects().begin(),
@@ -245,13 +245,13 @@ Space::Universe::CLocateTrackingDataDirectory(const std::string & tddURI) const 
 	                       [&tddURI]( const std::pair<Space::ID,Space::ConstPtr> & iter) {
 		                       auto ti = std::find_if(iter.second->d_tdds.begin(),
 		                                              iter.second->d_tdds.end(),
-		                                              [&tddURI]( const TrackingDataDirectory::ConstPtr & tdd) {
+		                                              [&tddURI]( const TrackingDataDirectory::Ptr & tdd) {
 			                                              return tdd->URI() == tddURI;
 		                                              });
 		                       return ti != iter.second->d_tdds.end();
 	                       });
 	if ( si ==  d_spaces.CObjects().end()) {
-		return std::make_pair(Space::Ptr(),TrackingDataDirectory::ConstPtr());
+		return std::make_pair(Space::Ptr(),TrackingDataDirectory::Ptr());
 	}
 
 	return std::make_pair(si->second,tddi->second);

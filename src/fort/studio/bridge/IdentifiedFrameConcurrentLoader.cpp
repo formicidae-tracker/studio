@@ -91,7 +91,7 @@ IdentifiedFrameConcurrentLoader::collisionAt(fmp::MovieFrameID movieID) const {
 }
 
 void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
-                                                       const fmp::TrackingDataDirectory::ConstPtr & tdd,
+                                                       const fmp::TrackingDataDirectory::Ptr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
 		return;

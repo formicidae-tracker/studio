@@ -111,7 +111,7 @@ void MeasurementBridge::setOutdated(bool v) {
 	emit outdated(v);
 }
 
-void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryConstPtr & tdd) {
+void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd) {
 	if ( !d_experiment  ) {
 		setOutdated(false);
 		return;

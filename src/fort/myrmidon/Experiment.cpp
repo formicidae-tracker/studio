@@ -336,7 +336,7 @@ Experiment::Experiment(const PPtr & pExperiment)
 }
 
 
-TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::ConstPtr & tdd) {
+TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::Ptr & tdd) {
 	return {
 	        .URI = tdd->URI(),
 	        .AbsoluteFilePath = tdd->AbsoluteFilePath().string(),

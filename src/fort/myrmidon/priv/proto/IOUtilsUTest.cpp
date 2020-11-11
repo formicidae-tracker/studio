@@ -576,7 +576,7 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			IOUtils::LoadExperiment(e, ePb);
 		},std::runtime_error);
 
-	TrackingDataDirectory::ConstPtr tdd;
+	TrackingDataDirectory::Ptr tdd;
 
 	EXPECT_NO_THROW({
 			e->SetAuthor("Someone");

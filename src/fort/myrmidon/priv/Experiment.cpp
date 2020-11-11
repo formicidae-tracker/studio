@@ -534,12 +534,12 @@ const ConstMeasurementTypeByID & Experiment::CMeasurementTypes() const {
 	return d_measurementTypes.CObjects();
 }
 
-std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+std::pair<Space::ConstPtr,TrackingDataDirectoryPtr>
 Experiment::CLocateTrackingDataDirectory(const std::string & tddURI) const {
 	return d_universe->CLocateTrackingDataDirectory(tddURI);
 }
 
-std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+std::pair<Space::Ptr,TrackingDataDirectoryPtr>
 Experiment::LocateTrackingDataDirectory(const std::string & tddURI) {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }

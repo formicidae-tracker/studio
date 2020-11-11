@@ -36,15 +36,15 @@ namespace priv {
 TrackingDataDirectory::~TrackingDataDirectory() {}
 
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const std::string & uri,
-                                                              const fs::path & absoluteFilePath,
-                                                              uint64_t startFrame,
-                                                              uint64_t endFrame,
-                                                              const Time & startdate,
-                                                              const Time & enddate,
-                                                              const TrackingIndex::Ptr & si,
-                                                              const MovieIndex::Ptr & movies,
-                                                              const FrameReferenceCacheConstPtr & referenceCache) {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Create(const std::string & uri,
+                                                         const fs::path & absoluteFilePath,
+                                                         uint64_t startFrame,
+                                                         uint64_t endFrame,
+                                                         const Time & startdate,
+                                                         const Time & enddate,
+                                                         const TrackingIndex::Ptr & si,
+                                                         const MovieIndex::Ptr & movies,
+                                                         const FrameReferenceCacheConstPtr & referenceCache) {
 
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteFilePath);
 
@@ -77,7 +77,7 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_uid(GetUID(d_absoluteFilePath))
-	, d_endIterator(ConstPtr(),endFrame+1)
+	, d_endIterator(Ptr(),endFrame+1)
 	, d_segments(si)
 	, d_movies(movies)
 	, d_referencesByFID(referenceCache) {
@@ -339,7 +339,7 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 
 }
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
 	CheckPaths(filepath,experimentRoot);
 
 	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
@@ -441,7 +441,7 @@ TrackingDataDirectory::TrackingSegments() const {
 }
 
 
-TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirectory::ConstPtr & parent,
+TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirectory::Ptr & parent,
                                                       uint64_t current)
 	: d_parent(parent)
 	, d_current(current) {
@@ -519,7 +519,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 }
 
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::const_iterator::LockParent() const {
+TrackingDataDirectory::Ptr TrackingDataDirectory::const_iterator::LockParent() const {
 	if ( auto locked = d_parent.lock() ) {
 		return locked;
 	}
@@ -583,7 +583,7 @@ const TrackingDataDirectory::MovieIndex & TrackingDataDirectory::MovieSegments()
 	return *d_movies;
 }
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Itself() const  {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Itself() const  {
 	if ( auto locked = d_itself.lock() ) {
 		return locked;
 	}
@@ -596,7 +596,7 @@ TrackingDataDirectory::ReferenceCache() const {
 }
 
 
-TrackingDataDirectory::ConstPtr
+TrackingDataDirectory::Ptr
 TrackingDataDirectory::LoadFromCache(const fs::path & absoluteFilePath,
                                      const std::string & URI) {
 	return proto::TDDCache::Load(absoluteFilePath,URI);

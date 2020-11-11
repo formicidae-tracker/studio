@@ -207,7 +207,7 @@ TEST_F(TrackingDataDirectoryUTest,AlmostRandomAccess) {
 }
 
 TEST_F(TrackingDataDirectoryUTest,CanBeFormatted) {
-	TrackingDataDirectory::ConstPtr foo;
+	TrackingDataDirectory::Ptr foo;
 	EXPECT_NO_THROW({
 			foo = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0000",TestSetup::Basedir()/"bar.0000");
 		});

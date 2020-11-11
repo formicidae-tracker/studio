@@ -71,7 +71,7 @@ public slots:
 	void play();
 	void stop();
 	void setMovieSegment(quint32 spaceID,
-	                     const fmp::TrackingDataDirectory::ConstPtr & tdd,
+	                     const fmp::TrackingDataDirectory::Ptr & tdd,
 	                     const fmp::MovieSegment::ConstPtr & segment,
 	                     const fm::Time & start);
 
@@ -116,7 +116,7 @@ private:
 
 	void stopTask();
 	void bootstrapTask(quint32 spaceID,
-	                   const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	                   const fmp::TrackingDataDirectory::Ptr & tdd);
 
 	void displayVideoFrameImpl(const TrackingVideoFrame & frame);
 
@@ -162,7 +162,7 @@ public:
 	std::shared_ptr<QImage> allocate() const;
 
 	void startLoadingFrom(quint32 spaceID,
-	                      const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	                      const fmp::TrackingDataDirectory::Ptr & tdd);
 
 	void processNewFrame(TrackingVideoFrame frame);
 
@@ -179,7 +179,7 @@ private slots:
 	void processNewFrameUnsafe(TrackingVideoFrame frame);
 
 	void startLoadingFromUnsafe(quint32 spaceID,
-	                            fmp::TrackingDataDirectory::ConstPtr tdd);
+	                            fmp::TrackingDataDirectory::Ptr tdd);
 
 	void setRateUnsafe(size_t rate);
 

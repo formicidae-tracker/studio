@@ -12,7 +12,7 @@
 UniverseBridge::UniverseBridge( QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this)) {
-	qRegisterMetaType<fmp::TrackingDataDirectory::ConstPtr>();
+	qRegisterMetaType<fmp::TrackingDataDirectory::Ptr>();
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
 	        this,
@@ -76,7 +76,7 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 }
 
 
-QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory::Ptr & tdd) {
 	auto uri = new QStandardItem(tdd->URI().c_str());
 	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
 	auto start = new QStandardItem(QString::number(tdd->StartFrame()));
@@ -145,7 +145,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 }
 
 void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
-                                                     const fmp::TrackingDataDirectoryConstPtr & tdd) {
+                                                     const fmp::TrackingDataDirectoryPtr & tdd) {
 	if (!d_experiment) {
 		return;
 	}
@@ -312,7 +312,7 @@ bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 			break;
 		}
 		case TDD_TYPE: {
-			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::Ptr>();
 			if ( d_experiment->TrackingDataDirectoryIsDeletable(tdd->URI()) == false ) {
 				return false;
 			}
@@ -351,7 +351,7 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 			spaceURIs.insert(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->Name());
 			break;
 		case TDD_TYPE: {
-			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::Ptr>();
 			tddURIs.insert(tdd->URI());
 			break;
 		}

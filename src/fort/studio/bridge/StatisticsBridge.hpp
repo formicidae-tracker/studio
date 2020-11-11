@@ -42,7 +42,7 @@ public slots:
 	void compute();
 
 
-	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::ConstPtr tdd);
+	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd);
 	void onTrackingDataDirectoryDeleted(QString tddURI);
 
 private:
