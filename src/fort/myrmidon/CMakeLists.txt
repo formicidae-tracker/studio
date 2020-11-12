@@ -1,4 +1,5 @@
-include_directories(${OPENCV_INCLUDE_DIRS})
+include_directories(${OPENCV_INCLUDE_DIRS}
+                    ${YAML_CPP_INCLUDE_DIR})
 
 include(CheckCXXSourceRuns)
 
@@ -83,6 +84,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/proto/ExperimentReadWriter.hpp
                       priv/proto/TDDCache.hpp
                       priv/proto/IOUtils.hpp
+                      priv/proto/TagStatisticsCache.hpp
                       utils/Checker.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
@@ -142,6 +144,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/proto/ExperimentReadWriter.cpp
                       priv/proto/TDDCache.cpp
                       priv/proto/IOUtils.cpp
+                      priv/proto/TagStatisticsCache.cpp
                       utils/Checker.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
@@ -271,6 +274,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     ${OpenCV_LIBS}
                                     ${TBB_LIBRARIES}
                                     Threads::Threads
+                                    ${YAML_CPP_LIBRARIES}
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

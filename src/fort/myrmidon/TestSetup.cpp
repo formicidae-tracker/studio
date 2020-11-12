@@ -392,6 +392,35 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		fs::create_directories(antdir);
 		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
 
+		touch << "experiment: " << d << std::endl
+		      << "legacy-mode: true" << std::endl
+		      << "new-ant-roi: 800" << std::endl
+		      << "new-ant-renew-period: 2h0m0s" << std::endl
+		      << "stream:" << std::endl
+		      << "  host: some-hostname" << std::endl
+		      << "  bitrate: 2000" << std::endl
+		      << "  bitrate-max-ratio: 1.5" << std::endl
+		      << "  quality: fast" << std::endl
+		      << "  tuning: film" << std::endl
+		      << "camera:" << std::endl
+		      << "  strobe-delay: 0s" << std::endl
+		      << "  strobe-duration: 1.5ms" << std::endl
+		      << "  fps: 8" << std::endl
+		      << "  stub-path: \"\"" << std::endl
+		      << "apriltag:" << std::endl
+		      << "  family: 36h11" << std::endl
+		      << "  quad:" << std::endl
+		      << "    decimate: 1" << std::endl
+		      << "    sigma: 0" << std::endl
+		      << "    refine-edges: false" << std::endl
+		      << "    min-cluster-pixel: 25" << std::endl
+		      << "    max-n-maxima: 10" << std::endl
+		      << "    critical-angle-radian: 0.17453292519943295" << std::endl
+		      << "    max-line-mean-square-error: 10" << std::endl
+		      << "    min-black-white-diff: 75" << std::endl
+		      << "    deglitch: false" << std::endl
+		      << "highlights: []" << std::endl;
+
 
 		CreateMovieFiles(bounds, Basedir() / d );
 		CreateSnapshotFiles(bounds,antdir);
@@ -403,11 +432,52 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	for(auto const & d : bardirs) {
 		fs::create_directories(Basedir() / d / "ants");
 		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
+				std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
+
+		touch << "experiment: " << d << std::endl
+		      << "legacy-mode: true" << std::endl
+		      << "new-ant-roi: 800" << std::endl
+		      << "new-ant-renew-period: 2h0m0s" << std::endl
+		      << "stream:" << std::endl
+		      << "  host: some-hostname" << std::endl
+		      << "  bitrate: 2000" << std::endl
+		      << "  bitrate-max-ratio: 1.5" << std::endl
+		      << "  quality: fast" << std::endl
+		      << "  tuning: film" << std::endl
+		      << "camera:" << std::endl
+		      << "  strobe-delay: 0s" << std::endl
+		      << "  strobe-duration: 1.5ms" << std::endl
+		      << "  fps: 8" << std::endl
+		      << "  stub-path: \"\"" << std::endl
+		      << "apriltag:" << std::endl
+		      << "  family: 36h11" << std::endl
+		      << "  quad:" << std::endl
+		      << "    decimate: 2" << std::endl
+		      << "    sigma: 1" << std::endl
+		      << "    refine-edges: true" << std::endl
+		      << "    min-cluster-pixel: 26" << std::endl
+		      << "    max-n-maxima: 9" << std::endl
+		      << "    critical-angle-radian: 0.2" << std::endl
+		      << "    max-line-mean-square-error: 11" << std::endl
+		      << "    min-black-white-diff: 20" << std::endl
+		      << "    deglitch: true" << std::endl
+		      << "highlights: []" << std::endl;
 	}
 
 	CreateMyrmidonFile("test.myrmidon",semver::version("0.2.0"));
 	CreateMyrmidonFile("test-0.1.myrmidon",semver::version("0.1.0"));
 	CreateMyrmidonFile("test-future.myrmidon",semver::version("42.42.42"));
+
+
+	auto noConfigDir =Basedir() / "no-config.0000";
+
+	fs::create_directories(noConfigDir);
+	WriteHermesFile(noConfigDir, 0, nullptr,
+	                Time::FromTimestampAndMonotonic(ts,
+	                                                123456,
+	                                                priv::TrackingDataDirectory::GetUID(noConfigDir)),
+	                1, 12);
+
 
 }
 

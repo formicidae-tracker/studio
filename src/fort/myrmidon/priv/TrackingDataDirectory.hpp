@@ -7,6 +7,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <fort/hermes/FileContext.h>
+#include <fort/tags/options.hpp>
 
 #include "LocatableTypes.hpp"
 #include "TimeValid.hpp"
@@ -183,11 +184,16 @@ public:
 	std::vector<Loader> PrepareTagStatisticsLoaders();
 	std::vector<Loader> PrepareFullFramesLoaders();
 
+	const tags::ApriltagOptions & DetectionSettings() const;
 
 private:
 
 	typedef std::pair<FrameID,Time> TimedFrame;
 	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
+
+	friend class FullFramesReducer;
+	friend class TagCloseUpsReducer;
+	friend class TagStatisticsReducer;
 
 
 	static void CheckPaths(const fs::path & path,
@@ -210,12 +216,16 @@ private:
 	             const std::vector<fs::path> & hermesFile,
 	             const TrackingIndex::Ptr & trackingIndexer);
 
-	static void BuildCache(const std::string & URI,
-	                       Time::MonoclockID monoID,
-	                       const fs::path & tddPath,
-	                       const TrackingIndex::ConstPtr & trackingIndexer,
-	                       FrameReferenceCache & cache);
+	static void
+	BuildFrameReferenceCache(const std::string & URI,
+	                         Time::MonoclockID monoID,
+	                         const fs::path & tddPath,
+	                         const TrackingIndex::ConstPtr & trackingIndexer,
+	                         FrameReferenceCache & cache);
 
+	static Ptr
+	OpenFromFiles(const fs::path & absoluteFilePath,
+	              const std::string & URI);
 
 
 	TrackingDataDirectory(const std::string & uri,
@@ -228,11 +238,14 @@ private:
 	                      const MovieIndex::Ptr & movies,
 	                      const FrameReferenceCacheConstPtr & referenceCache);
 
-	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath) const;
+	std::shared_ptr<std::map<FrameReference,fs::path>> EnumerateFullFrames(const fs::path & subpath) const noexcept;
 
-	void ComputeFullFrames() const;
 
 	void SaveToCache() const;
+
+	void LoadComputedFromCache();
+
+	void LoadDetectionSettings();
 
 	Ptr Itself() const;
 
@@ -251,6 +264,7 @@ private:
 	MovieIndex::Ptr             d_movies;
 	FrameReferenceCacheConstPtr d_referencesByFID;
 	FrameIDByTime               d_frameIDByTime;
+	tags::ApriltagOptions       d_detectionSettings;
 
 	// cached data
 	std::shared_ptr<std::vector<TagCloseUp::Ptr>>      d_tagCloseUps;
