@@ -296,17 +296,20 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagStatistics) {
 			tdd->TagStatistics();
 		},TrackingDataDirectory::ComputedRessourceUnavailable);
 
-	auto loaders = tdd->PrepareTagStatisticsLoaders();
-	EXPECT_EQ(loaders.size(),10);
-	for ( const auto & l : loaders ) {
-		l();
+	TagStatisticsHelper::Timed computedStats,cachedStats;
+	try {
+		auto loaders = tdd->PrepareTagStatisticsLoaders();
+		EXPECT_EQ(loaders.size(),10);
+		for ( const auto & l : loaders ) {
+			l();
+		}
+
+		EXPECT_TRUE(tdd->TagStatisticsComputed());
+		computedStats = tdd->TagStatistics();
+	} catch ( const std::exception & e) {
+		ADD_FAILURE() << "Computation should not throw this excption: " << e.what();
 	}
 
-	EXPECT_TRUE(tdd->TagStatisticsComputed());
-	TagStatisticsHelper::Timed computedStats,cachedStats;
-	EXPECT_NO_THROW({
-			computedStats = tdd->TagStatistics();
-		});
 	tdd.reset();
 	ASSERT_NO_THROW({
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
@@ -328,15 +331,16 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheFullFrames) {
 			tdd->FullFrames();
 		},TrackingDataDirectory::ComputedRessourceUnavailable);
 
-	auto loaders = tdd->PrepareFullFramesLoaders();
-	EXPECT_EQ(loaders.size(),1);
-	for ( const auto & l : loaders ) {
-		l();
+	try {
+		auto loaders = tdd->PrepareFullFramesLoaders();
+		EXPECT_EQ(loaders.size(),1);
+		for ( const auto & l : loaders ) {
+			l();
+		}
+		EXPECT_EQ(tdd->FullFrames().size(),1);
+	} catch ( const std::exception & e) {
+		ADD_FAILURE() << "Computation should not throw this exception: " << e.what();
 	}
-	EXPECT_NO_THROW({
-			EXPECT_EQ(tdd->FullFrames().size(),1);
-		});
-
 
 	EXPECT_TRUE(tdd->FullFramesComputed());
 	ASSERT_NO_THROW({
@@ -346,6 +350,43 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheFullFrames) {
 	EXPECT_TRUE(tdd->FullFramesComputed());
 
 }
+
+
+TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagCloseUps) {
+	TrackingDataDirectory::Ptr tdd;
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+		});
+
+	EXPECT_FALSE(tdd->TagCloseUpsComputed());
+	EXPECT_THROW({
+			tdd->TagCloseUps();
+		},TrackingDataDirectory::ComputedRessourceUnavailable);
+
+	try {
+		auto loaders = tdd->PrepareTagCloseUpsLoaders();
+		EXPECT_EQ(loaders.size(),1);
+		for ( const auto & l : loaders ) {
+			l();
+		}
+		ASSERT_EQ(tdd->TagCloseUps().size(),1);
+		EXPECT_EQ(tdd->TagCloseUps()[0]->URI(),"computed-cache-test.0000/frames/0/tags/0x000");
+	} catch ( const std::exception & e) {
+		ADD_FAILURE() << "Computation should not throw this exception: " << e.what();
+	}
+
+
+
+	EXPECT_TRUE(tdd->TagCloseUpsComputed());
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+			ASSERT_EQ(tdd->TagCloseUps().size(),1);
+			EXPECT_EQ(tdd->TagCloseUps()[0]->URI(),"computed-cache-test.0000/frames/0/tags/0x000");
+		});
+	EXPECT_TRUE(tdd->TagCloseUpsComputed());
+
+}
+
 
 
 } // namespace fort
