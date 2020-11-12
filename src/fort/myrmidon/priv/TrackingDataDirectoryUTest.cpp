@@ -12,6 +12,9 @@
 #include <fort/myrmidon/utils/NotYetImplemented.hpp>
 
 #include "RawFrame.hpp"
+#include "TagStatisticsUTest.hpp"
+
+#include <yaml-cpp/yaml.h>
 
 namespace fort {
 namespace myrmidon {
@@ -76,6 +79,8 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			++i;
 		}
 
+
+
 	} catch( const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
@@ -100,6 +105,11 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 			//root does not exist
 			auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001", TestSetup::Basedir() /  "does-not-exists");
 		}, std::invalid_argument);
+
+	EXPECT_THROW({
+			//no configuration
+			auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir()/ "no-config.0000",TestSetup::Basedir() );
+		},YAML::BadFile);
 
 
 }
@@ -215,6 +225,125 @@ TEST_F(TrackingDataDirectoryUTest,CanBeFormatted) {
 	oss << *foo;
 	EXPECT_EQ(oss.str(),
 	          "TDD{URI:'../foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z}");
+
+}
+
+
+::testing::AssertionResult ApriltagOptionsEqual(const tags::ApriltagOptions & a,
+                                                const tags::ApriltagOptions & b) {
+	if ( a.Family != b.Family ) {
+		return ::testing::AssertionFailure() << "a.Family=" << tags::GetFamilyName(a.Family)
+		                                     << " and b.Family=" << tags::GetFamilyName(b.Family)
+		                                     << " differs";
+	}
+#define MY_ASSERT_FLOAT(fieldName) do {	  \
+		auto fieldName ## Assertion = ::testing::internal::CmpHelperFloatingPointEQ<float>("a." #fieldName, \
+			             "b." #fieldName, \
+			             a.fieldName, \
+			             b.fieldName); \
+		if ( fieldName ## Assertion == false ) { \
+			return fieldName ## Assertion; \
+		} \
+	}while(0)
+#define MY_ASSERT_OTHER(fieldName) do {	  \
+		if ( a.fieldName != b.fieldName ) { \
+			return ::testing::AssertionFailure() << "a." << #fieldName << "= " << std::boolalpha << a.fieldName \
+			                                     << " and b." << #fieldName << "= " << std::boolalpha << b.fieldName \
+			                                     << " differs"; \
+		} \
+	}while(0)
+
+
+	MY_ASSERT_FLOAT(QuadDecimate);
+	MY_ASSERT_FLOAT(QuadSigma);
+	MY_ASSERT_OTHER(RefineEdges);
+	MY_ASSERT_OTHER(QuadMinClusterPixel);
+	MY_ASSERT_OTHER(QuadMaxNMaxima);
+	MY_ASSERT_FLOAT(QuadCriticalRadian);
+	MY_ASSERT_FLOAT(QuadMaxLineMSE);
+	MY_ASSERT_OTHER(QuadMinBWDiff);
+	MY_ASSERT_OTHER(QuadDeglitch);
+
+#undef MY_ASSERT_FLOAT
+#undef MY_ASSERT_OTHER
+	return ::testing::AssertionSuccess();
+}
+
+TEST_F(TrackingDataDirectoryUTest,ParsesDetectionSettings) {
+	TrackingDataDirectory::Ptr foo[2];
+	EXPECT_NO_THROW({
+			foo[0] = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0000",TestSetup::Basedir());
+			foo[1] = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0001",TestSetup::Basedir());
+		});
+	tags::ApriltagOptions expected;
+	EXPECT_TRUE(ApriltagOptionsEqual(foo[1]->DetectionSettings(),expected));
+
+	expected.Family = tags::Family::Tag36h11;
+	expected.QuadMinClusterPixel = 25;
+	expected.QuadMinBWDiff = 75;
+	EXPECT_TRUE(ApriltagOptionsEqual(foo[0]->DetectionSettings(),expected));
+}
+
+
+TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagStatistics) {
+	TrackingDataDirectory::Ptr tdd;
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+		});
+
+	EXPECT_FALSE(tdd->TagStatisticsComputed());
+	EXPECT_THROW({
+			tdd->TagStatistics();
+		},TrackingDataDirectory::ComputedRessourceUnavailable);
+
+	auto loaders = tdd->PrepareTagStatisticsLoaders();
+	EXPECT_EQ(loaders.size(),10);
+	for ( const auto & l : loaders ) {
+		l();
+	}
+
+	EXPECT_TRUE(tdd->TagStatisticsComputed());
+	TagStatisticsHelper::Timed computedStats,cachedStats;
+	EXPECT_NO_THROW({
+			computedStats = tdd->TagStatistics();
+		});
+	tdd.reset();
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+			cachedStats = tdd->TagStatistics();
+		});
+	EXPECT_TRUE(tdd->TagStatisticsComputed());
+	EXPECT_TRUE(TimedEqual(cachedStats,computedStats));
+
+}
+
+TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheFullFrames) {
+	TrackingDataDirectory::Ptr tdd;
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+		});
+
+	EXPECT_FALSE(tdd->FullFramesComputed());
+	EXPECT_THROW({
+			tdd->FullFrames();
+		},TrackingDataDirectory::ComputedRessourceUnavailable);
+
+	auto loaders = tdd->PrepareFullFramesLoaders();
+	EXPECT_EQ(loaders.size(),1);
+	for ( const auto & l : loaders ) {
+		l();
+	}
+	EXPECT_NO_THROW({
+			EXPECT_EQ(tdd->FullFrames().size(),1);
+		});
+
+
+	EXPECT_TRUE(tdd->FullFramesComputed());
+	ASSERT_NO_THROW({
+			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
+			EXPECT_EQ(tdd->FullFrames().size(),1);
+		});
+	EXPECT_TRUE(tdd->FullFramesComputed());
 
 }
 

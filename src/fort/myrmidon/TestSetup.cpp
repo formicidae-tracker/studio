@@ -24,6 +24,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
 #include <apriltag/apriltag.h>
 #include <apriltag/tag36h11.h>
 
@@ -354,7 +355,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
 
-	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000"};
+	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000","computed-cache-test.0000"};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;
@@ -407,32 +408,49 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "  strobe-duration: 1.5ms" << std::endl
 		      << "  fps: 8" << std::endl
 		      << "  stub-path: \"\"" << std::endl
-		      << "apriltag:" << std::endl
-		      << "  family: 36h11" << std::endl
-		      << "  quad:" << std::endl
-		      << "    decimate: 1" << std::endl
-		      << "    sigma: 0" << std::endl
-		      << "    refine-edges: false" << std::endl
-		      << "    min-cluster-pixel: 25" << std::endl
-		      << "    max-n-maxima: 10" << std::endl
-		      << "    critical-angle-radian: 0.17453292519943295" << std::endl
-		      << "    max-line-mean-square-error: 10" << std::endl
-		      << "    min-black-white-diff: 75" << std::endl
-		      << "    deglitch: false" << std::endl
-		      << "highlights: []" << std::endl;
+		      << "apriltag:" << std::endl;
+		if ( d == "foo.0000" ) {
+			touch << "  family: 36h11" << std::endl
+			      << "  quad:" << std::endl
+			      << "    decimate: 1" << std::endl
+			      << "    sigma: 0" << std::endl
+			      << "    refine-edges: false" << std::endl
+			      << "    min-cluster-pixel: 25" << std::endl
+			      << "    max-n-maxima: 10" << std::endl
+			      << "    critical-angle-radian: 0.17453299" << std::endl
+			      << "    max-line-mean-square-error: 10" << std::endl
+			      << "    min-black-white-diff: 75" << std::endl
+			      << "    deglitch: false" << std::endl;
+		}
+		touch << "highlights: []" << std::endl;
 
-
-		CreateMovieFiles(bounds, Basedir() / d );
-		CreateSnapshotFiles(bounds,antdir);
+		if ( d != "computed-cache-test.0000" ) {
+			CreateMovieFiles(bounds, Basedir() / d );
+			CreateSnapshotFiles(bounds,antdir);
+		}
 
 	}
+	auto computedCacheTestPath = TestSetup::Basedir() / "computed-cache-test.0000";
+	fs::create_directories(computedCacheTestPath / "ants");
+	WriteTagFile(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
+	auto f = cv::imread(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
+	cv::VideoWriter vw((computedCacheTestPath / "stream.0000.mp4").string(),
+	                   cv::VideoWriter::fourcc('H','2','6', '4'),
+	                   10,f.size(),true);
+	vw << f;
+	vw << f;
+	std::ofstream fm((computedCacheTestPath / "stream.frame-matching.0000.txt").string());
+	fm << "0 0" << std::endl;
+	fm << "1 1" << std::endl;
+
+
 
 
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {
 		fs::create_directories(Basedir() / d / "ants");
 		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
-				std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
+		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
 
 		touch << "experiment: " << d << std::endl
 		      << "legacy-mode: true" << std::endl
@@ -450,17 +468,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "  fps: 8" << std::endl
 		      << "  stub-path: \"\"" << std::endl
 		      << "apriltag:" << std::endl
-		      << "  family: 36h11" << std::endl
-		      << "  quad:" << std::endl
-		      << "    decimate: 2" << std::endl
-		      << "    sigma: 1" << std::endl
-		      << "    refine-edges: true" << std::endl
-		      << "    min-cluster-pixel: 26" << std::endl
-		      << "    max-n-maxima: 9" << std::endl
-		      << "    critical-angle-radian: 0.2" << std::endl
-		      << "    max-line-mean-square-error: 11" << std::endl
-		      << "    min-black-white-diff: 20" << std::endl
-		      << "    deglitch: true" << std::endl
 		      << "highlights: []" << std::endl;
 	}
 
@@ -471,7 +478,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 	auto noConfigDir =Basedir() / "no-config.0000";
 
-	fs::create_directories(noConfigDir);
+	fs::create_directories(noConfigDir / "ants");
 	WriteHermesFile(noConfigDir, 0, nullptr,
 	                Time::FromTimestampAndMonotonic(ts,
 	                                                123456,

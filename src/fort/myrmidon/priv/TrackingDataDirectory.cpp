@@ -145,6 +145,10 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 }
 
 
+const tags::ApriltagOptions & TrackingDataDirectory::DetectionSettings() const  {
+	return d_detectionSettings;
+}
+
 void TrackingDataDirectory::CheckPaths(const fs::path & path,
                                        const fs::path & experimentRoot) {
 	if ( fs::is_directory(experimentRoot) == false ) {
