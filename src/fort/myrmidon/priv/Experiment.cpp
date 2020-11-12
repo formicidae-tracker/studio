@@ -251,11 +251,10 @@ void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 void Experiment::AddTrackingDataDirectory(const Space::Ptr & space,
                                           const TrackingDataDirectory::Ptr &  tdd ) {
 	auto tddFamily = tdd->DetectionSettings().Family;
-	if ( tddFamily == tags::Family::Undefined ) {
-		throw std::invalid_argument("Cannot add TrackingDataDirectory with an undefined tag family");
-	}
 	auto myFamily = Family();
-	if ( myFamily != tags::Family::Undefined && myFamily != tddFamily ) {
+	if ( myFamily != tags::Family::Undefined
+	     && tddFamily != tags::Family::Undefined
+	     && myFamily != tddFamily ) {
 		throw std::runtime_error("Family for TrackingDataDirectory '" + tdd->URI()
 		                         + "' ("
 		                         + tags::GetFamilyName(tddFamily)

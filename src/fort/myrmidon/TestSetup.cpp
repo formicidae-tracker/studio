@@ -353,7 +353,14 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
 
-	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000","computed-cache-test.0000","no-family.0000"};
+	auto foodirs = {"foo.0000",
+	                "foo.0001",
+	                "foo.0002",
+	                "cache-test.0000",
+	                "computed-cache-test.0000",
+	                "no-family.0000",
+	                "artag.0000",
+	};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;
@@ -370,7 +377,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		startTime = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
 		                                            startTime.MonotonicValue(),
 		                                            priv::TrackingDataDirectory::GetUID(s_testdir/ d));
-		const static size_t NB_FILES = 10;
+		const static size_t NB_FILES = 2;
 		std::vector<uint64_t> bounds = {0};
 		for(size_t i = 0; i < NB_FILES; ++i) {
 			auto next = std::make_shared<size_t>(i+1);
@@ -408,7 +415,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "  stub-path: \"\"" << std::endl
 		      << "apriltag:" << std::endl;
 		if (d != "no-family.0000" ) {
-			touch << "  family: 36h11" << std::endl
+			touch << "  family: " << (d == "artag.0000" ? "36ARTag" : "36h11") <<  std::endl
 			      << "  quad:" << std::endl
 			      << "    decimate: 1" << std::endl
 			      << "    sigma: 0" << std::endl

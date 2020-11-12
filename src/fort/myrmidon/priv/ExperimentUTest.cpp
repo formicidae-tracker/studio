@@ -61,21 +61,33 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
 
 		ASSERT_FALSE(e->Spaces().empty());
-		e->AddTrackingDataDirectory(e->Spaces().begin()->second,tdd);
+		auto s = e->Spaces().begin()->second;
+		e->AddTrackingDataDirectory(s,tdd);
 
-		ASSERT_EQ(e->Spaces().begin()->second->TrackingDataDirectories().size(),2);
+		ASSERT_EQ(s->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
 		e.reset();
 		auto ee = Experiment::Open(TestSetup::Basedir() / "test3.myrmidon");
-
 		ASSERT_FALSE(ee->Spaces().empty());
-		ASSERT_EQ(ee->Spaces().begin()->second->TrackingDataDirectories().size(),2);
+		s = ee->Spaces().begin()->second;
+		ASSERT_EQ(s->TrackingDataDirectories().size(),2);
+
+		EXPECT_THROW({
+				auto artagData = TrackingDataDirectory::Open(TestSetup::Basedir() / "artag.0000", TestSetup::Basedir());
+				ASSERT_EQ(artagData->DetectionSettings().Family,tags::Family::Tag36ARTag);
+				// Could not add wrong family to experiment
+				ee->AddTrackingDataDirectory(s,artagData);
+			},std::runtime_error);
 
 
 	} catch (const std::exception & e) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
+
+
+
 }
+
 
 TEST_F(ExperimentUTest,IOTest) {
 	try{

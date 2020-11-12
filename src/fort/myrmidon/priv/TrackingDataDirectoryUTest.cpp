@@ -31,13 +31,13 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		std::cerr << "Opening " <<  tddPath << " took " << endOpen.Sub(startOpen) << std::endl;
 		EXPECT_EQ(tdd->URI(),"foo.0001");
 		EXPECT_EQ(tdd->StartFrame(),0);
-		EXPECT_EQ(tdd->EndFrame(),999);
+		EXPECT_EQ(tdd->EndFrame(),199);
 		EXPECT_TRUE(TimeEqual(tdd->StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
-		EXPECT_TRUE(TimeEqual(tdd->EndDate(),TestSetup::EndTime("foo.0001/tracking.0009.hermes")));
+		EXPECT_TRUE(TimeEqual(tdd->EndDate(),TestSetup::EndTime("foo.0001/tracking.0001.hermes")));
 
 		std::vector<SegmentIndexer<std::string>::Segment> segments;
 
-		for(size_t i = 0; i < 10; ++i ) {
+		for(size_t i = 0; i < 2; ++i ) {
 			std::ostringstream os;
 			os << "tracking." << std::setw(4) << std::setfill('0') << i << ".hermes";
 			segments.push_back(std::make_pair(FrameReference("foo.0001",
@@ -224,7 +224,7 @@ TEST_F(TrackingDataDirectoryUTest,CanBeFormatted) {
 	std::ostringstream oss;
 	oss << *foo;
 	EXPECT_EQ(oss.str(),
-	          "TDD{URI:'../foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z}");
+	          "TDD{URI:'../foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:00:40.024014001Z}");
 
 }
 
@@ -299,7 +299,7 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagStatistics) {
 	TagStatisticsHelper::Timed computedStats,cachedStats;
 	try {
 		auto loaders = tdd->PrepareTagStatisticsLoaders();
-		EXPECT_EQ(loaders.size(),10);
+		EXPECT_EQ(loaders.size(),2);
 		for ( const auto & l : loaders ) {
 			l();
 		}

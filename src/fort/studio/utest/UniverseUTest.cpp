@@ -59,7 +59,6 @@ TEST_F(UniverseUTest,Activation) {
 	ASSERT_EQ(activatedSignal.count(),2);
 	EXPECT_TRUE(activatedSignal.at(1).at(0).toBool());
 
-
 	universe->setExperiment(fmp::Experiment::Ptr());
 	EXPECT_FALSE(universe->isActive());
 	ASSERT_EQ(activatedSignal.count(),3);
