@@ -119,7 +119,7 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	ASSERT_NO_THROW({
 			experiment = fmp::priv::Experiment::Create(TestSetup::Basedir() / "globalProperty.myrmidon");
 			experiment->Save(TestSetup::Basedir() / "globalProperty.myrmidon");
-			globalPropertiesWidget.setup(&experimentBridge,nullptr);
+			globalPropertiesWidget.setup(&experimentBridge);
 		});
 
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->nameEdit->isEnabled());
@@ -133,9 +133,6 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->tagSizeEdit->isEnabled());
 	EXPECT_EQ(globalPropertiesWidget.d_ui->tagSizeEdit->value(),1.0);
-
-	EXPECT_FALSE(globalPropertiesWidget.d_ui->familySelector->isEnabled());
-	EXPECT_EQ(globalPropertiesWidget.d_ui->familySelector->currentIndex(),-1);
 
 	experiment->SetName("foo");
 	experiment->SetAuthor("tests");
@@ -156,8 +153,6 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_TRUE(globalPropertiesWidget.d_ui->tagSizeEdit->isEnabled());
 	EXPECT_EQ(globalPropertiesWidget.d_ui->tagSizeEdit->value(),0.67);
 
-	EXPECT_TRUE(globalPropertiesWidget.d_ui->familySelector->isEnabled());
-
 	QTest::keyClicks(globalPropertiesWidget.d_ui->nameEdit,"bar");
 	EXPECT_EQ(globalProperties->name(),"foobar");
 
@@ -173,9 +168,16 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_EQ(std::string(globalProperties->comment().toUtf8().constData()),
 	          std::string("This is for tests"));
 
-	auto s = globalPropertiesWidget.d_ui->familySelector;
-	s->setCurrentIndex(1);
-
 	// no tracking data directory: its undefined
 	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Undefined);
+	EXPECT_EQ(std::string(globalPropertiesWidget.d_ui->familyValueLabel->text().toUtf8().constData()),
+	          "undefined");
+	ASSERT_NO_THROW({
+			auto s = experiment->CreateSpace("foo");
+			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir() );
+			experiment->AddTrackingDataDirectory(s,tdd);
+		});
+	globalProperties->onTDDModified();
+	EXPECT_EQ(std::string(globalPropertiesWidget.d_ui->familyValueLabel->text().toUtf8().constData()),
+	          "36h11");
 }

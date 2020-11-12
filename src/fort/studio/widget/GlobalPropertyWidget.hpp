@@ -14,8 +14,7 @@ public:
 	explicit GlobalPropertyWidget(QWidget *parent);
 	virtual ~GlobalPropertyWidget();
 
-	void setup(ExperimentBridge *experiment,
-	           QAction * loadTagCloseUpAction);
+	void setup(ExperimentBridge *experiment);
 
 private:
 	friend class GlobalPropertyUTest_WidgetTest_Test;

@@ -14,43 +14,31 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1">
-    <widget class="VectorialView" name="vectorialView">
+   <item row="0" column="2" rowspan="3">
+    <widget class="AntIdentificationWidget" name="selectedAntIdentification" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>2</horstretch>
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
       <size>
-       <width>420</width>
-       <height>370</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>16637</width>
-       <height>16637</height>
+       <width>450</width>
+       <height>16777215</height>
       </size>
      </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustIgnored</enum>
-     </property>
-     <property name="backgroundBrush">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>136</red>
-        <green>138</green>
-        <blue>133</blue>
-       </color>
-      </brush>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
     </widget>
    </item>
@@ -92,6 +80,46 @@
      </item>
     </layout>
    </item>
+   <item row="1" column="1">
+    <widget class="VectorialView" name="vectorialView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>2</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>420</width>
+       <height>370</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16637</width>
+       <height>16637</height>
+      </size>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+     <property name="backgroundBrush">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>136</red>
+        <green>138</green>
+        <blue>133</blue>
+       </color>
+      </brush>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QGroupBox" name="tagBox">
      <property name="sizePolicy">
@@ -110,50 +138,6 @@
       <string>Tag Selection</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="familyLabel">
-          <property name="text">
-           <string>Family:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="TagFamilyComboBox" name="familySelector"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="thresholdLabel">
-          <property name="text">
-           <string>B/W Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="thresholdBox">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>254</number>
-          </property>
-          <property name="value">
-           <number>40</number>
-          </property>
-          <property name="displayIntegerBase">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QActionButton" name="loadTagCloseUpButton">
-          <property name="text">
-           <string>Load Tag Close Up</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
       <item>
        <widget class="QTreeView" name="treeView">
         <property name="sizePolicy">
@@ -179,50 +163,6 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QProgressBar" name="tagCloseUpLoadingProgress">
-     <property name="minimum">
-      <number>0</number>
-     </property>
-     <property name="maximum">
-      <number>0</number>
-     </property>
-     <property name="value">
-      <number>-1</number>
-     </property>
-     <property name="format">
-      <string>%v / %m</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2" rowspan="3">
-    <widget class="AntIdentificationWidget" name="selectedAntIdentification" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>450</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -232,20 +172,10 @@
    <header location="global">fort/studio/widget/vectorgraphics/VectorialView.hpp</header>
   </customwidget>
   <customwidget>
-   <class>TagFamilyComboBox</class>
-   <extends>QComboBox</extends>
-   <header location="global">fort/studio/widget/base/TagFamilyComboBox.hpp</header>
-  </customwidget>
-  <customwidget>
    <class>AntIdentificationWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/AntIdentificationWidget.hpp</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QActionButton</class>
-   <extends>QPushButton</extends>
-   <header location="global">fort/studio/widget/base/QActionButton.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

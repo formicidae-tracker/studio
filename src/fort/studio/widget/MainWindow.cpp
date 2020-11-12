@@ -111,10 +111,10 @@ MainWindow::MainWindow(QWidget *parent)
 	        this,
 	        &MainWindow::onExperimentActivated);
 
-	d_ui->globalProperties->setup(d_experiment,d_ui->actionLoadTagCloseUp);
+	d_ui->globalProperties->setup(d_experiment);
 	d_ui->universeEditor->setup(d_experiment->universe());
 	d_ui->antList->setup(d_experiment->identifier());
-	d_ui->taggingWidget->setup(d_experiment,d_ui->actionLoadTagCloseUp);
+	d_ui->taggingWidget->setup(d_experiment);
 	d_ui->shappingWidget->setup(d_experiment);
 	d_ui->zoningWidget->setup(d_experiment);
 	d_ui->userData->setup(d_experiment->antMetadata());
@@ -167,60 +167,6 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->statsView->setModel(sorted);
 
 	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-
-	auto updateComputeStatsAction =
-		[this] () {
-			bool ready = d_experiment->statistics()->isReady();
-			bool outdated = d_experiment->statistics()->isOutdated();
-			d_ui->actionLoadTagStatistics->setEnabled(ready && outdated);
-			d_ui->actionLoadTagStatistics->setText(ready ? tr("Compute Tag Statistics") : tr("Computing Tag Statistics..."));
-		};
-
-	updateComputeStatsAction();
-
-	d_ui->computeStatsButton->setAction(d_ui->actionLoadTagStatistics);
-
-	connect(d_experiment->statistics(),
-	        &StatisticsBridge::ready,
-	        this,updateComputeStatsAction);
-
-	connect(d_experiment->statistics(),
-	        &StatisticsBridge::outdated,
-	        this,updateComputeStatsAction);
-
-	connect(d_ui->actionLoadTagStatistics,
-	        &QAction::triggered,
-	        this,
-	        [this]() {
-		        d_experiment->statistics()->compute();
-	        });
-
-
-	auto updateLoadTagCloseUp =
-		[this] () {
-			bool ready = d_experiment->measurements()->isReady();
-			bool outdated = d_experiment->measurements()->isOutdated();
-			d_ui->actionLoadTagCloseUp->setEnabled(ready && outdated);
-			d_ui->actionLoadTagCloseUp->setText(ready ? tr("Load Tag Close-Ups") : tr("Loading Tag Close-Ups ..."));
-		};
-	updateLoadTagCloseUp();
-
-	connect(d_experiment->measurements(),
-	        &MeasurementBridge::ready,
-	        this,updateLoadTagCloseUp);
-
-	connect(d_experiment->measurements(),
-	        &MeasurementBridge::outdated,
-	        this,updateLoadTagCloseUp);
-
-	connect(d_ui->actionLoadTagCloseUp,
-	        &QAction::triggered,
-	        this,
-	        [this]() {
-		        d_experiment->measurements()->loadTagCloseUp();
-	        });
-
 
 
 }

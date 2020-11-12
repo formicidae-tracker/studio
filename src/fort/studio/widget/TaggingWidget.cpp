@@ -85,23 +85,13 @@ TaggingWidget::~TaggingWidget() {
 }
 
 
-void TaggingWidget::setup(ExperimentBridge * experiment,
-                          QAction * loadTagCloseUpAction) {
+void TaggingWidget::setup(ExperimentBridge * experiment) {
 
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
 	auto measurements = experiment->measurements();
 	auto selectedAnt = experiment->selectedAnt();
 
-	connect(globalProperties,
-	        &GlobalPropertyBridge::activated,
-	        d_ui->familySelector,
-	        &TagFamilyComboBox::setEnabled);
-
-	connect(globalProperties,
-	        &GlobalPropertyBridge::activated,
-	        d_ui->thresholdBox,
-	        &QSpinBox::setEnabled);
 
 	connect(d_sortedModel,
 	        &QAbstractItemModel::rowsInserted,
@@ -117,12 +107,6 @@ void TaggingWidget::setup(ExperimentBridge * experiment,
 
 	d_sortedModel->setSourceModel(measurements->tagCloseUpModel());
 	d_ui->treeView->sortByColumn(0,Qt::AscendingOrder);
-	connect(measurements,
-	        &MeasurementBridge::progressChanged,
-	        [this](size_t done, size_t toDo) {
-		        d_ui->tagCloseUpLoadingProgress->setMaximum(toDo);
-		        d_ui->tagCloseUpLoadingProgress->setValue(done);
-	        });
 	d_measurements = measurements;
 
 	connect(identifier,
@@ -152,14 +136,6 @@ void TaggingWidget::setup(ExperimentBridge * experiment,
 
 	d_ui->selectedAntIdentification->setup(experiment);
 
-
-	connect(loadTagCloseUpAction,&QAction::changed,
-	        this,
-	        [this,loadTagCloseUpAction]() {
-		        d_ui->familySelector->setEnabled(loadTagCloseUpAction->isEnabled());
-		        d_ui->thresholdBox->setEnabled(loadTagCloseUpAction->isEnabled());
-	        });
-	d_ui->loadTagCloseUpButton->setAction(loadTagCloseUpAction);
 }
 
 

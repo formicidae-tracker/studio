@@ -30,8 +30,7 @@ public:
     explicit TaggingWidget(QWidget *parent = 0);
 	virtual ~TaggingWidget();
 
-	void setup(ExperimentBridge * experiment,
-	           QAction * loadTagCloseUpAction);
+	void setup(ExperimentBridge * experiment);
 
 	QAction * newAntFromTagAction() const;
 	QAction * addIdentificationToAntAction() const;
