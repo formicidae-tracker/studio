@@ -447,13 +447,14 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 	if ( fi != cache.end() ) {
 		return fi->second;
 	}
-	auto [fDef,family_destroy] = TagCloseUp::Lister::LoadFamily(f);
-	Defer cleanup([fDef = fDef,
-	               family_destroy = family_destroy]
+	auto [familyConstructor,familyDestructor] = tags::GetFamily(f);
+	auto familyDefinition = familyConstructor();
+	Defer cleanup([ familyDefinition = familyDefinition,
+	               familyDestructor = familyDestructor]
 	              () {
-		              family_destroy(fDef);
+		              familyDestructor(familyDefinition);
 	              });
-	auto res = double(fDef->width_at_border) / double(fDef->total_width);
+	auto res = double(familyDefinition->width_at_border) / double(familyDefinition->total_width);
 	cache[f] = res;
 	return res;
 }

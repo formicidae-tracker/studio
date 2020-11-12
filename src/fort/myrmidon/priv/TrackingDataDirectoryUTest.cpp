@@ -351,6 +351,29 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheFullFrames) {
 
 }
 
+TEST_F(TrackingDataDirectoryUTest,CanListTagCloseUpFiles) {
+	auto files = TrackingDataDirectory::ListTagCloseUpFiles(TestSetup::Basedir() / "foo.0000/ants");
+	auto expectedFiles = TestSetup::CloseUpFilesForPath(TestSetup::Basedir() / "foo.0000");
+	ASSERT_EQ(files.size(),expectedFiles.size());
+	for (const auto & [frameID,ff] : files ) {
+		auto fi = expectedFiles.find(ff.first);
+		if ( fi == expectedFiles.end()) {
+			ADD_FAILURE() << "Returned unexpected file " << ff.first.generic_string();
+		} else {
+			if ( !ff.second != !fi->second ) {
+				ADD_FAILURE() << "Filtering mismatch for file " << ff.first.generic_string();
+			} else if (ff.second) {
+				EXPECT_EQ(*ff.second,*fi->second);
+			}
+		}
+	}
+	files = TrackingDataDirectory::ListTagCloseUpFiles(TestSetup::Basedir() / "computed-cache-test.0000/ants");
+	ASSERT_EQ(files.count(0),1);
+	auto f = files.find(0)->second;
+	EXPECT_EQ(f.first,TestSetup::Basedir() / "computed-cache-test.0000/ants/ant_0_frame_0.png");
+	ASSERT_FALSE(!f.second);
+	EXPECT_EQ(*f.second,0);
+}
 
 TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagCloseUps) {
 	TrackingDataDirectory::Ptr tdd;
@@ -363,6 +386,8 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagCloseUps) {
 			tdd->TagCloseUps();
 		},TrackingDataDirectory::ComputedRessourceUnavailable);
 
+	TagCloseUp::ConstPtr computed,cached;
+
 	try {
 		auto loaders = tdd->PrepareTagCloseUpsLoaders();
 		EXPECT_EQ(loaders.size(),1);
@@ -370,24 +395,34 @@ TEST_F(TrackingDataDirectoryUTest,ComputesAndCacheTagCloseUps) {
 			l();
 		}
 		ASSERT_EQ(tdd->TagCloseUps().size(),1);
-		EXPECT_EQ(tdd->TagCloseUps()[0]->URI(),"computed-cache-test.0000/frames/0/tags/0x000");
+		computed = tdd->TagCloseUps()[0];
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Computation should not throw this exception: " << e.what();
 	}
-
-
 
 	EXPECT_TRUE(tdd->TagCloseUpsComputed());
 	ASSERT_NO_THROW({
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "computed-cache-test.0000",TestSetup::Basedir());
 			ASSERT_EQ(tdd->TagCloseUps().size(),1);
-			EXPECT_EQ(tdd->TagCloseUps()[0]->URI(),"computed-cache-test.0000/frames/0/tags/0x000");
+			cached = tdd->TagCloseUps()[0];
 		});
 	EXPECT_TRUE(tdd->TagCloseUpsComputed());
+	EXPECT_EQ(computed->URI(), "computed-cache-test.0000/frames/0/closeups/0x000");
+	EXPECT_EQ(computed->AbsoluteFilePath(), TestSetup::Basedir() / "computed-cache-test.0000/ants/ant_0_frame_0.png");
+	EXPECT_EQ(computed->TagValue(), 0);
+
+	EXPECT_EQ(cached->URI(), "computed-cache-test.0000/frames/0/closeups/0x000");
+	EXPECT_EQ(cached->AbsoluteFilePath(), TestSetup::Basedir() / "computed-cache-test.0000/ants/ant_0_frame_0.png");
+	EXPECT_EQ(cached->TagValue(), 0);
+
+	EXPECT_TRUE(VectorAlmostEqual(computed->TagPosition(),cached->TagPosition()));
+	for (int i = 0; i < 4; ++i ) {
+		EXPECT_TRUE(VectorAlmostEqual(computed->Corners()[i],cached->Corners()[i]));
+	}
+
+	EXPECT_DOUBLE_EQ(computed->TagAngle(),cached->TagAngle());
 
 }
-
-
 
 } // namespace fort
 } // namespace myrmidon

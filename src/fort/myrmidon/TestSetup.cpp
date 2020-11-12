@@ -409,7 +409,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "  fps: 8" << std::endl
 		      << "  stub-path: \"\"" << std::endl
 		      << "apriltag:" << std::endl;
-		if ( d == "foo.0000" ) {
+		if ( d != "foo.0001" ) {
 			touch << "  family: 36h11" << std::endl
 			      << "  quad:" << std::endl
 			      << "    decimate: 1" << std::endl

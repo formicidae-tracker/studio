@@ -1,29 +1,32 @@
 #include "TrackingDataDirectory.hpp"
 
-#include "RawFrame.hpp"
-
 #include <mutex>
+#include <regex>
+
 #include <tbb/parallel_for.h>
-
-#include <fort/hermes/Error.h>
-#include <fort/hermes/FileContext.h>
-
-#include <fort/myrmidon/utils/NotYetImplemented.hpp>
-#include <fort/myrmidon/utils/Checker.hpp>
-#include <fort/myrmidon/priv/proto/TagStatisticsCache.hpp>
-#include "TagCloseUp.hpp"
-
-#include "TimeUtils.hpp"
-
-#include <fort/myrmidon/priv/proto/TDDCache.hpp>
-
-#include <fort/myrmidon/utils/Defer.hpp>
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 
 #include <yaml-cpp/yaml.h>
+
+#include <fort/hermes/Error.h>
+#include <fort/hermes/FileContext.h>
+
+#include <fort/myrmidon/utils/NotYetImplemented.hpp>
+#include <fort/myrmidon/utils/Checker.hpp>
+#include <fort/myrmidon/utils/Defer.hpp>
+#include <fort/myrmidon/utils/ObjectPool.hpp>
+#include <fort/myrmidon/priv/proto/TDDCache.hpp>
+#include <fort/myrmidon/priv/proto/TagStatisticsCache.hpp>
+#include <fort/myrmidon/priv/proto/TagCloseUpCache.hpp>
+
+#include "TagCloseUp.hpp"
+#include "TimeUtils.hpp"
+#include "RawFrame.hpp"
+
+
 
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
@@ -347,6 +350,51 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 }
 
 
+std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
+TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
+	PERF_FUNCTION();
+	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
+
+	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
+	static std::regex multiRx("frame_([0-9]+).png");
+
+	for ( const auto & de : fs::directory_iterator(path) ) {
+		auto ext = de.path().extension().string();
+		std::transform(ext.begin(),ext.end(),ext.begin(),
+		               [](unsigned char c) {
+			               return std::tolower(c);
+		               });
+		if ( ext != ".png" ) {
+			continue;
+		}
+
+		std::smatch ID;
+		std::string filename = de.path().filename().string();
+		FrameID frameID;
+		if(std::regex_search(filename,ID,singleRx) && ID.size() > 2) {
+			std::istringstream IDS(ID.str(1));
+			std::istringstream FrameS(ID.str(2));
+			auto tagID = std::make_shared<TagID>(0);
+
+			IDS >> *(tagID);
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),tagID)));
+			continue;
+		}
+		if(std::regex_search(filename,ID,multiRx) && ID.size() > 1) {
+			std::istringstream FrameS(ID.str(1));
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),std::shared_ptr<TagID>())));
+			continue;
+		}
+
+	}
+
+	return res;
+}
+
+
+
 TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
 	CheckPaths(filepath,experimentRoot);
 
@@ -399,7 +447,7 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::OpenFromFiles(const fs::path &
 		referenceCache->insert(std::make_pair(m->EndFrame(),FrameReference(URI,0,Time())));
 	}
 
-	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
+	auto snapshots = ListTagCloseUpFiles(absoluteFilePath / "ants");
 	for(const auto & [frameID,s] : snapshots) {
 		referenceCache->insert(std::make_pair(frameID,FrameReference(URI,0,Time())));
 	}
@@ -446,7 +494,6 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::OpenFromFiles(const fs::path &
 		std::cerr << "[CacheCleaning] Could not find FrameReference for FrameID " << frameID << std::endl;
 		referenceCache->erase(frameID);
 	}
-
 
 	return TrackingDataDirectory::Create(URI,
 	                                     absoluteFilePath,
@@ -639,7 +686,7 @@ TrackingDataDirectory::EnumerateFullFrames(const fs::path & subpath) const noexc
 	}
 
 	try {
-		auto listing = TagCloseUp::Lister::ListFiles(dirpath);
+		auto listing = ListTagCloseUpFiles(dirpath);
 		auto res = std::make_shared<std::map<FrameReference,fs::path>>();
 		for(const auto & [frameID,fileAndFilter] : listing) {
 			if ( !fileAndFilter.second == true ) {
@@ -660,7 +707,7 @@ TrackingDataDirectory::ComputedRessourceUnavailable::~ComputedRessourceUnavailab
 }
 
 
-const std::vector<TagCloseUp::Ptr> &
+const std::vector<TagCloseUp::ConstPtr> &
 TrackingDataDirectory::TagCloseUps() const {
 	if ( TagCloseUpsComputed() == false ) {
 		throw ComputedRessourceUnavailable("TagCloseUp");
@@ -698,9 +745,117 @@ bool TrackingDataDirectory::FullFramesComputed() const {
 	return !d_fullFrames == false;
 }
 
+class TagCloseUpsReducer {
+public:
+	TagCloseUpsReducer(size_t count,
+	                   const TrackingDataDirectory::Ptr & tdd)
+		: d_tdd(tdd)
+		, d_closeUps(count) {
+		d_count.store(count);
+	}
+
+	void Compute(size_t index,
+	             FrameID frameID,
+	             const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter) {
+		auto detector = d_detectorPool.Get(d_tdd->DetectionSettings());
+
+		auto tcus = detector->Detect(fileAndFilter,
+		                             d_tdd->FrameReferenceAt(frameID));
+
+		Reduce(index,tcus);
+	}
+
+	void Reduce(size_t index,
+	            const std::vector<TagCloseUp::ConstPtr> & tcus) {
+		d_closeUps[index] = tcus;
+		if ( (d_count.fetch_sub(1) - 1 ) > 0 ) {
+			return;
+		}
+		d_tdd->d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		for( const auto tcus : d_closeUps ) {
+			d_tdd->d_tagCloseUps->insert(d_tdd->d_tagCloseUps->end(),
+			                             tcus.begin(),
+			                             tcus.end());
+		}
+		proto::TagCloseUpCache::Save(d_tdd->AbsoluteFilePath(),
+		                             *d_tdd->d_tagCloseUps);
+	}
+
+private:
+	class Detector {
+	public:
+		Detector(const tags::ApriltagOptions & detectorOptions) {
+			const auto & [constructor,destructor] = tags::GetFamily(detectorOptions.Family);
+			d_family = constructor();
+			d_destructor = destructor;
+			d_detector = apriltag_detector_create();
+
+			detectorOptions.SetUpDetector(d_detector);
+			apriltag_detector_add_family(d_detector,d_family);
+		}
+
+		~Detector() {
+			apriltag_detector_destroy(d_detector);
+			d_destructor(d_family);
+		}
+
+		std::vector<TagCloseUp::ConstPtr> Detect(const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter,
+		                                         const FrameReference & reference) {
+			std::vector<TagCloseUp::ConstPtr> res;
+			auto imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
+			if ( imgCv.empty() ) {
+				return res;
+			}
+			image_u8_t img = {.width = imgCv.cols,.height = imgCv.rows, .stride = imgCv.cols, .buf = imgCv.data};
+			zarray_t * detections = apriltag_detector_detect(d_detector,&img);
+			Defer destroyDetections([detections]() { apriltag_detections_destroy(detections);});
+			apriltag_detection * d;
+			for ( size_t i = 0; i < zarray_size(detections); ++i) {
+				zarray_get(detections,i,&d);
+				if ( fileAndFilter.second && d->id != *fileAndFilter.second ) {
+					continue;
+				}
+				res.push_back(std::make_shared<TagCloseUp>(fileAndFilter.first,reference,d));
+			}
+			return res;
+		}
+
+	private:
+		apriltag_family_t    * d_family;
+		tags::FamilyDestructor d_destructor;
+		apriltag_detector_t  * d_detector;
+	};
+
+	std::atomic<size_t>                            d_count;
+	TrackingDataDirectory::Ptr                     d_tdd;
+	std::vector<std::vector<TagCloseUp::ConstPtr>> d_closeUps;
+	utils::ObjectPool<Detector>                    d_detectorPool;
+};
+
+
 std::vector<TrackingDataDirectory::Loader>
 TrackingDataDirectory::PrepareTagCloseUpsLoaders() {
-	throw MYRMIDON_NOT_YET_IMPLEMENTED();
+	auto tagCloseUpFiles = ListTagCloseUpFiles(AbsoluteFilePath() / "ants");
+
+	if ( tagCloseUpFiles.empty() || d_detectionSettings.Family == tags::Family::Undefined ) {
+		d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		proto::TagCloseUpCache::Save(AbsoluteFilePath(),{});
+		return {};
+	}
+
+	auto reducer = std::make_shared<TagCloseUpsReducer>(tagCloseUpFiles.size(),
+	                                                    Itself());
+	size_t i = 0;
+	std::vector<Loader> res;
+	res.reserve(tagCloseUpFiles.size());
+	for( const auto & [frameID,fileAndFilter] : tagCloseUpFiles ) {
+		res.push_back([frameID,fileAndFilter,reducer,i]() {
+			              reducer->Compute(i,frameID,fileAndFilter);
+		              });
+		++i;
+	}
+
+	return res;
 }
 
 
@@ -801,8 +956,14 @@ void TrackingDataDirectory::LoadComputedFromCache() {
 	} catch (const std::exception & e) {}
 
 	try {
-		//TODO get tagCloseUpCache
-	} catch (const std::exception & e) {}
+		d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		*d_tagCloseUps = proto::TagCloseUpCache::Load(AbsoluteFilePath(),
+		                                              [this](FrameID frameID) -> FrameReference {
+			                                              return FrameReferenceAt(frameID);
+		                                              });
+	} catch (const std::exception & e) {
+		d_tagCloseUps.reset();
+	}
 
 
 

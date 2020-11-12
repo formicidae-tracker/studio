@@ -44,6 +44,10 @@ public:
 	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
 	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
+
+	typedef std::pair<fs::path,std::shared_ptr<TagID>>     TagCloseUpFileAndFilter;
+	typedef std::multimap<FrameID,TagCloseUpFileAndFilter> TagCloseUpListing;
+
 	class const_iterator {
 	public:
 		const_iterator(const Ptr & tdd,uint64_t current);
@@ -81,6 +85,31 @@ public:
 
 
 	static UID GetUID(const fs::path & absoluteFilePath);
+
+	static TagCloseUpListing ListTagCloseUpFiles(const fs::path & subdir);
+
+	// Opens an actual TrackingDataDirectory on the filesystem
+	// @path path to the tracking data directory.
+	// @experimentRoot root of the <Experiment>
+	// @return a new <trackingDataDirectory> with all field populated accordingly
+	//
+	// Opens an actual TrackingDataDirectory on the filesystem, and
+	// populate its data form its actual content. This function will
+	// look for tracking data file open the first and last segment to
+	// obtain infoirmation on the first and last frame.
+	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath, const fs::path & experimentRoot);
+
+	static TrackingDataDirectory::Ptr Create(const std::string & uri,
+	                                         const fs::path & absoluteFilePath,
+	                                         uint64_t startFrame,
+	                                         uint64_t endFrame,
+	                                         const Time & start,
+	                                         const Time & end,
+	                                         const TrackingIndex::Ptr & segments,
+	                                         const MovieIndex::Ptr & movies,
+	                                         const FrameReferenceCacheConstPtr & referenceCache);
+
+
 
 	virtual ~TrackingDataDirectory();
 
@@ -134,27 +163,6 @@ public:
 
 	FrameReference FrameReferenceAfter(const Time & t) const;
 
-	// Opens an actual TrackingDataDirectory on the filesystem
-	// @path path to the tracking data directory.
-	// @experimentRoot root of the <Experiment>
-	// @return a new <trackingDataDirectory> with all field populated accordingly
-	//
-	// Opens an actual TrackingDataDirectory on the filesystem, and
-	// populate its data form its actual content. This function will
-	// look for tracking data file open the first and last segment to
-	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath, const fs::path & experimentRoot);
-
-	static TrackingDataDirectory::Ptr Create(const std::string & uri,
-	                                         const fs::path & absoluteFilePath,
-	                                         uint64_t startFrame,
-	                                         uint64_t endFrame,
-	                                         const Time & start,
-	                                         const Time & end,
-	                                         const TrackingIndex::Ptr & segments,
-	                                         const MovieIndex::Ptr & movies,
-	                                         const FrameReferenceCacheConstPtr & referenceCache);
-
 
 	const TrackingIndex & TrackingSegments() const;
 
@@ -169,7 +177,7 @@ public:
 		virtual ~ComputedRessourceUnavailable() noexcept;
 	};
 
-	const std::vector<TagCloseUp::Ptr> & TagCloseUps() const;
+	const std::vector<TagCloseUp::ConstPtr> & TagCloseUps() const;
 	const std::map<FrameReference,fs::path> & FullFrames() const;
 	const TagStatisticsHelper::Timed & TagStatistics() const;
 
@@ -194,6 +202,7 @@ private:
 	friend class FullFramesReducer;
 	friend class TagCloseUpsReducer;
 	friend class TagStatisticsReducer;
+
 
 
 	static void CheckPaths(const fs::path & path,
@@ -267,7 +276,7 @@ private:
 	tags::ApriltagOptions       d_detectionSettings;
 
 	// cached data
-	std::shared_ptr<std::vector<TagCloseUp::Ptr>>      d_tagCloseUps;
+	std::shared_ptr<std::vector<TagCloseUp::ConstPtr>> d_tagCloseUps;
 	std::shared_ptr<std::map<FrameReference,fs::path>> d_fullFrames;
 	std::shared_ptr<TagStatisticsHelper::Timed>        d_tagStatistics;
 
