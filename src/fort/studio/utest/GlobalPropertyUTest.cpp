@@ -37,8 +37,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 
 	globalProperties.setExperiment(experiment);
 
-
-
 	ASSERT_EQ(nameSignal.count(),1);
 	EXPECT_EQ(nameSignal.at(0).at(0).toString(),"");
 	ASSERT_EQ(authorSignal.count(),1);
@@ -50,7 +48,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	          fort::tags::Family::Undefined);
 	ASSERT_EQ(tagSizeSignal.count(),1);
 	EXPECT_EQ(tagSizeSignal.at(0).at(0).toDouble(),1.0);
-
 
 
 	EXPECT_FALSE(globalProperties.isModified());
@@ -98,6 +95,17 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
+
+	ASSERT_EQ(tagFamilySignal.count(),1);
+	ASSERT_NO_THROW({
+			auto s = experiment->CreateSpace("foo");
+			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir() );
+			experiment->AddTrackingDataDirectory(s,tdd);
+		});
+	globalProperties.onTDDModified();
+	EXPECT_EQ(tagFamilySignal.count(),2);
+	EXPECT_EQ(tagFamilySignal.last().at(0).value<fort::tags::Family>(),
+	          fort::tags::Family::Tag36h11);
 
 }
 

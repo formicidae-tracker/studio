@@ -48,6 +48,8 @@ signals:
 	void tagSizeChanged(double value);
 
 public slots:
+	void onTDDModified();
+
 
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
@@ -56,4 +58,5 @@ public slots:
 
 private:
 	fmp::Experiment::Ptr d_experiment;
+	fort::tags::Family   d_cached;
 };

@@ -26,16 +26,26 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	connectModifications();
 
 
+
 	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryAdded,
 	        d_measurements,
 	        &MeasurementBridge::onTDDAdded);
 
 	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        d_globalProperties,
+	        &GlobalPropertyBridge::onTDDModified);
+
+	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        d_measurements,
 	        &MeasurementBridge::onTDDDeleted);
 
+	connect(d_universe,
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        d_globalProperties,
+	        &GlobalPropertyBridge::onTDDModified);
 
 
 	connect(d_identifier,

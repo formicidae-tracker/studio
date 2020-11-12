@@ -6,6 +6,7 @@ GlobalPropertyBridge::~GlobalPropertyBridge() {}
 
 GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
 	: Bridge(parent) {
+	d_cached = fort::tags::Family::Undefined;
 }
 
 
@@ -16,6 +17,7 @@ void GlobalPropertyBridge::setExperiment(const fmp::Experiment::Ptr & experiment
 		return;
 	}
 	d_experiment = experiment;
+	d_cached = tagFamily();
 	emit nameChanged(name());
 	emit authorChanged(author());
 	emit commentChanged(comment());
@@ -102,4 +104,13 @@ void GlobalPropertyBridge::setTagSize(double tagSize) {
 	d_experiment->SetDefaultTagSize(tagSize);
 	setModified(true);
 	emit tagSizeChanged(tagSize);
+}
+
+
+void GlobalPropertyBridge::onTDDModified() {
+	if ( tagFamily() == d_cached ) {
+		return;
+	}
+	d_cached = tagFamily();
+	emit tagFamilyChanged(tagFamily());
 }
