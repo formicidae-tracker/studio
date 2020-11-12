@@ -20,7 +20,6 @@ void GlobalPropertyBridge::setExperiment(const fmp::Experiment::Ptr & experiment
 	emit authorChanged(author());
 	emit commentChanged(comment());
 	emit tagFamilyChanged(tagFamily());
-	emit thresholdChanged(threshold());
 	emit tagSizeChanged(tagSize());
 	emit activated(d_experiment.get() != NULL);
 }
@@ -56,14 +55,6 @@ fort::tags::Family GlobalPropertyBridge::tagFamily() const {
 		return fort::tags::Family::Undefined;
 	}
 	return d_experiment->Family();
-}
-
-int GlobalPropertyBridge::threshold() const {
-	if ( !d_experiment ) {
-		return 255;
-	}
-
-	return int(d_experiment->Threshold());
 }
 
 double GlobalPropertyBridge::tagSize() const {
@@ -104,21 +95,6 @@ void GlobalPropertyBridge::setComment(const QString & comment, bool noSignal) {
 	}
 }
 
-void GlobalPropertyBridge::setThreshold(int th) {
-	th = std::min(std::max(th,1),254);
-	if ( !d_experiment || d_experiment->Threshold() == th ) {
-		return;
-	}
-
-	auto old = d_experiment->Threshold();
-	d_experiment->SetThreshold(th);
-	if ( old != d_experiment->Threshold() ) {
-		setModified(true);
-		emit thresholdChanged(d_experiment->Threshold());
-		emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
-	}
-}
-
 void GlobalPropertyBridge::setTagSize(double tagSize) {
 	if ( !d_experiment || d_experiment->DefaultTagSize() == tagSize) {
 		return;
@@ -126,14 +102,4 @@ void GlobalPropertyBridge::setTagSize(double tagSize) {
 	d_experiment->SetDefaultTagSize(tagSize);
 	setModified(true);
 	emit tagSizeChanged(tagSize);
-}
-
-void GlobalPropertyBridge::setTagFamily(fort::tags::Family tf) {
-	if ( !d_experiment || d_experiment->Family() == tf) {
-		return;
-	}
-	d_experiment->SetFamily(tf);
-	setModified(true);
-	emit tagFamilyChanged(tf);
-	emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
 }

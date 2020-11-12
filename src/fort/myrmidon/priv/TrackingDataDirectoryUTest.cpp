@@ -273,7 +273,7 @@ TEST_F(TrackingDataDirectoryUTest,ParsesDetectionSettings) {
 	TrackingDataDirectory::Ptr foo[2];
 	EXPECT_NO_THROW({
 			foo[0] = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0000",TestSetup::Basedir());
-			foo[1] = TrackingDataDirectory::Open(TestSetup::Basedir()/"foo.0001",TestSetup::Basedir());
+			foo[1] = TrackingDataDirectory::Open(TestSetup::Basedir()/"no-family.0000",TestSetup::Basedir());
 		});
 	tags::ApriltagOptions expected;
 	EXPECT_TRUE(ApriltagOptionsEqual(foo[1]->DetectionSettings(),expected));

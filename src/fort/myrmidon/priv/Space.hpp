@@ -148,8 +148,6 @@ public:
 
 	void SetName(const std::string & name);
 
-	void AddTrackingDataDirectory(const TrackingDataDirectoryPtr & tdd);
-
 	const std::vector<TrackingDataDirectoryPtr> & TrackingDataDirectories() const;
 
 	const static Zone::ID NEXT_AVAILABLE_ID = 0;
@@ -163,9 +161,22 @@ public:
 
 	Space::ID SpaceID() const;
 
+	class Accessor {
+		static void AddTrackingDataDirectory(const Space::Ptr & itself,
+		                                     const TrackingDataDirectoryPtr & tdd);
+
+		friend class fort::myrmidon::priv::Experiment;
+	};
+
 private :
+	friend class SpaceUTest_CanHoldTDD_Test;
+	friend class SpaceUTest_ExceptionFormatting_Test;
+
 	typedef std::set<Zone::ID> SetOfZoneID;
 	Space(ID spaceID, const std::string & name, const Universe::Ptr & universe);
+
+
+	void AddTrackingDataDirectory(const TrackingDataDirectoryPtr & tdd);
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
 

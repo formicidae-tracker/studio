@@ -113,19 +113,6 @@ void MeasurementBridge::onTDDDeleted(const QString & tddURI) {
 	setOutdated(d_experiment->Family() != fort::tags::Family::Undefined );
 }
 
-void MeasurementBridge::onDetectionSettingChanged(fort::tags::Family family, uint8_t) {
-	if ( !d_experiment ) {
-		return;
-	}
-
-	qDebug() << "[MeasurementBridge]: newDetectionSetting '"
-	         << int(d_experiment->Family()) << ";"
-	         << d_experiment->Threshold();
-
-
-	setOutdated(family != fort::tags::Family::Undefined );
-}
-
 
 void MeasurementBridge::loadTagCloseUp() {
 	if ( !d_experiment

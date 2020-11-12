@@ -61,7 +61,7 @@ TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 		auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002", TestSetup::Basedir());
 
 		ASSERT_FALSE(e->Spaces().empty());
-		e->Spaces().begin()->second->AddTrackingDataDirectory(tdd);
+		e->AddTrackingDataDirectory(e->Spaces().begin()->second,tdd);
 
 		ASSERT_EQ(e->Spaces().begin()->second->TrackingDataDirectories().size(),2);
 		e->Save(TestSetup::Basedir() / "test3.myrmidon");
@@ -95,8 +95,7 @@ TEST_F(ExperimentUTest,IOTest) {
 		EXPECT_EQ(e->Name(),"myrmidon test data");
 		EXPECT_EQ(e->Author(),"myrmidon-tests");
 		EXPECT_EQ(e->Comment(),"automatically generated data");
-		EXPECT_EQ(e->Threshold(),42);
-		EXPECT_EQ(e->Family(),fort::tags::Family::Tag16h5);
+		EXPECT_EQ(e->Family(),fort::tags::Family::Tag36h11);
 
 		e->Save(TestSetup::Basedir() / "test2.myrmidon");
 	} catch (const std::exception & e) {
@@ -141,8 +140,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			foo1 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
 			s = e->CreateSpace("box");
-			s->AddTrackingDataDirectory(foo0);
-			s->AddTrackingDataDirectory(foo1);
+			e->AddTrackingDataDirectory(s,foo0);
+			e->AddTrackingDataDirectory(s,foo1);
 		});
 
 	// It has a default measurment type Measurement::HEAD_TAIL_TYPE called "head-tail"
@@ -309,7 +308,6 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	                                                 1,
 	                                                 std::make_shared<Time>(foo1->StartDate()),
 	                                                 Time::ConstPtr());
-	e->SetFamily(tags::Family::Tag36ARTag);
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
 	                              Eigen::Vector2d(6.0,0.0)));
@@ -335,7 +333,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
-		EXPECT_EQ(12.0,m.LengthMM);
+		EXPECT_DOUBLE_EQ(9.6,m.LengthMM);
 	}
 
 	EXPECT_TRUE(VectorAlmostEqual(identBefore1->AntPosition(),
@@ -349,7 +347,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_EQ(measurements.size(), 4);
 	for(const auto & m : measurements) {
-		EXPECT_EQ(24.0,m.LengthMM);
+		EXPECT_DOUBLE_EQ(19.2,m.LengthMM);
 	}
 
 	EXPECT_THROW({
@@ -458,8 +456,7 @@ TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
 			e = Experiment::NewFile(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			s = e->CreateSpace("box");
-			s->AddTrackingDataDirectory(foo0);
-			e->SetFamily(tags::Family::Tag36ARTag);
+			e->AddTrackingDataDirectory(s,foo0);
 			e->SetDefaultTagSize(1.0);
 		});
 
@@ -615,7 +612,7 @@ TEST_F(ExperimentUTest,WillNotOpenFileQhichAreTooRecent) {
 		std::ostringstream expected;
 		expected << "Unexpected myrmidon file version 42.42.0 in "
 		         << path
-		         << ": can only works with 0.1.0 or 0.2.0";
+		         << ": can only works with version below or equal to 0.3.0";
 		EXPECT_EQ(expected.str(),e.what());
 
 	}

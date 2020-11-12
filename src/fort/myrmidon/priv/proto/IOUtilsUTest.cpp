@@ -565,16 +565,7 @@ TEST_F(IOUtilsUTest,MeasurementIO) {
 TEST_F(IOUtilsUTest,ExperimentIO) {
 	auto e = Experiment::Create(TestSetup::Basedir() / "experiment-io.myrmidon");
 	auto res = Experiment::Create(TestSetup::Basedir() / "experiment-io-res.myrmidon");
-	e->SetFamily(tags::Family(1234));
 	pb::Experiment ePb,expected;
-	EXPECT_THROW({
-			IOUtils::SaveExperiment(&ePb,*e);
-		},std::runtime_error);
-
-	ePb.set_tagfamily(pb::TagFamily(1234));
-	EXPECT_THROW({
-			IOUtils::LoadExperiment(e, ePb);
-		},std::runtime_error);
 
 	TrackingDataDirectory::Ptr tdd;
 
@@ -585,15 +576,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			expected.set_name("Some experiment");
 			e->SetComment("Some comment");
 			expected.set_comment("Some comment");
-			e->SetFamily(tags::Family::Tag36h11);
-			expected.set_tagfamily(pb::TAG36H11);
-			e->SetThreshold(45);
-			expected.set_threshold(45);
 			e->SetDefaultTagSize(1.6);
 			expected.set_tagsize(1.6);
 			tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			auto s = e->CreateSpace("box");
-			s->AddTrackingDataDirectory(tdd);
+			e->AddTrackingDataDirectory(s,tdd);
 
 			e->MeasurementTypes().find(Measurement::HEAD_TAIL_TYPE)->second->SetName("my-head-tail");
 			auto mt = expected.add_custommeasurementtypes();
@@ -640,8 +627,13 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	EXPECT_EQ(res->Author(),e->Author());
 	EXPECT_EQ(res->Name(),e->Name());
 	EXPECT_EQ(res->Comment(),e->Comment());
+	// there are no space, so its undefined
+	EXPECT_EQ(res->Family(),tags::Family::Undefined);
+	auto s = res->CreateSpace("box");
+	res->AddTrackingDataDirectory(s,tdd);
+	// now we have a space, we are not undefined
 	EXPECT_EQ(res->Family(),e->Family());
-	EXPECT_EQ(res->Threshold(),e->Threshold());
+
 	EXPECT_EQ(e->AntMetadataConstPtr()->CColumns().size(),
 	          res->AntMetadataConstPtr()->CColumns().size());
 	for ( const auto [name,column] : e->AntMetadataConstPtr()->CColumns() ) {
@@ -714,7 +706,7 @@ TEST_F(IOUtilsUTest,SpaceIO) {
 	auto e2 = Experiment::Create(TestSetup::Basedir() / "space2-io.myrmidon");
 	auto dS = e->CreateSpace("foo");
 	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000", TestSetup::Basedir() );
-	dS->AddTrackingDataDirectory(tdd);
+	e->AddTrackingDataDirectory(dS,tdd);
 	auto z =dS->CreateZone("bar");
 	pb::Space expected,s;
 	expected.set_id(dS->SpaceID());

@@ -24,7 +24,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	QSignalSpy authorSignal(&globalProperties,SIGNAL(authorChanged(QString)));
 	QSignalSpy commentSignal(&globalProperties,SIGNAL(commentChanged(QString)));
 	QSignalSpy tagFamilySignal(&globalProperties,SIGNAL(tagFamilyChanged(fort::tags::Family)));
-	QSignalSpy thresholdSignal(&globalProperties,SIGNAL(thresholdChanged(int)));
 	QSignalSpy tagSizeSignal(&globalProperties,SIGNAL(tagSizeChanged(double)));
 
 	EXPECT_FALSE(globalProperties.isModified());
@@ -35,7 +34,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_EQ(globalProperties.comment(),"");
 	EXPECT_EQ(globalProperties.tagFamily(),fort::tags::Family::Undefined);
 	EXPECT_EQ(globalProperties.tagSize(),0.0);
-	EXPECT_EQ(globalProperties.threshold(),255);
 
 	globalProperties.setExperiment(experiment);
 
@@ -50,8 +48,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	ASSERT_EQ(tagFamilySignal.count(),1);
 	EXPECT_EQ(tagFamilySignal.at(0).at(0).value<fort::tags::Family>(),
 	          fort::tags::Family::Undefined);
-	ASSERT_EQ(thresholdSignal.count(),1);
-	EXPECT_EQ(thresholdSignal.at(0).at(0).toInt(),experiment->Threshold());
 	ASSERT_EQ(tagSizeSignal.count(),1);
 	EXPECT_EQ(tagSizeSignal.at(0).at(0).toDouble(),1.0);
 
@@ -93,32 +89,15 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
 
-	globalProperties.setTagFamily(fort::tags::Family::Tag36h11);
+	globalProperties.setTagSize(0.7);
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),7);
 	EXPECT_TRUE(modifiedSignal.at(6).at(0).toBool());
-	ASSERT_EQ(tagFamilySignal.count(),2);
-	EXPECT_EQ(tagFamilySignal.at(1).at(0).value<fort::tags::Family>(),fort::tags::Family::Tag36h11);
-
-	globalProperties.setExperiment(experiment);
-	EXPECT_FALSE(globalProperties.isModified());
-
-	globalProperties.setTagSize(0.7);
-	EXPECT_TRUE(globalProperties.isModified());
-	ASSERT_EQ(modifiedSignal.count(),9);
-	EXPECT_TRUE(modifiedSignal.at(8).at(0).toBool());
 	ASSERT_EQ(tagSizeSignal.count(),2);
 	EXPECT_EQ(tagSizeSignal.at(1).at(0).toDouble(),0.7);
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
-
-	globalProperties.setThreshold(255);
-	EXPECT_TRUE(globalProperties.isModified());
-	ASSERT_EQ(modifiedSignal.count(),11);
-	EXPECT_TRUE(modifiedSignal.at(10).at(0).toBool());
-	ASSERT_EQ(thresholdSignal.count(),2);
-	EXPECT_EQ(thresholdSignal.at(1).at(0).toInt(),254);
 
 }
 
@@ -153,7 +132,6 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	experiment->SetName("foo");
 	experiment->SetAuthor("tests");
 	experiment->SetComment("for tests");
-	experiment->SetFamily(fort::tags::Family::Tag36h11);
 	experiment->SetDefaultTagSize(0.67);
 
 	globalProperties->setExperiment(experiment);
@@ -171,7 +149,6 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_EQ(globalPropertiesWidget.d_ui->tagSizeEdit->value(),0.67);
 
 	EXPECT_TRUE(globalPropertiesWidget.d_ui->familySelector->isEnabled());
-	EXPECT_EQ(globalPropertiesWidget.d_ui->familySelector->currentIndex(),0);
 
 	QTest::keyClicks(globalPropertiesWidget.d_ui->nameEdit,"bar");
 	EXPECT_EQ(globalProperties->name(),"foobar");
@@ -190,5 +167,7 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 
 	auto s = globalPropertiesWidget.d_ui->familySelector;
 	s->setCurrentIndex(1);
-	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Tag36ARTag);
+
+	// no tracking data directory: its undefined
+	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Undefined);
 }

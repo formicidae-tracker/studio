@@ -99,31 +99,9 @@ void TaggingWidget::setup(ExperimentBridge * experiment,
 	        &TagFamilyComboBox::setEnabled);
 
 	connect(globalProperties,
-	        &GlobalPropertyBridge::tagFamilyChanged,
-	        d_ui->familySelector,
-	        &TagFamilyComboBox::setFamily);
-
-	connect(d_ui->familySelector,
-	        &TagFamilyComboBox::familyModified,
-	        globalProperties,
-	        &GlobalPropertyBridge::setTagFamily);
-
-
-	connect(globalProperties,
 	        &GlobalPropertyBridge::activated,
 	        d_ui->thresholdBox,
 	        &QSpinBox::setEnabled);
-
-	connect(globalProperties,
-	        &GlobalPropertyBridge::thresholdChanged,
-	        d_ui->thresholdBox,
-	        &QSpinBox::setValue);
-
-	connect(d_ui->thresholdBox,
-	        &QSpinBox::editingFinished,
-	        [globalProperties,this] () {
-		        globalProperties->setThreshold(d_ui->thresholdBox->value());
-	        });
 
 	connect(d_sortedModel,
 	        &QAbstractItemModel::rowsInserted,

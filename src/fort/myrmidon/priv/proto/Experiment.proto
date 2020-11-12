@@ -14,11 +14,11 @@ message AntShapeType {
 
 
 message Experiment {
+	reserved 5,6;
+	reserved "tagfamily","threshold";
 	string    name      = 2;
 	string    author    = 3;
 	string    comment   = 4;
-	TagFamily tagfamily = 5;
-	uint32    threshold = 6;
 	double    tagsize   = 7;
 
 	repeated MeasurementType customMeasurementTypes  = 21;

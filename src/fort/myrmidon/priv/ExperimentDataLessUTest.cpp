@@ -17,8 +17,6 @@ void ExperimentDataLessUTest::SetUp() {
 	experimentPath = TestSetup::Basedir() / "data-less.myrmidon";
 	auto experiment = Experiment::Create(experimentPath);
 
-	experiment->SetFamily(fort::tags::Family::Tag36h11);
-
 	// First we add some space and tracking data directories
 
 	auto nest = experiment->CreateSpace("nest");
@@ -26,8 +24,8 @@ void ExperimentDataLessUTest::SetUp() {
 
 	auto foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 
-	nest->AddTrackingDataDirectory(foo0);
-	foraging->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
+	experiment->AddTrackingDataDirectory(nest,foo0);
+	experiment->AddTrackingDataDirectory(foraging,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
 
 	auto ant = experiment->CreateAnt();
 

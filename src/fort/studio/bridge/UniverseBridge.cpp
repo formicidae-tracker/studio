@@ -161,7 +161,7 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
 
 
 	try {
-		s->AddTrackingDataDirectory(tdd);
+		d_experiment->AddTrackingDataDirectory(s,tdd);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not add '" << ToQString(tdd->URI())
 		            << "' to '" << spaceName

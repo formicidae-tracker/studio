@@ -31,17 +31,6 @@ void GlobalPropertyWidget::setup(ExperimentBridge * experiment,
 	        d_ui->familySelector,
 	        &TagFamilyComboBox::setEnabled);
 
-	connect(properties,
-	        &GlobalPropertyBridge::tagFamilyChanged,
-	        d_ui->familySelector,
-	        &TagFamilyComboBox::setFamily);
-
-	connect(d_ui->familySelector,
-	        &TagFamilyComboBox::familyModified,
-	        properties,
-	        &GlobalPropertyBridge::setTagFamily);
-
-
 
 	connect(properties,
 	        &GlobalPropertyBridge::activated,

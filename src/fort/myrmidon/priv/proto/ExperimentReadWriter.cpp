@@ -29,12 +29,12 @@ Experiment::Ptr ExperimentReadWriter::DoOpen(const fs::path & filename, bool dat
 		                                             0};
 
 		                 semver::version dataLessSupportBoundaryVersion("0.2.0");
-		                 semver::version maxSupportedVersion("0.2.0");
+		                 semver::version maxSupportedVersion("0.3.0");
 		                 if ( fileVersion >  maxSupportedVersion) {
 			                 std::ostringstream os;
 			                 os << "Unexpected myrmidon file version " << fileVersion
 			                    << " in " << filename
-			                    << ": can only works with 0.1.0 or 0.2.0";
+			                    << ": can only works with version below or equal to 0.3.0";
 			                 throw std::runtime_error(os.str());
 		                 }
 		                 if ( dataLess == true && fileVersion < dataLessSupportBoundaryVersion ) {
@@ -73,7 +73,7 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 	typedef FileReadWriter<pb::FileHeader,pb::FileLine> ReadWriter;
 	pb::FileHeader h;
 	h.set_majorversion(0);
-	h.set_minorversion(2);
+	h.set_minorversion(3);
 
 	std::vector<std::function < void ( pb::FileLine &) > > lines;
 

@@ -133,6 +133,9 @@ public :
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
+	void AddTrackingDataDirectory(const Space::Ptr & space,
+	                              const TrackingDataDirectoryPtr & tdd);
+
 	std::pair<Space::Ptr,TrackingDataDirectoryPtr>
 	LocateTrackingDataDirectory(const std::string & tddURI);
 
@@ -194,10 +197,6 @@ public :
 	//
 	// @return the family of tag used in the experiment
 	fort::tags::Family Family() const;
-	// Sets the kind of tag used in the experiment
-	//
-	// @tf the tag that are used in the experiment
-	void SetFamily(fort::tags::Family tf);
 
 	// The default physical tag size
 	//
@@ -212,16 +211,6 @@ public :
 	//
 	// @defaultTagSize the tag size in mm for the ma
 	void   SetDefaultTagSize(double defaultTagSize);
-
-	// The threshold used for tag detection
-	//
-	// @return the threshold used for detection
-	uint8_t Threshold() const;
-
-	// Sets the detection threshold
-	//
-	// @th the threshold to use.
-	void SetThreshold(uint8_t th);
 
 	MeasurementTypePtr CreateMeasurementType(const std::string & name,
 	                                         MeasurementTypeID MTID = NEXT_AVAILABLE_MEASUREMENT_TYPE_ID);
@@ -331,9 +320,7 @@ private:
 	std::string        d_name;
 	std::string        d_author;
 	std::string        d_comment;
-	fort::tags::Family d_family;
 	double             d_defaultTagSize;
-	uint8_t            d_threshold;
 
 	MeasurementByTagCloseUp  d_measurementByURI;
 	SortedMeasurement        d_measurements;

@@ -20,11 +20,7 @@ class GlobalPropertyBridge : public Bridge {
 	           READ comment WRITE setComment
 	           NOTIFY commentChanged)
 	Q_PROPERTY(fort::tags::Family tagFamily
-	           READ tagFamily WRITE setTagFamily
-	           NOTIFY tagFamilyChanged)
-	Q_PROPERTY(uint8_t threshold
-	           READ threshold WRITE setThreshold
-	           NOTIFY thresholdChanged)
+	           READ tagFamily NOTIFY tagFamilyChanged)
 	Q_PROPERTY(double tagSize
 	           READ tagSize WRITE setTagSize
 	           NOTIFY tagSizeChanged)
@@ -42,7 +38,6 @@ public:
 	QString author() const;
 	QString comment() const;
 	fort::tags::Family tagFamily() const;
-	int threshold() const;
 	double tagSize() const;
 
 signals:
@@ -50,19 +45,14 @@ signals:
 	void authorChanged(QString author);
 	void commentChanged(QString comment);
 	void tagFamilyChanged(fort::tags::Family f);
-	void thresholdChanged(int value);
 	void tagSizeChanged(double value);
 
-	void detectionSettingChanged(fort::tags::Family f,
-	                             int threshold);
 public slots:
 
 	void setName(const QString & name);
 	void setAuthor(const QString & author);
 	void setComment(const QString & comment,bool noSignal = false);
-	void setThreshold(int th);
 	void setTagSize(double tagSize);
-	void setTagFamily(fort::tags::Family tf);
 
 private:
 	fmp::Experiment::Ptr d_experiment;

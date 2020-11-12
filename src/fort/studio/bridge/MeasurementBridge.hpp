@@ -64,8 +64,6 @@ public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd);
 	void onTDDDeleted(const QString &);
 
-	void onDetectionSettingChanged(fort::tags::Family f, uint8_t threshold);
-
 	void loadTagCloseUp();
 
 	bool setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,

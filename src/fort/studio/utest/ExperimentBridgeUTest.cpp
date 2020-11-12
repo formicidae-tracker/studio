@@ -84,29 +84,3 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	}
 
 }
-
-TEST_F(ExperimentBridgeUTest,TDDCloseUpDetectionIsOrderSafe) {
-
-	// addresses bug #61, setting TDD first and then Tag family should not matter
-	ExperimentBridge experiment;
-	ASSERT_TRUE(experiment.open(pathExisting.c_str()));
-	auto globalProperties = experiment.globalProperties();
-	auto universe = experiment.universe();
-
-	auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000", TestSetup::Basedir());
-
-	EXPECT_NO_THROW({
-			globalProperties->setTagFamily(fort::tags::Family::Tag36h11);
-			universe->addSpace("foo");
-			universe->addTrackingDataDirectoryToSpace("foo",tdd);
-		});
-
-	ASSERT_TRUE(experiment.open(pathExisting.c_str()));
-
-	//sets tdd first and then the family from undefined
-	EXPECT_NO_THROW({
-			universe->addSpace("foo");
-			universe->addTrackingDataDirectoryToSpace("foo",tdd);
-			globalProperties->setTagFamily(fort::tags::Family::Tag36h11);
-		});
-}

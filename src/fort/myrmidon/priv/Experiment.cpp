@@ -33,8 +33,6 @@ Experiment::Experiment(const fs::path & filepath )
 	, d_basedir(d_absoluteFilepath.parent_path())
 	, d_identifier(std::make_shared<fort::myrmidon::priv::Identifier>())
 	, d_universe(std::make_shared<Space::Universe>())
-	, d_threshold(40)
-	, d_family(fort::tags::Family::Undefined)
 	, d_defaultTagSize(1.0)
 	, d_antShapeTypes(std::make_shared<AntShapeTypeContainer>()) {
 
@@ -250,6 +248,22 @@ void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 	d_universe->DeleteTrackingDataDirectory(URI);
 }
 
+void Experiment::AddTrackingDataDirectory(const Space::Ptr & space,
+                                          const TrackingDataDirectory::Ptr &  tdd ) {
+	auto tddFamily = tdd->DetectionSettings().Family;
+	if ( tddFamily == tags::Family::Undefined ) {
+		throw std::invalid_argument("Cannot add TrackingDataDirectory with an undefined tag family");
+	}
+	auto myFamily = Family();
+	if ( myFamily != tags::Family::Undefined && myFamily != tddFamily ) {
+		throw std::runtime_error("Family for TrackingDataDirectory '" + tdd->URI()
+		                         + "' ("
+		                         + tags::GetFamilyName(tddFamily)
+		                         + ") does not match family of other directories ("
+		                         + tags::GetFamilyName(myFamily));
+	}
+	Space::Accessor::AddTrackingDataDirectory(space,tdd);
+}
 
 const std::string & Experiment::Name() const {
 	return d_name;
@@ -275,20 +289,6 @@ void Experiment::SetComment(const std::string & comment) {
 	d_comment = comment;
 }
 
-uint8_t Experiment::Threshold() const {
-	return d_threshold;
-}
-
-void Experiment::SetThreshold(uint8_t th) {
-	if ( th == 0 ) {
-		th = 1;
-	}
-	if ( th == 255 ) {
-		th = 254;
-	}
-	d_threshold = th;
-}
-
 const fs::path & Experiment::AbsoluteFilePath() const {
 	return d_absoluteFilepath;
 }
@@ -299,11 +299,11 @@ const fs::path & Experiment::Basedir() const {
 
 
 fort::tags::Family Experiment::Family() const {
-	return d_family;
-}
-
-void Experiment::SetFamily(fort::tags::Family tf) {
-	d_family = tf;
+	const auto & tdds = TrackingDataDirectories();
+	if ( tdds.empty() ) {
+		return tags::Family::Undefined;
+	}
+	return tdds.begin()->second->DetectionSettings().Family;
 }
 
 Ant::Ptr Experiment::CreateAnt(fort::myrmidon::Ant::ID aID) {
@@ -466,10 +466,14 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 	if ( afi == d_identifier->Ants().cend() ) {
 		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(AID);
 	}
-
-	double cornerWidthRatio = CornerWidthRatio(d_family);
-
 	result.clear();
+	double cornerWidthRatio;
+	try {
+		cornerWidthRatio = CornerWidthRatio(Family());
+	} catch ( const std::invalid_argument & e ) {
+		return;
+	}
+
 
 	auto typedMeasurement = d_measurements.find(type);
 	if (typedMeasurement == d_measurements.cend() ) {

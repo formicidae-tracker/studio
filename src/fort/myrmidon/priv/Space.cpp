@@ -122,6 +122,11 @@ Space::Universe::TrackingDataDirectories() const {
 }
 
 
+void Space::Accessor::AddTrackingDataDirectory(const Space::Ptr & itself,
+                                               const TrackingDataDirectoryPtr & tdd) {
+	itself->AddTrackingDataDirectory(tdd);
+}
+
 void Space::AddTrackingDataDirectory(const TrackingDataDirectory::Ptr & tdd) {
 	if ( utils::HasPrefix(tdd->URI(),"spaces/") == true ) {
 		throw std::runtime_error("Invalid TDD path '" + tdd->URI() + "': starts with 'spaces/'");

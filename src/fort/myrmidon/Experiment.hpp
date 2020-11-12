@@ -656,15 +656,6 @@ public:
 	// @return the family of tag used in the Experiment
 	fort::tags::Family Family() const;
 
-	// Sets the kind of tag used in the Experiment
-	// @tf the tag that are used in the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$setFamily(fmTagFamily["TAG_36H11"])
-	// ```
-	void SetFamily(fort::tags::Family tf);
-
 	// The default physical tag size
 	//
 	// Usually an Ant colony are tagged with a majority of tag of a
@@ -694,24 +685,6 @@ public:
 	// ```
 	void   SetDefaultTagSize(double defaultTagSize);
 
-	// The threshold used for tag detection
-	//
-	// R Version :
-	// ```R
-	// e$threshold()
-	// ```
-	//
-	// @return the threshold used for detection
-	uint8_t Threshold() const;
-
-	// Sets the detection threshold
-	// @th the threshold to use.
-	//
-	// R Version :
-	// ```R
-	// e$setThreshold(th)
-	// ```
-	void SetThreshold(uint8_t th);
 
 	/* cldoc:begin-category(manual_measurement) */
 

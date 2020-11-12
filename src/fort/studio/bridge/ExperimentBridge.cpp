@@ -26,13 +26,6 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	connectModifications();
 
 
-	connect(d_globalProperties,
-	        &GlobalPropertyBridge::detectionSettingChanged,
-	        d_measurements,
-	        &MeasurementBridge::onDetectionSettingChanged);
-
-
-
 	connect(d_universe,
 	        &UniverseBridge::trackingDataDirectoryAdded,
 	        d_measurements,

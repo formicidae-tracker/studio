@@ -289,8 +289,6 @@ void TestSetup::CreateMyrmidonFile(const std::string & name,
 	e.set_author("myrmidon-tests");
 	e.set_name("myrmidon test data");
 	e.set_comment("automatically generated data");
-	e.set_threshold(42);
-	e.set_tagfamily(fm::pb::TAG16H5);
 
 	auto mt = e.add_custommeasurementtypes();
 	mt->set_id(1);
@@ -355,7 +353,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
 
-	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000","computed-cache-test.0000"};
+	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000","computed-cache-test.0000","no-family.0000"};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;
@@ -409,7 +407,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "  fps: 8" << std::endl
 		      << "  stub-path: \"\"" << std::endl
 		      << "apriltag:" << std::endl;
-		if ( d != "foo.0001" ) {
+		if (d != "no-family.0000" ) {
 			touch << "  family: 36h11" << std::endl
 			      << "  quad:" << std::endl
 			      << "    decimate: 1" << std::endl
@@ -449,7 +447,6 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {
 		fs::create_directories(Basedir() / d / "ants");
-		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
 		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
 
 		touch << "experiment: " << d << std::endl
@@ -471,7 +468,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		      << "highlights: []" << std::endl;
 	}
 
-	CreateMyrmidonFile("test.myrmidon",semver::version("0.2.0"));
+	CreateMyrmidonFile("test.myrmidon",semver::version("0.3.0"));
 	CreateMyrmidonFile("test-0.1.myrmidon",semver::version("0.1.0"));
 	CreateMyrmidonFile("test-future.myrmidon",semver::version("42.42.42"));
 

@@ -16,9 +16,9 @@ void QueryUTest::SetUp() {
 	ASSERT_NO_THROW({
 			experiment = Experiment::Create(TestSetup::Basedir() / "query.myrmidon");
 			auto space = experiment->CreateSpace("box");
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir()));
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",TestSetup::Basedir()));
 		});
 
 }
