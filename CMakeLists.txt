@@ -99,11 +99,13 @@ if ( NOT HAS_STD_VARIANT )
 endif ( NOT HAS_STD_VARIANT )
 
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+option(ENABLE_COVERAGE "Enables coverage generation" Off)
+
+if(ENABLE_COVERAGE)
 	include(CodeCoverage)
 
-	APPEND_COVERAGE_COMPILER_FLAGS()
-endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	enable_coverage()
+endif(ENABLE_COVERAGE)
 
 
 option(UNIT_TEST_CHECK_TIMING "Test timing improvements during unit tests. May fails due to kernel scheduling, disable for automation" Off)
@@ -132,19 +134,21 @@ add_subdirectory(pkgconfig)
 
 add_subdirectory(src)
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(COVERAGE_GCOVR_EXCLUDES ${PROJECT_BINARY_DIR}/src/fort-studio/*
-	                            ${PROJECT_BINARY_DIR}/src/*
-	                            ${hermes_SOURCE_DIR}/*
-	                            ${hermes_BINARY_DIR}/*
-	                            ${fort-tags_SOURCE_DIR}/*
-	                            ${fort-tags_BINARY_DIR}/*
-	                            ${googletest_SOURCE_DIR}/*
-	                            ${googletest_BINARY_DIR}/*
-	                            )
+if(ENABLE_COVERAGE)
+	setup_target_for_coverage(NAME myrmidon-coverage
+	                          DEPENDENCIES check
+	                          GCOVR_OPTIONS -f ${PROJECT_SOURCE_DIR}/src/
+	                                        -e "'(.)+UTest.hpp'"
+	                                        -e "'(.)+UTest.cpp'"
+	                                        -e ${PROJECT_SOURCE_DIR}/src/analyze-video
+	                                        -e ${PROJECT_SOURCE_DIR}/src/capsule-collision-tester
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/benchmark
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/studio/utest
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/TestSetup
+	                                        -e "main-check\\.cpp"
 
-	setup_target_for_coverage_gcovr_html(NAME myrmidon-coverage EXECUTABLE ctest -V -j ${PROCESSOR_COUNT} DEPENDENCIES myrmidon-tests)
-endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	                          )
+endif(ENABLE_COVERAGE)
 
 option(BUILD_DOCS "Builds the documentation" Off)
 option(DOCS_USES_PATCHED_HEADERS "Documentation shoudl use patched system headers" Off)
