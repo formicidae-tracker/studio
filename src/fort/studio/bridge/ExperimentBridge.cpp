@@ -262,7 +262,6 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 }
 
 void ExperimentBridge::onChildModified(bool modified) {
-	qWarning() << "Modified" << modified;
 	if ( modified == false ) {
 		return;
 	}
