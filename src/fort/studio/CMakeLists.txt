@@ -29,6 +29,7 @@ set(SRC_FILES Format.cpp
 			  bridge/MovieBridge.cpp
 			  bridge/ZoneBridge.cpp
 			  bridge/StatisticsBridge.cpp
+			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
@@ -98,6 +99,7 @@ set(HDR_FILES Format.hpp
 			  bridge/MovieBridge.hpp
 			  bridge/ZoneBridge.hpp
 			  bridge/StatisticsBridge.hpp
+			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp

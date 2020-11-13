@@ -9,6 +9,8 @@
 
 #include "SpaceChoiceDialog.hpp"
 
+#include "TrackingDataDirectoryLoader.hpp"
+
 UniverseEditorWidget::UniverseEditorWidget(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::UniverseEditorWidget) {
@@ -66,6 +68,7 @@ void UniverseEditorWidget::on_addButton_clicked() {
 	try {
 		tdd = fmp::TrackingDataDirectory::Open(tddFilePath.toUtf8().constData(),
 		                                       d_universe->basepath().toUtf8().constData());
+		TrackingDataDirectoryLoader::EnsureLoaded({tdd},this);
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not open TrackingDataDirectory"
 		            << tddFilePath << ": " << e.what();

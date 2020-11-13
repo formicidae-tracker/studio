@@ -28,7 +28,7 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	EXPECT_EQ(modifiedSpy.count(),0);
 	EXPECT_EQ(activatedSpy.count(),0);
 
-	ASSERT_TRUE(controller.open(pathExisting.c_str()));
+	ASSERT_TRUE(controller.open(pathExisting.c_str(),nullptr));
 	EXPECT_EQ(controller.absoluteFilePath().generic_string(),
 	          pathExisting.generic_string());
 	EXPECT_EQ(controller.isModified(),false);

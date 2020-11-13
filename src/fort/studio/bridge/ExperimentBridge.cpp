@@ -5,6 +5,8 @@
 
 #include <QDebug>
 
+#include <fort/studio/widget/TrackingDataDirectoryLoader.hpp>
+
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
@@ -139,7 +141,7 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 }
 
 
-bool ExperimentBridge::open(const QString & path) {
+bool ExperimentBridge::open(const QString & path,QWidget * parent) {
 	fmp::Experiment::Ptr experiment;
 	if ( !d_experiment == false
 	     && d_experiment->AbsoluteFilePath().c_str() == path ) {
@@ -153,6 +155,21 @@ bool ExperimentBridge::open(const QString & path) {
 		            << "': " << e.what();
 		return false;
 	}
+
+	try {
+		std::vector<fmp::TrackingDataDirectory::Ptr> tdds;
+		for(const auto & [tddURI,tdd] : experiment->TrackingDataDirectories() ) {
+			tdds.push_back(tdd);
+		}
+		TrackingDataDirectoryLoader::EnsureLoaded(tdds,parent);
+	} catch ( const std::exception & e ) {
+		qCritical() << "Could not open '"
+		            << path
+		            << "': could not load computed data: "
+		            << e.what();
+		return false;
+	}
+
 	qInfo() << "Opened experiment file '" << path << "'";
 	setExperiment(experiment);
 	return true;

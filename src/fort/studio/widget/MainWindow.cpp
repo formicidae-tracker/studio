@@ -22,7 +22,6 @@
 
 QPointer<Logger> myLogger;
 
-
 VisibilityActionController::VisibilityActionController(QWidget * widget,
                                                        QAction * action,
                                                        QObject * parent)
@@ -211,7 +210,7 @@ void MainWindow::on_actionOpen_triggered() {
 		return;
 	}
 
-	if ( d_experiment->open(filename) == false ) {
+	if ( d_experiment->open(filename,this) == false ) {
 		return;
 	}
 
@@ -396,7 +395,7 @@ void MainWindow::rebuildRecentsFiles() {
 		if ( i > d_recentPaths.size() ) { \
 			return; \
 		} \
-		d_experiment->open(d_recentPaths[i-1]); \
+		d_experiment->open(d_recentPaths[i-1],this); \
 	}
 
 IMPLEMENT_RECENT_FILE_SLOT(1);

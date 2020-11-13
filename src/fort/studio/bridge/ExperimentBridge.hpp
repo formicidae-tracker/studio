@@ -15,6 +15,8 @@
 #include "ZoneBridge.hpp"
 #include "StatisticsBridge.hpp"
 
+class QWidget;
+
 namespace fmp = fort::myrmidon::priv;
 
 class ExperimentBridge : public Bridge {
@@ -27,7 +29,8 @@ public:
 
 	bool isActive() const override;
 
-	bool open(const QString & path);
+	bool open(const QString & path,
+	          QWidget * parent = nullptr);
 
 	bool create(const QString & path);
 
