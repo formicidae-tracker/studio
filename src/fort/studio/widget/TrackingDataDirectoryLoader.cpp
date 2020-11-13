@@ -31,11 +31,15 @@ void TrackingDataDirectoryLoader::initDialog(QWidget * parent) {
 	if (parent == nullptr ) {
 		d_dialog = nullptr;
 	} else {
-		d_dialog = new QProgressDialog("data","",0,size(),parent);
+		d_dialog = new QProgressDialog("data",QString(),0,size(),parent);
 		d_dialog->setWindowTitle(QObject::tr("Computing tracking directory data"));
-		d_dialog->setMinimumDuration(500);
+		d_dialog->setMinimumDuration(250);
 		d_dialog->setAutoClose(false);
+		d_dialog->setMinimumSize(QSize(400,40));
+
 		d_dialog->setWindowModality(Qt::ApplicationModal);
+		d_dialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::FramelessWindowHint);
+
 		connect(this,
 		        &TrackingDataDirectoryLoader::valueChanged,
 		        d_dialog,
@@ -72,6 +76,8 @@ void TrackingDataDirectoryLoader::load(const std::vector<fmp::TrackingDataDirect
 		d_dialog->setLabelText(caption);
 		d_dialog->setRange(0,loaders.size());
 		d_dialog->setValue(0);
+		d_dialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::FramelessWindowHint);
+		d_dialog->adjustSize();
 	}
 
 	QFutureWatcher<void> watcher;

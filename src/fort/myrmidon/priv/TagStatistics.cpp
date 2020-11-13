@@ -105,7 +105,6 @@ TagStatisticsHelper::Timed TagStatisticsHelper::BuildStats(const std::string & h
 		}
 
 		res.End = currentTime;
-		static std::mutex mutex;
 		for ( const auto & tag : ro.tags() ) {
 			auto key = tag.id();
 			if ( stats.count(key) == 0 ) {
