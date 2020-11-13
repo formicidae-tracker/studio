@@ -175,6 +175,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+	auto logStatus = new LogStatusWidget(d_logger,this);
+	d_ui->statusBar->addPermanentWidget(logStatus);
+	connect(logStatus,
+	        &LogStatusWidget::showLog,
+	        d_ui->actionShowLog,
+	        &QAction::trigger);
+
 }
 
 MainWindow::~MainWindow() {
