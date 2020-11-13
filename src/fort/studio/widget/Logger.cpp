@@ -164,6 +164,9 @@ LoggerWidget::LoggerWidget(Logger * logger, QWidget * parent)
 	        &LoggerWidget::onNewMessage,
 	        Qt::QueuedConnection);
 	onNewMessage();
+
+	const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+	d_ui->textEdit->setFont(fixedFont);
 }
 
 
