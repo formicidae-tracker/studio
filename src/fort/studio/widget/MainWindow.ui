@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -24,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -39,9 +42,15 @@
        <attribute name="title">
         <string>General</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Edits global experiment properties</string>
+       </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QGroupBox" name="globalBox">
+          <property name="toolTip">
+           <string>Global properties for this experiment</string>
+          </property>
           <property name="title">
            <string>Global Properties</string>
           </property>
@@ -54,6 +63,9 @@
         </item>
         <item>
          <widget class="QGroupBox" name="universeBox">
+          <property name="toolTip">
+           <string>Manages space and tracking data directory</string>
+          </property>
           <property name="title">
            <string>Spaces and Data Directories</string>
           </property>
@@ -67,8 +79,14 @@
        </layout>
       </widget>
       <widget class="QWidget" name="statsWidget">
+       <property name="toolTip">
+        <string/>
+       </property>
        <attribute name="title">
         <string>Stats</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Shows global tag detection statistics</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
@@ -93,26 +111,41 @@
        <attribute name="title">
         <string>Identification</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Edits tag and ants association</string>
+       </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6"/>
       </widget>
       <widget class="AntEditorWidget" name="shappingWidget">
        <attribute name="title">
         <string>Ant Editor</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Shapes and measure ants</string>
+       </attribute>
       </widget>
       <widget class="ZoningWidget" name="zoningWidget">
        <attribute name="title">
         <string>Zoning</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Defines geometric zones</string>
        </attribute>
       </widget>
       <widget class="UserDataWidget" name="userData">
        <attribute name="title">
         <string>Timed Data</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Edits individual ant data</string>
+       </attribute>
       </widget>
       <widget class="VisualizationWidget" name="visualizeWidget">
        <attribute name="title">
         <string>Visualize</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Visualizes tracking during experiment</string>
        </attribute>
       </widget>
      </widget>
@@ -129,12 +162,24 @@
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
+    <property name="toolTip">
+     <string>File Actions</string>
+    </property>
     <property name="title">
      <string>File</string>
     </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
     <widget class="QMenu" name="menuRecentsProjects">
+     <property name="toolTip">
+      <string>Open recent experiment file</string>
+     </property>
      <property name="title">
       <string>Recents Projects</string>
+     </property>
+     <property name="toolTipsVisible">
+      <bool>true</bool>
      </property>
      <addaction name="recentFile1"/>
      <addaction name="recentFile2"/>
@@ -154,6 +199,9 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
@@ -170,8 +218,14 @@
     <addaction name="actionOnlineHelp"/>
    </widget>
    <widget class="QMenu" name="menuMove">
+    <property name="toolTip">
+     <string>Tag Close Up Navigation actions</string>
+    </property>
     <property name="title">
      <string>Move</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
     </property>
     <addaction name="actionNextCloseUp"/>
     <addaction name="actionPreviousCloseUp"/>
@@ -204,8 +258,8 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
       <widget class="AntListWidget" name="antList" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -230,6 +284,7 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
    <property name="icon">
     <iconset theme="document-open">
@@ -237,6 +292,12 @@
    </property>
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a '.myrmidon' file</string>
+   </property>
+   <property name="statusTip">
+    <string>Open a '.myrmidon'' file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -250,6 +311,12 @@
    <property name="text">
     <string>Save</string>
    </property>
+   <property name="toolTip">
+    <string>Save current file</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current file</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
@@ -262,6 +329,12 @@
    <property name="text">
     <string>Save As</string>
    </property>
+   <property name="toolTip">
+    <string>Save as a new file</string>
+   </property>
+   <property name="statusTip">
+    <string>Save as a new file</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
    </property>
@@ -273,6 +346,12 @@
    </property>
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit FORT Studio</string>
+   </property>
+   <property name="statusTip">
+    <string>Quit FORT Studio</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -392,6 +471,12 @@
    <property name="text">
     <string>Undo</string>
    </property>
+   <property name="toolTip">
+    <string>Undo last action</string>
+   </property>
+   <property name="statusTip">
+    <string>Undo last action</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
    </property>
@@ -407,6 +492,12 @@
    <property name="text">
     <string>Redo</string>
    </property>
+   <property name="toolTip">
+    <string>Redo last action</string>
+   </property>
+   <property name="statusTip">
+    <string>Redo last action</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
    </property>
@@ -419,6 +510,12 @@
    <property name="text">
     <string>New</string>
    </property>
+   <property name="toolTip">
+    <string>Create a new '.myrmidon' file</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new '.myrmidon' file</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
@@ -426,6 +523,12 @@
   <action name="actionShowLog">
    <property name="text">
     <string>Show Log</string>
+   </property>
+   <property name="toolTip">
+    <string>Displays Log</string>
+   </property>
+   <property name="statusTip">
+    <string>Displays Log</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -441,6 +544,12 @@
    <property name="text">
     <string>Show Ant Selector</string>
    </property>
+   <property name="toolTip">
+    <string>Show Ant Selector docked widget</string>
+   </property>
+   <property name="statusTip">
+    <string>Show Ant Selector docked widget</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
    </property>
@@ -448,6 +557,12 @@
   <action name="actionNextCloseUp">
    <property name="text">
     <string>Next Close Up</string>
+   </property>
+   <property name="toolTip">
+    <string>Move to next close up for this tag</string>
+   </property>
+   <property name="statusTip">
+    <string>Move to next close up for this tag</string>
    </property>
    <property name="shortcut">
     <string>Shift+Down</string>
@@ -457,6 +572,12 @@
    <property name="text">
     <string>Previous Close Up</string>
    </property>
+   <property name="toolTip">
+    <string>Move to previous close up for this tag</string>
+   </property>
+   <property name="statusTip">
+    <string>Move to previous close up for this tag</string>
+   </property>
    <property name="shortcut">
     <string>Shift+Up</string>
    </property>
@@ -464,6 +585,12 @@
   <action name="actionNextTag">
    <property name="text">
     <string>Next Tag</string>
+   </property>
+   <property name="toolTip">
+    <string>Move to next tag</string>
+   </property>
+   <property name="statusTip">
+    <string>Move to next tag</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Down</string>
@@ -473,6 +600,12 @@
    <property name="text">
     <string>Previous Tag</string>
    </property>
+   <property name="toolTip">
+    <string>Move to previous tag</string>
+   </property>
+   <property name="statusTip">
+    <string>Move to previous tag</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Up</string>
    </property>
@@ -480,6 +613,12 @@
   <action name="actionCopyTimeFromFrame">
    <property name="text">
     <string>Copy current time</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy current time from currently displayed frame</string>
+   </property>
+   <property name="statusTip">
+    <string>Copy current time from currently displayed frame</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>

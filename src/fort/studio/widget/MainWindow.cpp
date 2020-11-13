@@ -132,6 +132,13 @@ MainWindow::MainWindow(QWidget *parent)
 	        });
 
 	d_ui->workspaceSelector->setCurrentIndex(0);
+	d_ui->actionNextTag->setEnabled(false);
+	d_ui->actionPreviousTag->setEnabled(false);
+	d_ui->actionNextCloseUp->setEnabled(false);
+	d_ui->actionPreviousCloseUp->setEnabled(false);
+	d_ui->actionCopyTimeFromFrame->setEnabled(false);
+	d_ui->visualizeWidget->jumpToTimeAction()->setEnabled(false);
+
 	d_lastWasTaggingWidget = false;
 
 	setWindowTitle(tr("FORmicidae Tracker Studio"));

@@ -23,6 +23,12 @@
    </item>
    <item row="0" column="3">
     <widget class="QDoubleSpinBox" name="tagSizeEdit">
+     <property name="toolTip">
+      <string>Sets the default tag size for all identifications</string>
+     </property>
+     <property name="statusTip">
+      <string>Sets the default tag size for all identifications</string>
+     </property>
      <property name="minimum">
       <double>0.100000000000000</double>
      </property>
@@ -68,13 +74,34 @@
     </widget>
    </item>
    <item row="9" column="0" colspan="4">
-    <widget class="QPlainTextEdit" name="commentEdit"/>
+    <widget class="QPlainTextEdit" name="commentEdit">
+     <property name="toolTip">
+      <string>Sets the experiment's comment</string>
+     </property>
+     <property name="statusTip">
+      <string>comment</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="1" colspan="3">
-    <widget class="QLineEdit" name="authorEdit"/>
+    <widget class="QLineEdit" name="authorEdit">
+     <property name="toolTip">
+      <string>Sets the author's name</string>
+     </property>
+     <property name="statusTip">
+      <string>Sets the author's name</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1" colspan="3">
-    <widget class="QLineEdit" name="nameEdit"/>
+    <widget class="QLineEdit" name="nameEdit">
+     <property name="toolTip">
+      <string>Sets the experiment name</string>
+     </property>
+     <property name="statusTip">
+      <string>Sets the experiment name</string>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0" colspan="4">
     <widget class="QLabel" name="commentLabel">
@@ -88,6 +115,12 @@
    </item>
    <item row="0" column="1">
     <widget class="QLabel" name="familyValueLabel">
+     <property name="toolTip">
+      <string>Automatically detected family for this experiment</string>
+     </property>
+     <property name="statusTip">
+      <string>Automatically detected family for this experiment</string>
+     </property>
      <property name="text">
       <string>undefined</string>
      </property>
