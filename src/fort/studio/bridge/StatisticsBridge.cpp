@@ -21,19 +21,11 @@ StatisticsBridge::~StatisticsBridge() {
 void StatisticsBridge::setExperiment(const fmp::Experiment::ConstPtr  & experiment) {
 	d_experiment = experiment;
 	emit activated(!d_experiment == false);
-	setOutdated(true);
+	compute();
 }
 
 bool StatisticsBridge::isActive() const {
 	return !d_experiment == false;
-}
-
-bool StatisticsBridge::isOutdated() const {
-	return d_outdated;
-}
-
-bool StatisticsBridge::isReady() const {
-	return d_watcher == nullptr;
 }
 
 QAbstractItemModel * StatisticsBridge::stats() const {
@@ -41,17 +33,21 @@ QAbstractItemModel * StatisticsBridge::stats() const {
 }
 
 const fm::TagStatistics & StatisticsBridge::statsForTag(fmp::TagID tagID) const {
-	auto static empty =  fmp::TagStatisticsHelper::Create(0,fm::Time());
-	return empty;
+	auto fi  = d_stats.find(tagID);
+	if ( fi == d_stats.cend() ) {
+		static auto empty = fmp::TagStatisticsHelper::Create(0,fm::Time());
+		return empty;
+	}
+	return fi->second;
 }
 
 
 void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd) {
-	setOutdated(true);
+	compute();
 }
 
 void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
-	setOutdated(true);
+	compute();
 }
 
 void StatisticsBridge::rebuildModel() {
@@ -111,60 +107,15 @@ void StatisticsBridge::rebuildModel() {
 }
 
 
-void StatisticsBridge::setOutdated(bool outdated_) {
-	if ( outdated_ == true ) {
-		++d_seed;
-		d_stats.clear();
-		rebuildModel();
-	}
-	if ( d_outdated == outdated_ ) {
-		return;
-	}
-	d_outdated = outdated_;
-	emit outdated(d_outdated);
-}
-
 
 void StatisticsBridge::compute() {
-	if ( !d_experiment == true
-	     || isReady() == false
-	     || d_outdated == false ) {
-		return;
+	d_stats.clear();
+	if ( !d_experiment == false ) {
+		try {
+			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);
+		} catch ( const std::exception & e ) {
+			qCritical() << "Could not compute tag statistics: " << e.what();
+		}
 	}
-
-	size_t currentSeed = d_seed;
-	auto future = QtConcurrent::run([this]() -> Stats * {
-		                                auto stats = new Stats();
-		                                try {
-			                                fmp::Query::ComputeTagStatistics(d_experiment,
-			                                                                 *stats);
-		                                } catch (const std::exception & e) {
-			                                std::cerr << "Could not compute stats: " << e.what() <<  std::endl;
-			                                return nullptr;
-		                                }
-		                                return stats;
-	                                });
-
-	d_watcher = new QFutureWatcher<Stats*>(this);
-	connect(d_watcher,
-	        &QFutureWatcher<Stats*>::finished,
-	        this,
-	        [this,currentSeed]() {
-		        auto result = d_watcher->result();
-		        d_watcher->deleteLater();
-		        d_watcher = nullptr;
-		        emit ready(true);
-
-		        if ( currentSeed != d_seed
-		             || result == nullptr) {
-			        return;
-		        }
-		        d_stats = *result;
-		        rebuildModel();
-		        setOutdated(false);
-	        },Qt::QueuedConnection);
-
-	d_watcher->setFuture(future);
-	emit ready(false);
-
+	rebuildModel();
 }

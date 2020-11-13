@@ -12,12 +12,6 @@ class QAbstractItemModel;
 
 class StatisticsBridge : public Bridge {
 	Q_OBJECT
-	Q_PROPERTY(bool isOutdated
-	           READ isOutdated
-	           NOTIFY outdated)
-	Q_PROPERTY(bool isReady
-	           READ isReady
-	           NOTIFY ready)
 
 public:
 	StatisticsBridge(QObject * parent );
@@ -27,19 +21,13 @@ public:
 
 	bool isActive() const override;
 
-	bool isOutdated() const;
-	bool isReady() const;
 
 	QAbstractItemModel * stats() const;
 
 	const fm::TagStatistics & statsForTag(fmp::TagID tagID) const;
 
-signals:
-	void outdated(bool);
-	void ready(bool);
 
 public slots:
-	void compute();
 
 
 	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd);
@@ -47,7 +35,8 @@ public slots:
 
 private:
 	typedef fm::TagStatistics::ByTagID Stats;
-	void setOutdated(bool outdated);
+
+	void compute();
 
 
 	void rebuildModel();
@@ -56,6 +45,7 @@ private:
 	QStandardItemModel       * d_model;
 	bool                       d_outdated;
 	QFutureWatcher<Stats*>   * d_watcher;
+
 	Stats                      d_stats;
 	size_t                     d_seed;
 };

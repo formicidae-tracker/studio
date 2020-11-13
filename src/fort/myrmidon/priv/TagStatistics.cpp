@@ -28,39 +28,23 @@ TagStatistics TagStatisticsHelper::Create(TagID tagID,const Time & firstTime) {
 }
 
 TagStatistics::CountHeader TagStatisticsHelper::ComputeGap(const Time & lastSeen, const Time & currentTime) {
-	auto gap = currentTime.Sub(lastSeen);
-	if ( gap < 0 ) {
-		return TagStatistics::CountHeader(0);
-	}
-	if ( gap < 500 * Duration::Millisecond ) {
-		return TagStatistics::GAP_500MS;
-	}
 
-	if ( gap < Duration::Second ) {
-		return TagStatistics::GAP_1S;
+	static std::map<int64_t,TagStatistics::CountHeader> gapBounds
+		= {
+		   {0,TagStatistics::CountHeader(0)},
+		   {(500 * Duration::Millisecond).Nanoseconds(),TagStatistics::GAP_500MS},
+		   {(1 * Duration::Second).Nanoseconds(), TagStatistics::GAP_1S},
+		   {(10 * Duration::Second).Nanoseconds(), TagStatistics::GAP_10S},
+		   {(1 * Duration::Minute).Nanoseconds(), TagStatistics::GAP_1M},
+		   { (10 * Duration::Minute).Nanoseconds(), TagStatistics::GAP_10M},
+		   { (1 * Duration::Hour).Nanoseconds(), TagStatistics::GAP_1H},
+		   { (10 * Duration::Hour).Nanoseconds(), TagStatistics::GAP_10H},
+	};
+	auto fi = gapBounds.upper_bound(currentTime.Sub(lastSeen).Nanoseconds());
+	if ( fi == gapBounds.end() ) {
+		return TagStatistics::GAP_MORE;
 	}
-
-	if ( gap < 10 * Duration::Second ) {
-		return TagStatistics::GAP_10S;
-	}
-
-	if ( gap < Duration::Minute ) {
-		return TagStatistics::GAP_1M;
-	}
-
-	if ( gap < 10 * Duration::Minute ) {
-		return TagStatistics::GAP_10M;
-	}
-
-	if ( gap < 1 * Duration::Hour ) {
-		return TagStatistics::GAP_1H;
-	}
-
-	if ( gap < 10 * Duration::Hour ) {
-		return TagStatistics::GAP_10H;
-	}
-
-	return TagStatistics::GAP_MORE;
+	return fi->second;
 }
 
 

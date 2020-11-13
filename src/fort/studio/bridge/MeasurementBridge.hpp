@@ -19,12 +19,6 @@
 
 class MeasurementBridge : public Bridge {
 	Q_OBJECT
-	Q_PROPERTY(bool isReady
-	           READ isReady
-	           NOTIFY ready)
-	Q_PROPERTY(bool isOutdated
-	           READ isOutdated
-	           NOTIFY outdated)
 public:
 	MeasurementBridge(QObject * parent);
 	virtual ~MeasurementBridge();
@@ -43,13 +37,7 @@ public:
 	void queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
 	                     const fmp::IdentificationConstPtr & identification);
 
-	bool isReady() const;
-
-	bool isOutdated() const;
-
 signals:
-	void progressChanged(size_t done, size_t toDo);
-
 	void measurementModified(const fmp::Measurement::ConstPtr &m);
 	void measurementDeleted(QString tcuURI, quint32 mtID);
 
@@ -57,14 +45,12 @@ signals:
 	void measurementTypeDeleted(quint32);
 
 
-	void ready(bool);
-	void outdated(bool);
-
 public slots:
 	void onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd);
 	void onTDDDeleted(const QString &);
 
-	void loadTagCloseUp();
+	void loadAllTagCloseUps();
+	void loadTagCloseUps(const fmp::TrackingDataDirectory::Ptr & tdd);
 
 	bool setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                    fmp::MeasurementType::ID mtID,
@@ -88,12 +74,9 @@ private:
 	typedef std::map<std::string,CloseUpByPath>             CloseUpByTddURI;
 	typedef std::map<std::string,QStandardItem*>            CountByTcuURI;
 
-	void cancelAll();
-
 	void addOneTCU(const std::string & tddURI, const fmp::TagCloseUp::ConstPtr & tcu);
 	void clearTddTCUs(const std::string & tddURI);
 	void clearAllTCUs();
-	void setOutdated(bool v);
 
 	QList<QStandardItem*> buildTag(fmp::TagID tagID) const;
 	QList<QStandardItem*> buildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
@@ -107,8 +90,6 @@ private:
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
 	size_t               d_seed;
-	bool                 d_outdated;
 
-	QFutureWatcher<void>                            * d_watcher;
 	std::vector<fmp::TrackingDataDirectory::Loader>   d_loaders;
 };
