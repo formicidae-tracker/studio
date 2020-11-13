@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->shappingWidget->setup(d_experiment);
 	d_ui->zoningWidget->setup(d_experiment);
 	d_ui->userData->setup(d_experiment->antMetadata());
+	d_ui->visualizeWidget->setup(d_experiment);
 
 	d_ui->shappingWidget->setEnabled(false);
 	connect(d_ui->workspaceSelector,
@@ -127,11 +128,11 @@ MainWindow::MainWindow(QWidget *parent)
 			        w->setEnabled(i == index);
 		        }
 		        setupMoveActions();
+		        setAntSelectorVisibility();
 	        });
 
 	d_ui->workspaceSelector->setCurrentIndex(0);
-
-	d_ui->visualizeWidget->setup(d_experiment);
+	d_lastWasTaggingWidget = false;
 
 	setWindowTitle(tr("FORmicidae Tracker Studio"));
 	connect(d_experiment,
@@ -145,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
 
-
+	d_lastSelectorState = d_ui->dockWidget->isVisible();
 
 
 	loadSettings();
@@ -166,7 +167,6 @@ MainWindow::MainWindow(QWidget *parent)
 	d_ui->statsView->setModel(sorted);
 
 	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
 
 }
 
@@ -440,6 +440,21 @@ void MainWindow::onLoggerWidgetDestroyed() {
 	d_loggerWidget = NULL;
 }
 
+
+void MainWindow::setAntSelectorVisibility() {
+	auto currentWidget = d_ui->workspaceSelector->currentWidget();
+	bool isTagWidget = currentWidget == d_ui->statsWidget || currentWidget == d_ui->taggingWidget;
+
+	if ( isTagWidget && !d_lastWasTaggingWidget ) {
+		d_lastSelectorState = d_ui->dockWidget->isVisible();
+		d_ui->dockWidget->close();
+	} else if ( !isTagWidget && d_lastWasTaggingWidget ) {
+		if ( d_lastSelectorState ) {
+			d_ui->dockWidget->show();
+		}
+	}
+	d_lastWasTaggingWidget = isTagWidget;
+}
 
 void MainWindow::setupMoveActions() {
 	auto jumpTimeAction = d_ui->visualizeWidget->jumpToTimeAction();

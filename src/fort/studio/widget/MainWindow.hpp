@@ -70,7 +70,7 @@ private:
 	void pushRecent();
 	void loadSettings();
 	void rebuildRecentsFiles();
-
+	void setAntSelectorVisibility();
 
     Ui::MainWindow      * d_ui;
 	ExperimentBridge    * d_experiment;
@@ -79,4 +79,5 @@ private:
 	LoggerWidget        * d_loggerWidget;
 	QtMessageHandler      d_handler;
 	Navigatable         * d_lastNavigatable;
+	bool                  d_lastWasTaggingWidget,d_lastSelectorState;
 };
