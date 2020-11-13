@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QFontDatabase>
 
+#include <glog/logging.h>
+
 Logger::~Logger() {}
 
 Logger::Logger(QObject * parent)
@@ -23,7 +25,7 @@ Logger::Logger(QObject * parent)
 			   return "<span style=\"color:#0000ff;\">" + msg + "</span>";
 		   },
 		   [](const QString & msg) {
-			   //	   DLOG(INFO) << msg.toUtf8().constData();
+			   LOG(INFO) << msg.toUtf8().constData();
 		   },
 		   {&d_infos}
 		  }
@@ -38,7 +40,7 @@ Logger::Logger(QObject * parent)
 			   return msg;
 		   },
 		   [](const QString & msg) {
-			   //	   LOG(INFO) << msg.toUtf8().constData();
+			   LOG(INFO) << msg.toUtf8().constData();
 		   },
 		   {&d_infos}
 		  }
@@ -54,7 +56,7 @@ Logger::Logger(QObject * parent)
 		   [this](const QString & msg) {
 			   ++d_warningCounts;
 			   emit warningCountChanged(d_warningCounts);
-			   //	   LOG(WARNING) << msg.toUtf8().constData();
+			   LOG(WARNING) << msg.toUtf8().constData();
 		   },
 		   {&d_infos,&d_warnings}
 		  }
@@ -70,7 +72,7 @@ Logger::Logger(QObject * parent)
 		   [this](const QString & msg) {
 			   ++d_errorCounts;
 			   emit errorCountChanged(d_errorCounts);
-			   //	   LOG(ERROR) << msg.toUtf8().constData();
+			   LOG(ERROR) << msg.toUtf8().constData();
 		   },
 		   {&d_infos,&d_warnings,&d_errors}
 		  }
@@ -84,7 +86,7 @@ Logger::Logger(QObject * parent)
 			   return "<span style=\"color:#ff0000;\">" + msg + "</span>";
 		   },
 		   [this](const QString & msg) {
-			   //	   LOG(FATAL) << msg.toUtf8().constData();
+			   LOG(FATAL) << msg.toUtf8().constData();
 		   },
 		   {}
 		  }

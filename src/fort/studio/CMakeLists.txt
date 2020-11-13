@@ -1,3 +1,5 @@
+include(FindGLog)
+
 option(DEBUG_VIDEO_PLAYER Off "Debugs the video player with expensive STDERR output")
 if(NOT DEBUG_VIDEO_PLAYER)
 	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")
@@ -192,7 +194,8 @@ include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_BINARY_DIR}/src/fort-studio
                     ${PROJECT_SOURCE_DIR}/src
                     ${GLOG_INCLUDE_DIRS}
-                    ${apriltag_INCLUDE_DIR})
+                    ${apriltag_INCLUDE_DIR}
+                    ${GLOG_INCLUDE_DIRS})
 
 add_library(fort-studio-common STATIC ${SRC_FILES}
                                       ${HDR_FILES}
@@ -204,7 +207,8 @@ target_link_libraries(fort-studio-common Qt5::Widgets
                                          Qt5::Concurrent
                                          fort-myrmidon
                                          fort-tags
-                                         Threads::Threads)
+                                         Threads::Threads
+                                         ${GLOG_LIBRARIES})
 
 add_executable(fort-studio main.cpp)
 

@@ -4,7 +4,13 @@
 
 #include <QPointer>
 
+#include <glog/logging.h>
+
 int main(int argc, char ** argv) {
+
+	FLAGS_logtostderr = false;
+	FLAGS_log_prefix = false;
+	::google::InitGoogleLogging(argv[0]);
 
 	QCoreApplication::setOrganizationName("FORmicidae Tracker");
 	QCoreApplication::setOrganizationDomain("formicidae-tracker.github.io");
