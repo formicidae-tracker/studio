@@ -45,30 +45,32 @@ set(SRC_FILES Format.cpp
 			  widget/vectorgraphics/Capsule.cpp
 			  widget/vectorgraphics/Polygon.cpp
 			  widget/vectorgraphics/Circle.cpp
-			  widget/Navigatable.cpp
 			  widget/Logger.cpp
 			  widget/GlobalPropertyWidget.cpp
 			  widget/UniverseEditorWidget.cpp
 			  widget/SpaceChoiceDialog.cpp
 			  widget/MeasurementTypeWidget.cpp
 			  widget/AntListWidget.cpp
-			  widget/TaggingWidget.cpp
 			  widget/AntIdentificationWidget.cpp
 			  widget/IdentificationEditorWidget.cpp
-			  widget/AntEditorWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
 			  widget/AntMetadataWidget.cpp
-			  widget/UserDataWidget.cpp
-			  widget/MainWindow.cpp
-			  widget/VisualizationWidget.cpp
 			  widget/TrackingVideoFrame.cpp
 			  widget/TrackingVideoWidget.cpp
 			  widget/TrackingVideoPlayer.cpp
 			  widget/TrackingVideoControl.cpp
-			  widget/ZoningWidget.cpp
 			  widget/ZonesEditorWidget.cpp
 			  widget/CloneShapeDialog.cpp
+			  workspace/Workspace.cpp
+			  workspace/TagStatisticsWorkspace.cpp
+			  workspace/GeneralWorkspace.cpp
+			  workspace/IdentificationWorkspace.cpp
+			  workspace/AntGeometryWorkspace.cpp
+			  workspace/ZoningWorkspace.cpp
+			  workspace/AntMetadataWorkspace.cpp
+			  workspace/VisualizationWorkspace.cpp
+			  MainWindow.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -115,54 +117,58 @@ set(HDR_FILES Format.hpp
 			  widget/vectorgraphics/Capsule.hpp
 			  widget/vectorgraphics/Polygon.hpp
 			  widget/vectorgraphics/Circle.hpp
-			  widget/Navigatable.hpp
 			  widget/Logger.hpp
 			  widget/GlobalPropertyWidget.hpp
 			  widget/UniverseEditorWidget.hpp
 			  widget/SpaceChoiceDialog.hpp
 			  widget/MeasurementTypeWidget.hpp
 			  widget/AntListWidget.hpp
-			  widget/TaggingWidget.hpp
 			  widget/AntIdentificationWidget.hpp
 			  widget/IdentificationEditorWidget.hpp
-			  widget/AntEditorWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
 			  widget/AntMetadataWidget.hpp
-			  widget/UserDataWidget.hpp
-			  widget/MainWindow.hpp
-			  widget/VisualizationWidget.hpp
 			  widget/TrackingVideoFrame.hpp
 			  widget/TrackingVideoWidget.hpp
 			  widget/TrackingVideoPlayer.hpp
 			  widget/TrackingVideoControl.hpp
-			  widget/ZoningWidget.hpp
 			  widget/ZonesEditorWidget.hpp
 			  widget/CloneShapeDialog.hpp
+			  workspace/Workspace.hpp
+			  workspace/TagStatisticsWorkspace.cpp
+			  workspace/GeneralWorkspace.cpp
+			  workspace/IdentificationWorkspace.cpp
+			  workspace/AntGeometryWorkspace.cpp
+			  workspace/ZoningWorkspace.cpp
+			  workspace/AntMetadataWorkspace.cpp
+			  workspace/VisualizationWorkspace.cpp
+			  MainWindow.hpp
 			  )
 
 
 set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/UniverseEditorWidget.ui
-             widget/MainWindow.ui
              widget/LoggerWidget.ui
              widget/SpaceChoiceDialog.ui
              widget/MeasurementTypeWidget.ui
              widget/AntListWidget.ui
-             widget/TaggingWidget.ui
              widget/AntIdentificationWidget.ui
              widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
-             widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
-             widget/UserDataWidget.ui
-             widget/VisualizationWidget.ui
              widget/TrackingVideoControl.ui
-             widget/ZoningWidget.ui
              widget/ZonesEditorWidget.ui
              widget/CloneShapeDialog.ui
+             workspace/GeneralWorkspace.ui
+             workspace/TagStatisticsWorkspace.ui
+             workspace/IdentificationWorkspace.ui
+             workspace/AntGeometryWorkspace.ui
+             workspace/ZoningWorkspace.ui
+             workspace/AntMetadataWorkspace.ui
+             workspace/VisualizationWorkspace.ui
+             MainWindow.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)

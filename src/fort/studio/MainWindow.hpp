@@ -4,11 +4,12 @@
 
 #include <deque>
 
-#include "Navigatable.hpp"
+#include <fort/studio/workspace/Workspace.hpp>
 
 class ExperimentBridge;
 class Logger;
 class LoggerWidget;
+class LogStatusWidget;
 
 namespace Ui {
 class MainWindow;
@@ -55,12 +56,21 @@ private slots:
 	void onExperimentModified(bool);
 	void onExperimentActivated(bool);
 
+	void onCurrentWorkspaceChanged(int);
+
 	void onLoggerWidgetDestroyed();
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-	void setupMoveActions();
+
+	void setUpLogger();
+	void setUpSaveAndModificationEvents();
+	void setUpDynamicWindowTitle();
+	void setUpAntSelectorAction();
+	void setUpWorkspaces();
+	void setUpWorkspacesActions();
+
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
 
@@ -70,14 +80,16 @@ private:
 	void pushRecent();
 	void loadSettings();
 	void rebuildRecentsFiles();
-	void setAntSelectorVisibility();
+
+
+
 
     Ui::MainWindow      * d_ui;
 	ExperimentBridge    * d_experiment;
 	std::deque<QString>   d_recentPaths;
 	Logger              * d_logger;
 	LoggerWidget        * d_loggerWidget;
+	LogStatusWidget     * d_logStatus;
 	QtMessageHandler      d_handler;
-	Navigatable         * d_lastNavigatable;
-	bool                  d_lastWasTaggingWidget,d_lastSelectorState;
+	Workspace           * d_lastWorkspace;
 };

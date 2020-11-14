@@ -1,9 +1,9 @@
-#include "VisualizationWidget.hpp"
-#include "ui_VisualizationWidget.h"
+#include "VisualizationWorkspace.hpp"
+#include "ui_VisualizationWorkspace.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 
-#include "TrackingVideoPlayer.hpp"
+#include <fort/studio/widget/TrackingVideoPlayer.hpp>
 
 #include <QAction>
 #include <QShortcut>
@@ -18,10 +18,10 @@
 #include <fort/studio/Format.hpp>
 
 
-VisualizationWidget::VisualizationWidget(QWidget *parent)
-	: QWidget(parent)
+VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
+	: Workspace(true,parent)
 	, d_experiment(nullptr)
-	, d_ui(new Ui::VisualizationWidget)
+	, d_ui(new Ui::VisualizationWorkspace)
 	, d_videoPlayer(new TrackingVideoPlayer(this))
 	, d_jumpToTimeAction( new QAction(tr("Jump to Time"),this)) {
 	d_ui->setupUi(this);
@@ -102,11 +102,11 @@ VisualizationWidget::VisualizationWidget(QWidget *parent)
 
 }
 
-VisualizationWidget::~VisualizationWidget() {
+VisualizationWorkspace::~VisualizationWorkspace() {
 	delete d_ui;
 }
 
-void VisualizationWidget::setup(ExperimentBridge * experiment) {
+void VisualizationWorkspace::initialize(ExperimentBridge * experiment) {
 	d_experiment = experiment;
 	auto movieBridge = experiment->movies();
 
@@ -162,12 +162,11 @@ void VisualizationWidget::setup(ExperimentBridge * experiment) {
 	d_ui->videoControl->setShowID(d_ui->trackingVideoWidget->showID());
 
 	connect(d_jumpToTimeAction,&QAction::triggered,
-	        this,&VisualizationWidget::jumpToTime);
+	        this,&VisualizationWorkspace::jumpToTime);
 
 }
 
-
-void VisualizationWidget::onCopyTimeActionTriggered() {
+void VisualizationWorkspace::onCopyTimeActionTriggered() {
 	if ( d_ui->trackingVideoWidget->hasTrackingTime() == false ) {
 		return;
 	}
@@ -175,7 +174,7 @@ void VisualizationWidget::onCopyTimeActionTriggered() {
 	QApplication::clipboard()->setText(ToQString(time));
 }
 
-void VisualizationWidget::setUp(const NavigationAction & actions) {
+void VisualizationWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
 	connect(d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hasTrackingTimeChanged,
 	        actions.CopyCurrentTime,
@@ -184,12 +183,13 @@ void VisualizationWidget::setUp(const NavigationAction & actions) {
 	connect(actions.CopyCurrentTime,
 	        &QAction::triggered,
 	        this,
-	        &VisualizationWidget::onCopyTimeActionTriggered);
+	        &VisualizationWorkspace::onCopyTimeActionTriggered);
 
 	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 }
 
-void VisualizationWidget::tearDown(const NavigationAction & actions) {
+void VisualizationWorkspace::tearDown(QMainWindow * main,
+                                   const NavigationAction & actions) {
 	disconnect(d_ui->trackingVideoWidget,
 	           &TrackingVideoWidget::hasTrackingTimeChanged,
 	           actions.CopyCurrentTime,
@@ -198,16 +198,16 @@ void VisualizationWidget::tearDown(const NavigationAction & actions) {
 	disconnect(actions.CopyCurrentTime,
 	           &QAction::triggered,
 	           this,
-	           &VisualizationWidget::onCopyTimeActionTriggered);
+	           &VisualizationWorkspace::onCopyTimeActionTriggered);
 	actions.CopyCurrentTime->setEnabled(false);
 }
 
-QAction * VisualizationWidget::jumpToTimeAction() const {
+QAction * VisualizationWorkspace::jumpToTimeAction() const {
 	return d_jumpToTimeAction;
 }
 
 
-void VisualizationWidget::jumpToTime() {
+void VisualizationWorkspace::jumpToTime() {
 	if ( d_experiment == nullptr || d_experiment->isActive() == false ) {
 		return;
 	}

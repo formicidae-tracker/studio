@@ -1,30 +1,28 @@
 #pragma once
 
-#include <QWidget>
-
 #include <fort/studio/bridge/ZoneBridge.hpp>
 
-#include "Navigatable.hpp"
+#include "Workspace.hpp"
 
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 
 namespace Ui {
-class ZoningWidget;
+class ZoningWorkspace;
 }
 class ExperimentBridge;
 class QAction;
 
-class ZoningWidget : public QWidget , public Navigatable{
+class ZoningWorkspace : public Workspace{
 	Q_OBJECT
 public:
-	explicit ZoningWidget(QWidget *parent = 0);
-	virtual ~ZoningWidget();
+	explicit ZoningWorkspace(QWidget *parent = 0);
+	virtual ~ZoningWorkspace();
 
-	void setup(ExperimentBridge * experiment);
 
 protected:
-	void setUp(const NavigationAction & actions) override;
-	void tearDown(const NavigationAction & actions) override;
+	void initialize(ExperimentBridge * experiment) override;
+	void setUp(QMainWindow * main, const NavigationAction & actions) override;
+	void tearDown(QMainWindow * main, const NavigationAction & actions) override;
 
 public slots:
 	void nextCloseUp();
@@ -50,7 +48,7 @@ private:
 
 	void select(int increment);
 
-	Ui::ZoningWidget * d_ui;
+	Ui::ZoningWorkspace * d_ui;
 	ZoneBridge       * d_zones;
 
 	void appendShape(const fmp::Shape::ConstPtr & shape,

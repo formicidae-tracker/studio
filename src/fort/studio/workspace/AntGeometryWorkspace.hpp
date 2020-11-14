@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QWidget>
-
 #include <fort/studio/MyrmidonTypes/Identification.hpp>
 #include <fort/studio/MyrmidonTypes/Measurement.hpp>
 #include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
@@ -9,32 +7,30 @@
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/vectorgraphics/Capsule.hpp>
 
-#include "Navigatable.hpp"
+#include "Workspace.hpp"
 
 namespace Ui {
-class AntEditorWidget;
+class AntGeometryWorkspace;
 }
 
 class ExperimentBridge;
 class QStandardItemModel;
 class VectorialScene;
 
-class AntEditorWidget : public QWidget, public Navigatable {
+class AntGeometryWorkspace : public Workspace {
 	Q_OBJECT
 public:
-	explicit AntEditorWidget(QWidget *parent = 0);
-	virtual ~AntEditorWidget();
+	explicit AntGeometryWorkspace(QWidget *parent = 0);
+	virtual ~AntGeometryWorkspace();
 
-	void setup(ExperimentBridge * experiment);
 
 
 	QAction * cloneAntShapeAction() const;
 
+
 public slots:
 	void nextCloseUp();
 	void previousCloseUp();
-
-
 
 private slots:
 	void on_toolBox_currentChanged(int);
@@ -68,8 +64,10 @@ private slots:
 protected:
 	void changeEvent(QEvent * event) override;
 
-	void setUp(const NavigationAction & actions ) override;
-	void tearDown(const NavigationAction & actions ) override;
+	void initialize(ExperimentBridge * experiment) override;
+	void setUp(QMainWindow * main, const NavigationAction & actions ) override;
+	void tearDown(QMainWindow * main, const NavigationAction & actions ) override;
+
 private:
 
 
@@ -112,7 +110,7 @@ private:
 
 	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
-	Ui::AntEditorWidget       * d_ui;
+	Ui::AntGeometryWorkspace    * d_ui;
 	ExperimentBridge          * d_experiment;
 	QStandardItemModel        * d_closeUps;
 	fmp::TagCloseUp::ConstPtr   d_tcu;

@@ -1,8 +1,8 @@
-#include "UserDataWidget.hpp"
-#include "ui_UserDataWidget.h"
+#include "AntMetadataWorkspace.hpp"
+#include "ui_AntMetadataWorkspace.h"
 
 #include <fort/studio/Format.hpp>
-#include <fort/studio/bridge/AntMetadataBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
 
 
 #include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
@@ -11,20 +11,23 @@
 
 #include <QDebug>
 
-UserDataWidget::UserDataWidget(QWidget *parent)
-	: QWidget(parent)
-	, d_ui(new Ui::UserDataWidget) {
+AntMetadataWorkspace::AntMetadataWorkspace(QWidget *parent)
+	: Workspace(true,parent)
+	, d_ui(new Ui::AntMetadataWorkspace) {
 	d_ui->setupUi(this);
 	d_ui->removeButton->setEnabled(false);
 	onSelectedAntID(0);
 }
 
-UserDataWidget::~UserDataWidget() {
+AntMetadataWorkspace::~AntMetadataWorkspace() {
 	delete d_ui;
 }
 
+void AntMetadataWorkspace::initialize(ExperimentBridge * experiment) {
+	initialize(experiment->antMetadata());
+}
 
-void UserDataWidget::setup(AntMetadataBridge * metadata) {
+void AntMetadataWorkspace::initialize(AntMetadataBridge * metadata) {
 	d_metadata = metadata;
 
 	d_ui->metadataEditor->setup(metadata);
@@ -40,7 +43,7 @@ void UserDataWidget::setup(AntMetadataBridge * metadata) {
 	connect(d_metadata,
 	        &AntMetadataBridge::selectedAntIDChanged,
 	        this,
-	        &UserDataWidget::onSelectedAntID);
+	        &AntMetadataWorkspace::onSelectedAntID);
 	d_ui->timeView->setSelectionMode(QAbstractItemView::SingleSelection);
 	connect(d_ui->timeView->selectionModel(),
 	        &QItemSelectionModel::selectionChanged,
@@ -51,21 +54,21 @@ void UserDataWidget::setup(AntMetadataBridge * metadata) {
 	connect(d_ui->addButton,
 	        &QToolButton::clicked,
 	        this,
-	        &UserDataWidget::onAddButtonClicked);
+	        &AntMetadataWorkspace::onAddButtonClicked);
 
 	connect(d_ui->removeButton,
 	        &QToolButton::clicked,
 	        this,
-	        &UserDataWidget::onRemoveButtonClicked);
+	        &AntMetadataWorkspace::onRemoveButtonClicked);
 
 }
 
 
-void UserDataWidget::on_dataView_activated(const QModelIndex & index) {
+void AntMetadataWorkspace::on_dataView_activated(const QModelIndex & index) {
 	d_metadata->selectRow(index.row());
 }
 
-void UserDataWidget::onSelectedAntID(quint32 ID) {
+void AntMetadataWorkspace::onSelectedAntID(quint32 ID) {
 	if ( ID == 0 ) {
 		d_ui->addButton->setEnabled(false);
 		d_ui->comboBox->setEnabled(false);
@@ -79,7 +82,7 @@ void UserDataWidget::onSelectedAntID(quint32 ID) {
 }
 
 
-void UserDataWidget::onAddButtonClicked() {
+void AntMetadataWorkspace::onAddButtonClicked() {
 	auto column = d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::AntMetadata::Column::Ptr>();
 	if (!column || d_metadata->selectedAntID() == 0 ) {
 		return;
@@ -90,11 +93,20 @@ void UserDataWidget::onAddButtonClicked() {
 	d_ui->timeView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-void UserDataWidget::onRemoveButtonClicked() {
+void AntMetadataWorkspace::onRemoveButtonClicked() {
 	auto sModel = d_ui->timeView->selectionModel();
 	qWarning() << "coucou " << sModel->selectedIndexes();
 	if ( sModel->hasSelection() == false ) {
 		return;
 	}
 	d_metadata->removeTimedChange(sModel->selectedIndexes()[0]);
+}
+
+
+void AntMetadataWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
+
+}
+
+void AntMetadataWorkspace::tearDown(QMainWindow * maina,const NavigationAction & actions) {
+
 }

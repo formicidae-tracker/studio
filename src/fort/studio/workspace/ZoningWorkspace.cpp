@@ -1,5 +1,5 @@
-#include "ZoningWidget.hpp"
-#include "ui_ZoningWidget.h"
+#include "ZoningWorkspace.hpp"
+#include "ui_ZoningWorkspace.h"
 
 #include <QAction>
 #include <QClipboard>
@@ -19,9 +19,9 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
-ZoningWidget::ZoningWidget(QWidget *parent)
-	: QWidget(parent)
-	, d_ui(new Ui::ZoningWidget)
+ZoningWorkspace::ZoningWorkspace(QWidget *parent)
+	: Workspace(false,parent)
+	, d_ui(new Ui::ZoningWorkspace)
 	, d_zones(nullptr)
 	, d_vectorialScene(new VectorialScene(this)) {
 	d_ui->setupUi(this);
@@ -50,32 +50,32 @@ ZoningWidget::ZoningWidget(QWidget *parent)
 
     d_ui->editButton->setChecked(Qt::Checked);
     connect(d_vectorialScene,&VectorialScene::modeChanged,
-            this,&ZoningWidget::onSceneModeChanged);
+            this,&ZoningWorkspace::onSceneModeChanged);
 
 
     connect(d_vectorialScene,&VectorialScene::polygonCreated,
-            this,&ZoningWidget::onShapeCreated);
+            this,&ZoningWorkspace::onShapeCreated);
     connect(d_vectorialScene,&VectorialScene::polygonRemoved,
-            this,&ZoningWidget::onShapeRemoved);
+            this,&ZoningWorkspace::onShapeRemoved);
 
     connect(d_vectorialScene,&VectorialScene::circleCreated,
-            this,&ZoningWidget::onShapeCreated);
+            this,&ZoningWorkspace::onShapeCreated);
     connect(d_vectorialScene,&VectorialScene::circleRemoved,
-            this,&ZoningWidget::onShapeRemoved);
+            this,&ZoningWorkspace::onShapeRemoved);
 
     connect(d_vectorialScene,&VectorialScene::capsuleCreated,
-            this,&ZoningWidget::onShapeCreated);
+            this,&ZoningWorkspace::onShapeCreated);
     connect(d_vectorialScene,&VectorialScene::capsuleRemoved,
-            this,&ZoningWidget::onShapeRemoved);
+            this,&ZoningWorkspace::onShapeRemoved);
 
 
 }
 
-ZoningWidget::~ZoningWidget() {
+ZoningWorkspace::~ZoningWorkspace() {
 	delete d_ui;
 }
 
-void ZoningWidget::setup(ExperimentBridge * experiment) {
+void ZoningWorkspace::initialize(ExperimentBridge * experiment) {
 	d_zones = experiment->zones();
 	d_ui->zonesEditor->setup(d_zones);
 	d_ui->listView->setModel(d_zones->fullFrameModel());
@@ -96,11 +96,11 @@ void ZoningWidget::setup(ExperimentBridge * experiment) {
 		        }
 	        });
 	connect(d_zones,&ZoneBridge::newZoneDefinitionBridge,
-	        this,&ZoningWidget::onNewZoneDefinition);
+	        this,&ZoningWorkspace::onNewZoneDefinition);
 }
 
 
-void ZoningWidget::display(const std::shared_ptr<ZoneBridge::FullFrame> & fullframe) {
+void ZoningWorkspace::display(const std::shared_ptr<ZoneBridge::FullFrame> & fullframe) {
 	d_fullframe = fullframe;
 	if ( d_copyAction != nullptr ) {
 		d_copyAction->setEnabled(!fullframe == false);
@@ -121,14 +121,14 @@ void ZoningWidget::display(const std::shared_ptr<ZoneBridge::FullFrame> & fullfr
 }
 
 
-void ZoningWidget::setUp(const NavigationAction & actions) {
+void ZoningWorkspace::setUp(QMainWindow * main, const NavigationAction & actions) {
 	connect(actions.NextCloseUp,&QAction::triggered,
-	        this,&ZoningWidget::nextCloseUp);
+	        this,&ZoningWorkspace::nextCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
-	        this,&ZoningWidget::previousCloseUp);
+	        this,&ZoningWorkspace::previousCloseUp);
 
 	connect(actions.CopyCurrentTime,&QAction::triggered,
-	        this,&ZoningWidget::onCopyTime);
+	        this,&ZoningWorkspace::onCopyTime);
 
 	actions.NextCloseUp->setEnabled(true);
 	actions.PreviousCloseUp->setEnabled(true);
@@ -136,14 +136,14 @@ void ZoningWidget::setUp(const NavigationAction & actions) {
 	d_copyAction = actions.CopyCurrentTime;
 }
 
-void ZoningWidget::tearDown(const NavigationAction & actions) {
+void ZoningWorkspace::tearDown(QMainWindow *main, const NavigationAction & actions) {
 	disconnect(actions.NextCloseUp,&QAction::triggered,
-	           this,&ZoningWidget::nextCloseUp);
+	           this,&ZoningWorkspace::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
-	           this,&ZoningWidget::previousCloseUp);
+	           this,&ZoningWorkspace::previousCloseUp);
 
 	disconnect(actions.CopyCurrentTime,&QAction::triggered,
-	           this,&ZoningWidget::onCopyTime);
+	           this,&ZoningWorkspace::onCopyTime);
 
 	actions.NextCloseUp->setEnabled(false);
 	actions.PreviousCloseUp->setEnabled(false);
@@ -152,15 +152,15 @@ void ZoningWidget::tearDown(const NavigationAction & actions) {
 }
 
 
-void ZoningWidget::nextCloseUp() {
+void ZoningWorkspace::nextCloseUp() {
 	select(+1);
 }
 
-void ZoningWidget::previousCloseUp() {
+void ZoningWorkspace::previousCloseUp() {
 	select(-1);
 }
 
-void ZoningWidget::onCopyTime() {
+void ZoningWorkspace::onCopyTime() {
 	if ( !d_fullframe == true ) {
 		return;
 	}
@@ -168,7 +168,7 @@ void ZoningWidget::onCopyTime() {
 }
 
 
-void ZoningWidget::select(int increment) {
+void ZoningWorkspace::select(int increment) {
 	if ( d_zones->fullFrameModel()->rowCount() == 0 || increment == 0 ) {
 		return;
 	}
@@ -193,7 +193,7 @@ void ZoningWidget::select(int increment) {
 }
 
 
-void ZoningWidget::onShapeCreated(QSharedPointer<Shape> shape) {
+void ZoningWorkspace::onShapeCreated(QSharedPointer<Shape> shape) {
 	auto zoneID = currentZoneID();
 	auto fmShape = convertShape(shape);
 
@@ -211,7 +211,7 @@ void ZoningWidget::onShapeCreated(QSharedPointer<Shape> shape) {
 	rebuildGeometry(shape);
 }
 
-void ZoningWidget::onShapeRemoved(QSharedPointer<Shape> shape) {
+void ZoningWorkspace::onShapeRemoved(QSharedPointer<Shape> shape) {
 	auto fi = d_shapes.find(shape);
 	if ( !d_fullframe == true
 	     || fi == d_shapes.end() ) {
@@ -223,7 +223,7 @@ void ZoningWidget::onShapeRemoved(QSharedPointer<Shape> shape) {
 }
 
 
-void ZoningWidget::setSceneMode(VectorialScene::Mode mode) {
+void ZoningWorkspace::setSceneMode(VectorialScene::Mode mode) {
 	if ( !d_fullframe == true || d_ui->comboBox->count() == 0 ) {
 		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 		onSceneModeChanged(VectorialScene::Mode::Edit);
@@ -234,7 +234,7 @@ void ZoningWidget::setSceneMode(VectorialScene::Mode mode) {
 }
 
 
-void ZoningWidget::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
+void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
 	d_vectorialScene->clearCapsules();
 	d_vectorialScene->clearPolygons();
 	d_vectorialScene->clearCircles();
@@ -267,7 +267,7 @@ void ZoningWidget::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) {
 }
 
 
-void ZoningWidget::appendShape(const fmp::Shape::ConstPtr & s,
+void ZoningWorkspace::appendShape(const fmp::Shape::ConstPtr & s,
                                fmp::Zone::ID zoneID) {
 	QSharedPointer<Shape> newShape;
 	if ( auto p = std::dynamic_pointer_cast<const fmp::Polygon>(s) ) {
@@ -304,7 +304,7 @@ void ZoningWidget::appendShape(const fmp::Shape::ConstPtr & s,
 }
 
 
-void ZoningWidget::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
+void ZoningWorkspace::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
 	auto fi = d_shapes.find(shape);
 	if ( fi == d_shapes.end() ) {
 		return;
@@ -313,7 +313,7 @@ void ZoningWidget::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
 	rebuildGeometry(fi->second);
 }
 
-void ZoningWidget::rebuildGeometry(fmp::Zone::ID zoneID ) {
+void ZoningWorkspace::rebuildGeometry(fmp::Zone::ID zoneID ) {
 	auto fi = d_definitions.find(zoneID);
 	if ( fi == d_definitions.end()) {
 		return;
@@ -329,7 +329,7 @@ void ZoningWidget::rebuildGeometry(fmp::Zone::ID zoneID ) {
 	fi->second->setGeometry(shapes);
 }
 
-fmp::Shape::ConstPtr ZoningWidget::convertShape(const QSharedPointer<Shape> & s) {
+fmp::Shape::ConstPtr ZoningWorkspace::convertShape(const QSharedPointer<Shape> & s) {
 	if ( auto p = s.dynamicCast<Polygon>() ) {
 		fm::Vector2dList vertices;
 		for ( const auto & v : p->vertices() ) {
@@ -352,7 +352,7 @@ fmp::Shape::ConstPtr ZoningWidget::convertShape(const QSharedPointer<Shape> & s)
 	return fmp::Shape::ConstPtr();
 }
 
-fmp::Zone::ID ZoningWidget::currentZoneID() const {
+fmp::Zone::ID ZoningWorkspace::currentZoneID() const {
 	if ( d_ui->comboBox->count() == 0 || d_ui->comboBox->currentIndex() < 0 ) {
 		return 0;
 	}
@@ -360,7 +360,7 @@ fmp::Zone::ID ZoningWidget::currentZoneID() const {
 }
 
 
-void ZoningWidget::onSceneModeChanged(VectorialScene::Mode mode) {
+void ZoningWorkspace::onSceneModeChanged(VectorialScene::Mode mode) {
 	d_ui->editButton->setChecked(Qt::Unchecked);
 	d_ui->polygonButton->setChecked(Qt::Unchecked);
 	d_ui->circleButton->setChecked(Qt::Unchecked);
@@ -384,7 +384,7 @@ void ZoningWidget::onSceneModeChanged(VectorialScene::Mode mode) {
 }
 
 
-void ZoningWidget::on_comboBox_currentIndexChanged(int) {
+void ZoningWorkspace::on_comboBox_currentIndexChanged(int) {
 	auto zoneID = currentZoneID();
 
 	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
@@ -397,7 +397,7 @@ void ZoningWidget::on_comboBox_currentIndexChanged(int) {
 }
 
 
-void ZoningWidget::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
+void ZoningWorkspace::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
 	auto fi = std::find_if(d_shapes.begin(),
 	                       d_shapes.end(),
 	                       [shape](const std::pair<QSharedPointer<Shape>,fmp::Zone::ID> & iter ) -> bool {

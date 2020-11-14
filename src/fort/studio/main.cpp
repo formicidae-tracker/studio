@@ -1,4 +1,4 @@
-#include <fort/studio/widget/MainWindow.hpp>
+#include <fort/studio/MainWindow.hpp>
 
 #include <QApplication>
 

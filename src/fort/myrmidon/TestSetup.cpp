@@ -438,7 +438,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	auto computedCacheTestPath = TestSetup::Basedir() / "computed-cache-test.0000";
 	fs::create_directories(computedCacheTestPath / "ants");
 	WriteTagFile(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
-	auto f = cv::imread(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
+	auto f = cv::imread((computedCacheTestPath / "ants" / "ant_0_frame_0.png").string());
 	cv::VideoWriter vw((computedCacheTestPath / "stream.0000.mp4").string(),
 	                   cv::VideoWriter::fourcc('H','2','6', '4'),
 	                   10,f.size(),true);

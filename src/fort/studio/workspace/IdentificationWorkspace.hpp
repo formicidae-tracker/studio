@@ -1,11 +1,10 @@
 #pragma once
 
-#include <QWidget>
 #include <QTreeWidgetItem>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 
-#include "Navigatable.hpp"
+#include "Workspace.hpp"
 
 class ExperimentBridge;
 class GlobalPropertyBridge;
@@ -19,18 +18,16 @@ class Vector;
 namespace fmp = fort::myrmidon::priv;
 
 namespace Ui {
-class TaggingWidget;
+class IdentificationWorkspace;
 }
 
 class QAction;
 
-class TaggingWidget : public QWidget, public Navigatable {
+class IdentificationWorkspace : public Workspace {
     Q_OBJECT
 public:
-    explicit TaggingWidget(QWidget *parent = 0);
-	virtual ~TaggingWidget();
-
-	void setup(ExperimentBridge * experiment);
+    explicit IdentificationWorkspace(QWidget *parent = 0);
+	virtual ~IdentificationWorkspace();
 
 	QAction * newAntFromTagAction() const;
 	QAction * addIdentificationToAntAction() const;
@@ -51,8 +48,10 @@ public slots:
 	void previousTag();
 	void previousTagCloseUp();
 protected:
-	void setUp(const NavigationAction & actions ) override;
-	void tearDown(const NavigationAction & actions ) override;
+	void initialize(ExperimentBridge * experiment) override;
+	void setUp(QMainWindow * main, const NavigationAction & actions ) override;
+	void tearDown(QMainWindow * main, const NavigationAction & actions ) override;
+
 private slots:
 	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
 
@@ -70,13 +69,13 @@ private:
 	void selectRow(int tagRow, int tcuRow);
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
-	Ui::TaggingWidget     * d_ui;
-	QSortFilterProxyModel * d_sortedModel;
-	MeasurementBridge     * d_measurements;
-	IdentifierBridge      * d_identifier;
-	VectorialScene        * d_vectorialScene;
-	SelectedAntBridge     * d_selectedAnt;
-	fmp::TagCloseUpConstPtr d_tcu;
-	QAction               * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
-	QAction               * d_copyTimeAction;
+	Ui::IdentificationWorkspace * d_ui;
+	QSortFilterProxyModel       * d_sortedModel;
+	MeasurementBridge           * d_measurements;
+	IdentifierBridge            * d_identifier;
+	VectorialScene              * d_vectorialScene;
+	SelectedAntBridge           * d_selectedAnt;
+	fmp::TagCloseUpConstPtr       d_tcu;
+	QAction                     * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
+	QAction                     * d_copyTimeAction;
 };

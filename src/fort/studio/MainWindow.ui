@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -35,7 +35,7 @@
       <property name="usesScrollButtons">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="experimentEditor">
+      <widget class="GeneralWorkspace" name="generalWorkspace">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -45,86 +45,35 @@
        <attribute name="toolTip">
         <string>Edits global experiment properties</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QGroupBox" name="globalBox">
-          <property name="toolTip">
-           <string>Global properties for this experiment</string>
-          </property>
-          <property name="title">
-           <string>Global Properties</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="GlobalPropertyWidget" name="globalProperties" native="true"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="universeBox">
-          <property name="toolTip">
-           <string>Manages space and tracking data directory</string>
-          </property>
-          <property name="title">
-           <string>Spaces and Data Directories</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="UniverseEditorWidget" name="universeEditor" native="true"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
       </widget>
-      <widget class="QWidget" name="statsWidget">
+      <widget class="TagStatisticsWorkspace" name="tagStatisticsWorkspace">
        <property name="toolTip">
         <string/>
        </property>
        <attribute name="title">
-        <string>Stats</string>
+        <string>Tag Statistics</string>
        </attribute>
        <attribute name="toolTip">
         <string>Shows global tag detection statistics</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QTableView" name="statsView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
       </widget>
-      <widget class="TaggingWidget" name="taggingWidget">
+      <widget class="IdentificationWorkspace" name="identificationWorkspace">
        <attribute name="title">
         <string>Identification</string>
        </attribute>
        <attribute name="toolTip">
         <string>Edits tag and ants association</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6"/>
       </widget>
-      <widget class="AntEditorWidget" name="shappingWidget">
+      <widget class="AntGeometryWorkspace" name="antGeometryWorkspace">
        <attribute name="title">
-        <string>Ant Editor</string>
+        <string>Ant Geometry</string>
        </attribute>
        <attribute name="toolTip">
         <string>Shapes and measure ants</string>
        </attribute>
       </widget>
-      <widget class="ZoningWidget" name="zoningWidget">
+      <widget class="ZoningWorkspace" name="zoningWorkspace">
        <attribute name="title">
         <string>Zoning</string>
        </attribute>
@@ -132,17 +81,17 @@
         <string>Defines geometric zones</string>
        </attribute>
       </widget>
-      <widget class="UserDataWidget" name="userData">
+      <widget class="AntMetadataWorkspace" name="antMetadataWorkspace">
        <attribute name="title">
-        <string>Timed Data</string>
+        <string>Ant Metadata</string>
        </attribute>
        <attribute name="toolTip">
         <string>Edits individual ant data</string>
        </attribute>
       </widget>
-      <widget class="VisualizationWidget" name="visualizeWidget">
+      <widget class="VisualizationWorkspace" name="visualizationWorkspace">
        <attribute name="title">
-        <string>Visualize</string>
+        <string>Visualization</string>
        </attribute>
        <attribute name="toolTip">
         <string>Visualizes tracking during experiment</string>
@@ -158,7 +107,7 @@
      <x>0</x>
      <y>0</y>
      <width>1248</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -232,6 +181,8 @@
     <addaction name="separator"/>
     <addaction name="actionNextTag"/>
     <addaction name="actionPreviousTag"/>
+    <addaction name="separator"/>
+    <addaction name="actionJumpToTime"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -624,20 +575,19 @@
     <string>Ctrl+Shift+C</string>
    </property>
   </action>
+  <action name="actionJumpToTime">
+   <property name="text">
+    <string>Jump To Time</string>
+   </property>
+   <property name="toolTip">
+    <string>Seed current movie to given time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>GlobalPropertyWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/GlobalPropertyWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>UniverseEditorWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/UniverseEditorWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>AntListWidget</class>
    <extends>QWidget</extends>
@@ -645,33 +595,45 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>TaggingWidget</class>
+   <class>IdentificationWorkspace</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/TaggingWidget.hpp</header>
+   <header location="global">fort/studio/workspace/IdentificationWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>AntEditorWidget</class>
+   <class>AntGeometryWorkspace</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/AntEditorWidget.hpp</header>
+   <header location="global">fort/studio/workspace/AntGeometryWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>UserDataWidget</class>
+   <class>AntMetadataWorkspace</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/UserDataWidget.hpp</header>
+   <header location="global">fort/studio/workspace/AntMetadataWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>VisualizationWidget</class>
+   <class>VisualizationWorkspace</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/VisualizationWidget.hpp</header>
+   <header location="global">fort/studio/workspace/VisualizationWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ZoningWidget</class>
+   <class>GeneralWorkspace</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/ZoningWidget.hpp</header>
+   <header location="global">fort/studio/workspace/GeneralWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TagStatisticsWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/TagStatisticsWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZoningWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/ZoningWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

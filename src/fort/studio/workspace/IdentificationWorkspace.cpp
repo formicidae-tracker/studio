@@ -1,5 +1,5 @@
-#include "TaggingWidget.hpp"
-#include "ui_TaggingWidget.h"
+#include "IdentificationWorkspace.hpp"
+#include "ui_IdentificationWorkspace.h"
 
 #include <QKeyEvent>
 #include <QClipboard>
@@ -22,9 +22,9 @@
 
 
 
-TaggingWidget::TaggingWidget(QWidget *parent)
-	: QWidget(parent)
-	, d_ui(new Ui::TaggingWidget)
+IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
+	: Workspace(false,parent)
+	, d_ui(new Ui::IdentificationWorkspace)
 	, d_sortedModel ( new QSortFilterProxyModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
@@ -39,13 +39,13 @@ TaggingWidget::TaggingWidget(QWidget *parent)
 	d_deletePoseAction->setShortcut(QKeySequence(tr("Ctrl+Shift+D")));
 
 	connect(d_newAntAction,&QAction::triggered,
-	        this,&TaggingWidget::newAnt);
+	        this,&IdentificationWorkspace::newAnt);
 
 	connect(d_addIdentificationAction,&QAction::triggered,
-	        this,&TaggingWidget::addIdentification);
+	        this,&IdentificationWorkspace::addIdentification);
 
 	connect(d_deletePoseAction,&QAction::triggered,
-	        this,&TaggingWidget::deletePose);
+	        this,&IdentificationWorkspace::deletePose);
 
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
@@ -70,22 +70,22 @@ TaggingWidget::TaggingWidget(QWidget *parent)
     connect(d_vectorialScene,
             &VectorialScene::vectorCreated,
             this,
-            &TaggingWidget::onVectorCreated);
+            &IdentificationWorkspace::onVectorCreated);
     connect(d_vectorialScene,
             &VectorialScene::vectorRemoved,
             this,
-            &TaggingWidget::onVectorRemoved);
+            &IdentificationWorkspace::onVectorRemoved);
 
     updateActionStates();
 }
 
-TaggingWidget::~TaggingWidget() {
+IdentificationWorkspace::~IdentificationWorkspace() {
     delete d_ui;
     d_tcu.reset();
 }
 
 
-void TaggingWidget::setup(ExperimentBridge * experiment) {
+void IdentificationWorkspace::initialize(ExperimentBridge * experiment) {
 
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
@@ -112,16 +112,16 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	connect(identifier,
 	        &IdentifierBridge::identificationAntPositionModified,
 	        this,
-	        &TaggingWidget::onIdentificationAntPositionChanged);
+	        &IdentificationWorkspace::onIdentificationAntPositionChanged);
 
 	connect(identifier,
 	        &IdentifierBridge::identificationCreated,
 	        this,
-	        &TaggingWidget::onIdentificationAntPositionChanged);
+	        &IdentificationWorkspace::onIdentificationAntPositionChanged);
 	connect(identifier,
 	        &IdentifierBridge::identificationDeleted,
 	        this,
-	        &TaggingWidget::onIdentificationDeleted);
+	        &IdentificationWorkspace::onIdentificationDeleted);
 
 
 
@@ -131,7 +131,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 	connect(selectedAnt,
 	        &Bridge::activated,
 	        this,
-	        &TaggingWidget::updateActionStates);
+	        &IdentificationWorkspace::updateActionStates);
 	d_selectedAnt = selectedAnt;
 
 	d_ui->selectedAntIdentification->setup(experiment);
@@ -139,7 +139,7 @@ void TaggingWidget::setup(ExperimentBridge * experiment) {
 }
 
 
-void TaggingWidget::addIdentification() {
+void IdentificationWorkspace::addIdentification() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -168,7 +168,7 @@ void TaggingWidget::addIdentification() {
 	updateActionStates();
 }
 
-void TaggingWidget::newAnt() {
+void IdentificationWorkspace::newAnt() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -193,7 +193,7 @@ void TaggingWidget::newAnt() {
 	updateActionStates();
 }
 
-void TaggingWidget::deletePose() {
+void IdentificationWorkspace::deletePose() {
 	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
 		return;
 	}
@@ -203,7 +203,7 @@ void TaggingWidget::deletePose() {
 	onVectorRemoved();
 }
 
-void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
+void IdentificationWorkspace::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
 	if ( !d_tcu
 	     || identification->TagValue() != d_tcu->TagValue()
 	     || identification->IsValid(d_tcu->Frame().Time()) == false ) {
@@ -219,7 +219,7 @@ void TaggingWidget::onIdentificationAntPositionChanged(fmp::Identification::Cons
 }
 
 
-void TaggingWidget::on_treeView_activated(const QModelIndex & index) {
+void IdentificationWorkspace::on_treeView_activated(const QModelIndex & index) {
 	if ( index.parent().isValid() == false || d_measurements == nullptr ) {
 		return;
 	}
@@ -231,7 +231,7 @@ void TaggingWidget::on_treeView_activated(const QModelIndex & index) {
 }
 
 
-void TaggingWidget::nextTag() {
+void IdentificationWorkspace::nextTag() {
 	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
@@ -246,7 +246,7 @@ void TaggingWidget::nextTag() {
 	selectRow(firstRow.parent().row()+1,0);
 }
 
-void TaggingWidget::nextTagCloseUp() {
+void IdentificationWorkspace::nextTagCloseUp() {
 	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
@@ -258,7 +258,7 @@ void TaggingWidget::nextTagCloseUp() {
 	selectRow(firstRow.parent().row(),firstRow.row()+1);
 }
 
-void TaggingWidget::previousTag() {
+void IdentificationWorkspace::previousTag() {
 	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
@@ -271,7 +271,7 @@ void TaggingWidget::previousTag() {
 	selectRow(firstRow.parent().row()-1,0);
 }
 
-void TaggingWidget::previousTagCloseUp() {
+void IdentificationWorkspace::previousTagCloseUp() {
 	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
@@ -283,7 +283,7 @@ void TaggingWidget::previousTagCloseUp() {
 	selectRow(firstRow.parent().row(),firstRow.row()-1);
 }
 
-void TaggingWidget::selectRow(int tagRow, int tcuRow) {
+void IdentificationWorkspace::selectRow(int tagRow, int tcuRow) {
 	if (tagRow < 0 || tagRow >= d_sortedModel->rowCount() || tcuRow < 0) {
 		return;
 	}
@@ -304,7 +304,7 @@ void TaggingWidget::selectRow(int tagRow, int tcuRow) {
 }
 
 
-void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
+void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	if ( d_tcu == tcu ) {
 		return;
 	}
@@ -354,7 +354,7 @@ void TaggingWidget::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 }
 
 
-void TaggingWidget::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu) {
+void IdentificationWorkspace::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu) {
 	auto m = d_measurements->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		d_vectorialScene->setOnce(true);
@@ -374,7 +374,7 @@ void TaggingWidget::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & t
 			connect(vector.data(),
 			        &Shape::updated,
 			        this,
-			        &TaggingWidget::onVectorUpdated);
+			        &IdentificationWorkspace::onVectorUpdated);
 
 		} else {
 			vector = d_vectorialScene->vectors()[0];
@@ -386,13 +386,13 @@ void TaggingWidget::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & t
 }
 
 
-void TaggingWidget::onVectorUpdated() {
+void IdentificationWorkspace::onVectorUpdated() {
 	if ( !d_tcu ) {
-		qDebug() << "[TaggingWidget]: Vector updated without TCU";
+		qDebug() << "[IdentificationWorkspace]: Vector updated without TCU";
 		return;
 	}
 	if ( d_vectorialScene->vectors().isEmpty() == true ) {
-		qDebug() << "[TaggingWidget]: Vector updated without vector";
+		qDebug() << "[IdentificationWorkspace]: Vector updated without vector";
 		return;
 	}
 	auto vector = d_vectorialScene->vectors()[0];
@@ -407,9 +407,9 @@ void TaggingWidget::onVectorUpdated() {
 	updateActionStates();
 }
 
-void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
+void IdentificationWorkspace::onVectorCreated(QSharedPointer<Vector> vector) {
 	if ( !d_tcu ) {
-		qDebug() << "[TaggingWidget]: Vector created without TCU";
+		qDebug() << "[IdentificationWorkspace]: Vector created without TCU";
 		return;
 	}
 
@@ -427,14 +427,14 @@ void TaggingWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 	connect(vector.data(),
 	        &Shape::updated,
 	        this,
-	        &TaggingWidget::onVectorUpdated);
+	        &IdentificationWorkspace::onVectorUpdated);
 
 	updateActionStates();
 
 }
 
 
-void TaggingWidget::onVectorRemoved() {
+void IdentificationWorkspace::onVectorRemoved() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -449,7 +449,7 @@ void TaggingWidget::onVectorRemoved() {
 }
 
 
-void TaggingWidget::updateActionStates() {
+void IdentificationWorkspace::updateActionStates() {
 	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
 		d_newAntAction->setEnabled(false);
 		d_addIdentificationAction->setEnabled(false);
@@ -473,7 +473,7 @@ void TaggingWidget::updateActionStates() {
 	d_addIdentificationAction->setEnabled(true);
 }
 
-void TaggingWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
+void IdentificationWorkspace::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
 	if ( !d_tcu
 	     || d_tcu->TagValue() != ident->TagValue()
 	     || ident->IsValid(d_tcu->Frame().Time()) == false ) {
@@ -484,30 +484,30 @@ void TaggingWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
 }
 
 
-QAction * TaggingWidget::newAntFromTagAction() const {
+QAction * IdentificationWorkspace::newAntFromTagAction() const {
 	return d_newAntAction;
 }
 
-QAction * TaggingWidget::addIdentificationToAntAction() const {
+QAction * IdentificationWorkspace::addIdentificationToAntAction() const {
 	return d_addIdentificationAction;
 }
 
-QAction * TaggingWidget::deletePoseEstimationAction() const {
+QAction * IdentificationWorkspace::deletePoseEstimationAction() const {
 	return d_deletePoseAction;
 }
 
-void TaggingWidget::setUp(const NavigationAction & actions ) {
+void IdentificationWorkspace::setUp(QMainWindow * main,const NavigationAction & actions ) {
 	connect(actions.NextTag,&QAction::triggered,
-	        this,&TaggingWidget::nextTag);
+	        this,&IdentificationWorkspace::nextTag);
 	connect(actions.PreviousTag,&QAction::triggered,
-	        this,&TaggingWidget::previousTag);
+	        this,&IdentificationWorkspace::previousTag);
 	connect(actions.NextCloseUp,&QAction::triggered,
-	        this,&TaggingWidget::nextTagCloseUp);
+	        this,&IdentificationWorkspace::nextTagCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
-	        this,&TaggingWidget::previousTagCloseUp);
+	        this,&IdentificationWorkspace::previousTagCloseUp);
 
 	connect(actions.CopyCurrentTime,&QAction::triggered,
-	        this,&TaggingWidget::onCopyTime);
+	        this,&IdentificationWorkspace::onCopyTime);
 
 
 	actions.NextTag->setEnabled(true);
@@ -519,18 +519,18 @@ void TaggingWidget::setUp(const NavigationAction & actions ) {
 	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
-void TaggingWidget::tearDown(const NavigationAction & actions ) {
+void IdentificationWorkspace::tearDown(QMainWindow * main, const NavigationAction & actions ) {
 	disconnect(actions.NextTag,&QAction::triggered,
-	           this,&TaggingWidget::nextTag);
+	           this,&IdentificationWorkspace::nextTag);
 	disconnect(actions.PreviousTag,&QAction::triggered,
-	           this,&TaggingWidget::previousTag);
+	           this,&IdentificationWorkspace::previousTag);
 	disconnect(actions.NextCloseUp,&QAction::triggered,
-	           this,&TaggingWidget::nextTagCloseUp);
+	           this,&IdentificationWorkspace::nextTagCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
-	           this,&TaggingWidget::previousTagCloseUp);
+	           this,&IdentificationWorkspace::previousTagCloseUp);
 
 	disconnect(actions.CopyCurrentTime,&QAction::triggered,
-	           this,&TaggingWidget::onCopyTime);
+	           this,&IdentificationWorkspace::onCopyTime);
 
 
 	actions.NextTag->setEnabled(false);
@@ -541,7 +541,7 @@ void TaggingWidget::tearDown(const NavigationAction & actions ) {
 	d_copyTimeAction = nullptr;
 }
 
-void TaggingWidget::onCopyTime() {
+void IdentificationWorkspace::onCopyTime() {
 	if ( !d_tcu ) {
 		return;
 	}

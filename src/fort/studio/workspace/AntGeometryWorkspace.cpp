@@ -1,5 +1,5 @@
-#include "AntEditorWidget.hpp"
-#include "ui_AntEditorWidget.h"
+#include "AntGeometryWorkspace.hpp"
+#include "ui_AntGeometryWorkspace.h"
 
 
 #include <QStandardItemModel>
@@ -19,9 +19,9 @@
 
 
 
-AntEditorWidget::AntEditorWidget(QWidget *parent)
-	: QWidget(parent)
-	, d_ui(new Ui::AntEditorWidget)
+AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
+	: Workspace(true,parent)
+	, d_ui(new Ui::AntGeometryWorkspace)
 	, d_experiment(nullptr)
 	, d_closeUps(new QStandardItemModel(this) )
 	, d_vectorialScene( new VectorialScene(this) )
@@ -40,22 +40,22 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
 	connect(d_vectorialScene,
 	        &VectorialScene::vectorCreated,
 	        this,
-	        &AntEditorWidget::onVectorCreated);
+	        &AntGeometryWorkspace::onVectorCreated);
 
 	connect(d_vectorialScene,
 	        &VectorialScene::vectorRemoved,
 	        this,
-	        &AntEditorWidget::onVectorRemoved);
+	        &AntGeometryWorkspace::onVectorRemoved);
 
 	connect(d_vectorialScene,
 	        &VectorialScene::capsuleCreated,
 	        this,
-	        &AntEditorWidget::onCapsuleCreated);
+	        &AntGeometryWorkspace::onCapsuleCreated);
 
 	connect(d_vectorialScene,
 	        &VectorialScene::capsuleRemoved,
 	        this,
-	        &AntEditorWidget::onCapsuleRemoved);
+	        &AntGeometryWorkspace::onCapsuleRemoved);
 
 	connect(d_vectorialScene,
 	        &VectorialScene::modeChanged,
@@ -80,14 +80,14 @@ AntEditorWidget::AntEditorWidget(QWidget *parent)
     d_cloneShapeAction->setWhatsThis(tr("Clone current shape to other ants"));
     d_cloneShapeAction->setEnabled(false);
     connect(d_cloneShapeAction,&QAction::triggered,
-            this,&AntEditorWidget::onCloneShapeActionTriggered);
+            this,&AntGeometryWorkspace::onCloneShapeActionTriggered);
 }
 
-AntEditorWidget::~AntEditorWidget() {
+AntGeometryWorkspace::~AntGeometryWorkspace() {
 	delete d_ui;
 }
 
-void AntEditorWidget::setup(ExperimentBridge * experiment) {
+void AntGeometryWorkspace::initialize(ExperimentBridge * experiment) {
 	d_experiment = experiment;
 
 	d_ui->shapeTypeEditor->setup(d_experiment->antShapeTypes());
@@ -97,7 +97,7 @@ void AntEditorWidget::setup(ExperimentBridge * experiment) {
 	connect(d_experiment->selectedAnt(),
 	        &SelectedAntBridge::activated,
 	        this,
-	        &AntEditorWidget::onAntSelected);
+	        &AntGeometryWorkspace::onAntSelected);
 
 	auto mTypeModel = d_experiment->measurements()->measurementTypeModel();
 	connect(mTypeModel,
@@ -120,30 +120,30 @@ void AntEditorWidget::setup(ExperimentBridge * experiment) {
 	connect(identifier,
 	        &IdentifierBridge::identificationAntPositionModified,
 	        this,
-	        &AntEditorWidget::onIdentificationAntPositionChanged);
+	        &AntGeometryWorkspace::onIdentificationAntPositionChanged);
 	connect(identifier,
 	        &IdentifierBridge::identificationCreated,
 	        this,
-	        &AntEditorWidget::onIdentificationAntPositionChanged);
+	        &AntGeometryWorkspace::onIdentificationAntPositionChanged);
 	connect(identifier,
 	        &IdentifierBridge::identificationDeleted,
 	        this,
-	        &AntEditorWidget::onIdentificationDeleted);
+	        &AntGeometryWorkspace::onIdentificationDeleted);
 
 	auto measurements = d_experiment->measurements();
 	connect(measurements,
 	        &MeasurementBridge::measurementModified,
 	        this,
-	        &AntEditorWidget::onMeasurementModified);
+	        &AntGeometryWorkspace::onMeasurementModified);
 	connect(measurements,
 	        &MeasurementBridge::measurementDeleted,
 	        this,
-	        &AntEditorWidget::onMeasurementDeleted);
+	        &AntGeometryWorkspace::onMeasurementDeleted);
 
 	updateCloneAction();
 }
 
-void  AntEditorWidget::on_toolBox_currentChanged(int index) {
+void  AntGeometryWorkspace::on_toolBox_currentChanged(int index) {
 	switch(index) {
 	case 0:
 		setShappingMode();
@@ -152,13 +152,13 @@ void  AntEditorWidget::on_toolBox_currentChanged(int index) {
 		setMeasureMode();
 		break;
 	default:
-		qWarning() << "Inconsistent tab size for AntEditorWidget";
+		qWarning() << "Inconsistent tab size for AntGeometryWorkspace";
 	}
 	updateCloneAction();
 }
 
 
-void AntEditorWidget::setShappingMode() {
+void AntGeometryWorkspace::setShappingMode() {
 	d_mode = Mode::Shape;
 	auto savedTcu = d_tcu;
 	d_tcu.reset();
@@ -198,17 +198,17 @@ void AntEditorWidget::setShappingMode() {
 		connect(capsule.data(),
 		        &Shape::updated,
 		        this,
-		        &AntEditorWidget::onCapsuleUpdated);
+		        &AntGeometryWorkspace::onCapsuleUpdated);
 	}
 
 	setColorFromType(typeFromComboBox());
 }
 
-void AntEditorWidget::setColorFromType(quint32 typeID) {
+void AntGeometryWorkspace::setColorFromType(quint32 typeID) {
 	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(typeID)));
 }
 
-void AntEditorWidget::setMeasureMode() {
+void AntGeometryWorkspace::setMeasureMode() {
 	d_mode = Mode::Measure;
 	auto savedTcu = d_tcu;
 	d_tcu.reset();
@@ -252,13 +252,13 @@ void AntEditorWidget::setMeasureMode() {
 		connect(vector.data(),
 		        &Shape::updated,
 		        this,
-		        &AntEditorWidget::onVectorUpdated);
+		        &AntGeometryWorkspace::onVectorUpdated);
 	}
 
 	setColorFromType(typeFromComboBox());
 }
 
-void AntEditorWidget::onAntSelected(bool antSelected) {
+void AntGeometryWorkspace::onAntSelected(bool antSelected) {
 	setTagCloseUp(fmp::TagCloseUp::ConstPtr());
 	if ( isEnabled() == false ) {
 		return;
@@ -290,7 +290,7 @@ void AntEditorWidget::onAntSelected(bool antSelected) {
 }
 
 
-void AntEditorWidget::changeEvent(QEvent * event)  {
+void AntGeometryWorkspace::changeEvent(QEvent * event)  {
 	QWidget::changeEvent(event);
 	if ( event->type() == QEvent::EnabledChange && isEnabled() == true ) {
 		buildCloseUpList();
@@ -298,7 +298,7 @@ void AntEditorWidget::changeEvent(QEvent * event)  {
 	}
 }
 
-void AntEditorWidget::buildHeaders() {
+void AntGeometryWorkspace::buildHeaders() {
 	auto measurementTypes = d_experiment->measurements()->measurementTypeModel();
 	QStringList labels;
 	labels.reserve(1 + measurementTypes->rowCount());
@@ -310,7 +310,7 @@ void AntEditorWidget::buildHeaders() {
 	d_closeUps->setHorizontalHeaderLabels(labels);
 }
 
-void AntEditorWidget::buildCloseUpList() {
+void AntGeometryWorkspace::buildCloseUpList() {
 	d_closeUps->clear();
 
 
@@ -384,7 +384,7 @@ void AntEditorWidget::buildCloseUpList() {
 
 }
 
-void AntEditorWidget::onMeasurementModification(const QString & tcuURI, quint32 mtID,int direction) {
+void AntGeometryWorkspace::onMeasurementModification(const QString & tcuURI, quint32 mtID,int direction) {
 	auto items = d_closeUps->findItems(tcuURI,Qt::MatchExactly | Qt::MatchRecursive);
 	int col = columnForMeasurementType(mtID);
 	if ( col < 0 || items.isEmpty() == true ) {
@@ -408,7 +408,7 @@ void AntEditorWidget::onMeasurementModification(const QString & tcuURI, quint32 
 	totalCountItem->setText(QString::number(totalCountItem->data(Qt::DisplayRole).toInt()+1));
 }
 
-void AntEditorWidget::onMeasurementModified(const fmp::Measurement::ConstPtr & m) {
+void AntGeometryWorkspace::onMeasurementModified(const fmp::Measurement::ConstPtr & m) {
 	if ( !m ) {
 		return;
 	}
@@ -416,13 +416,13 @@ void AntEditorWidget::onMeasurementModified(const fmp::Measurement::ConstPtr & m
 	onMeasurementModification(ToQString(tcuURI),m->Type(),+1);
 }
 
-void AntEditorWidget::onMeasurementDeleted(QString tcuURI, quint32 mtID) {
+void AntGeometryWorkspace::onMeasurementDeleted(QString tcuURI, quint32 mtID) {
 	onMeasurementModification(tcuURI,mtID,-1);
 }
 
 
 
-void AntEditorWidget::on_treeView_activated(const QModelIndex & index) {
+void AntGeometryWorkspace::on_treeView_activated(const QModelIndex & index) {
 	auto item = d_closeUps->itemFromIndex(index);
 	if ( d_experiment == nullptr || item == nullptr ) {
 		return;
@@ -435,7 +435,7 @@ void AntEditorWidget::on_treeView_activated(const QModelIndex & index) {
 }
 
 
-void AntEditorWidget::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
+void AntGeometryWorkspace::onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification) {
 	if ( !d_tcu
 	     || identification->TagValue() != d_tcu->TagValue()
 	     || identification->IsValid(d_tcu->Frame().Time()) == false ) {
@@ -449,7 +449,7 @@ void AntEditorWidget::onIdentificationAntPositionChanged(fmp::Identification::Co
 	                                   angle);
 }
 
-void AntEditorWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
+void AntGeometryWorkspace::onIdentificationDeleted(fmp::IdentificationConstPtr ident) {
 	if ( !d_tcu
 	     || d_tcu->TagValue() != ident->TagValue()
 	     || ident->IsValid(d_tcu->Frame().Time()) == false ) {
@@ -458,7 +458,7 @@ void AntEditorWidget::onIdentificationDeleted(fmp::IdentificationConstPtr ident)
 	setTagCloseUp(fmp::TagCloseUp::ConstPtr());
 }
 
-void AntEditorWidget::setTagCloseUp(const fmp::TagCloseUp::ConstPtr & tcu) {
+void AntGeometryWorkspace::setTagCloseUp(const fmp::TagCloseUp::ConstPtr & tcu) {
 	if ( d_tcu == tcu ) {
 		return;
 	}
@@ -492,7 +492,7 @@ void AntEditorWidget::setTagCloseUp(const fmp::TagCloseUp::ConstPtr & tcu) {
 
 }
 
-std::map<uint32_t,QSharedPointer<Vector>>::const_iterator AntEditorWidget::findVector(Vector * vector) const {
+std::map<uint32_t,QSharedPointer<Vector>>::const_iterator AntGeometryWorkspace::findVector(Vector * vector) const {
 	return std::find_if(d_vectors.begin(),
 	                    d_vectors.end(),
 	                    [vector](const std::pair<uint32_t,QSharedPointer<Vector>> & item ) {
@@ -500,7 +500,7 @@ std::map<uint32_t,QSharedPointer<Vector>>::const_iterator AntEditorWidget::findV
 	                    });
 }
 
-void AntEditorWidget::onVectorUpdated() {
+void AntGeometryWorkspace::onVectorUpdated() {
 	if ( !d_tcu ) {
 		return;
 	}
@@ -508,15 +508,15 @@ void AntEditorWidget::onVectorUpdated() {
 	auto sender = QObject::sender();
 	auto fi = findVector(dynamic_cast<Vector*>(sender));
 	if ( fi == d_vectors.end() ) {
-		qDebug() << "[AntEditorWidget]: could not find back sender";
+		qDebug() << "[AntGeometryWorkspace]: could not find back sender";
 		return;
 	}
 	setMeasurement(fi->second,fi->first);
 }
 
-void AntEditorWidget::onVectorCreated(QSharedPointer<Vector> vector) {
+void AntGeometryWorkspace::onVectorCreated(QSharedPointer<Vector> vector) {
 	if ( !d_tcu ) {
-		qDebug() << "[AntEditorWidget]: Vector created without tcu";
+		qDebug() << "[AntGeometryWorkspace]: Vector created without tcu";
 		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
 		return;
 	}
@@ -542,18 +542,18 @@ void AntEditorWidget::onVectorCreated(QSharedPointer<Vector> vector) {
 	}
 
 	connect(vector.data(),&Shape::updated,
-	        this,&AntEditorWidget::onVectorUpdated);
+	        this,&AntGeometryWorkspace::onVectorUpdated);
 
 	d_vectors.insert(std::make_pair(measurementType->MTID(),vector));
 }
 
-void AntEditorWidget::onVectorRemoved(QSharedPointer<Vector> vector) {
+void AntGeometryWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
 	if ( !d_tcu ) {
 		return;
 	}
 	auto fi = findVector(vector.data());
 	if ( fi == d_vectors.end() ) {
-		qDebug() << "[AntEditorWidget]: could not find back vector";
+		qDebug() << "[AntGeometryWorkspace]: could not find back vector";
 		return;
 	}
 	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fi->first);
@@ -566,7 +566,7 @@ void AntEditorWidget::onVectorRemoved(QSharedPointer<Vector> vector) {
 }
 
 
-void AntEditorWidget::on_insertButton_clicked() {
+void AntGeometryWorkspace::on_insertButton_clicked() {
 	switch(d_mode) {
 	case Mode::Shape:
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertCapsule);
@@ -577,12 +577,12 @@ void AntEditorWidget::on_insertButton_clicked() {
 	};
 
 }
-void AntEditorWidget::on_editButton_clicked() {
+void AntGeometryWorkspace::on_editButton_clicked() {
 	d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 }
 
 
-quint32 AntEditorWidget::typeFromComboBox() const {
+quint32 AntGeometryWorkspace::typeFromComboBox() const {
 	if ( auto shapeType = currentAntShapeType() ) {
 		return shapeType->TypeID();
 	}
@@ -592,7 +592,7 @@ quint32 AntEditorWidget::typeFromComboBox() const {
 	return 0;
 }
 
-void AntEditorWidget::on_comboBox_currentIndexChanged(int i) {
+void AntGeometryWorkspace::on_comboBox_currentIndexChanged(int i) {
 	quint32 type = typeFromComboBox();
 	if ( type == 0 ) {
 		return;
@@ -618,7 +618,7 @@ void AntEditorWidget::on_comboBox_currentIndexChanged(int i) {
 }
 
 
-void AntEditorWidget::onCapsuleUpdated() {
+void AntGeometryWorkspace::onCapsuleUpdated() {
 	if ( !d_tcu
 	     || d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false) {
@@ -627,11 +627,11 @@ void AntEditorWidget::onCapsuleUpdated() {
 	rebuildCapsules();
 }
 
-void AntEditorWidget::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
+void AntGeometryWorkspace::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
 	if ( !d_tcu
 	     || d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false ) {
-		qDebug() << "[AntEditorWidget]: Vector created without tcu or selected ant";
+		qDebug() << "[AntGeometryWorkspace]: Vector created without tcu or selected ant";
 		d_vectorialScene->deleteShape(capsule.staticCast<Shape>());
 		return;
 	};
@@ -653,7 +653,7 @@ void AntEditorWidget::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
 	connect(capsule.data(),
 	        &Shape::updated,
 	        this,
-	        &AntEditorWidget::onCapsuleUpdated);
+	        &AntGeometryWorkspace::onCapsuleUpdated);
 
 	d_capsules.insert(std::make_pair(capsule,shapeType->TypeID()));
 
@@ -661,7 +661,7 @@ void AntEditorWidget::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
 
 }
 
-void AntEditorWidget::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
+void AntGeometryWorkspace::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
 	if ( !d_tcu
 	     || d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false ) {
@@ -669,7 +669,7 @@ void AntEditorWidget::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
 	}
 	auto fi = d_capsules.find(capsule);
 	if ( fi == d_capsules.end() ) {
-		qDebug() << "[AntEditorWidget]: Could not find back capsule";
+		qDebug() << "[AntGeometryWorkspace]: Could not find back capsule";
 		return;
 	}
 
@@ -677,7 +677,7 @@ void AntEditorWidget::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
 	rebuildCapsules();
 }
 
-void AntEditorWidget::clearScene() {
+void AntGeometryWorkspace::clearScene() {
 	auto savedTcu = d_tcu;
 	d_tcu.reset();
 	d_vectorialScene->clearVectors();
@@ -688,7 +688,7 @@ void AntEditorWidget::clearScene() {
 }
 
 
-void AntEditorWidget::setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID) {
+void AntGeometryWorkspace::setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID) {
 	if ( !d_experiment || !d_tcu ) {
 		return;
 	}
@@ -709,7 +709,7 @@ void AntEditorWidget::setMeasurement(const QSharedPointer<Vector> & vector, fmp:
 	}
 }
 
-void AntEditorWidget::changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID) {
+void AntGeometryWorkspace::changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID) {
 	auto fi = findVector(vector);
 	if ( !d_tcu
 	     || d_vectors.count(mtID) != 0
@@ -728,7 +728,7 @@ void AntEditorWidget::changeVectorType(Vector * vector,fmp::MeasurementTypeID mt
 	d_vectors.erase(fi);
 }
 
-void AntEditorWidget::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID) {
+void AntGeometryWorkspace::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID) {
 	auto fi = std::find_if(d_capsules.begin(),
 	                       d_capsules.end(),
 	                       [capsule](const std::pair<QSharedPointer<Capsule>,uint32_t> & iter) -> bool {
@@ -747,16 +747,16 @@ void AntEditorWidget::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID st
 	rebuildCapsules();
 }
 
-fmp::MeasurementTypeConstPtr AntEditorWidget::currentMeasurementType() const {
+fmp::MeasurementTypeConstPtr AntGeometryWorkspace::currentMeasurementType() const {
 	return d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::MeasurementType::Ptr>();
 }
 
-fmp::AntShapeTypeConstPtr AntEditorWidget::currentAntShapeType() const {
+fmp::AntShapeTypeConstPtr AntGeometryWorkspace::currentAntShapeType() const {
 	return d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::AntShapeType::Ptr>();
 }
 
 
-int AntEditorWidget::columnForMeasurementType(fmp::MeasurementTypeID mtID) const {
+int AntGeometryWorkspace::columnForMeasurementType(fmp::MeasurementTypeID mtID) const {
 	for ( int i = 1; i < d_closeUps->columnCount(); ++i ) {
 		auto item = d_closeUps->itemFromIndex(d_closeUps->index(0,i));
 		if ( item != nullptr && item->data(Qt::UserRole+2).toInt() == mtID ) {
@@ -766,7 +766,7 @@ int AntEditorWidget::columnForMeasurementType(fmp::MeasurementTypeID mtID) const
 	return -1;
 }
 
-fmp::CapsulePtr AntEditorWidget::capsuleFromScene(const QSharedPointer<Capsule> & capsule) {
+fmp::CapsulePtr AntGeometryWorkspace::capsuleFromScene(const QSharedPointer<Capsule> & capsule) {
 	if ( !d_tcu
 	     || d_experiment == nullptr) {
 		return fmp::CapsulePtr();
@@ -787,7 +787,7 @@ fmp::CapsulePtr AntEditorWidget::capsuleFromScene(const QSharedPointer<Capsule> 
 	return std::make_shared<fmp::Capsule>(c1,c2,capsule->r1(),capsule->r2());
 }
 
-void AntEditorWidget::rebuildCapsules() {
+void AntGeometryWorkspace::rebuildCapsules() {
 	updateCloneAction();
 
 	if ( d_experiment == nullptr
@@ -804,7 +804,7 @@ void AntEditorWidget::rebuildCapsules() {
 	}
 }
 
-void AntEditorWidget::select(int increment) {
+void AntGeometryWorkspace::select(int increment) {
 	if ( d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false) {
 		return;
@@ -834,18 +834,18 @@ void AntEditorWidget::select(int increment) {
 
 }
 
-void AntEditorWidget::nextCloseUp() { select(+1); }
-void AntEditorWidget::previousCloseUp() { select(-1); }
+void AntGeometryWorkspace::nextCloseUp() { select(+1); }
+void AntGeometryWorkspace::previousCloseUp() { select(-1); }
 
-void AntEditorWidget::setUp(const NavigationAction & actions ) {
+void AntGeometryWorkspace::setUp(QMainWindow * main,const NavigationAction & actions ) {
 	connect(actions.NextCloseUp,&QAction::triggered,
-	        this,&AntEditorWidget::nextCloseUp);
+	        this,&AntGeometryWorkspace::nextCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
-	        this,&AntEditorWidget::previousCloseUp);
+	        this,&AntGeometryWorkspace::previousCloseUp);
 
 
 	connect(actions.CopyCurrentTime,&QAction::triggered,
-	        this,&AntEditorWidget::onCopyTime);
+	        this,&AntGeometryWorkspace::onCopyTime);
 
 	actions.NextCloseUp->setEnabled(true);
 	actions.PreviousCloseUp->setEnabled(true);
@@ -854,13 +854,13 @@ void AntEditorWidget::setUp(const NavigationAction & actions ) {
 	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
-void AntEditorWidget::tearDown(const NavigationAction & actions ) {
+void AntGeometryWorkspace::tearDown(QMainWindow * main, const NavigationAction & actions ) {
 	disconnect(actions.NextCloseUp,&QAction::triggered,
-	           this,&AntEditorWidget::nextCloseUp);
+	           this,&AntGeometryWorkspace::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
-	           this,&AntEditorWidget::previousCloseUp);
+	           this,&AntGeometryWorkspace::previousCloseUp);
 	disconnect(actions.CopyCurrentTime,&QAction::triggered,
-	           this,&AntEditorWidget::onCopyTime);
+	           this,&AntGeometryWorkspace::onCopyTime);
 
 	actions.NextCloseUp->setEnabled(false);
 	actions.PreviousCloseUp->setEnabled(false);
@@ -868,8 +868,7 @@ void AntEditorWidget::tearDown(const NavigationAction & actions ) {
 	d_copyTimeAction = nullptr;
 }
 
-
-void AntEditorWidget::onCopyTime() {
+void AntGeometryWorkspace::onCopyTime() {
 	if ( !d_tcu == true ) {
 		return;
 	}
@@ -878,7 +877,7 @@ void AntEditorWidget::onCopyTime() {
 
 }
 
-void AntEditorWidget::updateCloneAction() {
+void AntGeometryWorkspace::updateCloneAction() {
 	if ( this->isEnabled() == false
 	     || d_experiment == nullptr
 	     || d_experiment->selectedAnt()->isActive() == false
@@ -892,11 +891,11 @@ void AntEditorWidget::updateCloneAction() {
 	d_cloneShapeAction->setEnabled(selectedAnt->capsules().empty() == false);
 }
 
-QAction * AntEditorWidget::cloneAntShapeAction() const {
+QAction * AntGeometryWorkspace::cloneAntShapeAction() const {
 	return d_cloneShapeAction;
 }
 
-void AntEditorWidget::onCloneShapeActionTriggered() {
+void AntGeometryWorkspace::onCloneShapeActionTriggered() {
 	if ( d_experiment == nullptr ) {
 		return;
 	}

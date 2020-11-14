@@ -11,14 +11,12 @@
 #include <QSortFilterProxyModel>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
-#include "Logger.hpp"
+#include <fort/studio/widget/Logger.hpp>
 
-#include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 
 #include <QToolBar>
 #include <QPushButton>
 
-#include <fort/studio/widget/vectorgraphics/Polygon.hpp>
 
 QPointer<Logger> myLogger;
 
@@ -85,21 +83,21 @@ static void myLog(QtMsgType type, const QMessageLogContext &, const QString & ms
 }
 
 
-
-MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent)
-	, d_ui(new Ui::MainWindow)
-	, d_experiment(new ExperimentBridge(this))
-	, d_logger( new Logger(this) )
-	, d_loggerWidget(nullptr)
-	, d_lastNavigatable(nullptr) {
-
-	d_ui->setupUi(this);
-
+void MainWindow::setUpLogger() {
 	myLogger = d_logger;
 
 	d_handler = qInstallMessageHandler(myLog);
 
+	d_logStatus = new LogStatusWidget(d_logger,this);
+	d_ui->statusBar->addPermanentWidget(d_logStatus);
+	connect(d_logStatus,
+	        &LogStatusWidget::showLog,
+	        d_ui->actionShowLog,
+	        &QAction::trigger);
+
+}
+
+void MainWindow::setUpSaveAndModificationEvents() {
 	connect(d_experiment,
 	        &ExperimentBridge::modified,
 	        this,
@@ -109,38 +107,9 @@ MainWindow::MainWindow(QWidget *parent)
 	        &ExperimentBridge::activated,
 	        this,
 	        &MainWindow::onExperimentActivated);
+}
 
-	d_ui->globalProperties->setup(d_experiment);
-	d_ui->universeEditor->setup(d_experiment->universe());
-	d_ui->antList->setup(d_experiment->identifier());
-	d_ui->taggingWidget->setup(d_experiment);
-	d_ui->shappingWidget->setup(d_experiment);
-	d_ui->zoningWidget->setup(d_experiment);
-	d_ui->userData->setup(d_experiment->antMetadata());
-	d_ui->visualizeWidget->setup(d_experiment);
-
-	d_ui->shappingWidget->setEnabled(false);
-	connect(d_ui->workspaceSelector,
-	        &QTabWidget::currentChanged,
-	        [this](int index) {
-		        for ( size_t i = 0; i < d_ui->workspaceSelector->count(); ++i ) {
-			        auto w = d_ui->workspaceSelector->widget(i);
-			        w->setEnabled(i == index);
-		        }
-		        setupMoveActions();
-		        setAntSelectorVisibility();
-	        });
-
-	d_ui->workspaceSelector->setCurrentIndex(0);
-	d_ui->actionNextTag->setEnabled(false);
-	d_ui->actionPreviousTag->setEnabled(false);
-	d_ui->actionNextCloseUp->setEnabled(false);
-	d_ui->actionPreviousCloseUp->setEnabled(false);
-	d_ui->actionCopyTimeFromFrame->setEnabled(false);
-	d_ui->visualizeWidget->jumpToTimeAction()->setEnabled(false);
-
-	d_lastWasTaggingWidget = false;
-
+void MainWindow::setUpDynamicWindowTitle() {
 	setWindowTitle(tr("FORmicidae Tracker Studio"));
 	connect(d_experiment,
 	        &ExperimentBridge::activated,
@@ -150,38 +119,68 @@ MainWindow::MainWindow(QWidget *parent)
 		        }
 		        setWindowTitle(tr("FORmicidae Tracker Studio - %1").arg(d_experiment->absoluteFilePath().c_str()));
 	        });
+}
 
+void MainWindow::setUpWorkspaces() {
+	std::vector<Workspace*> workspace
+		= {
+		   d_ui->generalWorkspace,
+		   d_ui->tagStatisticsWorkspace,
+		   d_ui->identificationWorkspace,
+		   d_ui->antGeometryWorkspace,
+		   d_ui->zoningWorkspace,
+		   d_ui->antMetadataWorkspace,
+		   d_ui->visualizationWorkspace,
+	};
+
+	for ( const auto & w : workspace ) {
+		w->initialize(d_experiment);
+		w->setEnabled(false);
+	}
+
+	d_ui->workspaceSelector->setCurrentIndex(0);
+
+	connect(d_ui->workspaceSelector,
+	        &QTabWidget::currentChanged,
+	        this,
+	        &MainWindow::onCurrentWorkspaceChanged);
+
+	onCurrentWorkspaceChanged(0);
+
+
+}
+
+void MainWindow::setUpWorkspacesActions() {
+	d_ui->menuEdit->addAction(d_ui->identificationWorkspace->newAntFromTagAction());
+	d_ui->menuEdit->addAction(d_ui->identificationWorkspace->addIdentificationToAntAction());
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->identificationWorkspace->deletePoseEstimationAction());
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_ui->antGeometryWorkspace->cloneAntShapeAction());
+}
+
+void MainWindow::setUpAntSelectorAction() {
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
+}
 
-	d_lastSelectorState = d_ui->dockWidget->isVisible();
+MainWindow::MainWindow(QWidget *parent)
+	: QMainWindow(parent)
+	, d_ui(new Ui::MainWindow)
+	, d_experiment(new ExperimentBridge(this))
+	, d_logger( new Logger(this) )
+	, d_loggerWidget(nullptr)
+	, d_lastWorkspace(nullptr) {
 
+	d_ui->setupUi(this);
+
+	setUpLogger();
+	setUpSaveAndModificationEvents();
+	setUpDynamicWindowTitle();
+	setUpAntSelectorAction();
 
 	loadSettings();
-
-	d_ui->menuEdit->addAction(d_ui->taggingWidget->newAntFromTagAction());
-	d_ui->menuEdit->addAction(d_ui->taggingWidget->addIdentificationToAntAction());
-	d_ui->menuEdit->addSeparator();
-	d_ui->menuEdit->addAction(d_ui->taggingWidget->deletePoseEstimationAction());
-	d_ui->menuEdit->addSeparator();
-	d_ui->menuEdit->addAction(d_ui->shappingWidget->cloneAntShapeAction());
-
-	d_ui->menuMove->addSeparator();
-	d_ui->menuMove->addAction(d_ui->visualizeWidget->jumpToTimeAction());
-
-	auto sorted = new QSortFilterProxyModel(this);
-	sorted->setSourceModel(d_experiment->statistics()->stats());
-	sorted->setSortRole(Qt::UserRole+1);
-	d_ui->statsView->setModel(sorted);
-
-	d_ui->statsView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-	auto logStatus = new LogStatusWidget(d_logger,this);
-	d_ui->statusBar->addPermanentWidget(logStatus);
-	connect(logStatus,
-	        &LogStatusWidget::showLog,
-	        d_ui->actionShowLog,
-	        &QAction::trigger);
-
+	setUpWorkspaces();
+	setUpWorkspacesActions();
 }
 
 MainWindow::~MainWindow() {
@@ -455,24 +454,13 @@ void MainWindow::onLoggerWidgetDestroyed() {
 }
 
 
-void MainWindow::setAntSelectorVisibility() {
+void MainWindow::onCurrentWorkspaceChanged(int index) {
 	auto currentWidget = d_ui->workspaceSelector->currentWidget();
-	bool isTagWidget = currentWidget == d_ui->statsWidget || currentWidget == d_ui->taggingWidget;
+	auto currentWorkspace = dynamic_cast<Workspace*>(currentWidget);
 
-	if ( isTagWidget && !d_lastWasTaggingWidget ) {
-		d_lastSelectorState = d_ui->dockWidget->isVisible();
-		d_ui->dockWidget->close();
-	} else if ( !isTagWidget && d_lastWasTaggingWidget ) {
-		if ( d_lastSelectorState ) {
-			d_ui->dockWidget->show();
-		}
+	for ( int i = 0; i < d_ui->workspaceSelector->count(); ++i ) {
+		d_ui->workspaceSelector->widget(i)->setEnabled(index == i);
 	}
-	d_lastWasTaggingWidget = isTagWidget;
-}
-
-void MainWindow::setupMoveActions() {
-	auto jumpTimeAction = d_ui->visualizeWidget->jumpToTimeAction();
-	jumpTimeAction->setEnabled(d_ui->workspaceSelector->currentWidget() == d_ui->visualizeWidget);
 
 	NavigationAction actions {
 	                          .NextTag = d_ui->actionNextTag,
@@ -480,24 +468,18 @@ void MainWindow::setupMoveActions() {
 	                          .NextCloseUp = d_ui->actionNextCloseUp,
 	                          .PreviousCloseUp = d_ui->actionPreviousCloseUp,
 	                          .CopyCurrentTime = d_ui->actionCopyTimeFromFrame,
+
+	                          .JumpToTime = d_ui->actionJumpToTime,
 	};
 
-
-	if ( d_lastNavigatable != nullptr ) {
-		d_lastNavigatable->tearDown(actions);
-		d_ui->actionNextTag->setEnabled(false);
-		d_ui->actionPreviousTag->setEnabled(false);
-		d_ui->actionNextCloseUp->setEnabled(false);
-		d_ui->actionPreviousCloseUp->setEnabled(false);
-		d_ui->actionCopyTimeFromFrame->setEnabled(false);
-		d_lastNavigatable = nullptr;
+	if ( d_lastWorkspace != nullptr ) {
+		d_lastWorkspace->tearDown(this,actions);
 	}
-
-	Navigatable* navigatable = dynamic_cast<Navigatable*>(d_ui->workspaceSelector->currentWidget());
-	if ( navigatable == nullptr ) {
-		return;
+	currentWorkspace->setUp(this,actions);
+	if ( currentWorkspace->showAntSelector() == true ) {
+		d_ui->dockWidget->show();
+	} else {
+		d_ui->dockWidget->close();
 	}
-	navigatable->setUp(actions);
-
-	d_lastNavigatable = navigatable;
+	d_lastWorkspace = currentWorkspace;
 }
