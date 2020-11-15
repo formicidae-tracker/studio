@@ -18,7 +18,7 @@ TagStatisticsWorkspace::~TagStatisticsWorkspace() {
 }
 
 
-void TagStatisticsWorkspace::initialize(ExperimentBridge * experiment) {
+void TagStatisticsWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 	auto sorted = new QSortFilterProxyModel(this);
 	sorted->setSourceModel(experiment->statistics()->stats());
 	sorted->setSortRole(Qt::UserRole+1);
@@ -27,10 +27,10 @@ void TagStatisticsWorkspace::initialize(ExperimentBridge * experiment) {
 	d_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-void TagStatisticsWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
+void TagStatisticsWorkspace::setUp(const NavigationAction & actions) {
 
 }
 
-void TagStatisticsWorkspace::tearDown(QMainWindow * maina,const NavigationAction & actions) {
+void TagStatisticsWorkspace::tearDown(const NavigationAction & actions) {
 
 }

@@ -87,7 +87,7 @@ AntGeometryWorkspace::~AntGeometryWorkspace() {
 	delete d_ui;
 }
 
-void AntGeometryWorkspace::initialize(ExperimentBridge * experiment) {
+void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 	d_experiment = experiment;
 
 	d_ui->shapeTypeEditor->setup(d_experiment->antShapeTypes());
@@ -837,7 +837,7 @@ void AntGeometryWorkspace::select(int increment) {
 void AntGeometryWorkspace::nextCloseUp() { select(+1); }
 void AntGeometryWorkspace::previousCloseUp() { select(-1); }
 
-void AntGeometryWorkspace::setUp(QMainWindow * main,const NavigationAction & actions ) {
+void AntGeometryWorkspace::setUp(const NavigationAction & actions ) {
 	connect(actions.NextCloseUp,&QAction::triggered,
 	        this,&AntGeometryWorkspace::nextCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
@@ -854,7 +854,7 @@ void AntGeometryWorkspace::setUp(QMainWindow * main,const NavigationAction & act
 	d_copyTimeAction = actions.CopyCurrentTime;
 }
 
-void AntGeometryWorkspace::tearDown(QMainWindow * main, const NavigationAction & actions ) {
+void AntGeometryWorkspace::tearDown(const NavigationAction & actions ) {
 	disconnect(actions.NextCloseUp,&QAction::triggered,
 	           this,&AntGeometryWorkspace::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,

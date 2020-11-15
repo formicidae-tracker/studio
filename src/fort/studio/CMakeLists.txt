@@ -62,6 +62,7 @@ set(SRC_FILES Format.cpp
 			  widget/TrackingVideoControl.cpp
 			  widget/ZonesEditorWidget.cpp
 			  widget/CloneShapeDialog.cpp
+			  widget/TagStatisticsWidget.cpp
 			  workspace/Workspace.cpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -134,6 +135,7 @@ set(HDR_FILES Format.hpp
 			  widget/TrackingVideoControl.hpp
 			  widget/ZonesEditorWidget.hpp
 			  widget/CloneShapeDialog.hpp
+			  widget/TagStatisticsWidget.hpp
 			  workspace/Workspace.hpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -161,6 +163,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/TrackingVideoControl.ui
              widget/ZonesEditorWidget.ui
              widget/CloneShapeDialog.ui
+             widget/TagStatisticsWidget.ui
              workspace/GeneralWorkspace.ui
              workspace/TagStatisticsWorkspace.ui
              workspace/IdentificationWorkspace.ui

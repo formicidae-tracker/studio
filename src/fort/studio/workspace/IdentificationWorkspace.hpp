@@ -14,6 +14,8 @@ class SelectedAntBridge;
 class QSortFilterProxyModel;
 class VectorialScene;
 class Vector;
+class QToolBar;
+class QToolBarSeparator;
 
 namespace fmp = fort::myrmidon::priv;
 
@@ -48,9 +50,9 @@ public slots:
 	void previousTag();
 	void previousTagCloseUp();
 protected:
-	void initialize(ExperimentBridge * experiment) override;
-	void setUp(QMainWindow * main, const NavigationAction & actions ) override;
-	void tearDown(QMainWindow * main, const NavigationAction & actions ) override;
+	void initialize(QMainWindow * main, ExperimentBridge * experiment) override;
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
 
 private slots:
 	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
@@ -78,4 +80,6 @@ private:
 	fmp::TagCloseUpConstPtr       d_tcu;
 	QAction                     * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
 	QAction                     * d_copyTimeAction;
+	QToolBar                    * d_actionToolBar,*d_navigationToolBar;
+	QToolBarSeparator           * d_toolBarSeparator;
 };

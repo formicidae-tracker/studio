@@ -4,6 +4,7 @@
 
 class QAction;
 class QMainWindow;
+class QToolBar;
 class ExperimentBridge;
 
 struct NavigationAction {
@@ -14,6 +15,8 @@ struct NavigationAction {
 	QAction * CopyCurrentTime;
 
 	QAction * JumpToTime;
+
+	QToolBar * NavigationToolBar;
 };
 
 
@@ -25,9 +28,9 @@ public:
 
 	bool showAntSelector() const;
 
-	virtual void initialize(ExperimentBridge * experiment) = 0;
-	virtual void setUp(QMainWindow * main,const NavigationAction & actions) = 0;
-	virtual void tearDown(QMainWindow * maina,const NavigationAction & actions) = 0;
+	virtual void initialize(QMainWindow * main,ExperimentBridge * experiment) = 0;
+	virtual void setUp(const NavigationAction & actions) = 0;
+	virtual void tearDown(const NavigationAction & actions) = 0;
 
 private:
 	bool d_showAntSelector;

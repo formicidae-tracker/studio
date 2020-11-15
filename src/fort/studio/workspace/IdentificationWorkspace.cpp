@@ -3,9 +3,10 @@
 
 #include <QKeyEvent>
 #include <QClipboard>
-
+#include <QToolBar>
 #include <QSortFilterProxyModel>
 #include <QAction>
+#include <QMainWindow>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
@@ -21,7 +22,6 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
-
 IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::IdentificationWorkspace)
@@ -29,14 +29,40 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
 	, d_vectorialScene(new VectorialScene)
-	, d_newAntAction(new QAction(tr("New Ant from Tag"),this))
-	, d_addIdentificationAction(new QAction(tr("Add Identification to Ant"),this))
-	, d_deletePoseAction(new QAction(tr("Delete Pose Estimation"),this))
-	, d_copyTimeAction(nullptr) {
+	, d_newAntAction(nullptr)
+	, d_addIdentificationAction(nullptr)
+	, d_deletePoseAction(nullptr)
+	, d_copyTimeAction(nullptr)
+	, d_actionToolBar(new QToolBar(this))
+	, d_navigationToolBar(nullptr) {
 
-	d_newAntAction->setShortcut(QKeySequence(tr("Ctrl+A")));
-	d_addIdentificationAction->setShortcut(QKeySequence(tr("Ctrl+I")));
-	d_deletePoseAction->setShortcut(QKeySequence(tr("Ctrl+Shift+D")));
+	//	d_actionToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+#define set_action(res,symbolStr,legendStr,shortCutStr,toolTipStr) do { \
+		(res) = d_actionToolBar->addAction(QIcon::fromTheme(symbolStr), \
+		                                   tr(legendStr)); \
+		(res)->setShortcut(QKeySequence(tr(shortCutStr))); \
+		(res)->setToolTip(tr(toolTipStr " (" shortCutStr ")")); \
+		(res)->setStatusTip((res)->toolTip()); \
+	}while(0);
+
+	set_action(d_newAntAction,
+	           "contact-new-symbolic",
+	           "New Ant From Close-Up",
+	           "Ctrl+A",
+	           "Create a new ant from current close-up");
+	set_action(d_addIdentificationAction,
+	           "address-book-new-symbolic",
+	           "Add Identification To...",
+	           "Ctrl+I",
+	           "Add a new identifcation from current close-up to an existing ant");
+
+	set_action(d_deletePoseAction,
+	           "edit-delete-symbolic",
+	           "Delete Pose Estimation",
+	           "Ctrl+Shift+D",
+	           "Deletes current pose estimation");
+#undef set_action
 
 	connect(d_newAntAction,&QAction::triggered,
 	        this,&IdentificationWorkspace::newAnt);
@@ -50,15 +76,10 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
 
-	d_ui->newAntButton->setDefaultAction(d_newAntAction);
-	d_ui->addIdentButton->setDefaultAction(d_addIdentificationAction);
-	d_ui->deletePoseButton->setDefaultAction(d_deletePoseAction);
-
-
-    d_ui->treeView->setModel(d_sortedModel);
-    d_ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
-    d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //    d_ui->treeView->setModel(d_sortedModel);
+    //    d_ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+    //    d_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //    d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     d_ui->vectorialView->setScene(d_vectorialScene);
     d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
@@ -85,7 +106,7 @@ IdentificationWorkspace::~IdentificationWorkspace() {
 }
 
 
-void IdentificationWorkspace::initialize(ExperimentBridge * experiment) {
+void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
@@ -100,13 +121,13 @@ void IdentificationWorkspace::initialize(ExperimentBridge * experiment) {
 			        return;
 		        }
 		        for ( int i = first; i <= last; ++i) {
-			        d_ui->treeView->expand(d_sortedModel->index(i,0,parent));
+			        //			        d_ui->treeView->expand(d_sortedModel->index(i,0,parent));
 		        }
 	        });
 
 
 	d_sortedModel->setSourceModel(measurements->tagCloseUpModel());
-	d_ui->treeView->sortByColumn(0,Qt::AscendingOrder);
+	//	d_ui->treeView->sortByColumn(0,Qt::AscendingOrder);
 	d_measurements = measurements;
 
 	connect(identifier,
@@ -134,8 +155,8 @@ void IdentificationWorkspace::initialize(ExperimentBridge * experiment) {
 	        &IdentificationWorkspace::updateActionStates);
 	d_selectedAnt = selectedAnt;
 
-	d_ui->selectedAntIdentification->setup(experiment);
-
+	main->addToolBar(d_actionToolBar);
+	d_actionToolBar->hide();
 }
 
 
@@ -232,7 +253,7 @@ void IdentificationWorkspace::on_treeView_activated(const QModelIndex & index) {
 
 
 void IdentificationWorkspace::nextTag() {
-	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
+	/* if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
 	}
@@ -243,11 +264,11 @@ void IdentificationWorkspace::nextTag() {
 		selectRow(firstRow.row()+1,0);
 		return;
 	}
-	selectRow(firstRow.parent().row()+1,0);
+	selectRow(firstRow.parent().row()+1,0);*/
 }
 
 void IdentificationWorkspace::nextTagCloseUp() {
-	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
+	/*	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
 	}
@@ -255,11 +276,11 @@ void IdentificationWorkspace::nextTagCloseUp() {
 	if ( firstRow.parent().isValid() == false ) {
 		selectRow(firstRow.row(),0);
 	}
-	selectRow(firstRow.parent().row(),firstRow.row()+1);
+	selectRow(firstRow.parent().row(),firstRow.row()+1);*/
 }
 
 void IdentificationWorkspace::previousTag() {
-	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
+	/*	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
 	}
@@ -268,11 +289,11 @@ void IdentificationWorkspace::previousTag() {
 		selectRow(firstRow.row()-1,0);
 		return;
 	}
-	selectRow(firstRow.parent().row()-1,0);
+	selectRow(firstRow.parent().row()-1,0);*/
 }
 
 void IdentificationWorkspace::previousTagCloseUp() {
-	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
+	/*	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
 		selectRow(0,0);
 		return;
 	}
@@ -280,11 +301,11 @@ void IdentificationWorkspace::previousTagCloseUp() {
 	if ( firstRow.parent().isValid() == false ) {
 		selectRow(firstRow.row(),0);
 	}
-	selectRow(firstRow.parent().row(),firstRow.row()-1);
+	selectRow(firstRow.parent().row(),firstRow.row()-1);*/
 }
 
 void IdentificationWorkspace::selectRow(int tagRow, int tcuRow) {
-	if (tagRow < 0 || tagRow >= d_sortedModel->rowCount() || tcuRow < 0) {
+	/*	if (tagRow < 0 || tagRow >= d_sortedModel->rowCount() || tcuRow < 0) {
 		return;
 	}
 	auto tagIndex = d_sortedModel->index(tagRow,0);
@@ -300,7 +321,7 @@ void IdentificationWorkspace::selectRow(int tagRow, int tcuRow) {
 	}
 	auto index = d_sortedModel->index(tcuRow,0,tagIndex);
 	on_treeView_activated(index);
-	d_ui->treeView->scrollTo(index);
+	d_ui->treeView->scrollTo(index);*/
 }
 
 
@@ -496,7 +517,7 @@ QAction * IdentificationWorkspace::deletePoseEstimationAction() const {
 	return d_deletePoseAction;
 }
 
-void IdentificationWorkspace::setUp(QMainWindow * main,const NavigationAction & actions ) {
+void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 	connect(actions.NextTag,&QAction::triggered,
 	        this,&IdentificationWorkspace::nextTag);
 	connect(actions.PreviousTag,&QAction::triggered,
@@ -517,9 +538,15 @@ void IdentificationWorkspace::setUp(QMainWindow * main,const NavigationAction & 
 
 	actions.CopyCurrentTime->setEnabled(!d_tcu == false);
 	d_copyTimeAction = actions.CopyCurrentTime;
+
+
+	d_actionToolBar->show();
+	actions.NavigationToolBar->show();
+
+
 }
 
-void IdentificationWorkspace::tearDown(QMainWindow * main, const NavigationAction & actions ) {
+void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
 	disconnect(actions.NextTag,&QAction::triggered,
 	           this,&IdentificationWorkspace::nextTag);
 	disconnect(actions.PreviousTag,&QAction::triggered,
@@ -539,6 +566,10 @@ void IdentificationWorkspace::tearDown(QMainWindow * main, const NavigationActio
 	actions.PreviousCloseUp->setEnabled(false);
 	actions.CopyCurrentTime->setEnabled(false);
 	d_copyTimeAction = nullptr;
+
+	d_actionToolBar->hide();
+	actions.NavigationToolBar->hide();
+
 }
 
 void IdentificationWorkspace::onCopyTime() {

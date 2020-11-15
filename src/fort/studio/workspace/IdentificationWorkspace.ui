@@ -6,188 +6,530 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1096</width>
-    <height>824</height>
+    <width>1486</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="2" rowspan="3">
-    <widget class="AntIdentificationWidget" name="selectedAntIdentification" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>450</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QToolButton" name="newAntButton">
-       <property name="toolTip">
-        <string>Creates a new ant identified by current tag</string>
-       </property>
-       <property name="statusTip">
-        <string>Creates a new ant identified by current tag</string>
-       </property>
-       <property name="text">
-        <string>New Ant From Tag</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="addIdentButton">
-       <property name="toolTip">
-        <string>Use tag to identify selected ant</string>
-       </property>
-       <property name="statusTip">
-        <string>Use tag to identify selected ant</string>
-       </property>
-       <property name="text">
-        <string>Add Identification to Ant</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="deletePoseButton">
-       <property name="toolTip">
-        <string>Deletes current pose estimation</string>
-       </property>
-       <property name="statusTip">
-        <string>Deletes current pose estimation</string>
-       </property>
-       <property name="text">
-        <string>Delete Pose Estimation</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="1">
-    <widget class="VectorialView" name="vectorialView">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>2</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>420</width>
-       <height>370</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16637</width>
-       <height>16637</height>
-      </size>
-     </property>
-     <property name="toolTip">
-      <string>Edits pose estimation by clicking on tail and then head</string>
-     </property>
-     <property name="statusTip">
-      <string>Edits pose estimation by clicking on tail and then head</string>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustIgnored</enum>
-     </property>
-     <property name="backgroundBrush">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>136</red>
-        <green>138</green>
-        <blue>133</blue>
-       </color>
-      </brush>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QGroupBox" name="tagBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>250</width>
-       <height>0</height>
-      </size>
-     </property>
+   <item row="0" column="2">
+    <widget class="QGroupBox" name="identificationBox">
      <property name="title">
-      <string>Tag Selection</string>
+      <string>Identifications</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QTreeView" name="treeView">
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Filter:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="identificationView">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>360</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>360</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>60</number>
+        </attribute>
+        <attribute name="horizontalHeaderHighlightSections">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>50</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>TagID</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>AntID</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Start</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>End</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Size</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Poses</string>
+         </property>
+        </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>0x000</string>
+         </property>
+        </item>
+        <item row="0" column="1">
+         <property name="text">
+          <string>001</string>
+         </property>
+        </item>
+        <item row="0" column="2">
+         <property name="text">
+          <string>-∞</string>
+         </property>
+        </item>
+        <item row="0" column="3">
+         <property name="text">
+          <string>+∞</string>
+         </property>
+        </item>
+        <item row="0" column="4">
+         <property name="text">
+          <string>0.7</string>
+         </property>
+        </item>
+        <item row="0" column="5">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string>0x001</string>
+         </property>
+        </item>
+        <item row="1" column="1">
+         <property name="text">
+          <string>003</string>
+         </property>
+        </item>
+        <item row="1" column="2">
+         <property name="text">
+          <string>-∞</string>
+         </property>
+        </item>
+        <item row="1" column="3">
+         <property name="text">
+          <string>+∞</string>
+         </property>
+        </item>
+        <item row="1" column="4">
+         <property name="text">
+          <string>2.4</string>
+         </property>
+        </item>
+        <item row="1" column="5">
+         <property name="text">
+          <string>2</string>
+         </property>
+        </item>
+        <item row="2" column="0">
+         <property name="text">
+          <string>0x002</string>
+         </property>
+        </item>
+        <item row="2" column="1">
+         <property name="text">
+          <string>004</string>
+         </property>
+        </item>
+        <item row="2" column="2">
+         <property name="text">
+          <string>2019-11-02T23:01:34.123456Z</string>
+         </property>
+        </item>
+        <item row="2" column="3">
+         <property name="text">
+          <string>2019-11-02T23:55:12.234567Z</string>
+         </property>
+        </item>
+        <item row="2" column="4">
+         <property name="text">
+          <string>0.7</string>
+         </property>
+        </item>
+        <item row="2" column="5">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item row="3" column="0">
+         <property name="text">
+          <string>0x003</string>
+         </property>
+        </item>
+        <item row="3" column="1">
+         <property name="text">
+          <string>002</string>
+         </property>
+        </item>
+        <item row="3" column="2">
+         <property name="text">
+          <string>-∞</string>
+         </property>
+        </item>
+        <item row="3" column="3">
+         <property name="text">
+          <string>+∞</string>
+         </property>
+        </item>
+        <item row="3" column="4">
+         <property name="text">
+          <string>0.7</string>
+         </property>
+        </item>
+        <item row="3" column="5">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item row="4" column="0">
+         <property name="text">
+          <string>0x004</string>
+         </property>
+        </item>
+        <item row="4" column="1">
+         <property name="text">
+          <string>007</string>
+         </property>
+        </item>
+        <item row="4" column="2">
+         <property name="text">
+          <string>-∞</string>
+         </property>
+        </item>
+        <item row="4" column="3">
+         <property name="text">
+          <string>+∞</string>
+         </property>
+        </item>
+        <item row="4" column="4">
+         <property name="text">
+          <string>0.7</string>
+         </property>
+        </item>
+        <item row="4" column="5">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="closeUpBox">
+     <property name="title">
+      <string>Close-Ups</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QFormLayout" name="formLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Filter:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>Hide Used Tags</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="closeUpView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>150</height>
+          <width>180</width>
+          <height>16777215</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>Selects current tag close up</string>
-        </property>
-        <property name="sortingEnabled">
+        <attribute name="horizontalHeaderVisible">
          <bool>true</bool>
-        </property>
-        <attribute name="headerStretchLastSection">
+        </attribute>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>false</bool>
         </attribute>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>60</number>
+        </attribute>
+        <attribute name="horizontalHeaderHighlightSections">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>50</number>
+        </attribute>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>30</number>
+        </attribute>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>TagID</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Count</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Used</string>
+         </property>
+        </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>0x000</string>
+         </property>
+        </item>
+        <item row="0" column="1">
+         <property name="text">
+          <string>234</string>
+         </property>
+        </item>
+        <item row="0" column="2">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string>0x001</string>
+         </property>
+        </item>
+        <item row="1" column="1">
+         <property name="text">
+          <string>245</string>
+         </property>
+        </item>
+        <item row="1" column="2">
+         <property name="text">
+          <string>240</string>
+         </property>
+        </item>
+        <item row="2" column="0">
+         <property name="text">
+          <string>0x002</string>
+         </property>
+        </item>
+        <item row="2" column="1">
+         <property name="text">
+          <string>236</string>
+         </property>
+        </item>
+        <item row="2" column="2">
+         <property name="text">
+          <string>236</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="VectorialView" name="vectorialView">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>500</width>
+         <height>500</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16637</width>
+         <height>16637</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Edits pose estimation by clicking on tail and then head</string>
+       </property>
+       <property name="statusTip">
+        <string>Edits pose estimation by clicking on tail and then head</string>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <property name="backgroundBrush">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>136</red>
+          <green>138</green>
+          <blue>133</blue>
+         </color>
+        </brush>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="tagStatisticsBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Tag Statistics</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="TagStatisticsWidget" name="tagStatistics" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QSlider" name="horizontalSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
     </widget>
    </item>
   </layout>
@@ -199,9 +541,9 @@
    <header location="global">fort/studio/widget/vectorgraphics/VectorialView.hpp</header>
   </customwidget>
   <customwidget>
-   <class>AntIdentificationWidget</class>
+   <class>TagStatisticsWidget</class>
    <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/AntIdentificationWidget.hpp</header>
+   <header location="global">fort/studio/widget/TagStatisticsWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

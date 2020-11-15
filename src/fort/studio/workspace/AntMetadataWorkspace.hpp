@@ -16,9 +16,9 @@ public:
 
 
 protected:
-	void initialize(ExperimentBridge * experiment) override;
-	void setUp(QMainWindow * main,const NavigationAction & actions) override;
-	void tearDown(QMainWindow * maina,const NavigationAction & actions) override;
+	void initialize(QMainWindow * main,ExperimentBridge * experiment) override;
+	void setUp(const NavigationAction & actions) override;
+	void tearDown(const NavigationAction & actions) override;
 
 
 private slots:

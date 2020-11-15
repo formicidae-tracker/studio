@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -156,8 +156,6 @@
     <addaction name="separator"/>
     <addaction name="actionShowLog"/>
     <addaction name="actionShowAntSelector"/>
-    <addaction name="separator"/>
-    <addaction name="actionCopyTimeFromFrame"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -167,22 +165,9 @@
     <addaction name="actionOnlineHelp"/>
    </widget>
    <widget class="QMenu" name="menuMove">
-    <property name="toolTip">
-     <string>Tag Close Up Navigation actions</string>
-    </property>
     <property name="title">
      <string>Move</string>
     </property>
-    <property name="toolTipsVisible">
-     <bool>true</bool>
-    </property>
-    <addaction name="actionNextCloseUp"/>
-    <addaction name="actionPreviousCloseUp"/>
-    <addaction name="separator"/>
-    <addaction name="actionNextTag"/>
-    <addaction name="actionPreviousTag"/>
-    <addaction name="separator"/>
-    <addaction name="actionJumpToTime"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -503,87 +488,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
-   </property>
-  </action>
-  <action name="actionNextCloseUp">
-   <property name="text">
-    <string>Next Close Up</string>
-   </property>
-   <property name="toolTip">
-    <string>Move to next close up for this tag</string>
-   </property>
-   <property name="statusTip">
-    <string>Move to next close up for this tag</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+Down</string>
-   </property>
-  </action>
-  <action name="actionPreviousCloseUp">
-   <property name="text">
-    <string>Previous Close Up</string>
-   </property>
-   <property name="toolTip">
-    <string>Move to previous close up for this tag</string>
-   </property>
-   <property name="statusTip">
-    <string>Move to previous close up for this tag</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+Up</string>
-   </property>
-  </action>
-  <action name="actionNextTag">
-   <property name="text">
-    <string>Next Tag</string>
-   </property>
-   <property name="toolTip">
-    <string>Move to next tag</string>
-   </property>
-   <property name="statusTip">
-    <string>Move to next tag</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Down</string>
-   </property>
-  </action>
-  <action name="actionPreviousTag">
-   <property name="text">
-    <string>Previous Tag</string>
-   </property>
-   <property name="toolTip">
-    <string>Move to previous tag</string>
-   </property>
-   <property name="statusTip">
-    <string>Move to previous tag</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Up</string>
-   </property>
-  </action>
-  <action name="actionCopyTimeFromFrame">
-   <property name="text">
-    <string>Copy current time</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy current time from currently displayed frame</string>
-   </property>
-   <property name="statusTip">
-    <string>Copy current time from currently displayed frame</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+C</string>
-   </property>
-  </action>
-  <action name="actionJumpToTime">
-   <property name="text">
-    <string>Jump To Time</string>
-   </property>
-   <property name="toolTip">
-    <string>Seed current movie to given time</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>

@@ -106,7 +106,7 @@ VisualizationWorkspace::~VisualizationWorkspace() {
 	delete d_ui;
 }
 
-void VisualizationWorkspace::initialize(ExperimentBridge * experiment) {
+void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 	d_experiment = experiment;
 	auto movieBridge = experiment->movies();
 
@@ -174,7 +174,7 @@ void VisualizationWorkspace::onCopyTimeActionTriggered() {
 	QApplication::clipboard()->setText(ToQString(time));
 }
 
-void VisualizationWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
+void VisualizationWorkspace::setUp(const NavigationAction & actions) {
 	connect(d_ui->trackingVideoWidget,
 	        &TrackingVideoWidget::hasTrackingTimeChanged,
 	        actions.CopyCurrentTime,
@@ -188,8 +188,7 @@ void VisualizationWorkspace::setUp(QMainWindow * main,const NavigationAction & a
 	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 }
 
-void VisualizationWorkspace::tearDown(QMainWindow * main,
-                                   const NavigationAction & actions) {
+void VisualizationWorkspace::tearDown(const NavigationAction & actions) {
 	disconnect(d_ui->trackingVideoWidget,
 	           &TrackingVideoWidget::hasTrackingTimeChanged,
 	           actions.CopyCurrentTime,

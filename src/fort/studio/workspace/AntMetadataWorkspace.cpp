@@ -23,7 +23,7 @@ AntMetadataWorkspace::~AntMetadataWorkspace() {
 	delete d_ui;
 }
 
-void AntMetadataWorkspace::initialize(ExperimentBridge * experiment) {
+void AntMetadataWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 	initialize(experiment->antMetadata());
 }
 
@@ -103,10 +103,10 @@ void AntMetadataWorkspace::onRemoveButtonClicked() {
 }
 
 
-void AntMetadataWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
+void AntMetadataWorkspace::setUp(const NavigationAction & actions) {
 
 }
 
-void AntMetadataWorkspace::tearDown(QMainWindow * maina,const NavigationAction & actions) {
+void AntMetadataWorkspace::tearDown(const NavigationAction & actions) {
 
 }

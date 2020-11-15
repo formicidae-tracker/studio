@@ -15,13 +15,13 @@ GeneralWorkspace::~GeneralWorkspace() {
 }
 
 
-void GeneralWorkspace::initialize(ExperimentBridge * experiment) {
+void GeneralWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 	d_ui->globalProperties->setup(experiment);
 	d_ui->universeEditor->setup(experiment->universe());
 }
 
-void GeneralWorkspace::setUp(QMainWindow * main,const NavigationAction & actions) {
+void GeneralWorkspace::setUp(const NavigationAction & actions) {
 }
 
-void GeneralWorkspace::tearDown(QMainWindow * maina,const NavigationAction & actions) {
+void GeneralWorkspace::tearDown(const NavigationAction & actions) {
 }

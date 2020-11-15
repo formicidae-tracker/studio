@@ -70,6 +70,8 @@ private:
 	void setUpAntSelectorAction();
 	void setUpWorkspaces();
 	void setUpWorkspacesActions();
+	void setUpNavigationActions();
+
 
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
@@ -92,4 +94,5 @@ private:
 	LogStatusWidget     * d_logStatus;
 	QtMessageHandler      d_handler;
 	Workspace           * d_lastWorkspace;
+	NavigationAction      d_navigationActions;
 };

@@ -75,7 +75,7 @@ ZoningWorkspace::~ZoningWorkspace() {
 	delete d_ui;
 }
 
-void ZoningWorkspace::initialize(ExperimentBridge * experiment) {
+void ZoningWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 	d_zones = experiment->zones();
 	d_ui->zonesEditor->setup(d_zones);
 	d_ui->listView->setModel(d_zones->fullFrameModel());
@@ -121,7 +121,7 @@ void ZoningWorkspace::display(const std::shared_ptr<ZoneBridge::FullFrame> & ful
 }
 
 
-void ZoningWorkspace::setUp(QMainWindow * main, const NavigationAction & actions) {
+void ZoningWorkspace::setUp(const NavigationAction & actions) {
 	connect(actions.NextCloseUp,&QAction::triggered,
 	        this,&ZoningWorkspace::nextCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
@@ -136,7 +136,7 @@ void ZoningWorkspace::setUp(QMainWindow * main, const NavigationAction & actions
 	d_copyAction = actions.CopyCurrentTime;
 }
 
-void ZoningWorkspace::tearDown(QMainWindow *main, const NavigationAction & actions) {
+void ZoningWorkspace::tearDown(const NavigationAction & actions) {
 	disconnect(actions.NextCloseUp,&QAction::triggered,
 	           this,&ZoningWorkspace::nextCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,

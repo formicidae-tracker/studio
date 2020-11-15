@@ -134,7 +134,7 @@ void MainWindow::setUpWorkspaces() {
 	};
 
 	for ( const auto & w : workspace ) {
-		w->initialize(d_experiment);
+		w->initialize(this,d_experiment);
 		w->setEnabled(false);
 	}
 
@@ -163,6 +163,73 @@ void MainWindow::setUpAntSelectorAction() {
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
 }
 
+void MainWindow::setUpNavigationActions() {
+	auto toolbar = new QToolBar(this);
+	d_navigationActions.NavigationToolBar = toolbar;
+	addToolBar(toolbar);
+	toolbar->hide();
+
+
+#define set_button(res,symbolStr,legendStr,shortCutStr,toolTipStr) do {	  \
+		(res) = toolbar->addAction(QIcon::fromTheme(symbolStr), \
+		                           tr(legendStr)); \
+		(res)->setShortcut(QKeySequence(shortCutStr)); \
+		(res)->setToolTip(tr(toolTipStr " (" shortCutStr ")")); \
+		(res)->setStatusTip((res)->toolTip()); \
+		(res)->setEnabled(false); \
+	}while(0)
+	set_button(d_navigationActions.PreviousTag,
+	           "go-first-symbolic",
+	           "Previous Tag",
+	           "Ctrl+Up",
+	           "Jump to previous tag");
+
+	set_button(d_navigationActions.PreviousCloseUp,
+	           "go-previous-symbolic",
+	           "Previous Close Up",
+	           "Shift+Up",
+	           "Jump to previous close-up");
+
+	set_button(d_navigationActions.NextCloseUp,
+	           "go-next-symbolic",
+	           "Next Close Up",
+	           "Shift+Down",
+	           "Jump to next close-up");
+
+	set_button(d_navigationActions.NextTag,
+	           "go-last-symbolic",
+	           "Next Tag",
+	           "Ctrl+Down",
+	           "Jump to next tag");
+
+	toolbar->addSeparator();
+	set_button(d_navigationActions.CopyCurrentTime,
+	           "edit-copy-symbolic",
+	           "Copy Current Time",
+	           "Ctrl+Shift+C",
+	           "Copy time of currently displayed frame or close-up");
+
+	toolbar->addSeparator();
+	set_button(d_navigationActions.JumpToTime,
+	           "go-jump-symbolic",
+	           "Jump To Time",
+	           "Ctrl+T",
+	           "Jump current movie to time");
+#undef set_button
+
+	d_ui->menuMove->addAction(d_navigationActions.NextCloseUp);
+	d_ui->menuMove->addAction(d_navigationActions.PreviousCloseUp);
+	d_ui->menuMove->addSeparator();
+	d_ui->menuMove->addAction(d_navigationActions.NextTag);
+	d_ui->menuMove->addAction(d_navigationActions.PreviousTag);
+	d_ui->menuMove->addSeparator();
+	d_ui->menuMove->addAction(d_navigationActions.JumpToTime);
+
+	d_ui->menuEdit->addSeparator();
+	d_ui->menuEdit->addAction(d_navigationActions.CopyCurrentTime);
+	d_ui->menuEdit->addSeparator();
+}
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
@@ -179,8 +246,10 @@ MainWindow::MainWindow(QWidget *parent)
 	setUpAntSelectorAction();
 
 	loadSettings();
+	setUpNavigationActions();
 	setUpWorkspaces();
 	setUpWorkspacesActions();
+
 }
 
 MainWindow::~MainWindow() {
@@ -462,20 +531,10 @@ void MainWindow::onCurrentWorkspaceChanged(int index) {
 		d_ui->workspaceSelector->widget(i)->setEnabled(index == i);
 	}
 
-	NavigationAction actions {
-	                          .NextTag = d_ui->actionNextTag,
-	                          .PreviousTag = d_ui->actionPreviousTag,
-	                          .NextCloseUp = d_ui->actionNextCloseUp,
-	                          .PreviousCloseUp = d_ui->actionPreviousCloseUp,
-	                          .CopyCurrentTime = d_ui->actionCopyTimeFromFrame,
-
-	                          .JumpToTime = d_ui->actionJumpToTime,
-	};
-
 	if ( d_lastWorkspace != nullptr ) {
-		d_lastWorkspace->tearDown(this,actions);
+		d_lastWorkspace->tearDown(d_navigationActions);
 	}
-	currentWorkspace->setUp(this,actions);
+	currentWorkspace->setUp(d_navigationActions);
 	if ( currentWorkspace->showAntSelector() == true ) {
 		d_ui->dockWidget->show();
 	} else {
