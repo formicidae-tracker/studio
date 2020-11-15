@@ -31,6 +31,8 @@ public:
 
 	QAbstractItemModel * antModel() const;
 
+	QAbstractItemModel * identificationModel() const;
+
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isActive() const override;
@@ -49,6 +51,8 @@ public:
 	SelectedAntBridge * selectedAnt() const;
 
 	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
+
+
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -106,7 +110,8 @@ private:
 	const static int SOLO_COLUMN = 2;
 
 	fmp::Experiment::Ptr d_experiment;
-	QStandardItemModel * d_model;
+	QStandardItemModel * d_antModel;
+
 	quint32              d_numberSoloAnt,d_numberHiddenAnt;
 	SelectedAntBridge  * d_selectedAnt;
 };

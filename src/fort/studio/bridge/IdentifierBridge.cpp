@@ -12,7 +12,7 @@
 
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
-	, d_model(new QStandardItemModel(this))
+	, d_antModel(new QStandardItemModel(this))
 	, d_numberSoloAnt(0)
 	, d_numberHiddenAnt(0)
 	, d_selectedAnt(new SelectedAntBridge(this)) {
@@ -23,7 +23,7 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	qRegisterMetaType<fmp::Ant::DisplayState>();
 	qRegisterMetaType<fm::Color>();
 
-	connect(d_model,
+	connect(d_antModel,
 	        &QStandardItemModel::itemChanged,
 	        this,
 	        &IdentifierBridge::onItemChanged);
@@ -49,7 +49,7 @@ bool IdentifierBridge::isActive() const {
 
 
 QAbstractItemModel * IdentifierBridge::antModel() const {
-	return d_model;
+	return d_antModel;
 }
 
 void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
@@ -59,8 +59,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 
 	setModified(false);
-	d_model->clear();
-	d_model->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
+	d_antModel->clear();
+	d_antModel->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
 	if ( d_experiment ) {
 		d_experiment->Identifier()
 			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
@@ -87,7 +87,7 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	}
 
 	for ( const auto & [antID,a] : ants) {
-		d_model->invisibleRootItem()->appendRow(buildAnt(a));
+		d_antModel->invisibleRootItem()->appendRow(buildAnt(a));
 	}
 
 	emit activated(true);
@@ -110,7 +110,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 
 	qInfo() << "Created new Ant" << ant->FormattedID().c_str();
 
-	d_model->invisibleRootItem()->appendRow(buildAnt(ant));
+	d_antModel->invisibleRootItem()->appendRow(buildAnt(ant));
 
 	setModified(true);
 	emit antCreated(ant);
@@ -136,7 +136,7 @@ void IdentifierBridge::deleteAnt(fm::Ant::ID antID) {
 
 	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(antID).c_str();
 
-	d_model->removeRows(item->row(),1);
+	d_antModel->removeRows(item->row(),1);
 	setModified(true);
 	emit antDeleted(antID);
 }
@@ -269,7 +269,7 @@ QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 
 
 QStandardItem * IdentifierBridge::findAnt(fm::Ant::ID antID) const {
-	auto items = d_model->findItems(fmp::Ant::FormatID(antID).c_str(), Qt::MatchStartsWith);
+	auto items = d_antModel->findItems(fmp::Ant::FormatID(antID).c_str(), Qt::MatchStartsWith);
 	if ( items.size() != 1 ) {
 		qDebug() << "Could not find Ant " << fmp::Ant::FormatID(antID).c_str();
 		return NULL;
@@ -333,8 +333,8 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	}
 
 	auto ant = item->data().value<fmp::Ant::Ptr>();
-	auto hideItem = d_model->item(item->row(),HIDE_COLUMN);
-	auto soloItem = d_model->item(item->row(),SOLO_COLUMN);
+	auto hideItem = d_antModel->item(item->row(),HIDE_COLUMN);
+	auto soloItem = d_antModel->item(item->row(),SOLO_COLUMN);
 	switch ( item->column() ) {
 	case HIDE_COLUMN:
 		if ( item->checkState() == Qt::Checked ){
@@ -362,7 +362,7 @@ void IdentifierBridge::selectAnt(const QModelIndex & index) {
 		return;
 	}
 
-	auto ant = d_model->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
+	auto ant = d_antModel->itemFromIndex(index)->data().value<fmp::Ant::Ptr>();
 	d_selectedAnt->setAnt(ant);
 }
 
@@ -374,7 +374,7 @@ void IdentifierBridge::doOnSelection(const QItemSelection & selection,
 		if ( index.isValid() == false || index.column() != 0 ) {
 			continue;
 		}
-		auto item = d_model->itemFromIndex(index);
+		auto item = d_antModel->itemFromIndex(index);
 		auto ant = item->data().value<fmp::Ant::Ptr>();
 		if ( !ant ) {
 			continue;
@@ -434,18 +434,18 @@ quint32 IdentifierBridge::numberSoloAnt() const {
 
 
 void IdentifierBridge::showAll() {
-	for(size_t i = 0; i < d_model->rowCount(); ++i) {
-		auto hideItem = d_model->itemFromIndex(d_model->index(i,HIDE_COLUMN));
-		auto soloItem = d_model->itemFromIndex(d_model->index(i,SOLO_COLUMN));
+	for(size_t i = 0; i < d_antModel->rowCount(); ++i) {
+		auto hideItem = d_antModel->itemFromIndex(d_antModel->index(i,HIDE_COLUMN));
+		auto soloItem = d_antModel->itemFromIndex(d_antModel->index(i,SOLO_COLUMN));
 		auto ant = hideItem->data().value<fmp::Ant::Ptr>();
 		setAntDisplayState(hideItem,soloItem,ant,fmp::Ant::DisplayState::VISIBLE);
 	}
 }
 
 void IdentifierBridge::unsoloAll() {
-	for(size_t i = 0; i < d_model->rowCount(); ++i) {
-		auto hideItem = d_model->itemFromIndex(d_model->index(i,HIDE_COLUMN));
-		auto soloItem = d_model->itemFromIndex(d_model->index(i,SOLO_COLUMN));
+	for(size_t i = 0; i < d_antModel->rowCount(); ++i) {
+		auto hideItem = d_antModel->itemFromIndex(d_antModel->index(i,HIDE_COLUMN));
+		auto soloItem = d_antModel->itemFromIndex(d_antModel->index(i,SOLO_COLUMN));
 		auto ant = hideItem->data().value<fmp::Ant::Ptr>();
 		if (ant->DisplayStatus() != fmp::Ant::DisplayState::SOLO ) {
 			continue;
