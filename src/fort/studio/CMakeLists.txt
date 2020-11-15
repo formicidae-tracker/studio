@@ -23,7 +23,6 @@ set(SRC_FILES Format.cpp
 			  bridge/GlobalPropertyBridge.cpp
 			  bridge/IdentifierBridge.cpp
 			  bridge/SelectedAntBridge.cpp
-			  bridge/SelectedIdentificationBridge.cpp
 			  bridge/ExperimentBridge.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
 			  bridge/AntShapeTypeBridge.cpp
@@ -51,8 +50,6 @@ set(SRC_FILES Format.cpp
 			  widget/SpaceChoiceDialog.cpp
 			  widget/MeasurementTypeWidget.cpp
 			  widget/AntListWidget.cpp
-			  widget/AntIdentificationWidget.cpp
-			  widget/IdentificationEditorWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
 			  widget/AntMetadataWidget.cpp
@@ -96,7 +93,6 @@ set(HDR_FILES Format.hpp
 			  bridge/GlobalPropertyBridge.hpp
 			  bridge/IdentifierBridge.hpp
 			  bridge/SelectedAntBridge.hpp
-			  bridge/SelectedIdentificationBridge.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
 			  bridge/AntShapeTypeBridge.hpp
@@ -124,8 +120,6 @@ set(HDR_FILES Format.hpp
 			  widget/SpaceChoiceDialog.hpp
 			  widget/MeasurementTypeWidget.hpp
 			  widget/AntListWidget.hpp
-			  widget/AntIdentificationWidget.hpp
-			  widget/IdentificationEditorWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
 			  widget/AntMetadataWidget.hpp
@@ -154,8 +148,6 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/SpaceChoiceDialog.ui
              widget/MeasurementTypeWidget.ui
              widget/AntListWidget.ui
-             widget/AntIdentificationWidget.ui
-             widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui

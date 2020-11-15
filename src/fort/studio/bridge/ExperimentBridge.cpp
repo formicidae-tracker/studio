@@ -212,9 +212,6 @@ SelectedAntBridge * ExperimentBridge::selectedAnt() const {
 	return d_identifier->selectedAnt();
 }
 
-SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const {
-	return selectedAnt()->selectedIdentification();
-}
 
 IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() const {
 	return d_identifiedFrameLoader;
@@ -248,7 +245,6 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_measurements->setExperiment(experiment);
 	d_identifier->setExperiment(experiment);
 	d_identifier->selectedAnt()->setExperiment(experiment);
-	d_identifier->selectedAnt()->selectedIdentification()->setExperiment(experiment);
 	d_globalProperties->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
 	d_antShapeTypes->setExperiment(experiment);
@@ -285,11 +281,6 @@ void ExperimentBridge::connectModifications() {
 	connect(d_identifier->selectedAnt(),&SelectedAntBridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
-	connect(d_identifier->selectedAnt()->selectedIdentification(),
-	        &SelectedIdentificationBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
-
 	connect(d_antShapeTypes,&AntShapeTypeBridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
@@ -312,7 +303,6 @@ void ExperimentBridge::resetChildModified() {
 	d_measurements->setModified(false);
 	d_identifier->setModified(false);
 	d_identifier->selectedAnt()->setModified(false);
-	d_identifier->selectedAnt()->selectedIdentification()->setModified(false);
 	d_globalProperties->setModified(false);
 	d_antShapeTypes->setModified(false);
 	d_antMetadata->setModified(false);

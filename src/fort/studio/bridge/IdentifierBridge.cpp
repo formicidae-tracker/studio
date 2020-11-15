@@ -28,16 +28,6 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	        this,
 	        &IdentifierBridge::onItemChanged);
 
-	connect(this,
-	        &IdentifierBridge::identificationCreated,
-	        d_selectedAnt,
-	        &SelectedAntBridge::onIdentificationModified);
-
-	connect(this,
-	        &IdentifierBridge::identificationDeleted,
-	        d_selectedAnt,
-	        &SelectedAntBridge::onIdentificationModified);
-
 
 }
 

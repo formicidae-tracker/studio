@@ -21,10 +21,6 @@ public:
 
 	void setExperiment(const fmp::ExperimentPtr & experiment);
 
-	SelectedIdentificationBridge * selectedIdentification() const;
-
-	QAbstractItemModel * identificationModel() const;
-
 	const fmp::Ant::TypedCapsuleList & capsules() const;
 
 	fmp::AntID selectedID() const;
@@ -34,23 +30,15 @@ public:
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
 
-	void onIdentificationModified(const fmp::Identification::ConstPtr &);
-
-	void selectIdentification(const QModelIndex & index);
-
-	void removeIdentification(const QModelIndex & index);
-
 	void addCapsule(fmp::AntShapeTypeID typeID,const fmp::CapsulePtr & capsule);
 	void clearCapsules();
 
 	void cloneShape(bool scaleToSize, bool overwriteShape);
 
 private:
-	void rebuildIdentificationModel();
 
 	IdentifierBridge             * d_identifier;
-	QStandardItemModel           * d_identificationModel;
-	SelectedIdentificationBridge * d_selectedIdentification;
+
 	fmp::Ant::Ptr                  d_ant;
 	fmp::ExperimentPtr             d_experiment;
 };

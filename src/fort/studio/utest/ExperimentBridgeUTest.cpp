@@ -62,7 +62,6 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 		 controller.identifier(),
 		 controller.globalProperties(),
 		 controller.selectedAnt(),
-		 controller.selectedIdentification(),
 		 controller.antShapeTypes(),
 		 controller.antMetadata(),
 		};

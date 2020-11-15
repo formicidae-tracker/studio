@@ -6,7 +6,6 @@
 #include "GlobalPropertyBridge.hpp"
 #include "IdentifierBridge.hpp"
 #include "SelectedAntBridge.hpp"
-#include "SelectedIdentificationBridge.hpp"
 #include "IdentifiedFrameConcurrentLoader.hpp"
 #include "AntShapeTypeBridge.hpp"
 #include "AntMetadataBridge.hpp"
@@ -43,8 +42,6 @@ public:
 	GlobalPropertyBridge * globalProperties() const;
 
 	SelectedAntBridge * selectedAnt() const;
-
-	SelectedIdentificationBridge * selectedIdentification() const;
 
 	IdentifiedFrameConcurrentLoader * identifiedFrameLoader() const;
 
