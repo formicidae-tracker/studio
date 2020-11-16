@@ -70,6 +70,16 @@ QAbstractItemModel * TagCloseUpBridge::tagModel() const {
 
 static QVector<fmp::TagCloseUp::ConstPtr> empty;
 
+const QVector<fmp::TagCloseUp::ConstPtr> &
+TagCloseUpBridge::closeUpsForIndex(const QModelIndex & index) const {
+	auto item = d_tagModel->itemFromIndex(index);
+	if ( item ==  nullptr ) {
+		return empty;
+	}
+	return closeUpsForTag(item->data(Qt::UserRole+2).toInt());
+}
+
+
 const QVector<fmp::TagCloseUp::ConstPtr> & TagCloseUpBridge::closeUpsForTag(fm::TagID tagID) const {
 	auto fi = d_tagsLists.find(tagID);
 	if ( fi == d_tagsLists.cend() ) {
@@ -91,11 +101,13 @@ std::pair<fm::TagID,fm::AntID>
 TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 	fm::TagID tagID = closeUp->TagValue();
 	fm::AntID antID = 0;
+	d_tagsLists[tagID].push_back(closeUp);
 	if ( d_experiment ) {
 		auto identification = d_experiment->CIdentifier().Identify(closeUp->TagValue(),
 		                                                           closeUp->Frame().Time());
 		if ( identification ) {
 			antID = identification->Target()->AntID();
+			d_antsLists[antID].push_back(closeUp);
 		}
 	}
 	const char * tagLabel = fm::FormatTagID(tagID).c_str();
@@ -103,6 +115,8 @@ TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 	if ( items.isEmpty() == false ) {
 		return {tagID,antID};
 	}
+
+
 
 	auto tagItem = new QStandardItem(tagLabel);
 	tagItem->setEditable(false);

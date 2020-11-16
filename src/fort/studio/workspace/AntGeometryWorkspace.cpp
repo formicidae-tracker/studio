@@ -314,7 +314,6 @@ void AntGeometryWorkspace::buildCloseUpList() {
 	d_closeUps->clear();
 
 
-
 	if ( d_experiment->selectedAnt()->isActive() == false ) {
 		return;
 	}

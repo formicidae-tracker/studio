@@ -9,6 +9,7 @@
 class ExperimentBridge;
 class GlobalPropertyBridge;
 class MeasurementBridge;
+class TagCloseUpBridge;
 class IdentifierBridge;
 class SelectedAntBridge;
 class QSortFilterProxyModel;
@@ -36,7 +37,7 @@ public:
 	QAction * deletePoseEstimationAction() const;
 
 public slots:
-	void on_treeView_activated(const QModelIndex & index);
+	void on_closeUpView_activated(const QModelIndex & index);
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
 	void onIdentificationDeleted(fmp::IdentificationConstPtr);
@@ -75,6 +76,7 @@ private:
 	QSortFilterProxyModel       * d_sortedModel;
 	MeasurementBridge           * d_measurements;
 	IdentifierBridge            * d_identifier;
+	TagCloseUpBridge            * d_tagCloseUps;
 	VectorialScene              * d_vectorialScene;
 	SelectedAntBridge           * d_selectedAnt;
 	fmp::TagCloseUpConstPtr       d_tcu;
