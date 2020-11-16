@@ -13,6 +13,7 @@
 #include "IdentifiedFrameConcurrentLoader.hpp"
 #include "ZoneBridge.hpp"
 #include "StatisticsBridge.hpp"
+#include "TagCloseUpBridge.hpp"
 
 class QWidget;
 
@@ -54,6 +55,8 @@ public:
 	ZoneBridge * zones() const;
 
 	StatisticsBridge * statistics() const;
+
+	TagCloseUpBridge * tagCloseUps() const;
 public slots:
 
 	bool save();
@@ -78,4 +81,5 @@ private:
 	MovieBridge                     * d_movies;
 	ZoneBridge                      * d_zones;
 	StatisticsBridge                * d_statistics;
+	TagCloseUpBridge                * d_tagCloseUps;
 };

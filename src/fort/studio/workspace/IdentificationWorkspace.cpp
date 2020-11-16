@@ -113,21 +113,9 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	auto measurements = experiment->measurements();
 	auto selectedAnt = experiment->selectedAnt();
 
+	d_sortedModel->setSourceModel(experiment->tagCloseUps()->tagModel());
+	d_ui->closeUpView->setModel(d_sortedModel);
 
-	connect(d_sortedModel,
-	        &QAbstractItemModel::rowsInserted,
-	        [this](const QModelIndex & parent, int first, int last) {
-		        if ( parent.isValid() == true ) {
-			        return;
-		        }
-		        for ( int i = first; i <= last; ++i) {
-			        //			        d_ui->treeView->expand(d_sortedModel->index(i,0,parent));
-		        }
-	        });
-
-
-	d_sortedModel->setSourceModel(measurements->tagCloseUpModel());
-	//	d_ui->treeView->sortByColumn(0,Qt::AscendingOrder);
 	d_measurements = measurements;
 
 	connect(identifier,
@@ -143,7 +131,6 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	        &IdentifierBridge::identificationDeleted,
 	        this,
 	        &IdentificationWorkspace::onIdentificationDeleted);
-
 
 
 	d_identifier = identifier;

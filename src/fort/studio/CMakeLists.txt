@@ -19,9 +19,10 @@ set(SRC_FILES Format.cpp
               MyrmidonTypes/Conversion.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
-			  bridge/MeasurementBridge.cpp
+              bridge/MeasurementBridge.cpp
+              bridge/IdentifierBridge.cpp
+              bridge/TagCloseUpBridge.cpp
 			  bridge/GlobalPropertyBridge.cpp
-			  bridge/IdentifierBridge.cpp
 			  bridge/SelectedAntBridge.cpp
 			  bridge/ExperimentBridge.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
@@ -90,6 +91,7 @@ set(HDR_FILES Format.hpp
 			  bridge/Bridge.hpp
 			  bridge/UniverseBridge.hpp
 			  bridge/MeasurementBridge.hpp
+			  bridge/TagCloseUpBridge.hpp
 			  bridge/GlobalPropertyBridge.hpp
 			  bridge/IdentifierBridge.hpp
 			  bridge/SelectedAntBridge.hpp

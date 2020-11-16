@@ -31,7 +31,7 @@ public:
 
 	QAbstractItemModel * antModel() const;
 
-	QAbstractItemModel * identificationModel() const;
+	QAbstractItemModel * identificationsModel() const;
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
@@ -59,6 +59,8 @@ signals:
 	void antDeleted(quint32);
 
 	void identificationCreated(fmp::Identification::ConstPtr);
+	void identificationRangeModified(fmp::Identification::ConstPtr);
+	void identificationModified(fmp::Identification::ConstPtr);
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 

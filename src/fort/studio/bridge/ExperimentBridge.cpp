@@ -23,10 +23,10 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_antMetadata(new AntMetadataBridge(this))
 	, d_movies(new MovieBridge(this))
 	, d_zones(new ZoneBridge(this))
-	, d_statistics(new StatisticsBridge(this)) {
+	, d_statistics(new StatisticsBridge(this))
+	, d_tagCloseUps(new TagCloseUpBridge(this)) {
 
 	connectModifications();
-
 
 
 	connect(d_universe,
@@ -97,6 +97,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	connect(d_universe,&UniverseBridge::trackingDataDirectoryDeleted,
 	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 
+	d_tagCloseUps->setUp(d_identifier,d_universe);
 }
 
 
@@ -237,6 +238,9 @@ StatisticsBridge * ExperimentBridge::statistics() const {
 	return d_statistics;
 }
 
+TagCloseUpBridge * ExperimentBridge::tagCloseUps() const {
+	return d_tagCloseUps;
+}
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
@@ -252,6 +256,7 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_movies->setExperiment(experiment);
 	d_zones->setExperiment(experiment);
 	d_statistics->setExperiment(experiment);
+	d_tagCloseUps->setExperiment(experiment);
 	setModified(false);
 	resetChildModified();
 	emit activated(d_experiment.get() != NULL);
@@ -296,6 +301,9 @@ void ExperimentBridge::connectModifications() {
 	connect(d_statistics,&StatisticsBridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
+	connect(d_tagCloseUps,&TagCloseUpBridge::modified,
+	        this,&ExperimentBridge::onChildModified);
+
 }
 
 void ExperimentBridge::resetChildModified() {
@@ -309,4 +317,5 @@ void ExperimentBridge::resetChildModified() {
 	d_movies->setModified(false);
 	d_zones->setModified(false);
 	d_statistics->setModified(false);
+	d_tagCloseUps->setModified(false);
 }
