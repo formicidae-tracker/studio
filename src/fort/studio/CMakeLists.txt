@@ -210,6 +210,7 @@ add_library(fort-studio-common STATIC ${SRC_FILES}
 
 target_link_libraries(fort-studio-common Qt5::Widgets
                                          Qt5::Concurrent
+                                         Qt5::Charts
                                          fort-myrmidon
                                          fort-tags
                                          Threads::Threads

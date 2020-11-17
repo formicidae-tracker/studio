@@ -23,7 +23,7 @@ pkg_check_modules(TBB REQUIRED tbb)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
-find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Concurrent Test Charts REQUIRED)
 
 find_package(yaml-cpp REQUIRED)
 

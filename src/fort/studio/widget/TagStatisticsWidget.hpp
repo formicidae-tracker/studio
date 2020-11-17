@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QWidget>
+#include <QChart>
+#include <QBarCategoryAxis>
+#include <QValueAxis>
 
 #include <fort/myrmidon/Types.hpp>
 
@@ -22,4 +25,8 @@ public:
 
 private:
 	Ui::TagStatisticsWidget * d_ui;
+
+	QtCharts::QChart           * d_chart;
+	QtCharts::QBarCategoryAxis * d_xAxis;
+	QtCharts::QValueAxis       * d_yAxis;
 };
