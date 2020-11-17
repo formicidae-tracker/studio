@@ -95,6 +95,11 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
             this,
             &IdentificationWorkspace::onVectorRemoved);
 
+    connect(d_ui->closeUpsExplorer,
+            &TagCloseUpExplorer::currentCloseUpChanged,
+            this,
+            &IdentificationWorkspace::setTagCloseUp);
+
     updateActionStates();
 }
 
@@ -143,6 +148,8 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 
 	main->addToolBar(d_actionToolBar);
 	d_actionToolBar->hide();
+
+	d_ui->closeUpsExplorer->setUp(experiment->tagCloseUps());
 }
 
 
@@ -173,6 +180,7 @@ void IdentificationWorkspace::addIdentification() {
 	                                start,end);
 
 	updateActionStates();
+
 }
 
 void IdentificationWorkspace::newAnt() {
@@ -226,16 +234,15 @@ void IdentificationWorkspace::onIdentificationAntPositionChanged(fmp::Identifica
 }
 
 
-void IdentificationWorkspace::on_closeUpView_activated(const QModelIndex & index) {
+void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) {
 	const auto & tcus = d_tagCloseUps->closeUpsForIndex(d_sortedModel->mapToSource(index));
+	d_ui->closeUpView->selectionModel()->clearSelection();
 	if ( tcus.isEmpty() == true ) {
-		setTagCloseUp({});
+		d_ui->closeUpsExplorer->setCloseUps(-1,tcus);
 		return;
 	}
-	setTagCloseUp(tcus[0]);
-	d_ui->closeUpView->selectionModel()->clearSelection();
 	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
-
+	d_ui->closeUpsExplorer->setCloseUps(tcus[0]->TagValue(),tcus);
 }
 
 
@@ -243,63 +250,35 @@ void IdentificationWorkspace::on_closeUpView_activated(const QModelIndex & index
 
 void IdentificationWorkspace::nextTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_activated(d_sortedModel->index(0,0));
+		on_closeUpView_clicked(d_sortedModel->index(0,0));
 		return;
 	}
 	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
 	if ( (row + 1) >= d_sortedModel->rowCount() ) {
 		return;
 	}
-	on_closeUpView_activated(d_sortedModel->index(row+1,0));
+	on_closeUpView_clicked(d_sortedModel->index(row+1,0));
 }
 
 void IdentificationWorkspace::nextTagCloseUp() {
+	d_ui->closeUpsExplorer->next();
 }
 
 void IdentificationWorkspace::previousTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_activated(d_sortedModel->index(d_sortedModel->rowCount()-1,0));
+		on_closeUpView_clicked(d_sortedModel->index(d_sortedModel->rowCount()-1,0));
 		return;
 	}
 	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
 	if ( row == 0 ) {
 		return;
 	}
-	on_closeUpView_activated(d_sortedModel->index(row-1,0));
+	on_closeUpView_clicked(d_sortedModel->index(row-1,0));
 }
 
 void IdentificationWorkspace::previousTagCloseUp() {
-	/*	if ( d_ui->treeView->selectionModel()->hasSelection() == false ) {
-		selectRow(0,0);
-		return;
-	}
-	auto firstRow = d_ui->treeView->selectionModel()->selectedRows()[0];
-	if ( firstRow.parent().isValid() == false ) {
-		selectRow(firstRow.row(),0);
-	}
-	selectRow(firstRow.parent().row(),firstRow.row()-1);*/
+	d_ui->closeUpsExplorer->previous();
 }
-
-void IdentificationWorkspace::selectRow(int tagRow, int tcuRow) {
-	/*	if (tagRow < 0 || tagRow >= d_sortedModel->rowCount() || tcuRow < 0) {
-		return;
-	}
-	auto tagIndex = d_sortedModel->index(tagRow,0);
-	auto tcuCount = d_sortedModel->rowCount(tagIndex);
-	auto columnCount = d_sortedModel->columnCount(tagIndex);
-	if ( tcuRow >= tcuCount ) {
-		return;
-	}
-	d_ui->treeView->selectionModel()->clearSelection();
-	for ( size_t i = 0; i < columnCount; ++i) {
-		d_ui->treeView->selectionModel()->select(d_sortedModel->index(tcuRow,i,tagIndex),
-		                                         QItemSelectionModel::Select);
-	}
-	auto index = d_sortedModel->index(tcuRow,0,tagIndex);
-	on_treeView_activated(index);
-	d_ui->treeView->scrollTo(index);*/
-}
-
 
 void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	if ( d_tcu == tcu ) {

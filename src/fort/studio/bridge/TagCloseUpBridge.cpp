@@ -23,7 +23,7 @@ TagCloseUpBridge::~TagCloseUpBridge() {
 void TagCloseUpBridge::clear() {
 	d_tagModel->clear();
 	emit closeUpsForTagChanged(-1,{});
-	emit closeUpsForAntChanged(0,{});
+	emit closeUpsForAntChanged(-1,{});
 }
 
 void TagCloseUpBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
@@ -119,15 +119,19 @@ TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 
 
 	auto tagItem = new QStandardItem(tagLabel);
-	tagItem->setEditable(false);
-	tagItem->setData(tagID,Qt::UserRole+2);
-	tagItem->setData(QVariant::fromValue(closeUp),Qt::UserRole+1);
 
 	auto countItem = new QStandardItem("0");
-	countItem->setEditable(false);
+
 	auto usedItem = new QStandardItem("0");
-	usedItem->setEditable(false);
-	d_tagModel->insertRow(d_tagModel->rowCount(),{tagItem,countItem,usedItem});
+
+	QList<QStandardItem*> row = {tagItem,countItem,usedItem};
+	for ( const auto & item : row ) {
+		item->setEditable(false);
+		item->setData(tagID,Qt::UserRole+2);
+		item->setData(QVariant::fromValue(closeUp),Qt::UserRole+1);
+	}
+
+	d_tagModel->insertRow(d_tagModel->rowCount(),row);
 	return {tagID,antID};
 }
 

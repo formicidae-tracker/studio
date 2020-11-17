@@ -37,7 +37,7 @@ public:
 	QAction * deletePoseEstimationAction() const;
 
 public slots:
-	void on_closeUpView_activated(const QModelIndex & index);
+	void on_closeUpView_clicked(const QModelIndex & index);
 
 	void onIdentificationAntPositionChanged(fmp::IdentificationConstPtr);
 	void onIdentificationDeleted(fmp::IdentificationConstPtr);
@@ -69,7 +69,6 @@ private slots:
 
 
 private:
-	void selectRow(int tagRow, int tcuRow);
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::IdentificationWorkspace * d_ui;
