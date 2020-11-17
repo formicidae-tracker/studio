@@ -13,6 +13,7 @@
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
 	, d_antModel(new QStandardItemModel(this))
+	, d_identificationModel(new QStandardItemModel(this))
 	, d_numberSoloAnt(0)
 	, d_numberHiddenAnt(0)
 	, d_selectedAnt(new SelectedAntBridge(this)) {
@@ -26,7 +27,7 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	connect(d_antModel,
 	        &QStandardItemModel::itemChanged,
 	        this,
-	        &IdentifierBridge::onItemChanged);
+	        &IdentifierBridge::onAntItemChanged);
 
 
 }
@@ -42,6 +43,9 @@ QAbstractItemModel * IdentifierBridge::antModel() const {
 	return d_antModel;
 }
 
+
+
+
 void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[IdentifierBridge]: setting new experiment";
 	d_numberSoloAnt = 0;
@@ -49,8 +53,6 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
 
 	setModified(false);
-	d_antModel->clear();
-	d_antModel->setHorizontalHeaderLabels({tr("Ant"),tr("H"),tr("S")});
 	if ( d_experiment ) {
 		d_experiment->Identifier()
 			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
@@ -58,31 +60,22 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	}
 
 	d_experiment = experiment;
+	rebuildModels();
+
 	if ( !d_experiment ) {
 		emit activated(false);
 		emit numberSoloAntChanged(d_numberSoloAnt);
 		emit numberHiddenAntChanged(d_numberHiddenAnt);
-		return;
+	} else {
+		d_experiment->Identifier()
+			->SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
+				                               qDebug() << "Got ant position update for " << ToQString(ident);
+				                               emit identificationAntPositionModified(ident);
+			                               });
+		emit activated(true);
+		emit numberSoloAntChanged(d_numberSoloAnt);
+		emit numberHiddenAntChanged(d_numberHiddenAnt);
 	}
-	d_experiment->Identifier()
-		->SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
-			                               qDebug() << "Got ant position update for " << ToQString(ident);
-			                               emit identificationAntPositionModified(ident);
-		                               });
-
-	//reorder ants
-	std::map<quint32,fmp::Ant::Ptr> ants;
-	for ( const auto & a : d_experiment->Identifier()->Ants() ) {
-		ants.insert(a);
-	}
-
-	for ( const auto & [antID,a] : ants) {
-		d_antModel->invisibleRootItem()->appendRow(buildAnt(a));
-	}
-
-	emit activated(true);
-	emit numberSoloAntChanged(d_numberSoloAnt);
-	emit numberHiddenAntChanged(d_numberHiddenAnt);
 }
 
 fmp::Ant::Ptr IdentifierBridge::createAnt() {
@@ -100,7 +93,7 @@ fmp::Ant::Ptr IdentifierBridge::createAnt() {
 
 	qInfo() << "Created new Ant" << ant->FormattedID().c_str();
 
-	d_antModel->invisibleRootItem()->appendRow(buildAnt(ant));
+	d_antModel->insertRow(d_antModel->rowCount(),buildAnt(ant));
 
 	setModified(true);
 	emit antCreated(ant);
@@ -165,14 +158,20 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
 	qInfo() << "Added Identification " << ToQString(identification);
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
 
+	d_identificationModel->insertRow(d_identificationModel->rowCount(),
+	                                 buildIdentification(identification));
+
 	emit identificationCreated(identification);
 	setModified(true);
 	return identification;
 }
 
 void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & identification) {
-	auto item = findAnt(identification->Target()->AntID());
-	if ( !d_experiment || item == NULL) {
+	auto antItem = findAnt(identification->Target()->AntID());
+	auto identificationItem = findIdentification(identification);
+	if ( !d_experiment
+	     || antItem == NULL
+	     || identificationItem == NULL ) {
 		qWarning() << "Not deleting Identification "
 		           << ToQString(identification);
 		return ;
@@ -192,9 +191,13 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 
 	qInfo() << "Deleted identification " << ToQString(identification);
 
-	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
+	antItem->setText(formatAntName(antItem->data().value<fmp::Ant::Ptr>()));
+	d_identificationModel->removeRows(identificationItem->row(),1);
 	setModified(true);
 	emit identificationDeleted(identification);
+
+
+
 }
 
 QString IdentifierBridge::formatAntName(const fmp::Ant::Ptr & ant) {
@@ -250,6 +253,13 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 
 	return {label,hidden,solo};
 }
+
+
+QList<QStandardItem*> IdentifierBridge::buildIdentification(const fmp::Identification::Ptr & identification) {
+	//TODO implement me !!!
+	return {};
+}
+
 
 QIcon IdentifierBridge::antDisplayColor(const fmp::Ant::Ptr & ant) {
 	auto c = ant->DisplayColor();
@@ -317,7 +327,7 @@ void IdentifierBridge::setAntDisplayState(QStandardItem * hideItem,
 	emit antDisplayChanged(ant->AntID(),ant->DisplayColor(),ant->DisplayStatus());
 }
 
-void IdentifierBridge::onItemChanged(QStandardItem * item) {
+void IdentifierBridge::onAntItemChanged(QStandardItem * item) {
 	if ( item->column() < HIDE_COLUMN || item->column() > SOLO_COLUMN ) {
 		return;
 	}
@@ -343,6 +353,13 @@ void IdentifierBridge::onItemChanged(QStandardItem * item) {
 	}
 
 }
+
+void IdentifierBridge::onIdentificationtItemChanged(QStandardItem * item) {
+	//TODO IMPLEMENT ME
+
+	//TODO do not forget to emit and setModified accordingly !!!
+}
+
 
 
 void IdentifierBridge::selectAnt(const QModelIndex & index) {
@@ -476,4 +493,26 @@ fmp::Ant::ConstPtr IdentifierBridge::ant(fm::Ant::ID aID) const {
 		return fmp::Ant::ConstPtr();
 	}
 	return fi->second;
+}
+
+
+void IdentifierBridge::rebuildModels() {
+	d_antModel->clear();
+	d_antModel->setHorizontalHeaderLabels({tr("AntID"),tr("H"),tr("S")});
+
+	d_identificationModel->clear();
+	d_identificationModel->setHorizontalHeaderLabels({tr("TagID"),tr("AntID"),tr("Start"),tr("End"),tr("Size"),tr("Poses")});
+
+	if ( !d_experiment ) {
+		return;
+	}
+
+	//TODO BUILD THE MODELS
+
+}
+
+
+QStandardItem * IdentifierBridge::findIdentification(const fmp::Identification::ConstPtr & identification) const {
+	//TODO IMPLEMENT ME
+	return NULL;
 }

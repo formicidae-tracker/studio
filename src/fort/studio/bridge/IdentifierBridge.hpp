@@ -60,7 +60,7 @@ signals:
 
 	void identificationCreated(fmp::Identification::ConstPtr);
 	void identificationRangeModified(fmp::Identification::ConstPtr);
-	void identificationModified(fmp::Identification::ConstPtr);
+	void identificationSizeoModified(fmp::Identification::ConstPtr);
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
@@ -89,7 +89,11 @@ public slots:
 	void unsoloAll();
 private slots:
 
-	void onItemChanged(QStandardItem *);
+	void onAntItemChanged(QStandardItem *);
+	void onIdentificationtItemChanged(QStandardItem *);
+
+
+
 private:
 	static QString formatAntName(const fmp::Ant::Ptr & ant);
 
@@ -102,7 +106,14 @@ private:
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 
+	QList<QStandardItem*> buildIdentification(const fmp::Identification::Ptr & identification);
+
+
+	void rebuildModels();
+
 	QStandardItem * findAnt(fmp::AntID antID) const;
+
+	QStandardItem * findIdentification(const fmp::Identification::ConstPtr & identification) const;
 
 	void doOnSelection(const QItemSelection & selection,
 	                   const std::function<void (const fmp::Ant::Ptr & ant,
@@ -112,7 +123,7 @@ private:
 	const static int SOLO_COLUMN = 2;
 
 	fmp::Experiment::Ptr d_experiment;
-	QStandardItemModel * d_antModel;
+	QStandardItemModel * d_antModel, * d_identificationModel;
 
 	quint32              d_numberSoloAnt,d_numberHiddenAnt;
 	SelectedAntBridge  * d_selectedAnt;
