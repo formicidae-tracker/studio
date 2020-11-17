@@ -10,6 +10,7 @@ class ExperimentBridge;
 class GlobalPropertyBridge;
 class MeasurementBridge;
 class TagCloseUpBridge;
+class StatisticsBridge;
 class IdentifierBridge;
 class SelectedAntBridge;
 class QSortFilterProxyModel;
@@ -76,6 +77,7 @@ private:
 	MeasurementBridge           * d_measurements;
 	IdentifierBridge            * d_identifier;
 	TagCloseUpBridge            * d_tagCloseUps;
+	StatisticsBridge            * d_statistics;
 	VectorialScene              * d_vectorialScene;
 	SelectedAntBridge           * d_selectedAnt;
 	fmp::TagCloseUpConstPtr       d_tcu;

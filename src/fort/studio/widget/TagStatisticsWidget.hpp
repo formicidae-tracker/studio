@@ -1,22 +1,25 @@
-#ifndef TAGSTATISTICSWIDGET_HPP
-#define TAGSTATISTICSWIDGET_HPP
+#pragma once
 
 #include <QWidget>
+
+#include <fort/myrmidon/Types.hpp>
+
+namespace fm = fort::myrmidon;
+
 
 namespace Ui {
 class TagStatisticsWidget;
 }
 
-class TagStatisticsWidget : public QWidget
-{
+class TagStatisticsWidget : public QWidget {
 	Q_OBJECT
-
 public:
 	explicit TagStatisticsWidget(QWidget *parent = 0);
-	~TagStatisticsWidget();
+	virtual ~TagStatisticsWidget();
+
+	void clear();
+	void display(fm::TagID tagID, fm::TagStatistics stats,size_t frameCount);
 
 private:
-	Ui::TagStatisticsWidget *ui;
+	Ui::TagStatisticsWidget * d_ui;
 };
-
-#endif // TAGSTATISTICSWIDGET_HPP

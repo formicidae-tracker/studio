@@ -76,7 +76,7 @@ TagCloseUpBridge::closeUpsForIndex(const QModelIndex & index) const {
 	if ( item ==  nullptr ) {
 		return empty;
 	}
-	return closeUpsForTag(item->data(Qt::UserRole+2).toInt());
+	return closeUpsForTag(item->data(Qt::UserRole+1).toInt());
 }
 
 
@@ -127,8 +127,7 @@ TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 	QList<QStandardItem*> row = {tagItem,countItem,usedItem};
 	for ( const auto & item : row ) {
 		item->setEditable(false);
-		item->setData(tagID,Qt::UserRole+2);
-		item->setData(QVariant::fromValue(closeUp),Qt::UserRole+1);
+		item->setData(tagID,Qt::UserRole+1);
 	}
 
 	d_tagModel->insertRow(d_tagModel->rowCount(),row);

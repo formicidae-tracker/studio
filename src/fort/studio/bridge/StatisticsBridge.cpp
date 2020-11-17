@@ -9,9 +9,9 @@
 StatisticsBridge::StatisticsBridge(QObject * parent)
 	: Bridge(parent)
 	, d_model(new QStandardItemModel(this) )
-	, d_seed(0)
 	, d_outdated(false)
-	, d_watcher(nullptr) {
+	, d_watcher(nullptr)
+	, d_frameCount(0) {
 	rebuildModel();
 }
 
@@ -30,6 +30,10 @@ bool StatisticsBridge::isActive() const {
 
 QAbstractItemModel * StatisticsBridge::stats() const {
 	return d_model;
+}
+
+size_t StatisticsBridge::frameCount() const {
+	return d_frameCount;
 }
 
 const fm::TagStatistics & StatisticsBridge::statsForTag(fmp::TagID tagID) const {
@@ -118,4 +122,18 @@ void StatisticsBridge::compute() {
 		}
 	}
 	rebuildModel();
+
+	recountFrames();
+}
+
+void StatisticsBridge::recountFrames() {
+	d_frameCount = 0;
+
+	if ( !d_experiment == true ) {
+		return;
+	}
+
+	for ( const auto & [tddUri,tdd]: d_experiment->TrackingDataDirectories() ) {
+		d_frameCount  += tdd->EndFrame() - tdd->StartFrame() + 1;
+	}
 }

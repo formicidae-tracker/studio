@@ -28,6 +28,8 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	, d_sortedModel ( new QSortFilterProxyModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
+	, d_tagCloseUps(nullptr)
+	, d_statistics(nullptr)
 	, d_vectorialScene(new VectorialScene)
 	, d_newAntAction(nullptr)
 	, d_addIdentificationAction(nullptr)
@@ -100,6 +102,7 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
             this,
             &IdentificationWorkspace::setTagCloseUp);
 
+
     updateActionStates();
 }
 
@@ -150,6 +153,8 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	d_actionToolBar->hide();
 
 	d_ui->closeUpsExplorer->setUp(experiment->tagCloseUps());
+
+	d_statistics = experiment->statistics();
 }
 
 
@@ -239,10 +244,14 @@ void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) 
 	d_ui->closeUpView->selectionModel()->clearSelection();
 	if ( tcus.isEmpty() == true ) {
 		d_ui->closeUpsExplorer->setCloseUps(-1,tcus);
+		d_ui->tagStatistics->clear();
+
 		return;
 	}
+	auto tagID = tcus[0]->TagValue();
 	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
-	d_ui->closeUpsExplorer->setCloseUps(tcus[0]->TagValue(),tcus);
+	d_ui->closeUpsExplorer->setCloseUps(tagID,tcus);
+	d_ui->tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
 }
 
 

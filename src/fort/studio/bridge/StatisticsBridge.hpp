@@ -26,6 +26,8 @@ public:
 
 	const fm::TagStatistics & statsForTag(fmp::TagID tagID) const;
 
+	size_t frameCount() const;
+
 
 public slots:
 
@@ -40,12 +42,12 @@ private:
 
 
 	void rebuildModel();
-
+	void recountFrames();
 	fmp::Experiment::ConstPtr  d_experiment;
 	QStandardItemModel       * d_model;
 	bool                       d_outdated;
 	QFutureWatcher<Stats*>   * d_watcher;
 
 	Stats                      d_stats;
-	size_t                     d_seed;
+	size_t                     d_frameCount;
 };

@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="countLabel">
        <property name="text">
         <string>123(0.15%)</string>
        </property>
@@ -50,7 +50,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="multipleCountLabel">
        <property name="text">
         <string>0</string>
        </property>
@@ -64,7 +64,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="firstSeenLabel">
        <property name="text">
         <string>2019-11-02T23:00:00.123456Z</string>
        </property>
@@ -78,7 +78,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="lastSeenLabel">
        <property name="text">
         <string>2019-11-02T23:55:02.123456Z</string>
        </property>
