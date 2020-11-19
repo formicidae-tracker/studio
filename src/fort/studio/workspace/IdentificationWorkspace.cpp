@@ -22,10 +22,61 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
+CloseUpFilterModel::CloseUpFilterModel(QObject * parent)
+	: QSortFilterProxyModel(parent)
+	, d_removeUsed(false) {
+}
+
+CloseUpFilterModel::~CloseUpFilterModel() {
+}
+
+void CloseUpFilterModel::setFilter(const QString & filter) {
+	if ( d_filter.pattern() == filter ) {
+		return;
+	}
+	d_filter.setPattern(filter);
+	invalidateFilter();
+}
+
+void CloseUpFilterModel::setWhiteList(const QString & formattedTagID) {
+	if ( d_whiteList == formattedTagID ) {
+		return;
+	}
+	d_whiteList = formattedTagID;
+	invalidateFilter();
+}
+
+void CloseUpFilterModel::setRemoveUsed(bool removeUsed) {
+	if ( d_removeUsed == removeUsed ) {
+		return;
+	}
+	d_removeUsed = removeUsed;
+	invalidateFilter();
+}
+
+
+bool CloseUpFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const {
+	auto formattedTagID = sourceModel()->data(sourceModel()->index(sourceRow,0,sourceParent),Qt::DisplayRole).toString();
+	if ( formattedTagID == d_whiteList ) {
+		return true;
+	}
+	bool matchFilter = true;
+	if ( d_filter.pattern().isEmpty() == false) {
+		matchFilter = d_filter.match(formattedTagID).hasMatch();
+	}
+	bool matchCount = true;
+	if ( d_removeUsed == true ) {
+		auto totalCount = sourceModel()->data(sourceModel()->index(sourceRow,1,sourceParent),Qt::DisplayRole).toInt();
+		auto usedCount = sourceModel()->data(sourceModel()->index(sourceRow,2,sourceParent),Qt::DisplayRole).toInt();
+		matchCount = totalCount > usedCount;
+	}
+	return matchCount && matchFilter;
+}
+
 IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::IdentificationWorkspace)
-	, d_tagSortedModel ( new QSortFilterProxyModel(this) )
+	, d_tagSortedModel ( new CloseUpFilterModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
 	, d_tagCloseUps(nullptr)
@@ -101,6 +152,17 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
             this,
             &IdentificationWorkspace::setTagCloseUp);
 
+    connect(d_ui->hideUsedTagBox,
+            &QCheckBox::stateChanged,
+            [this](int state) {
+	            d_tagSortedModel->setRemoveUsed(state == Qt::Checked);
+            });
+    d_tagSortedModel->setRemoveUsed(d_ui->hideUsedTagBox->checkState() == Qt::Checked);
+
+    connect(d_ui->closeUpFilterEdit,
+            &QLineEdit::textChanged,
+            d_tagSortedModel,
+            &CloseUpFilterModel::setFilter);
 
     updateActionStates();
 }
@@ -132,9 +194,9 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	        &Bridge::activated,
 	        this,
 	        [this]() {
-		        qWarning() << "coucou";
 		        d_ui->closeUpView->horizontalHeader()->setSortIndicatorShown(true);
 		        d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
+		        nextTag();
 	        });
 
 
@@ -261,13 +323,14 @@ void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) 
 	if ( tcus.isEmpty() == true ) {
 		d_ui->closeUpsExplorer->setCloseUps(-1,tcus);
 		d_ui->tagStatistics->clear();
-
+		d_tagSortedModel->setWhiteList("");
 		return;
 	}
 	auto tagID = tcus[0]->TagValue();
 	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
 	d_ui->closeUpsExplorer->setCloseUps(tagID,tcus);
 	d_ui->tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
+	d_tagSortedModel->setWhiteList(fm::FormatTagID(tagID).c_str());
 }
 
 

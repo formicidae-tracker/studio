@@ -1,8 +1,9 @@
 #pragma once
 
-#include <QTreeWidgetItem>
+#include <QSortFilterProxyModel>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
+
 
 #include "Workspace.hpp"
 
@@ -13,7 +14,6 @@ class TagCloseUpBridge;
 class StatisticsBridge;
 class IdentifierBridge;
 class SelectedAntBridge;
-class QSortFilterProxyModel;
 class VectorialScene;
 class Vector;
 class QToolBar;
@@ -26,6 +26,27 @@ class IdentificationWorkspace;
 }
 
 class QAction;
+
+class CloseUpFilterModel : public QSortFilterProxyModel {
+	Q_OBJECT
+public:
+	CloseUpFilterModel(QObject * parent = nullptr);
+	virtual ~CloseUpFilterModel();
+
+public slots:
+	void setFilter(const QString & filter);
+	void setRemoveUsed(bool removeUsed);
+	void setWhiteList(const QString & formattedTagID);
+protected:
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+
+private:
+
+	QRegularExpression d_filter;
+	QString            d_whiteList;
+	bool               d_removeUsed;
+};
+
 
 class IdentificationWorkspace : public Workspace {
     Q_OBJECT
@@ -73,7 +94,7 @@ private:
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::IdentificationWorkspace * d_ui;
-	QSortFilterProxyModel       * d_tagSortedModel;
+	CloseUpFilterModel          * d_tagSortedModel;
 	MeasurementBridge           * d_measurements;
 	IdentifierBridge            * d_identifier;
 	TagCloseUpBridge            * d_tagCloseUps;
