@@ -60,7 +60,7 @@ signals:
 
 	void identificationCreated(fmp::Identification::ConstPtr);
 	void identificationRangeModified(fmp::Identification::ConstPtr);
-	void identificationSizeoModified(fmp::Identification::ConstPtr);
+	void identificationSizeModified(fmp::Identification::ConstPtr);
 	void identificationAntPositionModified(fmp::Identification::ConstPtr);
 	void identificationDeleted(fmp::Identification::ConstPtr);
 
@@ -90,7 +90,7 @@ public slots:
 private slots:
 
 	void onAntItemChanged(QStandardItem *);
-	void onIdentificationtItemChanged(QStandardItem *);
+	void onIdentificationItemChanged(QStandardItem *);
 
 
 
@@ -119,8 +119,26 @@ private:
 	                   const std::function<void (const fmp::Ant::Ptr & ant,
 	                                             QStandardItem * item)> & toDo);
 
+	void onAntPositionUpdate(const fmp::Identification::ConstPtr & identification,
+	                         const std::vector<fmp::AntPoseEstimateConstPtr> & estimations);
+
+
+	void onStartItemChanged(QStandardItem * item);
+	void onEndItemChanged(QStandardItem * item);
+	void onSizeItemChanged(QStandardItem * item);
+
+
+
+
 	const static int HIDE_COLUMN = 1;
 	const static int SOLO_COLUMN = 2;
+
+	const static int TAG_ID_COLUMN = 0;
+	const static int ANT_ID_COLUMN = 1;
+	const static int START_COLUMN  = 2;
+	const static int END_COLUMN    = 3;
+	const static int SIZE_COLUMN   = 4;
+	const static int POSES_COLUMN  = 5;
 
 	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_antModel, * d_identificationModel;

@@ -29,6 +29,11 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 	        this,
 	        &IdentifierBridge::onAntItemChanged);
 
+	connect(d_identificationModel,
+	        &QStandardItemModel::itemChanged,
+	        this,
+	        &IdentifierBridge::onIdentificationItemChanged);
+
 
 }
 
@@ -55,7 +60,8 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	setModified(false);
 	if ( d_experiment ) {
 		d_experiment->Identifier()
-			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i) {
+			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i,
+			                                  const std::vector<fmp::AntPoseEstimateConstPtr> & estimations) {
 			                               });
 	}
 
@@ -68,9 +74,9 @@ void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 		emit numberHiddenAntChanged(d_numberHiddenAnt);
 	} else {
 		d_experiment->Identifier()
-			->SetAntPositionUpdateCallback([=](const fmp::Identification::Ptr & ident) {
-				                               qDebug() << "Got ant position update for " << ToQString(ident);
-				                               emit identificationAntPositionModified(ident);
+			->SetAntPositionUpdateCallback([this](const fmp::Identification::Ptr & identification,
+			                                      const std::vector<fmp::AntPoseEstimateConstPtr> & estimations) {
+				                               onAntPositionUpdate(identification,estimations);
 			                               });
 		emit activated(true);
 		emit numberSoloAntChanged(d_numberSoloAnt);
@@ -254,10 +260,42 @@ QList<QStandardItem*> IdentifierBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 	return {label,hidden,solo};
 }
 
+static void setSizeItem(QStandardItem * item,
+                        double defaultSize,
+                        const fmp::Identification::ConstPtr & identification) {
+	if ( identification->UseDefaultTagSize() == true ) {
+		item->setText(QString::number(defaultSize));
+		item->setData(QColor(0,0,255),Qt::ForegroundRole);
+	} else {
+		item->setText(QString::number(identification->TagSize()));
+		item->setData(QVariant(),Qt::ForegroundRole);
+	}
+}
 
 QList<QStandardItem*> IdentifierBridge::buildIdentification(const fmp::Identification::Ptr & identification) {
-	//TODO implement me !!!
-	return {};
+	auto data = QVariant::fromValue(identification);
+
+	auto tagID = new QStandardItem(fm::FormatTagID(identification->TagValue()).c_str());
+	auto antID = new QStandardItem(identification->Target()->FormattedID().c_str());
+	auto start = new QStandardItem(ToQString(identification->Start(),"-"));
+	auto end = new QStandardItem(ToQString(identification->End(),"+"));
+	auto size = new QStandardItem();
+	setSizeItem(size,d_experiment->DefaultTagSize(),identification);
+	std::vector<fmp::AntPoseEstimateConstPtr> estimations;
+	d_experiment->Identifier()->QueryAntPoseEstimate(estimations,identification);
+	auto poses = new QStandardItem(QString::number(estimations.size()));
+
+	QList<QStandardItem*> res = {tagID,antID,start,end,size,poses};
+	for ( const auto & item : res ) {
+		item->setEditable(false);
+		item->setData(data);
+	}
+	start->setEditable(true);
+	end->setEditable(true);
+	size->setEditable(true);
+
+
+	return res;
 }
 
 
@@ -354,10 +392,20 @@ void IdentifierBridge::onAntItemChanged(QStandardItem * item) {
 
 }
 
-void IdentifierBridge::onIdentificationtItemChanged(QStandardItem * item) {
-	//TODO IMPLEMENT ME
-
-	//TODO do not forget to emit and setModified accordingly !!!
+void IdentifierBridge::onIdentificationItemChanged(QStandardItem * item) {
+	switch ( item->column() ) {
+	case START_COLUMN:
+		onStartItemChanged(item);
+		break;
+	case END_COLUMN:
+		onEndItemChanged(item);
+		break;
+	case SIZE_COLUMN:
+		onSizeItemChanged(item);
+		break;
+	default:
+		return;
+	}
 }
 
 
@@ -507,12 +555,122 @@ void IdentifierBridge::rebuildModels() {
 		return;
 	}
 
-	//TODO BUILD THE MODELS
 
+	for ( const auto & [antID,ant] : d_experiment->Identifier()->Ants() ) {
+		d_antModel->insertRow(d_antModel->rowCount(),buildAnt(ant));
+		for (const auto & identification : ant->Identifications() ) {
+			d_identificationModel->insertRow(d_identificationModel->rowCount(),buildIdentification(identification));
+		}
+	}
 }
 
 
 QStandardItem * IdentifierBridge::findIdentification(const fmp::Identification::ConstPtr & identification) const {
-	//TODO IMPLEMENT ME
-	return NULL;
+	auto items = d_identificationModel->findItems(fm::FormatTagID(identification->TagValue()).c_str(),
+	                                              Qt::MatchExactly,
+	                                              TAG_ID_COLUMN);
+	for ( const auto & item : items ) {
+		if ( item->data().value<fmp::Identification::Ptr>() == identification ) {
+			return item;
+		}
+	}
+	return nullptr;
+}
+
+void IdentifierBridge::onAntPositionUpdate(const fmp::Identification::ConstPtr & identification,
+                                           const std::vector<fmp::AntPoseEstimateConstPtr> & estimations) {
+
+	auto item = findIdentification(identification);
+	if ( item != nullptr ) {
+		d_identificationModel->item(item->row(),POSES_COLUMN)->setText(QString::number(estimations.size()));
+	}
+
+	emit identificationAntPositionModified(identification);
+}
+
+
+static fm::Time::ConstPtr parseTime(const QString & timeStr) {
+	if ( timeStr.isEmpty() == true || timeStr == "-∞" || timeStr == "+∞" ) {
+		return nullptr;
+	}
+	return  std::make_shared<fm::Time>(fm::Time::Parse(timeStr.toUtf8().constData()));
+}
+
+static bool timePtrEqual(const fm::Time::ConstPtr & a,
+                         const fm::Time::ConstPtr & b ) {
+	if (!a) {
+		return !b;
+	}
+	if ( !b ) {
+		return false;
+	};
+
+	return *a == *b;
+}
+
+
+void IdentifierBridge::onStartItemChanged(QStandardItem * item) {
+	auto identification = item->data().value<fmp::Identification::Ptr>();
+	try {
+		auto startTime = parseTime(item->text());
+		if ( timePtrEqual(startTime,identification->Start()) == false) {
+			identification->SetStart(startTime);
+			setModified(true);
+			qInfo() << ToQString(*identification) << " start time to " << ToQString(identification->Start(),"-");
+			emit identificationRangeModified(identification);
+		}
+	} catch ( const std::exception & e) {
+		qCritical() << "Could not set start time " << item->text() << ": " << e.what();
+	}
+	QSignalBlocker blocker(d_identificationModel);
+	item->setText(ToQString(identification->Start(),"-"));
+}
+
+void IdentifierBridge::onEndItemChanged(QStandardItem * item) {
+	auto identification = item->data().value<fmp::Identification::Ptr>();
+	try {
+		auto endTime = parseTime(item->text());
+		if ( timePtrEqual(endTime,identification->End()) == false) {
+			identification->SetEnd(endTime);
+			setModified(true);
+			qInfo() << ToQString(*identification) << " end time to " << ToQString(identification->End(),"+");
+			emit identificationRangeModified(identification);
+		}
+	} catch ( const std::exception & e) {
+		qCritical() << "Could not set end time " << item->text() << ": " << e.what();
+		return;
+	}
+	QSignalBlocker blocker(d_identificationModel);
+	item->setText(ToQString(identification->End(),"+"));
+
+}
+
+void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
+	auto identification = item->data().value<fmp::Identification::Ptr>();
+	if ( item->text().isEmpty() == true
+	     && identification->UseDefaultTagSize() == false ) {
+
+		identification->SetTagSize(fmp::Identification::DEFAULT_TAG_SIZE);
+		setModified(true);
+		qInfo() << "Set identification " << ToQString(*identification) << " to default tag size";
+		emit identificationSizeModified(identification);
+	} else {
+		bool ok = false;
+		double tagSize = item->text().toDouble(&ok);
+		if ( ok == true
+		     && tagSize != identification->TagSize() ) {
+			identification->SetTagSize(tagSize);
+			setModified(true);
+			qInfo() << "Set identification " << ToQString(*identification) << " tag size to " << tagSize;
+			emit identificationSizeModified(identification);
+		} else {
+			qCritical() << "Could not parse tag size " << item->text();
+		}
+	}
+	QSignalBlocker blocker(d_identificationModel);
+	setSizeItem(item,d_experiment->DefaultTagSize(),identification);
+}
+
+QAbstractItemModel * IdentifierBridge::identificationsModel() const {
+	return d_identificationModel;
 }

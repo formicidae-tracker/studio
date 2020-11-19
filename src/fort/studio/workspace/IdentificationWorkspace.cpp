@@ -155,6 +155,9 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	d_ui->closeUpsExplorer->setUp(experiment->tagCloseUps());
 
 	d_statistics = experiment->statistics();
+
+	d_ui->identificationView->setModel(d_identifier->identificationsModel());
+
 }
 
 

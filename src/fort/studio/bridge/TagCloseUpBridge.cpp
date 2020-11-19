@@ -96,11 +96,12 @@ const QVector<fmp::TagCloseUp::ConstPtr> & TagCloseUpBridge::closeUpsForAnt(fm::
 	return fi->second;
 }
 
-
 std::pair<fm::TagID,fm::AntID>
 TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
+
 	fm::TagID tagID = closeUp->TagValue();
 	fm::AntID antID = 0;
+
 	d_tagsLists[tagID].push_back(closeUp);
 	if ( d_experiment ) {
 		auto identification = d_experiment->CIdentifier().Identify(closeUp->TagValue(),
@@ -115,8 +116,6 @@ TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 	if ( items.isEmpty() == false ) {
 		return {tagID,antID};
 	}
-
-
 
 	auto tagItem = new QStandardItem(tagLabel);
 
