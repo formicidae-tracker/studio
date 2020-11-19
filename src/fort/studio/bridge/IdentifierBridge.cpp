@@ -608,42 +608,32 @@ static bool timePtrEqual(const fm::Time::ConstPtr & a,
 	return *a == *b;
 }
 
+#define onRangeItemChanged(RangeName,prefix) do {	  \
+	auto identification = item->data().value<fmp::Identification::Ptr>(); \
+	try { \
+		auto RangeName ## Time = parseTime(item->text()); \
+		if ( timePtrEqual(RangeName ## Time,identification->RangeName()) == false) { \
+			identification->Set## RangeName (RangeName ## Time); \
+			setModified(true); \
+			qInfo() << ToQString(*identification) << #RangeName " time to " << ToQString(identification->RangeName(),prefix); \
+			emit identificationRangeModified(identification); \
+		} \
+	} catch ( const std::exception & e) { \
+		qCritical() << "Could not set " #RangeName " time " << item->text() << ": " << e.what(); \
+	} \
+	QSignalBlocker blocker(d_identificationModel); \
+	item->setText(ToQString(identification->RangeName(),prefix));\
+	} while(0)
 
 void IdentifierBridge::onStartItemChanged(QStandardItem * item) {
-	auto identification = item->data().value<fmp::Identification::Ptr>();
-	try {
-		auto startTime = parseTime(item->text());
-		if ( timePtrEqual(startTime,identification->Start()) == false) {
-			identification->SetStart(startTime);
-			setModified(true);
-			qInfo() << ToQString(*identification) << " start time to " << ToQString(identification->Start(),"-");
-			emit identificationRangeModified(identification);
-		}
-	} catch ( const std::exception & e) {
-		qCritical() << "Could not set start time " << item->text() << ": " << e.what();
-	}
-	QSignalBlocker blocker(d_identificationModel);
-	item->setText(ToQString(identification->Start(),"-"));
+	onRangeItemChanged(Start,"-");
 }
 
 void IdentifierBridge::onEndItemChanged(QStandardItem * item) {
-	auto identification = item->data().value<fmp::Identification::Ptr>();
-	try {
-		auto endTime = parseTime(item->text());
-		if ( timePtrEqual(endTime,identification->End()) == false) {
-			identification->SetEnd(endTime);
-			setModified(true);
-			qInfo() << ToQString(*identification) << " end time to " << ToQString(identification->End(),"+");
-			emit identificationRangeModified(identification);
-		}
-	} catch ( const std::exception & e) {
-		qCritical() << "Could not set end time " << item->text() << ": " << e.what();
-		return;
-	}
-	QSignalBlocker blocker(d_identificationModel);
-	item->setText(ToQString(identification->End(),"+"));
-
+	onRangeItemChanged(End,"+");
 }
+
+#undef onRangeItemChanged
 
 void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
 	auto identification = item->data().value<fmp::Identification::Ptr>();
