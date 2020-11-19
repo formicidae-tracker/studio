@@ -42,6 +42,8 @@ private slots:
 
 signals:
 
+	void cleared();
+
 	void closeUpsForTagChanged(uint32_t tagID,const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
 	void closeUpsForAntChanged(uint32_t antID,const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
 

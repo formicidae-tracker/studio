@@ -1,4 +1,4 @@
-#include "CloseUpExplorer.hpp"
+#include "CloseUpScroller.hpp"
 
 #include <fort/studio/bridge/TagCloseUpBridge.hpp>
 
@@ -6,7 +6,7 @@
 #include <QSlider>
 #include <QLabel>
 
-CloseUpExplorer::CloseUpExplorer(QWidget * parent)
+CloseUpScroller::CloseUpScroller(QWidget * parent)
 	: QWidget(parent)
 	, d_currentID(-1) {
 	d_currentCloseUp = d_closeUps.end();
@@ -20,25 +20,25 @@ CloseUpExplorer::CloseUpExplorer(QWidget * parent)
 	connect(d_slider,
 	        &QAbstractSlider::valueChanged,
 	        this,
-	        &CloseUpExplorer::onSliderValueChanged);
+	        &CloseUpScroller::onSliderValueChanged);
 
 	updateWidgets();
 
 }
 
-CloseUpExplorer::~CloseUpExplorer() {
+CloseUpScroller::~CloseUpScroller() {
 }
 
 static fmp::TagCloseUp::ConstPtr empty;
 
-const fmp::TagCloseUp::ConstPtr & CloseUpExplorer::currentCloseUp() const {
+const fmp::TagCloseUp::ConstPtr & CloseUpScroller::currentCloseUp() const {
 	if ( d_currentCloseUp == d_closeUps.end() ) {
 		return empty;
 	}
 	return *d_currentCloseUp;
 }
 
-void CloseUpExplorer::setCloseUps(uint32_t objectID,
+void CloseUpScroller::setCloseUps(uint32_t objectID,
                                   const QVector<fmp::TagCloseUp::ConstPtr> & closeUps) {
 	if ( objectID == d_currentID ) {
 		return;
@@ -55,7 +55,7 @@ void CloseUpExplorer::setCloseUps(uint32_t objectID,
 	emit currentCloseUpChanged(currentCloseUp());
 }
 
-void CloseUpExplorer::next() {
+void CloseUpScroller::next() {
 	if ( d_currentCloseUp == d_closeUps.end() ) {
 		return;
 	}
@@ -65,7 +65,7 @@ void CloseUpExplorer::next() {
 	emit currentCloseUpChanged(currentCloseUp());
 }
 
-void CloseUpExplorer::previous() {
+void CloseUpScroller::previous() {
 	if ( d_currentCloseUp == d_closeUps.begin() ) {
 		return;
 	}
@@ -74,7 +74,7 @@ void CloseUpExplorer::previous() {
 	emit currentCloseUpChanged(currentCloseUp());
 }
 
-void CloseUpExplorer::onCloseUpsChanged(uint32_t objectID,
+void CloseUpScroller::onCloseUpsChanged(uint32_t objectID,
                                         const QVector<fmp::TagCloseUp::ConstPtr> & closeUps) {
 	if ( objectID != d_currentID ) {
 		return;
@@ -87,6 +87,7 @@ void CloseUpExplorer::onCloseUpsChanged(uint32_t objectID,
 		changed = true;
 		++d_currentCloseUp;
 	}
+
 	if ( d_currentCloseUp == d_closeUps.end()
 	     && closeUps.empty() == false ) {
 		changed = true;
@@ -105,11 +106,11 @@ void CloseUpExplorer::onCloseUpsChanged(uint32_t objectID,
 	}
 }
 
-void CloseUpExplorer::updateWidgets() {
+void CloseUpScroller::updateWidgets() {
 	disconnect(d_slider,
 	           &QAbstractSlider::valueChanged,
 	           this,
-	           &CloseUpExplorer::onSliderValueChanged);
+	           &CloseUpScroller::onSliderValueChanged);
 	d_slider->setRange(0,d_closeUps.size()-1);
 	int value = d_currentCloseUp - d_closeUps.begin();
 	d_slider->setValue(value);
@@ -117,10 +118,10 @@ void CloseUpExplorer::updateWidgets() {
 	connect(d_slider,
 	        &QAbstractSlider::valueChanged,
 	        this,
-	        &CloseUpExplorer::onSliderValueChanged);
+	        &CloseUpScroller::onSliderValueChanged);
 }
 
-void CloseUpExplorer::onSliderValueChanged(int position) {
+void CloseUpScroller::onSliderValueChanged(int position) {
 	if (position >= d_closeUps.size()
 	    || d_currentCloseUp == (d_closeUps.begin() + position) ) {
 		return;
@@ -131,36 +132,55 @@ void CloseUpExplorer::onSliderValueChanged(int position) {
 }
 
 
-AntCloseUpExplorer::AntCloseUpExplorer(QWidget * parent)
-	: CloseUpExplorer(parent) {
+void CloseUpScroller::clear() {
+	d_closeUps.clear();
+	d_currentCloseUp = d_closeUps.end();
+	if ( d_currentID != -1 ) {
+		d_currentID = -1;
+		emit currentCloseUpChanged(currentCloseUp());
+	}
+}
+
+AntCloseUpScroller::AntCloseUpScroller(QWidget * parent)
+	: CloseUpScroller(parent) {
 
 }
 
-AntCloseUpExplorer::~AntCloseUpExplorer() {
+AntCloseUpScroller::~AntCloseUpScroller() {
 }
 
-void AntCloseUpExplorer::setUp(TagCloseUpBridge * bridge) {
+void AntCloseUpScroller::setUp(TagCloseUpBridge * bridge) {
+	connect(bridge,
+	        &TagCloseUpBridge::cleared,
+	        this,
+	        &AntCloseUpScroller::clear);
+
 	connect(bridge,
 	        &TagCloseUpBridge::closeUpsForAntChanged,
 	        this,
-	        &AntCloseUpExplorer::onCloseUpsChanged);
+	        &AntCloseUpScroller::onCloseUpsChanged);
 }
 
 
-TagCloseUpExplorer::TagCloseUpExplorer(QWidget * parent)
-	: CloseUpExplorer(parent) {
+TagCloseUpScroller::TagCloseUpScroller(QWidget * parent)
+	: CloseUpScroller(parent) {
 
 }
 
-TagCloseUpExplorer::~TagCloseUpExplorer() {
+TagCloseUpScroller::~TagCloseUpScroller() {
 }
 
 
 
-void TagCloseUpExplorer::setUp(TagCloseUpBridge * bridge) {
+void TagCloseUpScroller::setUp(TagCloseUpBridge * bridge) {
+	connect(bridge,
+	        &TagCloseUpBridge::cleared,
+	        this,
+	        &TagCloseUpScroller::clear);
+
 	connect(bridge,
 	        &TagCloseUpBridge::closeUpsForTagChanged,
 	        this,
-	        &TagCloseUpExplorer::onCloseUpsChanged);
+	        &TagCloseUpScroller::onCloseUpsChanged);
 
 }

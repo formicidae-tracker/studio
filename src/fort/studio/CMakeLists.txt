@@ -61,7 +61,8 @@ set(SRC_FILES Format.cpp
 			  widget/ZonesEditorWidget.cpp
 			  widget/CloneShapeDialog.cpp
 			  widget/TagStatisticsWidget.cpp
-			  widget/CloseUpExplorer.cpp
+			  widget/CloseUpScroller.cpp
+			  widget/TagCloseUpExplorer.cpp
 			  workspace/Workspace.cpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -133,7 +134,8 @@ set(HDR_FILES Format.hpp
 			  widget/ZonesEditorWidget.hpp
 			  widget/CloneShapeDialog.hpp
 			  widget/TagStatisticsWidget.hpp
-			  widget/CloseUpExplorer.hpp
+			  widget/CloseUpScroller.hpp
+			  widget/TagCloseUpExplorer.hpp
 			  workspace/Workspace.hpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -160,6 +162,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/ZonesEditorWidget.ui
              widget/CloneShapeDialog.ui
              widget/TagStatisticsWidget.ui
+             widget/TagCloseUpExplorer.ui
              workspace/GeneralWorkspace.ui
              workspace/TagStatisticsWorkspace.ui
              workspace/IdentificationWorkspace.ui

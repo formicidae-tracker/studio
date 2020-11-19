@@ -14,48 +14,53 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="closeUpBox">
+   <item row="0" column="2">
+    <widget class="QGroupBox" name="identificationBox">
      <property name="title">
-      <string>Close-Ups</string>
+      <string>Identifications</string>
      </property>
-     <property name="flat">
-      <bool>false</bool>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QFormLayout" name="formLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Filter:</string>
-          </property>
-         </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Filter:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="identificationFilterEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="closeUpFilterEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QCheckBox" name="hideUsedTagBox">
+        <item>
+         <widget class="QToolButton" name="identificationButton">
           <property name="text">
-           <string>Hide Used Tags</string>
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset theme="list-remove">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QTableView" name="closeUpView">
+       <widget class="QTableView" name="identificationView">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -64,27 +69,18 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>360</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>360</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="sortingEnabled">
-         <bool>false</bool>
         </property>
         <attribute name="horizontalHeaderMinimumSectionSize">
          <number>60</number>
@@ -92,28 +88,7 @@
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>60</number>
         </attribute>
-        <attribute name="horizontalHeaderHighlightSections">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="horizontalHeaderStretchLastSection">
-         <bool>true</bool>
-        </attribute>
         <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderCascadingSectionResizes">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="verticalHeaderMinimumSectionSize">
-         <number>30</number>
-        </attribute>
-        <attribute name="verticalHeaderDefaultSectionSize">
-         <number>30</number>
-        </attribute>
-        <attribute name="verticalHeaderHighlightSections">
          <bool>false</bool>
         </attribute>
        </widget>
@@ -170,16 +145,6 @@
       </widget>
      </item>
      <item>
-      <widget class="TagCloseUpExplorer" name="closeUpsExplorer" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>15</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QGroupBox" name="tagStatisticsBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -206,87 +171,6 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="2">
-    <widget class="QGroupBox" name="identificationBox">
-     <property name="title">
-      <string>Identifications</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Filter:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="identificationFilterEdit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QToolButton" name="identificationButton">
-          <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset theme="list-remove"/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QTableView" name="identificationView">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>360</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>360</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>60</number>
-        </attribute>
-        <attribute name="horizontalHeaderDefaultSectionSize">
-         <number>60</number>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -299,12 +183,6 @@
    <class>TagStatisticsWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/TagStatisticsWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TagCloseUpExplorer</class>
-   <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/CloseUpExplorer.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

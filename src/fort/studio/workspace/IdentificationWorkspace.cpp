@@ -7,79 +7,29 @@
 #include <QSortFilterProxyModel>
 #include <QAction>
 #include <QMainWindow>
+#include <QDockWidget>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort/studio/bridge/MeasurementBridge.hpp>
 #include <fort/studio/bridge/IdentifierBridge.hpp>
-#include <fort/studio/bridge/SelectedAntBridge.hpp>
 
 #include <fort/studio/Format.hpp>
 #include <fort/studio/Utils.hpp>
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
+#include <fort/studio/widget/TagCloseUpExplorer.hpp>
 
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
-CloseUpFilterModel::CloseUpFilterModel(QObject * parent)
-	: QSortFilterProxyModel(parent)
-	, d_removeUsed(false) {
-}
 
-CloseUpFilterModel::~CloseUpFilterModel() {
-}
-
-void CloseUpFilterModel::setFilter(const QString & filter) {
-	if ( d_filter.pattern() == filter ) {
-		return;
-	}
-	d_filter.setPattern(filter);
-	invalidateFilter();
-}
-
-void CloseUpFilterModel::setWhiteList(const QString & formattedTagID) {
-	if ( d_whiteList == formattedTagID ) {
-		return;
-	}
-	d_whiteList = formattedTagID;
-	invalidateFilter();
-}
-
-void CloseUpFilterModel::setRemoveUsed(bool removeUsed) {
-	if ( d_removeUsed == removeUsed ) {
-		return;
-	}
-	d_removeUsed = removeUsed;
-	invalidateFilter();
-}
-
-
-bool CloseUpFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const {
-	auto formattedTagID = sourceModel()->data(sourceModel()->index(sourceRow,0,sourceParent),Qt::DisplayRole).toString();
-	if ( formattedTagID == d_whiteList ) {
-		return true;
-	}
-	bool matchFilter = true;
-	if ( d_filter.pattern().isEmpty() == false) {
-		matchFilter = d_filter.match(formattedTagID).hasMatch();
-	}
-	bool matchCount = true;
-	if ( d_removeUsed == true ) {
-		auto totalCount = sourceModel()->data(sourceModel()->index(sourceRow,1,sourceParent),Qt::DisplayRole).toInt();
-		auto usedCount = sourceModel()->data(sourceModel()->index(sourceRow,2,sourceParent),Qt::DisplayRole).toInt();
-		matchCount = totalCount > usedCount;
-	}
-	return matchCount && matchFilter;
-}
 
 IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::IdentificationWorkspace)
-	, d_tagSortedModel ( new CloseUpFilterModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
-	, d_tagCloseUps(nullptr)
 	, d_statistics(nullptr)
 	, d_vectorialScene(new VectorialScene)
 	, d_newAntAction(nullptr)
@@ -127,9 +77,6 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 
     d_ui->setupUi(this);
 
-    d_ui->closeUpView->setModel(d_tagSortedModel);
-    d_ui->closeUpView->setSelectionMode(QAbstractItemView::SingleSelection);
-    d_ui->closeUpView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     d_ui->vectorialView->setScene(d_vectorialScene);
     d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
@@ -147,22 +94,19 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
             this,
             &IdentificationWorkspace::onVectorRemoved);
 
-    connect(d_ui->closeUpsExplorer,
-            &TagCloseUpExplorer::currentCloseUpChanged,
-            this,
-            &IdentificationWorkspace::setTagCloseUp);
 
-    connect(d_ui->hideUsedTagBox,
-            &QCheckBox::stateChanged,
-            [this](int state) {
-	            d_tagSortedModel->setRemoveUsed(state == Qt::Checked);
-            });
-    d_tagSortedModel->setRemoveUsed(d_ui->hideUsedTagBox->checkState() == Qt::Checked);
 
-    connect(d_ui->closeUpFilterEdit,
-            &QLineEdit::textChanged,
-            d_tagSortedModel,
-            &CloseUpFilterModel::setFilter);
+    d_tagExplorer = new QDockWidget(tr("Tag Close-Ups"),this);
+    auto tagExplorer = new TagCloseUpExplorer(this);
+    d_tagExplorer->setWidget(tagExplorer);
+	connect(tagExplorer,
+	        &TagCloseUpExplorer::currentCloseUpChanged,
+	        this,
+	        &IdentificationWorkspace::setTagCloseUp);
+	connect(tagExplorer,
+	        &TagCloseUpExplorer::currentTagIDChanged,
+	        this,
+	        &IdentificationWorkspace::onTagIDChanged);
 
     updateActionStates();
 }
@@ -178,27 +122,10 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
 	auto measurements = experiment->measurements();
-	auto selectedAnt = experiment->selectedAnt();
-
-	d_tagSortedModel->setSourceModel(experiment->tagCloseUps()->tagModel());
-	d_ui->closeUpView->setModel(d_tagSortedModel);
-	d_ui->closeUpView->setSortingEnabled(true);
-	d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
 
 
 
 	d_measurements = measurements;
-	d_tagCloseUps = experiment->tagCloseUps();
-
-	connect(d_tagCloseUps,
-	        &Bridge::activated,
-	        this,
-	        [this]() {
-		        d_ui->closeUpView->horizontalHeader()->setSortIndicatorShown(true);
-		        d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
-		        nextTag();
-	        });
-
 
 	connect(identifier,
 	        &IdentifierBridge::identificationAntPositionModified,
@@ -209,6 +136,7 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	        &IdentifierBridge::identificationCreated,
 	        this,
 	        &IdentificationWorkspace::onIdentificationAntPositionChanged);
+
 	connect(identifier,
 	        &IdentifierBridge::identificationDeleted,
 	        this,
@@ -218,20 +146,19 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	d_identifier = identifier;
 	setTagCloseUp(fmp::TagCloseUp::Ptr());
 
-	connect(selectedAnt,
-	        &Bridge::activated,
-	        this,
-	        &IdentificationWorkspace::updateActionStates);
-	d_selectedAnt = selectedAnt;
-
 	main->addToolBar(d_actionToolBar);
 	d_actionToolBar->hide();
 
-	d_ui->closeUpsExplorer->setUp(experiment->tagCloseUps());
 
 	d_statistics = experiment->statistics();
 
+	dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget())->initialize(experiment->tagCloseUps());
+
 	d_ui->identificationView->setModel(d_identifier->identificationsModel());
+
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_tagExplorer);
+	d_tagExplorer->hide();
+
 
 }
 
@@ -245,10 +172,6 @@ void IdentificationWorkspace::addIdentification() {
 		return;
 	}
 
-	if ( d_selectedAnt->isActive() == false ) {
-		return;
-	}
-
 	fm::Time::ConstPtr start,end;
 	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
 		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
@@ -257,10 +180,7 @@ void IdentificationWorkspace::addIdentification() {
 		return;
 	}
 
-
-	d_identifier->addIdentification(d_selectedAnt->selectedID(),
-	                                d_tcu->TagValue(),
-	                                start,end);
+	//TODO dialog to ask for an existing ant.
 
 	updateActionStates();
 
@@ -316,54 +236,6 @@ void IdentificationWorkspace::onIdentificationAntPositionChanged(fmp::Identifica
 	updateActionStates();
 }
 
-
-void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) {
-	const auto & tcus = d_tagCloseUps->closeUpsForIndex(d_tagSortedModel->mapToSource(index));
-	d_ui->closeUpView->selectionModel()->clearSelection();
-	if ( tcus.isEmpty() == true ) {
-		d_ui->closeUpsExplorer->setCloseUps(-1,tcus);
-		d_ui->tagStatistics->clear();
-		d_tagSortedModel->setWhiteList("");
-		return;
-	}
-	auto tagID = tcus[0]->TagValue();
-	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
-	d_ui->closeUpsExplorer->setCloseUps(tagID,tcus);
-	d_ui->tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
-	d_tagSortedModel->setWhiteList(fm::FormatTagID(tagID).c_str());
-}
-
-void IdentificationWorkspace::nextTag() {
-	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_clicked(d_tagSortedModel->index(0,0));
-		return;
-	}
-	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
-	if ( (row + 1) >= d_tagSortedModel->rowCount() ) {
-		return;
-	}
-	on_closeUpView_clicked(d_tagSortedModel->index(row+1,0));
-}
-
-void IdentificationWorkspace::nextTagCloseUp() {
-	d_ui->closeUpsExplorer->next();
-}
-
-void IdentificationWorkspace::previousTag() {
-	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_clicked(d_tagSortedModel->index(d_tagSortedModel->rowCount()-1,0));
-		return;
-	}
-	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
-	if ( row == 0 ) {
-		return;
-	}
-	on_closeUpView_clicked(d_tagSortedModel->index(row-1,0));
-}
-
-void IdentificationWorkspace::previousTagCloseUp() {
-	d_ui->closeUpsExplorer->previous();
-}
 
 void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu) {
 	if ( d_tcu == tcu ) {
@@ -526,11 +398,6 @@ void IdentificationWorkspace::updateActionStates() {
 		return;
 	}
 	d_newAntAction->setEnabled(true);
-
-	if ( d_selectedAnt->isActive() == false ) {
-		d_addIdentificationAction->setEnabled(false);
-		return;
-	}
 	d_addIdentificationAction->setEnabled(true);
 }
 
@@ -558,14 +425,15 @@ QAction * IdentificationWorkspace::deletePoseEstimationAction() const {
 }
 
 void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
+	auto tagExplorer = dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget());
 	connect(actions.NextTag,&QAction::triggered,
-	        this,&IdentificationWorkspace::nextTag);
+	        tagExplorer,&TagCloseUpExplorer::nextTag);
 	connect(actions.PreviousTag,&QAction::triggered,
-	        this,&IdentificationWorkspace::previousTag);
+	        tagExplorer,&TagCloseUpExplorer::previousTag);
 	connect(actions.NextCloseUp,&QAction::triggered,
-	        this,&IdentificationWorkspace::nextTagCloseUp);
+	        tagExplorer,&TagCloseUpExplorer::nextTagCloseUp);
 	connect(actions.PreviousCloseUp,&QAction::triggered,
-	        this,&IdentificationWorkspace::previousTagCloseUp);
+	        tagExplorer,&TagCloseUpExplorer::previousTagCloseUp);
 
 	connect(actions.CopyCurrentTime,&QAction::triggered,
 	        this,&IdentificationWorkspace::onCopyTime);
@@ -582,19 +450,20 @@ void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 
 	d_actionToolBar->show();
 	actions.NavigationToolBar->show();
-
+	d_tagExplorer->show();
 
 }
 
 void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
+	auto tagExplorer = dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget());
 	disconnect(actions.NextTag,&QAction::triggered,
-	           this,&IdentificationWorkspace::nextTag);
+	           tagExplorer,&TagCloseUpExplorer::nextTag);
 	disconnect(actions.PreviousTag,&QAction::triggered,
-	           this,&IdentificationWorkspace::previousTag);
+	           tagExplorer,&TagCloseUpExplorer::previousTag);
 	disconnect(actions.NextCloseUp,&QAction::triggered,
-	           this,&IdentificationWorkspace::nextTagCloseUp);
+	           tagExplorer,&TagCloseUpExplorer::nextTagCloseUp);
 	disconnect(actions.PreviousCloseUp,&QAction::triggered,
-	           this,&IdentificationWorkspace::previousTagCloseUp);
+	           tagExplorer,&TagCloseUpExplorer::previousTagCloseUp);
 
 	disconnect(actions.CopyCurrentTime,&QAction::triggered,
 	           this,&IdentificationWorkspace::onCopyTime);
@@ -609,7 +478,7 @@ void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
 
 	d_actionToolBar->hide();
 	actions.NavigationToolBar->hide();
-
+	d_tagExplorer->hide();
 }
 
 void IdentificationWorkspace::onCopyTime() {
@@ -617,4 +486,13 @@ void IdentificationWorkspace::onCopyTime() {
 		return;
 	}
 	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
+}
+
+void IdentificationWorkspace::onTagIDChanged(int tagID) {
+	if (tagID == -1
+	    || d_statistics->isActive() == false ) {
+		d_ui->tagStatistics->clear();
+	} else {
+		d_ui->tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
+	}
 }

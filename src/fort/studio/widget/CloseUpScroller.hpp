@@ -8,14 +8,14 @@ class TagCloseUpBridge;
 class QLabel;
 class QAbstractSlider;
 
-class CloseUpExplorer : public QWidget {
+class CloseUpScroller : public QWidget {
 	Q_OBJECT
 	Q_PROPERTY(fmp::TagCloseUp::ConstPtr currentCloseUp
 	           READ currentCloseUp
 	           NOTIFY currentCloseUpChanged);
 public:
-	explicit CloseUpExplorer(QWidget * parent = nullptr);
-	virtual ~CloseUpExplorer();
+	explicit CloseUpScroller(QWidget * parent = nullptr);
+	virtual ~CloseUpScroller();
 
 	virtual void setUp(TagCloseUpBridge * bridge) = 0;
 
@@ -29,6 +29,8 @@ public slots:
 
 protected slots:
 	void onCloseUpsChanged(uint32_t objectID,const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
+
+	void clear();
 
 private slots:
 	void onSliderValueChanged(int position);
@@ -53,19 +55,19 @@ private:
 };
 
 
-class AntCloseUpExplorer : public CloseUpExplorer {
+class AntCloseUpScroller : public CloseUpScroller {
 public:
-	explicit AntCloseUpExplorer(QWidget * parent = nullptr);
-	virtual ~AntCloseUpExplorer();
+	explicit AntCloseUpScroller(QWidget * parent = nullptr);
+	virtual ~AntCloseUpScroller();
 
 
 	void setUp(TagCloseUpBridge * bridge) override;
 };
 
-class TagCloseUpExplorer : public CloseUpExplorer {
+class TagCloseUpScroller : public CloseUpScroller {
 public:
-	explicit TagCloseUpExplorer(QWidget * parent = nullptr);
-	virtual ~TagCloseUpExplorer();
+	explicit TagCloseUpScroller(QWidget * parent = nullptr);
+	virtual ~TagCloseUpScroller();
 
 
 	void setUp(TagCloseUpBridge * bridge) override;
