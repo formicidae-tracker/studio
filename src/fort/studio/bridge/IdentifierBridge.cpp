@@ -9,6 +9,8 @@
 #include <fort/myrmidon/priv/Identifier.hpp>
 
 #include "SelectedAntBridge.hpp"
+#include "GlobalPropertyBridge.hpp"
+
 
 IdentifierBridge::IdentifierBridge(QObject * parent)
 	: Bridge(parent)
@@ -264,10 +266,10 @@ static void setSizeItem(QStandardItem * item,
                         double defaultSize,
                         const fmp::Identification::ConstPtr & identification) {
 	if ( identification->UseDefaultTagSize() == true ) {
-		item->setText(QString::number(defaultSize));
+		item->setText(QString::number(defaultSize,'f',2));
 		item->setData(QColor(0,0,255),Qt::ForegroundRole);
 	} else {
-		item->setText(QString::number(identification->TagSize()));
+		item->setText(QString::number(identification->TagSize(),'f',2));
 		item->setData(QVariant(),Qt::ForegroundRole);
 	}
 }
@@ -637,13 +639,13 @@ void IdentifierBridge::onEndItemChanged(QStandardItem * item) {
 
 void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
 	auto identification = item->data().value<fmp::Identification::Ptr>();
-	if ( item->text().isEmpty() == true
-	     && identification->UseDefaultTagSize() == false ) {
-
-		identification->SetTagSize(fmp::Identification::DEFAULT_TAG_SIZE);
-		setModified(true);
-		qInfo() << "Set identification " << ToQString(*identification) << " to default tag size";
-		emit identificationSizeModified(identification);
+	if ( item->text().isEmpty() == true ) {
+		if ( identification->UseDefaultTagSize() == false ) {
+			identification->SetTagSize(fmp::Identification::DEFAULT_TAG_SIZE);
+			setModified(true);
+			qInfo() << "Set identification " << ToQString(*identification) << " to default tag size";
+			emit identificationSizeModified(identification);
+		}
 	} else {
 		bool ok = false;
 		double tagSize = item->text().toDouble(&ok);
@@ -663,4 +665,22 @@ void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
 
 QAbstractItemModel * IdentifierBridge::identificationsModel() const {
 	return d_identificationModel;
+}
+
+
+void IdentifierBridge::setUp(GlobalPropertyBridge * globalProperties) {
+	connect(globalProperties,
+	        &GlobalPropertyBridge::tagSizeChanged,
+	        this,
+	        &IdentifierBridge::onDefaultTagSizeChanged);
+}
+
+
+void IdentifierBridge::onDefaultTagSizeChanged(double defaultTagSize) {
+	QSignalBlocker blocker(d_identificationModel);
+	for(int i = 0; i < d_identificationModel->rowCount(); ++i) {
+		auto item = d_identificationModel->item(i,SIZE_COLUMN);
+		setSizeItem(item,defaultTagSize,item->data().value<fmp::Identification::Ptr>());
+	}
+
 }

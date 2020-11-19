@@ -98,6 +98,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 
 	d_tagCloseUps->setUp(d_identifier,d_universe);
+	d_identifier->setUp(d_globalProperties);
 }
 
 

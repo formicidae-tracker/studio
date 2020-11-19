@@ -333,9 +333,6 @@ void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) 
 	d_tagSortedModel->setWhiteList(fm::FormatTagID(tagID).c_str());
 }
 
-
-
-
 void IdentificationWorkspace::nextTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
 		on_closeUpView_clicked(d_tagSortedModel->index(0,0));

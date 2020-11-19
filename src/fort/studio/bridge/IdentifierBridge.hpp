@@ -15,7 +15,7 @@ class QModelIndex;
 class QItemSelection;
 
 class SelectedAntBridge;
-
+class GlobalPropertyBridge;
 class IdentifierBridge : public Bridge {
 	Q_OBJECT
 	Q_PROPERTY(quint32 numberSoloAnt
@@ -32,6 +32,8 @@ public:
 	QAbstractItemModel * antModel() const;
 
 	QAbstractItemModel * identificationsModel() const;
+
+	void setUp(GlobalPropertyBridge * bridge);
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
@@ -92,6 +94,7 @@ private slots:
 	void onAntItemChanged(QStandardItem *);
 	void onIdentificationItemChanged(QStandardItem *);
 
+	void onDefaultTagSizeChanged(double tagSize);
 
 
 private:
