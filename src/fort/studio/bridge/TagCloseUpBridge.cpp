@@ -22,6 +22,8 @@ TagCloseUpBridge::~TagCloseUpBridge() {
 
 void TagCloseUpBridge::clear() {
 	d_tagModel->clear();
+	d_tagsLists.clear();
+	d_antsLists.clear();
 	emit closeUpsForTagChanged(-1,{});
 	emit closeUpsForAntChanged(-1,{});
 }
@@ -30,9 +32,9 @@ void TagCloseUpBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	clear();
 
 	d_experiment = experiment;
-	emit activated(!d_experiment == false);
 
 	rebuild();
+	emit activated(!d_experiment == false);
 }
 
 void TagCloseUpBridge::setUp(IdentifierBridge * identifier,

@@ -25,7 +25,7 @@
 IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::IdentificationWorkspace)
-	, d_sortedModel ( new QSortFilterProxyModel(this) )
+	, d_tagSortedModel ( new QSortFilterProxyModel(this) )
 	, d_measurements(nullptr)
 	, d_identifier(nullptr)
 	, d_tagCloseUps(nullptr)
@@ -74,10 +74,9 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	connect(d_deletePoseAction,&QAction::triggered,
 	        this,&IdentificationWorkspace::deletePose);
 
-	d_sortedModel->setSortRole(Qt::UserRole+2);
     d_ui->setupUi(this);
 
-    d_ui->closeUpView->setModel(d_sortedModel);
+    d_ui->closeUpView->setModel(d_tagSortedModel);
     d_ui->closeUpView->setSelectionMode(QAbstractItemView::SingleSelection);
     d_ui->closeUpView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -119,11 +118,25 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	auto measurements = experiment->measurements();
 	auto selectedAnt = experiment->selectedAnt();
 
-	d_sortedModel->setSourceModel(experiment->tagCloseUps()->tagModel());
-	d_ui->closeUpView->setModel(d_sortedModel);
+	d_tagSortedModel->setSourceModel(experiment->tagCloseUps()->tagModel());
+	d_ui->closeUpView->setModel(d_tagSortedModel);
+	d_ui->closeUpView->setSortingEnabled(true);
+	d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
+
+
 
 	d_measurements = measurements;
 	d_tagCloseUps = experiment->tagCloseUps();
+
+	connect(d_tagCloseUps,
+	        &Bridge::activated,
+	        this,
+	        [this]() {
+		        qWarning() << "coucou";
+		        d_ui->closeUpView->horizontalHeader()->setSortIndicatorShown(true);
+		        d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
+	        });
+
 
 	connect(identifier,
 	        &IdentifierBridge::identificationAntPositionModified,
@@ -243,7 +256,7 @@ void IdentificationWorkspace::onIdentificationAntPositionChanged(fmp::Identifica
 
 
 void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) {
-	const auto & tcus = d_tagCloseUps->closeUpsForIndex(d_sortedModel->mapToSource(index));
+	const auto & tcus = d_tagCloseUps->closeUpsForIndex(d_tagSortedModel->mapToSource(index));
 	d_ui->closeUpView->selectionModel()->clearSelection();
 	if ( tcus.isEmpty() == true ) {
 		d_ui->closeUpsExplorer->setCloseUps(-1,tcus);
@@ -262,14 +275,14 @@ void IdentificationWorkspace::on_closeUpView_clicked(const QModelIndex & index) 
 
 void IdentificationWorkspace::nextTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_clicked(d_sortedModel->index(0,0));
+		on_closeUpView_clicked(d_tagSortedModel->index(0,0));
 		return;
 	}
 	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
-	if ( (row + 1) >= d_sortedModel->rowCount() ) {
+	if ( (row + 1) >= d_tagSortedModel->rowCount() ) {
 		return;
 	}
-	on_closeUpView_clicked(d_sortedModel->index(row+1,0));
+	on_closeUpView_clicked(d_tagSortedModel->index(row+1,0));
 }
 
 void IdentificationWorkspace::nextTagCloseUp() {
@@ -278,14 +291,14 @@ void IdentificationWorkspace::nextTagCloseUp() {
 
 void IdentificationWorkspace::previousTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
-		on_closeUpView_clicked(d_sortedModel->index(d_sortedModel->rowCount()-1,0));
+		on_closeUpView_clicked(d_tagSortedModel->index(d_tagSortedModel->rowCount()-1,0));
 		return;
 	}
 	auto row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row();
 	if ( row == 0 ) {
 		return;
 	}
-	on_closeUpView_clicked(d_sortedModel->index(row-1,0));
+	on_closeUpView_clicked(d_tagSortedModel->index(row-1,0));
 }
 
 void IdentificationWorkspace::previousTagCloseUp() {

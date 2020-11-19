@@ -73,7 +73,7 @@ private:
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::IdentificationWorkspace * d_ui;
-	QSortFilterProxyModel       * d_sortedModel;
+	QSortFilterProxyModel       * d_tagSortedModel;
 	MeasurementBridge           * d_measurements;
 	IdentifierBridge            * d_identifier;
 	TagCloseUpBridge            * d_tagCloseUps;
