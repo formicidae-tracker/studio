@@ -39,18 +39,22 @@ const fmp::TagCloseUp::ConstPtr & CloseUpScroller::currentCloseUp() const {
 }
 
 void CloseUpScroller::setCloseUps(uint32_t objectID,
-                                  const QVector<fmp::TagCloseUp::ConstPtr> & closeUps) {
+                                  const QVector<fmp::TagCloseUp::ConstPtr> & closeUps,
+                                  QVector<fmp::TagCloseUp::ConstPtr>::const_iterator current) {
 	if ( objectID == d_currentID ) {
 		return;
 	}
 	d_currentID = objectID;
 	if ( d_currentID == -1 ) {
 		d_closeUps.clear();
+		d_currentCloseUp = d_closeUps.begin();
+
 	} else {
 		d_closeUps = closeUps;
+		d_currentCloseUp = d_closeUps.begin() + (current - closeUps.begin());
+
 	}
 
-	d_currentCloseUp = d_closeUps.begin();
 	updateWidgets();
 	emit currentCloseUpChanged(currentCloseUp());
 }

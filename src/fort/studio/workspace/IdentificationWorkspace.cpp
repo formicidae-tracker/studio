@@ -19,6 +19,7 @@
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/TagCloseUpExplorer.hpp>
+#include <fort/studio/widget/IdentificationListWidget.hpp>
 
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
@@ -108,6 +109,18 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	        this,
 	        &IdentificationWorkspace::onTagIDChanged);
 
+
+	auto identificationList = new IdentificationListWidget(this);
+	d_identificationList = new QDockWidget(tr("Identifications"),this);
+	d_identificationList->setWidget(identificationList);
+	//TODO connection
+
+	connect(identificationList,
+	        &IdentificationListWidget::identificationSelected,
+	        tagExplorer,
+	        &TagCloseUpExplorer::selectCloseUpForIdentification);
+
+
     updateActionStates();
 }
 
@@ -154,11 +167,12 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 
 	dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget())->initialize(experiment->tagCloseUps());
 
-	d_ui->identificationView->setModel(d_identifier->identificationsModel());
-
 	main->addDockWidget(Qt::LeftDockWidgetArea,d_tagExplorer);
 	d_tagExplorer->hide();
 
+	dynamic_cast<IdentificationListWidget*>(d_identificationList->widget())->initialize(experiment->identifier());
+	main->addDockWidget(Qt::RightDockWidgetArea,d_identificationList);
+	d_identificationList->hide();
 
 }
 
@@ -451,7 +465,7 @@ void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 	d_actionToolBar->show();
 	actions.NavigationToolBar->show();
 	d_tagExplorer->show();
-
+	d_identificationList->show();
 }
 
 void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
@@ -479,6 +493,7 @@ void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
 	d_actionToolBar->hide();
 	actions.NavigationToolBar->hide();
 	d_tagExplorer->hide();
+	d_identificationList->hide();
 }
 
 void IdentificationWorkspace::onCopyTime() {

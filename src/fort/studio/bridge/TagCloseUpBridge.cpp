@@ -297,3 +297,12 @@ void TagCloseUpBridge::rebuild() {
 bool TagCloseUpBridge::isActive() const {
 	return !d_experiment == false;
 }
+
+
+QModelIndex TagCloseUpBridge::indexForTag(fm::TagID tagID) const {
+	auto items =  d_tagModel->findItems(fmp::FormatTagID(tagID).c_str());
+	if ( items.isEmpty() ) {
+		return QModelIndex();
+	}
+	return items.front()->index();
+}

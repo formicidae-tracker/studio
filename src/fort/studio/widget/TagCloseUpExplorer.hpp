@@ -5,6 +5,7 @@
 #include <QWidget>
 
 #include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
 
 namespace Ui {
 class TagCloseUpExplorer;
@@ -22,6 +23,7 @@ public slots:
 	void setFilter(const QString & filter);
 	void setRemoveUsed(bool removeUsed);
 	void setWhiteList(const QString & formattedTagID);
+
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
@@ -41,6 +43,9 @@ public:
 	void initialize(TagCloseUpBridge * tagCloseUps);
 
 public slots:
+
+	void selectCloseUpForIdentification(const fmp::Identification::ConstPtr & identification);
+
 
 	void nextTag();
 	void nextTagCloseUp();

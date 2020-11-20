@@ -21,8 +21,11 @@ public:
 
 	const fmp::TagCloseUp::ConstPtr & currentCloseUp() const;
 
+	void setCloseUps(uint32_t objectID,
+	                 const QVector<fmp::TagCloseUp::ConstPtr> & closeUps,
+	                 QVector<fmp::TagCloseUp::ConstPtr>::const_iterator currentCloseUp);
+
 public slots:
-	void setCloseUps(uint32_t objectID, const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
 
 	void next();
 	void previous();

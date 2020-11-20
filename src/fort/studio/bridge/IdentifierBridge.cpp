@@ -174,7 +174,7 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
 	return identification;
 }
 
-void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & identification) {
+void IdentifierBridge::deleteIdentification(const fmp::Identification::ConstPtr & identification) {
 	auto antItem = findAnt(identification->Target()->AntID());
 	auto identificationItem = findIdentification(identification);
 	if ( !d_experiment
@@ -188,7 +188,7 @@ void IdentifierBridge::deleteIdentification(const fmp::Identification::Ptr & ide
 	try {
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifier::DeleteIdentification("
 		         << ToQString(identification) << ")";
-		d_experiment->Identifier()->DeleteIdentification(identification);
+		d_experiment->Identifier()->DeleteIdentification(identificationItem->data().value<fmp::Identification::Ptr>());
 	} catch (const std::exception & e ) {
 		std::ostringstream os;
 		os << *identification;
@@ -683,4 +683,12 @@ void IdentifierBridge::onDefaultTagSizeChanged(double defaultTagSize) {
 		setSizeItem(item,defaultTagSize,item->data().value<fmp::Identification::Ptr>());
 	}
 
+}
+
+fmp::Identification::ConstPtr IdentifierBridge::identificationForIndex(const QModelIndex & index) const {
+	auto item  = d_identificationModel->itemFromIndex(index);
+	if ( item == nullptr ) {
+		return nullptr;
+	}
+	return item->data().value<fmp::Identification::Ptr>();
 }

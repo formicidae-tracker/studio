@@ -119,13 +119,13 @@ void TagCloseUpExplorer::on_closeUpView_clicked(const QModelIndex & index) {
 	d_ui->closeUpView->selectionModel()->clearSelection();
 	if ( tcus.isEmpty() == true ) {
 		emit currentTagIDChanged(-1);
-		d_ui->closeUpsScroller->setCloseUps(-1,tcus);
+		d_ui->closeUpsScroller->setCloseUps(-1,tcus,tcus.end());
 		d_sortedFilteredModel->setWhiteList("");
 		return;
 	}
 	auto tagID = tcus[0]->TagValue();
 	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
-	d_ui->closeUpsScroller->setCloseUps(tagID,tcus);
+	d_ui->closeUpsScroller->setCloseUps(tagID,tcus,tcus.begin());
 	d_sortedFilteredModel->setWhiteList(fm::FormatTagID(tagID).c_str());
 	emit currentTagIDChanged(tagID);
 }
@@ -160,4 +160,34 @@ void TagCloseUpExplorer::moveIndex(int direction) {
 
 void TagCloseUpExplorer::previousTagCloseUp() {
 	d_ui->closeUpsScroller->previous();
+}
+
+
+void TagCloseUpExplorer::selectCloseUpForIdentification(const fmp::Identification::ConstPtr & identification) {
+	if (!identification) {
+		return;
+	}
+
+	auto tagID = identification->TagValue();
+	auto closeUps = d_tagCloseUps->closeUpsForTag(tagID);
+	auto fi = std::find_if(closeUps.begin(),
+	                       closeUps.end(),
+	                       [&identification](const fmp::TagCloseUp::ConstPtr & closeUp) ->bool {
+		                       return identification->IsValid(closeUp->Frame().Time());
+	                       });
+	if ( fi == closeUps.end() ) {
+		fi = closeUps.begin();
+	}
+	d_ui->closeUpsScroller->setCloseUps(identification->TagValue(),
+	                                    closeUps,
+	                                    fi);
+
+	auto selectionModel = d_ui->closeUpView->selectionModel();
+	d_sortedFilteredModel->setWhiteList(fm::FormatTagID(tagID).c_str());
+
+	selectionModel->clearSelection();
+	auto index = d_sortedFilteredModel->mapFromSource(d_tagCloseUps->indexForTag(tagID));
+	selectionModel->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
+	d_ui->closeUpView->scrollTo(index);
+	emit currentTagIDChanged(tagID);
 }

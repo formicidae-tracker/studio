@@ -33,6 +33,8 @@ public:
 
 	QAbstractItemModel * identificationsModel() const;
 
+	fmp::Identification::ConstPtr identificationForIndex(const QModelIndex & index) const;
+
 	void setUp(GlobalPropertyBridge * bridge);
 
 	void setExperiment(const fmp::Experiment::Ptr & experiment);
@@ -82,7 +84,7 @@ public slots:
 	                                           const fm::Time::ConstPtr & start,
 	                                           const fm::Time::ConstPtr & end);
 
-	void deleteIdentification(const fmp::Identification::Ptr & ident);
+	void deleteIdentification(const fmp::Identification::ConstPtr & ident);
 	void selectAnt(const QModelIndex & index);
 	void setAntDisplayColor(const QItemSelection & selection,
 	                        const QColor & color);

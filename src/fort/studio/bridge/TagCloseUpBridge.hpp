@@ -25,6 +25,8 @@ public:
 
 	QAbstractItemModel * tagModel() const;
 
+	QModelIndex indexForTag(fm::TagID tagID) const;
+
 	const QVector<fmp::TagCloseUp::ConstPtr> & closeUpsForIndex(const QModelIndex & index) const;
 
 	const QVector<fmp::TagCloseUp::ConstPtr> & closeUpsForTag(fm::TagID tagID) const;

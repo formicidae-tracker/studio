@@ -63,6 +63,7 @@ set(SRC_FILES Format.cpp
 			  widget/TagStatisticsWidget.cpp
 			  widget/CloseUpScroller.cpp
 			  widget/TagCloseUpExplorer.cpp
+			  widget/IdentificationListWidget.cpp
 			  workspace/Workspace.cpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -136,6 +137,7 @@ set(HDR_FILES Format.hpp
 			  widget/TagStatisticsWidget.hpp
 			  widget/CloseUpScroller.hpp
 			  widget/TagCloseUpExplorer.hpp
+			  widget/IdentificationListWidget.hpp
 			  workspace/Workspace.hpp
 			  workspace/TagStatisticsWorkspace.cpp
 			  workspace/GeneralWorkspace.cpp
@@ -163,6 +165,7 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/CloneShapeDialog.ui
              widget/TagStatisticsWidget.ui
              widget/TagCloseUpExplorer.ui
+             widget/IdentificationListWidget.ui
              workspace/GeneralWorkspace.ui
              workspace/TagStatisticsWorkspace.ui
              workspace/IdentificationWorkspace.ui
