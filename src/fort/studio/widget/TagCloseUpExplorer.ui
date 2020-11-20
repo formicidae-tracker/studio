@@ -22,6 +22,12 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="hideUsedTagBox">
+     <property name="toolTip">
+      <string>Hides tag where all close-ups are fully identified</string>
+     </property>
+     <property name="statusTip">
+      <string>Hides tag where all close-ups are fully identified</string>
+     </property>
      <property name="text">
       <string>Hide Used Tags</string>
      </property>
@@ -130,6 +136,12 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Filter close-up list with given pattern</string>
+     </property>
+     <property name="statusTip">
+      <string>Filter close-up list with given pattern</string>
      </property>
     </widget>
    </item>

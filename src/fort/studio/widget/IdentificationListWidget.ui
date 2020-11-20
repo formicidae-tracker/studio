@@ -39,12 +39,24 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Filters identitification with given pattern</string>
+         </property>
+         <property name="statusTip">
+          <string>Filters identitification with given pattern</string>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
       <widget class="QToolButton" name="removeButton">
+       <property name="toolTip">
+        <string>Removes selected identification (select a single full row)</string>
+       </property>
+       <property name="statusTip">
+        <string>Removes selected identification (select a single full row)</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
