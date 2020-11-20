@@ -306,3 +306,11 @@ QModelIndex TagCloseUpBridge::indexForTag(fm::TagID tagID) const {
 	}
 	return items.front()->index();
 }
+
+fm::TagID TagCloseUpBridge::tagIDFromIndex(const QModelIndex & index) const {
+	auto item = d_tagModel->itemFromIndex(index);
+	if ( item == nullptr ) {
+		return -1;
+	}
+	return item->data(Qt::UserRole+1).toInt();
+}

@@ -66,7 +66,23 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	           "Delete Pose Estimation",
 	           "Ctrl+Shift+D",
 	           "Deletes current pose estimation");
+
+	d_actionToolBar->addSeparator();
+
+	set_action(d_hideTagAction,
+	           "non-starred-symbolic",
+	           "Hide Tag For Current Session",
+	           "Ctrl+Shift+H",
+	           "Hides current tag until next reload");
+
+	set_action(d_showAllTagsAction,
+	           "edit-clear-all-symbolic",
+	           "Show All Tags",
+	           "Ctrl+Shift+O",
+	           "Shows all hidden tags");
+
 #undef set_action
+    d_ui->setupUi(this);
 
 	connect(d_newAntAction,&QAction::triggered,
 	        this,&IdentificationWorkspace::newAnt);
@@ -77,7 +93,11 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	connect(d_deletePoseAction,&QAction::triggered,
 	        this,&IdentificationWorkspace::deletePose);
 
-    d_ui->setupUi(this);
+
+	connect(d_hideTagAction,&QAction::triggered,
+	        this,&IdentificationWorkspace::hideCurrentTag);
+
+
 
 
     d_ui->vectorialView->setScene(d_vectorialScene);
@@ -109,6 +129,10 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	        &TagCloseUpExplorer::currentTagIDChanged,
 	        this,
 	        &IdentificationWorkspace::onTagIDChanged);
+
+
+	connect(d_showAllTagsAction,&QAction::triggered,
+	        tagExplorer,&TagCloseUpExplorer::showAllTags);
 
 
 	auto identificationList = new IdentificationListWidget(this);
@@ -406,6 +430,7 @@ void IdentificationWorkspace::onVectorRemoved() {
 
 
 void IdentificationWorkspace::updateActionStates() {
+	d_hideTagAction->setEnabled(!d_tcu == false);
 	if ( !d_tcu || d_vectorialScene->vectors().isEmpty() == true ) {
 		d_newAntAction->setEnabled(false);
 		d_addIdentificationAction->setEnabled(false);
@@ -538,4 +563,12 @@ void IdentificationWorkspace::setCloseUpLabels(const fmp::TagCloseUp::ConstPtr &
 	d_ui->closeUpTimeLabel->setText(tr("Time: %1").arg(time));
 	d_ui->closeUpURILabel->setText(tr("URI: %1").arg(URI));
 
+}
+
+
+void IdentificationWorkspace::hideCurrentTag() {
+	if (!d_tcu) {
+		return;
+	}
+	dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget())->hideTag(d_tcu->TagValue());
 }

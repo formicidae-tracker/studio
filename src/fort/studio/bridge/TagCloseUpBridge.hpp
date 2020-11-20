@@ -25,6 +25,8 @@ public:
 
 	QAbstractItemModel * tagModel() const;
 
+	fm::TagID tagIDFromIndex(const QModelIndex & index) const;
+
 	QModelIndex indexForTag(fm::TagID tagID) const;
 
 	const QVector<fmp::TagCloseUp::ConstPtr> & closeUpsForIndex(const QModelIndex & index) const;
@@ -62,10 +64,7 @@ private:
 	std::pair<std::set<fmp::TagID>,std::set<fmp::AntID>>
 	removeTrackingDataDirectory(const QString & uri);
 
-
-
 	std::pair<fm::TagID,fm::AntID> addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp);
-
 
 	QStandardItemModel * d_tagModel;
 

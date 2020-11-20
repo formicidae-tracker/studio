@@ -66,6 +66,8 @@ private slots:
 
 	void updateActionStates();
 
+	void hideCurrentTag();
+
 private:
 	void setCloseUpLabels(const fmp::TagCloseUpConstPtr & closeUp);
 
@@ -77,7 +79,7 @@ private:
 	StatisticsBridge            * d_statistics;
 	VectorialScene              * d_vectorialScene;
 	fmp::TagCloseUpConstPtr       d_tcu;
-	QAction                     * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction;
+	QAction                     * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction,*d_hideTagAction,*d_showAllTagsAction;
 	QAction                     * d_copyTimeAction;
 	QToolBar                    * d_actionToolBar,*d_navigationToolBar;
 	QToolBarSeparator           * d_toolBarSeparator;

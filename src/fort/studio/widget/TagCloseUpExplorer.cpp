@@ -6,6 +6,7 @@
 CloseUpFilterModel::CloseUpFilterModel(QObject * parent)
 	: QSortFilterProxyModel(parent)
 	, d_removeUsed(false) {
+	d_whitelist = -1;
 }
 
 CloseUpFilterModel::~CloseUpFilterModel() {
@@ -19,13 +20,32 @@ void CloseUpFilterModel::setFilter(const QString & filter) {
 	invalidateFilter();
 }
 
-void CloseUpFilterModel::setWhiteList(const QString & formattedTagID) {
-	if ( d_whiteList == formattedTagID ) {
+void CloseUpFilterModel::whitelist(fm::TagID tagID) {
+	if ( d_whitelist == tagID ) {
 		return;
 	}
-	d_whiteList = formattedTagID;
+	d_whitelist = tagID;
 	invalidateFilter();
 }
+
+void CloseUpFilterModel::blacklist(fm::TagID tagID) {
+	if ( d_blacklist.insert(tagID).second == true ) {
+		invalidateFilter();
+	}
+}
+
+void CloseUpFilterModel::clearWhitelist() {
+	whitelist(-1);
+}
+
+void CloseUpFilterModel::clearBlacklist() {
+	if ( d_blacklist.empty() == true ) {
+		return;
+	}
+	d_blacklist.clear();
+	invalidateFilter();
+}
+
 
 void CloseUpFilterModel::setRemoveUsed(bool removeUsed) {
 	if ( d_removeUsed == removeUsed ) {
@@ -37,10 +57,16 @@ void CloseUpFilterModel::setRemoveUsed(bool removeUsed) {
 
 
 bool CloseUpFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const {
-	auto formattedTagID = sourceModel()->data(sourceModel()->index(sourceRow,0,sourceParent),Qt::DisplayRole).toString();
-	if ( formattedTagID == d_whiteList ) {
+	auto index = sourceModel()->index(sourceRow,0,sourceParent);
+	fm::TagID tagID = sourceModel()->data(index,Qt::UserRole+1).toInt();
+	auto formattedTagID = sourceModel()->data(index,Qt::DisplayRole).toString();
+	if ( tagID == d_whitelist ) {
 		return true;
 	}
+	if ( d_blacklist.count(tagID) != 0 ) {
+		return false;
+	}
+
 	bool matchFilter = true;
 	if ( d_filter.pattern().isEmpty() == false) {
 		matchFilter = d_filter.match(formattedTagID).hasMatch();
@@ -85,6 +111,8 @@ TagCloseUpExplorer::TagCloseUpExplorer(QWidget *parent)
 	            d_sortedFilteredModel->setRemoveUsed(state == Qt::Checked);
             });
     d_sortedFilteredModel->setRemoveUsed(d_ui->hideUsedTagBox->checkState() == Qt::Checked);
+
+    d_ui->closeUpView->setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 
@@ -100,9 +128,9 @@ void TagCloseUpExplorer::initialize(TagCloseUpBridge * tagCloseUps) {
 	        &Bridge::activated,
 	        this,
 	        [this]() {
-
 		        d_ui->closeUpView->horizontalHeader()->setSortIndicatorShown(true);
 		        d_ui->closeUpView->sortByColumn(0,Qt::AscendingOrder);
+		        showAllTags();
 		        nextTag();
 	        });
 
@@ -118,15 +146,13 @@ void TagCloseUpExplorer::on_closeUpView_clicked(const QModelIndex & index) {
 	const auto & tcus = d_tagCloseUps->closeUpsForIndex(d_sortedFilteredModel->mapToSource(index));
 	d_ui->closeUpView->selectionModel()->clearSelection();
 	if ( tcus.isEmpty() == true ) {
-		emit currentTagIDChanged(-1);
-		d_ui->closeUpsScroller->setCloseUps(-1,tcus,tcus.end());
-		d_sortedFilteredModel->setWhiteList("");
+		clearCurrentTag();
 		return;
 	}
 	auto tagID = tcus[0]->TagValue();
 	d_ui->closeUpView->selectionModel()->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
 	d_ui->closeUpsScroller->setCloseUps(tagID,tcus,tcus.begin());
-	d_sortedFilteredModel->setWhiteList(fm::FormatTagID(tagID).c_str());
+	d_sortedFilteredModel->whitelist(tagID);
 	emit currentTagIDChanged(tagID);
 }
 
@@ -143,12 +169,22 @@ void TagCloseUpExplorer::previousTag() {
 }
 
 
-void TagCloseUpExplorer::moveIndex(int direction) {
-	int row = -1;
+std::pair<int,fm::TagID> TagCloseUpExplorer::currentTag() {
 	if ( d_ui->closeUpView->selectionModel()->hasSelection() == false ) {
+		return {-1,-1};
+	}
+	auto index = d_ui->closeUpView->selectionModel()->selectedRows()[0];
+	auto tagID = d_tagCloseUps->tagIDFromIndex(d_sortedFilteredModel->mapToSource(index));
+	return {index.row(),tagID};
+}
+
+
+void TagCloseUpExplorer::moveIndex(int direction) {
+	auto [row,tagID]  = currentTag();
+	if ( row == - 1 ) {
 		row = direction > 0 ? 0 : d_sortedFilteredModel->rowCount() - 1;
 	} else {
-		row = d_ui->closeUpView->selectionModel()->selectedRows()[0].row() + direction;
+		row += direction;
 	}
 	if ( row < 0 || row >= d_sortedFilteredModel->rowCount() ) {
 		return;
@@ -180,11 +216,39 @@ void TagCloseUpExplorer::selectCloseUpForIdentification(const fmp::Identificatio
 	                                    fi);
 
 	auto selectionModel = d_ui->closeUpView->selectionModel();
-	d_sortedFilteredModel->setWhiteList(fm::FormatTagID(tagID).c_str());
+	d_sortedFilteredModel->whitelist(tagID);
 
 	selectionModel->clearSelection();
 	auto index = d_sortedFilteredModel->mapFromSource(d_tagCloseUps->indexForTag(tagID));
 	selectionModel->select(index,QItemSelectionModel::Select | QItemSelectionModel::Rows );
 	d_ui->closeUpView->scrollTo(index);
 	emit currentTagIDChanged(tagID);
+}
+
+void TagCloseUpExplorer::clearCurrentTag() {
+	QVector<fmp::TagCloseUp::ConstPtr> tcus;
+	d_ui->closeUpsScroller->setCloseUps(-1,tcus,tcus.end());
+	d_sortedFilteredModel->clearWhitelist();
+	emit currentTagIDChanged(-1);
+}
+
+
+void TagCloseUpExplorer::hideTag(fm::TagID tagID) {
+	const auto & [row,current] = currentTag();
+	if ( current == tagID ) {
+		if ( row < d_sortedFilteredModel->rowCount() - 1 ) {
+			nextTag();
+		} else if ( row != 0 ) {
+			previousTag();
+		} else {
+			clearCurrentTag();
+		}
+	}
+	d_sortedFilteredModel->blacklist(tagID);
+}
+
+void TagCloseUpExplorer::showAllTags() {
+	d_ui->hideUsedTagBox->setCheckState(Qt::Unchecked);
+	d_ui->closeUpFilterEdit->clear();
+	d_sortedFilteredModel->clearBlacklist();
 }
