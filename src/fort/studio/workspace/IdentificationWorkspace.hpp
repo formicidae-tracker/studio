@@ -77,5 +77,5 @@ private:
 	QAction                     * d_copyTimeAction;
 	QToolBar                    * d_actionToolBar,*d_navigationToolBar;
 	QToolBarSeparator           * d_toolBarSeparator;
-	QDockWidget                 * d_tagExplorer,*d_identificationList;
+	QDockWidget                 * d_tagExplorer,*d_identificationList,*d_tagStatistics;
 };

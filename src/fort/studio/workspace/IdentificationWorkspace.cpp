@@ -20,6 +20,7 @@
 #include <fort/studio/widget/vectorgraphics/Vector.hpp>
 #include <fort/studio/widget/TagCloseUpExplorer.hpp>
 #include <fort/studio/widget/IdentificationListWidget.hpp>
+#include <fort/studio/widget/TagStatisticsWidget.hpp>
 
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
@@ -121,6 +122,11 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	        &TagCloseUpExplorer::selectCloseUpForIdentification);
 
 
+	auto tagStatistics = new TagStatisticsWidget(this);
+	d_tagStatistics = new QDockWidget(tr("Tag Statistics"),this);
+	d_tagStatistics->setWidget(tagStatistics);
+
+
     updateActionStates();
 }
 
@@ -173,6 +179,9 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	dynamic_cast<IdentificationListWidget*>(d_identificationList->widget())->initialize(experiment->identifier());
 	main->addDockWidget(Qt::RightDockWidgetArea,d_identificationList);
 	d_identificationList->hide();
+
+	main->addDockWidget(Qt::RightDockWidgetArea,d_tagStatistics);
+	d_tagStatistics->hide();
 
 }
 
@@ -466,6 +475,8 @@ void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 	actions.NavigationToolBar->show();
 	d_tagExplorer->show();
 	d_identificationList->show();
+	d_tagStatistics->show();
+
 }
 
 void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
@@ -494,6 +505,7 @@ void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
 	actions.NavigationToolBar->hide();
 	d_tagExplorer->hide();
 	d_identificationList->hide();
+	d_tagStatistics->hide();
 }
 
 void IdentificationWorkspace::onCopyTime() {
@@ -504,10 +516,11 @@ void IdentificationWorkspace::onCopyTime() {
 }
 
 void IdentificationWorkspace::onTagIDChanged(int tagID) {
+	auto tagStatistics = dynamic_cast<TagStatisticsWidget*>(d_tagStatistics->widget());
 	if (tagID == -1
 	    || d_statistics->isActive() == false ) {
-		d_ui->tagStatistics->clear();
+		tagStatistics->clear();
 	} else {
-		d_ui->tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
+		tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
 	}
 }

@@ -13,8 +13,13 @@ TagStatisticsWidget::TagStatisticsWidget(QWidget *parent)
 
 	d_chart = new QChart();
 
+
+
 	d_xAxis = new QBarCategoryAxis();
 	d_xAxis->append({"&lt;0.5s","&lt;1s","&lt;10s","&lt;1m","&lt;10m","&lt;1h","&lt;10h","≥10h"});
+	auto axisFont = d_xAxis->labelsFont();
+	axisFont.setPointSizeF(axisFont.pointSizeF() * 0.8);
+	d_xAxis->setLabelsFont(axisFont);
 	d_xAxis->setLabelsVisible(true);
 	d_chart->addAxis(d_xAxis,Qt::AlignBottom);
 
@@ -22,6 +27,7 @@ TagStatisticsWidget::TagStatisticsWidget(QWidget *parent)
 	d_chart->addAxis(d_yAxis,Qt::AlignLeft);
 	d_yAxis->setLabelsVisible(true);
 	d_yAxis->setLabelFormat("%d");
+	d_yAxis->setLabelsFont(axisFont);
 	d_yAxis->setRange(0,100);
 	d_yAxis->setTickCount(3);
 
@@ -30,6 +36,7 @@ TagStatisticsWidget::TagStatisticsWidget(QWidget *parent)
 	d_chart->setMargins(QMargins(0,0,0,0));
 
 
+	d_chart->setTitleFont(axisFont);
 	d_chart->layout()->setContentsMargins(0,0,0,0);
 
 	d_ui->chartView->setRubberBand(QChartView::NoRubberBand);
@@ -55,6 +62,7 @@ void TagStatisticsWidget::clear() {
 	d_yAxis->applyNiceNumbers();
 
 	d_chart->removeAllSeries();
+	d_chart->setTitle(tr("Detection Gaps"));
 }
 
 void TagStatisticsWidget::display(fm::TagID tagID,
@@ -102,6 +110,7 @@ void TagStatisticsWidget::display(fm::TagID tagID,
 
 	series->attachAxis(d_yAxis);
 
+	d_chart->setTitle(tr("Detection Gaps for Tag %1").arg(fm::FormatTagID(tagID).c_str()));
 
 	d_ui->chartView->fitInView(d_chart);
 
