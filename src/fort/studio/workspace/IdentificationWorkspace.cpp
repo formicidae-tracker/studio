@@ -264,7 +264,7 @@ void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu)
 	if ( d_tcu == tcu ) {
 		return;
 	}
-
+	setCloseUpLabels(tcu);
 	d_tcu.reset();
 	for ( const auto & v : d_vectorialScene->vectors() ) {
 		d_vectorialScene->deleteShape(v.staticCast<Shape>());
@@ -523,4 +523,19 @@ void IdentificationWorkspace::onTagIDChanged(int tagID) {
 	} else {
 		tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
 	}
+}
+
+void IdentificationWorkspace::setCloseUpLabels(const fmp::TagCloseUp::ConstPtr & closeUp ) {
+	QString tagID = tr("N.A.");
+	QString time = tagID;
+	QString URI = tagID;
+	if ( closeUp ) {
+		tagID = fm::FormatTagID(closeUp->TagValue()).c_str();
+		time = ToQString(closeUp->Frame().Time());
+		URI = closeUp->URI().c_str();
+	}
+	d_ui->closeUpTagLabel->setText(tr("Tag ID: %1").arg(tagID));
+	d_ui->closeUpTimeLabel->setText(tr("Time: %1").arg(time));
+	d_ui->closeUpURILabel->setText(tr("URI: %1").arg(URI));
+
 }

@@ -53,6 +53,8 @@ protected:
 private slots:
 	void setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu);
 
+
+
 	void addIdentification();
 	void newAnt();
 	void deletePose();
@@ -65,6 +67,8 @@ private slots:
 	void updateActionStates();
 
 private:
+	void setCloseUpLabels(const fmp::TagCloseUpConstPtr & closeUp);
+
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::IdentificationWorkspace * d_ui;
