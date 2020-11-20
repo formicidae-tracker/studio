@@ -51,7 +51,8 @@ void CloseUpScroller::setCloseUps(uint32_t objectID,
 
 	} else {
 		d_closeUps = closeUps;
-		d_currentCloseUp = d_closeUps.begin() + (current - closeUps.begin());
+		d_currentCloseUp = d_closeUps.begin() + std::min(current - closeUps.begin(),
+		                                                 long(closeUps.size()-1));
 
 	}
 
@@ -60,12 +61,11 @@ void CloseUpScroller::setCloseUps(uint32_t objectID,
 }
 
 void CloseUpScroller::next() {
-	if ( d_currentCloseUp == d_closeUps.end() ) {
+	if ( (d_closeUps.end() - d_currentCloseUp) <= 1 ) {
 		return;
 	}
-
-	updateWidgets();
 	++d_currentCloseUp;
+	updateWidgets();
 	emit currentCloseUpChanged(currentCloseUp());
 }
 
@@ -118,7 +118,7 @@ void CloseUpScroller::updateWidgets() {
 	d_slider->setRange(0,d_closeUps.size()-1);
 	int value = d_currentCloseUp - d_closeUps.begin();
 	d_slider->setValue(value);
-	d_label->setText(tr("%1/%2").arg(value).arg(d_closeUps.size()));
+	d_label->setText(tr("%1/%2").arg(std::min(value+1,d_closeUps.size())).arg(d_closeUps.size()));
 	connect(d_slider,
 	        &QAbstractSlider::valueChanged,
 	        this,

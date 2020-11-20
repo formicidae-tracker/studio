@@ -175,9 +175,6 @@ void TagCloseUpExplorer::selectCloseUpForIdentification(const fmp::Identificatio
 	                       [&identification](const fmp::TagCloseUp::ConstPtr & closeUp) ->bool {
 		                       return identification->IsValid(closeUp->Frame().Time());
 	                       });
-	if ( fi == closeUps.end() ) {
-		fi = closeUps.begin();
-	}
 	d_ui->closeUpsScroller->setCloseUps(identification->TagValue(),
 	                                    closeUps,
 	                                    fi);
