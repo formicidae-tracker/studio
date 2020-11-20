@@ -259,7 +259,7 @@ LogStatusWidget::~LogStatusWidget() {
 
 
 void LogStatusWidget::onNewMessage(int type,const QString & message) {
-	const static int SIZE = 80;
+	const static int SIZE = 60;
 	auto actualMessage = message;
 	if ( actualMessage.size() < SIZE ) {
 		actualMessage.resize(SIZE,' ');
