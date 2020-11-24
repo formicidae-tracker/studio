@@ -3,6 +3,7 @@
 #include <QObject>
 
 #include <fort/studio/MyrmidonTypes/Experiment.hpp>
+#include <fort/studio/MyrmidonTypes/Ant.hpp>
 
 class ExperimentBridge;
 

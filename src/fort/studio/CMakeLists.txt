@@ -21,6 +21,7 @@ set(SRC_FILES Format.cpp
               bridge/UniverseBridge.cpp
               bridge/MeasurementBridge.cpp
               bridge/IdentifierBridge.cpp
+              bridge/AntDisplayBridge.cpp
               bridge/TagCloseUpBridge.cpp
 			  bridge/GlobalPropertyBridge.cpp
 			  bridge/SelectedAntBridge.cpp
@@ -97,6 +98,7 @@ set(HDR_FILES Format.hpp
 			  bridge/TagCloseUpBridge.hpp
 			  bridge/GlobalPropertyBridge.hpp
 			  bridge/IdentifierBridge.hpp
+			  bridge/AntDisplayBridge.hpp
 			  bridge/SelectedAntBridge.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp

@@ -15,7 +15,7 @@ class IdentifierBridge;
 class SelectedAntBridge : public Bridge {
 	Q_OBJECT
 public:
-	SelectedAntBridge(IdentifierBridge * parent);
+	SelectedAntBridge(QObject * parent);
 	virtual ~SelectedAntBridge();
 
 	const fmp::Ant::TypedCapsuleList & capsules() const;
@@ -37,9 +37,6 @@ public slots:
 	void cloneShape(bool scaleToSize, bool overwriteShape);
 
 private:
-
-	IdentifierBridge             * d_identifier;
-
 	fmp::Ant::Ptr                  d_ant;
 	fmp::Experiment::Ptr           d_experiment;
 };

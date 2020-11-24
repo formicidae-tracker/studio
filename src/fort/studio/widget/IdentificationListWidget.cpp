@@ -36,7 +36,7 @@ void IdentificationListWidget::initialize(IdentifierBridge * identifier) {
 	        d_ui->identificationFilterEdit,
 	        &QLineEdit::clear);
 
-	d_sortedModel->setSourceModel(identifier->identificationsModel());
+	d_sortedModel->setSourceModel(identifier->model());
 	d_ui->identificationsView->setSortingEnabled(true);
 	d_ui->identificationsView->sortByColumn(0,Qt::AscendingOrder);
 

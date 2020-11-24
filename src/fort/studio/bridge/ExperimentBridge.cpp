@@ -5,6 +5,8 @@
 
 #include <QDebug>
 
+#include <fort/myrmidon/priv/Identifier.hpp>
+
 #include <fort/studio/widget/TrackingDataDirectoryLoader.hpp>
 
 #include "UniverseBridge.hpp"
@@ -19,6 +21,7 @@
 #include "ZoneBridge.hpp"
 #include "StatisticsBridge.hpp"
 #include "TagCloseUpBridge.hpp"
+#include "AntDisplayBridge.hpp"
 
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
@@ -30,6 +33,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_universe(new UniverseBridge(this))
 	, d_measurements(new MeasurementBridge(this))
 	, d_identifier(new IdentifierBridge(this))
+	, d_antDisplay(new AntDisplayBridge(this))
+	, d_selectedAnt(new SelectedAntBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
@@ -42,6 +47,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	              d_universe,
 	              d_measurements,
 	              d_identifier,
+	              d_antDisplay,
 	              d_globalProperties,
 	              d_antShapeTypes,
 	              d_antMetadata,
@@ -58,12 +64,11 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 		child->initialize(this);
 	}
 
-	connect(d_identifier->selectedAnt(),&Bridge::modified,
+	connect(d_selectedAnt,&Bridge::modified,
 	        this,&ExperimentBridge::onChildModified);
 
 
 }
-
 
 bool ExperimentBridge::isActive() const {
 	return d_experiment.get() != NULL;
@@ -169,12 +174,16 @@ IdentifierBridge * ExperimentBridge::identifier() const {
 	return d_identifier;
 }
 
+AntDisplayBridge * ExperimentBridge::antDisplay() const {
+	return d_antDisplay;
+}
+
 GlobalPropertyBridge * ExperimentBridge::globalProperties() const {
 	return d_globalProperties;
 }
 
 SelectedAntBridge * ExperimentBridge::selectedAnt() const {
-	return d_identifier->selectedAnt();
+	return d_selectedAnt;
 }
 
 
@@ -213,7 +222,8 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	for ( const auto & child : d_children ) {
 		child->setExperiment(experiment);
 	}
-	d_identifier->selectedAnt()->setExperiment(experiment);
+	d_selectedAnt->setAnt(nullptr);
+	d_selectedAnt->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
 	resetChildModified();
 
@@ -231,5 +241,87 @@ void ExperimentBridge::resetChildModified() {
 	for ( const auto & child : d_children ) {
 		child->setModified(false);
 	}
-	d_identifier->selectedAnt()->setModified(false);
+	d_selectedAnt->setModified(false);
+}
+
+fmp::Ant::Ptr ExperimentBridge::createAnt() {
+	if ( !d_experiment ) {
+		return nullptr;
+	}
+	fmp::Ant::Ptr ant;
+	try {
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::CreateAnt()";
+		ant = d_experiment->CreateAnt();
+	} catch ( const std::exception & e) {
+		qCritical() << "Could not create Ant: " << e.what();
+		return nullptr;
+	}
+
+	qInfo() << "Created new Ant" << ant->FormattedID().c_str();
+
+	setModified(true);
+	emit antCreated(ant->AntID());
+	return ant;
+}
+
+void ExperimentBridge::deleteAnt(fm::Ant::ID antID) {
+	if ( !d_experiment ) {
+		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(antID).c_str();
+		return;
+	}
+
+	try {
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Identifier::DeleteAnt("
+		         << fmp::Ant::FormatID(antID).c_str() << ")";
+		d_experiment->Identifier()->DeleteAnt(antID);
+	} catch (const std::exception & e) {
+		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(antID).c_str()
+		            << "': " << e.what();
+		return;
+	}
+
+	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(antID).c_str();
+
+	setModified(true);
+	emit antDeleted(antID);
+}
+
+QString ExperimentBridge::formatAntName(const fmp::Ant::ConstPtr & ant) {
+	QString res = ant->FormattedID().c_str();
+	if ( ant->CIdentifications().empty() ) {
+		return res + " <no-tags>";
+	}
+	std::set<fmp::TagID> tags;
+	for ( const auto & i : ant->CIdentifications() ) {
+		tags.insert(i->TagValue());
+	}
+	QString prefix = " ↤ {";
+	for ( const auto & t : tags ) {
+		res += prefix + fmp::FormatTagID(t).c_str();
+		prefix = ",";
+	}
+	return res + "}";
+}
+
+void ExperimentBridge::selectAnt(quint32 antID) {
+	if ( !d_experiment ) {
+		return;
+	}
+	try {
+		auto ant = d_experiment->Identifier()->Ants().at(antID);
+		d_selectedAnt->setAnt(ant);
+	} catch ( const std::exception & ) {
+	}
+}
+
+fmp::Ant::ConstPtr ExperimentBridge::ant(fm::Ant::ID aID) const {
+	if ( !d_experiment == true ) {
+		return fmp::Ant::ConstPtr();
+	}
+	const auto & ants = d_experiment->CIdentifier().CAnts();
+	auto fi = ants.find(aID);
+	if ( fi == ants.cend() ) {
+		return fmp::Ant::ConstPtr();
+	}
+	return fi->second;
 }

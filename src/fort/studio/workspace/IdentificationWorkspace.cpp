@@ -31,9 +31,7 @@
 IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::IdentificationWorkspace)
-	, d_measurements(nullptr)
-	, d_identifier(nullptr)
-	, d_statistics(nullptr)
+	, d_experiment(nullptr)
 	, d_vectorialScene(new VectorialScene)
 	, d_newAntAction(nullptr)
 	, d_addIdentificationAction(nullptr)
@@ -163,13 +161,12 @@ IdentificationWorkspace::~IdentificationWorkspace() {
 
 void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * experiment) {
 
+	d_experiment = experiment;
 	auto globalProperties = experiment->globalProperties();
 	auto identifier = experiment->identifier();
 	auto measurements = experiment->measurements();
 
 
-
-	d_measurements = measurements;
 
 	connect(identifier,
 	        &IdentifierBridge::identificationAntPositionModified,
@@ -187,14 +184,11 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	        &IdentificationWorkspace::onIdentificationDeleted);
 
 
-	d_identifier = identifier;
 	setTagCloseUp(fmp::TagCloseUp::Ptr());
 
 	main->addToolBar(d_actionToolBar);
 	d_actionToolBar->hide();
 
-
-	d_statistics = experiment->statistics();
 
 	dynamic_cast<TagCloseUpExplorer*>(d_tagExplorer->widget())->initialize(experiment->tagCloseUps());
 
@@ -215,13 +209,13 @@ void IdentificationWorkspace::addIdentification() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		return;
 	}
 
 	fm::Time::ConstPtr start,end;
-	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
+	if ( d_experiment->identifier()->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
 		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "
 		            << ToQString(d_tcu->Frame().Time());
@@ -238,12 +232,12 @@ void IdentificationWorkspace::newAnt() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		return;
 	}
 	fm::Time::ConstPtr start,end;
-	if ( d_identifier->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
+	if ( d_experiment->identifier()->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
 		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "
 		            << ToQString(d_tcu->Frame().Time());
@@ -251,10 +245,10 @@ void IdentificationWorkspace::newAnt() {
 	}
 
 
-	auto a = d_identifier->createAnt();
-	d_identifier->addIdentification(a->AntID(),
-	                                d_tcu->TagValue(),
-	                                start,end);
+	auto a = d_experiment->createAnt();
+	d_experiment->identifier()->addIdentification(a->AntID(),
+	                                              d_tcu->TagValue(),
+	                                              start,end);
 
 	updateActionStates();
 }
@@ -322,7 +316,7 @@ void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu)
 	auto & tagPosition = tcu->TagPosition();
 	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
 	d_vectorialScene->setStaticPolygon(tcu->Corners(),QColor(255,0,0));
-	auto ident = d_identifier->identify(tcu->TagValue(),tcu->Frame().Time());
+	auto ident = d_experiment->identifier()->identify(tcu->TagValue(),tcu->Frame().Time());
 	if ( !ident ) {
 		d_vectorialScene->clearPoseIndicator();
 	} else {
@@ -336,7 +330,7 @@ void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu)
 
 
 void IdentificationWorkspace::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu) {
-	auto m = d_measurements->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_experiment->measurements()->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		d_vectorialScene->setOnce(true);
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
@@ -378,10 +372,10 @@ void IdentificationWorkspace::onVectorUpdated() {
 	}
 	auto vector = d_vectorialScene->vectors()[0];
 
-	d_measurements->setMeasurement(d_tcu,
-	                               fmp::Measurement::HEAD_TAIL_TYPE,
-	                               vector->startPos(),
-	                               vector->endPos());
+	d_experiment->measurements()->setMeasurement(d_tcu,
+	                                             fmp::Measurement::HEAD_TAIL_TYPE,
+	                                             vector->startPos(),
+	                                             vector->endPos());
 
 	setGraphicsFromMeasurement(d_tcu);
 
@@ -394,10 +388,10 @@ void IdentificationWorkspace::onVectorCreated(QSharedPointer<Vector> vector) {
 		return;
 	}
 
-	if ( d_measurements->setMeasurement(d_tcu,
-	                                    fmp::Measurement::HEAD_TAIL_TYPE,
-	                                    vector->startPos(),
-	                                    vector->endPos()) == false ) {
+	if ( d_experiment->measurements()->setMeasurement(d_tcu,
+	                                                  fmp::Measurement::HEAD_TAIL_TYPE,
+	                                                  vector->startPos(),
+	                                                  vector->endPos()) == false ) {
 
 		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
@@ -419,12 +413,12 @@ void IdentificationWorkspace::onVectorRemoved() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		qDebug() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
 		return;
 	}
-	d_measurements->deleteMeasurement(m->URI());
+	d_experiment->measurements()->deleteMeasurement(m->URI());
 	d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
 	updateActionStates();
 }
@@ -440,7 +434,7 @@ void IdentificationWorkspace::updateActionStates() {
 	}
 	d_deletePoseAction->setEnabled(true);
 
-	auto ident = d_identifier->identify(d_tcu->TagValue(),d_tcu->Frame().Time());
+	auto ident = d_experiment->identifier()->identify(d_tcu->TagValue(),d_tcu->Frame().Time());
 	if ( ident ) {
 		d_newAntAction->setEnabled(false);
 		d_addIdentificationAction->setEnabled(false);
@@ -544,10 +538,10 @@ void IdentificationWorkspace::onCopyTime() {
 void IdentificationWorkspace::onTagIDChanged(int tagID) {
 	auto tagStatistics = dynamic_cast<TagStatisticsWidget*>(d_tagStatistics->widget());
 	if (tagID == -1
-	    || d_statistics->isActive() == false ) {
+	    || d_experiment->statistics()->isActive() == false ) {
 		tagStatistics->clear();
 	} else {
-		tagStatistics->display(tagID,d_statistics->statsForTag(tagID),d_statistics->frameCount());
+		tagStatistics->display(tagID,d_experiment->statistics()->statsForTag(tagID),d_experiment->statistics()->frameCount());
 	}
 }
 

@@ -4,7 +4,7 @@
 
 #include "TrackingVideoFrame.hpp"
 
-class IdentifierBridge;
+class AntDisplayBridge;
 
 class TrackingVideoWidget : public QWidget {
 	Q_OBJECT
@@ -22,7 +22,7 @@ public:
 	virtual ~TrackingVideoWidget();
 
 
-	void setup(IdentifierBridge *identifier);
+	void setup(AntDisplayBridge *antDisplay);
 
 	bool showID() const;
 
@@ -64,7 +64,7 @@ private:
 	void setHasTrackingTime(bool value);
 
 	TrackingVideoFrame d_frame;
-	IdentifierBridge * d_identifier;
+	AntDisplayBridge * d_antDisplay;
 	bool               d_hideLoadingBanner;
 	bool               d_showID;
 	bool               d_showCollisions;

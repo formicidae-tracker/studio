@@ -12,9 +12,8 @@
 
 #include "IdentifierBridge.hpp"
 
-SelectedAntBridge::SelectedAntBridge(IdentifierBridge * parent)
-	: Bridge(parent)
-	, d_identifier(parent) {
+SelectedAntBridge::SelectedAntBridge(QObject * parent)
+	: Bridge(parent) {
 
 }
 

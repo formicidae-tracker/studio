@@ -10,7 +10,7 @@ namespace Ui {
 class TrackingVideoControl;
 }
 
-class IdentifierBridge;
+class ExperimentBridge;
 
 class TrackingVideoControl : public QWidget {
 	Q_OBJECT
@@ -19,7 +19,7 @@ public:
 	virtual ~TrackingVideoControl();
 
 	void setup(TrackingVideoPlayer * player,
-	           IdentifierBridge * identifier);
+	           ExperimentBridge * experiment);
 
 
 
@@ -69,5 +69,5 @@ private:
 
 	Ui::TrackingVideoControl * d_ui;
 	TrackingVideoPlayer    * d_player;
-	IdentifierBridge       * d_identifier;
+	ExperimentBridge       * d_experiment;
 };

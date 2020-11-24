@@ -5,6 +5,7 @@
 class UniverseBridge;
 class MeasurementBridge;
 class IdentifierBridge;
+class AntDisplayBridge;
 class GlobalPropertyBridge;
 class SelectedAntBridge;
 class IdentifiedFrameConcurrentLoader;
@@ -23,6 +24,8 @@ namespace fmp = fort::myrmidon::priv;
 class ExperimentBridge : public Bridge {
 	Q_OBJECT
 public:
+	static QString formatAntName(const fmp::Ant::ConstPtr & ant);
+
 
 	ExperimentBridge(QObject * parent = NULL);
 	virtual ~ExperimentBridge();
@@ -41,6 +44,8 @@ public:
 
 	IdentifierBridge * identifier() const;
 
+	AntDisplayBridge * antDisplay() const;
+
 	GlobalPropertyBridge * globalProperties() const;
 
 	SelectedAntBridge * selectedAnt() const;
@@ -58,10 +63,21 @@ public:
 	StatisticsBridge * statistics() const;
 
 	TagCloseUpBridge * tagCloseUps() const;
-public slots:
 
+	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
+
+public slots:
 	bool save();
 	bool saveAs(const QString & path);
+
+	fmp::Ant::Ptr createAnt();
+
+	void deleteAnt(quint32 antID);
+	void selectAnt(quint32 antID);
+
+signals:
+	void antCreated(quint32);
+	void antDeleted(quint32);
 
 private slots:
 	void onChildModified(bool);
@@ -76,6 +92,8 @@ private:
 	UniverseBridge                  * d_universe;
 	MeasurementBridge               * d_measurements;
 	IdentifierBridge                * d_identifier;
+	AntDisplayBridge                * d_antDisplay;
+	SelectedAntBridge               * d_selectedAnt;
 	GlobalPropertyBridge            * d_globalProperties;
 	IdentifiedFrameConcurrentLoader * d_identifiedFrameLoader;
 	AntShapeTypeBridge              * d_antShapeTypes;
