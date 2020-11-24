@@ -2,6 +2,10 @@
 
 #include <QObject>
 
+#include <fort/studio/MyrmidonTypes/Experiment.hpp>
+
+class ExperimentBridge;
+
 class Bridge : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(bool modified
@@ -26,4 +30,25 @@ public slots:
 
 private:
 	bool d_modified;
+};
+
+class GlobalBridge : public Bridge {
+	Q_OBJECT
+public:
+	GlobalBridge(QObject * parent);
+	virtual ~GlobalBridge();
+
+	bool isActive() const final override;
+
+	virtual void initialize(ExperimentBridge * experiment) = 0;
+
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
+
+protected:
+	fmp::Experiment::Ptr d_experiment;
+
+	virtual void setUpExperiment() = 0;
+	virtual void tearDownExperiment() = 0;
+
+
 };

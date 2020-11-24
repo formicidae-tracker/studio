@@ -62,7 +62,6 @@ void IdentifiedFrameConcurrentLoader::setExperiment(const fmp::Experiment::Const
 	                           Q_ARG(fmp::Experiment::ConstPtr,experiment));
 }
 
-
 void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::ConstPtr experiment) {
 	if ( !d_experiment ) {
 		clear();

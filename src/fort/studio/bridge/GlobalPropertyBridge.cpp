@@ -2,32 +2,40 @@
 
 #include <QDebug>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
+
 GlobalPropertyBridge::~GlobalPropertyBridge() {}
 
 GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
-	: Bridge(parent) {
+	: GlobalBridge(parent) {
 	d_cached = fort::tags::Family::Undefined;
 }
 
+void GlobalPropertyBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        &GlobalPropertyBridge::onTDDModified);
 
-void GlobalPropertyBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[GlobalPropertyBridge]: setting new experiment";
-	setModified(false);
-	if ( experiment == d_experiment ) {
-		return;
-	}
-	d_experiment = experiment;
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,
+	        &GlobalPropertyBridge::onTDDModified);
+
+}
+
+void GlobalPropertyBridge::tearDownExperiment() {
+	d_cached = tagFamily();
+}
+
+void GlobalPropertyBridge::setUpExperiment() {
 	d_cached = tagFamily();
 	emit nameChanged(name());
 	emit authorChanged(author());
 	emit commentChanged(comment());
 	emit tagFamilyChanged(tagFamily());
 	emit tagSizeChanged(tagSize());
-	emit activated(d_experiment.get() != NULL);
-}
-
-bool GlobalPropertyBridge::isActive() const {
-	return d_experiment.get() != NULL;
 }
 
 QString GlobalPropertyBridge::name() const {

@@ -9,6 +9,8 @@
 #include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
 #include <fort/studio/MyrmidonTypes/Space.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
 
 const int ZoneBridge::TypeRole = Qt::UserRole+1;
 const int ZoneBridge::DataRole = Qt::UserRole+2;
@@ -18,7 +20,7 @@ Q_DECLARE_METATYPE(ZoneBridge::FullFrame)
 ZoneBridge::~ZoneBridge() {}
 
 ZoneBridge::ZoneBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_spaceModel(new QStandardItemModel(this))
 	, d_fullFrameModel( new QStandardItemModel(this)) {
 
@@ -41,20 +43,38 @@ ZoneBridge::ZoneBridge(QObject * parent)
 	             });
 }
 
+void ZoneBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),&UniverseBridge::spaceDeleted,
+	        this,&ZoneBridge::rebuildSpaces);
 
-void ZoneBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	d_experiment = experiment;
+	connect(experiment->universe(),&UniverseBridge::spaceAdded,
+	        this,&ZoneBridge::rebuildSpaces);
+
+	connect(experiment->universe(),&UniverseBridge::spaceChanged,
+	        this,&ZoneBridge::rebuildSpaces);
+
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        [this](const fmp::TrackingDataDirectory::Ptr & tdd) {
+		        onTrackingDataDirectoryChange(tdd->URI().c_str());
+	        });
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,&ZoneBridge::onTrackingDataDirectoryChange);
+
+}
+
+void ZoneBridge::tearDownExperiment() {
+	clearSpaces();
+	clearFullFrames();
+}
+
+void ZoneBridge::setUpExperiment() {
 	d_selectedSpace.reset();
 	d_selectedTime.reset();
 
-	setModified(false);
 	rebuildSpaces();
-
-	emit activated(!d_experiment == false);
-}
-
-bool ZoneBridge::isActive() const{
-	return !d_experiment == false;
 }
 
 
@@ -68,11 +88,15 @@ QAbstractItemModel * ZoneBridge::fullFrameModel() const {
 }
 
 
-void ZoneBridge::rebuildSpaces() {
+void ZoneBridge::clearSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
 	d_selectedSpace.reset();
 	d_selectedTime.reset();
+}
+
+void ZoneBridge::rebuildSpaces() {
+	clearSpaces();
 	rebuildFullFrameModel();
 	rebuildChildBridges();
 	if ( !d_experiment ) {
@@ -470,10 +494,13 @@ void ZoneBridge::activateItem(QModelIndex index) {
 	rebuildChildBridges();
 }
 
-
-void ZoneBridge::rebuildFullFrameModel() {
+void ZoneBridge::clearFullFrames() {
 	d_fullFrameModel->clear();
 	d_fullFrameModel->setHorizontalHeaderLabels({tr("URI")});
+}
+
+void ZoneBridge::rebuildFullFrameModel() {
+	clearFullFrames();
 
 	if ( !d_selectedSpace == true ) {
 		return;

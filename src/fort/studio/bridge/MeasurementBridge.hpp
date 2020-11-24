@@ -17,17 +17,14 @@
 
 
 
-class MeasurementBridge : public Bridge {
+class MeasurementBridge : public GlobalBridge {
 	Q_OBJECT
 public:
 	MeasurementBridge(QObject * parent);
 	virtual ~MeasurementBridge();
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	QAbstractItemModel * tagCloseUpModel() const;
 	QAbstractItemModel * measurementTypeModel() const;
-
-	bool isActive() const override;
 
 	fmp::TagCloseUp::ConstPtr fromTagCloseUpModelIndex(const QModelIndex & index);
 
@@ -36,6 +33,8 @@ public:
 
 	void queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
 	                     const fmp::IdentificationConstPtr & identification);
+
+	void initialize(ExperimentBridge * experiment) override;
 
 signals:
 	void measurementModified(const fmp::Measurement::ConstPtr &m);
@@ -46,9 +45,6 @@ signals:
 
 
 public slots:
-	void onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd);
-	void onTDDDeleted(const QString &);
-
 	void loadAllTagCloseUps();
 	void loadTagCloseUps(const fmp::TrackingDataDirectory::Ptr & tdd);
 
@@ -64,9 +60,16 @@ public slots:
 	void deleteMeasurementType(quint32 mtID);
 
 	void deleteMeasurementType(const QModelIndex & index);
-private slots:
 
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
+
+private slots:
 	void onTypeItemChanged(QStandardItem * item);
+
+	void onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd);
+	void onTDDDeleted(const QString &);
 
 
 private:
@@ -86,7 +89,6 @@ private:
 
 	QStandardItemModel * d_tcuModel;
 	QStandardItemModel * d_typeModel;
-	fmp::Experiment::Ptr d_experiment;
 	CountByTcuURI        d_counts;
 	CloseUpByTddURI      d_closeups;
 	size_t               d_seed;

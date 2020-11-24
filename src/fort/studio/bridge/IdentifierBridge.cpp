@@ -8,12 +8,13 @@
 
 #include <fort/myrmidon/priv/Identifier.hpp>
 
+#include "ExperimentBridge.hpp"
 #include "SelectedAntBridge.hpp"
 #include "GlobalPropertyBridge.hpp"
 
-
 IdentifierBridge::IdentifierBridge(QObject * parent)
-	: Bridge(parent)
+
+	: GlobalBridge(parent)
 	, d_antModel(new QStandardItemModel(this))
 	, d_identificationModel(new QStandardItemModel(this))
 	, d_numberSoloAnt(0)
@@ -41,49 +42,43 @@ IdentifierBridge::IdentifierBridge(QObject * parent)
 
 IdentifierBridge::~IdentifierBridge() {}
 
-bool IdentifierBridge::isActive() const {
-	return d_experiment.get() != NULL;
-}
-
 
 QAbstractItemModel * IdentifierBridge::antModel() const {
 	return d_antModel;
 }
 
+void IdentifierBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->globalProperties(),
+	        &GlobalPropertyBridge::tagSizeChanged,
+	        this,
+	        &IdentifierBridge::onDefaultTagSizeChanged);
+}
 
-
-
-void IdentifierBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[IdentifierBridge]: setting new experiment";
+void IdentifierBridge::tearDownExperiment() {
 	d_numberSoloAnt = 0;
 	d_numberHiddenAnt = 0;
 	d_selectedAnt->setAnt(fmp::Ant::Ptr());
-
-	setModified(false);
-	if ( d_experiment ) {
+	if ( isActive() == true ) {
 		d_experiment->Identifier()
 			->SetAntPositionUpdateCallback([](const fmp::Identification::Ptr & i,
 			                                  const std::vector<fmp::AntPoseEstimateConstPtr> & estimations) {
 			                               });
 	}
+}
 
-	d_experiment = experiment;
+void IdentifierBridge::setUpExperiment() {
 	rebuildModels();
 
-	if ( !d_experiment ) {
-		emit activated(false);
-		emit numberSoloAntChanged(d_numberSoloAnt);
-		emit numberHiddenAntChanged(d_numberHiddenAnt);
-	} else {
+	if ( isActive() == true ) {
 		d_experiment->Identifier()
 			->SetAntPositionUpdateCallback([this](const fmp::Identification::Ptr & identification,
 			                                      const std::vector<fmp::AntPoseEstimateConstPtr> & estimations) {
 				                               onAntPositionUpdate(identification,estimations);
 			                               });
-		emit activated(true);
-		emit numberSoloAntChanged(d_numberSoloAnt);
-		emit numberHiddenAntChanged(d_numberHiddenAnt);
 	}
+
+	emit numberSoloAntChanged(d_numberSoloAnt);
+	emit numberHiddenAntChanged(d_numberHiddenAnt);
 }
 
 fmp::Ant::Ptr IdentifierBridge::createAnt() {
@@ -665,14 +660,6 @@ void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
 
 QAbstractItemModel * IdentifierBridge::identificationsModel() const {
 	return d_identificationModel;
-}
-
-
-void IdentifierBridge::setUp(GlobalPropertyBridge * globalProperties) {
-	connect(globalProperties,
-	        &GlobalPropertyBridge::tagSizeChanged,
-	        this,
-	        &IdentifierBridge::onDefaultTagSizeChanged);
 }
 
 

@@ -10,6 +10,8 @@
 #include <fort/studio/MyrmidonTypes/MovieSegment.hpp>
 #include <fort/studio/MyrmidonTypes/Time.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
 
 const int MovieBridge::PtrRole = Qt::UserRole+1;
 const int MovieBridge::IDRole  = Qt::UserRole+2;
@@ -18,7 +20,7 @@ const int MovieBridge::TddRole  = Qt::UserRole+4;
 const int MovieBridge::SpaceIDRole  = Qt::UserRole+5;
 
 MovieBridge::MovieBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::MovieSegment::ConstPtr>();
 	qRegisterMetaType<fm::Time>();
@@ -29,15 +31,24 @@ MovieBridge::MovieBridge(QObject * parent)
 MovieBridge::~MovieBridge() {
 }
 
-void MovieBridge::setExperiment(const fmp::ExperimentConstPtr & experiment) {
-	d_experiment = experiment;
+void MovieBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        &MovieBridge::onTrackingDataDirectoryAdded);
 
-	rebuildModel();
-	emit activated(isActive());
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,
+	        &MovieBridge::onTrackingDataDirectoryDeleted);
 }
 
-bool MovieBridge::isActive() const {
-	return !d_experiment == false;
+void MovieBridge::tearDownExperiment() {
+	clearModel();
+}
+
+void MovieBridge::setUpExperiment() {
+	rebuildModel();
 }
 
 QAbstractItemModel * MovieBridge::movieModel() {
@@ -95,10 +106,12 @@ void MovieBridge::onTrackingDataDirectoryDeleted(const QString & URI) {
 	rebuildModel();
 }
 
-void MovieBridge::rebuildModel() {
+void MovieBridge::clearModel() {
 	d_model->clear();
 	d_model->setHorizontalHeaderLabels({tr("URI"),tr("Start"),tr("End")});
+}
 
+void MovieBridge::rebuildModel() {
 	if ( !d_experiment ) {
 		return;
 	}

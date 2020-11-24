@@ -4,6 +4,7 @@
 #include <QSortFilterProxyModel>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/StatisticsBridge.hpp>
 
 TagStatisticsWorkspace::TagStatisticsWorkspace(QWidget *parent)
 	: Workspace(false,parent)

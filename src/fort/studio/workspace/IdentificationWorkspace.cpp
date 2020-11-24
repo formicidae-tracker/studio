@@ -13,6 +13,7 @@
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort/studio/bridge/MeasurementBridge.hpp>
 #include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/StatisticsBridge.hpp>
 
 #include <fort/studio/Format.hpp>
 #include <fort/studio/Utils.hpp>

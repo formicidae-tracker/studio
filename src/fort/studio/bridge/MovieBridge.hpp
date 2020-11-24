@@ -11,15 +11,11 @@ class QStandardItemModel;
 class QStandardItem;
 class QModelIndex;
 
-class MovieBridge : public Bridge {
+class MovieBridge : public GlobalBridge {
 	Q_OBJECT
 public :
 	explicit MovieBridge(QObject * parent);
 	virtual ~MovieBridge();
-
-	void setExperiment(const fmp::ExperimentConstPtr & experiment);
-
-	bool isActive() const override;
 
 	QAbstractItemModel * movieModel();
 
@@ -29,7 +25,13 @@ public :
 	std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
 	findTime(fmp::SpaceID spaceID, const fm::Time & time);
 
-public slots:
+	void initialize(ExperimentBridge * experiment) override;
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
+
+private slots:
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr & tdd);
 	void onTrackingDataDirectoryDeleted(const QString & URI);
 
@@ -50,9 +52,9 @@ private :
 	                                               const fm::Time & start,
 	                                               const fm::Time & end);
 
+	void clearModel();
 	void rebuildModel();
 
 
-	fmp::ExperimentConstPtr d_experiment;
 	QStandardItemModel    * d_model;
 };

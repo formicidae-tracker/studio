@@ -10,6 +10,12 @@
 
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/SelectedAntBridge.hpp>
+#include <fort/studio/bridge/MeasurementBridge.hpp>
+#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
+
+
 #include <fort/studio/Format.hpp>
 #include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 #include <fort/studio/widget/CloneShapeDialog.hpp>

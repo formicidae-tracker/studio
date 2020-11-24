@@ -2,8 +2,14 @@
 #include "ui_CloneShapeDialog.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/SelectedAntBridge.hpp>
+#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 
 #include <fort/studio/Format.hpp>
+
+#include <QDebug>
+
+
 
 CloneShapeDialog::CloneShapeDialog(ExperimentBridge * experiment,
                                    QWidget *parent)

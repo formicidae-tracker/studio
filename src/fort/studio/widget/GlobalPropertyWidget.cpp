@@ -2,6 +2,7 @@
 #include "ui_GlobalPropertyWidget.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
 #include <QDoubleSpinBox>
 
 #include <QAction>

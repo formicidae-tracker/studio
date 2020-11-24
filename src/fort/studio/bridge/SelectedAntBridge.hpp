@@ -17,15 +17,16 @@ class SelectedAntBridge : public Bridge {
 public:
 	SelectedAntBridge(IdentifierBridge * parent);
 	virtual ~SelectedAntBridge();
-	bool isActive() const override;
-
-	void setExperiment(const fmp::ExperimentPtr & experiment);
 
 	const fmp::Ant::TypedCapsuleList & capsules() const;
 
 	fmp::AntID selectedID() const;
 
 	std::vector<fmp::Identification::ConstPtr> identifications() const;
+
+	void setExperiment(const fmp::Experiment::Ptr & experiment);
+
+	bool isActive() const override;
 
 public slots:
 	void setAnt(const fmp::Ant::Ptr & ant);
@@ -40,5 +41,5 @@ private:
 	IdentifierBridge             * d_identifier;
 
 	fmp::Ant::Ptr                  d_ant;
-	fmp::ExperimentPtr             d_experiment;
+	fmp::Experiment::Ptr           d_experiment;
 };

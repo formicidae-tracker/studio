@@ -10,7 +10,7 @@
 
 class QAbstractItemModel;
 
-class UniverseBridge : public Bridge {
+class UniverseBridge : public GlobalBridge {
 	Q_OBJECT
 
 public:
@@ -19,17 +19,16 @@ public:
 	virtual ~UniverseBridge();
 
 	QAbstractItemModel * model();
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isDeletable(const QModelIndexList & ) const;
-
-	bool isActive() const override;
 
 	QString basepath() const;
 
 	const fmp::Space::Universe::TrackingDataDirectoryByURI & trackingDataDirectories() const;
 
 	std::map<quint32,QString> spaceNamesByID() const;
+
+	void initialize(ExperimentBridge * experiment) override;
 
 public slots:
 	void addSpace(const QString & spaceName);
@@ -49,6 +48,10 @@ signals:
 
 	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr & tdd);
 	void trackingDataDirectoryDeleted(const QString & URI);
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private slots:
 	void onItemChanged(QStandardItem * item);
@@ -72,5 +75,4 @@ private:
 	void rebuildAll(const fmp::SpaceByID & spaces);
 
 	QStandardItemModel   * d_model;
-	fmp::Experiment::Ptr   d_experiment;
 };

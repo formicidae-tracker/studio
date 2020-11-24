@@ -1,23 +1,24 @@
 #pragma once
 
 #include "Bridge.hpp"
-#include "UniverseBridge.hpp"
-#include "MeasurementBridge.hpp"
-#include "GlobalPropertyBridge.hpp"
-#include "IdentifierBridge.hpp"
-#include "SelectedAntBridge.hpp"
-#include "IdentifiedFrameConcurrentLoader.hpp"
-#include "AntShapeTypeBridge.hpp"
-#include "AntMetadataBridge.hpp"
-#include "MovieBridge.hpp"
-#include "IdentifiedFrameConcurrentLoader.hpp"
-#include "ZoneBridge.hpp"
-#include "StatisticsBridge.hpp"
-#include "TagCloseUpBridge.hpp"
+
+class UniverseBridge;
+class MeasurementBridge;
+class IdentifierBridge;
+class GlobalPropertyBridge;
+class SelectedAntBridge;
+class IdentifiedFrameConcurrentLoader;
+class AntShapeTypeBridge;
+class AntMetadataBridge;
+class MovieBridge;
+class ZoneBridge;
+class StatisticsBridge;
+class TagCloseUpBridge;
 
 class QWidget;
 
 namespace fmp = fort::myrmidon::priv;
+
 
 class ExperimentBridge : public Bridge {
 	Q_OBJECT
@@ -65,10 +66,11 @@ public slots:
 private slots:
 	void onChildModified(bool);
 private:
+	friend class ExperimentBridgeUTest_ActiveModifiedState_Test;
+
+	void resetChildModified();
 
 	void setExperiment(const fmp::Experiment::Ptr & );
-	void connectModifications();
-	void resetChildModified();
 
 	fmp::Experiment::Ptr              d_experiment;
 	UniverseBridge                  * d_universe;
@@ -82,4 +84,6 @@ private:
 	ZoneBridge                      * d_zones;
 	StatisticsBridge                * d_statistics;
 	TagCloseUpBridge                * d_tagCloseUps;
+	const std::vector<GlobalBridge*>  d_children;
+
 };

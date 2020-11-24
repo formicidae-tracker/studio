@@ -24,6 +24,7 @@ bool SelectedAntBridge::isActive() const {
 	return d_ant.get() != NULL;
 }
 
+
 void SelectedAntBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	d_experiment = experiment;
 }
@@ -45,7 +46,6 @@ void SelectedAntBridge::setAnt(const fmp::Ant::Ptr & ant) {
 		emit activated(false);
 		return;
 	}
-	qInfo() << "Selected Ant " << ant->FormattedID().c_str();
 	emit activated(true);
 }
 

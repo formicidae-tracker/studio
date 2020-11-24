@@ -18,3 +18,23 @@ void Bridge::setModified(bool modifiedValue) {
 	d_modified = modifiedValue;
 	emit modified(d_modified);
 }
+
+
+GlobalBridge::GlobalBridge(QObject * parent)
+	: Bridge(parent) {
+}
+
+GlobalBridge::~GlobalBridge() {
+}
+
+bool GlobalBridge::isActive() const {
+	return d_experiment.get() != nullptr;
+}
+
+void GlobalBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
+	tearDownExperiment();
+	d_experiment = experiment;
+	setUpExperiment();
+	setModified(false);
+	emit activated(isActive());
+}

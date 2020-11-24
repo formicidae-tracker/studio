@@ -6,8 +6,11 @@
 #include <fort/studio/Format.hpp>
 #include <fort/myrmidon/priv/Query.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
+
 StatisticsBridge::StatisticsBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this) )
 	, d_outdated(false)
 	, d_watcher(nullptr)
@@ -18,14 +21,19 @@ StatisticsBridge::StatisticsBridge(QObject * parent)
 StatisticsBridge::~StatisticsBridge() {
 }
 
-void StatisticsBridge::setExperiment(const fmp::Experiment::ConstPtr  & experiment) {
-	d_experiment = experiment;
-	emit activated(!d_experiment == false);
-	compute();
+void StatisticsBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),&UniverseBridge::trackingDataDirectoryAdded,
+	        this,&StatisticsBridge::onTrackingDataDirectoryAdded);
+
+	connect(experiment->universe(),&UniverseBridge::trackingDataDirectoryDeleted,
+	        this,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 }
 
-bool StatisticsBridge::isActive() const {
-	return !d_experiment == false;
+void StatisticsBridge::tearDownExperiment() {
+	clear();
+}
+void StatisticsBridge::setUpExperiment() {
+	compute();
 }
 
 QAbstractItemModel * StatisticsBridge::stats() const {
@@ -54,7 +62,9 @@ void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
 	compute();
 }
 
-void StatisticsBridge::rebuildModel() {
+void StatisticsBridge::clear() {
+	d_stats.clear();
+	d_frameCount = 0;
 	d_model->clear();
 	auto nSpaces = 0;
 	if ( d_experiment ) {
@@ -75,9 +85,16 @@ void StatisticsBridge::rebuildModel() {
 		                                    tr("Gap <1s"),tr("Other gaps (largely over estimated)")});
 	}
 
+
+}
+
+void StatisticsBridge::rebuildModel() {
+	clear();
+
 	if ( !d_experiment == true ) {
 		return;
 	}
+	auto nSpaces = d_experiment->CSpaces().size();
 
 	for ( const auto & [tagID,tagStats] : d_stats ) {
 		QList<QStandardItem*> row;
@@ -112,8 +129,9 @@ void StatisticsBridge::rebuildModel() {
 
 
 
+
 void StatisticsBridge::compute() {
-	d_stats.clear();
+	clear();
 	if ( !d_experiment == false ) {
 		try {
 			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);

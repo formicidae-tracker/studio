@@ -11,11 +11,11 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 #include <fort/studio/MyrmidonTypes/Identification.hpp>
 
-
-
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_tcuModel( new QStandardItemModel (this) )
 	, d_typeModel( new QStandardItemModel (this) ) {
 
@@ -29,8 +29,33 @@ MeasurementBridge::MeasurementBridge(QObject * parent)
 MeasurementBridge::~MeasurementBridge() {
 }
 
-bool MeasurementBridge::isActive() const {
-	return d_experiment.get() != NULL;
+void MeasurementBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        &MeasurementBridge::onTDDAdded);
+
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,
+	        &MeasurementBridge::onTDDDeleted);
+}
+
+void MeasurementBridge::tearDownExperiment() {
+	d_typeModel->clear();
+	d_typeModel->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
+}
+
+void MeasurementBridge::setUpExperiment() {
+	if ( isActive() == false ) {
+		return;
+	}
+
+	for (const auto & [mtID,type] : d_experiment->MeasurementTypes()) {
+		d_typeModel->appendRow(buildType(type));
+	}
+
+	loadAllTagCloseUps();
 }
 
 
@@ -42,25 +67,6 @@ QAbstractItemModel * MeasurementBridge::measurementTypeModel() const {
 	return d_typeModel;
 }
 
-void MeasurementBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[MeasurementBridge]: setting new experiment";
-	setModified(false);
-	d_typeModel->clear();
-	d_typeModel->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
-	d_experiment = experiment;
-	if ( !d_experiment ) {
-		emit activated(false);
-		return;
-	}
-
-	for (const auto & [mtID,type] : d_experiment->MeasurementTypes()) {
-		d_typeModel->appendRow(buildType(type));
-	}
-
-	emit activated(true);
-	loadAllTagCloseUps();
-
-}
 
 void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd) {
 	if ( !d_experiment  ) {

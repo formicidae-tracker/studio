@@ -2,13 +2,14 @@
 
 #include <QStandardItemModel>
 
+#include <fort/myrmidon/priv/Identifier.hpp>
+
+#include "ExperimentBridge.hpp"
 #include "IdentifierBridge.hpp"
 #include "UniverseBridge.hpp"
 
-#include <fort/myrmidon/priv/Identifier.hpp>
-
 TagCloseUpBridge::TagCloseUpBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_tagModel(new QStandardItemModel(this)) {
 
 	qRegisterMetaType<fmp::TagCloseUp::ConstPtr>();
@@ -27,44 +28,42 @@ void TagCloseUpBridge::clear() {
 	emit cleared();
 }
 
-void TagCloseUpBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	clear();
-
-	d_experiment = experiment;
-
-	rebuild();
-
-	emit activated(!d_experiment == false);
-}
-
-void TagCloseUpBridge::setUp(IdentifierBridge * identifier,
-                             UniverseBridge * universe) {
-	connect(identifier,
+void TagCloseUpBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->identifier(),
 	        &IdentifierBridge::identificationCreated,
 	        this,
 	        &TagCloseUpBridge::onIdentificationModified);
 
-	connect(identifier,
+	connect(experiment->identifier(),
 	        &IdentifierBridge::identificationRangeModified,
 	        this,
 	        &TagCloseUpBridge::onIdentificationModified);
 
-	connect(identifier,
+	connect(experiment->identifier(),
 	        &IdentifierBridge::identificationDeleted,
 	        this,
 	        &TagCloseUpBridge::onIdentificationModified);
 
-	connect(universe,
+	connect(experiment->universe(),
 	        &UniverseBridge::trackingDataDirectoryAdded,
 	        this,
 	        &TagCloseUpBridge::onTrackingDataDirectoryAdded);
 
-	connect(universe,
+	connect(experiment->universe(),
 	        &UniverseBridge::trackingDataDirectoryDeleted,
 	        this,
 	        &TagCloseUpBridge::onTrackingDataDirectoryDeleted);
 
 }
+
+void TagCloseUpBridge::tearDownExperiment() {
+	clear();
+}
+
+void TagCloseUpBridge::setUpExperiment() {
+	rebuild();
+}
+
 
 QAbstractItemModel * TagCloseUpBridge::tagModel() const {
 	return d_tagModel;
@@ -292,10 +291,6 @@ void TagCloseUpBridge::rebuild() {
 		emit closeUpsForAntChanged(a,tcus);
 	}
 	d_tagModel->sort(0);
-}
-
-bool TagCloseUpBridge::isActive() const {
-	return !d_experiment == false;
 }
 
 

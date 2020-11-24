@@ -2,6 +2,13 @@
 
 #include <fort/myrmidon/TestSetup.hpp>
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/UniverseBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+#include <fort/studio/bridge/MeasurementBridge.hpp>
+#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/SelectedAntBridge.hpp>
+#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
+#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 
 #include <QSignalSpy>
 
@@ -55,18 +62,9 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	EXPECT_EQ(modifiedSpy.at(1).at(0).toBool(),false);
 
 	// test child connections
-	std::vector<Bridge*> childs =
-		{
-		 controller.universe(),
-		 controller.measurements(),
-		 controller.identifier(),
-		 controller.globalProperties(),
-		 controller.selectedAnt(),
-		 controller.antShapeTypes(),
-		 controller.antMetadata(),
-		};
+	std::vector<GlobalBridge*> children = controller.d_children;
 	size_t expected = 2;
-	for ( const auto & b : childs ) {
+	for ( const auto & b : children ) {
 
 		b->setModified(true);
 

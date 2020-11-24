@@ -10,17 +10,14 @@
 class QStandardItemModel;
 class QAbstractItemModel;
 
-class StatisticsBridge : public Bridge {
+class StatisticsBridge : public GlobalBridge {
 	Q_OBJECT
 
 public:
 	StatisticsBridge(QObject * parent );
 	virtual ~StatisticsBridge();
 
-	void setExperiment(const fmp::Experiment::ConstPtr  & experiment);
-
-	bool isActive() const override;
-
+	void initialize(ExperimentBridge * experiment) override;
 
 	QAbstractItemModel * stats() const;
 
@@ -28,22 +25,23 @@ public:
 
 	size_t frameCount() const;
 
-
 public slots:
-
-
 	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd);
 	void onTrackingDataDirectoryDeleted(QString tddURI);
+
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private:
 	typedef fm::TagStatistics::ByTagID Stats;
 
+	void clear();
 	void compute();
-
-
 	void rebuildModel();
 	void recountFrames();
-	fmp::Experiment::ConstPtr  d_experiment;
+
 	QStandardItemModel       * d_model;
 	bool                       d_outdated;
 	QFutureWatcher<Stats*>   * d_watcher;

@@ -13,15 +13,13 @@ class QStandardItemModel;
 class IdentifierBridge;
 class UniverseBridge;
 
-class TagCloseUpBridge : public Bridge {
+class TagCloseUpBridge : public GlobalBridge {
 	Q_OBJECT;
 public:
 	TagCloseUpBridge(QObject * parent);
 	virtual ~TagCloseUpBridge();
 
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
-
-	void setUp(IdentifierBridge * identifier,UniverseBridge * universe);
+	void initialize(ExperimentBridge * experiment) override;
 
 	QAbstractItemModel * tagModel() const;
 
@@ -35,8 +33,6 @@ public:
 
 	const QVector<fmp::TagCloseUp::ConstPtr> & closeUpsForAnt(fm::AntID antID) const;
 
-	bool isActive() const override;
-
 private slots:
 
 	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr & tdd);
@@ -45,11 +41,14 @@ private slots:
 	void onIdentificationModified(fmp::Identification::ConstPtr identification);
 
 signals:
-
 	void cleared();
 
 	void closeUpsForTagChanged(uint32_t tagID,const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
 	void closeUpsForAntChanged(uint32_t antID,const QVector<fmp::TagCloseUp::ConstPtr> & closeUps);
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private:
 	void clear();
@@ -71,5 +70,4 @@ private:
 	std::map<fm::TagID,QVector<fmp::TagCloseUp::ConstPtr>> d_tagsLists;
 	std::map<fm::AntID,QVector<fmp::TagCloseUp::ConstPtr>> d_antsLists;
 
-	fmp::Experiment::ConstPtr  d_experiment;
 };

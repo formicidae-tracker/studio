@@ -2,6 +2,8 @@
 #include "ui_VisualizationWorkspace.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/MovieBridge.hpp>
+#include <fort/studio/bridge/UniverseBridge.hpp>
 
 #include <fort/studio/widget/TrackingVideoPlayer.hpp>
 
@@ -14,6 +16,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QAbstractButton>
+
+#include <QDebug>
 
 #include <fort/studio/Format.hpp>
 

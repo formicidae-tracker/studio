@@ -7,6 +7,19 @@
 
 #include <fort/studio/widget/TrackingDataDirectoryLoader.hpp>
 
+#include "UniverseBridge.hpp"
+#include "MeasurementBridge.hpp"
+#include "GlobalPropertyBridge.hpp"
+#include "IdentifierBridge.hpp"
+#include "SelectedAntBridge.hpp"
+#include "IdentifiedFrameConcurrentLoader.hpp"
+#include "AntShapeTypeBridge.hpp"
+#include "AntMetadataBridge.hpp"
+#include "MovieBridge.hpp"
+#include "ZoneBridge.hpp"
+#include "StatisticsBridge.hpp"
+#include "TagCloseUpBridge.hpp"
+
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
@@ -24,81 +37,31 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_movies(new MovieBridge(this))
 	, d_zones(new ZoneBridge(this))
 	, d_statistics(new StatisticsBridge(this))
-	, d_tagCloseUps(new TagCloseUpBridge(this)) {
-
-	connectModifications();
-
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_measurements,
-	        &MeasurementBridge::onTDDAdded);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_globalProperties,
-	        &GlobalPropertyBridge::onTDDModified);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_measurements,
-	        &MeasurementBridge::onTDDDeleted);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_globalProperties,
-	        &GlobalPropertyBridge::onTDDModified);
+	, d_tagCloseUps(new TagCloseUpBridge(this))
+	, d_children({
+	              d_universe,
+	              d_measurements,
+	              d_identifier,
+	              d_globalProperties,
+	              d_antShapeTypes,
+	              d_antMetadata,
+	              d_movies,
+	              d_zones,
+	              d_statistics,
+		 d_tagCloseUps,
+		}) {
 
 
-	connect(d_identifier,
-	        &IdentifierBridge::antCreated,
-	        d_antMetadata,
-	        &AntMetadataBridge::onAntListModified);
+	for ( const auto & child : d_children ) {
+		connect(child,&Bridge::modified,
+		        this,&ExperimentBridge::onChildModified);
+		child->initialize(this);
+	}
 
-	connect(d_identifier,
-	        &IdentifierBridge::antDeleted,
-	        d_antMetadata,
-	        &AntMetadataBridge::onAntListModified);
-
+	connect(d_identifier->selectedAnt(),&Bridge::modified,
+	        this,&ExperimentBridge::onChildModified);
 
 
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_movies,
-	        &MovieBridge::onTrackingDataDirectoryAdded);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_movies,
-	        &MovieBridge::onTrackingDataDirectoryDeleted);
-
-	connect(d_universe,&UniverseBridge::spaceDeleted,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,&UniverseBridge::spaceAdded,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,&UniverseBridge::spaceChanged,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_zones,
-	        [this](const fmp::TrackingDataDirectory::Ptr & tdd) {
-		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
-	        });
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
-
-	connect(d_universe,&UniverseBridge::trackingDataDirectoryAdded,
-	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryAdded);
-
-	connect(d_universe,&UniverseBridge::trackingDataDirectoryDeleted,
-	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
-
-	d_tagCloseUps->setUp(d_identifier,d_universe);
-	d_identifier->setUp(d_globalProperties);
 }
 
 
@@ -246,20 +209,14 @@ TagCloseUpBridge * ExperimentBridge::tagCloseUps() const {
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
 	d_experiment = experiment;
-	d_universe->setExperiment(experiment);
-	d_measurements->setExperiment(experiment);
-	d_identifier->setExperiment(experiment);
+
+	for ( const auto & child : d_children ) {
+		child->setExperiment(experiment);
+	}
 	d_identifier->selectedAnt()->setExperiment(experiment);
-	d_globalProperties->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
-	d_antShapeTypes->setExperiment(experiment);
-	d_antMetadata->setExperiment(experiment);
-	d_movies->setExperiment(experiment);
-	d_zones->setExperiment(experiment);
-	d_statistics->setExperiment(experiment);
-	d_tagCloseUps->setExperiment(experiment);
-	setModified(false);
 	resetChildModified();
+
 	emit activated(d_experiment.get() != NULL);
 }
 
@@ -270,53 +227,9 @@ void ExperimentBridge::onChildModified(bool modified) {
 	setModified(true);
 }
 
-void ExperimentBridge::connectModifications() {
-
-	connect(d_universe,&UniverseBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_measurements,&MeasurementBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_identifier,&IdentifierBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_globalProperties,&GlobalPropertyBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_identifier->selectedAnt(),&SelectedAntBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_antShapeTypes,&AntShapeTypeBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_antMetadata,&AntMetadataBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_movies,&MovieBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_zones,&ZoneBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_statistics,&StatisticsBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_tagCloseUps,&TagCloseUpBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-}
-
 void ExperimentBridge::resetChildModified() {
-	d_universe->setModified(false);
-	d_measurements->setModified(false);
-	d_identifier->setModified(false);
+	for ( const auto & child : d_children ) {
+		child->setModified(false);
+	}
 	d_identifier->selectedAnt()->setModified(false);
-	d_globalProperties->setModified(false);
-	d_antShapeTypes->setModified(false);
-	d_antMetadata->setModified(false);
-	d_movies->setModified(false);
-	d_zones->setModified(false);
-	d_statistics->setModified(false);
-	d_tagCloseUps->setModified(false);
 }

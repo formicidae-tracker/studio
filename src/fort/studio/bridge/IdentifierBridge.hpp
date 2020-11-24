@@ -16,7 +16,7 @@ class QItemSelection;
 
 class SelectedAntBridge;
 class GlobalPropertyBridge;
-class IdentifierBridge : public Bridge {
+class IdentifierBridge : public GlobalBridge {
 	Q_OBJECT
 	Q_PROPERTY(quint32 numberSoloAnt
 	           READ numberSoloAnt
@@ -35,11 +35,7 @@ public:
 
 	fmp::Identification::ConstPtr identificationForIndex(const QModelIndex & index) const;
 
-	void setUp(GlobalPropertyBridge * bridge);
-
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
-
-	bool isActive() const override;
+	void initialize(ExperimentBridge * experiment) override;
 
 	quint32 numberSoloAnt() const;
 
@@ -55,8 +51,6 @@ public:
 	SelectedAntBridge * selectedAnt() const;
 
 	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
-
-
 
 signals:
 	void antCreated(fmp::Ant::ConstPtr);
@@ -91,6 +85,11 @@ public slots:
 
 	void showAll();
 	void unsoloAll();
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
+
 private slots:
 
 	void onAntItemChanged(QStandardItem *);
@@ -133,8 +132,6 @@ private:
 	void onSizeItemChanged(QStandardItem * item);
 
 
-
-
 	const static int HIDE_COLUMN = 1;
 	const static int SOLO_COLUMN = 2;
 
@@ -145,7 +142,6 @@ private:
 	const static int SIZE_COLUMN   = 4;
 	const static int POSES_COLUMN  = 5;
 
-	fmp::Experiment::Ptr d_experiment;
 	QStandardItemModel * d_antModel, * d_identificationModel;
 
 	quint32              d_numberSoloAnt,d_numberHiddenAnt;

@@ -2,8 +2,14 @@
 
 #include <fort/myrmidon/TestSetup.hpp>
 
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+
 #include <fort/studio/widget/GlobalPropertyWidget.hpp>
+
+
 #include "ui_GlobalPropertyWidget.h"
 
 
@@ -70,8 +76,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),3);
 	EXPECT_TRUE(modifiedSignal.at(2).at(0).toBool());
-	ASSERT_EQ(authorSignal.count(),2);
-	EXPECT_EQ(authorSignal.at(1).at(0).toString(),"bar");
+	ASSERT_EQ(authorSignal.count(),3);
+	EXPECT_EQ(authorSignal.last().at(0).toString(),"bar");
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
@@ -80,8 +86,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),5);
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
-	ASSERT_EQ(commentSignal.count(),2);
-	EXPECT_EQ(commentSignal.at(1).at(0).toString(),"baz");
+	ASSERT_EQ(commentSignal.count(),4);
+	EXPECT_EQ(commentSignal.last().at(0).toString(),"baz");
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
@@ -90,20 +96,20 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),7);
 	EXPECT_TRUE(modifiedSignal.at(6).at(0).toBool());
-	ASSERT_EQ(tagSizeSignal.count(),2);
-	EXPECT_EQ(tagSizeSignal.at(1).at(0).toDouble(),0.7);
+	ASSERT_EQ(tagSizeSignal.count(),5);
+	EXPECT_EQ(tagSizeSignal.last().at(0).toDouble(),0.7);
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
 
-	ASSERT_EQ(tagFamilySignal.count(),1);
+	ASSERT_EQ(tagFamilySignal.count(),5);
 	ASSERT_NO_THROW({
 			auto s = experiment->CreateSpace("foo");
 			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir() );
 			experiment->AddTrackingDataDirectory(s,tdd);
 		});
 	globalProperties.onTDDModified();
-	EXPECT_EQ(tagFamilySignal.count(),2);
+	EXPECT_EQ(tagFamilySignal.count(),6);
 	EXPECT_EQ(tagFamilySignal.last().at(0).value<fort::tags::Family>(),
 	          fort::tags::Family::Tag36h11);
 

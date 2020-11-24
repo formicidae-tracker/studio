@@ -8,9 +8,8 @@
 #include <fort/studio/Format.hpp>
 
 
-
 UniverseBridge::UniverseBridge( QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this)) {
 	qRegisterMetaType<fmp::TrackingDataDirectory::Ptr>();
 	connect(d_model,
@@ -22,13 +21,31 @@ UniverseBridge::UniverseBridge( QObject * parent)
 
 UniverseBridge::~UniverseBridge(){}
 
-bool UniverseBridge::isActive() const {
-	return d_experiment.get() != NULL;
-}
-
 QAbstractItemModel * UniverseBridge::model() {
 	return d_model;
 }
+
+void UniverseBridge::initialize(ExperimentBridge * experiment) {
+}
+
+void UniverseBridge::tearDownExperiment() {
+	d_model->clear();
+	d_model->setHorizontalHeaderLabels({tr("URI"),
+	                                    tr("Filepath"),
+	                                    tr("Start FrameID"),
+	                                    tr("End FrameID"),
+	                                    tr("Start Date"),
+	                                    tr("End Date")
+		});
+}
+
+void UniverseBridge::setUpExperiment() {
+	if (isActive() == false) {
+		return;
+	}
+	rebuildAll(d_experiment->Spaces());
+}
+
 
 std::map<quint32,QString> UniverseBridge::spaceNamesByID() const {
 	std::map<quint32,QString> res;
@@ -269,27 +286,6 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 	}
 
 
-}
-
-void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[UniverseBride]: setting new experiment";
-	d_experiment = experiment;
-	d_model->clear();
-	d_model->setHorizontalHeaderLabels({tr("URI"),
-	                                    tr("Filepath"),
-	                                    tr("Start FrameID"),
-	                                    tr("End FrameID"),
-	                                    tr("Start Date"),
-	                                    tr("End Date")
-		});
-	setModified(false);
-
-	if (!d_experiment) {
-		emit activated(false);
-		return;
-	}
-	rebuildAll(d_experiment->Spaces());
-	emit activated(true);
 }
 
 
