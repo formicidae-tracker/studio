@@ -161,6 +161,8 @@ void MainWindow::setUpWorkspacesActions() {
 
 void MainWindow::setUpAntSelectorAction() {
 	auto c = new VisibilityActionController(d_ui->dockWidget,d_ui->actionShowAntSelector,this);
+	d_ui->antList->setup(d_experiment->identifier());
+
 }
 
 void MainWindow::setUpNavigationActions() {
