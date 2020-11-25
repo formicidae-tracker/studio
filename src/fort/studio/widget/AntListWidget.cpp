@@ -135,10 +135,9 @@ void AntListWidget::on_colorBox_colorChanged(const QColor & color) {
 		return;
 	}
 	for ( const auto & index : rows ) {
-		auto antID = d_experiment->antDisplay()->antIDForIndex(d_sortedModel->mapToSource(index));
-		d_experiment->antDisplay()->setAntDisplayColor(antID,color);
+		d_experiment->antDisplay()->setAntDisplayColor(d_sortedModel->mapToSource(index),
+		                                               color);
 	}
-
 }
 
 void AntListWidget::on_addButton_clicked() {

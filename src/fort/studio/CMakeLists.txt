@@ -17,6 +17,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
               MyrmidonTypes/Conversion.cpp
+              bridge/AntGlobalModel.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
               bridge/MeasurementBridge.cpp
@@ -92,6 +93,7 @@ set(HDR_FILES Format.hpp
               MyrmidonTypes/Types.hpp
               MyrmidonTypes/Zone.hpp
               Utils.hpp
+              bridge/AntGlobalModel.cpp
 			  bridge/Bridge.hpp
 			  bridge/UniverseBridge.hpp
 			  bridge/MeasurementBridge.hpp

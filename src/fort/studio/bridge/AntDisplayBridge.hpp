@@ -3,6 +3,7 @@
 #include "Bridge.hpp"
 
 class QAbstractItemModel;
+class AntGlobalModel;
 class QStandardItemModel;
 class QStandardItem;
 class QItemSelection;
@@ -50,6 +51,10 @@ public slots:
 	void setAntDisplayColor(quint32 antID,
 	                        const QColor & color);
 
+	void setAntDisplayColor(const QModelIndex & index,
+	                        const QColor & color);
+
+
 	void showAll();
 	void unsoloAll();
 
@@ -67,15 +72,16 @@ private slots:
 private:
 	static QIcon antDisplayColor(const fmp::Ant::ConstPtr & ant);
 
+	void setAntDisplayColor(QStandardItem * item,
+	                        const QColor & color);
+
+
 	void setAntDisplayState(QStandardItem * hideItem,
 	                        QStandardItem * soloItem,
 	                        const fmp::Ant::Ptr & ant,
 	                        fmp::Ant::DisplayState ds);
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
-
-	QStandardItem * findAntItem(fm::Ant::ID antID) const;
-	fmp::Ant::Ptr findAnt(fm::Ant::ID antID) const;
 
 	void doOnSelection(const QItemSelection & selection,
 	                   const std::function<void (const fmp::Ant::Ptr & ant,
@@ -88,7 +94,7 @@ private:
 	const static int SOLO_COLUMN = 2;
 
 
-	QStandardItemModel * d_model;
-	quint32              d_numberSoloAnt,d_numberHiddenAnt;
+	AntGlobalModel * d_model;
+	quint32          d_numberSoloAnt,d_numberHiddenAnt;
 
 };

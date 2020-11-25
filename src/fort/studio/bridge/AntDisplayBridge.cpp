@@ -7,13 +7,14 @@
 
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
+#include "AntGlobalModel.hpp"
 #include "ExperimentBridge.hpp"
 #include "IdentifierBridge.hpp"
 
 
 AntDisplayBridge::AntDisplayBridge(QObject * parent)
 	: GlobalBridge(parent)
-	, d_model(new QStandardItemModel(this))
+	, d_model(new AntGlobalModel(this))
 	, d_numberSoloAnt(0)
 	, d_numberHiddenAnt(0) {
 
@@ -36,6 +37,14 @@ QAbstractItemModel * AntDisplayBridge::model() const {
 }
 
 void AntDisplayBridge::initialize(ExperimentBridge * experiment) {
+	d_model->initialize(experiment->identifier());
+
+	connect(experiment,&ExperimentBridge::antCreated,
+	        this,&AntDisplayBridge::onAntCreated);
+
+	connect(experiment,&ExperimentBridge::antDeleted,
+	        this,&AntDisplayBridge::onAntDeleted);
+
 }
 
 void AntDisplayBridge::tearDownExperiment() {
@@ -51,18 +60,15 @@ void AntDisplayBridge::setUpExperiment() {
 }
 
 void AntDisplayBridge::onAntCreated(quint32 antID ) {
-	if ( !d_experiment ) {
+	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
+	if ( ant == nullptr ) {
 		return;
 	}
-	try {
-		auto ant = d_experiment->Identifier()->Ants().at(antID);
-		d_model->insertRow(d_model->rowCount(),buildAnt(ant));
-	} catch ( const std::exception & e ) {
-	}
+	d_model->insertRow(d_model->rowCount(),buildAnt(ant));
 }
 
 void AntDisplayBridge::onAntDeleted(quint32 antID ) {
-	auto item = findAntItem(antID);
+	auto item = d_model->itemFromAntID(antID);
 	if ( item == nullptr) {
 		return;
 	}
@@ -72,19 +78,19 @@ void AntDisplayBridge::onAntDeleted(quint32 antID ) {
 
 QList<QStandardItem*> AntDisplayBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 	auto data = QVariant::fromValue(ant);
-	auto label = new QStandardItem(ExperimentBridge::formatAntName(ant));
+	auto label = new QStandardItem(AntGlobalModel::formatAntName(ant));
 	label->setEditable(false);
-	label->setData(data);
+	AntGlobalModel::setItemUserData(label,ant);
 	label->setData(antDisplayColor(ant),Qt::DecorationRole);
 
 	auto hidden = new QStandardItem("");
 	hidden->setCheckable(true);
-	hidden->setData(data);
+	AntGlobalModel::setItemUserData(hidden,ant);
 	hidden->setData(tr("Hide this ant in visualization"),Qt::ToolTipRole);
 	hidden->setData(tr("Do not show this Ant in visualization."),Qt::WhatsThisRole);
 	auto solo = new QStandardItem("");
 	solo->setCheckable(true);
-	solo->setData(data);
+	AntGlobalModel::setItemUserData(solo,ant);
 	solo->setData(tr("Solo this ant in visualization"),Qt::ToolTipRole);
 	solo->setData(tr("When some Ant are Solo-ed, only this Ant would be displayed in visualization."),Qt::WhatsThisRole);
 	switch(ant->DisplayStatus()) {
@@ -112,26 +118,6 @@ QIcon AntDisplayBridge::antDisplayColor(const fmp::Ant::ConstPtr & ant) {
 	return Conversion::iconFromFM(c);
 }
 
-
-QStandardItem * AntDisplayBridge::findAntItem(fm::Ant::ID antID) const {
-	auto items = d_model->findItems(fmp::Ant::FormatID(antID).c_str(), Qt::MatchStartsWith);
-	if ( items.size() != 1 ) {
-		qDebug() << "Could not find Ant " << fmp::Ant::FormatID(antID).c_str();
-		return NULL;
-	}
-	return items[0];
-}
-
-fmp::Ant::Ptr AntDisplayBridge::findAnt(fm::Ant::ID antID) const {
-	if ( !d_experiment ) {
-		return nullptr;
-	}
-	try {
-		return d_experiment->Identifier()->Ants().at(antID);
-	} catch ( const std::exception & ) {
-		return nullptr;
-	}
-}
 
 
 void AntDisplayBridge::setAntDisplayState(QStandardItem * hideItem,
@@ -219,8 +205,11 @@ void AntDisplayBridge::doOnSelection(const QItemSelection & selection,
 			continue;
 		}
 		auto item = d_model->itemFromIndex(index);
+		if ( item == nullptr ) {
+			continue;
+		}
 		auto ant = item->data().value<fmp::Ant::Ptr>();
-		if ( !ant ) {
+		if ( ant == nullptr ) {
 			continue;
 		}
 		toDo(ant,item);
@@ -275,11 +264,24 @@ void AntDisplayBridge::rebuildModel() {
 
 void AntDisplayBridge::setAntDisplayColor(quint32 antID,
                                           const QColor & color) {
-	auto item = findAntItem(antID);
-	auto ant = findAnt(antID);
+	auto item = d_model->itemFromAntID(antID);
+	setAntDisplayColor(item,color);
+}
+
+void AntDisplayBridge::setAntDisplayColor(const QModelIndex & index,
+                                          const QColor & color) {
+	auto item = d_model->itemFromIndex(index);
+	setAntDisplayColor(item,color);
+}
+
+void AntDisplayBridge::setAntDisplayColor(QStandardItem * item,
+                                          const QColor & color) {
 	if ( color.isValid() == false
-	     || item == nullptr
-	     || ant == nullptr ) {
+	     || item == nullptr) {
+		return;
+	}
+	auto ant = item->data().value<fmp::Ant::Ptr>();
+	if ( ant == nullptr ) {
 		return;
 	}
 
@@ -293,17 +295,13 @@ void AntDisplayBridge::setAntDisplayColor(quint32 antID,
 }
 
 fm::Ant::ID AntDisplayBridge::antIDForIndex(const QModelIndex & index) const {
-	auto item = d_model->itemFromIndex(index);
-	if ( item == nullptr ) {
-		return 0;
-	}
-	return item->data().value<fmp::Ant::Ptr>()->AntID();
+	return d_model->antIDFromIndex(index);
 }
 
 
 std::pair<fmp::Ant::DisplayState,fm::Color>
 AntDisplayBridge::displayStatusAndColor(fm::Ant::ID antID) const {
-	auto ant = findAnt(antID);
+	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	if ( ant == nullptr ) {
 		return {fmp::Ant::DisplayState::HIDDEN,fm::Color(0,0,0)};
 	}

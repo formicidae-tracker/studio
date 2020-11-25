@@ -24,8 +24,6 @@ namespace fmp = fort::myrmidon::priv;
 class ExperimentBridge : public Bridge {
 	Q_OBJECT
 public:
-	static QString formatAntName(const fmp::Ant::ConstPtr & ant);
-
 
 	ExperimentBridge(QObject * parent = NULL);
 	virtual ~ExperimentBridge();

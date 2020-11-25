@@ -286,22 +286,6 @@ void ExperimentBridge::deleteAnt(fm::Ant::ID antID) {
 	emit antDeleted(antID);
 }
 
-QString ExperimentBridge::formatAntName(const fmp::Ant::ConstPtr & ant) {
-	QString res = ant->FormattedID().c_str();
-	if ( ant->CIdentifications().empty() ) {
-		return res + " <no-tags>";
-	}
-	std::set<fmp::TagID> tags;
-	for ( const auto & i : ant->CIdentifications() ) {
-		tags.insert(i->TagValue());
-	}
-	QString prefix = " ↤ {";
-	for ( const auto & t : tags ) {
-		res += prefix + fmp::FormatTagID(t).c_str();
-		prefix = ",";
-	}
-	return res + "}";
-}
 
 void ExperimentBridge::selectAnt(quint32 antID) {
 	if ( !d_experiment ) {
