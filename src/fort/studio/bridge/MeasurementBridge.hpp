@@ -23,16 +23,10 @@ public:
 	MeasurementBridge(QObject * parent);
 	virtual ~MeasurementBridge();
 
-	QAbstractItemModel * tagCloseUpModel() const;
-	QAbstractItemModel * measurementTypeModel() const;
+	QAbstractItemModel * typeModel() const;
 
-	fmp::TagCloseUp::ConstPtr fromTagCloseUpModelIndex(const QModelIndex & index);
-
-	fmp::MeasurementConstPtr measurement(const std::string & tcuURI,
-	                                     fmp::MeasurementTypeID typeID);
-
-	void queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
-	                     const fmp::IdentificationConstPtr & identification);
+	fmp::MeasurementConstPtr measurementForCloseUp(const std::string & tcuURI,
+	                                               fmp::MeasurementTypeID typeID);
 
 	void initialize(ExperimentBridge * experiment) override;
 
@@ -45,9 +39,6 @@ signals:
 
 
 public slots:
-	void loadAllTagCloseUps();
-	void loadTagCloseUps(const fmp::TrackingDataDirectory::Ptr & tdd);
-
 	bool setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	                    fmp::MeasurementType::ID mtID,
 	                    QPointF start,
@@ -68,30 +59,8 @@ protected:
 private slots:
 	void onTypeItemChanged(QStandardItem * item);
 
-	void onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd);
-	void onTDDDeleted(const QString &);
-
-
 private:
-	typedef std::map<std::string,fmp::TagCloseUp::ConstPtr> CloseUpByPath;
-	typedef std::map<std::string,CloseUpByPath>             CloseUpByTddURI;
-	typedef std::map<std::string,QStandardItem*>            CountByTcuURI;
-
-	void addOneTCU(const std::string & tddURI, const fmp::TagCloseUp::ConstPtr & tcu);
-	void clearTddTCUs(const std::string & tddURI);
-	void clearAllTCUs();
-
-	QList<QStandardItem*> buildTag(fmp::TagID tagID) const;
-	QList<QStandardItem*> buildTCU(const fmp::TagCloseUp::ConstPtr & tcu);
 	QList<QStandardItem*> buildType(const fmp::MeasurementType::Ptr & type) const;
 
-	size_t countMeasurementsForTCU(const std::string & tcuURI) const;
-
-	QStandardItemModel * d_tcuModel;
 	QStandardItemModel * d_typeModel;
-	CountByTcuURI        d_counts;
-	CloseUpByTddURI      d_closeups;
-	size_t               d_seed;
-
-	std::vector<fmp::TrackingDataDirectory::Loader>   d_loaders;
 };

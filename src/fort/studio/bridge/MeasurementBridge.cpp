@@ -16,7 +16,6 @@
 
 MeasurementBridge::MeasurementBridge(QObject * parent)
 	: GlobalBridge(parent)
-	, d_tcuModel( new QStandardItemModel (this) )
 	, d_typeModel( new QStandardItemModel (this) ) {
 
 	connect(d_typeModel,
@@ -30,15 +29,6 @@ MeasurementBridge::~MeasurementBridge() {
 }
 
 void MeasurementBridge::initialize(ExperimentBridge * experiment) {
-	connect(experiment->universe(),
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        this,
-	        &MeasurementBridge::onTDDAdded);
-
-	connect(experiment->universe(),
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        this,
-	        &MeasurementBridge::onTDDDeleted);
 }
 
 void MeasurementBridge::tearDownExperiment() {
@@ -54,133 +44,10 @@ void MeasurementBridge::setUpExperiment() {
 	for (const auto & [mtID,type] : d_experiment->MeasurementTypes()) {
 		d_typeModel->appendRow(buildType(type));
 	}
-
-	loadAllTagCloseUps();
 }
 
-
-QAbstractItemModel * MeasurementBridge::tagCloseUpModel() const {
-	return d_tcuModel;
-}
-
-QAbstractItemModel * MeasurementBridge::measurementTypeModel() const {
+QAbstractItemModel * MeasurementBridge::typeModel() const {
 	return d_typeModel;
-}
-
-
-void MeasurementBridge::onTDDAdded(const fmp::TrackingDataDirectoryPtr & tdd) {
-	if ( !d_experiment  ) {
-		return;
-	}
-	qDebug() << "[MeasurementBrdige]: new TDD "<< tdd->URI().c_str();
-	loadTagCloseUps(tdd);
-}
-
-void MeasurementBridge::onTDDDeleted(const QString & tddURI) {
-	if ( !d_experiment  ) {
-		return;
-	}
-	qDebug() << "[MeasurementBrdige]: Removing TDD "<< tddURI;
-	clearTddTCUs(tddURI.toUtf8().constData());
-}
-
-void MeasurementBridge::loadTagCloseUps(const fmp::TrackingDataDirectory::Ptr & tdd) {
-	for ( const auto & tcu : tdd->TagCloseUps() ) {
-		addOneTCU(tdd->URI(),tcu);
-	}
-
-}
-void MeasurementBridge::loadAllTagCloseUps() {
-	clearAllTCUs();
-	if ( !d_experiment
-	     || d_experiment->Family() == fort::tags::Family::Undefined ) {
-		return;
-	}
-
-	for ( const auto & [tddURI,tdd] : d_experiment->TrackingDataDirectories() ) {
-		loadTagCloseUps(tdd);
-	}
-}
-
-
-QList<QStandardItem*> MeasurementBridge::buildTag(fmp::TagID tagID) const {
-	auto tagItem = new QStandardItem(QString("tags/%1").arg(fmp::FormatTagID(tagID).c_str()));
-	tagItem->setEditable(false);
-	tagItem->setData(tagID,Qt::UserRole+1);
-	tagItem->setData(tagID,Qt::UserRole+2);
-	QList<QStandardItem*> res = {tagItem};
-	for ( size_t i = 0; i < 2; ++i ) {
-		auto dummyItem = new QStandardItem("");
-		dummyItem->setEditable(false);
-		dummyItem->setData(tagID,Qt::UserRole+1);
-		res.push_back(dummyItem);
-	}
-	return res;
-}
-
-QList<QStandardItem*> MeasurementBridge::buildTCU(const fmp::TagCloseUp::ConstPtr & tcu) {
-	if ( !d_experiment ) {
-		return {};
-	}
-
-	auto tcuItem = new QStandardItem(tcu->URI().c_str());
-	tcuItem->setEditable(false);
-	tcuItem->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
-	tcuItem->setData(qulonglong(tcu->Frame().FrameID()),Qt::UserRole+2);
-	size_t mCount = countMeasurementsForTCU(tcu->URI());
-
-	auto measurementCounts = new QStandardItem(QString("%1").arg(mCount));
-	measurementCounts->setEditable(false);
-	measurementCounts->setData(QVariant::fromValue(tcu),Qt::UserRole+1);
-	d_counts.insert(std::make_pair(tcu->URI(),measurementCounts));
-	return {tcuItem,measurementCounts};
-}
-
-
-void MeasurementBridge::addOneTCU(const std::string & tddURI,
-                                  const fmp::TagCloseUp::ConstPtr & tcu) {
-	auto target = tcu->TagValue();
-
-	QString tagPath = QString("tags/%1");
-	tagPath = tagPath.arg(fmp::FormatTagID(target).c_str());
-
-	auto items = d_tcuModel->findItems(tagPath);
-	QStandardItem * tagItem = NULL;
-	if ( items.size() == 0 ) {
-		auto tagItems = buildTag(target);
-		tagItem = tagItems[0];
-		d_tcuModel->invisibleRootItem()->appendRow(tagItems);
-	} else {
-		tagItem = items[0];
-	}
-
-	tagItem->appendRow(buildTCU(tcu));
-
-	auto fi = d_closeups.insert(std::make_pair(tddURI,CloseUpByPath()));
-	fi.first->second.insert(std::make_pair(tcu->URI(),tcu));
-}
-
-void MeasurementBridge::clearTddTCUs(const std::string & tddURI) {
-	auto fi = d_closeups.find(tddURI);
-	if ( fi == d_closeups.end() ){
-		return;
-	}
-	for ( const auto & [uri,tcu] : fi->second ){
-		auto items = d_tcuModel->findItems(uri.c_str());
-		for(const auto item : items) {
-			auto index = item->index();
-			d_tcuModel->removeRows(index.row(),1,index.parent());
-		}
-		d_counts.erase(uri);
-	}
-	d_closeups.erase(fi);
-}
-
-void MeasurementBridge::clearAllTCUs() {
-	d_tcuModel->clear();
-	d_tcuModel->setHorizontalHeaderLabels({tr("URI"),tr("Nb Measurements"),tr("")});
-	d_closeups.clear();
-	d_counts.clear();
 }
 
 bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
@@ -192,14 +59,6 @@ bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	}
 
 	auto tddURI = tcu->Frame().ParentURI();
-	auto fi = d_closeups.find(tddURI);
-	auto ci = d_counts.find(tcu->URI());
-	if ( ci == d_counts.end()
-	     || fi == d_closeups.end()
-	     || fi->second.count(tcu->URI()) == 0 ) {
-		qWarning() << "Not setting measurement: unknown '" << tcu->URI().c_str() << "'";
-		return false;
-	}
 
 	Eigen::Vector2d startFromTag = tcu->ImageToTag() * Eigen::Vector2d(start.x(),start.y());
 	Eigen::Vector2d endFromTag = tcu->ImageToTag() * Eigen::Vector2d(end.x(),end.y());
@@ -221,8 +80,6 @@ bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 
 
 	qInfo() << "Set measurement '" << m->URI().c_str() << "'";
-	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcu->URI())));
-
 	setModified(true);
 	emit measurementModified(m);
 	return true;
@@ -236,11 +93,6 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 	auto [tddURI,frameID,tagID,mtID] = fmp::Measurement::DecomposeURI(mURI);
 
 	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
-	auto ci = d_counts.find(tcuURI);
-	if ( ci == d_counts.end() ) {
-		qWarning() << "Unknown measurement '" << mURI.c_str() << "'";
-		return;
-	}
 
 	try {
 		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::DeleteMeasurement('"
@@ -251,24 +103,12 @@ void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
 		           << "':" << e.what();
 		return;
 	}
-	ci->second->setText(QString("%1").arg(countMeasurementsForTCU(tcuURI)));
 
 	qInfo() << "Deleted measurement '" << mURI.c_str() << "'";
 	setModified(true);
 	emit measurementDeleted(ToQString(tcuURI),mtID);
 }
 
-
-size_t MeasurementBridge::countMeasurementsForTCU(const std::string & tcuPath) const {
-	if ( !d_experiment ){
-		return 0;
-	}
-	auto mi = d_experiment->Measurements().find(tcuPath);
-	if ( mi == d_experiment->Measurements().end() ) {
-		return 0;
-	}
-	return mi->second.size();
-}
 
 
 void MeasurementBridge::setMeasurementType(quint32 mtID, const QString & name) {
@@ -380,17 +220,8 @@ void MeasurementBridge::onTypeItemChanged(QStandardItem * item) {
 }
 
 
-
-fmp::TagCloseUp::ConstPtr MeasurementBridge::fromTagCloseUpModelIndex(const QModelIndex & index) {
-	if ( index.parent().isValid() == false ){
-		return fmp::TagCloseUp::ConstPtr();
-	}
-
-	return d_tcuModel->itemFromIndex(index)->data(Qt::UserRole+1).value<fmp::TagCloseUp::ConstPtr>();
-}
-
-fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tcuURI,
-                                                        fmp::MeasurementTypeID type) {
+fmp::Measurement::ConstPtr MeasurementBridge::measurementForCloseUp(const std::string & tcuURI,
+                                                                    fmp::MeasurementTypeID type) {
 	if ( !d_experiment ) {
 		return fmp::Measurement::ConstPtr();
 	}
@@ -403,25 +234,4 @@ fmp::Measurement::ConstPtr MeasurementBridge::measurement(const std::string & tc
 		return fmp::Measurement::ConstPtr();
 	}
 	return fi->second;
-}
-
-
-void MeasurementBridge::queryTagCloseUp(QVector<fmp::TagCloseUp::ConstPtr> & tcus,
-                                        const fmp::IdentificationConstPtr & identification) {
-	auto items = d_tcuModel->findItems(QString("tags/%1").arg(fmp::FormatTagID(identification->TagValue()).c_str()));
-	if ( items.isEmpty() == true ) {
-		return;
-	}
-	tcus.reserve(tcus.size() + items[0]->rowCount());
-
-	for ( size_t i =  0; i < items[0]->rowCount(); ++i) {
-		auto tcu = items[0]->child(i)->data().value<fmp::TagCloseUp::ConstPtr>();
-		if ( !tcu) {
-			continue;
-		}
-		if ( identification->IsValid(tcu->Frame().Time()) == true ) {
-			tcus.push_back(tcu);
-		}
-	}
-
 }

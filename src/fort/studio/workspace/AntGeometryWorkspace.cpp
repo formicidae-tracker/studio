@@ -14,6 +14,7 @@
 #include <fort/studio/bridge/MeasurementBridge.hpp>
 #include <fort/studio/bridge/IdentifierBridge.hpp>
 #include <fort/studio/bridge/AntShapeTypeBridge.hpp>
+#include <fort/studio/bridge/TagCloseUpBridge.hpp>
 
 
 #include <fort/studio/Format.hpp>
@@ -105,7 +106,7 @@ void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * exp
 	        this,
 	        &AntGeometryWorkspace::onAntSelected);
 
-	auto mTypeModel = d_experiment->measurements()->measurementTypeModel();
+	auto mTypeModel = d_experiment->measurements()->typeModel();
 	connect(mTypeModel,
 	        &QAbstractItemModel::rowsRemoved,
 	        [this](const QModelIndex & parent, int row, int count) {
@@ -218,7 +219,7 @@ void AntGeometryWorkspace::setMeasureMode() {
 	d_mode = Mode::Measure;
 	auto savedTcu = d_tcu;
 	d_tcu.reset();
-	d_ui->comboBox->setModel(d_experiment->measurements()->measurementTypeModel());
+	d_ui->comboBox->setModel(d_experiment->measurements()->typeModel());
 	on_comboBox_currentIndexChanged(d_ui->comboBox->currentIndex());
 	d_vectorialScene->clearCapsules();
 	d_capsules.clear();
@@ -236,8 +237,8 @@ void AntGeometryWorkspace::setMeasureMode() {
 		if ( !mType ) {
 			continue;
 		}
-		auto m = d_experiment->measurements()->measurement(d_tcu->URI(),
-		                                                   mType->MTID());
+		auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),
+		                                                             mType->MTID());
 		if ( !m ) {
 			continue;
 		}
@@ -305,7 +306,7 @@ void AntGeometryWorkspace::changeEvent(QEvent * event)  {
 }
 
 void AntGeometryWorkspace::buildHeaders() {
-	auto measurementTypes = d_experiment->measurements()->measurementTypeModel();
+	auto measurementTypes = d_experiment->measurements()->typeModel();
 	QStringList labels;
 	labels.reserve(1 + measurementTypes->rowCount());
 	labels.push_back(tr("Name"));
@@ -325,7 +326,7 @@ void AntGeometryWorkspace::buildCloseUpList() {
 	}
 	auto formatedAntID = fmp::Ant::FormatID(d_experiment->selectedAnt()->selectedID());
 
-	auto measurementTypes = d_experiment->measurements()->measurementTypeModel();
+	auto measurementTypes = d_experiment->measurements()->typeModel();
 	buildHeaders();
 
 	std::map<quint32,int> mTypeIDs;
@@ -337,10 +338,7 @@ void AntGeometryWorkspace::buildCloseUpList() {
 	ant->setData(QVariant::fromValue(fmp::TagCloseUp::ConstPtr()));
 	ant->setEditable(false);
 
-	QVector<fmp::TagCloseUp::ConstPtr> tcus;
-	for ( const auto & ident : d_experiment->selectedAnt()->identifications() ) {
-		d_experiment->measurements()->queryTagCloseUp(tcus,ident);
-	}
+	auto tcus = d_experiment->tagCloseUps()->closeUpsForAnt(d_experiment->selectedAnt()->selectedID());
 
 	std::sort(tcus.begin(),tcus.end(),
 	          [](const fmp::TagCloseUp::ConstPtr & a,
@@ -358,8 +356,8 @@ void AntGeometryWorkspace::buildCloseUpList() {
 		newRow.append(tcuItem);
 
 		for ( auto & [mTypeID,count] : mTypeIDs ) {
-			auto m = d_experiment->measurements()->measurement(tcu->URI(),
-			                                                   mTypeID);
+			auto m = d_experiment->measurements()->measurementForCloseUp(tcu->URI(),
+			                                                             mTypeID);
 
 
 			auto colItem = new QStandardItem(!m ? "" : "1");
@@ -561,7 +559,7 @@ void AntGeometryWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
 		qDebug() << "[AntGeometryWorkspace]: could not find back vector";
 		return;
 	}
-	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fi->first);
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
 	if ( !m ) {
 		qWarning() << "No measurement of type " << fi->first << " for " << ToQString(d_tcu->URI());
 		return;
@@ -702,7 +700,7 @@ void AntGeometryWorkspace::setMeasurement(const QSharedPointer<Vector> & vector,
 	                                             mtID,
 	                                             vector->startPos(),
 	                                             vector->endPos());
-	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),mtID);
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),mtID);
 	if ( !m ) {
 		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
 	} else {
@@ -722,7 +720,7 @@ void AntGeometryWorkspace::changeVectorType(Vector * vector,fmp::MeasurementType
 		return;
 	}
 
-	auto m = d_experiment->measurements()->measurement(d_tcu->URI(),fi->first);
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
 	if ( m ) {
 		d_experiment->measurements()->deleteMeasurement(m->URI());
 	}

@@ -215,7 +215,7 @@ void IdentificationWorkspace::addIdentification() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_measurements->measurementForCloseUp(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		return;
 	}
@@ -238,7 +238,7 @@ void IdentificationWorkspace::newAnt() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_measurements->measurementForCloseUp(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		return;
 	}
@@ -336,7 +336,7 @@ void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu)
 
 
 void IdentificationWorkspace::setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu) {
-	auto m = d_measurements->measurement(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_measurements->measurementForCloseUp(tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		d_vectorialScene->setOnce(true);
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
@@ -419,7 +419,7 @@ void IdentificationWorkspace::onVectorRemoved() {
 	if ( !d_tcu ) {
 		return;
 	}
-	auto m = d_measurements->measurement(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
+	auto m = d_measurements->measurementForCloseUp(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
 	if ( !m ) {
 		qDebug() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
 		return;

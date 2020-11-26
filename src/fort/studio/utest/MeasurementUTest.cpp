@@ -53,7 +53,7 @@ TEST_F(MeasurementUTest,TypeBridgeModification) {
 	EXPECT_EQ(modified.count(),0);
 
 	measurements->setExperiment(experiment);
-	auto m = measurements->measurementTypeModel();
+	auto m = measurements->typeModel();
 
 	EXPECT_FALSE(measurements->isModified());
 	ASSERT_EQ(modified.count(),0);
@@ -94,7 +94,7 @@ TEST_F(MeasurementUTest,TypeWidgetTest) {
 	QSignalSpy deleted(measurements,SIGNAL(measurementTypeDeleted(quint32)));
 
 	auto ui = widget.d_ui;
-	auto m = measurements->measurementTypeModel();
+	auto m = measurements->typeModel();
 	EXPECT_FALSE(ui->addButton->isEnabled());
 	EXPECT_FALSE(ui->deleteButton->isEnabled());
 
