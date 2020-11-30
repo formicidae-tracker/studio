@@ -33,7 +33,7 @@ public:
 signals:
 	void measurementCreated(const fmp::Measurement::ConstPtr &m);
 	void measurementModified(const fmp::Measurement::ConstPtr &m);
-	void measurementDeleted(QString tcuURI, quint32 mtID);
+	void measurementDeleted(const fmp::Measurement::ConstPtr &m);
 
 	void measurementTypeModified(quint32,QString);
 	void measurementTypeDeleted(quint32);
@@ -45,7 +45,7 @@ public slots:
 	                    QPointF start,
 	                    QPointF end);
 
-	void deleteMeasurement(const std::string & mURI);
+	void deleteMeasurement(const fmp::Measurement::ConstPtr & m);
 
 	void setMeasurementType(quint32 mtID, const QString & name);
 

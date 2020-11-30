@@ -424,7 +424,7 @@ void IdentificationWorkspace::onVectorRemoved() {
 		qDebug() << "No measurement 'head-tail' for " << ToQString(d_tcu->URI());
 		return;
 	}
-	d_measurements->deleteMeasurement(m->URI());
+	d_measurements->deleteMeasurement(m);
 	d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
 	updateActionStates();
 }

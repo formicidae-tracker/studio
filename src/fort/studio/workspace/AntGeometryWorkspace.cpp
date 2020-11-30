@@ -423,8 +423,12 @@ void AntGeometryWorkspace::onMeasurementModified(const fmp::Measurement::ConstPt
 	onMeasurementModification(ToQString(tcuURI),m->Type(),+1);
 }
 
-void AntGeometryWorkspace::onMeasurementDeleted(QString tcuURI, quint32 mtID) {
-	onMeasurementModification(tcuURI,mtID,-1);
+void AntGeometryWorkspace::onMeasurementDeleted(const fmp::Measurement::ConstPtr & m) {
+		if ( !m ) {
+		return;
+	}
+	auto tcuURI = fs::path(m->URI()).parent_path().parent_path().generic_string();
+	onMeasurementModification(ToQString(tcuURI),m->Type(),-1);
 }
 
 
@@ -569,7 +573,7 @@ void AntGeometryWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
 		return;
 	}
 	d_vectors.erase(fi);
-	d_experiment->measurements()->deleteMeasurement(m->URI());
+	d_experiment->measurements()->deleteMeasurement(m);
 }
 
 
@@ -726,7 +730,7 @@ void AntGeometryWorkspace::changeVectorType(Vector * vector,fmp::MeasurementType
 
 	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
 	if ( m ) {
-		d_experiment->measurements()->deleteMeasurement(m->URI());
+		d_experiment->measurements()->deleteMeasurement(m);
 	}
 	d_vectors.insert(std::make_pair(mtID,fi->second));
 	fi->second->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(mtID)));

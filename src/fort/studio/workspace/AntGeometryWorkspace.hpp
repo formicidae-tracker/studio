@@ -55,7 +55,7 @@ private slots:
 	void onCapsuleRemoved(QSharedPointer<Capsule> capsule);
 
 	void onMeasurementModified(const fmp::MeasurementConstPtr &);
-	void onMeasurementDeleted(QString tcuURI, quint32 mtID);
+	void onMeasurementDeleted(const fmp::MeasurementConstPtr &m);
 
 	void onCopyTime();
 

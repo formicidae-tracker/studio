@@ -85,28 +85,24 @@ bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 	return true;
 }
 
-void MeasurementBridge::deleteMeasurement(const std::string & mURI) {
-	if ( !d_experiment ) {
+void MeasurementBridge::deleteMeasurement(const fmp::Measurement::ConstPtr & m) {
+	if ( isActive() == false || m == nullptr ) {
 		return;
 	}
 
-	auto [tddURI,frameID,tagID,mtID] = fmp::Measurement::DecomposeURI(mURI);
-
-	auto tcuURI = fs::path(mURI).parent_path().parent_path().generic_string();
-
 	try {
 		qDebug() << "[MeasurementBridge]: Calling fort::myrmidon::priv::Experiment::DeleteMeasurement('"
-		         << mURI.c_str() << "')";
-		d_experiment->DeleteMeasurement(mURI);
+		         << m->URI().c_str() << "')";
+		d_experiment->DeleteMeasurement(m->URI());
 	} catch (const std::exception & e) {
-		qWarning() << "Could not delete measurement '" << mURI.c_str()
+		qWarning() << "Could not delete measurement '" << m->URI().c_str()
 		           << "':" << e.what();
 		return;
 	}
 
-	qInfo() << "Deleted measurement '" << mURI.c_str() << "'";
+	qInfo() << "Deleted measurement '" << m->URI().c_str() << "'";
 	setModified(true);
-	emit measurementDeleted(ToQString(tcuURI),mtID);
+	emit measurementDeleted(m);
 }
 
 
