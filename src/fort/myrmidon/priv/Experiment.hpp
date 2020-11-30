@@ -240,6 +240,10 @@ public :
 	const MeasurementByTagCloseUp & Measurements() const;
 
 
+
+	std::vector<MeasurementConstPtr>
+	QueryMeasurementForAnt(AntID antID,MeasurementTypeID) const;
+
 	// Computes all Measurement of a type for an Ant
 	//
 	// @result a vector that will be filled with the corresponding

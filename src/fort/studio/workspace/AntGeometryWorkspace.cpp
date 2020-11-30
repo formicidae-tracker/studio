@@ -143,6 +143,10 @@ void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * exp
 	        this,
 	        &AntGeometryWorkspace::onMeasurementModified);
 	connect(measurements,
+	        &MeasurementBridge::measurementCreated,
+	        this,
+	        &AntGeometryWorkspace::onMeasurementModified);
+	connect(measurements,
 	        &MeasurementBridge::measurementDeleted,
 	        this,
 	        &AntGeometryWorkspace::onMeasurementDeleted);

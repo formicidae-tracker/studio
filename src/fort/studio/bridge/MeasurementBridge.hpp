@@ -31,6 +31,7 @@ public:
 	void initialize(ExperimentBridge * experiment) override;
 
 signals:
+	void measurementCreated(const fmp::Measurement::ConstPtr &m);
 	void measurementModified(const fmp::Measurement::ConstPtr &m);
 	void measurementDeleted(QString tcuURI, quint32 mtID);
 
