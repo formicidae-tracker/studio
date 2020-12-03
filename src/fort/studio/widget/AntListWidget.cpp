@@ -1,7 +1,8 @@
 #include "AntListWidget.hpp"
 #include "ui_AntListWidget.h"
 
-#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/AntDisplayBridge.hpp>
 
 #include <QDebug>
 #include <QSortFilterProxyModel>
@@ -9,7 +10,7 @@
 AntListWidget::AntListWidget(QWidget * parent)
 	: QWidget(parent)
 	, d_ui ( new Ui::AntListWidget)
-	, d_identifier(NULL)
+	, d_experiment(nullptr)
 	, d_sortedModel(new QSortFilterProxyModel(this)) {
 
 	d_ui->setupUi(this);
@@ -44,22 +45,22 @@ AntListWidget::~AntListWidget() {
 	delete d_ui;
 }
 
-void AntListWidget::setup(IdentifierBridge * identifier) {
-	d_identifier = identifier;
+void AntListWidget::setup(ExperimentBridge * experiment) {
+	d_experiment = experiment;
 	updateNumber();
 	d_ui->filterEdit->clear();
-	d_sortedModel->setSourceModel(d_identifier->antModel());
+	d_sortedModel->setSourceModel(d_experiment->antDisplay()->model());
 	auto header = d_ui->tableView->horizontalHeader();
 	header->setSortIndicatorShown(true);
 	header->setSortIndicator(0,Qt::AscendingOrder);
 	header->setSortIndicatorShown(true);
-	connect(d_identifier,
-	        &IdentifierBridge::activated,
+	connect(d_experiment->antDisplay(),
+	        &AntDisplayBridge::activated,
 	        d_ui->addButton,
 	        &QToolButton::setEnabled);
 
-	connect(d_identifier,
-	        &IdentifierBridge::activated,
+	connect(d_experiment->antDisplay(),
+	        &AntDisplayBridge::activated,
 	        d_ui->filterEdit,
 	        &QLineEdit::setEnabled);
 
@@ -68,38 +69,38 @@ void AntListWidget::setup(IdentifierBridge * identifier) {
 	        this,
 	        &AntListWidget::onSelectionChanged);
 
-	connect(d_identifier->antModel(),
+	connect(d_experiment->antDisplay()->model(),
 	        &QAbstractItemModel::rowsInserted,
 	        this,
 	        &AntListWidget::updateNumber);
 
-	connect(d_identifier->antModel(),
+	connect(d_experiment->antDisplay()->model(),
 	        &QAbstractItemModel::rowsRemoved,
 	        this,
 	        &AntListWidget::updateNumber);
 
 	connect(d_ui->showAllButton,
 	        &QPushButton::clicked,
-	        d_identifier,
-	        &IdentifierBridge::showAll);
+	        d_experiment->antDisplay(),
+	        &AntDisplayBridge::showAll);
 
 	connect(d_ui->unsoloAllButton,
 	        &QPushButton::clicked,
-	        d_identifier,
-	        &IdentifierBridge::unsoloAll);
+	        d_experiment->antDisplay(),
+	        &AntDisplayBridge::unsoloAll);
 
-	connect(d_identifier,
-	        &IdentifierBridge::numberHiddenAntChanged,
+	connect(d_experiment->antDisplay(),
+	        &AntDisplayBridge::numberHiddenAntChanged,
 	        this,
 	        &AntListWidget::updateShowAll);
 
-	connect(d_identifier,
-	        &IdentifierBridge::numberSoloAntChanged,
+	connect(d_experiment->antDisplay(),
+	        &AntDisplayBridge::numberSoloAntChanged,
 	        this,
 	        &AntListWidget::updateShowAll);
 
-	connect(d_identifier,
-	        &IdentifierBridge::numberSoloAntChanged,
+	connect(d_experiment->antDisplay(),
+	        &AntDisplayBridge::numberSoloAntChanged,
 	        this,
 	        &AntListWidget::updateUnsoloAll);
 
@@ -119,7 +120,7 @@ void AntListWidget::onSelectionChanged() {
 	}
 	d_ui->colorBox->setCurrentIndex(-1);
 	d_ui->colorBox->setEnabled(true);
-	d_ui->deleteButton->setEnabled(true);
+	d_ui->deleteButton->setEnabled(selection->selectedRows().size() == 1);
 }
 
 
@@ -128,57 +129,55 @@ void AntListWidget::on_colorBox_colorChanged(const QColor & color) {
 		return;
 	}
 
-	const auto & sortedSelection = d_ui->tableView->selectionModel()->selection();
+	auto rows = d_ui->tableView->selectionModel()->selectedRows();
 
-	auto selected = d_sortedModel->mapSelectionToSource(sortedSelection);
-
-	if (selected.isEmpty() == true ) {
+	if (rows.isEmpty() == true ) {
 		return;
 	}
-
-	d_identifier->setAntDisplayColor(selected,color);
-
+	for ( const auto & index : rows ) {
+		d_experiment->antDisplay()->setAntDisplayColor(d_sortedModel->mapToSource(index),
+		                                               color);
+	}
 }
 
 void AntListWidget::on_addButton_clicked() {
-	d_identifier->createAnt();
+	d_experiment->createAnt();
 	auto header = d_ui->tableView->horizontalHeader();
 	header->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void AntListWidget::on_deleteButton_clicked() {
-	const auto & sortedSelection = d_ui->tableView->selectionModel()->selection();
+	auto rows = d_ui->tableView->selectionModel()->selectedRows();
 
-	auto selected = d_sortedModel->mapSelectionToSource(sortedSelection);
-
-	if (selected.isEmpty() == true ) {
+	if (rows.size() != 1 ) {
 		return;
 	}
-
-	d_identifier->deleteSelection(selected);
+	auto antID = d_experiment->antDisplay()->antIDForIndex(d_sortedModel->mapToSource(rows[0]));
+	d_experiment->deleteAnt(antID);
 }
 
 
 void AntListWidget::onDoubleClicked(const QModelIndex & index) {
-	d_identifier->selectAnt(d_sortedModel->mapToSource(d_sortedModel->index(index.row(),0)));
+	auto antID = d_experiment->antDisplay()->antIDForIndex(d_sortedModel->mapToSource(index));
+	d_experiment->selectAnt(antID);
 }
 
 
 void AntListWidget::updateNumber() {
 	size_t n = 0;
-	if ( d_identifier != NULL ) {
-		n = d_identifier->antModel()->rowCount();
+	if ( d_experiment != nullptr ) {
+		n = d_experiment->antDisplay()->model()->rowCount();
 	}
 	d_ui->antLabel->setText(tr("Number: %1").arg(n));
 }
 
 void AntListWidget::updateShowAll() {
-	bool enabled = d_identifier != NULL && (d_identifier->numberSoloAnt() > 0
-	                                        || d_identifier->numberHiddenAnt() > 0);
+	bool enabled = d_experiment != nullptr && (d_experiment->antDisplay()->numberSoloAnt() > 0
+	                                        || d_experiment->antDisplay()->numberHiddenAnt() > 0);
 	d_ui->showAllButton->setEnabled(enabled);
 }
 
 void AntListWidget::updateUnsoloAll() {
-	bool enabled = d_identifier != NULL && d_identifier->numberSoloAnt() > 0;
+	bool enabled = d_experiment != nullptr && d_experiment->antDisplay()->numberSoloAnt() > 0;
 	d_ui->unsoloAllButton->setEnabled(enabled);
 }

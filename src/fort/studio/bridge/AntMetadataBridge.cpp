@@ -78,13 +78,13 @@ AntMetadataBridge::~AntMetadataBridge() {
 }
 
 void AntMetadataBridge::initialize(ExperimentBridge * experiment) {
-	connect(experiment->identifier(),
-	        &IdentifierBridge::antCreated,
+	connect(experiment,
+	        &ExperimentBridge::antCreated,
 	        this,
 	        &AntMetadataBridge::onAntListModified);
 
-	connect(experiment->identifier(),
-	        &IdentifierBridge::antDeleted,
+	connect(experiment,
+	        &ExperimentBridge::antDeleted,
 	        this,
 	        &AntMetadataBridge::onAntListModified);
 }

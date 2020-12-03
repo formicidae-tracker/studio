@@ -135,8 +135,8 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	        });
 
 	d_videoPlayer->setup(experiment->identifiedFrameLoader());
-	d_ui->trackingVideoWidget->setup(experiment->identifier());
-	d_ui->videoControl->setup(d_videoPlayer,experiment->identifier());
+	d_ui->trackingVideoWidget->setup(experiment->antDisplay());
+	d_ui->videoControl->setup(d_videoPlayer,experiment);
 
 	connect(d_ui->videoControl,
 	        &TrackingVideoControl::zoomFocusChanged,

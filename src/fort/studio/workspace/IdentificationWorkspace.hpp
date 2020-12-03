@@ -74,9 +74,7 @@ private:
 	void setGraphicsFromMeasurement(const fmp::TagCloseUpConstPtr & tcu);
 
 	Ui::IdentificationWorkspace * d_ui;
-	MeasurementBridge           * d_measurements;
-	IdentifierBridge            * d_identifier;
-	StatisticsBridge            * d_statistics;
+	ExperimentBridge            * d_experiment;
 	VectorialScene              * d_vectorialScene;
 	fmp::TagCloseUpConstPtr       d_tcu;
 	QAction                     * d_newAntAction,*d_addIdentificationAction,*d_deletePoseAction,*d_hideTagAction,*d_showAllTagsAction;

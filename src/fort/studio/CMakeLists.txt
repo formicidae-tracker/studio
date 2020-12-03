@@ -17,10 +17,12 @@ set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
               MyrmidonTypes/Conversion.cpp
+              bridge/AntGlobalModel.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
               bridge/MeasurementBridge.cpp
               bridge/IdentifierBridge.cpp
+              bridge/AntDisplayBridge.cpp
               bridge/TagCloseUpBridge.cpp
 			  bridge/GlobalPropertyBridge.cpp
 			  bridge/SelectedAntBridge.cpp
@@ -91,12 +93,14 @@ set(HDR_FILES Format.hpp
               MyrmidonTypes/Types.hpp
               MyrmidonTypes/Zone.hpp
               Utils.hpp
+              bridge/AntGlobalModel.cpp
 			  bridge/Bridge.hpp
 			  bridge/UniverseBridge.hpp
 			  bridge/MeasurementBridge.hpp
 			  bridge/TagCloseUpBridge.hpp
 			  bridge/GlobalPropertyBridge.hpp
 			  bridge/IdentifierBridge.hpp
+			  bridge/AntDisplayBridge.hpp
 			  bridge/SelectedAntBridge.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp

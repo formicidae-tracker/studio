@@ -6,7 +6,7 @@ namespace Ui {
 class AntListWidget;
 }
 
-class IdentifierBridge;
+class ExperimentBridge;
 
 class QSortFilterProxyModel;
 
@@ -16,7 +16,7 @@ public:
 	explicit AntListWidget(QWidget *parent = nullptr);
     virtual ~AntListWidget();
 
-	void setup(IdentifierBridge *);
+	void setup(ExperimentBridge * experiment);
 
 public slots:
 
@@ -38,7 +38,7 @@ private:
 
 	friend class IdentifierUTest_AntListWidgetTest_Test;
     Ui::AntListWidget * d_ui;
-	IdentifierBridge  * d_identifier;
+	ExperimentBridge  * d_experiment;
 
 	QSortFilterProxyModel * d_sortedModel;
 };

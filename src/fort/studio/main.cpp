@@ -21,7 +21,6 @@ int main(int argc, char ** argv) {
 	QApplication fortStudio(argc,argv);
 
 
-
 	MainWindow window;
 	window.show();
 
