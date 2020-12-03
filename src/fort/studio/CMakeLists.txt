@@ -34,6 +34,7 @@ set(SRC_FILES Format.cpp
 			  bridge/ZoneBridge.cpp
 			  bridge/StatisticsBridge.cpp
 			  bridge/AntMeasurementBridge.cpp
+			  bridge/AntShapeBridge.cpp
 			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
@@ -93,6 +94,7 @@ set(HDR_FILES Format.hpp
               MyrmidonTypes/TrackingDataDirectory.hpp
               MyrmidonTypes/Types.hpp
               MyrmidonTypes/Zone.hpp
+              MyrmidonTypes/Capsule.hpp
               Utils.hpp
               bridge/AntGlobalModel.cpp
 			  bridge/Bridge.hpp
@@ -111,6 +113,7 @@ set(HDR_FILES Format.hpp
 			  bridge/ZoneBridge.hpp
 			  bridge/StatisticsBridge.hpp
 			  bridge/AntMeasurementBridge.hpp
+			  bridge/AntShapeBridge.hpp
 			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
@@ -195,6 +198,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/AntMetadataUTest.cpp
                     utest/ZoneUTest.cpp
                     utest/AntMeasurementUTest.cpp
+                    utest/AntShapeUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -206,6 +210,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/AntMetadataUTest.hpp
                     utest/ZoneUTest.hpp
                     utest/AntMeasurementUTest.hpp
+                    utest/AntShapeUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

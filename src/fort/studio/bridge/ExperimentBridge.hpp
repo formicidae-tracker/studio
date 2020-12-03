@@ -16,6 +16,7 @@ class ZoneBridge;
 class StatisticsBridge;
 class TagCloseUpBridge;
 class AntMeasurementBridge;
+class AntShapeBridge;
 
 class QWidget;
 
@@ -65,6 +66,8 @@ public:
 
 	AntMeasurementBridge * antMeasurements() const;
 
+	AntShapeBridge * antShapes() const;
+
 	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
 
 	void setExperiment(const fmp::Experiment::Ptr & );
@@ -105,6 +108,7 @@ private:
 	StatisticsBridge                * d_statistics;
 	TagCloseUpBridge                * d_tagCloseUps;
 	AntMeasurementBridge            * d_antMeasurements;
+	AntShapeBridge                  * d_antShapes;
 	const std::vector<GlobalBridge*>  d_children;
 
 };

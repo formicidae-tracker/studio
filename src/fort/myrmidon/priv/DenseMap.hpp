@@ -124,20 +124,20 @@ public:
 	};
 
 	T & at(const Key & key) {
-		if ( key > d_values.size() || d_values[key-1].first == 0 ) {
+		if ( key == 0 || key > d_values.size() || d_values[key-1].first == 0 ) {
 			throw std::out_of_range(std::to_string(key) + " is out of range");
 		}
 		return d_values[key-1].second;
 	}
 
 	const T & at(const Key & key) const {
-		if ( key > d_values.size() || d_values[key-1].first == 0 ) {
+		if ( key == 0 || key > d_values.size() || d_values[key-1].first == 0 ) {
 			throw std::out_of_range(std::to_string(key) + " is out of range");
 		}
 		return d_values[key-1].second;
 	}
 
-	iterator       begin() noexcept {
+	iterator begin() noexcept {
 		auto b = d_values.begin();
 		while ( b != d_values.end() && b->first == 0 ) {
 			++b;
@@ -159,7 +159,7 @@ public:
 		return const_iterator(b,d_values.begin(),d_values.cend());
 	}
 
-	iterator       end() noexcept {
+	iterator end() noexcept {
 		return iterator(d_values.end(),d_values.begin(),d_values.end());
 	}
 	const_iterator end() const noexcept {
