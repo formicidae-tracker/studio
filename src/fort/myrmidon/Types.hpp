@@ -79,6 +79,8 @@ struct ComputedMeasurement {
 	Time   MTime;
 	// the value in mm of the measurement
 	double LengthMM;
+	// the value of the measurement in pixels
+	double LengthPixel;
 };
 // Statistics about a <TagID> in the experiment.
 struct TagStatistics {

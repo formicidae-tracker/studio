@@ -42,6 +42,19 @@ QString AntGlobalModel::formatAntName(const fmp::Ant::ConstPtr & ant) {
 AntGlobalModel::AntGlobalModel(QObject * parent)
 	: QStandardItemModel(parent) {
 	qRegisterMetaType<fmp::Ant::Ptr>();
+
+	connect(this,&QAbstractItemModel::modelReset,
+	        this,&AntGlobalModel::clearIndex);
+
+	connect(this,&QAbstractItemModel::rowsInserted,
+	        this,&AntGlobalModel::clearIndex);
+
+	connect(this,&QAbstractItemModel::rowsMoved,
+	        this,&AntGlobalModel::clearIndex);
+
+	connect(this,&QAbstractItemModel::rowsRemoved,
+	        this,&AntGlobalModel::clearIndex);
+
 }
 
 AntGlobalModel::~AntGlobalModel() {
@@ -55,14 +68,22 @@ void AntGlobalModel::initialize(IdentifierBridge * identifier) {
 
 }
 
-QStandardItem * AntGlobalModel::itemFromAntID(fm::Ant::ID antID, int column) const {
-	for ( size_t i = 0; i < rowCount(); ++i ) {
-		auto it = item(i,column);
-		if ( it->data().value<fmp::Ant::Ptr>()->AntID() == antID ) {
-			return it;
+QStandardItem * AntGlobalModel::itemFromAntID(fm::Ant::ID antID) const {
+	if ( rowCount() == 0 ) {
+		return nullptr;
+	}
+	if ( d_index.empty() ) {
+		for ( size_t i = 0; i < rowCount(); ++i ) {
+			auto it = item(i,0);
+			const_cast<AntGlobalModel*>(this)->d_index[it->data().value<fmp::Ant::Ptr>()->AntID()] = it;
 		}
 	}
-	return nullptr;
+	auto fi = d_index.find(antID);
+
+	if ( fi == d_index.cend() ) {
+		return nullptr;
+	}
+	return fi->second;
 }
 
 fm::Ant::ID AntGlobalModel::antIDFromIndex(const QModelIndex & index) const {
@@ -87,4 +108,8 @@ void AntGlobalModel::onIdentificationModified(fmp::Identification::ConstPtr iden
 		return;
 	}
 	item->setText(formatAntName(item->data().value<fmp::Ant::Ptr>()));
+}
+
+void AntGlobalModel::clearIndex() {
+	d_index.clear();
 }

@@ -33,6 +33,7 @@ set(SRC_FILES Format.cpp
 			  bridge/MovieBridge.cpp
 			  bridge/ZoneBridge.cpp
 			  bridge/StatisticsBridge.cpp
+			  bridge/AntMeasurementBridge.cpp
 			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
@@ -109,6 +110,7 @@ set(HDR_FILES Format.hpp
 			  bridge/MovieBridge.hpp
 			  bridge/ZoneBridge.hpp
 			  bridge/StatisticsBridge.hpp
+			  bridge/AntMeasurementBridge.hpp
 			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp

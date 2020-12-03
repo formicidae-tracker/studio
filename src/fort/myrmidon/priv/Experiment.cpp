@@ -459,11 +459,11 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 }
 
 void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
-                                           myrmidon::Ant::ID AID,
-                                           MeasurementType::ID type) const {
-	auto afi = d_identifier->Ants().find(AID);
+                                           myrmidon::Ant::ID antID,
+                                           MeasurementType::ID typeID) const {
+	auto afi = d_identifier->Ants().find(antID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(AID);
+		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(antID);
 	}
 	result.clear();
 	double cornerWidthRatio;
@@ -474,7 +474,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 	}
 
 
-	auto typedMeasurement = d_measurements.find(type);
+	auto typedMeasurement = d_measurements.find(typeID);
 	if (typedMeasurement == d_measurements.cend() ) {
 		return;
 	}
@@ -503,10 +503,12 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 				end = measurements.second.upper_bound(*ident->End());
 			}
 			for ( ; start != end; ++start ) {
-
-				double distance = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
-				distance *= tagSizeMM /start->second->TagSizePx();
-				result.push_back({start->first,distance});
+				double distancePixel = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
+				double distanceMM = distancePixel * tagSizeMM /start->second->TagSizePx();
+				result.push_back(ComputedMeasurement{.MTime = start->first,
+				                                     .LengthMM = distanceMM,
+				                                     .LengthPixel = distancePixel,
+					});
 			}
 		}
 	}

@@ -240,10 +240,6 @@ public :
 	const MeasurementByTagCloseUp & Measurements() const;
 
 
-
-	std::vector<MeasurementConstPtr>
-	QueryMeasurementForAnt(AntID antID,MeasurementTypeID) const;
-
 	// Computes all Measurement of a type for an Ant
 	//
 	// @result a vector that will be filled with the corresponding
@@ -251,8 +247,8 @@ public :
 	// @AID the desired <Ant> designated by its <Ant::ID>
 	// @type the type of measurement we are looking for.
 	void ComputeMeasurementsForAnt(ComputedMeasurement::List & result,
-	                               AntID AID,
-	                               MeasurementTypeID type) const;
+	                               AntID antID,
+	                               MeasurementTypeID typeID) const;
 
 
 	AntShapeTypePtr CreateAntShapeType(const std::string & name,
@@ -315,6 +311,7 @@ private:
 	Experiment(const fs::path & filepath);
 
 	void CheckTDDIsDeletable(const std::string & URI) const;
+
 
 	fs::path             d_absoluteFilepath;
 	fs::path             d_basedir;

@@ -25,7 +25,7 @@ public:
 
 	void initialize(IdentifierBridge * identifier);
 
-	QStandardItem * itemFromAntID(fm::Ant::ID antID, int column = 0) const;
+	QStandardItem * itemFromAntID(fm::Ant::ID antID) const;
 
 	fm::Ant::ID antIDFromIndex(const QModelIndex & index) const;
 	fmp::Ant::Ptr antFromIndex(const QModelIndex & index) const;
@@ -33,6 +33,12 @@ public:
 
 protected slots:
 
+	void clearIndex();
+
 	void onIdentificationModified(fmp::Identification::ConstPtr);
+
+private:
+
+	std::map<fm::AntID,QStandardItem*> d_index;
 
 };
