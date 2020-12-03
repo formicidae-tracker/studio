@@ -22,6 +22,7 @@
 #include "StatisticsBridge.hpp"
 #include "TagCloseUpBridge.hpp"
 #include "AntDisplayBridge.hpp"
+#include "AntMeasurementBridge.hpp"
 
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
@@ -43,6 +44,7 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_zones(new ZoneBridge(this))
 	, d_statistics(new StatisticsBridge(this))
 	, d_tagCloseUps(new TagCloseUpBridge(this))
+	, d_antMeasurements(new AntMeasurementBridge(this))
 	, d_children({
 	              d_universe,
 	              d_measurements,
@@ -54,7 +56,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	              d_movies,
 	              d_zones,
 	              d_statistics,
-		 d_tagCloseUps,
+	              d_tagCloseUps,
+	              d_antMeasurements,
 		}) {
 
 
@@ -213,6 +216,10 @@ StatisticsBridge * ExperimentBridge::statistics() const {
 
 TagCloseUpBridge * ExperimentBridge::tagCloseUps() const {
 	return d_tagCloseUps;
+}
+
+AntMeasurementBridge * ExperimentBridge::antMeasurements() const {
+	return d_antMeasurements;
 }
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {

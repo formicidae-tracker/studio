@@ -15,6 +15,7 @@ class MovieBridge;
 class ZoneBridge;
 class StatisticsBridge;
 class TagCloseUpBridge;
+class AntMeasurementBridge;
 
 class QWidget;
 
@@ -62,7 +63,11 @@ public:
 
 	TagCloseUpBridge * tagCloseUps() const;
 
+	AntMeasurementBridge * antMeasurements() const;
+
 	fmp::Ant::ConstPtr ant(fmp::AntID antID) const;
+
+	void setExperiment(const fmp::Experiment::Ptr & );
 
 public slots:
 	bool save();
@@ -84,7 +89,6 @@ private:
 
 	void resetChildModified();
 
-	void setExperiment(const fmp::Experiment::Ptr & );
 
 	fmp::Experiment::Ptr              d_experiment;
 	UniverseBridge                  * d_universe;
@@ -100,6 +104,7 @@ private:
 	ZoneBridge                      * d_zones;
 	StatisticsBridge                * d_statistics;
 	TagCloseUpBridge                * d_tagCloseUps;
+	AntMeasurementBridge            * d_antMeasurements;
 	const std::vector<GlobalBridge*>  d_children;
 
 };

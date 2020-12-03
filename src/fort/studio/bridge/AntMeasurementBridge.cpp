@@ -29,6 +29,13 @@ void AntMeasurementBridge::initialize(ExperimentBridge * experiment) {
 	connect(experiment->measurements(),&MeasurementBridge::measurementTypeDeleted,
 	        this,&AntMeasurementBridge::onMeasurementTypeDeleted);
 
+	connect(experiment->measurements(),&MeasurementBridge::measurementCreated,
+	        this,&AntMeasurementBridge::onMeasurementCreated);
+
+	connect(experiment->measurements(),&MeasurementBridge::measurementDeleted,
+	        this,&AntMeasurementBridge::onMeasurementDeleted);
+
+
 	connect(experiment,&ExperimentBridge::antCreated,
 	        this,&AntMeasurementBridge::onAntCreated);
 
@@ -77,7 +84,7 @@ void AntMeasurementBridge::setUpExperiment() {
 
 
 void AntMeasurementBridge::onMeasurementTypeModified(quint32 mtID, QString name) {
-	auto [headerItem,column] = headerForType(mtID);
+	const auto & [headerItem,column] = headerForType(mtID);
 	if ( headerItem == nullptr ) {
 		QList<QStandardItem*> newCounts;
 		newCounts.reserve(d_model->rowCount());
@@ -87,9 +94,13 @@ void AntMeasurementBridge::onMeasurementTypeModified(quint32 mtID, QString name)
 			newCounts.push_back(count);
 		}
 		d_model->insertColumn(column,newCounts);
-		headerItem = d_model->horizontalHeaderItem(column);
+		auto item = new QStandardItem(name);
+		item->setEditable(false);
+		item->setData(int(mtID));
+		d_model->setHorizontalHeaderItem(column,item);
+	} else {
+		headerItem->setData(name,Qt::DisplayRole);
 	}
-	headerItem->setData(name,Qt::DisplayRole);
 }
 
 void AntMeasurementBridge::onMeasurementTypeDeleted(quint32 mtID) {
@@ -169,7 +180,6 @@ void AntMeasurementBridge::updateMeasurementCount(const fmp::Measurement::ConstP
 	if ( headerItem == nullptr ) {
 		return;
 	}
-
 	fmp::Ant::ID antID(0);
 	try {
 		auto frameRef = d_experiment->TrackingDataDirectories().at(tddURI)->FrameReferenceAt(frameID);
@@ -180,15 +190,13 @@ void AntMeasurementBridge::updateMeasurementCount(const fmp::Measurement::ConstP
 		antID = identification->Target()->AntID();
 
 	} catch (const std::exception & ) {
-
 	}
-	auto antItem = d_model->itemFromAntID(antID);
+	QStandardItem * antItem = d_model->itemFromAntID(antID);
 	if ( antItem == nullptr ) {
 		return;
 	}
-
 	auto valueItem = d_model->item(antItem->row(),column);
-	valueItem->setData(valueItem->data().toInt()+incrementValue);
+	valueItem->setData(valueItem->data(Qt::DisplayRole).toInt()+incrementValue,Qt::DisplayRole);
 }
 
 std::pair<QStandardItem*,int> AntMeasurementBridge::headerForType(quint32 mtID) const {

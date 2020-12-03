@@ -81,7 +81,7 @@ bool MeasurementBridge::setMeasurement(const fmp::TagCloseUp::ConstPtr & tcu,
 
 	qInfo() << "Set measurement '" << m->URI().c_str() << "'";
 	setModified(true);
-	emit measurementModified(m);
+	emit measurementCreated(m);
 	return true;
 }
 
