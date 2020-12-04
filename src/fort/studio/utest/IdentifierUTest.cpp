@@ -3,7 +3,6 @@
 #include <fort/studio/bridge/IdentifierBridge.hpp>
 #include <fort/studio/bridge/SelectedAntBridge.hpp>
 #include <fort/studio/widget/AntListWidget.hpp>
-#include "ui_AntListWidget.h"
 
 #include <fort/myrmidon/TestSetup.hpp>
 #include <fort/myrmidon/priv/Identifier.hpp>

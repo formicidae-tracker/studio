@@ -202,7 +202,7 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
-      <widget class="AntListWidget" name="antList" native="true">
+      <widget class="AntDisplayListWidget" name="antList" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -499,7 +499,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AntListWidget</class>
+   <class>AntDisplayListWidget</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/widget/AntListWidget.hpp</header>
    <container>1</container>

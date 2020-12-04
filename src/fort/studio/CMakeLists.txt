@@ -164,7 +164,6 @@ set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/LoggerWidget.ui
              widget/SpaceChoiceDialog.ui
              widget/MeasurementTypeWidget.ui
-             widget/AntListWidget.ui
              widget/base/TimeEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui

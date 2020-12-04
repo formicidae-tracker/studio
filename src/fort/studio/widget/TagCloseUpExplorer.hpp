@@ -58,12 +58,14 @@ public slots:
 	void previousTag();
 	void previousTagCloseUp();
 
-private slots:
-	void on_closeUpView_clicked(const QModelIndex & index);
-
 signals:
 	void currentTagIDChanged(int tagID);
 	void currentCloseUpChanged(const fmp::TagCloseUp::ConstPtr &);
+
+
+private slots:
+	void on_closeUpView_clicked(const QModelIndex & index);
+
 
 private:
 	void moveIndex(int direction);
