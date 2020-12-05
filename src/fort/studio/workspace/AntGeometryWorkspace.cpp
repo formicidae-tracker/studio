@@ -25,103 +25,52 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
-
 AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 	: Workspace(true,parent)
 	, d_ui(new Ui::AntGeometryWorkspace)
 	, d_experiment(nullptr)
-	, d_closeUps(new QStandardItemModel(this) )
-	, d_vectorialScene( new VectorialScene(this) )
 	, d_copyTimeAction(nullptr)
-	, d_cloneShapeAction( new QAction(tr("Clone Current Ant Shape"),this) ){
+	, d_vectorialScene( new VectorialScene(this)) {
+
+	d_toolBar = new QToolBar(this);
+
+	d_editButton = d_toolBar->addAction(QIcon::fromTheme("edit-select-symbolic"));
+	d_editButton->setToolTip(tr("Edit primitives"));
+	d_editButton->setStatusTip(d_editButton->toolTip());
+	d_editButton->setObjectName("editButton");
+
+	d_insertButton = d_toolBar->addAction(QIcon::fromTheme("insert-object-symbolic"));
+	d_insertButton->setToolTip(tr("Insert a new primitive"));
+	d_insertButton->setStatusTip(d_insertButton->toolTip());
+	d_insertButton->setObjectName("insertButton");
+	d_comboBox = new QComboBox(this);
+	d_comboBox->setObjectName("comboBox");
+
+	d_toolBar->addWidget(d_comboBox);
+
+	d_insertButton->setCheckable(true);
+	d_editButton->setCheckable(true);
+
+	d_vectorialScene->setObjectName("vectorialScene");
+
 	d_ui->setupUi(this);
-	d_ui->treeView->setModel(d_closeUps);
-
-	d_ui->insertButton->setCheckable(true);
-	d_ui->editButton->setCheckable(true);
-	d_ui->editButton->setChecked(true);
-
-	auto hHeader = d_ui->treeView->header();
-	hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-	connect(d_vectorialScene,
-	        &VectorialScene::vectorCreated,
-	        this,
-	        &AntGeometryWorkspace::onVectorCreated);
-
-	connect(d_vectorialScene,
-	        &VectorialScene::vectorRemoved,
-	        this,
-	        &AntGeometryWorkspace::onVectorRemoved);
-
-	connect(d_vectorialScene,
-	        &VectorialScene::capsuleCreated,
-	        this,
-	        &AntGeometryWorkspace::onCapsuleCreated);
-
-	connect(d_vectorialScene,
-	        &VectorialScene::capsuleRemoved,
-	        this,
-	        &AntGeometryWorkspace::onCapsuleRemoved);
-
-	connect(d_vectorialScene,
-	        &VectorialScene::modeChanged,
-	        [this](VectorialScene::Mode mode) {
-		        if ( mode == VectorialScene::Mode::Edit ) {
-			        d_ui->editButton->setChecked(true);
-			        d_ui->insertButton->setChecked(false);
-		        } else {
-			        d_ui->editButton->setChecked(false);
-			        d_ui->insertButton->setChecked(true);
-		        }
-	        });
 
 	d_ui->vectorialView->setScene(d_vectorialScene);
-    d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
-    connect(d_ui->vectorialView,
-            &VectorialView::zoomed,
-            d_vectorialScene,
-            &VectorialScene::onZoomed);
+	d_ui->vectorialView->setRenderHint(QPainter::Antialiasing,true);
+	connect(d_ui->vectorialView,
+	        &VectorialView::zoomed,
+	        d_vectorialScene,
+	        &VectorialScene::onZoomed);
 
-
-    d_cloneShapeAction->setWhatsThis(tr("Clone current shape to other ants"));
-    d_cloneShapeAction->setEnabled(false);
-    connect(d_cloneShapeAction,&QAction::triggered,
-            this,&AntGeometryWorkspace::onCloneShapeActionTriggered);
 }
 
 AntGeometryWorkspace::~AntGeometryWorkspace() {
 	delete d_ui;
 }
 
+
 void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 	d_experiment = experiment;
-
-	d_ui->shapeTypeEditor->setup(d_experiment->antShapeTypes());
-	d_ui->measurementTypeEditor->setup(d_experiment->measurements());
-
-
-	connect(d_experiment->selectedAnt(),
-	        &SelectedAntBridge::activated,
-	        this,
-	        &AntGeometryWorkspace::onAntSelected);
-
-	auto mTypeModel = d_experiment->measurements()->typeModel();
-	connect(mTypeModel,
-	        &QAbstractItemModel::rowsRemoved,
-	        [this](const QModelIndex & parent, int row, int count) {
-		        buildCloseUpList();
-	        });
-
-	connect(mTypeModel,
-	        &QAbstractItemModel::rowsInserted,
-	        [this](const QModelIndex & parent, int row, int count) {
-		        buildCloseUpList();
-	        });
-
-
-	d_ui->toolBox->setCurrentIndex(0);
-	on_toolBox_currentChanged(0);
 
 	auto identifier = d_experiment->identifier();
 	connect(identifier,
@@ -137,7 +86,143 @@ void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * exp
 	        this,
 	        &AntGeometryWorkspace::onIdentificationDeleted);
 
-	auto measurements = d_experiment->measurements();
+	main->addToolBar(d_editToolBar);
+	d_editToolBar->hide();
+
+}
+
+void AntGeometryWorkspace::setUp(const NavigationAction & actions ) {
+	connect(actions.CopyCurrentTime,&QAction::triggered,
+	        this,&AntGeometryWorkspace::onCopyTime);
+
+	d_copyTimeAction = actions.CopyCurrentTime;
+	d_editToolBar->show();
+}
+
+void AntGeometryWorkspace::tearDown(const NavigationAction & actions ) {
+	disconnect(actions.CopyCurrentTime,&QAction::triggered,
+	           this,&AntGeometryWorkspace::onCopyTime);
+
+	d_copyTimeAction = nullptr;
+	d_editToolBar->hide();
+}
+
+
+void AntGeometryWorkspace::onIdentificationAntPositionChanged(const fmp::Identification::ConstPtr & identification) {
+	if ( d_closeUp
+	     || identification->TagValue() != d_closeUp->TagValue()
+	     || identification->IsValid(d_closeUp->Frame().Time()) == false ) {
+		return;
+	}
+	Eigen::Vector2d position;
+	double angle;
+	identification->ComputePositionFromTag(position,angle,d_closeUp->TagPosition(),d_tcu->TagAngle());
+	d_vectorialScene->setPoseIndicator(QPointF(position.x(),
+	                                           position.y()),
+	                                   angle);
+}
+
+void AntGeometryWorkspace::onIdentificationDeleted(const fmp::Identification::ConstPtr & identification) {
+	if ( !d_closeUp
+	     || d_closeUp->TagValue() != identification->TagValue()
+	     || identification->IsValid(d_closeUp->Frame().Time()) == false ) {
+		return;
+	}
+	onTagCloseUp(nullptr);
+}
+
+void AntGeometryWorkspace::onCopyTime() {
+	if ( d_closeUp == nullptr ) {
+		return;
+	}
+
+	QApplication::clipboard()->setText(ToQString(d_closeUp->Frame().Time()));
+}
+
+void AntGeometryWorkspace::clearScene() {
+	onClearScene();
+	d_vectorialScene->setBackgroundPicture("");
+	d_vectorialScene->clearPositionIndicator();
+	d_vectorialScene->clearStaticPolygon();
+	d_ui->vectorialView->setBannerMessage("",QColor());
+}
+
+void AntGeometryWorkspace::onTagCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
+	if ( d_closeUp== closeUp ) {
+		return;
+	}
+	d_closeUp = closeUp;
+	clearScene();
+	if ( d_copyTimeAction != nullptr ) {
+		d_copyTimeAction->setEnabled(d_closeUp != nullptr);
+	}
+
+	if ( !d_closeUp ) {
+		return;
+	}
+
+	d_vectorialScene->setBackgroundPicture(d_closeUp->AbsoluteFilePath().c_str());
+	const auto & tagPosition = d_closeUp->TagPosition();
+	d_ui->vectorialView->centerOn(QPointF(tagPosition.x(),tagPosition.y()));
+	d_vectorialScene->setStaticPolygon(d_closeUp->Corners(),QColor(255,0,0));
+	auto identification = d_experiment->identifier()->identify(d_closeUp->TagValue(),tcu->Frame().Time());
+	if ( identification != nullptr ) {
+		onIdentificationAntPositionChanged(identification);
+	}
+
+	onNewCloseUp();
+}
+
+void AntGeometryWorkspace::on_vectorialScene_modeChanged(VectorialScene::Mode mode) {
+	d_editButton->setChecked(mode == VectorialScene::Mode::Edit);
+	d_insertButton->setChecked(mode != VectorialScene::Mode::Edit);
+}
+
+void AntGeometryWorkspace::setColorFromType(quint32 typeID) {
+	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(typeID)));
+}
+
+
+AntMeasurementWorkspace::AntMeasurementWorkspace(QWidget * parent)
+	: AntGeometryWorkspace(parent) {
+
+	d_antCloseUps = new AntMeasurementListWidget(this);
+	d_antCloseUps->setObjectName("antCloseUps");
+
+	d_measurementTypes = new MeasurementTypeWidget(this);
+	d_measurementTypes->setObjectName("measurementTypes");
+
+	d_closeUpDock = new QDockWidget(tr("Ant Close-Ups"),this);
+	d_closeUpDock->setWidget(d_antCloseUps);
+	connect(d_antCloseUps, &AntMeasurementListWidget::currentCloseUpChanged,
+	        this,&AntGeometryWorkspace::setTagCloseUp);
+
+	d_measurementTypesDock = new QDockWidget(tr("Measurement Types"),this);
+	d_measurementTypesDock->setWidget(d_measurementTypes);
+
+	connect(d_vectorialScene,
+	        &VectorialScene::vectorCreated,
+	        this,
+	        &AntGeometryWorkspace::onVectorCreated);
+
+	connect(d_vectorialScene,
+	        &VectorialScene::vectorRemoved,
+	        this,
+	        &AntGeometryWorkspace::onVectorRemoved);
+
+}
+
+AntMeasurementWorkspace::~AntMeasurementWorkspace() {
+}
+
+
+void AntMeasurementWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
+	AntGeometryWorkspace::initialize(main,experiment);
+
+	d_measurementTypes->setup(experiment->measurements());
+	d_antCloseUps->initialize(experiment);
+
+	auto measurements = experiment->measurements();
 	connect(measurements,
 	        &MeasurementBridge::measurementModified,
 	        this,
@@ -151,29 +236,440 @@ void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * exp
 	        this,
 	        &AntGeometryWorkspace::onMeasurementDeleted);
 
+	d_comboBox->setModel(experiment->measurements()->typeModel());
+
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_closeUpsDock);
+	d_closeUpDocks->hide();
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_measurementTypesDock);
+	d_measurementTypesDock->hide();
+}
+
+void AntMeasurementWorkspace::setUp(const NavigationAction & actions ) {
+	AntGeometryWorkspace::setUp(actions);
+	connect(actions.NextTag,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::nextAnt);
+	connect(actions.PreviousTag,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::previousAnt);
+
+	connect(actions.NextCloseUp,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::nextCloseUp);
+	connect(actions.PreviousCloseUp,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::previousCloseUp);
+
+	actions.NextTag->setEnabled(true);
+	actions.PreviousTag->setEnabled(true);
+	actions.NextCloseUp->setEnabled(true);
+	actions.PreviousCloseUp->setEnabled(true);
+
+	d_closeUpsDock->show();
+	d_measurementTypesDock->show();
+}
+
+void AntMeasurementWorkspace::tearDown(const NavigationAction & actions ) {
+	AntGeometryWorkspace::tearDown(actions);
+
+	disconnect(actions.NextTag,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::nextAnt);
+	disconnect(actions.PreviousTag,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::previousAnt);
+
+	disconnect(actions.NextCloseUp,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::nextCloseUp);
+	disconnect(actions.PreviousCloseUp,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::previousCloseUp);
+
+	actions.NextTag->setEnabled(false);
+	actions.PreviousTag->setEnabled(false);
+	actions.NextCloseUp->setEnabled(false);
+	actions.PreviousCloseUp->setEnabled(false);
+
+	d_closeUpsDock->hide();
+	d_measurementTypesDock->hide();
+}
+
+void AntMeasurementWorkspace::onClearScene() {
+	QSignalBlocker blocker(d_vectorialScene);
+	d_vectorialScene->clearVectors();
+	d_vectors.clear();
+}
+
+void AntMeasurementWorkspace::onNewCloseUp() {
+	d_vectors.clear();
+	if ( d_closeUp == nullptr ) {
+		return;
+	}
+
+	for ( size_t i = 0; i < d_ui->comboBox->count(); ++i) {
+		auto mType = d_ui->comboBox->itemData(i,Qt::UserRole+1).value<fmp::MeasurementType::Ptr>();
+		if ( !mType ) {
+			continue;
+		}
+		auto m = d_experiment->measurements()->measurementForCloseUp(d_closeUp->URI(),
+		                                                             mType->MTID());
+		if ( !m ) {
+			continue;
+		}
+
+		fmp::Isometry2Dd tagToOrig(d_closeUp->TagAngle(),d_closeUp->TagPosition());
+		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
+		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
+
+		setColorFromType(mType->MTID());
+		auto vector = d_vectorialScene->appendVector(QPointF(start.x(),
+		                                                     start.y()),
+		                                             QPointF(end.x(),
+		                                                     end.y()));
+
+		d_vectors.insert(std::make_pair(mType->MTID(),vector));
+
+		connect(vector.data(),
+		        &Shape::updated,
+		        this,
+		        &AntGeometryWorkspace::onVectorUpdated);
+
+	}
+
+	setColorFromType(typeFromComboBox());
+}
+
+quint32 AntMeasurementWorkspace::typeFromComboBox() const {
+	auto mType = d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::MeasurementType::Ptr>();
+	if ( mType == nullptr ) {
+		return 0;
+	}
+	return mType->MTID();
+}
+
+void AntMeasurementWorkspace::on_insertButton_clicked() {
+	d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
+}
+
+void AntMeasurementWorkspace::on_editButton_clicked() {
+	d_vectorialScene->setMode(VectorialScene::Mode::Edit);
+}
+
+void AntMeasurementWorkspace::on_comboBox_currentIndexChanged(int) {
+	quint32 type = typeFromComboBox();
+
+	setColorFromType(type);
+
+	if ( d_closeUp == nullptr ) {
+		return;
+	}
+
+	for ( const auto : d_vectorialScene->selectedItems() ) {
+		auto v = dynamic_cast<Vector*>(item);
+		if ( v == nullptr ) {
+			continue;
+		}
+		changeVectorType(v,type);
+	}
+}
+
+void AntMeasurementWorkspace::onVectorUpdated() {
+	if ( d_closeUp == nullptr ) {
+		return;
+	}
+
+	auto sender = QObject::sender();
+	auto fi = findVector(dynamic_cast<Vector*>(sender));
+	if ( fi == d_vectors.end() ) {
+		qDebug() << "[AntMeasurementWorkspace]: could not find back sender";
+		return;
+	}
+	setMeasurement(fi->second,fi->first);
+}
+
+void AntMeasurementWorkspace::onVectorCreated(QSharedPointer<Vector> vector) {\
+	if ( d_closeUp == nullptr ) {
+		qDebug() << "[AntGeometryWorkspace]: Vector created without tcu";
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		return;
+	}
+	auto mtID = typeFromComboBox();
+	if ( mtID == 0 ) {
+		qDebug() << "No measurement type selected";
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		return;
+	}
+
+	if ( d_vectors.count(mtID)  != 0 ) {
+		qWarning() << "Measurement already exist in TCU for " << ToQString(measurementType->Name());
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		return;
+	}
+
+	if ( d_experiment->measurements()->setMeasurement(d_tcu,
+	                                                  mtID,
+	                                                  vector->startPos(),
+	                                                  vector->endPos()) == false ) {
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+		return;
+	}
+
+	connect(vector.data(),&Shape::updated,
+	        this,&AntGeometryWorkspace::onVectorUpdated);
+
+}
+
+void AntMeasurementWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
+	if ( !d_tcu ) {
+		return;
+	}
+	auto fi = findVector(vector.data());
+	if ( fi == d_vectors.end() ) {
+		qDebug() << "[AntGeometryWorkspace]: could not find back vector";
+		return;
+	}
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
+	if ( !m ) {
+		qWarning() << "No measurement of type " << fi->first << " for " << ToQString(d_tcu->URI());
+		return;
+	}
+	d_vectors.erase(fi);
+	d_experiment->measurements()->deleteMeasurement(m);
+
+}
+
+void AntMeasurementWorkspace::setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID) {
+	if ( d_experiment == nullptr || d_closeUp == nullptr ) {
+		return;
+	}
+
+	d_experiment->measurements()->setMeasurement(d_closeUp,
+	                                             mtID,
+	                                             vector->startPos(),
+	                                             vector->endPos());
+
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),mtID);
+	if ( !m ) {
+		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
+	} else {
+		fmp::Isometry2Dd tagToOrig(d_tcu->TagAngle(),d_tcu->TagPosition());
+		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
+		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
+		vector->setStartPos(QPointF(start.x(),start.y()));
+		vector->setEndPos(QPointF(end.x(),end.y()));
+	}
+}
+
+std::map<uint32_t,QSharedPointer<Vector>>::const_iterator
+AntMEasurementWorkspace::findVector(Vector * vector) const {
+	return std::find_if(d_vectors.begin(),
+	                    d_vectors.end(),
+	                    [vector](const std::pair<uint32_t,QSharedPointer<Vector>> & item ) {
+		                    return item.second.data() == vector;
+	                    });
+}
+
+void AntMeasurementWorkspace::changeVectorType(Vector * vector,
+                                               fmp::MeasurementTypeID mtID) {
+	auto fi = findVector(vector);
+	if ( d_closeUp == nullptr
+	     || d_vectors.count(mtID) != 0
+	     || fi == d_vectors.end() ) {
+		return;
+	}
+
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
+	if ( m ) {
+		d_experiment->measurements()->deleteMeasurement(m);
+	}
+	d_vectors.insert(std::make_pair(mtID,fi->second));
+	fi->second->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(mtID)));
+	setMeasurement(fi->second,mtID);
+	d_vectorialScene->update();
+	d_vectors.erase(fi);
+}
+
+
+AntShapeWorkspace::AntShapeWorkspace(QWidget *parent)
+	:  AntGeometryWorkspace(parent) {
+
+	d_antCloseUps = new AntShapeListWidget(this);
+	d_antCloseUps->setObjectName("antCloseUps");
+
+	d_shapeTypes = new AntShapeTypeWidget(this);
+	d_shapeTypes->setObjectName("shapeTypes");
+
+	d_closeUpsDock = new QDockWidget(tr("Ant Close-Ups"),this);
+	d_closeUpsDock->setWidget(d_antCloseUps);
+	connect(d_antCloseUps, &AnTShapeListWidget::currentCloseUpChanged,
+	        this,&AntGeometryWorkspace::setTagCloseUp);
+
+	d_shapeTypesDock = new QDockWidget(tr("Ant Shape Types"),this);
+	d_shapeTypesDock->setWidget(d_shapeTypes);
+
+	connect(d_vectorialScene,
+	        &VectorialScene::capsuleCreated,
+	        this,
+	        &AntShapeWorkspace::onCapsuleCreated);
+
+	connect(d_vectorialScene,
+	        &VectorialScene::capsuleRemoved,
+	        this,
+	        &AntShapeWorkspace::onCapsuleRemoved);
+
+	d_cloneShapeAction = new QAction(tr("Clone current Ant Shape"),this);
+	d_cloneShapeAction->setObjectName("cloneShapeAction");
+	d_cloneShapeAction->setToolTip(tr("Clone current shape to other ants"));
+    d_cloneShapeAction->setEnabled(false);
+    connect(d_cloneShapeAction,&QAction::triggered,
+            this,&AntShapeWorkspace::onCloneShapeActionTriggered);
+}
+
+AntShapeWorkspace::~AntGeometryWorkspace() {
+
+}
+
+QAction * AntShapeWorkspace::cloneAntShapeAction() const {
+	return d_cloneShapeAction;
+}
+
+
+void AntShapeWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
+	AntGeometryWorkspace::initialize(main,experiment);
+	d_shapeTypes->setup(experiment->antShapeTypes());
+	d_antCloseUps->initialize(experiment);
+
+	d_comboBox->setModel(experiment->antShapeTypes()->shapeModel());
+
 	updateCloneAction();
 }
 
-void  AntGeometryWorkspace::on_toolBox_currentChanged(int index) {
-	switch(index) {
-	case 0:
-		setShappingMode();
-		break;
-	case 1:
-		setMeasureMode();
-		break;
-	default:
-		qWarning() << "Inconsistent tab size for AntGeometryWorkspace";
-	}
-	updateCloneAction();
+void AntShapeWorkspace::setUp(const NavigationAction & actions ) {
+	AntGeometryWorkspace::setUp(actions);
+	connect(actions.NextTag,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::nextAnt);
+	connect(actions.PreviousTag,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::previousAnt);
+
+	connect(actions.NextCloseUp,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::nextCloseUp);
+	connect(actions.PreviousCloseUp,&QAction::triggered,
+	        d_antCloseUps,&AntCloseUpExplorer::previousCloseUp);
+
+	actions.NextTag->setEnabled(true);
+	actions.PreviousTag->setEnabled(true);
+	actions.NextCloseUp->setEnabled(true);
+	actions.PreviousCloseUp->setEnabled(true);
+
+	d_closeUpsDock->show();
+	d_shapeTypesDock->show();
+
+}
+
+void AntShapeWorkspace::tearDown(const NavigationAction & actions ) {
+	AntGeometryWorkspace::tearDown(actions);
+
+	disconnect(actions.NextTag,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::nextAnt);
+	disconnect(actions.PreviousTag,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::previousAnt);
+
+	disconnect(actions.NextCloseUp,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::nextCloseUp);
+	disconnect(actions.PreviousCloseUp,&QAction::triggered,
+	           d_antCloseUps,&AntCloseUpExplorer::previousCloseUp);
+
+	actions.NextTag->setEnabled(false);
+	actions.PreviousTag->setEnabled(false);
+	actions.NextCloseUp->setEnabled(false);
+	actions.PreviousCloseUp->setEnabled(false);
+
+	d_closeUpsDock->hide();
+	d_shapeTypesDock->hide();
+}
+
+quint32 AntShapeWorkspace::typefromComboBox() const {
+
+}
+
+void AntShapeWorkspace::onClearScene() {
+
+}
+
+void AntShapeWorkspace::onNewCloseUp() {
+
+}
+
+void AntShapeWorkspace::on_insertButton_clicked() {
+
+}
+
+void AntShapeWorkspace::on_editButton_clicked() {
+
+}
+
+void AntShapeWorkspace::on_comboBox_currentIndexChanged(int) {
+
+}
+
+void AntShapeWorkspace::onCapsuleUpdated() {
+
+}
+
+void AntShapeWorkspace::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
+
+}
+
+void AntShapeWorkspace::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
+
+}
+
+void AntShapeWorkspace::onCloneShapeActionTriggered() {
+
+}
+
+void AntShapeWorkspace::updateCloneAction() {
+
+}
+
+
+void AntShapeWorkspace::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID) {
+
+}
+
+fmp::CapsulePtr AntShapeWorkspace::capsuleFromScene(const QSharedPointer<Capsule> & capsule) {
+
+}
+
+void AntShapeWorkspace::rebuildCapsules() {
+
+}
+
+/// OLD IMPLEMENTATION BEGIN
+
+
+
+AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
+	: Workspace(true,parent)
+	, d_ui(new Ui::AntGeometryWorkspace)
+	, d_experiment(nullptr)
+	, d_closeUps(new QStandardItemModel(this) )
+	, d_vectorialScene( new VectorialScene(this) )
+	, d_copyTimeAction(nullptr)
+	, d_cloneShapeAction( new QAction(tr("Clone Current Ant Shape"),this) ){
+	d_ui->setupUi(this);
+	d_ui->treeView->setModel(d_closeUps);
+
+
+	auto hHeader = d_ui->treeView->header();
+	hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+
+
+}
+
+AntGeometryWorkspace::~AntGeometryWorkspace() {
+	delete d_ui;
+}
+
+void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 }
 
 
 void AntGeometryWorkspace::setShappingMode() {
-	d_mode = Mode::Shape;
-	auto savedTcu = d_tcu;
-	d_tcu.reset();
-	d_ui->comboBox->setModel(d_experiment->antShapeTypes()->shapeModel());
 	on_comboBox_currentIndexChanged(d_ui->comboBox->currentIndex());
 	d_vectorialScene->clearVectors();
 	d_vectors.clear();
@@ -215,9 +711,6 @@ void AntGeometryWorkspace::setShappingMode() {
 	setColorFromType(typeFromComboBox());
 }
 
-void AntGeometryWorkspace::setColorFromType(quint32 typeID) {
-	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(typeID)));
-}
 
 void AntGeometryWorkspace::setMeasureMode() {
 	d_mode = Mode::Measure;
@@ -511,55 +1004,9 @@ std::map<uint32_t,QSharedPointer<Vector>>::const_iterator AntGeometryWorkspace::
 	                    });
 }
 
-void AntGeometryWorkspace::onVectorUpdated() {
-	if ( !d_tcu ) {
-		return;
-	}
-
-	auto sender = QObject::sender();
-	auto fi = findVector(dynamic_cast<Vector*>(sender));
-	if ( fi == d_vectors.end() ) {
-		qDebug() << "[AntGeometryWorkspace]: could not find back sender";
-		return;
-	}
-	setMeasurement(fi->second,fi->first);
-}
-
-void AntGeometryWorkspace::onVectorCreated(QSharedPointer<Vector> vector) {
-	if ( !d_tcu ) {
-		qDebug() << "[AntGeometryWorkspace]: Vector created without tcu";
-		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
-		return;
-	}
-	auto measurementType = currentMeasurementType();
-	if ( !measurementType ) {
-		qDebug() << "No measurement type selected";
-		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
-		return;
-	}
-
-	if ( d_vectors.count(measurementType->MTID())  != 0 ) {
-		qWarning() << "Measurement already exist in TCU for " << ToQString(measurementType->Name());
-		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
-		return;
-	}
-
-	if ( d_experiment->measurements()->setMeasurement(d_tcu,
-	                                                  measurementType->MTID(),
-	                                                  vector->startPos(),
-	                                                  vector->endPos()) == false ) {
-		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
-		return;
-	}
-
-	connect(vector.data(),&Shape::updated,
-	        this,&AntGeometryWorkspace::onVectorUpdated);
-
-	d_vectors.insert(std::make_pair(measurementType->MTID(),vector));
-}
 
 void AntGeometryWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
-	if ( !d_tcu ) {
+	if ( !d_closeUp ) {
 		return;
 	}
 	auto fi = findVector(vector.data());
@@ -567,9 +1014,9 @@ void AntGeometryWorkspace::onVectorRemoved(QSharedPointer<Vector> vector) {
 		qDebug() << "[AntGeometryWorkspace]: could not find back vector";
 		return;
 	}
-	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
+	auto m = d_experiment->measurements()->measurementForCloseUp(d_closeUp->URI(),fi->first);
 	if ( !m ) {
-		qWarning() << "No measurement of type " << fi->first << " for " << ToQString(d_tcu->URI());
+		qWarning() << "No measurement of type " << fi->first << " for " << d_closeUp->URI().c_str();
 		return;
 	}
 	d_vectors.erase(fi);
@@ -583,13 +1030,11 @@ void AntGeometryWorkspace::on_insertButton_clicked() {
 		d_vectorialScene->setMode(VectorialScene::Mode::InsertCapsule);
 		break;
 	case Mode::Measure:
-		d_vectorialScene->setMode(VectorialScene::Mode::InsertVector);
 		break;
 	};
 
 }
 void AntGeometryWorkspace::on_editButton_clicked() {
-	d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 }
 
 
@@ -699,45 +1144,6 @@ void AntGeometryWorkspace::clearScene() {
 }
 
 
-void AntGeometryWorkspace::setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID) {
-	if ( !d_experiment || !d_tcu ) {
-		return;
-	}
-
-	d_experiment->measurements()->setMeasurement(d_tcu,
-	                                             mtID,
-	                                             vector->startPos(),
-	                                             vector->endPos());
-	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),mtID);
-	if ( !m ) {
-		d_vectorialScene->deleteShape(vector.staticCast<Shape>());
-	} else {
-		fmp::Isometry2Dd tagToOrig(d_tcu->TagAngle(),d_tcu->TagPosition());
-		Eigen::Vector2d start = tagToOrig * m->StartFromTag();
-		Eigen::Vector2d end = tagToOrig * m->EndFromTag();
-		vector->setStartPos(QPointF(start.x(),start.y()));
-		vector->setEndPos(QPointF(end.x(),end.y()));
-	}
-}
-
-void AntGeometryWorkspace::changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID) {
-	auto fi = findVector(vector);
-	if ( !d_tcu
-	     || d_vectors.count(mtID) != 0
-	     || fi == d_vectors.end() ) {
-		return;
-	}
-
-	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fi->first);
-	if ( m ) {
-		d_experiment->measurements()->deleteMeasurement(m);
-	}
-	d_vectors.insert(std::make_pair(mtID,fi->second));
-	fi->second->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(mtID)));
-	setMeasurement(fi->second,mtID);
-	d_vectorialScene->update();
-	d_vectors.erase(fi);
-}
 
 void AntGeometryWorkspace::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID) {
 	auto fi = std::find_if(d_capsules.begin(),
@@ -885,7 +1291,6 @@ void AntGeometryWorkspace::onCopyTime() {
 	}
 
 	QApplication::clipboard()->setText(ToQString(d_tcu->Frame().Time()));
-
 }
 
 void AntGeometryWorkspace::updateCloneAction() {

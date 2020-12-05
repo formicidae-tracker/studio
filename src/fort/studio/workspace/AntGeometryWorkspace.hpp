@@ -1,11 +1,9 @@
 #pragma once
 
-#include <fort/studio/MyrmidonTypes/Identification.hpp>
-#include <fort/studio/MyrmidonTypes/Measurement.hpp>
 #include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
+#include <fort/studio/MyrmidonTypes/Identification.hpp>
 
-#include <fort/studio/widget/vectorgraphics/Vector.hpp>
-#include <fort/studio/widget/vectorgraphics/Capsule.hpp>
+#include <fort/studio/widget/vectorgraphics/VectorialScene.hpp>
 
 #include "Workspace.hpp"
 
@@ -15,51 +13,162 @@ class AntGeometryWorkspace;
 
 class ExperimentBridge;
 class QStandardItemModel;
-class VectorialScene;
+class Capsule;
+class Vector;
 
 class AntGeometryWorkspace : public Workspace {
 	Q_OBJECT
 public:
-	explicit AntGeometryWorkspace(QWidget *parent = 0);
+	explicit AntGeometryWorkspace(QWidget * parent = nullptr);
 	virtual ~AntGeometryWorkspace();
 
+protected:
+	void initialize(QMainWindow * main, ExperimentBridge * experiment) override;
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
 
-
-	QAction * cloneAntShapeAction() const;
-
+	virtual quint32 typeFromComboBox() const = 0;
 
 public slots:
-	void nextCloseUp();
-	void previousCloseUp();
+	void setTagCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp);
+
+protected slots:
+	virtual void on_insertButton_clicked() = 0;
+	virtual void on_editButton_clicked() = 0;
+	virtual void on_comboBox_currentIndexChanged(int) = 0;
+
 
 private slots:
-	void on_toolBox_currentChanged(int);
+	void onIdentificationAntPositionChanged(const fmp::Identification::ConstPtr & identification);
+	void onIdentificationDeleted(const fmp::Identification::ConstPtr & ident);
 
-	void on_insertButton_clicked();
-	void on_editButton_clicked();
-	void on_comboBox_currentIndexChanged(int);
+	void onCopyTime();
 
-	void on_treeView_activated(const QModelIndex & index);
+	void on_vectorialScene_modeChanged(VectorialScene::Mode mode);
 
-	void onAntSelected(bool);
+protected:
 
-	void onIdentificationAntPositionChanged(fmp::Identification::ConstPtr identification);
-	void onIdentificationDeleted(fmp::IdentificationConstPtr ident);
 
+	virtual void onClearScene() = 0;
+	virtual void onNewCloseUp() = 0;
+
+
+	void clearScene();
+	void setColorFromType(quint32 typeID);
+
+
+	QToolButton * d_editButton;
+	QToolButton * d_insertButton;
+	QComboBox   * d_comboBox;
+	QToolBar    * d_editToolBar;
+	QAction     * d_copyTimeAction;
+
+	ExperimentBridge          * d_experiment;
+	fmp::TagCloseUp::ConstPtr   d_closeUp;
+	VectorialScene            * d_vectorialScene;
+};
+
+class AntMeasurementWorkspace : public AntGeometryWorkspace {
+	Q_OBJECT
+public:
+	explicit AntMeasurmentWorkspace(QWidget * parent = nullptr);
+	virtual ~AntMeasurementWorkspace();
+
+protected :
+	void initialize(QMainWindow * main, ExperimentBridge * experiment) override;
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
+
+	quint32 typefromComboBox() const override;
+
+	void onClearScene() override;
+	void onNewCloseUp() override;
+
+
+	void on_insertButton_clicked() override;
+	void on_editButton_clicked() override;
+	void on_comboBox_currentIndexChanged(int) override;
+
+
+
+private slots:
 	void onVectorUpdated();
 	void onVectorCreated(QSharedPointer<Vector> vector);
 	void onVectorRemoved(QSharedPointer<Vector> vector);
 
+
+private:
+
+	void setMeasurement(const QSharedPointer<Vector> & vector,
+	                    fmp::MeasurementTypeID mtID);
+
+	void changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID);
+
+	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator
+	findVector(Vector * vector) const;
+
+
+	AntMeasurementListWidget * d_antCloseUps;
+	MeasurementTypeWidget    * d_measurementTypes;
+	QDockWidget              * d_closeUpDock, *d_shapeTypeDock;
+
+
+
+	std::map<uint32_t,QSharedPointer<Vector> > d_vectors;
+};
+
+class AntShapeWorkspace : public AntGeometryWorkspace {
+	Q_OBJECT
+public:
+	explicit AntShapeWorkspace(QWidget *parent = nullptr);
+	virtual ~AntGeometryWorkspace();
+
+	QAction * cloneAntShapeAction() const;
+
+protected:
+	void initialize(QMainWindow * main, ExperimentBridge * experiment) override;
+	void setUp(const NavigationAction & actions ) override;
+	void tearDown(const NavigationAction & actions ) override;
+
+	quint32 typefromComboBox() const override;
+
+	void onClearScene() override;
+	void onNewCloseUp() override;
+
+	void on_insertButton_clicked() override;
+	void on_editButton_clicked() override;
+	void on_comboBox_currentIndexChanged(int) override;
+
+
+private slots:
 	void onCapsuleUpdated();
 	void onCapsuleCreated(QSharedPointer<Capsule> capsule);
 	void onCapsuleRemoved(QSharedPointer<Capsule> capsule);
 
-	void onMeasurementModified(const fmp::MeasurementConstPtr &);
-	void onMeasurementDeleted(const fmp::MeasurementConstPtr &m);
-
-	void onCopyTime();
 
 	void onCloneShapeActionTriggered();
+	void updateCloneAction();
+
+
+	void changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID);
+
+	fmp::CapsulePtr capsuleFromScene(const QSharedPointer<Capsule> & capsule);
+	void rebuildCapsules();
+
+	AntShapeListWidget * d_antCloseUps;
+	AntShapeTypeWidget * d_shapeTypes;
+	QDockWidget        * d_closeUpsDock, *d_shapeTypesDock;
+
+	QAction * d_cloneShapeAction;
+
+	std::map<QSharedPointer<Capsule>,uint32_t> d_capsules;
+};
+
+
+//OLD Implementation
+
+class AntGeometryWorkspace : public Workspace {
+
 
 protected:
 	void changeEvent(QEvent * event) override;
@@ -85,30 +194,14 @@ private:
 
 	quint32 typeFromComboBox() const;
 
-	void changeVectorType(Vector * vector,fmp::MeasurementTypeID mtID);
-	void changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID);
 
-	void onMeasurementModification(const QString & tcuURI,
-	                               quint32 mtID,
-	                               int direction);
 
 	fmp::CapsulePtr capsuleFromScene(const QSharedPointer<Capsule> & capsule);
 	void rebuildCapsules();
 
-	fmp::MeasurementTypeConstPtr currentMeasurementType() const;
-
 	fmp::AntShapeTypeConstPtr currentAntShapeType() const;
 
-	int columnForMeasurementType(fmp::MeasurementTypeID mtID) const;
 
-	void setColorFromType(quint32 typeID);
-
-	void updateCloneAction();
-
-
-	void setMeasurement(const QSharedPointer<Vector> & vector, fmp::MeasurementTypeID mtID);
-
-	std::map<uint32_t,QSharedPointer<Vector>>::const_iterator findVector(Vector * vector) const;
 
 	Ui::AntGeometryWorkspace    * d_ui;
 	ExperimentBridge          * d_experiment;
@@ -118,8 +211,4 @@ private:
 	Mode                        d_mode;
 
 	std::map<uint32_t,QSharedPointer<Vector> > d_vectors;
-	std::map<QSharedPointer<Capsule>,uint32_t> d_capsules;
-
-	QAction * d_copyTimeAction;
-	QAction * d_cloneShapeAction;
 };
