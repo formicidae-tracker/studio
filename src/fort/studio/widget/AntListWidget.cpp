@@ -171,6 +171,11 @@ void AntListWidget::selectAnt(quint32 antID) {
 }
 
 void AntSimpleListWidget::setUpUI() {
+	setMaximumSize(QSize(250,16777215));
+
+	d_tableView->setMinimumSize(QSize(180,0));
+	d_tableView->setMaximumSize(QSize(300,16777215));
+
 	d_actionsLayout = new QHBoxLayout();
 	auto spacer = new QSpacerItem(40,20,QSizePolicy::Expanding, QSizePolicy::Minimum);
 	d_actionsLayout->addItem(spacer);
@@ -261,6 +266,11 @@ void AntSimpleListWidget::onDeleteButtonClicked() {
 
 
 void AntDisplayListWidget::setUpUI() {
+	setMaximumSize(QSize(250,16777215));
+
+	d_tableView->setMinimumSize(QSize(180,0));
+	d_tableView->setMaximumSize(QSize(300,16777215));
+
 	d_colorLayout = new QHBoxLayout();
 
 	d_colorLabel = new QLabel(tr("Display Color:"),this);
@@ -394,6 +404,11 @@ void AntDisplayListWidget::updateUnsoloAll() {
 }
 
 void AntCloseUpExplorer::setUpUI() {
+	setMaximumSize(QSize(500,16777215));
+
+	d_tableView->setMinimumSize(QSize(360,0));
+	d_tableView->setMaximumSize(QSize(550,16777215));
+
 	d_closeUpScroller = new AntCloseUpScroller(this);
 	d_closeUpScroller->setObjectName("closeUpScroller");
 	d_verticalLayout->insertWidget(d_verticalLayout->count()-1,d_closeUpScroller);
