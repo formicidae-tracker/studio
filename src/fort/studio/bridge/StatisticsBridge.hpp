@@ -29,7 +29,6 @@ public slots:
 	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd);
 	void onTrackingDataDirectoryDeleted(QString tddURI);
 
-
 protected:
 	void setUpExperiment() override;
 	void tearDownExperiment() override;

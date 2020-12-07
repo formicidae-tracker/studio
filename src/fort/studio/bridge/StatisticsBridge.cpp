@@ -132,7 +132,7 @@ void StatisticsBridge::rebuildModel() {
 
 void StatisticsBridge::compute() {
 	clear();
-	if ( !d_experiment == false ) {
+	if ( d_experiment != nullptr ) {
 		try {
 			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);
 		} catch ( const std::exception & e ) {
@@ -148,6 +148,7 @@ void StatisticsBridge::recountFrames() {
 	d_frameCount = 0;
 
 	if ( !d_experiment == true ) {
+
 		return;
 	}
 

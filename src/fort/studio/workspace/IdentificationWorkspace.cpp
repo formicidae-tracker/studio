@@ -195,12 +195,13 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	main->addDockWidget(Qt::LeftDockWidgetArea,d_tagExplorer);
 	d_tagExplorer->hide();
 
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_tagStatistics);
+	d_tagStatistics->hide();
+
 	dynamic_cast<IdentificationListWidget*>(d_identificationList->widget())->initialize(experiment->identifier());
-	main->addDockWidget(Qt::RightDockWidgetArea,d_identificationList);
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_identificationList);
 	d_identificationList->hide();
 
-	main->addDockWidget(Qt::RightDockWidgetArea,d_tagStatistics);
-	d_tagStatistics->hide();
 
 }
 
@@ -496,7 +497,6 @@ void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 	d_tagExplorer->show();
 	d_identificationList->show();
 	d_tagStatistics->show();
-
 }
 
 void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {

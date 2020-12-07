@@ -18,6 +18,9 @@ public:
 
 	void initialize(ExperimentBridge * experiment) override;
 
+	const fmp::Ant::TypedCapsuleList & capsuleForAntID(fm::Ant::ID antID) const;
+
+
 public slots:
 	int addCapsule(fm::Ant::ID antID,
 	               fmp::AntShapeTypeID typeID,

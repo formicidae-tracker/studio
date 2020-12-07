@@ -117,6 +117,17 @@ void AntShapeBridge::clearCapsule(fm::Ant::ID antID) {
 	emit capsuleCleared(ant->AntID());
 }
 
+const fmp::Ant::TypedCapsuleList &
+AntShapeBridge::capsuleForAntID(fm::Ant::ID antID) const {
+	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
+	static fmp::Ant::TypedCapsuleList empty;
+	if ( ant == nullptr ) {
+		return empty;
+	}
+	return ant->Capsules();
+}
+
+
 void AntShapeBridge::cloneShape(fm::Ant::ID source,
                               bool scaleToSize,
                               bool overwriteShape) {

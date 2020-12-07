@@ -2,14 +2,8 @@
 
 Workspace::Workspace(bool showAntSelector,
                      QWidget * parent)
-	: QWidget(parent)
-	, d_showAntSelector(showAntSelector) {
+	: QWidget(parent) {
 }
 
 Workspace::~Workspace() {
-}
-
-
-bool Workspace::showAntSelector() const {
-	return d_showAntSelector;
 }

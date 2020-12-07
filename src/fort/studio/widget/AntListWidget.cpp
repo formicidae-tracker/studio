@@ -185,7 +185,7 @@ void AntSimpleListWidget::setUpUI() {
 	d_addButton->setIcon(QIcon::fromTheme("list-add"));
 	d_actionsLayout->addWidget(d_addButton);
 
-	d_deleteButton - new QToolButton(this);
+	d_deleteButton = new QToolButton(this);
 	d_deleteButton->setObjectName("deleteButton");
 	d_deleteButton->setIcon(QIcon::fromTheme("list-remove"));
 	d_actionsLayout->addWidget(d_deleteButton);
@@ -409,13 +409,15 @@ void AntCloseUpExplorer::setUpUI() {
 	d_tableView->setMinimumSize(QSize(360,0));
 	d_tableView->setMaximumSize(QSize(550,16777215));
 
-	d_closeUpScroller = new AntCloseUpScroller(this);
 	d_closeUpScroller->setObjectName("closeUpScroller");
 	d_verticalLayout->insertWidget(d_verticalLayout->count()-1,d_closeUpScroller);
 }
 
 AntCloseUpExplorer::AntCloseUpExplorer(QWidget *parent)
-	: AntListWidget(parent) {
+	: AntListWidget(parent)
+	, d_closeUpScroller(new AntCloseUpScroller(this)) {
+
+	setUpUI();
 
 	connect(d_closeUpScroller,
 	        &CloseUpScroller::currentCloseUpChanged,

@@ -2,6 +2,8 @@
 
 #include "Workspace.hpp"
 
+class QDockWidget;
+class AntSimpleListWidget;
 namespace Ui {
 class GeneralWorkspace;
 }
@@ -17,7 +19,9 @@ protected:
 	void setUp(const NavigationAction & actions) override;
 	void tearDown(const NavigationAction & actions) override;
 
-
 private:
 	Ui::GeneralWorkspace * d_ui;
+
+	AntSimpleListWidget * d_antList;
+	QDockWidget         * d_antListDock;
 };

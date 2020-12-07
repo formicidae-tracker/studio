@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -65,12 +65,17 @@
         <string>Edits tag and ants association</string>
        </attribute>
       </widget>
-      <widget class="AntGeometryWorkspace" name="antGeometryWorkspace">
+      <widget class="AntShapeWorkspace" name="antShapeWorkspace">
        <attribute name="title">
-        <string>Ant Geometry</string>
+        <string>Ant Shapes</string>
        </attribute>
        <attribute name="toolTip">
         <string>Shapes and measure ants</string>
+       </attribute>
+      </widget>
+      <widget class="AntMeasurementWorkspace" name="antMeasurementWorkspace">
+       <attribute name="title">
+        <string>Measr.</string>
        </attribute>
       </widget>
       <widget class="ZoningWorkspace" name="zoningWorkspace">
@@ -173,58 +178,6 @@
    <addaction name="menuEdit"/>
    <addaction name="menuMove"/>
    <addaction name="menuHelp"/>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>268</width>
-     <height>47</height>
-    </size>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
-   <property name="windowTitle">
-    <string>Ant Selector</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="AntDisplayListWidget" name="antList" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>250</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>300</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -499,19 +452,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AntDisplayListWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">fort/studio/widget/AntListWidget.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>IdentificationWorkspace</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/workspace/IdentificationWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>AntGeometryWorkspace</class>
+   <class>AntShapeWorkspace</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/workspace/AntGeometryWorkspace.hpp</header>
    <container>1</container>
@@ -544,6 +491,12 @@
    <class>ZoningWorkspace</class>
    <extends>QWidget</extends>
    <header location="global">fort/studio/workspace/ZoningWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntMeasurementWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/AntGeometryWorkspace.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

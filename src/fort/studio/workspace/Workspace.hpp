@@ -26,12 +26,7 @@ public:
 	explicit Workspace(bool showAntSelector, QWidget * parent);
 	virtual ~Workspace();
 
-	bool showAntSelector() const;
-
 	virtual void initialize(QMainWindow * main,ExperimentBridge * experiment) = 0;
 	virtual void setUp(const NavigationAction & actions) = 0;
 	virtual void tearDown(const NavigationAction & actions) = 0;
-
-private:
-	bool d_showAntSelector;
 };
