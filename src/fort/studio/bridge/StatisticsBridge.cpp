@@ -30,6 +30,7 @@ void StatisticsBridge::initialize(ExperimentBridge * experiment) {
 }
 
 void StatisticsBridge::tearDownExperiment() {
+	d_stats.clear();
 	clear();
 }
 void StatisticsBridge::setUpExperiment() {
@@ -63,7 +64,6 @@ void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
 }
 
 void StatisticsBridge::clear() {
-	d_stats.clear();
 	d_frameCount = 0;
 	d_model->clear();
 	auto nSpaces = 0;
@@ -89,14 +89,12 @@ void StatisticsBridge::clear() {
 }
 
 void StatisticsBridge::rebuildModel() {
-	clear();
-
-	if ( !d_experiment == true ) {
+	if ( d_experiment == nullptr ) {
 		return;
 	}
 	auto nSpaces = d_experiment->CSpaces().size();
-
 	for ( const auto & [tagID,tagStats] : d_stats ) {
+
 		QList<QStandardItem*> row;
 		row.push_back(new QStandardItem(fmp::FormatTagID(tagStats.ID).c_str()));
 		row.back()->setData(tagStats.ID);
@@ -134,6 +132,7 @@ void StatisticsBridge::compute() {
 	clear();
 	if ( d_experiment != nullptr ) {
 		try {
+			std::cerr << "Building stats" << std::endl;
 			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);
 		} catch ( const std::exception & e ) {
 			qCritical() << "Could not compute tag statistics: " << e.what();
