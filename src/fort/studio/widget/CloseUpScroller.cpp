@@ -44,6 +44,7 @@ void CloseUpScroller::setCloseUps(uint32_t objectID,
 	if ( objectID == d_currentID ) {
 		return;
 	}
+
 	d_currentID = objectID;
 	if ( d_currentID == -1 ) {
 		d_closeUps.clear();
@@ -99,6 +100,8 @@ void CloseUpScroller::onCloseUpsChanged(uint32_t objectID,
 	}
 	if ( d_currentCloseUp != d_closeUps.end() ) {
 		d_currentCloseUp = std::find(closeUps.begin(),closeUps.end(),*d_currentCloseUp);
+	} else {
+		d_currentCloseUp = closeUps.end();
 	}
 
 	d_closeUps = closeUps;

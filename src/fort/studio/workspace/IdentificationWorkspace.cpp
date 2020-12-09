@@ -553,7 +553,7 @@ void IdentificationWorkspace::setCloseUpLabels(const fmp::TagCloseUp::ConstPtr &
 	QString tagID = tr("N.A.");
 	QString time = tagID;
 	QString URI = tagID;
-	if ( closeUp ) {
+	if ( closeUp != nullptr ) {
 		tagID = fm::FormatTagID(closeUp->TagValue()).c_str();
 		time = ToQString(closeUp->Frame().Time());
 		URI = closeUp->URI().c_str();
