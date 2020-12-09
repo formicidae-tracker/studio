@@ -72,7 +72,7 @@
       <number>60</number>
      </attribute>
      <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>60</number>
+      <number>77</number>
      </attribute>
      <attribute name="horizontalHeaderHighlightSections">
       <bool>false</bool>
