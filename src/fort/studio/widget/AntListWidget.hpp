@@ -37,7 +37,7 @@ public slots:
 	void selectAnt(quint32 antID);
 
 protected slots:
-	void onTableViewClicked(const QModelIndex & index);
+	void onSelectionChanged();
 
 private slots:
 	void updateNumber();

@@ -82,8 +82,6 @@ AntListWidget::AntListWidget(QWidget * parent)
 	        d_sortedModel,
 	        static_cast<void (QSortFilterProxyModel::*)(const QString &)>(&QSortFilterProxyModel::setFilterRegExp));
 
-	connect(d_tableView,&QAbstractItemView::clicked,
-	        this,&AntListWidget::onTableViewClicked);
 
 	connect(this,&AntListWidget::antSelected,
 	        this,[this](quint32 antID ) { qWarning() << "Ant sleected: " << antID ;});
@@ -103,6 +101,9 @@ void AntListWidget::initialize(ExperimentBridge * experiment) {
 	updateNumber();
 	d_filterEdit->clear();
 	d_sortedModel->setSourceModel(sourceModel());
+
+	connect(d_tableView->selectionModel(),&QItemSelectionModel::selectionChanged,
+	        this,&AntListWidget::onSelectionChanged);
 
 	connect(d_experiment,
 	        &Bridge::activated,
@@ -139,11 +140,6 @@ void AntListWidget::updateNumber() {
 		n = sourceModel->rowCount();
 	}
 	d_antLabel->setText(tr("Number of ants: %1").arg(n));
-}
-
-void AntListWidget::onTableViewClicked(const QModelIndex & index) {
-	auto antID = sourceModel()->antIDFromIndex(d_sortedModel->mapToSource(index));
-	selectAnt(antID);
 }
 
 void AntListWidget::selectAnt(quint32 antID) {
@@ -192,6 +188,22 @@ void AntSimpleListWidget::setUpUI() {
 
 	d_verticalLayout->insertLayout(d_verticalLayout->count()-1,d_actionsLayout);
 
+}
+
+void AntListWidget::onSelectionChanged() {
+	auto selection = d_tableView->selectionModel();
+	if ( selection->hasSelection() == false ) {
+		selectAnt(0);
+		return;
+	}
+
+	auto rows = selection->selectedRows();
+	if ( rows.size() != 1 ) {
+		return;
+	}
+
+	auto antID = sourceModel()->antIDFromIndex(d_sortedModel->mapToSource(rows[0]));
+	selectAnt(antID);
 }
 
 AntSimpleListWidget::AntSimpleListWidget(QWidget * parent)
@@ -479,7 +491,8 @@ void AntCloseUpExplorer::moveIndex(int direction) {
 		return;
 	}
 	auto index  = d_sortedModel->index(row,0);
-	onTableViewClicked(index);
+	auto antID = sourceModel()->antIDFromIndex(d_sortedModel->mapToSource(index));
+	selectAnt(antID);
 	d_tableView->scrollTo(index);
 }
 
