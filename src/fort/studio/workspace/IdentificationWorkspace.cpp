@@ -8,6 +8,7 @@
 #include <QAction>
 #include <QMainWindow>
 #include <QDockWidget>
+#include <QInputDialog>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
@@ -206,13 +207,11 @@ void IdentificationWorkspace::initialize(QMainWindow * main,ExperimentBridge * e
 	main->addDockWidget(Qt::RightDockWidgetArea,d_tagStatistics);
 	d_tagStatistics->hide();
 
-
-
 }
 
 
 void IdentificationWorkspace::addIdentification() {
-	if ( !d_tcu ) {
+	if ( d_tcu == nullptr ) {
 		return;
 	}
 	auto m = d_experiment->measurements()->measurementForCloseUp(d_tcu->URI(),fmp::Measurement::HEAD_TAIL_TYPE);
@@ -228,7 +227,27 @@ void IdentificationWorkspace::addIdentification() {
 		return;
 	}
 
+	QStringList items;
+	for ( const auto & antID : d_experiment->identifier()->unidentifiedAntAt(d_tcu->Frame().Time()) ) {
+		items.push_back(fmp::Ant::FormatID(antID).c_str());
+	}
+	if ( items.empty() ) {
+		qCritical() << "There are no unidentified ants, abording";
+		return;
+	}
+
 	//TODO dialog to ask for an existing ant.
+	bool ok;
+	QVariant chosenID = QInputDialog::getItem(this,
+	                                          tr("Select an unidentified ant"),
+	                                          tr("Add identification to ant:"),
+	                                          items,0,false,&ok);
+	if ( ok == false ) {
+		return;
+	}
+
+	d_experiment->identifier()->addIdentification(chosenID.toInt(),d_tcu->TagValue(),start,end);
+
 
 	updateActionStates();
 

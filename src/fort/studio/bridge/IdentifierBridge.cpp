@@ -337,3 +337,19 @@ fmp::Identification::ConstPtr IdentifierBridge::identificationForIndex(const QMo
 	}
 	return item->data().value<fmp::Identification::Ptr>();
 }
+
+std::vector<fm::Ant::ID> IdentifierBridge::unidentifiedAntAt(const fm::Time & time) const {
+	std::vector<fm::Ant::ID> res;
+	for ( const auto & [antID,ant] : d_experiment->CIdentifier().CAnts() ) {
+		const auto & identifications = ant->CIdentifications();
+		if ( std::find_if(identifications.begin(),
+		                  identifications.end(),
+		                  [&time](const fmp::Identification::ConstPtr & ident) {
+			                  return ident->IsValid(time);
+		                  }) != identifications.cend() ) {
+			continue;
+		}
+		res.push_back(antID);
+	}
+	return res;
+}
