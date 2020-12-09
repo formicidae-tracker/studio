@@ -43,13 +43,13 @@ AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 
 	d_editToolBar = new QToolBar(this);
 
-	d_editAction = d_editToolBar->addAction(QIcon::fromTheme("edit-select-symbolic"),
+	d_editAction = d_editToolBar->addAction(QIcon(":/icons/cursor.svg"),
 	                                        tr("Edit primitives"));
 	d_editAction->setToolTip(tr("Edit primitives"));
 	d_editAction->setStatusTip(d_editAction->toolTip());
 	d_editAction->setObjectName("editAction");
 
-	d_insertAction = d_editToolBar->addAction(QIcon::fromTheme("insert-object-symbolic"),
+	d_insertAction = d_editToolBar->addAction(QIcon::fromTheme("list-add-symbolic"),
 	                                          tr("Insert primitive"));
 	d_insertAction->setToolTip(tr("Insert a new primitive"));
 	d_insertAction->setStatusTip(d_insertAction->toolTip());

@@ -221,7 +221,6 @@ include_directories(${PROJECT_BINARY_DIR}/src
 add_library(fort-studio-common STATIC ${SRC_FILES}
                                       ${HDR_FILES}
                                       ${UI_FILES}
-                                      ${RCC_FILES}
                                       )
 
 target_link_libraries(fort-studio-common Qt5::Widgets
@@ -232,7 +231,7 @@ target_link_libraries(fort-studio-common Qt5::Widgets
                                          Threads::Threads
                                          ${GLOG_LIBRARIES})
 
-add_executable(fort-studio main.cpp)
+add_executable(fort-studio main.cpp ${RCC_FILES})
 
 target_link_libraries(fort-studio fort-studio-common)
 

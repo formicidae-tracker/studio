@@ -41,44 +41,45 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
 	, d_navigationToolBar(nullptr) {
 
 
-#define set_action(res,symbolStr,legendStr,shortCutStr,toolTipStr) do { \
-		(res) = d_actionToolBar->addAction(QIcon::fromTheme(symbolStr), \
-		                                   tr(legendStr)); \
+#define set_action(res,legendStr,shortCutStr,toolTipStr) do { \
+		(res) = d_actionToolBar->addAction(tr(legendStr)); \
 		(res)->setShortcut(QKeySequence(tr(shortCutStr))); \
 		(res)->setToolTip(tr(toolTipStr " (" shortCutStr ")")); \
 		(res)->setStatusTip((res)->toolTip()); \
 	}while(0);
 
 	set_action(d_newAntAction,
-	           "contact-new-symbolic",
 	           "New Ant From Close-Up",
 	           "Ctrl+A",
 	           "Create a new ant from current close-up");
+	d_newAntAction->setIcon(QIcon(":/icons/ant-add.svg"));
+
 	set_action(d_addIdentificationAction,
-	           "address-book-new-symbolic",
 	           "Add Identification To...",
 	           "Ctrl+I",
 	           "Add a new identifcation from current close-up to an existing ant");
+	d_addIdentificationAction->setIcon(QIcon(":/icons/ident-ant.svg"));
 
 	set_action(d_deletePoseAction,
-	           "edit-delete-symbolic",
 	           "Delete Pose Estimation",
 	           "Ctrl+Shift+D",
 	           "Deletes current pose estimation");
+	d_deletePoseAction->setIcon(QIcon::fromTheme("edit-delete-symbolic"));
 
 	d_actionToolBar->addSeparator();
 
 	set_action(d_hideTagAction,
-	           "non-starred-symbolic",
 	           "Hide Tag For Current Session",
 	           "Ctrl+Shift+H",
 	           "Hides current tag until next reload");
+	d_hideTagAction->setIcon(QIcon(":/icons/hide.svg"));
+
 
 	set_action(d_showAllTagsAction,
-	           "edit-clear-all-symbolic",
 	           "Show All Tags",
 	           "Ctrl+Shift+O",
 	           "Shows all hidden tags");
+	d_showAllTagsAction->setIcon(QIcon(":/icons/eye.svg"));
 
 #undef set_action
     d_ui->setupUi(this);

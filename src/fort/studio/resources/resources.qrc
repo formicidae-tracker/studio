@@ -1,7 +1,10 @@
 <!-- -*- mode: nxml -*- -->
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-	<file>movieTracking.vertexshader</file>
-	<file>movieTracking.fragmentshader</file>
+	<file>icons/ant-add.svg</file>
+	<file>icons/ident-ant.svg</file>
+	<file>icons/hide.svg</file>
+	<file>icons/eye.svg</file>
+	<file>icons/cursor.svg</file>
 </qresource>
 </RCC>
