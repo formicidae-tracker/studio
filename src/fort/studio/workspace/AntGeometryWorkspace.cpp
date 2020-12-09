@@ -100,9 +100,15 @@ void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * exp
 	        this,
 	        &AntGeometryWorkspace::onIdentificationDeleted);
 
+	connect(experiment,&ExperimentBridge::antSelected,
+	        this,&AntGeometryWorkspace::updateAntLabel);
+
 	main->addToolBar(d_editToolBar);
 	d_editToolBar->hide();
 
+
+	updateAntLabel(0);
+	updateCloseUpLabels(nullptr);
 }
 
 void AntGeometryWorkspace::setUp(const NavigationAction & actions ) {
@@ -173,6 +179,7 @@ void AntGeometryWorkspace::setTagCloseUp(const fmp::TagCloseUp::ConstPtr & close
 	if ( d_closeUp == closeUp ) {
 		return;
 	}
+	updateCloseUpLabels(closeUp);
 	d_closeUp = closeUp;
 	clearScene();
 	if ( d_copyTimeAction != nullptr ) {
@@ -206,6 +213,29 @@ void AntGeometryWorkspace::onVectorialSceneModeChanged(VectorialScene::Mode mode
 void AntGeometryWorkspace::setColorFromType(quint32 typeID) {
 	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(typeID)));
 }
+
+void AntGeometryWorkspace::updateAntLabel(quint32 antID) {
+	QString formattedID = tr("N.A.");
+	if ( antID != 0 ) {
+		formattedID = fmp::Ant::FormatID(antID).c_str();
+	}
+	d_ui->antLabel->setText(tr("AntID: %1").arg(formattedID));
+}
+
+void AntGeometryWorkspace::updateCloseUpLabels(const fmp::TagCloseUp::ConstPtr & closeUp) {
+	QString time = tr("N.A.");
+	QString tagID = time;
+	QString URI = time;
+	if ( closeUp != nullptr ) {
+		time = ToQString(closeUp->Frame().Time());
+		URI = closeUp->URI().c_str();
+		tagID = fm::FormatTagID(closeUp->TagValue()).c_str();
+	}
+	d_ui->timeLabel->setText(tr("Time: %1").arg(time));
+	d_ui->tagLabel->setText(tr("TagID: %1").arg(tagID));
+	d_ui->uriLabel->setText(tr("URI: %1").arg(URI));
+}
+
 
 
 AntMeasurementWorkspace::AntMeasurementWorkspace(QWidget * parent)

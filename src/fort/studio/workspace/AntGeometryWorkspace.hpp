@@ -60,6 +60,8 @@ private slots:
 
 	void onVectorialSceneModeChanged(VectorialScene::Mode mode);
 
+	void updateAntLabel(quint32 antID);
+	void updateCloseUpLabels(const fmp::TagCloseUp::ConstPtr & closeUp);
 protected:
 	virtual void onClearScene() = 0;
 	virtual void onNewCloseUp() = 0;
