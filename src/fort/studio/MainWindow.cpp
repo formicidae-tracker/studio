@@ -120,25 +120,25 @@ void MainWindow::setUpNavigationActions() {
 	set_button(d_navigationActions.PreviousTag,
 	           "go-first-symbolic",
 	           "Previous Tag",
-	           "Ctrl+Up",
+	           "Alt+W",
 	           "Jump to previous tag");
 
 	set_button(d_navigationActions.PreviousCloseUp,
 	           "go-previous-symbolic",
 	           "Previous Close Up",
-	           "Shift+Up",
+	           "Alt+A",
 	           "Jump to previous close-up");
 
 	set_button(d_navigationActions.NextCloseUp,
 	           "go-next-symbolic",
 	           "Next Close Up",
-	           "Shift+Down",
+	           "Alt+D",
 	           "Jump to next close-up");
 
 	set_button(d_navigationActions.NextTag,
 	           "go-last-symbolic",
 	           "Next Tag",
-	           "Ctrl+Down",
+	           "Alt+S",
 	           "Jump to next tag");
 
 	toolbar->addSeparator();
