@@ -13,7 +13,6 @@
 #include "MeasurementBridge.hpp"
 #include "GlobalPropertyBridge.hpp"
 #include "IdentifierBridge.hpp"
-#include "SelectedAntBridge.hpp"
 #include "IdentifiedFrameConcurrentLoader.hpp"
 #include "AntShapeTypeBridge.hpp"
 #include "AntMetadataBridge.hpp"
@@ -36,7 +35,6 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_measurements(new MeasurementBridge(this))
 	, d_identifier(new IdentifierBridge(this))
 	, d_antDisplay(new AntDisplayBridge(this))
-	, d_selectedAnt(new SelectedAntBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
@@ -61,7 +59,8 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	              d_tagCloseUps,
 	              d_antMeasurements,
 	              d_antShapes,
-		}) {
+		})
+	, d_selectedID(0) {
 
 
 	for ( const auto & child : d_children ) {
@@ -69,10 +68,6 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 		        this,&ExperimentBridge::onChildModified);
 		child->initialize(this);
 	}
-
-	connect(d_selectedAnt,&Bridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
 
 }
 
@@ -188,11 +183,6 @@ GlobalPropertyBridge * ExperimentBridge::globalProperties() const {
 	return d_globalProperties;
 }
 
-SelectedAntBridge * ExperimentBridge::selectedAnt() const {
-	return d_selectedAnt;
-}
-
-
 IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() const {
 	return d_identifiedFrameLoader;
 }
@@ -236,11 +226,10 @@ void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	for ( const auto & child : d_children ) {
 		child->setExperiment(experiment);
 	}
-	d_selectedAnt->setAnt(nullptr);
-	d_selectedAnt->setExperiment(experiment);
 	d_identifiedFrameLoader->setExperiment(experiment);
 	resetChildModified();
 
+	selectAnt(0);
 	emit activated(d_experiment.get() != NULL);
 }
 
@@ -255,7 +244,6 @@ void ExperimentBridge::resetChildModified() {
 	for ( const auto & child : d_children ) {
 		child->setModified(false);
 	}
-	d_selectedAnt->setModified(false);
 }
 
 fmp::Ant::Ptr ExperimentBridge::createAnt() {
@@ -302,14 +290,17 @@ void ExperimentBridge::deleteAnt(fm::Ant::ID antID) {
 
 
 void ExperimentBridge::selectAnt(quint32 antID) {
-	if ( !d_experiment ) {
+	if ( d_selectedID == antID ) {
 		return;
 	}
-	try {
-		auto ant = d_experiment->Identifier()->Ants().at(antID);
-		d_selectedAnt->setAnt(ant);
-	} catch ( const std::exception & ) {
-	}
+
+	d_selectedID = antID;
+
+	emit antSelected(antID);
+}
+
+quint32 ExperimentBridge::selectedAntID() const {
+	return d_selectedID;
 }
 
 fmp::Ant::ConstPtr ExperimentBridge::ant(fm::Ant::ID aID) const {

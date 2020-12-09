@@ -2,7 +2,6 @@
 #include "ui_CloneShapeDialog.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
-#include <fort/studio/bridge/SelectedAntBridge.hpp>
 #include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 
 #include <fort/studio/Format.hpp>
@@ -12,16 +11,18 @@
 
 
 CloneShapeDialog::CloneShapeDialog(ExperimentBridge * experiment,
+                                   quint32 sourceID,
                                    QWidget *parent)
 	: QDialog(parent)
 	, d_ui(new Ui::CloneShapeDialog) {
 	d_ui->setupUi(this);
-	auto ant = experiment->selectedAnt();
-	if ( ant->isActive() == false ) {
-		throw std::runtime_error("No selected ant");
+	auto ant = experiment->ant(sourceID);
+	auto antIDStr = fmp::Ant::FormatID(sourceID).c_str();
+
+	if ( ant == nullptr ) {
+		throw std::runtime_error("Could not find ant " + std::string(antIDStr) );
 	}
 
-	auto antIDStr = ToQString(fmp::Ant::FormatID(ant->selectedID()));
 
 	setWindowModality(Qt::ApplicationModal);
 
@@ -35,7 +36,7 @@ CloneShapeDialog::CloneShapeDialog(ExperimentBridge * experiment,
 		counts.insert(std::make_pair(stID,0));
 	}
 
-	for ( const auto & [stID,c] : ant->capsules() ) {
+	for ( const auto & [stID,c] : ant->Capsules() ) {
 		counts[stID] += 1;
 	}
 
@@ -69,7 +70,7 @@ CloneShapeDialog::get(ExperimentBridge * experiment,
                       QWidget *parent) {
 	std::shared_ptr<CloneShapeDialog> dialog;
 	try {
-		dialog = std::make_shared<CloneShapeDialog>(experiment,parent);
+		dialog = std::make_shared<CloneShapeDialog>(experiment,experiment->selectedAntID(),parent);
 	} catch ( const std::exception & e ) {
 		qCritical() << e.what();
 		return {};

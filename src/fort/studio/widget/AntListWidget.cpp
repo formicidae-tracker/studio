@@ -82,10 +82,6 @@ AntListWidget::AntListWidget(QWidget * parent)
 	        d_sortedModel,
 	        static_cast<void (QSortFilterProxyModel::*)(const QString &)>(&QSortFilterProxyModel::setFilterRegExp));
 
-
-	connect(this,&AntListWidget::antSelected,
-	        this,[this](quint32 antID ) { qWarning() << "Ant sleected: " << antID ;});
-
 }
 
 AntListWidget::~AntListWidget() {
@@ -126,6 +122,12 @@ void AntListWidget::initialize(ExperimentBridge * experiment) {
 			        selectAnt(0);
 		        }
 	        });
+
+	connect(d_experiment,&ExperimentBridge::antSelected,
+	        this,&AntListWidget::selectAnt);
+
+	connect(this,&AntListWidget::antSelected,
+	        d_experiment,&ExperimentBridge::selectAnt);
 
 
 	initializeChild(experiment);

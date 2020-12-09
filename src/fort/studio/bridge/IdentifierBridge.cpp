@@ -9,7 +9,6 @@
 #include <fort/myrmidon/priv/Identifier.hpp>
 
 #include "ExperimentBridge.hpp"
-#include "SelectedAntBridge.hpp"
 #include "GlobalPropertyBridge.hpp"
 
 IdentifierBridge::IdentifierBridge(QObject * parent)

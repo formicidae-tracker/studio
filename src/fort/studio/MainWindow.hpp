@@ -54,7 +54,6 @@ private:
 	void setUpWorkspacesActions();
 	void setUpNavigationActions();
 
-
 	bool maybeSave(bool * cancelled = NULL);
 	bool save(const QString & path);
 

@@ -1,7 +1,6 @@
 #include "IdentifierUTest.hpp"
 
 #include <fort/studio/bridge/IdentifierBridge.hpp>
-#include <fort/studio/bridge/SelectedAntBridge.hpp>
 #include <fort/studio/widget/AntListWidget.hpp>
 
 #include <fort/myrmidon/TestSetup.hpp>

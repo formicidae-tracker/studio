@@ -6,8 +6,6 @@
 #include <fort/studio/bridge/GlobalPropertyBridge.hpp>
 #include <fort/studio/bridge/MeasurementBridge.hpp>
 #include <fort/studio/bridge/IdentifierBridge.hpp>
-#include <fort/studio/bridge/SelectedAntBridge.hpp>
-#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 #include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 
 #include <QSignalSpy>
