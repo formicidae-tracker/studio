@@ -497,7 +497,6 @@ void IdentificationWorkspace::setUp(const NavigationAction & actions ) {
 
 
 	d_actionToolBar->show();
-	actions.NavigationToolBar->show();
 	d_tagExplorer->show();
 	d_identificationList->show();
 	d_tagStatistics->show();
@@ -526,7 +525,6 @@ void IdentificationWorkspace::tearDown(const NavigationAction & actions ) {
 	d_copyTimeAction = nullptr;
 
 	d_actionToolBar->hide();
-	actions.NavigationToolBar->hide();
 	d_tagExplorer->hide();
 	d_identificationList->hide();
 	d_tagStatistics->hide();

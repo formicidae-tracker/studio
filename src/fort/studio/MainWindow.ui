@@ -20,19 +20,34 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QTabWidget" name="workspaceSelector">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="tabPosition">
-       <enum>QTabWidget::East</enum>
+       <enum>QTabWidget::North</enum>
       </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>7</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
       </property>
       <property name="usesScrollButtons">
+       <bool>false</bool>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>false</bool>
+      </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
+      <property name="tabBarAutoHide">
        <bool>false</bool>
       </property>
       <widget class="GeneralWorkspace" name="generalWorkspace">
@@ -51,7 +66,7 @@
         <string/>
        </property>
        <attribute name="title">
-        <string>Tag Statistics</string>
+        <string> Statistics Workspaces</string>
        </attribute>
        <attribute name="toolTip">
         <string>Shows global tag detection statistics</string>
@@ -67,20 +82,23 @@
       </widget>
       <widget class="AntShapeWorkspace" name="antShapeWorkspace">
        <attribute name="title">
-        <string>Ant Shapes</string>
+        <string>Ant Shape</string>
        </attribute>
        <attribute name="toolTip">
-        <string>Shapes and measure ants</string>
+        <string>Defines ant shapes</string>
        </attribute>
       </widget>
       <widget class="AntMeasurementWorkspace" name="antMeasurementWorkspace">
        <attribute name="title">
-        <string>Measr.</string>
+        <string>Measurement</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Measure individual ants</string>
        </attribute>
       </widget>
       <widget class="ZoningWorkspace" name="zoningWorkspace">
        <attribute name="title">
-        <string>Zoning</string>
+        <string>Zone Definition</string>
        </attribute>
        <attribute name="toolTip">
         <string>Defines geometric zones</string>
@@ -173,9 +191,15 @@
      <string>Move</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuWorkspace">
+    <property name="title">
+     <string>Workspace</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuMove"/>
+   <addaction name="menuWorkspace"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>

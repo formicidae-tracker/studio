@@ -115,7 +115,6 @@ void AntGeometryWorkspace::setUp(const NavigationAction & actions ) {
 	connect(actions.CopyCurrentTime,&QAction::triggered,
 	        this,&AntGeometryWorkspace::onCopyTime);
 
-	actions.NavigationToolBar->show();
 	d_copyTimeAction = actions.CopyCurrentTime;
 	d_editToolBar->show();
 }
@@ -126,7 +125,6 @@ void AntGeometryWorkspace::tearDown(const NavigationAction & actions ) {
 
 
 	d_copyTimeAction = nullptr;
-	actions.NavigationToolBar->hide();
 	d_editToolBar->hide();
 }
 

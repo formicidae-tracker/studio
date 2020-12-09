@@ -52,6 +52,7 @@ private:
 	void setUpDynamicWindowTitle();
 	void setUpWorkspaces();
 	void setUpWorkspacesActions();
+	void setUpWorkspacesSelectionActions();
 	void setUpNavigationActions();
 
 	bool maybeSave(bool * cancelled = NULL);

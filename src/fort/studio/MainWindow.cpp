@@ -9,6 +9,9 @@
 #include <QAbstractItemModel>
 #include <QPointer>
 #include <QSortFilterProxyModel>
+#include <QTabBar>
+#include <QComboBox>
+#include <QLabel>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 #include <fort/studio/widget/Logger.hpp>
@@ -89,7 +92,7 @@ void MainWindow::setUpWorkspaces() {
 	        &MainWindow::onCurrentWorkspaceChanged);
 
 	onCurrentWorkspaceChanged(0);
-
+	d_ui->workspaceSelector->setElideMode(Qt::ElideRight);
 
 }
 
@@ -106,7 +109,6 @@ void MainWindow::setUpNavigationActions() {
 	auto toolbar = new QToolBar(this);
 	d_navigationActions.NavigationToolBar = toolbar;
 	addToolBar(toolbar);
-	toolbar->hide();
 
 
 #define set_button(res,symbolStr,legendStr,shortCutStr,toolTipStr) do {	  \
@@ -169,6 +171,53 @@ void MainWindow::setUpNavigationActions() {
 	d_ui->menuEdit->addSeparator();
 }
 
+void MainWindow::setUpWorkspacesSelectionActions() {
+	auto selectionGroup = new QActionGroup(this);
+	auto comboBox = new QComboBox(this);
+
+	for ( int i = 0; i < d_ui->workspaceSelector->count(); ++i ) {
+		auto action = new QAction(this);
+		auto name = d_ui->workspaceSelector->tabText(i);
+		action->setText(tr("%1 Workspace").arg(name));
+		action->setShortcut(QKeySequence(tr("Alt+%1").arg(i+1)));
+		action->setToolTip(d_ui->workspaceSelector->tabToolTip(i));
+		action->setStatusTip(d_ui->workspaceSelector->tabToolTip(i));
+		action->setCheckable(true);
+		comboBox->addItem(name);
+		selectionGroup->addAction(action);
+		d_ui->menuWorkspace->addAction(action);
+
+		connect(action,&QAction::toggled,
+		        this,[i,this](bool checked) {
+			             if ( checked == true) {
+				             d_ui->workspaceSelector->setCurrentIndex(i);
+			             }
+		             });
+
+		connect(d_ui->workspaceSelector,
+		        &QTabWidget::currentChanged,
+		        this,
+		        [i,action,this](int index) {
+			        if ( index == i) {
+				        action->setChecked(true);
+			        }
+		        });
+
+	}
+	d_ui->workspaceSelector->tabBar()->setVisible(false);
+
+	connect(comboBox,qOverload<int>(&QComboBox::currentIndexChanged),
+	        d_ui->workspaceSelector,&QTabWidget::setCurrentIndex);
+
+	connect(d_ui->workspaceSelector,&QTabWidget::currentChanged,
+	comboBox,&QComboBox::setCurrentIndex);
+
+	auto tb = new QToolBar(this);
+	tb->addWidget(new QLabel(tr("Workspace:")));
+	tb->addWidget(comboBox);
+	addToolBar(tb);
+}
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
@@ -184,9 +233,14 @@ MainWindow::MainWindow(QWidget *parent)
 	setUpDynamicWindowTitle();
 
 	loadSettings();
+
+	setUpWorkspacesSelectionActions();
 	setUpNavigationActions();
+
 	setUpWorkspaces();
 	setUpWorkspacesActions();
+
+
 
 }
 
