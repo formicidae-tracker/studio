@@ -132,7 +132,6 @@ void StatisticsBridge::compute() {
 	clear();
 	if ( d_experiment != nullptr ) {
 		try {
-			std::cerr << "Building stats" << std::endl;
 			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);
 		} catch ( const std::exception & e ) {
 			qCritical() << "Could not compute tag statistics: " << e.what();

@@ -84,7 +84,6 @@ AntGeometryWorkspace::~AntGeometryWorkspace() {
 
 
 void AntGeometryWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
-	std::cerr << "Coucou geometry"<< std::endl;
 	d_experiment = experiment;
 
 	auto identifier = d_experiment->identifier();
@@ -251,7 +250,6 @@ AntMeasurementWorkspace::~AntMeasurementWorkspace() {
 
 
 void AntMeasurementWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
-	std::cerr << "Coucou measurement"<< std::endl;
 	AntGeometryWorkspace::initialize(main,experiment);
 
 	d_measurementTypes->setup(experiment->measurements());
