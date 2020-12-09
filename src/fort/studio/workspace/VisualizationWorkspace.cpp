@@ -6,6 +6,7 @@
 #include <fort/studio/bridge/UniverseBridge.hpp>
 
 #include <fort/studio/widget/TrackingVideoPlayer.hpp>
+#include <fort/studio/widget/AntListWidget.hpp>
 
 #include <QAction>
 #include <QShortcut>
@@ -16,6 +17,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QAbstractButton>
+#include <QDockWidget>
+#include <QMainWindow>
 
 #include <QDebug>
 
@@ -103,7 +106,9 @@ VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
 		             d_videoPlayer->skipDuration(-large);
 	             });
 
-
+	d_antDisplay = new AntDisplayListWidget(this);
+	d_antDisplayDock = new QDockWidget(tr("Ants Display States"));
+	d_antDisplayDock->setWidget(d_antDisplay);
 }
 
 VisualizationWorkspace::~VisualizationWorkspace() {
@@ -168,6 +173,11 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	connect(d_jumpToTimeAction,&QAction::triggered,
 	        this,&VisualizationWorkspace::jumpToTime);
 
+
+	d_antDisplay->initialize(experiment);
+
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_antDisplayDock);
+	d_antDisplayDock->hide();
 }
 
 void VisualizationWorkspace::onCopyTimeActionTriggered() {
@@ -190,6 +200,8 @@ void VisualizationWorkspace::setUp(const NavigationAction & actions) {
 	        &VisualizationWorkspace::onCopyTimeActionTriggered);
 
 	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
+	d_antDisplayDock->show();
+
 }
 
 void VisualizationWorkspace::tearDown(const NavigationAction & actions) {
@@ -203,6 +215,7 @@ void VisualizationWorkspace::tearDown(const NavigationAction & actions) {
 	           this,
 	           &VisualizationWorkspace::onCopyTimeActionTriggered);
 	actions.CopyCurrentTime->setEnabled(false);
+	d_antDisplayDock->hide();
 }
 
 QAction * VisualizationWorkspace::jumpToTimeAction() const {

@@ -1,9 +1,11 @@
 #pragma once
 
-
 #include "Workspace.hpp"
 
 class QAction;
+
+class QDockWidget;
+class AntDisplayListWidget;
 
 namespace Ui {
 class VisualizationWorkspace;
@@ -36,4 +38,6 @@ private:
 	Ui::VisualizationWorkspace * d_ui;
 	TrackingVideoPlayer        * d_videoPlayer;
 	QAction                    * d_jumpToTimeAction;
+	AntDisplayListWidget       * d_antDisplay;
+	QDockWidget                * d_antDisplayDock;
 };
