@@ -205,7 +205,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open">
+    <iconset theme="document-open-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -223,7 +223,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save">
+    <iconset theme="document-save-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -241,7 +241,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="document-save-as">
+    <iconset theme="document-save-as-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -259,7 +259,7 @@
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit">
+    <iconset theme="application-exit-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -277,7 +277,7 @@
   </action>
   <action name="actionAddTrackingDataDir">
    <property name="icon">
-    <iconset theme="list-add">
+    <iconset theme="list-add-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -289,7 +289,7 @@
   </action>
   <action name="actionHelpAbout">
    <property name="icon">
-    <iconset theme="help-about">
+    <iconset theme="help-about-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -298,7 +298,7 @@
   </action>
   <action name="actionOnlineHelp">
    <property name="icon">
-    <iconset theme="system-search">
+    <iconset theme="system-search-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -383,7 +383,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="edit-undo">
+    <iconset theme="edit-undo-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -404,7 +404,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="edit-redo">
+    <iconset theme="edit-redo-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -422,7 +422,7 @@
   </action>
   <action name="actionNew">
    <property name="icon">
-    <iconset theme="document-new">
+    <iconset theme="document-new-symbolic">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">

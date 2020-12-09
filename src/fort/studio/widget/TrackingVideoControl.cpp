@@ -100,15 +100,15 @@ void TrackingVideoControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::Sta
 	switch(state) {
 	case TrackingVideoPlayer::State::Playing:
 		d_ui->stopButton->setEnabled(true);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-pause"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-pause-symbolic"));
 		break;
 	case TrackingVideoPlayer::State::Paused:
 		d_ui->stopButton->setEnabled(true);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start-symbolic"));
 		break;
 	case TrackingVideoPlayer::State::Stopped:
 		d_ui->stopButton->setEnabled(false);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start-symbolic"));
 		break;
 	}
 }

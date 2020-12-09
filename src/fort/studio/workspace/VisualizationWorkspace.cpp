@@ -241,7 +241,7 @@ void VisualizationWorkspace::jumpToTime() {
     layout->addRow(tr("Space:"),spaceCombo);
 
     auto lineEdit = new QLineEdit(&dialog);
-    auto warning = lineEdit->addAction(QIcon::fromTheme("dialog-warning"),QLineEdit::TrailingPosition);
+    auto warning = lineEdit->addAction(QIcon::fromTheme("dialog-warning-symbolic"),QLineEdit::TrailingPosition);
     warning->setVisible(false);
     layout->addRow(tr("Time:"),lineEdit);
 

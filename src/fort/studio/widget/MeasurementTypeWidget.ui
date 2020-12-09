@@ -41,7 +41,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-add">
+        <iconset theme="list-add-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -52,7 +52,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove">
+        <iconset theme="list-remove-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>

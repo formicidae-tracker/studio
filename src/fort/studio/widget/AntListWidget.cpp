@@ -169,12 +169,12 @@ void AntSimpleListWidget::setUpUI() {
 
 	d_addButton = new QToolButton(this);
 	d_addButton->setObjectName("addButton");
-	d_addButton->setIcon(QIcon::fromTheme("list-add"));
+	d_addButton->setIcon(QIcon::fromTheme("list-add-symbolic"));
 	d_actionsLayout->addWidget(d_addButton);
 
 	d_deleteButton = new QToolButton(this);
 	d_deleteButton->setObjectName("deleteButton");
-	d_deleteButton->setIcon(QIcon::fromTheme("list-remove"));
+	d_deleteButton->setIcon(QIcon::fromTheme("list-remove-symbolic"));
 	d_actionsLayout->addWidget(d_deleteButton);
 
 	d_verticalLayout->insertLayout(d_verticalLayout->count()-1,d_actionsLayout);

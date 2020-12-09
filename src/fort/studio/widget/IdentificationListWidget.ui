@@ -61,7 +61,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove">
+        <iconset theme="list-remove-symbolic">
          <normaloff>../workspace</normaloff>../workspace</iconset>
        </property>
       </widget>

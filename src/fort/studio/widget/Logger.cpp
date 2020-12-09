@@ -238,8 +238,8 @@ LogStatusWidget::LogStatusWidget(Logger * logger,QWidget * parent)
 	        &LogStatusWidget::onNewMessage,
 	        Qt::QueuedConnection);
 
-	d_errorIcon->setPixmap(QIcon::fromTheme("dialog-warning").pixmap(15,15));
-	d_warningIcon->setPixmap(QIcon::fromTheme("dialog-question").pixmap(15,15));
+	d_errorIcon->setPixmap(QIcon::fromTheme("dialog-error-symbolic").pixmap(15,15));
+	d_warningIcon->setPixmap(QIcon::fromTheme("dialog-warning-symbolic").pixmap(15,15));
 
 	const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
