@@ -139,7 +139,9 @@ VectorialScene::VectorialScene(QObject * parent)
 			auto start = e->scenePos();
 			auto polygon = QSharedPointer<Polygon>(new Polygon({start},d_color));
 			polygon->addToScene(this);
-			d_mouseMove = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
+			d_mouseMove = [polygon](QGraphicsSceneMouseEvent * e){
+				              e->ignore();
+			              };
 			d_mouseRelease = [](QGraphicsSceneMouseEvent * e){ e->ignore();};
 			d_mousePress =
 				[start,polygon,this](QGraphicsSceneMouseEvent *e) {
