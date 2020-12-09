@@ -311,6 +311,33 @@ void VectorialScene::clearPoseIndicator() {
 	d_poseIndicator = nullptr;
 }
 
+class PictureCache {
+public:
+
+	QPixmap load(const QString & filepath) {
+		auto fi = d_pixmap.find(filepath);
+		if ( fi != d_pixmap.cend() ) {
+			return fi->second;
+		}
+
+		auto pixmap = QPixmap(filepath);
+
+		if ( d_pixmap.size() > 10 ) {
+			d_pixmap.erase(d_fifo.front());
+			d_fifo.pop_front();
+		}
+
+		d_pixmap[filepath] = pixmap;
+		d_fifo.push_back(filepath);
+
+		return pixmap;
+	}
+private:
+
+	std::map<QString,QPixmap> d_pixmap;
+	std::list<QString>        d_fifo;
+};
+
 
 void VectorialScene::setBackgroundPicture(const QString & filepath) {
 	if ( d_background != nullptr) {
@@ -323,8 +350,10 @@ void VectorialScene::setBackgroundPicture(const QString & filepath) {
 		setSceneRect(QRectF(0,0,500,500));
 		return;
 	}
+	static PictureCache cache;
+
 	qInfo() << "setting " << filepath;
-	d_background = new QGraphicsPixmapItem(filepath);
+	d_background = new QGraphicsPixmapItem(cache.load(filepath));
 	addItem(d_background);
 	setSceneRect(d_background->boundingRect());
 	d_background->setZValue(-100);
