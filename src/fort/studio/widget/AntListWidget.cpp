@@ -30,10 +30,6 @@ void AntListWidget::setUpUI() {
 
 	d_verticalLayout = new QVBoxLayout(this);
 	d_verticalLayout->setObjectName("verticalLayout");
-	d_antLabel = new QLabel(tr("Number of ants: %1").arg(0),this);
-	d_antLabel->setObjectName("antLabel");
-
-	d_verticalLayout->addWidget(d_antLabel);
 
 	d_horizontalLayoutFilter = new QHBoxLayout();
 	d_horizontalLayoutFilter->setObjectName("horizontalLayoutFilter");
@@ -67,8 +63,6 @@ AntListWidget::AntListWidget(QWidget * parent)
 
 	setUpUI();
 
-	updateNumber();
-
 	d_filterEdit->setEnabled(false);
 
 	d_tableView->setModel(d_sortedModel);
@@ -94,7 +88,6 @@ quint32 AntListWidget::selectedAntID() const {
 
 void AntListWidget::initialize(ExperimentBridge * experiment) {
 	d_experiment = experiment;
-	updateNumber();
 	d_filterEdit->clear();
 	d_sortedModel->setSourceModel(sourceModel());
 
@@ -106,15 +99,6 @@ void AntListWidget::initialize(ExperimentBridge * experiment) {
 	        d_filterEdit,
 	        &QLineEdit::setEnabled);
 
-	connect(d_experiment,
-	        &ExperimentBridge::antCreated,
-	        this,
-	        &AntDisplayListWidget::updateNumber);
-
-	connect(d_experiment,
-	        &ExperimentBridge::antDeleted,
-	        this,
-	        &AntDisplayListWidget::updateNumber);
 	connect(d_tableView->selectionModel(),
 	        &QItemSelectionModel::selectionChanged,
 	        [this]() {
@@ -135,7 +119,7 @@ void AntListWidget::initialize(ExperimentBridge * experiment) {
 
 
 
-void AntListWidget::updateNumber() {
+void AntSimpleListWidget::updateNumber() {
 	size_t n = 0;
 	auto sourceModel = d_sortedModel->sourceModel();
 	if ( sourceModel != nullptr ) {
@@ -173,6 +157,11 @@ void AntSimpleListWidget::setUpUI() {
 
 	d_tableView->setMinimumSize(QSize(180,0));
 	d_tableView->setMaximumSize(QSize(300,16777215));
+
+	d_antLabel = new QLabel(tr("Number of ants: %1").arg(0),this);
+	d_antLabel->setObjectName("antLabel");
+
+	d_verticalLayout->insertWidget(0,d_antLabel);
 
 	d_actionsLayout = new QHBoxLayout();
 	auto spacer = new QSpacerItem(40,20,QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -222,6 +211,8 @@ AntSimpleListWidget::AntSimpleListWidget(QWidget * parent)
 	connect(d_deleteButton,&QAbstractButton::clicked,
 	        this,&AntSimpleListWidget::onDeleteButtonClicked);
 
+
+	updateNumber();
 }
 
 AntSimpleListWidget::~AntSimpleListWidget() {
@@ -251,6 +242,18 @@ void AntSimpleListWidget::initializeChild(ExperimentBridge * experiment) {
 	        &QItemSelectionModel::selectionChanged,
 	        this,
 	        &AntSimpleListWidget::onSelectionChanged);
+
+	updateNumber();
+	connect(experiment,
+	        &ExperimentBridge::antCreated,
+	        this,
+	        &AntSimpleListWidget::updateNumber);
+
+	connect(experiment,
+	        &ExperimentBridge::antDeleted,
+	        this,
+	        &AntSimpleListWidget::updateNumber);
+
 }
 
 void AntSimpleListWidget::onSelectionChanged() {

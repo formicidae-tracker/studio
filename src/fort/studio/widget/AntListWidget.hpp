@@ -39,9 +39,6 @@ public slots:
 protected slots:
 	void onSelectionChanged();
 
-private slots:
-	void updateNumber();
-
 signals:
 	void antSelected(quint32 antID);
 
@@ -51,7 +48,6 @@ protected:
 
 
 	QVBoxLayout * d_verticalLayout;
-	QLabel      * d_antLabel;
 	QHBoxLayout * d_horizontalLayoutFilter;
 	QLabel      * d_filterLabel;
 	QLineEdit   * d_filterEdit;
@@ -80,9 +76,12 @@ private slots:
 	void onSelectionChanged();
 	void onAddButtonClicked();
 	void onDeleteButtonClicked();
+
+	void updateNumber();
 private:
 	void setUpUI();
 
+	QLabel      * d_antLabel;
 	QHBoxLayout * d_actionsLayout;
 	QToolButton * d_addButton;
 	QToolButton * d_deleteButton;

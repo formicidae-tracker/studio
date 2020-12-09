@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1191</width>
-    <height>843</height>
+    <height>844</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -160,7 +160,6 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionShowLog"/>
-    <addaction name="actionShowAntSelector"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -427,26 +426,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
-   </property>
-  </action>
-  <action name="actionShowAntSelector">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show Ant Selector</string>
-   </property>
-   <property name="toolTip">
-    <string>Show Ant Selector docked widget</string>
-   </property>
-   <property name="statusTip">
-    <string>Show Ant Selector docked widget</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+A</string>
    </property>
   </action>
  </widget>
