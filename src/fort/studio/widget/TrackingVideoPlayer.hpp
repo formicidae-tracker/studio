@@ -75,6 +75,8 @@ public slots:
 	                     const fmp::MovieSegment::ConstPtr & segment,
 	                     const fm::Time & start);
 
+	void clearMovieSegment();
+
 	void setPlaybackRate(qreal rate);
 
 	void setPosition(fm::Duration position);

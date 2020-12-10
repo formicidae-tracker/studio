@@ -147,6 +147,8 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	        &QTreeView::expandAll);
 	d_treeView->expandAll();
 
+	connect(movieBridge,&Bridge::activated,
+	        d_videoPlayer,&TrackingVideoPlayer::clearMovieSegment);
 
 	connect(d_treeView,
 	        &QAbstractItemView::activated,
@@ -193,6 +195,7 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	connect(d_jumpToTimeAction,&QAction::triggered,
 	        this,&VisualizationWorkspace::jumpToTime);
 
+	d_videoPlayer->clearMovieSegment();
 
 	d_antDisplay->initialize(experiment);
 
@@ -206,7 +209,6 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	int antDisplayHeight = 0.5 * height;
 	int segmentListHeight = 0.5 * height;
 	main->resizeDocks({d_antDisplayDock,d_segmentListDock},{antDisplayHeight,segmentListHeight},Qt::Vertical);
-
 }
 
 void VisualizationWorkspace::onCopyTimeActionTriggered() {

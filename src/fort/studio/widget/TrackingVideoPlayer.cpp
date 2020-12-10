@@ -87,6 +87,7 @@ void TrackingVideoPlayer::stopTask() {
 	d_task = nullptr;
 	d_frames.clear();
 	d_stagging.clear();
+	++d_currentTaskID;
 }
 
 void TrackingVideoPlayer::bootstrapTask(quint32 spaceID,
@@ -119,11 +120,19 @@ void TrackingVideoPlayer::bootstrapTask(quint32 spaceID,
 
 }
 
+void TrackingVideoPlayer::clearMovieSegment() {
+	stop();
+	stopTask();
+	d_segment.reset();
+	emit durationChanged(fm::Time(),0,8);
+	emit positionChanged(0);
+}
+
 void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
                                           const fmp::TrackingDataDirectory::Ptr & tdd,
                                           const fmp::MovieSegment::ConstPtr & segment,
                                           const fm::Time & start) {
-	if ( !segment ) {
+	if ( segment == nullptr ) {
 		return;
 	}
 
@@ -132,7 +141,7 @@ void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
 	d_segment = segment;
 
 	try {
-		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
+		d_task = new TrackingVideoPlayerTask(d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
 		d_currentSeekID = 0;
 		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
 		d_start = start;

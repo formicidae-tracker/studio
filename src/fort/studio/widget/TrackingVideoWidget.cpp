@@ -51,7 +51,7 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform,true);
 	painter.fillRect(rect(),QColor(0,0,0));
-	if ( !d_frame.Image == true ) {
+	if ( d_frame.Image == nullptr ) {
 		return;
 	}
 
