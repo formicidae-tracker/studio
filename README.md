@@ -169,7 +169,7 @@ install them in your local R installation. Both of them required the
 Simply run in R
 
 ``` R
-devtools::install_git("https::/github.com/formicidae-tracker/studio.git",subdir = "bindings/R/FortMyrmidon")
+devtools::install_git("https://github.com/formicidae-tracker/studio.git",subdir = "bindings/R/FortMyrmidon")
 ```
 
 #### From a local git tree
