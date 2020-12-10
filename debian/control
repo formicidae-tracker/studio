@@ -5,7 +5,8 @@ Build-Depends: debhelper (>= 10), cmake (>=3.11), libeigen3-dev,
  qtbase5-dev, libasio-dev, libopencv-imgproc-dev,
  libopencv-imgcodecs-dev, libopencv-dev, libprotobuf-dev (>=3.3.0),
  protobuf-compiler, git, libboost-filesystem-dev, ca-certificates,
- imagemagick, librsvg2-bin
+ imagemagick, librsvg2-bin, libgoogle-glog-dev, libqt5charts5-dev,
+ libyaml-cpp-dev
 Standards-Version: 4.5.0
 Section: science
 Homepage: https://github.com/formicidae-tracker/studio
