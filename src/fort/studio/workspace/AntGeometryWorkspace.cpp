@@ -55,7 +55,7 @@ AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 	d_insertAction->setObjectName("insertAction");
 	d_comboBox = new QComboBox(this);
 	d_comboBox->setObjectName("comboBox");
-
+	d_comboBox->setMinimumSize(QSize(200,0));
 	d_editToolBar->addWidget(d_comboBox);
 
 	d_insertAction->setCheckable(true);

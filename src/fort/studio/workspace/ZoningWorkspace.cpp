@@ -52,6 +52,7 @@ void ZoningWorkspace::setUpUI() {
 	d_toolBar->addWidget(new QLabel(tr("Zone:"),this));
 	d_comboBox = new QComboBox(this);
 	d_comboBox->setObjectName("comboBox");
+	d_comboBox->setMinimumSize(QSize(200,0));
 	d_toolBar->addWidget(d_comboBox);
 	connect(d_comboBox,qOverload<int>(&QComboBox::currentIndexChanged),
 	        this,&ZoningWorkspace::onComboBoxCurrentIndexChanged);
