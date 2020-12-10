@@ -3,6 +3,13 @@
 
 #include <QAction>
 #include <QClipboard>
+#include <QToolBar>
+#include <QComboBox>
+#include <QLabel>
+#include <QListView>
+#include <QDockWidget>
+
+#include <QMainWindow>
 
 #include <fort/myrmidon/priv/Polygon.hpp>
 #include <fort/myrmidon/priv/Circle.hpp>
@@ -19,11 +26,57 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 
+void ZoningWorkspace::setUpUI() {
+	d_toolBar = new QToolBar(this);
+	d_editAction = d_toolBar->addAction(QIcon(":/icons/cursor.svg"),
+	                                    tr("Edit Shapes"));
+	d_editAction->setToolTip(tr("Transform and move shapes"));
+	d_editAction->setStatusTip(d_editAction->toolTip());
+	d_polygonAction = d_toolBar->addAction(QIcon(":/icons/polygon.svg"),
+	                                    tr("Insert polygon"));
+	d_polygonAction->setToolTip(tr("Insert a polygon (right-click to finish edition)"));
+	d_polygonAction->setStatusTip(d_polygonAction->toolTip());
+
+	d_circleAction = d_toolBar->addAction(QIcon(":/icons/circle.svg"),
+	                                      tr("Insert circle"));
+	d_circleAction->setToolTip(tr("Insert a circle"));
+	d_circleAction->setStatusTip(d_circleAction->toolTip());
+
+	d_capsuleAction = d_toolBar->addAction(QIcon(":/icons/capsule.svg"),
+	                                       tr("Insert capsule"));
+
+	d_capsuleAction->setToolTip(tr("Insert a capsule"));
+	d_capsuleAction->setStatusTip(d_capsuleAction->toolTip());
+
+
+	d_toolBar->addWidget(new QLabel(tr("Zone:"),this));
+	d_comboBox = new QComboBox(this);
+	d_comboBox->setObjectName("comboBox");
+	d_toolBar->addWidget(d_comboBox);
+	connect(d_comboBox,qOverload<int>(&QComboBox::currentIndexChanged),
+	        this,&ZoningWorkspace::onComboBoxCurrentIndexChanged);
+
+	auto widget = new QWidget(this);
+	auto layout = new QVBoxLayout();
+
+	d_listView = new QListView(widget);
+	d_listView->setMaximumSize(QSize(250,65535));
+	layout->addWidget(d_listView);
+
+	widget->setLayout(layout);
+
+	d_fullFramesDock = new QDockWidget(tr("Space's Full-Frames"));
+	d_fullFramesDock->setWidget(widget);
+
+
+}
+
 ZoningWorkspace::ZoningWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::ZoningWorkspace)
 	, d_zones(nullptr)
 	, d_vectorialScene(new VectorialScene(this)) {
+	setUpUI();
 	d_ui->setupUi(this);
 
 
@@ -35,23 +88,22 @@ ZoningWorkspace::ZoningWorkspace(QWidget *parent)
             &VectorialScene::onZoomed);
 
 
-    d_ui->editButton->setCheckable(true);
-    connect(d_ui->editButton,&QToolButton::clicked,
+    d_editAction->setCheckable(true);
+    connect(d_editAction,&QAction::triggered,
             this,[this](){ setSceneMode(VectorialScene::Mode::Edit); });
-    d_ui->polygonButton->setCheckable(true);
-    connect(d_ui->polygonButton,&QToolButton::clicked,
+    d_polygonAction->setCheckable(true);
+    connect(d_polygonAction,&QAction::triggered,
             this,[this](){ setSceneMode(VectorialScene::Mode::InsertPolygon); });
-    d_ui->circleButton->setCheckable(true);
-    connect(d_ui->circleButton,&QToolButton::clicked,
+    d_circleAction->setCheckable(true);
+    connect(d_circleAction,&QAction::triggered,
             this,[this](){ setSceneMode(VectorialScene::Mode::InsertCircle); });
-    d_ui->capsuleButton->setCheckable(true);
-    connect(d_ui->capsuleButton,&QToolButton::clicked,
+    d_capsuleAction->setCheckable(true);
+    connect(d_capsuleAction,&QAction::triggered,
             this,[this](){ setSceneMode(VectorialScene::Mode::InsertCapsule); });
 
-    d_ui->editButton->setChecked(Qt::Checked);
+    d_editAction->setChecked(Qt::Checked);
     connect(d_vectorialScene,&VectorialScene::modeChanged,
             this,&ZoningWorkspace::onSceneModeChanged);
-
 
     connect(d_vectorialScene,&VectorialScene::polygonCreated,
             this,&ZoningWorkspace::onShapeCreated);
@@ -68,6 +120,7 @@ ZoningWorkspace::ZoningWorkspace(QWidget *parent)
     connect(d_vectorialScene,&VectorialScene::capsuleRemoved,
             this,&ZoningWorkspace::onShapeRemoved);
 
+	setUpFullFrameLabels(nullptr);
 
 }
 
@@ -78,10 +131,10 @@ ZoningWorkspace::~ZoningWorkspace() {
 void ZoningWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 	d_zones = experiment->zones();
 	d_ui->zonesEditor->setup(d_zones);
-	d_ui->listView->setModel(d_zones->fullFrameModel());
-	d_ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
-	d_ui->listView->setSelectionBehavior(QAbstractItemView::SelectRows);
-	auto sModel = d_ui->listView->selectionModel();
+	d_listView->setModel(d_zones->fullFrameModel());
+	d_listView->setSelectionMode(QAbstractItemView::SingleSelection);
+	d_listView->setSelectionBehavior(QAbstractItemView::SelectRows);
+	auto sModel = d_listView->selectionModel();
 	connect(sModel,&QItemSelectionModel::selectionChanged,
 	        this,
 	        [this,sModel]() {
@@ -95,8 +148,15 @@ void ZoningWorkspace::initialize(QMainWindow * main, ExperimentBridge * experime
 			        display(std::make_shared<ZoneBridge::FullFrame>(f.second));
 		        }
 	        });
+
 	connect(d_zones,&ZoneBridge::newZoneDefinitionBridge,
 	        this,&ZoningWorkspace::onNewZoneDefinition);
+
+	main->addToolBar(d_toolBar);
+	d_toolBar->hide();
+
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_fullFramesDock);
+	d_fullFramesDock->hide();
 }
 
 
@@ -106,7 +166,9 @@ void ZoningWorkspace::display(const std::shared_ptr<ZoneBridge::FullFrame> & ful
 		d_copyAction->setEnabled(!fullframe == false);
 	}
 
-	if ( !d_fullframe == true ) {
+	setUpFullFrameLabels(fullframe);
+
+	if ( d_fullframe == nullptr ) {
 		d_vectorialScene->clearPolygons();
 		d_vectorialScene->clearCircles();
 		d_vectorialScene->clearCapsules();
@@ -134,6 +196,9 @@ void ZoningWorkspace::setUp(const NavigationAction & actions) {
 	actions.PreviousCloseUp->setEnabled(true);
 	actions.CopyCurrentTime->setEnabled(!d_fullframe == false);
 	d_copyAction = actions.CopyCurrentTime;
+	d_toolBar->show();
+
+	d_fullFramesDock->show();
 }
 
 void ZoningWorkspace::tearDown(const NavigationAction & actions) {
@@ -149,6 +214,9 @@ void ZoningWorkspace::tearDown(const NavigationAction & actions) {
 	actions.PreviousCloseUp->setEnabled(false);
 	actions.CopyCurrentTime->setEnabled(false);
 	d_copyAction = nullptr;
+	d_toolBar->hide();
+
+	d_fullFramesDock->hide();
 }
 
 
@@ -173,7 +241,7 @@ void ZoningWorkspace::select(int increment) {
 		return;
 	}
 	auto model = d_zones->fullFrameModel();
-	auto sModel = d_ui->listView->selectionModel();
+	auto sModel = d_listView->selectionModel();
 	auto rows = sModel->selectedRows();
 	if ( rows.isEmpty() == true ) {
 		if ( increment > 0 ) {
@@ -224,7 +292,7 @@ void ZoningWorkspace::onShapeRemoved(QSharedPointer<Shape> shape) {
 
 
 void ZoningWorkspace::setSceneMode(VectorialScene::Mode mode) {
-	if ( !d_fullframe == true || d_ui->comboBox->count() == 0 ) {
+	if ( !d_fullframe == true || d_comboBox->count() == 0 ) {
 		d_vectorialScene->setMode(VectorialScene::Mode::Edit);
 		onSceneModeChanged(VectorialScene::Mode::Edit);
 		return;
@@ -242,7 +310,7 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 	d_shapes.clear();
 	d_definitions.clear();
 
-	d_ui->comboBox->clear();
+	d_comboBox->clear();
 
 	if ( bridges.isEmpty() == true ) {
 		setSceneMode(VectorialScene::Mode::Edit);
@@ -254,9 +322,9 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 		d_definitions.insert(std::make_pair(zoneID,b));
 		auto colorFM = fmp::Palette::Default().At(zoneID);
 		auto color = Conversion::colorFromFM(colorFM);
-		d_ui->comboBox->addItem(Conversion::iconFromFM(colorFM),
-		                        ToQString(b->zone().Name()),
-		                        quint32(zoneID));
+		d_comboBox->addItem(Conversion::iconFromFM(colorFM),
+		                    ToQString(b->zone().Name()),
+		                    quint32(zoneID));
 
 		d_vectorialScene->setColor(color);
 		for ( const auto & s : b->geometry().Shapes() ) {
@@ -353,30 +421,30 @@ fmp::Shape::ConstPtr ZoningWorkspace::convertShape(const QSharedPointer<Shape> &
 }
 
 fmp::Zone::ID ZoningWorkspace::currentZoneID() const {
-	if ( d_ui->comboBox->count() == 0 || d_ui->comboBox->currentIndex() < 0 ) {
+	if ( d_comboBox->count() == 0 || d_comboBox->currentIndex() < 0 ) {
 		return 0;
 	}
-	return d_ui->comboBox->currentData().toInt();
+	return d_comboBox->currentData().toInt();
 }
 
 
 void ZoningWorkspace::onSceneModeChanged(VectorialScene::Mode mode) {
-	d_ui->editButton->setChecked(Qt::Unchecked);
-	d_ui->polygonButton->setChecked(Qt::Unchecked);
-	d_ui->circleButton->setChecked(Qt::Unchecked);
-	d_ui->capsuleButton->setChecked(Qt::Unchecked);
+	d_editAction->setChecked(Qt::Unchecked);
+	d_polygonAction->setChecked(Qt::Unchecked);
+	d_circleAction->setChecked(Qt::Unchecked);
+	d_capsuleAction->setChecked(Qt::Unchecked);
 	switch(mode) {
 	case VectorialScene::Mode::Edit:
-		d_ui->editButton->setChecked(Qt::Checked);
+		d_editAction->setChecked(Qt::Checked);
 		break;
 	case VectorialScene::Mode::InsertPolygon:
-		d_ui->polygonButton->setChecked(Qt::Checked);
+		d_polygonAction->setChecked(Qt::Checked);
 		break;
 	case VectorialScene::Mode::InsertCircle:
-		d_ui->circleButton->setChecked(Qt::Checked);
+		d_circleAction->setChecked(Qt::Checked);
 		break;
 	case VectorialScene::Mode::InsertCapsule:
-		d_ui->capsuleButton->setChecked(Qt::Checked);
+		d_capsuleAction->setChecked(Qt::Checked);
 		break;
 	default:
 		break;
@@ -384,7 +452,7 @@ void ZoningWorkspace::onSceneModeChanged(VectorialScene::Mode mode) {
 }
 
 
-void ZoningWorkspace::on_comboBox_currentIndexChanged(int) {
+void ZoningWorkspace::onComboBoxCurrentIndexChanged(int) {
 	auto zoneID = currentZoneID();
 
 	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
@@ -412,4 +480,16 @@ void ZoningWorkspace::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
 	rebuildGeometry(zoneID);
 	rebuildGeometry(oldZoneID);
 
+}
+
+
+void ZoningWorkspace::setUpFullFrameLabels(const std::shared_ptr<ZoneBridge::FullFrame> & fullframe) {
+	auto time = tr("N.A.");
+	QString URI = time;
+	if ( fullframe != nullptr ) {
+		time = ToQString(fullframe->Reference.Time());
+		URI = fullframe->Reference.URI().c_str();
+	}
+	d_ui->uriLabel->setText(tr("URI: %1").arg(URI));
+	d_ui->timeLabel->setText(tr("Time: %1").arg(time));
 }

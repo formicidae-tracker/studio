@@ -19,11 +19,32 @@
 #include <QAbstractButton>
 #include <QDockWidget>
 #include <QMainWindow>
-
+#include <QTreeView>
 #include <QDebug>
+#include <QHeaderView>
 
 #include <fort/studio/Format.hpp>
 
+void VisualizationWorkspace::setUpUI() {
+	d_antDisplay = new AntDisplayListWidget(this);
+	d_antDisplayDock = new QDockWidget(tr("Ants Display States"));
+	d_antDisplayDock->setWidget(d_antDisplay);
+	d_antDisplay->setMaximumSize(QSize(400,65535));
+
+	auto widget = new QWidget(this);
+	auto layout = new QVBoxLayout();
+
+	d_treeView = new QTreeView(widget);
+	d_treeView->header()->setVisible(true);
+
+	layout->addWidget(d_treeView);
+
+	widget->setLayout(layout);
+	widget->setMaximumSize(QSize(400,65535));
+
+	d_segmentListDock = new QDockWidget(tr("Movie Segments"),this);
+	d_segmentListDock->setWidget(widget);
+}
 
 VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
 	: Workspace(true,parent)
@@ -31,6 +52,8 @@ VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
 	, d_ui(new Ui::VisualizationWorkspace)
 	, d_videoPlayer(new TrackingVideoPlayer(this))
 	, d_jumpToTimeAction( new QAction(tr("Jump to Time"),this)) {
+	setUpUI();
+
 	d_ui->setupUi(this);
 
 	d_jumpToTimeAction->setToolTip(tr("Jump current movie to time"));
@@ -106,9 +129,6 @@ VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
 		             d_videoPlayer->skipDuration(-large);
 	             });
 
-	d_antDisplay = new AntDisplayListWidget(this);
-	d_antDisplayDock = new QDockWidget(tr("Ants Display States"));
-	d_antDisplayDock->setWidget(d_antDisplay);
 }
 
 VisualizationWorkspace::~VisualizationWorkspace() {
@@ -119,16 +139,16 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 	d_experiment = experiment;
 	auto movieBridge = experiment->movies();
 
-	d_ui->treeView->setModel(movieBridge->movieModel());
-	d_ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	d_treeView->setModel(movieBridge->movieModel());
+	d_treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	connect(movieBridge->movieModel(),
 	        &QAbstractItemModel::rowsInserted,
-	        d_ui->treeView,
+	        d_treeView,
 	        &QTreeView::expandAll);
-	d_ui->treeView->expandAll();
+	d_treeView->expandAll();
 
 
-	connect(d_ui->treeView,
+	connect(d_treeView,
 	        &QAbstractItemView::activated,
 	        [this,movieBridge] ( const QModelIndex & index ) {
 		        const auto & [spaceID,tdd,segment,start]  = movieBridge->tddAndMovieSegment(index);
@@ -178,6 +198,15 @@ void VisualizationWorkspace::initialize(QMainWindow * main,ExperimentBridge * ex
 
 	main->addDockWidget(Qt::LeftDockWidgetArea,d_antDisplayDock);
 	d_antDisplayDock->hide();
+
+	main->addDockWidget(Qt::LeftDockWidgetArea,d_segmentListDock);
+	d_segmentListDock->hide();
+
+	float height = main->size().height();
+	int antDisplayHeight = 0.5 * height;
+	int segmentListHeight = 0.5 * height;
+	main->resizeDocks({d_antDisplayDock,d_segmentListDock},{antDisplayHeight,segmentListHeight},Qt::Vertical);
+
 }
 
 void VisualizationWorkspace::onCopyTimeActionTriggered() {
@@ -201,7 +230,7 @@ void VisualizationWorkspace::setUp(const NavigationAction & actions) {
 
 	actions.CopyCurrentTime->setEnabled(d_ui->trackingVideoWidget->hasTrackingTime());
 	d_antDisplayDock->show();
-
+	d_segmentListDock->show();
 }
 
 void VisualizationWorkspace::tearDown(const NavigationAction & actions) {
@@ -216,6 +245,7 @@ void VisualizationWorkspace::tearDown(const NavigationAction & actions) {
 	           &VisualizationWorkspace::onCopyTimeActionTriggered);
 	actions.CopyCurrentTime->setEnabled(false);
 	d_antDisplayDock->hide();
+	d_segmentListDock->hide();
 }
 
 QAction * VisualizationWorkspace::jumpToTimeAction() const {

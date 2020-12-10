@@ -9,8 +9,13 @@
 namespace Ui {
 class ZoningWorkspace;
 }
+
+class QToolBar;
+class QComboBox;
 class ExperimentBridge;
 class QAction;
+class QDockWidget;
+class QListView;
 
 class ZoningWorkspace : public Workspace{
 	Q_OBJECT
@@ -41,9 +46,11 @@ private slots:
 	void onShapeRemoved(QSharedPointer<Shape> shape);
 
 
-	void on_comboBox_currentIndexChanged(int);
+	void onComboBoxCurrentIndexChanged(int);
 
 private:
+	void setUpUI();
+
 	void display(const std::shared_ptr<ZoneBridge::FullFrame> & fullframe);
 
 	void select(int increment);
@@ -62,10 +69,24 @@ private:
 
 	void changeShapeType(Shape * shape, fmp::Zone::ID zID);
 
+	void setUpFullFrameLabels(const std::shared_ptr<ZoneBridge::FullFrame> & fullFrame);
+
+
+	QAction   * d_copyAction;
+	QAction   * d_editAction;
+	QAction   * d_circleAction;
+	QAction   * d_capsuleAction;
+	QAction   * d_polygonAction;
+	QComboBox * d_comboBox;
+	QToolBar  * d_toolBar;
+
+	QListView   * d_listView;
+	QDockWidget * d_fullFramesDock;
 
 	std::shared_ptr<ZoneBridge::FullFrame> d_fullframe;
-	QAction                              * d_copyAction;
 	VectorialScene                       * d_vectorialScene;
+
+
 
 	std::map<fmp::Zone::ID,ZoneDefinitionBridge*> d_definitions;
 	std::map<QSharedPointer<Shape>,fmp::Zone::ID> d_shapes;

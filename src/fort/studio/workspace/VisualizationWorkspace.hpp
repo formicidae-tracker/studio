@@ -13,6 +13,7 @@ class VisualizationWorkspace;
 
 class ExperimentBridge;
 class TrackingVideoPlayer;
+class QTreeView;
 
 class VisualizationWorkspace : public Workspace {
 	Q_OBJECT
@@ -34,10 +35,14 @@ private slots :
 
 	void jumpToTime();
 private:
+	void setUpUI();
+
 	ExperimentBridge           * d_experiment;
 	Ui::VisualizationWorkspace * d_ui;
 	TrackingVideoPlayer        * d_videoPlayer;
 	QAction                    * d_jumpToTimeAction;
 	AntDisplayListWidget       * d_antDisplay;
 	QDockWidget                * d_antDisplayDock;
+	QTreeView                  * d_treeView;
+	QDockWidget                * d_segmentListDock;
 };

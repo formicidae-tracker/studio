@@ -522,7 +522,8 @@ void ZoneBridge::rebuildFullFrameModel() {
 	}
 
 	for ( const auto & [uri,ff] : fullframes ) {
-		auto item = new QStandardItem(uri.c_str());
+		auto roundedTime = ff.Reference.Time().Round(fm::Duration::Millisecond);
+		auto item = new QStandardItem(ToQString(roundedTime));
 		item->setEditable(false);
 		item->setData(QVariant::fromValue(ff));
 		d_fullFrameModel->appendRow({item});

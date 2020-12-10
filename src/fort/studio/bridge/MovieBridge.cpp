@@ -45,6 +45,7 @@ void MovieBridge::initialize(ExperimentBridge * experiment) {
 
 void MovieBridge::tearDownExperiment() {
 	clearModel();
+	d_model->setHorizontalHeaderLabels({tr("Space / Movie Segment Start")});
 }
 
 void MovieBridge::setUpExperiment() {
@@ -108,7 +109,7 @@ void MovieBridge::onTrackingDataDirectoryDeleted(const QString & URI) {
 
 void MovieBridge::clearModel() {
 	d_model->clear();
-	d_model->setHorizontalHeaderLabels({tr("URI"),tr("Start"),tr("End")});
+	//	d_model->setHorizontalHeaderLabels({tr("URI"),tr("Start"),tr("End")});
 }
 
 void MovieBridge::rebuildModel() {
@@ -129,60 +130,34 @@ QList<QStandardItem*> MovieBridge::buildSpace(const fmp::SpaceConstPtr & space) 
 
 	const auto & tdds = space->TrackingDataDirectories();
 
-	if ( tdds.empty() == true ) {
-		return {nameItem,nullptr,nullptr};
+	for ( const auto & tdd : tdds ){
+		for ( const auto & [ref,segment] : tdd->MovieSegments().Segments() ) {
+			nameItem->appendRow(buildMovieSegment(space->SpaceID(),tdd,segment,ref.Time()));
+		}
 	}
-
-	auto startItem = new QStandardItem(ToQString(tdds.front()->StartDate()));
-	startItem->setEditable(false);
-	auto endItem = new QStandardItem(ToQString(tdds.back()->EndDate()));
-	endItem->setEditable(false);
-
-	for ( const auto & tdd : space->TrackingDataDirectories() ){
-		nameItem->appendRow(buildTDD(space->SpaceID(),tdd));
-	}
-	return {nameItem,startItem,endItem};
-}
-
-
-QList<QStandardItem*> MovieBridge::buildTDD(quint32 spaceID, const fmp::TrackingDataDirectoryPtr & tdd) {
-	auto nameItem = new QStandardItem(ToQString(tdd->URI()));
-	nameItem->setEditable(false);
-	nameItem->setData(ToQString(tdd->URI()),IDRole);
-
-	auto startItem = new QStandardItem(ToQString(tdd->StartDate()));
-	startItem->setEditable(false);
-	auto endItem = new QStandardItem(ToQString(tdd->EndDate()));
-	endItem->setEditable(false);
-
-	for ( const auto & [ref,segment] : tdd->MovieSegments().Segments() ) {
-		auto endTime = tdd->FrameReferenceAt(segment->EndFrame()).Time();
-		nameItem->appendRow(buildMovieSegment(spaceID,tdd,segment,ref.Time(),endTime));
-
-	}
-	return {nameItem,startItem,endItem};
+	return {nameItem};
 }
 
 
 QList<QStandardItem*> MovieBridge::buildMovieSegment(quint32 spaceID,
                                                      const fmp::TrackingDataDirectory::Ptr & tdd,
                                                      const fmp::MovieSegmentConstPtr & ms,
-                                                     const fm::Time & start,
-                                                     const fm::Time & end) {
+                                                     const fm::Time & start) {
 	auto ptrData = QVariant::fromValue(ms);
 	auto startData = QVariant::fromValue(start);
 	auto tddData = QVariant::fromValue(tdd);
 	auto spaceIDData = QVariant::fromValue(spaceID);
-	auto nameItem = new QStandardItem(QString("movies/%1").arg(ms->ID()));
+	auto nameItem = new QStandardItem(ToQString(start));
 	nameItem->setData(ToQString(ms->URI()),IDRole);
 
-	auto startItem = new QStandardItem(ToQString(start));
 
-	auto endItem = new QStandardItem(ToQString(end));
 
-	QList<QStandardItem*> res  = {nameItem,startItem,endItem};
+
+	QList<QStandardItem*> res  = {nameItem};
 
 	for ( auto & i : res ) {
+		i->setData(ms->URI().c_str(),Qt::ToolTipRole);
+		i->setData(ms->URI().c_str(),Qt::StatusTipRole);
 		i->setEditable(false);
 		i->setData(ptrData,PtrRole);
 		i->setData(startData,StartRole);

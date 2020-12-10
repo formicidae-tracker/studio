@@ -44,13 +44,10 @@ private :
 
 
 	static QList<QStandardItem*> buildSpace(const fmp::SpaceConstPtr & space);
-	static QList<QStandardItem*> buildTDD(quint32 spaceID,
-	                                      const fmp::TrackingDataDirectoryPtr & tdd);
 	static QList<QStandardItem*> buildMovieSegment(quint32 spaceID,
 	                                               const fmp::TrackingDataDirectoryPtr & tdd,
 	                                               const fmp::MovieSegmentConstPtr & ms,
-	                                               const fm::Time & start,
-	                                               const fm::Time & end);
+	                                               const fm::Time & start);
 
 	void clearModel();
 	void rebuildModel();
