@@ -12,6 +12,10 @@ in the image.</doc>
     <brief>the value in mm of the measurement</brief>
     <type builtin="yes" name="double" />
   </field>
+  <field id="fort::myrmidon::ComputedMeasurement::LengthPixel" name="LengthPixel">
+    <brief>the value of the measurement in pixels</brief>
+    <type builtin="yes" name="double" />
+  </field>
   <typedef id="fort::myrmidon::ComputedMeasurement::List" name="List">
     <brief>A list of measurement</brief>
     <type class="template" name="std::vector">

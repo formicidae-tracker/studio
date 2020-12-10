@@ -817,20 +817,6 @@ e$setDefaultTagSize(0.7)
       <type builtin="yes" name="double" />
     </argument>
   </method>
-  <method abstract="yes" id="fort::myrmidon::Experiment::SetFamily" name="SetFamily">
-    <brief>Sets the kind of tag used in the Experiment</brief>
-    <doc>R Version :
-```R
-e$setFamily(fmTagFamily["TAG_36H11"])
-```</doc>
-    <return>
-      <type builtin="yes" name="void" />
-    </return>
-    <argument id="fort::myrmidon::Experiment::SetFamily::tf" name="tf">
-      <doc>the tag that are used in the Experiment</doc>
-      <type name="tags::Family" />
-    </argument>
-  </method>
   <method abstract="yes" id="fort::myrmidon::Experiment::SetMeasurementTypeName" name="SetMeasurementTypeName">
     <brief>Sets the name of a measurement type</brief>
     <doc>R Version :
@@ -863,20 +849,6 @@ e$setName(name)
       <type name="std::__cxx11::string" qualifier=" const &amp;" />
     </argument>
   </method>
-  <method abstract="yes" id="fort::myrmidon::Experiment::SetThreshold" name="SetThreshold">
-    <brief>Sets the detection threshold</brief>
-    <doc>R Version :
-```R
-e$setThreshold(th)
-```</doc>
-    <return>
-      <type builtin="yes" name="void" />
-    </return>
-    <argument id="fort::myrmidon::Experiment::SetThreshold::th" name="th">
-      <doc>the threshold to use.</doc>
-      <type name="uint8_t" />
-    </argument>
-  </method>
   <method abstract="yes" id="fort::myrmidon::Experiment::Spaces" name="Spaces">
     <brief>Gets the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref> in the Experiment</brief>
     <doc>R Version :
@@ -893,19 +865,6 @@ e$spaces()
           <type name="Space" ref="fort::myrmidon::Space#fort::myrmidon::Space" />
         </template-arguments>
       </type>
-    </return>
-  </method>
-  <method abstract="yes" id="fort::myrmidon::Experiment::Threshold" name="Threshold">
-    <brief>The threshold used for tag detection</brief>
-    <doc>R Version :
-```R
-e$threshold()
-```
-
-</doc>
-    <return>
-      <doc>the threshold used for detection</doc>
-      <type name="uint8_t" />
     </return>
   </method>
 </class>

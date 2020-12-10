@@ -24,12 +24,12 @@ return values.
     <type documented="2" name="templatetypeparameter" undocumented="0" />
     <type documented="3" name="enum" undocumented="0" />
     <type documented="3" name="namespace" undocumented="0" />
-    <type documented="244" name="method" undocumented="1">
+    <type documented="241" name="method" undocumented="1">
       <undocumented id="fort::myrmidon::AntTrajectory::End" name="End">
-        <location column="2" file="src/fort/myrmidon/Types.hpp" line="239" />
+        <location column="2" file="src/fort/myrmidon/Types.hpp" line="241" />
       </undocumented>
     </type>
-    <type documented="50" name="field" undocumented="0" />
+    <type documented="51" name="field" undocumented="0" />
     <type documented="25" name="constructor" undocumented="0" />
     <type documented="8" name="variable" undocumented="0" />
     <type documented="5" name="destructor" undocumented="1">
@@ -46,58 +46,58 @@ return values.
   </coverage>
   <arguments>
     <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="size" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="size" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="" />
       <undocumented name="ptr" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="" />
       <undocumented name="ptr" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
       <undocumented name="size" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator new[]" name="operator new[]">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
       <undocumented name="size" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
       <undocumented name="memory" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete[]" name="operator delete[]">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="ptr" />
       <undocumented name="memory" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator new" name="operator new">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="" />
       <undocumented name="size" />
     </function>
     <function id="fort::myrmidon::PositionedAnt::operator delete" name="operator delete">
-      <location column="2" file="src/fort/myrmidon/Types.hpp" line="127" />
+      <location column="2" file="src/fort/myrmidon/Types.hpp" line="129" />
       <undocumented name="" />
       <undocumented name="ptr" />
     </function>
@@ -128,7 +128,7 @@ return values.
       <undocumented name="time" />
     </function>
     <function id="fort::myrmidon::Experiment::Const" name="Const">
-      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="913" />
+      <location column="2" file="src/fort/myrmidon/Experiment.hpp" line="886" />
       <undocumented-return />
     </function>
     <function id="fort::myrmidon::Query::IdentifyFramesFunctor" name="IdentifyFramesFunctor">
@@ -197,7 +197,7 @@ return values.
       </doctype>
     </method>
     <function id="operator&lt;&lt;" name="operator&lt;&lt;">
-      <location column="1" file="src/fort/myrmidon/Types.hpp" line="346" />
+      <location column="1" file="src/fort/myrmidon/Types.hpp" line="348" />
       <doctype component="out" name="params">
         <ref name="std::ostream" />
       </doctype>
