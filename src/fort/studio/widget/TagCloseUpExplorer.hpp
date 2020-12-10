@@ -3,6 +3,7 @@
 #include <QSortFilterProxyModel>
 
 #include <QWidget>
+#include <QRegularExpression>
 
 #include <fort/studio/MyrmidonTypes/TagCloseUp.hpp>
 #include <fort/studio/MyrmidonTypes/Identification.hpp>

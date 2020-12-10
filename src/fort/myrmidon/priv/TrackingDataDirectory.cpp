@@ -802,10 +802,18 @@ private:
 		std::vector<TagCloseUp::ConstPtr> Detect(const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter,
 		                                         const FrameReference & reference) {
 			std::vector<TagCloseUp::ConstPtr> res;
-			auto imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
+			cv::Mat imgCv;
+
+			try {
+				imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
+			} catch ( const std::exception	&  ) {
+				return res;
+			}
+
 			if ( imgCv.empty() ) {
 				return res;
 			}
+
 			image_u8_t img = {.width = imgCv.cols,.height = imgCv.rows, .stride = imgCv.cols, .buf = imgCv.data};
 			zarray_t * detections = apriltag_detector_detect(d_detector,&img);
 			Defer destroyDetections([detections]() { apriltag_detections_destroy(detections);});
