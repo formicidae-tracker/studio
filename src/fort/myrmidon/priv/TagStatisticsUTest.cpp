@@ -115,45 +115,6 @@ TEST_F(TagStatisticsUTest,ComputeAndUpdatesGap) {
 	return StatsByIDEqual(a.TagStats,b.TagStats);
 }
 
-TEST_F(TagStatisticsUTest,CacheIsconsistent) {
-	auto tdd = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001", TestSetup::Basedir());
-
-	auto loaders = tdd->StatisticsLoader();
-	std::vector<TagStatisticsHelper::Timed> computeds,cacheds;
-	computeds.reserve(loaders.size());
-	cacheds.reserve(loaders.size());
-	for ( auto & l : loaders ) {
-		computeds.push_back(l());
-	}
-
-	for ( auto & l : loaders ) {
-		cacheds.push_back(l());
-	}
-
-	for( size_t i = 0 ; i < loaders.size(); ++i ) {
-		EXPECT_TRUE(TimedEqual(computeds[i],cacheds[i]));
-	}
-	std::vector<TagStatistics::ByTagID> merged;
-	merged.push_back(TagStatisticsHelper::MergeTimed(computeds.begin(),computeds.end()).TagStats);
-	merged.push_back(TagStatisticsHelper::MergeTimed(cacheds.begin(),cacheds.end()).TagStats);
-
-	EXPECT_TRUE(StatsByIDEqual(merged[0],merged[1]));
-
-	auto doubled = TagStatisticsHelper::MergeSpaced(merged.begin(),merged.end());
-
-	for ( const auto & [tagID,stats] : doubled ) {
-		auto fi = merged.front().find(tagID);
-		ASSERT_FALSE(fi == merged.front().end());
-		EXPECT_EQ(stats.ID,fi->second.ID);
-		EXPECT_TRUE(TimeEqual(stats.FirstSeen,fi->second.FirstSeen));
-		EXPECT_TRUE(TimeEqual(stats.LastSeen,fi->second.LastSeen));
-	}
-
-
-
-
-}
-
 
 
 } // namespace priv

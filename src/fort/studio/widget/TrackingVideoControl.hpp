@@ -10,7 +10,7 @@ namespace Ui {
 class TrackingVideoControl;
 }
 
-class IdentifierBridge;
+class ExperimentBridge;
 
 class TrackingVideoControl : public QWidget {
 	Q_OBJECT
@@ -19,7 +19,7 @@ public:
 	virtual ~TrackingVideoControl();
 
 	void setup(TrackingVideoPlayer * player,
-	           IdentifierBridge * identifier);
+	           ExperimentBridge * experiment);
 
 
 
@@ -50,7 +50,7 @@ private slots:
 	void onPlayerPositionChanged(fm::Duration positionMS);
 	void onPlayerDurationChanged(const fm::Time & time, fm::Duration duration,double fps);
 
-	void onAntSelection(bool selected);
+	void onAntSelection(quint32 antID);
 
 	void on_stopButton_clicked();
 	void on_playButton_clicked();
@@ -69,5 +69,5 @@ private:
 
 	Ui::TrackingVideoControl * d_ui;
 	TrackingVideoPlayer    * d_player;
-	IdentifierBridge       * d_identifier;
+	ExperimentBridge       * d_experiment;
 };

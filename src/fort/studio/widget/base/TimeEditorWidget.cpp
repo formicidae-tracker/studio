@@ -20,11 +20,11 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 	d_ui->setupUi(this);
 
 
-	d_warning = d_ui->lineEdit->addAction(QIcon::fromTheme("dialog-warning"),QLineEdit::TrailingPosition);
+	d_warning = d_ui->lineEdit->addAction(QIcon::fromTheme("dialog-warning-symbolic"),QLineEdit::TrailingPosition);
 	d_warning->setVisible(false);
-	d_popup = d_ui->lineEdit->addAction(QIcon::fromTheme("appointment-new"),QLineEdit::TrailingPosition);
-	d_decrement = d_ui->lineEdit->addAction(QIcon::fromTheme("list-remove"),QLineEdit::TrailingPosition);
-	d_increment = d_ui->lineEdit->addAction(QIcon::fromTheme("list-add"),QLineEdit::TrailingPosition);
+	d_popup = d_ui->lineEdit->addAction(QIcon::fromTheme("appointment-new-symbolic"),QLineEdit::TrailingPosition);
+	d_decrement = d_ui->lineEdit->addAction(QIcon::fromTheme("list-remove-symbolic"),QLineEdit::TrailingPosition);
+	d_increment = d_ui->lineEdit->addAction(QIcon::fromTheme("list-add-symbolic"),QLineEdit::TrailingPosition);
 
 	d_popup->setEnabled(false);
 	d_decrement->setEnabled(false);

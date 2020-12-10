@@ -82,7 +82,7 @@ std::string Experiment::AddTrackingDataDirectory(Space::ID spaceID,
 		throw std::invalid_argument("Unknown Space::ID " + std::to_string(spaceID));
 	}
 	auto tdd = priv::TrackingDataDirectory::Open(filepath,d_p->Basedir());
-	fi->second->AddTrackingDataDirectory(tdd);
+	d_p->AddTrackingDataDirectory(fi->second,tdd);
 	return tdd->URI();
 }
 
@@ -189,9 +189,6 @@ fort::tags::Family CExperiment::Family() const {
 	return d_p->Family();
 }
 
-void Experiment::SetFamily(fort::tags::Family tf) {
-	d_p->SetFamily(tf);
-}
 
 double Experiment::DefaultTagSize() const {
 	return FORT_MYRMIDON_CONST_HELPER(Experiment,DefaultTagSize);
@@ -203,18 +200,6 @@ double CExperiment::DefaultTagSize() const {
 
 void Experiment::SetDefaultTagSize(double defaultTagSize) {
 	d_p->SetDefaultTagSize(defaultTagSize);
-}
-
-uint8_t Experiment::Threshold() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Threshold);
-}
-
-uint8_t CExperiment::Threshold() const {
-	return d_p->Threshold();
-}
-
-void Experiment::SetThreshold(uint8_t th) {
-	d_p->SetThreshold(th);
 }
 
 MeasurementTypeID Experiment::CreateMeasurementType(const std::string & name) {
@@ -336,7 +321,7 @@ Experiment::Experiment(const PPtr & pExperiment)
 }
 
 
-TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::ConstPtr & tdd) {
+TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::Ptr & tdd) {
 	return {
 	        .URI = tdd->URI(),
 	        .AbsoluteFilePath = tdd->AbsoluteFilePath().string(),

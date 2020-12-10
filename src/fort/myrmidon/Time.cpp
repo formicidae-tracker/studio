@@ -250,6 +250,7 @@ Time::Time(int64_t wallSec, int32_t wallNsec, uint64_t mono, MonoclockID monoID)
 	, d_wallNsec(wallNsec)
 	, d_mono(mono)
 	, d_monoID(monoID) {
+
 	while(d_wallNsec >= NANOS_PER_SECOND_SINT64 ) {
 		if (d_wallSec == MAX_SINT64 ) {
 			throw Overflow("Wall");

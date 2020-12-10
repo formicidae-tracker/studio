@@ -36,8 +36,8 @@ FORT_MYRMIDON_FDECLARE_CLASS(IdentifierIF)
 FORT_MYRMIDON_FDECLARE_CLASS(Identifier)
 
 class TrackingDataDirectory;
-// Forward decalation for an <priv::TrackingDataDirectory::ConstPtr>
-typedef std::shared_ptr<const TrackingDataDirectory>   TrackingDataDirectoryConstPtr;
+// Forward decalation for an <priv::TrackingDataDirectory>
+typedef std::shared_ptr<TrackingDataDirectory>   TrackingDataDirectoryPtr;
 
 class RawFrame;
 // Forward decalation for an <priv::RawFrame::ConstPtr>

@@ -19,7 +19,7 @@ MeasurementTypeWidget::~MeasurementTypeWidget() {
 
 void MeasurementTypeWidget::setup(MeasurementBridge * measurements) {
 	d_measurements = measurements;
-	d_ui->tableView->setModel(measurements->measurementTypeModel());
+	d_ui->tableView->setModel(measurements->typeModel());
 	connect(d_measurements,
 	        &MeasurementBridge::activated,
 	        d_ui->addButton,

@@ -28,6 +28,9 @@ addons:
       - libgl1-mesa-dev
       - libclang-9-dev
       - clang-9
+      - libqt5charts5-dev
+      - libyaml-cpp-dev
+      - libgoogle-glog-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
@@ -39,9 +42,8 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake  -DCMAKE_BUILD_TYPE=Debug -DBUILD_DOCS=On ..
-  - make all myrmidon-tests
-  - src/fort/myrmidon/myrmidon-tests
+  - cmake -DBUILD_DOCS=On -DENABLE_COVERAGE=On ..
+  - make all check
   - CLDOC_CLANG_VERSION=9 make docs-api
   - git clone -b gh-pages https://github.com/formicidae-tracker/studio.git gh-pages
   - mkdir -p gh-pages/docs/dev/api

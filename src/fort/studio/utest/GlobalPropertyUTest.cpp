@@ -2,8 +2,14 @@
 
 #include <fort/myrmidon/TestSetup.hpp>
 
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+
 #include <fort/studio/widget/GlobalPropertyWidget.hpp>
+
+
 #include "ui_GlobalPropertyWidget.h"
 
 
@@ -24,7 +30,6 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	QSignalSpy authorSignal(&globalProperties,SIGNAL(authorChanged(QString)));
 	QSignalSpy commentSignal(&globalProperties,SIGNAL(commentChanged(QString)));
 	QSignalSpy tagFamilySignal(&globalProperties,SIGNAL(tagFamilyChanged(fort::tags::Family)));
-	QSignalSpy thresholdSignal(&globalProperties,SIGNAL(thresholdChanged(int)));
 	QSignalSpy tagSizeSignal(&globalProperties,SIGNAL(tagSizeChanged(double)));
 
 	EXPECT_FALSE(globalProperties.isModified());
@@ -35,11 +40,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_EQ(globalProperties.comment(),"");
 	EXPECT_EQ(globalProperties.tagFamily(),fort::tags::Family::Undefined);
 	EXPECT_EQ(globalProperties.tagSize(),0.0);
-	EXPECT_EQ(globalProperties.threshold(),255);
 
 	globalProperties.setExperiment(experiment);
-
-
 
 	ASSERT_EQ(nameSignal.count(),1);
 	EXPECT_EQ(nameSignal.at(0).at(0).toString(),"");
@@ -50,11 +52,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	ASSERT_EQ(tagFamilySignal.count(),1);
 	EXPECT_EQ(tagFamilySignal.at(0).at(0).value<fort::tags::Family>(),
 	          fort::tags::Family::Undefined);
-	ASSERT_EQ(thresholdSignal.count(),1);
-	EXPECT_EQ(thresholdSignal.at(0).at(0).toInt(),experiment->Threshold());
 	ASSERT_EQ(tagSizeSignal.count(),1);
 	EXPECT_EQ(tagSizeSignal.at(0).at(0).toDouble(),1.0);
-
 
 
 	EXPECT_FALSE(globalProperties.isModified());
@@ -77,8 +76,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),3);
 	EXPECT_TRUE(modifiedSignal.at(2).at(0).toBool());
-	ASSERT_EQ(authorSignal.count(),2);
-	EXPECT_EQ(authorSignal.at(1).at(0).toString(),"bar");
+	ASSERT_EQ(authorSignal.count(),3);
+	EXPECT_EQ(authorSignal.last().at(0).toString(),"bar");
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
@@ -87,38 +86,32 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	EXPECT_TRUE(globalProperties.isModified());
 	ASSERT_EQ(modifiedSignal.count(),5);
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
-	ASSERT_EQ(commentSignal.count(),2);
-	EXPECT_EQ(commentSignal.at(1).at(0).toString(),"baz");
-
-	globalProperties.setExperiment(experiment);
-	EXPECT_FALSE(globalProperties.isModified());
-
-	globalProperties.setTagFamily(fort::tags::Family::Tag36h11);
-	EXPECT_TRUE(globalProperties.isModified());
-	ASSERT_EQ(modifiedSignal.count(),7);
-	EXPECT_TRUE(modifiedSignal.at(6).at(0).toBool());
-	ASSERT_EQ(tagFamilySignal.count(),2);
-	EXPECT_EQ(tagFamilySignal.at(1).at(0).value<fort::tags::Family>(),fort::tags::Family::Tag36h11);
+	ASSERT_EQ(commentSignal.count(),4);
+	EXPECT_EQ(commentSignal.last().at(0).toString(),"baz");
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
 
 	globalProperties.setTagSize(0.7);
 	EXPECT_TRUE(globalProperties.isModified());
-	ASSERT_EQ(modifiedSignal.count(),9);
-	EXPECT_TRUE(modifiedSignal.at(8).at(0).toBool());
-	ASSERT_EQ(tagSizeSignal.count(),2);
-	EXPECT_EQ(tagSizeSignal.at(1).at(0).toDouble(),0.7);
+	ASSERT_EQ(modifiedSignal.count(),7);
+	EXPECT_TRUE(modifiedSignal.at(6).at(0).toBool());
+	ASSERT_EQ(tagSizeSignal.count(),5);
+	EXPECT_EQ(tagSizeSignal.last().at(0).toDouble(),0.7);
 
 	globalProperties.setExperiment(experiment);
 	EXPECT_FALSE(globalProperties.isModified());
 
-	globalProperties.setThreshold(255);
-	EXPECT_TRUE(globalProperties.isModified());
-	ASSERT_EQ(modifiedSignal.count(),11);
-	EXPECT_TRUE(modifiedSignal.at(10).at(0).toBool());
-	ASSERT_EQ(thresholdSignal.count(),2);
-	EXPECT_EQ(thresholdSignal.at(1).at(0).toInt(),254);
+	ASSERT_EQ(tagFamilySignal.count(),5);
+	ASSERT_NO_THROW({
+			auto s = experiment->CreateSpace("foo");
+			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir() );
+			experiment->AddTrackingDataDirectory(s,tdd);
+		});
+	globalProperties.onTDDModified();
+	EXPECT_EQ(tagFamilySignal.count(),6);
+	EXPECT_EQ(tagFamilySignal.last().at(0).value<fort::tags::Family>(),
+	          fort::tags::Family::Tag36h11);
 
 }
 
@@ -132,7 +125,7 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	ASSERT_NO_THROW({
 			experiment = fmp::priv::Experiment::Create(TestSetup::Basedir() / "globalProperty.myrmidon");
 			experiment->Save(TestSetup::Basedir() / "globalProperty.myrmidon");
-			globalPropertiesWidget.setup(&experimentBridge,nullptr);
+			globalPropertiesWidget.setup(&experimentBridge);
 		});
 
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->nameEdit->isEnabled());
@@ -147,13 +140,9 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_FALSE(globalPropertiesWidget.d_ui->tagSizeEdit->isEnabled());
 	EXPECT_EQ(globalPropertiesWidget.d_ui->tagSizeEdit->value(),1.0);
 
-	EXPECT_FALSE(globalPropertiesWidget.d_ui->familySelector->isEnabled());
-	EXPECT_EQ(globalPropertiesWidget.d_ui->familySelector->currentIndex(),-1);
-
 	experiment->SetName("foo");
 	experiment->SetAuthor("tests");
 	experiment->SetComment("for tests");
-	experiment->SetFamily(fort::tags::Family::Tag36h11);
 	experiment->SetDefaultTagSize(0.67);
 
 	globalProperties->setExperiment(experiment);
@@ -170,9 +159,6 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_TRUE(globalPropertiesWidget.d_ui->tagSizeEdit->isEnabled());
 	EXPECT_EQ(globalPropertiesWidget.d_ui->tagSizeEdit->value(),0.67);
 
-	EXPECT_TRUE(globalPropertiesWidget.d_ui->familySelector->isEnabled());
-	EXPECT_EQ(globalPropertiesWidget.d_ui->familySelector->currentIndex(),0);
-
 	QTest::keyClicks(globalPropertiesWidget.d_ui->nameEdit,"bar");
 	EXPECT_EQ(globalProperties->name(),"foobar");
 
@@ -188,7 +174,16 @@ TEST_F(GlobalPropertyUTest,WidgetTest) {
 	EXPECT_EQ(std::string(globalProperties->comment().toUtf8().constData()),
 	          std::string("This is for tests"));
 
-	auto s = globalPropertiesWidget.d_ui->familySelector;
-	s->setCurrentIndex(1);
-	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Tag36ARTag);
+	// no tracking data directory: its undefined
+	EXPECT_EQ(globalProperties->tagFamily(),fort::tags::Family::Undefined);
+	EXPECT_EQ(std::string(globalPropertiesWidget.d_ui->familyValueLabel->text().toUtf8().constData()),
+	          "undefined");
+	ASSERT_NO_THROW({
+			auto s = experiment->CreateSpace("foo");
+			auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir() );
+			experiment->AddTrackingDataDirectory(s,tdd);
+		});
+	globalProperties->onTDDModified();
+	EXPECT_EQ(std::string(globalPropertiesWidget.d_ui->familyValueLabel->text().toUtf8().constData()),
+	          "36h11");
 }

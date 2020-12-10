@@ -7,4 +7,4 @@
 namespace fm = fort::myrmidon;
 namespace fmp = fort::myrmidon::priv;
 
-Q_DECLARE_METATYPE(fmp::TrackingDataDirectory::ConstPtr)
+Q_DECLARE_METATYPE(fmp::TrackingDataDirectory::Ptr)

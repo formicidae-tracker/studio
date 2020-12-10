@@ -13,8 +13,11 @@
 #include <fort/studio/MyrmidonTypes/Time.hpp>
 #include <fort/studio/MyrmidonTypes/AntMetadata.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "IdentifierBridge.hpp"
+
 AntMetadataBridge::AntMetadataBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_columnModel(new QStandardItemModel(this))
 	, d_typeModel(new QStandardItemModel(this))
 	, d_dataModel(new QStandardItemModel(this))
@@ -74,29 +77,34 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 AntMetadataBridge::~AntMetadataBridge() {
 }
 
-bool AntMetadataBridge::isActive() const {
-	return !d_experiment == false;
+void AntMetadataBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment,
+	        &ExperimentBridge::antCreated,
+	        this,
+	        &AntMetadataBridge::onAntListModified);
+
+	connect(experiment,
+	        &ExperimentBridge::antDeleted,
+	        this,
+	        &AntMetadataBridge::onAntListModified);
 }
 
-void AntMetadataBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	setModified(false);
+void AntMetadataBridge::tearDownExperiment() {
 	d_columnModel->clear();
 	d_columnModel->setHorizontalHeaderLabels({tr("Name"),tr("Type"),tr("Default Value")});
+	clearDataModel();
+}
 
-	d_experiment = experiment;
-	if ( !d_experiment ) {
-		emit activated(false);
+void AntMetadataBridge::setUpExperiment() {
+	if ( isActive() == false ) {
 		return;
 	}
-
 
 	for ( const auto & [name,column] : d_experiment->AntMetadataPtr()->Columns() ) {
 		d_columnModel->appendRow(buildColumn(column));
 	}
 
 	rebuildDataModel();
-
-	emit activated(true);
 }
 
 QAbstractItemModel * AntMetadataBridge::columnModel() {
@@ -289,14 +297,17 @@ QString AntMetadataBridge::findTypeName(fmp::AntMetadata::Type type) {
 
 void AntMetadataBridge::onAntListModified() {
 	rebuildDataModel();
+}
 
-
+void AntMetadataBridge::clearDataModel() {
+	d_dataModel->clear();
+	d_dataModel->setHorizontalHeaderLabels({ tr("Ant"), tr("Timed Changes") });
+	selectRow(-1);
 }
 
 void AntMetadataBridge::rebuildDataModel() {
-	d_dataModel->clear();
+	clearDataModel();
 	QStringList labels = { tr("Ant"), tr("Timed Changes") };
-	selectRow(-1);
 	if ( !d_experiment  ) {
 		return;
 	}

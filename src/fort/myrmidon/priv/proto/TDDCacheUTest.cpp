@@ -27,7 +27,7 @@ TEST_F(TDDCacheUTest,CahceIO) {
 			TDDCache::Load(TestSetup::Basedir() / cacheURI ,cacheURI.generic_string());
 		},std::runtime_error);
 
-	TrackingDataDirectory::ConstPtr opened,cached;
+	TrackingDataDirectory::Ptr opened,cached;
 	ASSERT_NO_THROW({
 			//will open it one first, and saving the cache
 			opened = TrackingDataDirectory::Open(TestSetup::Basedir() / cacheURI,

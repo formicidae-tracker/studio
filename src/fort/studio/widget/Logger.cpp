@@ -1,127 +1,288 @@
 #include "Logger.hpp"
 #include "ui_LoggerWidget.h"
 
-#include <QStandardItemModel>
-#include <QDateTime>
-#include <QSortFilterProxyModel>
-#include <QFile>
-#include <QTextStream>
-#include <QFileDialog>
 #include <QDebug>
+#include <QDateTime>
+#include <QFontDatabase>
+
+#include <glog/logging.h>
 
 Logger::~Logger() {}
 
 Logger::Logger(QObject * parent)
 	: QObject(parent)
-	, d_model(new QStandardItemModel(this)) {
-	d_model->setHorizontalHeaderLabels({"Type","Time","Message"});
+	, d_warningCounts(0)
+	, d_errorCounts(0) {
+	d_loggerData =
+		{
+#ifndef NDEBUG
+		 {QtDebugMsg,
+		  {
+		   [](const QString & msg, const QDateTime & time) -> QString{
+			   return "I " + time.toString() + " : " + msg;
+		   },
+		   [](const QString & msg) -> QString {
+			   return "<span style=\"color:#0000ff;\">" + msg + "</span>";
+		   },
+		   [](const QString & msg) {
+			   LOG(INFO) << msg.toUtf8().constData();
+		   },
+		   {&d_infos}
+		  }
+		 },
+#endif
+		 {QtInfoMsg,
+		  {
+		   [](const QString & msg, const QDateTime & time) -> QString{
+			   return "I " + time.toString() + " : " + msg;
+		   },
+		   [](const QString & msg) -> QString {
+			   return msg;
+		   },
+		   [](const QString & msg) {
+			   LOG(INFO) << msg.toUtf8().constData();
+		   },
+		   {&d_infos}
+		  }
+		 },
+		 {QtWarningMsg,
+		  {
+		   [](const QString & msg, const QDateTime & time) -> QString{
+			   return "W " + time.toString() + " : " + msg;
+		   },
+		   [](const QString & msg) -> QString {
+			   return "<span style=\"color:#b8860b;\">" + msg + "</span>";
+		   },
+		   [this](const QString & msg) {
+			   ++d_warningCounts;
+			   emit warningCountChanged(d_warningCounts);
+			   LOG(WARNING) << msg.toUtf8().constData();
+		   },
+		   {&d_infos,&d_warnings}
+		  }
+		 },
+		 {QtCriticalMsg,
+		  {
+		   [](const QString & msg, const QDateTime & time) -> QString{
+			   return "E " + time.toString() + " : " + msg;
+		   },
+		   [](const QString & msg) -> QString {
+			   return "<span style=\"color:#ff0000;\">" + msg + "</span>";
+		   },
+		   [this](const QString & msg) {
+			   ++d_errorCounts;
+			   emit errorCountChanged(d_errorCounts);
+			   LOG(ERROR) << msg.toUtf8().constData();
+		   },
+		   {&d_infos,&d_warnings,&d_errors}
+		  }
+		 },
+		 {QtFatalMsg,
+		  {
+		   [](const QString & msg, const QDateTime & time) -> QString{
+			   return "F " + time.toString() + " : " + msg;
+		   },
+		   [](const QString & msg) -> QString {
+			   return "<span style=\"color:#ff0000;\">" + msg + "</span>";
+		   },
+		   [this](const QString & msg) {
+			   LOG(FATAL) << msg.toUtf8().constData();
+		   },
+		   {}
+		  }
+		 },
+		};
 }
 
-QStandardItemModel * Logger::model() {
-	return d_model;
+
+int Logger::warningCount() const {
+	return d_warningCounts;
 }
+
+int Logger::errorCount() const {
+	return d_errorCounts;
+}
+
+#include <iostream>
 
 void Logger::logMessage(QtMsgType type, const QString & message) {
+	auto fi = d_loggerData.find(type);
+	if ( fi == d_loggerData.end() ) {
+		return;
+	}
 	auto now = QDateTime::currentDateTime();
-	QStandardItem * typeItem;
-	QFont font;
-	QBrush brush(QApplication::palette((QWidget*)NULL).color(QPalette::Foreground));
-	switch(type) {
-	case QtDebugMsg:
-		typeItem = new QStandardItem("D");
-		font.setItalic(true);
-		brush = Qt::blue;
-		break;
-	case QtInfoMsg:
-		typeItem = new QStandardItem("I");
-		break;
-	case QtWarningMsg:
-		typeItem = new QStandardItem("W");
-		font.setBold(true);
-		brush = QColor(255,174,66);
-		break;
-	case QtCriticalMsg:
-		typeItem = new QStandardItem("E");
-		font.setBold(true);
-		brush = Qt::red;
-		break;
-	case QtFatalMsg:
-		typeItem = new QStandardItem("F");
-		font.setBold(true);
-		font.setBold(true);
-		brush = Qt::red;
-		break;
-	}
-	auto timeItem = new QStandardItem(now.toString());
-	auto messageItem = new QStandardItem(message);
-	QList<QStandardItem *> res = {typeItem,timeItem,messageItem};
-	for ( const auto & i : res ) {
-		i->setEditable(false);
-		i->setFont(font);
-		i->setForeground(brush);
-	}
 
-	d_model->appendRow(res);
+	auto logMessage = fi->second.FormatLog(message,now);
+	auto stylized = fi->second.StylizeText(logMessage);
+	for ( const auto & d : fi->second.Destinations ) {
+		*d += stylized + "<br>";
+	}
+	fi->second.Process(logMessage);
+
+	emit newMessage(type,message);
 }
 
-void Logger::saveLogAs() {
-	auto filepath = QFileDialog::getSaveFileName(NULL,tr("Save Log"),"",tr("Text files (*.txt)"));
-	if ( filepath.isEmpty() == true ) {
-		qDebug() << "Not saving log as user did not set a path";
-		return;
-	}
-	QFile logFile(filepath);
-	qDebug() << "Opening '" << filepath << "'";
-	if ( logFile.open(QIODevice::WriteOnly | QIODevice::Text) == false ) {
-		qCritical() << "Could not open '" << filepath << "': " << logFile.errorString();
-		return;
-	}
-	QTextStream out(&logFile);
-	for ( size_t i = 0 ; i < d_model->rowCount() ; ++i ) {
-		out << d_model->item(i,0)->text()
-		    << ":" << d_model->item(i,1)->text()
-		    << ":" << d_model->item(i,2)->text()
-		    << ";\n";
-	}
-	qInfo() << "Dumpped log to '" << filepath << "'";
+
+const QString & Logger::infos() const {
+	return d_infos;
 }
 
+const QString & Logger::warnings() const {
+	return d_warnings;
+}
+
+const QString & Logger::errors() const {
+	return d_errors;
+}
 
 LoggerWidget::LoggerWidget(Logger * logger, QWidget * parent)
 	: QWidget(parent)
 	, d_ui ( new Ui::LoggerWidget)
-	, d_filteredModel( new QSortFilterProxyModel(this) ) {
+	, d_logger(logger) {
 
-	d_filteredModel->setSourceModel(logger->model());
+
 
 	d_ui->setupUi(this);
 
 
-	d_ui->tableView->setModel(d_filteredModel);
+	d_ui->comboBox->insertItem(0,"Info");
+	d_ui->comboBox->insertItem(1,"Warning");
+	d_ui->comboBox->insertItem(2,"Error");
 
-	d_ui->comboBox->insertItem(0,"Debug","[DIWE]");
-	d_ui->comboBox->insertItem(1,"Info","[IWE]");
-	d_ui->comboBox->insertItem(2,"Warning","[WE]");
-	d_ui->comboBox->insertItem(3,"Error","[E]");
-
-	connect(d_ui->pushButton,
-	        &QPushButton::clicked,
-	        logger,
-	        &Logger::saveLogAs);
+	setWindowTitle(tr("FORT Studio Log (/tmp/fort-studio.INFO)"));
 
 	connect(d_ui->comboBox,
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 	        this,
-	        &LoggerWidget::onDisplayLogLevelChanged);
+	        &LoggerWidget::onNewMessage);
 
-	d_ui->comboBox->setCurrentIndex(1);
+	d_ui->comboBox->setCurrentIndex(0);
+
+	connect(d_logger,
+	        &Logger::newMessage,
+	        this,
+	        &LoggerWidget::onNewMessage,
+	        Qt::QueuedConnection);
+	onNewMessage();
+
+	const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+	d_ui->textEdit->setFont(fixedFont);
 }
+
+
 
 LoggerWidget::~LoggerWidget() {
 	delete d_ui;
 }
 
-void LoggerWidget::onDisplayLogLevelChanged(int index) {
-	d_filteredModel->setFilterKeyColumn(0);
-	d_filteredModel->setFilterRegExp(d_ui->comboBox->currentData().toString());
+void LoggerWidget::onNewMessage() {
+	switch(d_ui->comboBox->currentIndex() ) {
+	case 0:
+		setRichText(d_logger->infos());
+		break;
+	case 1:
+		setRichText(d_logger->warnings());
+		break;
+	case 3:
+		setRichText(d_logger->errors());
+		break;
+	default:
+		break;
+	}
+}
+
+void LoggerWidget::setRichText(const QString & msg) {
+	d_ui->textEdit->setHtml(msg + "<span id=\"endOfLogs\"></span>");
+	d_ui->textEdit->scrollToAnchor("endOfLogs");
+}
+
+LogStatusWidget::LogStatusWidget(Logger * logger,QWidget * parent)
+	: QWidget(parent) {
+	d_errorIcon = new QLabel(this);
+	d_errorLabel = new QLabel(this);
+	d_warningIcon = new QLabel(this);
+	d_warningLabel = new QLabel(this);
+	d_message = new QLabel(this);
+
+	auto layout = new QHBoxLayout(this);
+	layout->addWidget(d_errorIcon);
+	layout->addWidget(d_errorLabel);
+	layout->addWidget(d_warningIcon);
+	layout->addWidget(d_warningLabel);
+	layout->addWidget(d_message);
+	setLayout(layout);
+
+	setToolTip(tr("Double-click to show log"));
+	setStatusTip(tr("Double-click to show log"));
+	connect(logger,
+	        &Logger::warningCountChanged,
+	        this,
+	        [this] ( int warnings) {
+		        d_warningLabel->setText(tr(": %1").arg(warnings));
+		        d_warningIcon->setEnabled(warnings > 0);
+	        },
+	        Qt::QueuedConnection);
+
+	connect(logger,
+	        &Logger::errorCountChanged,
+	        this,
+	        [this] ( int errors) {
+		        d_errorLabel->setText(tr(": %1").arg(errors));
+		        d_errorIcon->setEnabled(errors > 0);
+	        },
+	        Qt::QueuedConnection);
+
+	connect(logger,
+	        &Logger::newMessage,
+	        this,
+	        &LogStatusWidget::onNewMessage,
+	        Qt::QueuedConnection);
+
+	d_errorIcon->setPixmap(QIcon::fromTheme("dialog-error-symbolic").pixmap(15,15));
+	d_warningIcon->setPixmap(QIcon::fromTheme("dialog-warning-symbolic").pixmap(15,15));
+
+	const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+
+	setFont(fixedFont);
+	d_message->setFont(fixedFont);
+
+	d_warningLabel->setText(": 0");
+	d_errorLabel->setText(": 0");
+	d_warningIcon->setEnabled(false);
+	d_errorIcon->setEnabled(false);
+	onNewMessage(QtWarningMsg,"");
+
+}
+
+LogStatusWidget::~LogStatusWidget() {
+}
+
+
+void LogStatusWidget::onNewMessage(int type,const QString & message) {
+	const static int SIZE = 60;
+	auto actualMessage = message;
+	if ( actualMessage.size() < SIZE ) {
+		actualMessage.resize(SIZE,' ');
+	} else if ( actualMessage.size() > SIZE ) {
+		actualMessage.resize(SIZE-3);
+		actualMessage += "...";
+	}
+
+	switch(type) {
+	case QtWarningMsg:
+		d_message->setText(actualMessage);
+		d_message->setStyleSheet("QLabel {}");
+		break;
+	case QtCriticalMsg:
+		d_message->setText(actualMessage);
+		d_message->setStyleSheet("QLabel {color : red;}");
+		QApplication::beep();
+		break;
+	default:
+		break;
+	}
+}
+
+void LogStatusWidget::mouseDoubleClickEvent(QMouseEvent * event) {
+	emit showLog();
 }

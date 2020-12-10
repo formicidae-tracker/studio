@@ -87,10 +87,11 @@ void TrackingVideoPlayer::stopTask() {
 	d_task = nullptr;
 	d_frames.clear();
 	d_stagging.clear();
+	++d_currentTaskID;
 }
 
 void TrackingVideoPlayer::bootstrapTask(quint32 spaceID,
-                                        const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+                                        const fmp::TrackingDataDirectory::Ptr & tdd) {
 	if ( d_task == nullptr ) {
 		return;
 	}
@@ -119,11 +120,19 @@ void TrackingVideoPlayer::bootstrapTask(quint32 spaceID,
 
 }
 
+void TrackingVideoPlayer::clearMovieSegment() {
+	stop();
+	stopTask();
+	d_segment.reset();
+	emit durationChanged(fm::Time(),0,8);
+	emit positionChanged(0);
+}
+
 void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
-                                          const fmp::TrackingDataDirectory::ConstPtr & tdd,
+                                          const fmp::TrackingDataDirectory::Ptr & tdd,
                                           const fmp::MovieSegment::ConstPtr & segment,
                                           const fm::Time & start) {
-	if ( !segment ) {
+	if ( segment == nullptr ) {
 		return;
 	}
 
@@ -132,7 +141,7 @@ void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
 	d_segment = segment;
 
 	try {
-		d_task = new TrackingVideoPlayerTask(++d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
+		d_task = new TrackingVideoPlayerTask(d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
 		d_currentSeekID = 0;
 		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
 		d_start = start;
@@ -586,15 +595,15 @@ void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fm::Duration position) {
 };
 
 void TrackingVideoPlayerTask::startLoadingFrom(quint32 spaceID,
-                                               const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+                                               const fmp::TrackingDataDirectory::Ptr & tdd) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[task] startLoadingFrom" << std::endl);
 	metaObject()->invokeMethod(this,"startLoadingFromUnsafe",Qt::BlockingQueuedConnection,
 	                           Q_ARG(quint32,spaceID),
-	                           Q_ARG(fmp::TrackingDataDirectory::ConstPtr,tdd));
+	                           Q_ARG(fmp::TrackingDataDirectory::Ptr,tdd));
 }
 
 void TrackingVideoPlayerTask::startLoadingFromUnsafe(quint32 spaceID,
-                                                     fmp::TrackingDataDirectory::ConstPtr tdd) {
+                                                     fmp::TrackingDataDirectory::Ptr tdd) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[task] startLoadingFromUnsafe" << std::endl);
 	d_loader->loadMovieSegment(spaceID,tdd, d_segment);
 }

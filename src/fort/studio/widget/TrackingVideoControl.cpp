@@ -1,8 +1,7 @@
 #include "TrackingVideoControl.hpp"
 #include "ui_TrackingVideoControl.h"
 
-#include <fort/studio/bridge/IdentifierBridge.hpp>
-#include <fort/studio/bridge/SelectedAntBridge.hpp>
+#include <fort/studio/bridge/ExperimentBridge.hpp>
 
 #include <fort/studio/Format.hpp>
 
@@ -10,7 +9,7 @@ TrackingVideoControl::TrackingVideoControl(QWidget *parent)
 	: QWidget(parent)
 	, d_ui(new Ui::TrackingVideoControl)
 	, d_player(nullptr)
-	, d_identifier(nullptr) {
+	, d_experiment(nullptr) {
 	d_ui->setupUi(this);
 
 	d_ui->comboBox->addItem("x 1.00",1.0);
@@ -28,7 +27,7 @@ TrackingVideoControl::~TrackingVideoControl(){
 }
 
 void TrackingVideoControl::setup(TrackingVideoPlayer * player,
-                                 IdentifierBridge * identifier) {
+                                 ExperimentBridge * experiment) {
 	d_player = player;
 	connect(player,
 	        &TrackingVideoPlayer::playbackStateChanged,
@@ -67,12 +66,10 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 	        this,&TrackingVideoControl::onPlayerPlaybackRateChanged);
 
 	onPlayerPlaybackRateChanged(d_player->playbackRate());
-	d_identifier = identifier;
-	connect(d_identifier->selectedAnt(),
-	        &SelectedAntBridge::activated,
-	        this,
-	        &TrackingVideoControl::onAntSelection);
-	onAntSelection(d_identifier->selectedAnt()->isActive());
+	d_experiment = experiment;
+	connect(d_experiment,&ExperimentBridge::antSelected,
+	        this,&TrackingVideoControl::onAntSelection);
+	onAntSelection(0);
 
 	connect(d_ui->seekForwardButton,&QToolButton::clicked,
 	        d_player,[this]() {
@@ -86,13 +83,13 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 
 	connect(d_ui->skipForwardButton,&QToolButton::clicked,
 	        d_player,[this]() {
-		        d_player->jumpNextVisible(d_identifier->selectedAnt()->selectedID(),
+		        d_player->jumpNextVisible(d_experiment->selectedAntID(),
 		                                  false);
 	        });
 
 	connect(d_ui->skipBackwardButton,&QToolButton::clicked,
 	        d_player,[this]() {
-		        d_player->jumpNextVisible(d_identifier->selectedAnt()->selectedID(),
+		        d_player->jumpNextVisible(d_experiment->selectedAntID(),
 		                                  true);
 	        });
 
@@ -103,15 +100,15 @@ void TrackingVideoControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::Sta
 	switch(state) {
 	case TrackingVideoPlayer::State::Playing:
 		d_ui->stopButton->setEnabled(true);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-pause"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-pause-symbolic"));
 		break;
 	case TrackingVideoPlayer::State::Paused:
 		d_ui->stopButton->setEnabled(true);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start-symbolic"));
 		break;
 	case TrackingVideoPlayer::State::Stopped:
 		d_ui->stopButton->setEnabled(false);
-		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+		d_ui->playButton->setIcon(QIcon::fromTheme("media-playback-start-symbolic"));
 		break;
 	}
 }
@@ -208,8 +205,8 @@ void TrackingVideoControl::onPlayerPlaybackRateChanged(qreal rate) {
 }
 
 
-void TrackingVideoControl::onAntSelection(bool selected) {
-	if ( selected == false ) {
+void TrackingVideoControl::onAntSelection(quint32  antID) {
+	if ( antID == 0 ) {
 		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(0))));
 		d_ui->zoomCheckBox->setEnabled(false);
 		d_ui->zoomSlider->setEnabled(false);
@@ -218,14 +215,13 @@ void TrackingVideoControl::onAntSelection(bool selected) {
 		emit zoomFocusChanged(0,1.0);
 	} else {
 		d_ui->zoomCheckBox->setEnabled(true);
-		auto antID = d_identifier->selectedAnt()->selectedID();
 		d_ui->zoomCheckBox->setText(tr("Zoom on Ant %1").arg(ToQString(fmp::Ant::FormatID(antID))));
 		d_ui->zoomSlider->setEnabled(true);
 		d_ui->skipForwardButton->setEnabled(true);
 		d_ui->skipBackwardButton->setEnabled(true);
 
 		if ( d_ui->zoomCheckBox->checkState() == Qt::Checked) {
-			emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoomValue());
+			emit zoomFocusChanged(antID,zoomValue());
 		} else {
 			emit zoomFocusChanged(0,1.0);
 		}
@@ -234,8 +230,8 @@ void TrackingVideoControl::onAntSelection(bool selected) {
 
 
 void TrackingVideoControl::on_zoomCheckBox_stateChanged(int value) {
-	if ( value == Qt::Checked && d_identifier != nullptr ) {
-		emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoomValue());
+	if ( value == Qt::Checked && d_experiment != nullptr ) {
+		emit zoomFocusChanged(d_experiment->selectedAntID(),zoomValue());
 	} else {
 		emit zoomFocusChanged(0,1.0);
 	}
@@ -244,8 +240,8 @@ void TrackingVideoControl::on_zoomCheckBox_stateChanged(int value) {
 void TrackingVideoControl::on_zoomSlider_valueChanged(int value) {
 	auto zoom  = zoomValue();
 	d_ui->zoomLabel->setText(tr("%1%").arg(int(zoom* 100),5));
-	if ( d_identifier != nullptr && d_ui->zoomCheckBox->checkState() == Qt::Checked) {
-		emit zoomFocusChanged(d_identifier->selectedAnt()->selectedID(),zoom);
+	if ( d_experiment != nullptr && d_ui->zoomCheckBox->checkState() == Qt::Checked) {
+		emit zoomFocusChanged(d_experiment->selectedAntID(),zoom);
 	}
 }
 

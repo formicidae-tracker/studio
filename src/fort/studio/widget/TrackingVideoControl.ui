@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>888</width>
-    <height>89</height>
+    <width>667</width>
+    <height>101</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -53,7 +53,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-stop">
+        <iconset theme="media-playback-stop-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -64,7 +64,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-skip-backward">
+        <iconset theme="media-skip-backward-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -75,7 +75,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-seek-backward">
+        <iconset theme="media-seek-backward-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -86,7 +86,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-start">
+        <iconset theme="media-playback-start-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -97,7 +97,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-seek-forward">
+        <iconset theme="media-seek-forward-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -108,7 +108,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-skip-forward">
+        <iconset theme="media-skip-forward-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -137,6 +137,13 @@
       <widget class="QComboBox" name="comboBox"/>
      </item>
      <item>
+      <widget class="QLabel" name="zoomLabel">
+       <property name="text">
+        <string>100%</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -156,6 +163,10 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QCheckBox" name="showCollisionsBox">
        <property name="text">
@@ -185,6 +196,12 @@
      </item>
      <item>
       <widget class="QSlider" name="zoomSlider">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="maximum">
         <number>9</number>
        </property>
@@ -196,13 +213,6 @@
        </property>
        <property name="tickInterval">
         <number>1</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="zoomLabel">
-       <property name="text">
-        <string>100%</string>
        </property>
       </widget>
      </item>

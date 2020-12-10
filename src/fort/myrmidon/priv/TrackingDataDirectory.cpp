@@ -1,26 +1,32 @@
 #include "TrackingDataDirectory.hpp"
 
-#include "RawFrame.hpp"
-
 #include <mutex>
+#include <regex>
+
 #include <tbb/parallel_for.h>
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio.hpp>
+
+#include <yaml-cpp/yaml.h>
 
 #include <fort/hermes/Error.h>
 #include <fort/hermes/FileContext.h>
 
 #include <fort/myrmidon/utils/NotYetImplemented.hpp>
 #include <fort/myrmidon/utils/Checker.hpp>
-#include "TagCloseUp.hpp"
-
-#include "TimeUtils.hpp"
-
-#include <fort/myrmidon/priv/proto/TDDCache.hpp>
-
 #include <fort/myrmidon/utils/Defer.hpp>
+#include <fort/myrmidon/utils/ObjectPool.hpp>
+#include <fort/myrmidon/priv/proto/TDDCache.hpp>
+#include <fort/myrmidon/priv/proto/TagStatisticsCache.hpp>
+#include <fort/myrmidon/priv/proto/TagCloseUpCache.hpp>
 
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/videoio.hpp>
+#include "TagCloseUp.hpp"
+#include "TimeUtils.hpp"
+#include "RawFrame.hpp"
+
+
 
 #ifdef MYRMIDON_USE_BOOST_FILESYSTEM
 #define MYRMIDON_FILE_IS_REGULAR(f) ((f).type() == fs::regular_file)
@@ -36,15 +42,15 @@ namespace priv {
 TrackingDataDirectory::~TrackingDataDirectory() {}
 
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Create(const std::string & uri,
-                                                              const fs::path & absoluteFilePath,
-                                                              uint64_t startFrame,
-                                                              uint64_t endFrame,
-                                                              const Time & startdate,
-                                                              const Time & enddate,
-                                                              const TrackingIndex::Ptr & si,
-                                                              const MovieIndex::Ptr & movies,
-                                                              const FrameReferenceCacheConstPtr & referenceCache) {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Create(const std::string & uri,
+                                                         const fs::path & absoluteFilePath,
+                                                         uint64_t startFrame,
+                                                         uint64_t endFrame,
+                                                         const Time & startdate,
+                                                         const Time & enddate,
+                                                         const TrackingIndex::Ptr & si,
+                                                         const MovieIndex::Ptr & movies,
+                                                         const FrameReferenceCacheConstPtr & referenceCache) {
 
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteFilePath);
 
@@ -77,7 +83,7 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 	, d_startFrame(startFrame)
 	, d_endFrame(endFrame)
 	, d_uid(GetUID(d_absoluteFilePath))
-	, d_endIterator(ConstPtr(),endFrame+1)
+	, d_endIterator(Ptr(),endFrame+1)
 	, d_segments(si)
 	, d_movies(movies)
 	, d_referencesByFID(referenceCache) {
@@ -142,6 +148,10 @@ TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepa
 }
 
 
+const tags::ApriltagOptions & TrackingDataDirectory::DetectionSettings() const  {
+	return d_detectionSettings;
+}
+
 void TrackingDataDirectory::CheckPaths(const fs::path & path,
                                        const fs::path & experimentRoot) {
 	if ( fs::is_directory(experimentRoot) == false ) {
@@ -205,11 +215,11 @@ void TrackingDataDirectory::LoadMovieSegments(const std::map<uint32_t,std::pair<
 	                                      });
 }
 
-void TrackingDataDirectory::BuildCache(const std::string & URI,
-                                       Time::MonoclockID monoID,
-                                       const fs::path & tddPath,
-                                       const TrackingIndex::ConstPtr & trackingIndexer,
-                                       FrameReferenceCache & cache) {
+void TrackingDataDirectory::BuildFrameReferenceCache(const std::string & URI,
+                                                     Time::MonoclockID monoID,
+                                                     const fs::path & tddPath,
+                                                     const TrackingIndex::ConstPtr & trackingIndexer,
+                                                     FrameReferenceCache & cache) {
 	struct CacheSegment {
 		std::string AbsoluteFilePath;
 		std::set<FrameID> ToFind;
@@ -231,7 +241,12 @@ void TrackingDataDirectory::BuildCache(const std::string & URI,
 						++iter;
 					}
 				} catch ( const fort::hermes::EndOfFile & ) {
-
+					if ( iter != ToFind.end() ) {
+						throw std::runtime_error("Frame "
+						                         + std::to_string(*iter)
+						                         + " is outside of file "
+						                         + AbsoluteFilePath);
+					}
 				} catch ( const std::exception & e ) {
 					throw std::runtime_error("[TDD.BuildCache]: Could not find frame "
 					                         + std::to_string(*iter) + ": " +  e.what());
@@ -334,16 +349,84 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 
 }
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
+
+std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
+TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
+	PERF_FUNCTION();
+	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
+
+	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
+	static std::regex multiRx("frame_([0-9]+).png");
+
+	for ( const auto & de : fs::directory_iterator(path) ) {
+		auto ext = de.path().extension().string();
+		std::transform(ext.begin(),ext.end(),ext.begin(),
+		               [](unsigned char c) {
+			               return std::tolower(c);
+		               });
+		if ( ext != ".png" ) {
+			continue;
+		}
+
+		std::smatch ID;
+		std::string filename = de.path().filename().string();
+		FrameID frameID;
+		if(std::regex_search(filename,ID,singleRx) && ID.size() > 2) {
+			std::istringstream IDS(ID.str(1));
+			std::istringstream FrameS(ID.str(2));
+			auto tagID = std::make_shared<TagID>(0);
+
+			IDS >> *(tagID);
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),tagID)));
+			continue;
+		}
+		if(std::regex_search(filename,ID,multiRx) && ID.size() > 1) {
+			std::istringstream FrameS(ID.str(1));
+			FrameS >> frameID;
+			res.insert(std::make_pair(frameID,std::make_pair(de.path(),std::shared_ptr<TagID>())));
+			continue;
+		}
+
+	}
+
+	return res;
+}
+
+
+
+TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
 	CheckPaths(filepath,experimentRoot);
 
 	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
 	auto URI = fs::relative(absoluteFilePath,fs::absolute(experimentRoot));
 
+	Ptr res;
+
+	bool cacheData = false;
+
 	try {
-		return LoadFromCache(absoluteFilePath,URI.generic_string());
+		res = LoadFromCache(absoluteFilePath,URI.generic_string());
 	} catch (const std::exception & e ) {
-	};
+		res = OpenFromFiles(absoluteFilePath,URI.generic_string());
+		cacheData = true;
+	}
+
+	if ( cacheData == true ) {
+		try {
+			res->SaveToCache();
+		} catch ( const std::exception & e) {}
+	}
+
+	res->LoadComputedFromCache();
+	res->LoadDetectionSettings();
+
+	return res;
+}
+
+
+TrackingDataDirectory::Ptr TrackingDataDirectory::OpenFromFiles(const fs::path & absoluteFilePath,
+                                                                const std::string & URI) {
 
 
 	std::vector<fs::path> hermesFiles;
@@ -355,34 +438,35 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 
 	LookUpFiles(absoluteFilePath,hermesFiles,moviesPaths);
 	if ( hermesFiles.empty() ) {
-		throw std::invalid_argument(filepath.string() + " does not contains any .hermes file");
-	}
-	LoadMovieSegments(moviesPaths,URI.generic_string(),movies);
-	for(const auto & m : movies) {
-		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI.generic_string(),0,Time())));
-		referenceCache->insert(std::make_pair(m->EndFrame(),FrameReference(URI.generic_string(),0,Time())));
+		throw std::invalid_argument(absoluteFilePath.string() + " does not contains any .hermes file");
 	}
 
-	auto snapshots = TagCloseUp::Lister::ListFiles(absoluteFilePath / "ants");
+	LoadMovieSegments(moviesPaths,URI,movies);
+	for(const auto & m : movies) {
+		referenceCache->insert(std::make_pair(m->StartFrame(),FrameReference(URI,0,Time())));
+		referenceCache->insert(std::make_pair(m->EndFrame(),FrameReference(URI,0,Time())));
+	}
+
+	auto snapshots = ListTagCloseUpFiles(absoluteFilePath / "ants");
 	for(const auto & [frameID,s] : snapshots) {
-		referenceCache->insert(std::make_pair(frameID,FrameReference(URI.generic_string(),0,Time())));
+		referenceCache->insert(std::make_pair(frameID,FrameReference(URI,0,Time())));
 	}
 
 	Time::MonoclockID monoID = GetUID(absoluteFilePath);
 
-	auto bounds = BuildIndexes(URI.generic_string(),
+	auto bounds = BuildIndexes(URI,
 	                           monoID,
 	                           hermesFiles,
 	                           ti);
 
-	BuildCache(URI.generic_string(),
-	           monoID,
-	           absoluteFilePath,
-	           ti,
-	           *referenceCache);
+	BuildFrameReferenceCache(URI,
+	                         monoID,
+	                         absoluteFilePath,
+	                         ti,
+	                         *referenceCache);
 	// caches the last frame
 	referenceCache->insert(std::make_pair(bounds.second.first,
-	                                      FrameReference(URI.generic_string(),
+	                                      FrameReference(URI,
 	                                                     bounds.second.first,
 	                                                     bounds.second.second.Add(-1))));
 	Time emptyTime;
@@ -411,22 +495,15 @@ TrackingDataDirectory::ConstPtr TrackingDataDirectory::Open(const fs::path & fil
 		referenceCache->erase(frameID);
 	}
 
-
-	auto res = TrackingDataDirectory::Create(URI.generic_string(),
-	                                         absoluteFilePath,
-	                                         bounds.first.first,
-	                                         bounds.second.first,
-	                                         bounds.first.second,
-	                                         bounds.second.second,
-	                                         ti,
-	                                         mi,
-	                                         referenceCache);
-	try {
-		res->SaveToCache();
-	} catch(const std::exception & e) {
-	}
-
-	return res;
+	return TrackingDataDirectory::Create(URI,
+	                                     absoluteFilePath,
+	                                     bounds.first.first,
+	                                     bounds.second.first,
+	                                     bounds.first.second,
+	                                     bounds.second.second,
+	                                     ti,
+	                                     mi,
+	                                     referenceCache);
 }
 
 
@@ -436,7 +513,7 @@ TrackingDataDirectory::TrackingSegments() const {
 }
 
 
-TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirectory::ConstPtr & parent,
+TrackingDataDirectory::const_iterator::const_iterator(const TrackingDataDirectory::Ptr & parent,
                                                       uint64_t current)
 	: d_parent(parent)
 	, d_current(current) {
@@ -514,7 +591,7 @@ const RawFrameConstPtr & TrackingDataDirectory::const_iterator::operator*() {
 }
 
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::const_iterator::LockParent() const {
+TrackingDataDirectory::Ptr TrackingDataDirectory::const_iterator::LockParent() const {
 	if ( auto locked = d_parent.lock() ) {
 		return locked;
 	}
@@ -578,7 +655,7 @@ const TrackingDataDirectory::MovieIndex & TrackingDataDirectory::MovieSegments()
 	return *d_movies;
 }
 
-TrackingDataDirectory::ConstPtr TrackingDataDirectory::Itself() const  {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Itself() const  {
 	if ( auto locked = d_itself.lock() ) {
 		return locked;
 	}
@@ -591,7 +668,7 @@ TrackingDataDirectory::ReferenceCache() const {
 }
 
 
-TrackingDataDirectory::ConstPtr
+TrackingDataDirectory::Ptr
 TrackingDataDirectory::LoadFromCache(const fs::path & absoluteFilePath,
                                      const std::string & URI) {
 	return proto::TDDCache::Load(absoluteFilePath,URI);
@@ -601,87 +678,345 @@ void TrackingDataDirectory::SaveToCache() const {
 	proto::TDDCache::Save(Itself());
 }
 
-const TagCloseUp::Lister::Ptr
-TrackingDataDirectory::TagCloseUpLister(tags::Family f,
-                                        uint8_t threshold) const {
-	PERF_FUNCTION();
+std::shared_ptr<std::map<FrameReference,fs::path>>
+TrackingDataDirectory::EnumerateFullFrames(const fs::path & subpath) const noexcept {
+	auto dirpath = AbsoluteFilePath() / subpath;
+	if (fs::is_directory(dirpath) == false ) {
+		return {};
+	}
 
-	auto locked = Itself();
-	return TagCloseUp::Lister::Create(d_absoluteFilePath / "ants",
-	                                  f,
-	                                  threshold,
-	                                  [locked](FrameID fid) {
-		                                  return locked->FrameReferenceAt(fid);
-	                                  });
+	try {
+		auto listing = ListTagCloseUpFiles(dirpath);
+		auto res = std::make_shared<std::map<FrameReference,fs::path>>();
+		for(const auto & [frameID,fileAndFilter] : listing) {
+			if ( !fileAndFilter.second == true ) {
+				res->insert(std::make_pair(FrameReferenceAt(frameID),fileAndFilter.first));
+			}
+		}
+		return res;
+	} catch (const std::exception & e ) {
+	}
+	return {};
 }
 
 
-std::map<FrameReference,fs::path>
-TrackingDataDirectory::FullFramesFor(const fs::path & subpath) const {
-	std::map<FrameReference,fs::path> res;
+TrackingDataDirectory::ComputedRessourceUnavailable::ComputedRessourceUnavailable(const std::string & typeName) noexcept
+	: std::runtime_error("Computed ressource "+ typeName + " is not available") {
+}
+TrackingDataDirectory::ComputedRessourceUnavailable::~ComputedRessourceUnavailable() noexcept {
+}
 
-	auto listing = TagCloseUp::Lister::ListFiles(AbsoluteFilePath() / subpath);
-	for(const auto & [frameID,fileAndFilter] : listing) {
-		if ( !fileAndFilter.second == true ) {
-			res.insert(std::make_pair(FrameReferenceAt(frameID),fileAndFilter.first));
+
+const std::vector<TagCloseUp::ConstPtr> &
+TrackingDataDirectory::TagCloseUps() const {
+	if ( TagCloseUpsComputed() == false ) {
+		throw ComputedRessourceUnavailable("TagCloseUp");
+	}
+	return *d_tagCloseUps;
+}
+
+
+const std::map<FrameReference,fs::path> &
+TrackingDataDirectory::FullFrames() const {
+	if ( FullFramesComputed() == false ) {
+		throw ComputedRessourceUnavailable("FullFrame");
+	}
+	return *d_fullFrames;
+}
+
+const TagStatisticsHelper::Timed &
+TrackingDataDirectory::TagStatistics() const {
+	if ( TagStatisticsComputed() == false ) {
+		throw ComputedRessourceUnavailable("TagStatistics");
+	}
+	return *d_tagStatistics;
+}
+
+
+bool TrackingDataDirectory::TagCloseUpsComputed() const {
+	return !d_tagCloseUps == false;
+}
+
+bool TrackingDataDirectory::TagStatisticsComputed() const {
+	return !d_tagStatistics == false;
+}
+
+bool TrackingDataDirectory::FullFramesComputed() const {
+	return !d_fullFrames == false;
+}
+
+class TagCloseUpsReducer {
+public:
+	TagCloseUpsReducer(size_t count,
+	                   const TrackingDataDirectory::Ptr & tdd)
+		: d_tdd(tdd)
+		, d_closeUps(count) {
+		d_count.store(count);
+	}
+
+	void Compute(size_t index,
+	             FrameID frameID,
+	             const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter) {
+		auto detector = d_detectorPool.Get(d_tdd->DetectionSettings());
+
+		auto tcus = detector->Detect(fileAndFilter,
+		                             d_tdd->FrameReferenceAt(frameID));
+
+		Reduce(index,tcus);
+	}
+
+	void Reduce(size_t index,
+	            const std::vector<TagCloseUp::ConstPtr> & tcus) {
+		d_closeUps[index] = tcus;
+		if ( (d_count.fetch_sub(1) - 1 ) > 0 ) {
+			return;
 		}
+		d_tdd->d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		for( const auto tcus : d_closeUps ) {
+			d_tdd->d_tagCloseUps->insert(d_tdd->d_tagCloseUps->end(),
+			                             tcus.begin(),
+			                             tcus.end());
+		}
+		proto::TagCloseUpCache::Save(d_tdd->AbsoluteFilePath(),
+		                             *d_tdd->d_tagCloseUps);
+	}
+
+private:
+	class Detector {
+	public:
+		Detector(const tags::ApriltagOptions & detectorOptions) {
+			const auto & [constructor,destructor] = tags::GetFamily(detectorOptions.Family);
+			d_family = constructor();
+			d_destructor = destructor;
+			d_detector = apriltag_detector_create();
+
+			detectorOptions.SetUpDetector(d_detector);
+			apriltag_detector_add_family(d_detector,d_family);
+		}
+
+		~Detector() {
+			apriltag_detector_destroy(d_detector);
+			d_destructor(d_family);
+		}
+
+		std::vector<TagCloseUp::ConstPtr> Detect(const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter,
+		                                         const FrameReference & reference) {
+			std::vector<TagCloseUp::ConstPtr> res;
+			cv::Mat imgCv;
+
+			try {
+				imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
+			} catch ( const std::exception	&  ) {
+				return res;
+			}
+
+			if ( imgCv.empty() ) {
+				return res;
+			}
+
+			image_u8_t img = {.width = imgCv.cols,.height = imgCv.rows, .stride = imgCv.cols, .buf = imgCv.data};
+			zarray_t * detections = apriltag_detector_detect(d_detector,&img);
+			Defer destroyDetections([detections]() { apriltag_detections_destroy(detections);});
+			apriltag_detection * d;
+			for ( size_t i = 0; i < zarray_size(detections); ++i) {
+				zarray_get(detections,i,&d);
+				if ( fileAndFilter.second && d->id != *fileAndFilter.second ) {
+					continue;
+				}
+				res.push_back(std::make_shared<TagCloseUp>(fileAndFilter.first,reference,d));
+			}
+			return res;
+		}
+
+	private:
+		apriltag_family_t    * d_family;
+		tags::FamilyDestructor d_destructor;
+		apriltag_detector_t  * d_detector;
+	};
+
+	std::atomic<size_t>                            d_count;
+	TrackingDataDirectory::Ptr                     d_tdd;
+	std::vector<std::vector<TagCloseUp::ConstPtr>> d_closeUps;
+	utils::ObjectPool<Detector>                    d_detectorPool;
+};
+
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareTagCloseUpsLoaders() {
+	auto tagCloseUpFiles = ListTagCloseUpFiles(AbsoluteFilePath() / "ants");
+
+	if ( tagCloseUpFiles.empty() || d_detectionSettings.Family == tags::Family::Undefined ) {
+		d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		proto::TagCloseUpCache::Save(AbsoluteFilePath(),{});
+		return {};
+	}
+
+	auto reducer = std::make_shared<TagCloseUpsReducer>(tagCloseUpFiles.size(),
+	                                                    Itself());
+	size_t i = 0;
+	std::vector<Loader> res;
+	res.reserve(tagCloseUpFiles.size());
+	for( const auto & [frameID,fileAndFilter] : tagCloseUpFiles ) {
+		res.push_back([frameID,fileAndFilter,reducer,i]() {
+			              reducer->Compute(i,frameID,fileAndFilter);
+		              });
+		++i;
 	}
 
 	return res;
 }
 
-void TrackingDataDirectory::ComputeFullFrames() const {
+
+class TagStatisticsReducer {
+public:
+	TagStatisticsReducer(size_t count,
+	                     const TrackingDataDirectory::Ptr & tdd)
+		: d_tdd(tdd)
+		, d_stats(count){
+		d_count.store(count);
+	}
+
+	void Reduce(size_t index,
+	            const TagStatisticsHelper::Timed & stats) {
+		d_stats[index] = stats;
+		if ( (d_count.fetch_sub(1) - 1 ) > 0 ) {
+			return;
+		}
+		d_tdd->d_tagStatistics = std::make_shared<TagStatisticsHelper::Timed>(TagStatisticsHelper::MergeTimed(d_stats.begin(),d_stats.end()));
+		proto::TagStatisticsCache::Save(d_tdd->AbsoluteFilePath(),*d_tdd->d_tagStatistics);
+	}
+private:
+	std::atomic<size_t> d_count;
+	TrackingDataDirectory::Ptr d_tdd;
+	std::vector<TagStatisticsHelper::Timed> d_stats;
+};
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareTagStatisticsLoaders() {
+	const auto & segments = d_segments->Segments();
+	auto reducer = std::make_shared<TagStatisticsReducer>(segments.size(),
+	                                                      Itself());
+
+	std::vector<Loader> res;
+	res.reserve(segments.size());
+	size_t i = 0;
+	for ( const auto & s : segments ) {
+
+		res.push_back([reducer,s,i,this]() {
+			              auto stats = TagStatisticsHelper::BuildStats((AbsoluteFilePath()/ s.second).string());
+			              reducer->Reduce(i,stats);
+		              });
+		++i;
+	}
+	return res;
+}
+
+
+class FullFramesReducer {
+public :
+	FullFramesReducer(size_t count,
+	                  const TrackingDataDirectory::Ptr & tdd)
+		: d_tdd(tdd) {
+		d_count.store(count);
+	}
+
+	void Reduce() {
+		if ( (d_count.fetch_sub(1) - 1) > 0 ) {
+			return;
+		}
+		d_tdd->d_fullFrames = d_tdd->EnumerateFullFrames("ants/computed");
+	}
+private:
+	std::atomic<size_t>        d_count;
+	TrackingDataDirectory::Ptr d_tdd;
+};
+
+
+
+std::vector<TrackingDataDirectory::Loader>
+TrackingDataDirectory::PrepareFullFramesLoaders() {
 	auto firstFrame = *begin();
 	int width = firstFrame->Width();
 	int height = firstFrame->Height();
-	const auto & ms = d_movies->Segments();
 	fs::create_directory(AbsoluteFilePath() / "ants/computed");
-	tbb::parallel_for(tbb::blocked_range<size_t>(0,ms.size()),
-	                  [this,
-	                   &ms,
-	                   width,
-	                   height](const tbb::blocked_range<size_t> & range) {
-		                  for ( size_t i = range.begin();
-		                        i != range.end();
-		                        ++i ) {
-			                  cv::VideoCapture capture(ms[i].second->AbsoluteFilePath().c_str());
-			                  cv::Mat frame,scaled;
-			                  capture >> frame;
-			                  cv::resize(frame,scaled,cv::Size(width,height),cv::INTER_CUBIC);
-			                  auto filename = "frame_" + std::to_string(ms[i].second->ToTrackingFrameID(0)) + ".png";
-			                  auto imgPath = AbsoluteFilePath() / "ants/computed" / filename;
-			                  cv::imwrite(imgPath.c_str(),scaled);
-		                  }
-	                  });
-
-
-
-}
-
-std::map<FrameReference,fs::path>
-TrackingDataDirectory::FullFrames() const {
-	return FullFramesFor("ants");
-}
-
-std::map<FrameReference,fs::path>
-TrackingDataDirectory::ComputedFullFrames() const {
-	if ( fs::is_directory(AbsoluteFilePath() / "ants/computed") == false ) {
-		ComputeFullFrames();
+	auto reducer = std::make_shared<FullFramesReducer>(d_movies->Segments().size(),
+	                                                   Itself());
+	std::vector<Loader> res;
+	for ( const auto & ms : d_movies->Segments() ) {
+		res.push_back([reducer,ms,width,height,this]() {
+			              cv::VideoCapture capture(ms.second->AbsoluteFilePath().c_str());
+			              cv::Mat frame,scaled;
+			              capture >> frame;
+			              cv::resize(frame,scaled,cv::Size(width,height),cv::INTER_CUBIC);
+			              auto filename = "frame_" + std::to_string(ms.second->ToTrackingFrameID(0)) + ".png";
+			              auto imgPath = AbsoluteFilePath() / "ants/computed" / filename;
+			              cv::imwrite(imgPath.c_str(),scaled);
+			              reducer->Reduce();
+		              });
 	}
-	return FullFramesFor("ants/computed");
-}
 
-
-std::vector<TagStatisticsHelper::Loader>
-TrackingDataDirectory::StatisticsLoader() const {
-	std::vector<TagStatisticsHelper::Loader> res;
-	res.reserve(d_segments->Segments().size());
-	for ( const auto & [ref,segment] : d_segments->Segments() ) {
-		std::string filepath = (AbsoluteFilePath() / segment).string();
-		res.push_back([filepath] () { return TagStatisticsHelper::BuildStats(filepath); });
-	}
 	return res;
 }
+
+void TrackingDataDirectory::LoadComputedFromCache() {
+	try {
+		d_tagStatistics = std::make_shared<TagStatisticsHelper::Timed>(proto::TagStatisticsCache::Load(AbsoluteFilePath()));
+	} catch (const std::exception & e) {}
+
+	try {
+		d_tagCloseUps = std::make_shared<std::vector<TagCloseUp::ConstPtr>>();
+		*d_tagCloseUps = proto::TagCloseUpCache::Load(AbsoluteFilePath(),
+		                                              [this](FrameID frameID) -> FrameReference {
+			                                              return FrameReferenceAt(frameID);
+		                                              });
+	} catch (const std::exception & e) {
+		d_tagCloseUps.reset();
+	}
+
+
+
+	d_fullFrames = EnumerateFullFrames("ants");
+	if ( !d_fullFrames || d_fullFrames->empty() ) {
+		d_fullFrames = EnumerateFullFrames("ants/computed");
+	}
+
+}
+
+
+void TrackingDataDirectory::LoadDetectionSettings() {
+	auto letoConfig = YAML::LoadFile((AbsoluteFilePath() / "leto-final-config.yml").string());
+	auto apriltagSettings = letoConfig["apriltag"];
+	if (!apriltagSettings) {
+		return;
+	}
+	if ( apriltagSettings["family"] ) {
+		d_detectionSettings.Family = tags::FindFamily(apriltagSettings["family"].as<std::string>());
+	}
+	auto quadSettings = apriltagSettings["quad"];
+	if ( !quadSettings ) {
+		return;
+	}
+#define SET_IF_EXISTS(cppType,cppName,yamlName) do {	  \
+		if ( quadSettings[#yamlName] ) { \
+			d_detectionSettings.cppName = quadSettings[#yamlName].as<cppType>(); \
+		} \
+	}while(0)
+
+	SET_IF_EXISTS(float,QuadDecimate,decimate);
+	SET_IF_EXISTS(float,QuadSigma,sigma);
+	SET_IF_EXISTS(bool,RefineEdges,refine-edges);
+	SET_IF_EXISTS(int,QuadMinClusterPixel,min-cluster-pixel);
+	SET_IF_EXISTS(int,QuadMaxNMaxima,max-n-maxima);
+	SET_IF_EXISTS(float,QuadCriticalRadian,critical-angle-radian);
+	SET_IF_EXISTS(float,QuadMaxLineMSE,max-line-mean-square-error);
+	SET_IF_EXISTS(int,QuadMinBWDiff,min-black-white-diff);
+	SET_IF_EXISTS(bool,QuadDeglitch,deglitch);
+
+#undef SET_IF_EXISTS
+
+
+}
+
 
 
 }

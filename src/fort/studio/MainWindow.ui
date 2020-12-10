@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1191</width>
+    <height>844</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="workspaceSelector">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>7</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="usesScrollButtons">
+       <bool>false</bool>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>false</bool>
+      </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
+      <property name="tabBarAutoHide">
+       <bool>false</bool>
+      </property>
+      <widget class="GeneralWorkspace" name="generalWorkspace">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <attribute name="title">
+        <string>General</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Edits global experiment properties</string>
+       </attribute>
+      </widget>
+      <widget class="TagStatisticsWorkspace" name="tagStatisticsWorkspace">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <attribute name="title">
+        <string> Statistics Workspaces</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Shows global tag detection statistics</string>
+       </attribute>
+      </widget>
+      <widget class="IdentificationWorkspace" name="identificationWorkspace">
+       <attribute name="title">
+        <string>Identification</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Edits tag and ants association</string>
+       </attribute>
+      </widget>
+      <widget class="AntShapeWorkspace" name="antShapeWorkspace">
+       <attribute name="title">
+        <string>Ant Shape</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Defines ant shapes</string>
+       </attribute>
+      </widget>
+      <widget class="AntMeasurementWorkspace" name="antMeasurementWorkspace">
+       <attribute name="title">
+        <string>Measurement</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Measure individual ants</string>
+       </attribute>
+      </widget>
+      <widget class="ZoningWorkspace" name="zoningWorkspace">
+       <attribute name="title">
+        <string>Zone Definition</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Defines geometric zones</string>
+       </attribute>
+      </widget>
+      <widget class="AntMetadataWorkspace" name="antMetadataWorkspace">
+       <attribute name="title">
+        <string>Ant Metadata</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Edits individual ant data</string>
+       </attribute>
+      </widget>
+      <widget class="VisualizationWorkspace" name="visualizationWorkspace">
+       <attribute name="title">
+        <string>Visualization</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Visualizes tracking during experiment</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="toolTip">
+     <string>File Actions</string>
+    </property>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+    <widget class="QMenu" name="menuRecentsProjects">
+     <property name="toolTip">
+      <string>Open recent experiment file</string>
+     </property>
+     <property name="title">
+      <string>Recents Projects</string>
+     </property>
+     <property name="toolTipsVisible">
+      <bool>true</bool>
+     </property>
+     <addaction name="recentFile1"/>
+     <addaction name="recentFile2"/>
+     <addaction name="recentFile3"/>
+     <addaction name="recentFile4"/>
+     <addaction name="recentFile5"/>
+    </widget>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="menuRecentsProjects"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowLog"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelpAbout"/>
+    <addaction name="actionOnlineHelp"/>
+   </widget>
+   <widget class="QMenu" name="menuMove">
+    <property name="title">
+     <string>Move</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuWorkspace">
+    <property name="title">
+     <string>Workspace</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuMove"/>
+   <addaction name="menuWorkspace"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset theme="document-open-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a '.myrmidon' file</string>
+   </property>
+   <property name="statusTip">
+    <string>Open a '.myrmidon'' file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset theme="document-save-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current file</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="icon">
+    <iconset theme="document-save-as-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Save As</string>
+   </property>
+   <property name="toolTip">
+    <string>Save as a new file</string>
+   </property>
+   <property name="statusTip">
+    <string>Save as a new file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit FORT Studio</string>
+   </property>
+   <property name="statusTip">
+    <string>Quit FORT Studio</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAddTrackingDataDir">
+   <property name="icon">
+    <iconset theme="list-add-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Add Tracking Data Directory</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a New Tracking Data Directory. The current project must be saved. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </action>
+  <action name="actionHelpAbout">
+   <property name="icon">
+    <iconset theme="help-about-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionOnlineHelp">
+   <property name="icon">
+    <iconset theme="system-search-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Online Help</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="recentFile1">
+   <property name="text">
+    <string>File1</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Recent File 1</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+1</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="recentFile2">
+   <property name="text">
+    <string>File2</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Recent File 2</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+2</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="recentFile3">
+   <property name="text">
+    <string>File3</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Recent File 3</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+3</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="recentFile4">
+   <property name="text">
+    <string>File4</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Recent File 4</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+4</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="recentFile5">
+   <property name="text">
+    <string>File5</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Recent File 5</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+5</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-undo-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="toolTip">
+    <string>Undo last action</string>
+   </property>
+   <property name="statusTip">
+    <string>Undo last action</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-redo-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="toolTip">
+    <string>Redo last action</string>
+   </property>
+   <property name="statusTip">
+    <string>Redo last action</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset theme="document-new-symbolic">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new '.myrmidon' file</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new '.myrmidon' file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionShowLog">
+   <property name="text">
+    <string>Show Log</string>
+   </property>
+   <property name="toolTip">
+    <string>Displays Log</string>
+   </property>
+   <property name="statusTip">
+    <string>Displays Log</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>IdentificationWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/IdentificationWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntShapeWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/AntGeometryWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntMetadataWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/AntMetadataWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VisualizationWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/VisualizationWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GeneralWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/GeneralWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TagStatisticsWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/TagStatisticsWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZoningWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/ZoningWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AntMeasurementWorkspace</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/workspace/AntGeometryWorkspace.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

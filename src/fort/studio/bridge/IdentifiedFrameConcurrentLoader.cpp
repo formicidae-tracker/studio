@@ -62,7 +62,6 @@ void IdentifiedFrameConcurrentLoader::setExperiment(const fmp::Experiment::Const
 	                           Q_ARG(fmp::Experiment::ConstPtr,experiment));
 }
 
-
 void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::ConstPtr experiment) {
 	if ( !d_experiment ) {
 		clear();
@@ -91,7 +90,7 @@ IdentifiedFrameConcurrentLoader::collisionAt(fmp::MovieFrameID movieID) const {
 }
 
 void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
-                                                       const fmp::TrackingDataDirectory::ConstPtr & tdd,
+                                                       const fmp::TrackingDataDirectory::Ptr & tdd,
                                                        const fmp::MovieSegment::ConstPtr & segment) {
 	if ( !d_experiment ) {
 		return;

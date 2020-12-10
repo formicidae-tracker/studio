@@ -50,7 +50,8 @@ public:
 	typedef std::shared_ptr<Identifier> Ptr;
 
 
-	typedef std::function<void(const IdentificationPtr & )> OnPositionUpdateCallback;
+	typedef std::function<void(const IdentificationPtr &,
+	                           const std::vector<AntPoseEstimateConstPtr> &)> OnPositionUpdateCallback;
 
 	Identifier();
 
@@ -175,6 +176,9 @@ public:
 	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
 
 	void DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape);
+
+	void QueryAntPoseEstimate(std::vector<AntPoseEstimateConstPtr> & estimations,
+	                          const IdentificationConstPtr & identification) const;
 
 	void SetAntPositionUpdateCallback(const OnPositionUpdateCallback & callback);
 

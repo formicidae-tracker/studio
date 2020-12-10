@@ -10,7 +10,7 @@
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 AntShapeTypeBridge::AntShapeTypeBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::AntShapeType::Ptr>();
 
@@ -23,27 +23,24 @@ AntShapeTypeBridge::AntShapeTypeBridge(QObject * parent)
 AntShapeTypeBridge::~AntShapeTypeBridge() {
 }
 
-bool AntShapeTypeBridge::isActive() const {
-	return d_experiment.get () != nullptr;
+
+void AntShapeTypeBridge::initialize(ExperimentBridge * experiment) {
 }
 
-void AntShapeTypeBridge::setExperiment(const fmp::ExperimentPtr & experiment) {
-	setModified(false);
+void AntShapeTypeBridge::tearDownExperiment() {
 	d_model->clear();
 	d_model->setHorizontalHeaderLabels({tr("Name"),tr("TypeID")});
-	d_experiment = experiment;
+}
 
-	if ( !d_experiment ) {
-		emit activated(false);
+
+void AntShapeTypeBridge::setUpExperiment() {
+	if ( isActive() == false ) {
 		return;
 	}
-
-	emit activated(true);
 
 	for ( const auto & [typeID,shapeType] : d_experiment->AntShapeTypes() ) {
 		d_model->appendRow(buildTypeItem(shapeType));
 	}
-
 }
 
 QAbstractItemModel * AntShapeTypeBridge::shapeModel() const {

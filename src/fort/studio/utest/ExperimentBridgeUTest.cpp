@@ -2,6 +2,11 @@
 
 #include <fort/myrmidon/TestSetup.hpp>
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/UniverseBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
+#include <fort/studio/bridge/MeasurementBridge.hpp>
+#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/AntShapeTypeBridge.hpp>
 
 #include <QSignalSpy>
 
@@ -28,7 +33,7 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	EXPECT_EQ(modifiedSpy.count(),0);
 	EXPECT_EQ(activatedSpy.count(),0);
 
-	ASSERT_TRUE(controller.open(pathExisting.c_str()));
+	ASSERT_TRUE(controller.open(pathExisting.c_str(),nullptr));
 	EXPECT_EQ(controller.absoluteFilePath().generic_string(),
 	          pathExisting.generic_string());
 	EXPECT_EQ(controller.isModified(),false);
@@ -55,19 +60,9 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 	EXPECT_EQ(modifiedSpy.at(1).at(0).toBool(),false);
 
 	// test child connections
-	std::vector<Bridge*> childs =
-		{
-		 controller.universe(),
-		 controller.measurements(),
-		 controller.identifier(),
-		 controller.globalProperties(),
-		 controller.selectedAnt(),
-		 controller.selectedIdentification(),
-		 controller.antShapeTypes(),
-		 controller.antMetadata(),
-		};
+	std::vector<GlobalBridge*> children = controller.d_children;
 	size_t expected = 2;
-	for ( const auto & b : childs ) {
+	for ( const auto & b : children ) {
 
 		b->setModified(true);
 
@@ -83,30 +78,4 @@ TEST_F(ExperimentBridgeUTest,ActiveModifiedState) {
 
 	}
 
-}
-
-TEST_F(ExperimentBridgeUTest,TDDCloseUpDetectionIsOrderSafe) {
-
-	// addresses bug #61, setting TDD first and then Tag family should not matter
-	ExperimentBridge experiment;
-	ASSERT_TRUE(experiment.open(pathExisting.c_str()));
-	auto globalProperties = experiment.globalProperties();
-	auto universe = experiment.universe();
-
-	auto tdd = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000", TestSetup::Basedir());
-
-	EXPECT_NO_THROW({
-			globalProperties->setTagFamily(fort::tags::Family::Tag36h11);
-			universe->addSpace("foo");
-			universe->addTrackingDataDirectoryToSpace("foo",tdd);
-		});
-
-	ASSERT_TRUE(experiment.open(pathExisting.c_str()));
-
-	//sets tdd first and then the family from undefined
-	EXPECT_NO_THROW({
-			universe->addSpace("foo");
-			universe->addTrackingDataDirectoryToSpace("foo",tdd);
-			globalProperties->setTagFamily(fort::tags::Family::Tag36h11);
-		});
 }

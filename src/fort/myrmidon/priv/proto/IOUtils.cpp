@@ -356,7 +356,7 @@ void IOUtils::LoadSpace(const Experiment::Ptr & e,
 	}
 	for ( const auto & tddRelPath : pb.trackingdatadirectories() ) {
 		auto tdd = TrackingDataDirectory::Open(e->Basedir() / tddRelPath, e->Basedir());
-		s->AddTrackingDataDirectory(tdd);
+		e->AddTrackingDataDirectory(s,tdd);
 	}
 }
 
@@ -389,8 +389,6 @@ void IOUtils::LoadExperiment(const Experiment::Ptr & e,
 	e->SetAuthor(pb.author());
 	e->SetName(pb.name());
 	e->SetComment(pb.comment());
-	e->SetFamily(LoadFamily(pb.tagfamily()));
-	e->SetThreshold(pb.threshold());
 	e->SetDefaultTagSize(pb.tagsize());
 
 	for (const auto & ct : pb.custommeasurementtypes()) {
@@ -423,8 +421,6 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_name(e.Name());
 	pb->set_author(e.Author());
 	pb->set_comment(e.Comment());
-	pb->set_threshold(e.Threshold());
-	pb->set_tagfamily(SaveFamily(e.Family()));
 	pb->set_tagsize(e.DefaultTagSize());
 
 

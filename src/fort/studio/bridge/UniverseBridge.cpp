@@ -8,11 +8,10 @@
 #include <fort/studio/Format.hpp>
 
 
-
 UniverseBridge::UniverseBridge( QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this)) {
-	qRegisterMetaType<fmp::TrackingDataDirectory::ConstPtr>();
+	qRegisterMetaType<fmp::TrackingDataDirectory::Ptr>();
 	connect(d_model,
 	        &QStandardItemModel::itemChanged,
 	        this,
@@ -22,13 +21,31 @@ UniverseBridge::UniverseBridge( QObject * parent)
 
 UniverseBridge::~UniverseBridge(){}
 
-bool UniverseBridge::isActive() const {
-	return d_experiment.get() != NULL;
-}
-
 QAbstractItemModel * UniverseBridge::model() {
 	return d_model;
 }
+
+void UniverseBridge::initialize(ExperimentBridge * experiment) {
+}
+
+void UniverseBridge::tearDownExperiment() {
+	d_model->clear();
+	d_model->setHorizontalHeaderLabels({tr("URI"),
+	                                    tr("Filepath"),
+	                                    tr("Start FrameID"),
+	                                    tr("End FrameID"),
+	                                    tr("Start Date"),
+	                                    tr("End Date")
+		});
+}
+
+void UniverseBridge::setUpExperiment() {
+	if (isActive() == false) {
+		return;
+	}
+	rebuildAll(d_experiment->Spaces());
+}
+
 
 std::map<quint32,QString> UniverseBridge::spaceNamesByID() const {
 	std::map<quint32,QString> res;
@@ -76,7 +93,7 @@ void UniverseBridge::onItemChanged(QStandardItem * item) {
 }
 
 
-QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd) {
+QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory::Ptr & tdd) {
 	auto uri = new QStandardItem(tdd->URI().c_str());
 	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
 	auto start = new QStandardItem(QString::number(tdd->StartFrame()));
@@ -145,7 +162,7 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 }
 
 void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
-                                                     const fmp::TrackingDataDirectoryConstPtr & tdd) {
+                                                     const fmp::TrackingDataDirectoryPtr & tdd) {
 	if (!d_experiment) {
 		return;
 	}
@@ -161,7 +178,7 @@ void UniverseBridge::addTrackingDataDirectoryToSpace(const QString & spaceName,
 
 
 	try {
-		s->AddTrackingDataDirectory(tdd);
+		d_experiment->AddTrackingDataDirectory(s,tdd);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not add '" << ToQString(tdd->URI())
 		            << "' to '" << spaceName
@@ -271,27 +288,6 @@ void UniverseBridge::rebuildSpaceChildren(QStandardItem * item,
 
 }
 
-void UniverseBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[UniverseBride]: setting new experiment";
-	d_experiment = experiment;
-	d_model->clear();
-	d_model->setHorizontalHeaderLabels({tr("URI"),
-	                                    tr("Filepath"),
-	                                    tr("Start FrameID"),
-	                                    tr("End FrameID"),
-	                                    tr("Start Date"),
-	                                    tr("End Date")
-		});
-	setModified(false);
-
-	if (!d_experiment) {
-		emit activated(false);
-		return;
-	}
-	rebuildAll(d_experiment->Spaces());
-	emit activated(true);
-}
-
 
 bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 	std::set<std::string> deleteNeeded;
@@ -312,7 +308,7 @@ bool UniverseBridge::isDeletable(const QModelIndexList & index) const {
 			break;
 		}
 		case TDD_TYPE: {
-			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::Ptr>();
 			if ( d_experiment->TrackingDataDirectoryIsDeletable(tdd->URI()) == false ) {
 				return false;
 			}
@@ -351,7 +347,7 @@ void UniverseBridge::deleteSelection(const QModelIndexList & selection) {
 			spaceURIs.insert(item->data(Qt::UserRole+2).value<fmp::Space::Ptr>()->Name());
 			break;
 		case TDD_TYPE: {
-			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::ConstPtr>();
+			auto tdd = item->data(Qt::UserRole+2).value<fmp::TrackingDataDirectory::Ptr>();
 			tddURIs.insert(tdd->URI());
 			break;
 		}

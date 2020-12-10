@@ -31,22 +31,22 @@ public:
 	class TDDOverlap : public std::runtime_error {
 	public:
 		// Constructor from two TrackingDataDirectory
-		TDDOverlap(const TrackingDataDirectoryConstPtr & a,
-		           const TrackingDataDirectoryConstPtr & b) noexcept;
+		TDDOverlap(const TrackingDataDirectoryPtr & a,
+		           const TrackingDataDirectoryPtr & b) noexcept;
 		// A Reference to the first TrackingDataDirectory
 		//
 		// @return a <TrackingDataDirectory::ConstPtr> to the first
 		//         <TrackingDataDirectory>
-		const TrackingDataDirectoryConstPtr & A() const;
+		const TrackingDataDirectoryPtr & A() const;
 		// A Reference to the second TrackingDataDirectory
 		//
 		// @return a <TrackingDataDirectory::ConstPtr> to the second
 		//         <TrackingDataDirectory>
-		const TrackingDataDirectoryConstPtr & B() const;
+		const TrackingDataDirectoryPtr & B() const;
 	private:
-		static std::string BuildWhat(const TrackingDataDirectoryConstPtr & a,
-		                             const TrackingDataDirectoryConstPtr & b) noexcept;
-		TrackingDataDirectoryConstPtr d_a,d_b;
+		static std::string BuildWhat(const TrackingDataDirectoryPtr & a,
+		                             const TrackingDataDirectoryPtr & b) noexcept;
+		TrackingDataDirectoryPtr d_a,d_b;
 	};
 
 	// Exception sent when the desired TrackingDataDirectory is unknown.
@@ -102,7 +102,7 @@ public:
 	public:
 		typedef std::shared_ptr<Universe> Ptr;
 
-		typedef std::map<std::string,TrackingDataDirectoryConstPtr> TrackingDataDirectoryByURI;
+		typedef std::map<std::string,TrackingDataDirectoryPtr> TrackingDataDirectoryByURI;
 
 		const static Space::ID NEXT_AVAILABLE_SPACE_ID = 0;
 
@@ -119,10 +119,10 @@ public:
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
-		std::pair<Space::ConstPtr,TrackingDataDirectoryConstPtr>
+		std::pair<Space::ConstPtr,TrackingDataDirectoryPtr>
 		CLocateTrackingDataDirectory(const std::string & tddURI) const;
 
-		std::pair<Space::Ptr,TrackingDataDirectoryConstPtr>
+		std::pair<Space::Ptr,TrackingDataDirectoryPtr>
 		LocateTrackingDataDirectory(const std::string & tddURI);
 
 
@@ -148,9 +148,7 @@ public:
 
 	void SetName(const std::string & name);
 
-	void AddTrackingDataDirectory(const TrackingDataDirectoryConstPtr & tdd);
-
-	const std::vector<TrackingDataDirectoryConstPtr> & TrackingDataDirectories() const;
+	const std::vector<TrackingDataDirectoryPtr> & TrackingDataDirectories() const;
 
 	const static Zone::ID NEXT_AVAILABLE_ID = 0;
 
@@ -163,9 +161,22 @@ public:
 
 	Space::ID SpaceID() const;
 
+	class Accessor {
+		static void AddTrackingDataDirectory(const Space::Ptr & itself,
+		                                     const TrackingDataDirectoryPtr & tdd);
+
+		friend class fort::myrmidon::priv::Experiment;
+	};
+
 private :
+	friend class SpaceUTest_CanHoldTDD_Test;
+	friend class SpaceUTest_ExceptionFormatting_Test;
+
 	typedef std::set<Zone::ID> SetOfZoneID;
 	Space(ID spaceID, const std::string & name, const Universe::Ptr & universe);
+
+
+	void AddTrackingDataDirectory(const TrackingDataDirectoryPtr & tdd);
 
 	void DeleteTrackingDataDirectory(const std::string & URI);
 
@@ -177,7 +188,7 @@ private :
 	std::string             d_name;
 	std::weak_ptr<Universe> d_universe;
 
-	std::vector<TrackingDataDirectoryConstPtr> d_tdds;
+	std::vector<TrackingDataDirectoryPtr> d_tdds;
 
 	AlmostContiguousIDContainer<Zone::ID,Zone> d_zones;
 };

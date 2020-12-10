@@ -5,6 +5,25 @@
 
 #include <QDebug>
 
+#include <fort/myrmidon/priv/Identifier.hpp>
+
+#include <fort/studio/widget/TrackingDataDirectoryLoader.hpp>
+
+#include "UniverseBridge.hpp"
+#include "MeasurementBridge.hpp"
+#include "GlobalPropertyBridge.hpp"
+#include "IdentifierBridge.hpp"
+#include "IdentifiedFrameConcurrentLoader.hpp"
+#include "AntShapeTypeBridge.hpp"
+#include "AntMetadataBridge.hpp"
+#include "MovieBridge.hpp"
+#include "ZoneBridge.hpp"
+#include "StatisticsBridge.hpp"
+#include "TagCloseUpBridge.hpp"
+#include "AntDisplayBridge.hpp"
+#include "AntMeasurementBridge.hpp"
+#include "AntShapeBridge.hpp"
+
 namespace fm=fort::myrmidon;
 namespace fmp=fm::priv;
 
@@ -15,85 +34,42 @@ ExperimentBridge::ExperimentBridge(QObject * parent)
 	, d_universe(new UniverseBridge(this))
 	, d_measurements(new MeasurementBridge(this))
 	, d_identifier(new IdentifierBridge(this))
+	, d_antDisplay(new AntDisplayBridge(this))
 	, d_globalProperties(new GlobalPropertyBridge(this))
 	, d_identifiedFrameLoader(new IdentifiedFrameConcurrentLoader(this))
 	, d_antShapeTypes(new AntShapeTypeBridge(this))
 	, d_antMetadata(new AntMetadataBridge(this))
 	, d_movies(new MovieBridge(this))
 	, d_zones(new ZoneBridge(this))
-	, d_statistics(new StatisticsBridge(this)) {
-
-	connectModifications();
-
-
-	connect(d_globalProperties,
-	        &GlobalPropertyBridge::detectionSettingChanged,
-	        d_measurements,
-	        &MeasurementBridge::onDetectionSettingChanged);
-
-
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_measurements,
-	        &MeasurementBridge::onTDDAdded);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_measurements,
-	        &MeasurementBridge::onTDDDeleted);
-
+	, d_statistics(new StatisticsBridge(this))
+	, d_tagCloseUps(new TagCloseUpBridge(this))
+	, d_antMeasurements(new AntMeasurementBridge(this))
+	, d_antShapes(new AntShapeBridge(this))
+	, d_children({
+	              d_universe,
+	              d_measurements,
+	              d_identifier,
+	              d_antDisplay,
+	              d_globalProperties,
+	              d_antShapeTypes,
+	              d_antMetadata,
+	              d_movies,
+	              d_zones,
+	              d_statistics,
+	              d_tagCloseUps,
+	              d_antMeasurements,
+	              d_antShapes,
+		})
+	, d_selectedID(0) {
 
 
-	connect(d_identifier,
-	        &IdentifierBridge::antCreated,
-	        d_antMetadata,
-	        &AntMetadataBridge::onAntListModified);
-
-	connect(d_identifier,
-	        &IdentifierBridge::antDeleted,
-	        d_antMetadata,
-	        &AntMetadataBridge::onAntListModified);
-
-
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_movies,
-	        &MovieBridge::onTrackingDataDirectoryAdded);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_movies,
-	        &MovieBridge::onTrackingDataDirectoryDeleted);
-
-	connect(d_universe,&UniverseBridge::spaceDeleted,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,&UniverseBridge::spaceAdded,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,&UniverseBridge::spaceChanged,
-	        d_zones,&ZoneBridge::rebuildSpaces);
-
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryAdded,
-	        d_zones,
-	        [this](const fmp::TrackingDataDirectory::ConstPtr & tdd) {
-		        d_zones->onTrackingDataDirectoryChange(tdd->URI().c_str());
-	        });
-	connect(d_universe,
-	        &UniverseBridge::trackingDataDirectoryDeleted,
-	        d_zones,&ZoneBridge::onTrackingDataDirectoryChange);
-
-	connect(d_universe,&UniverseBridge::trackingDataDirectoryAdded,
-	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryAdded);
-
-	connect(d_universe,&UniverseBridge::trackingDataDirectoryDeleted,
-	        d_statistics,&StatisticsBridge::onTrackingDataDirectoryDeleted);
+	for ( const auto & child : d_children ) {
+		connect(child,&Bridge::modified,
+		        this,&ExperimentBridge::onChildModified);
+		child->initialize(this);
+	}
 
 }
-
 
 bool ExperimentBridge::isActive() const {
 	return d_experiment.get() != NULL;
@@ -136,7 +112,7 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 }
 
 
-bool ExperimentBridge::open(const QString & path) {
+bool ExperimentBridge::open(const QString & path,QWidget * parent) {
 	fmp::Experiment::Ptr experiment;
 	if ( !d_experiment == false
 	     && d_experiment->AbsoluteFilePath().c_str() == path ) {
@@ -150,6 +126,21 @@ bool ExperimentBridge::open(const QString & path) {
 		            << "': " << e.what();
 		return false;
 	}
+
+	try {
+		std::vector<fmp::TrackingDataDirectory::Ptr> tdds;
+		for(const auto & [tddURI,tdd] : experiment->TrackingDataDirectories() ) {
+			tdds.push_back(tdd);
+		}
+		TrackingDataDirectoryLoader::EnsureLoaded(tdds,parent);
+	} catch ( const std::exception & e ) {
+		qCritical() << "Could not open '"
+		            << path
+		            << "': could not load computed data: "
+		            << e.what();
+		return false;
+	}
+
 	qInfo() << "Opened experiment file '" << path << "'";
 	setExperiment(experiment);
 	return true;
@@ -184,16 +175,12 @@ IdentifierBridge * ExperimentBridge::identifier() const {
 	return d_identifier;
 }
 
+AntDisplayBridge * ExperimentBridge::antDisplay() const {
+	return d_antDisplay;
+}
+
 GlobalPropertyBridge * ExperimentBridge::globalProperties() const {
 	return d_globalProperties;
-}
-
-SelectedAntBridge * ExperimentBridge::selectedAnt() const {
-	return d_identifier->selectedAnt();
-}
-
-SelectedIdentificationBridge * ExperimentBridge::selectedIdentification() const {
-	return selectedAnt()->selectedIdentification();
 }
 
 IdentifiedFrameConcurrentLoader * ExperimentBridge::identifiedFrameLoader() const {
@@ -220,84 +207,110 @@ StatisticsBridge * ExperimentBridge::statistics() const {
 	return d_statistics;
 }
 
+TagCloseUpBridge * ExperimentBridge::tagCloseUps() const {
+	return d_tagCloseUps;
+}
+
+AntMeasurementBridge * ExperimentBridge::antMeasurements() const {
+	return d_antMeasurements;
+}
+
+AntShapeBridge * ExperimentBridge::antShapes() const {
+	return d_antShapes;
+}
 
 void ExperimentBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
 	qDebug() << "[ExperimentBridge]: setting new fort::myrmidon::priv::Experiment in children";
 	d_experiment = experiment;
-	d_universe->setExperiment(experiment);
-	d_measurements->setExperiment(experiment);
-	d_identifier->setExperiment(experiment);
-	d_identifier->selectedAnt()->setExperiment(experiment);
-	d_identifier->selectedAnt()->selectedIdentification()->setExperiment(experiment);
-	d_globalProperties->setExperiment(experiment);
+
+	for ( const auto & child : d_children ) {
+		child->setExperiment(experiment);
+	}
 	d_identifiedFrameLoader->setExperiment(experiment);
-	d_antShapeTypes->setExperiment(experiment);
-	d_antMetadata->setExperiment(experiment);
-	d_movies->setExperiment(experiment);
-	d_zones->setExperiment(experiment);
-	d_statistics->setExperiment(experiment);
-	setModified(false);
 	resetChildModified();
+
+	selectAnt(0);
 	emit activated(d_experiment.get() != NULL);
 }
 
 void ExperimentBridge::onChildModified(bool modified) {
-	qWarning() << "Modified" << modified;
 	if ( modified == false ) {
 		return;
 	}
 	setModified(true);
 }
 
-void ExperimentBridge::connectModifications() {
-
-	connect(d_universe,&UniverseBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_measurements,&MeasurementBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_identifier,&IdentifierBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_globalProperties,&GlobalPropertyBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_identifier->selectedAnt(),&SelectedAntBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_identifier->selectedAnt()->selectedIdentification(),
-	        &SelectedIdentificationBridge::modified,
-	        this,
-	        &ExperimentBridge::onChildModified);
-
-	connect(d_antShapeTypes,&AntShapeTypeBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_antMetadata,&AntMetadataBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_movies,&MovieBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_zones,&ZoneBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
-	connect(d_statistics,&StatisticsBridge::modified,
-	        this,&ExperimentBridge::onChildModified);
-
+void ExperimentBridge::resetChildModified() {
+	for ( const auto & child : d_children ) {
+		child->setModified(false);
+	}
 }
 
-void ExperimentBridge::resetChildModified() {
-	d_universe->setModified(false);
-	d_measurements->setModified(false);
-	d_identifier->setModified(false);
-	d_identifier->selectedAnt()->setModified(false);
-	d_identifier->selectedAnt()->selectedIdentification()->setModified(false);
-	d_globalProperties->setModified(false);
-	d_antShapeTypes->setModified(false);
-	d_antMetadata->setModified(false);
-	d_movies->setModified(false);
-	d_zones->setModified(false);
-	d_statistics->setModified(false);
+fmp::Ant::Ptr ExperimentBridge::createAnt() {
+	if ( !d_experiment ) {
+		return nullptr;
+	}
+	fmp::Ant::Ptr ant;
+	try {
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::CreateAnt()";
+		ant = d_experiment->CreateAnt();
+	} catch ( const std::exception & e) {
+		qCritical() << "Could not create Ant: " << e.what();
+		return nullptr;
+	}
+
+	qInfo() << "Created new Ant" << ant->FormattedID().c_str();
+
+	setModified(true);
+	emit antCreated(ant->AntID());
+	return ant;
+}
+
+void ExperimentBridge::deleteAnt(fm::Ant::ID antID) {
+	if ( !d_experiment ) {
+		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(antID).c_str();
+		return;
+	}
+
+	try {
+		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Identifier::DeleteAnt("
+		         << fmp::Ant::FormatID(antID).c_str() << ")";
+		d_experiment->Identifier()->DeleteAnt(antID);
+	} catch (const std::exception & e) {
+		qCritical() << "Could not delete Ant '" <<  fmp::Ant::FormatID(antID).c_str()
+		            << "': " << e.what();
+		return;
+	}
+
+	qInfo() << "Deleted Ant " << fmp::Ant::FormatID(antID).c_str();
+
+	setModified(true);
+	emit antDeleted(antID);
+}
+
+
+void ExperimentBridge::selectAnt(quint32 antID) {
+	if ( d_selectedID == antID ) {
+		return;
+	}
+
+	d_selectedID = antID;
+
+	emit antSelected(antID);
+}
+
+quint32 ExperimentBridge::selectedAntID() const {
+	return d_selectedID;
+}
+
+fmp::Ant::ConstPtr ExperimentBridge::ant(fm::Ant::ID aID) const {
+	if ( !d_experiment == true ) {
+		return fmp::Ant::ConstPtr();
+	}
+	const auto & ants = d_experiment->CIdentifier().CAnts();
+	auto fi = ants.find(aID);
+	if ( fi == ants.cend() ) {
+		return fmp::Ant::ConstPtr();
+	}
+	return fi->second;
 }

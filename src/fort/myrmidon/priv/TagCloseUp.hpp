@@ -2,7 +2,8 @@
 
 #include <Eigen/Core>
 
-#include <fort/tags/fort-tags.h>
+#include <fort/tags/fort-tags.hpp>
+#include <fort/tags/options.hpp>
 
 
 #include "FrameReference.hpp"
@@ -23,64 +24,6 @@ public:
 	typedef std::vector<ConstPtr>             List;
 
 
-	class Lister {
-	public :
-		~Lister();
-		typedef std::shared_ptr<Lister>                    Ptr;
-		typedef std::function<FrameReference (FrameID) >   FrameReferenceResolver;
-		typedef std::function<List()>                      Loader;
-		typedef std::function<void(apriltag_family_t *)>   ATFamilyDestructor;
-		typedef std::pair<fs::path,std::shared_ptr<TagID>> FileAndFilter;
-		typedef std::multimap<FrameID,FileAndFilter>       Listing;
-
-		static Listing ListFiles(const fs::path & absoluteFilePath);
-		static std::pair<apriltag_family_t*,ATFamilyDestructor> LoadFamily(tags::Family family);
-
-		static fs::path CacheFilePath(const fs::path & filepath);
-
-		static Ptr Create(const fs::path & absoluteBaseDir,
-		                  tags::Family f,
-		                  uint8_t threshold,
-		                  FrameReferenceResolver resolver,
-		                  bool forceCache = false);
-
-
-		std::vector<Loader> PrepareLoaders();
-
-		tags::Family Family() const;
-
-		uint8_t Threshold() const;
-
-	private:
-		typedef std::map<fs::path,List> ByLocalFile;
-
-		Lister(const fs::path & absoluteBaseDir,
-		       tags::Family f,
-		       uint8_t threshold,
-		       FrameReferenceResolver resolver,
-		       bool forceCache = false);
-
-		List LoadFile(const FileAndFilter & f,
-		              FrameID frameID,
-		              size_t nbFiles);
-
-		List LoadFileFromCache(const fs::path & file);
-
-
-		void UnsafeSaveCache();
-		void LoadCache();
-
-		apriltag_detector_t * CreateDetector();
-
-		std::weak_ptr<Lister>  d_itself;
-		fs::path               d_absoluteBaseDir;
-		tags::Family           d_family;
-		uint8_t                d_threshold;
-		FrameReferenceResolver d_resolver;
-		std::mutex             d_mutex;
-		ByLocalFile            d_cache;
-		bool                   d_saveCacheOnDelete;
-	};
 
 	static double ComputeAngleFromCorners(const Eigen::Vector2d & c0,
 	                                      const Eigen::Vector2d & c1,
@@ -124,11 +67,7 @@ public:
 
 	double Squareness() const;
 
-
-
-
 private:
-
 	FrameReference  d_reference;
 	std::string     d_URI;
 	fs::path        d_absoluteFilePath;
