@@ -1,3 +1,9 @@
+fort-studio (0.7.0~rc2-0ubuntu1~bionic1) bionic; urgency=medium
+
+  * bionic backport
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Thu, 10 Dec 2020 19:51:28 +0100
+
 fort-studio (0.7.0~rc2-0ubuntu1) focal; urgency=medium
 
   * New upstream release 0.7.0-rc2
