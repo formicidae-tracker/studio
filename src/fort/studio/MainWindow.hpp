@@ -36,6 +36,9 @@ private slots:
 
 	void on_actionShowLog_triggered();
 
+	void on_actionOnlineHelp_triggered();
+	void on_actionHelpAbout_triggered();
+
 	void onExperimentModified(bool);
 	void onExperimentActivated(bool);
 

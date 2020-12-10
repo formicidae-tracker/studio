@@ -1,6 +1,8 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
+#include <fort/myrmidon/myrmidon-config.h>
+
 #include <QtDebug>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -19,6 +21,7 @@
 
 #include <QToolBar>
 #include <QPushButton>
+#include <QDesktopServices>
 
 
 QPointer<Logger> myLogger;
@@ -529,4 +532,25 @@ void MainWindow::onCurrentWorkspaceChanged(int index) {
 	}
 	currentWorkspace->setUp(d_navigationActions);
 	d_lastWorkspace = currentWorkspace;
+}
+
+
+void MainWindow::on_actionOnlineHelp_triggered() {
+	QDesktopServices::openUrl(QUrl("https://github.com/formicidae-tracker/studio/wiki"));
+}
+
+void MainWindow::on_actionHelpAbout_triggered() {
+	auto version = "v" MYRMIDON_VERSION;
+	QMessageBox::about(this,
+	                   tr("FORmicidae Tracker Studio"),
+	                   tr("Graphical interface and general purpose API for the FORmicidae Tracker project.<br/>"
+	                      "<br/>"
+	                      "Version: %1<br/>"
+	                      "<br/>"
+	                      "<a href=\"https://github.com/formicidae-tracker/documentation/wiki\">Project Wiki</a> &bull; <a href=\"https://formicidae-tracker.github.io/studio/docs/latest/api/index.html\">Myrmidon API</a> &bull; <a href=\"https://github.com/formicidae-tracker/studio/issues\">Issues</a><br/>"
+	                      "<br/>"
+	                      "FORT Studio and the myrmidon API are open source projects under the <a href=\"https://www.gnu.org/licenses/lgpl-3.0.en.html\">GNU  Lesser General Public License version 3</a><br/>"
+	                      "<br/>"
+	                      "<a href=\"https://github.com/formicidae-tracker/studio/blob/master/AUTHORS\">AUTHORS</a> &bull; <a href=\"https://github.com/formicidae-tracker/studio/graphs/contributors\">CONTRIBUTORS</a>").arg(version));
+
 }
