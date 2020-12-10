@@ -120,7 +120,7 @@ The main dependencies for this project are:
  You debian based systems, you can install the packaged dependencies using the following commands
 
  ```bash
- sudo apt install build-essentials cmake libeigen3-dev qtbase5-dev libprotobuf-dev protobuf-compiler libasio-dev
+ sudo apt install build-essential cmake libeigen3-dev qtbase5-dev libprotobuf-dev protobuf-compiler libasio-dev
  ```
 
 
