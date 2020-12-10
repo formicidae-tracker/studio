@@ -10,5 +10,6 @@
 	<file>icons/circle.svg</file>
 	<file>icons/capsule.svg</file>
 	<file>icons/polygon.svg</file>
+	<file>icons/application-icon.svg</file>
 </qresource>
 </RCC>

@@ -240,6 +240,7 @@ MainWindow::MainWindow(QWidget *parent)
 	setUpWorkspaces();
 	setUpWorkspacesActions();
 
+	setWindowIcon(QIcon(":/icons/application-icon.svg"));
 
 
 }
