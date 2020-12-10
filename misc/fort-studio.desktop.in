@@ -3,7 +3,7 @@ Version=@PROJECT_VERSION@
 Name=FOrmicidae Tracker Studio
 GenericName=FORT Studio
 Comment=FORT Studio is the GUI to analyze tracking data from the FORmicidae Tracker.
-TryExec=env QT_QPA_PLATFORMTHEME=gtk2 @CMAKE_INSTALL_PREFIX@/bin/fort-studio
+TryExec=@CMAKE_INSTALL_PREFIX@/bin/fort-studio
 Exec=env QT_QPA_PLATFORMTHEME=gtk2 @CMAKE_INSTALL_PREFIX@/bin/fort-studio
 Icon=fort-studio
 Type=Application
