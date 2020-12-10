@@ -283,10 +283,7 @@ void AntSimpleListWidget::onDeleteButtonClicked() {
 
 
 void AntDisplayListWidget::setUpUI() {
-	setMaximumSize(QSize(250,16777215));
-
-	d_tableView->setMinimumSize(QSize(180,0));
-	d_tableView->setMaximumSize(QSize(300,16777215));
+	setMaximumSize(QSize(400,65535));
 
 	d_colorLayout = new QHBoxLayout();
 

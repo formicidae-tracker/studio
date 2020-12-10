@@ -249,7 +249,7 @@ void AntDisplayBridge::unsoloAll() {
 
 void AntDisplayBridge::clear() {
 	d_model->clear();
-	d_model->setHorizontalHeaderLabels({tr("AntID"),tr("H"),tr("S")});
+	d_model->setHorizontalHeaderLabels({tr("AntID"),tr("Hidden"),tr("Solo")});
 }
 
 void AntDisplayBridge::rebuildModel() {
