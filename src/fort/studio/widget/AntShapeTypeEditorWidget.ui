@@ -38,7 +38,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-add"/>
+        <iconset theme="list-add-symbolic"/>
        </property>
       </widget>
      </item>
@@ -51,7 +51,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove"/>
+        <iconset theme="list-remove-symbolic"/>
        </property>
       </widget>
      </item>

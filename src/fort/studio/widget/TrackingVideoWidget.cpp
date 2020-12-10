@@ -4,7 +4,7 @@
 
 #include <fort/studio/Format.hpp>
 
-#include <fort/studio/bridge/IdentifierBridge.hpp>
+#include <fort/studio/bridge/AntDisplayBridge.hpp>
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>
 
 #include <QPainter>
@@ -15,7 +15,7 @@
 
 TrackingVideoWidget::TrackingVideoWidget(QWidget * parent)
 	: QWidget(parent)
-	, d_identifier(nullptr)
+	, d_antDisplay(nullptr)
 	, d_hideLoadingBanner(true)
 	, d_showID(false)
 	, d_showCollisions(false)
@@ -51,7 +51,7 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform,true);
 	painter.fillRect(rect(),QColor(0,0,0));
-	if ( !d_frame.Image == true ) {
+	if ( d_frame.Image == nullptr ) {
 		return;
 	}
 
@@ -82,7 +82,7 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 
 	}
 
-	if ( !d_frame.TrackingFrame == false && d_identifier != nullptr ) {
+	if ( !d_frame.TrackingFrame == false && d_antDisplay != nullptr ) {
 		QPainter imagePainter(&image);
 		imagePainter.setRenderHint(QPainter::Antialiasing,true);
 		imagePainter.setRenderHint(QPainter::TextAntialiasing,true);
@@ -114,11 +114,11 @@ void TrackingVideoWidget::paintEvent(QPaintEvent * event) {
 	}
 }
 
-void TrackingVideoWidget::setup(IdentifierBridge *identifier) {
-	d_identifier = identifier;
+void TrackingVideoWidget::setup(AntDisplayBridge * antDisplay) {
+	d_antDisplay = antDisplay;
 
-	connect(d_identifier,
-	        &IdentifierBridge::antDisplayChanged,
+	connect(d_antDisplay,
+	        &AntDisplayBridge::antDisplayChanged,
 	        this,
 	        static_cast<void (QWidget::*)()>(&QWidget::update));
 
@@ -139,7 +139,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	font.setPointSizeF(font.pointSizeF() * double(d_frame.Image->height()) / double(height()) * 0.8);
 	painter->setFont(font);
 	auto metrics = QFontMetrics(font);
-	bool hasSolo = d_identifier->numberSoloAnt() != 0;
+	bool hasSolo = d_antDisplay->numberSoloAnt() != 0;
 
 	if ( !iFrame == false && d_showCollisions == true ) {
 		fmp::DenseMap<quint32,fm::PositionedAnt> positions;
@@ -148,24 +148,27 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 		}
 
 		for ( const auto & collision : iFrame->Collisions ) {
-			auto a = d_identifier->ant(collision.IDs.first);
-			auto b = d_identifier->ant(collision.IDs.second);
+			auto aID = collision.IDs.first;
+			auto bID = collision.IDs.second;
+			const auto & [aDisplayStatus,aDisplayColor] = d_antDisplay->displayStatusAndColor(aID);
+			const auto & [bDisplayStatus,bDisplayColor] = d_antDisplay->displayStatusAndColor(bID);
 
-			if ( !a || !b
+			if ( aDisplayStatus != fmp::Ant::DisplayState::HIDDEN
+			     || bDisplayStatus != fmp::Ant::DisplayState::HIDDEN
 			     || ( hasSolo == true
-			          && a->DisplayStatus() != fmp::Ant::DisplayState::SOLO
-			          && b->DisplayStatus() != fmp::Ant::DisplayState::SOLO) ) {
+			          && aDisplayStatus != fmp::Ant::DisplayState::SOLO
+			          && bDisplayStatus != fmp::Ant::DisplayState::SOLO) ) {
 				continue;
 			}
 
-			auto aPos = Conversion::fromEigen(ratio * positions.at(a->AntID()).Position);
-			auto bPos = Conversion::fromEigen(ratio * positions.at(b->AntID()).Position);
+			auto aPos = Conversion::fromEigen(ratio * positions.at(aID).Position);
+			auto bPos = Conversion::fromEigen(ratio * positions.at(bID).Position);
 
 			if ( focusRectangle.contains(aPos) == false
 			     && focusRectangle.contains(bPos) == false ) {
 				continue;
 			}
-			auto c = Conversion::colorFromFM(a->DisplayColor(),150);
+			auto c = Conversion::colorFromFM(aDisplayColor,150);
 			painter->setPen(QPen(c,3));
 
 			painter->drawLine(aPos,bPos);
@@ -175,10 +178,9 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 
 
 	for ( const auto & pa : tFrame->Positions ) {
-		auto a = d_identifier->ant(pa.ID);
-		if ( !a
-		     || ( hasSolo == true && a->DisplayStatus() != fmp::Ant::DisplayState::SOLO)
-		     || a->DisplayStatus() == fmp::Ant::DisplayState::HIDDEN ) {
+		const auto & [displayStatus,displayColor] = d_antDisplay->displayStatusAndColor(pa.ID);
+		if ( displayStatus == fmp::Ant::DisplayState::HIDDEN
+		     || ( hasSolo == true && displayStatus != fmp::Ant::DisplayState::SOLO) ) {
 			continue;
 		}
 		auto correctedPos = Conversion::fromEigen(ratio * pa.Position);
@@ -187,7 +189,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 			continue;
 		}
 
-		auto c = Conversion::colorFromFM(a->DisplayColor(),150);
+		auto c = Conversion::colorFromFM(displayColor,150);
 		painter->setPen(Qt::NoPen);
 		painter->setBrush(c);
 

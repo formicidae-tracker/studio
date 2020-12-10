@@ -16,9 +16,9 @@ void QueryUTest::SetUp() {
 	ASSERT_NO_THROW({
 			experiment = Experiment::Create(TestSetup::Basedir() / "query.myrmidon");
 			auto space = experiment->CreateSpace("box");
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir()));
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
-			space->AddTrackingDataDirectory(TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir()));
+			experiment->AddTrackingDataDirectory(space,TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0002",TestSetup::Basedir()));
 		});
 
 }
@@ -37,11 +37,11 @@ TEST_F(QueryUTest,TagStatistics) {
 	                      Time::Parse("2019-11-02T09:00:20.021Z")));
 
 	EXPECT_TRUE(TimeEqual(tagStats.at(123).LastSeen,
-	                      Time::Parse("2019-11-02T09:05:48.908406Z")));
+	                      Time::Parse("2019-11-02T09:01:46.436070Z")));
 
 	EXPECT_EQ(tagStats.at(123).ID,123);
 
-	EXPECT_EQ(tagStats.at(123).Counts(TagStatistics::TOTAL_SEEN),3000);
+	EXPECT_EQ(tagStats.at(123).Counts(TagStatistics::TOTAL_SEEN),600);
 	EXPECT_EQ(tagStats.at(123).Counts(TagStatistics::MULTIPLE_SEEN),0);
 	EXPECT_EQ(tagStats.at(123).Counts(TagStatistics::GAP_500MS),0);
 	EXPECT_EQ(tagStats.at(123).Counts(TagStatistics::GAP_1S),0);
@@ -70,7 +70,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			                      {},
 			                      {});
 		});
-	ASSERT_EQ(identifieds.size(),3000);
+	ASSERT_EQ(identifieds.size(),600);
 	for ( const auto & frame : identifieds ) {
 		EXPECT_EQ(frame->Space,1);
 		ASSERT_EQ(frame->Positions.size(),1);
@@ -102,7 +102,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 		return;
 	}
 	// we just have removed the first frame
-	EXPECT_EQ(identifieds.size(),2999);
+	EXPECT_EQ(identifieds.size(),599);
 }
 
 TEST_F(QueryUTest,InteractionFrame) {
@@ -130,7 +130,7 @@ TEST_F(QueryUTest,InteractionFrame) {
 			                     {},{});
 		});
 
-	ASSERT_EQ(collisionData.size(),3000);
+	ASSERT_EQ(collisionData.size(),600);
 
 	size_t nonEmptyFrame(0);
 	for ( const auto & [positions,collisions] : collisionData ) {
@@ -140,7 +140,7 @@ TEST_F(QueryUTest,InteractionFrame) {
 			++nonEmptyFrame;
 		}
 	}
-	EXPECT_EQ(nonEmptyFrame,780);
+	EXPECT_EQ(nonEmptyFrame,156);
 
 }
 
@@ -169,7 +169,7 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	for( const auto & trajectory : trajectories ) {
 		EXPECT_EQ(trajectory->Ant,1);
 		EXPECT_EQ(trajectory->Space,1);
-		ASSERT_EQ(trajectory->Positions.rows(),1000);
+		ASSERT_EQ(trajectory->Positions.rows(),200);
 		EXPECT_EQ(trajectory->Positions(0,0),0);
 	}
 
@@ -208,7 +208,7 @@ TEST_F(QueryUTest,InteractionComputation) {
 
 
 	EXPECT_EQ(trajectories.size(),6);
-	EXPECT_EQ(interactions.size(),63);
+	EXPECT_EQ(interactions.size(),15);
 	for (const auto & interaction : interactions ) {
 		EXPECT_EQ(interaction->IDs.first,1);
 		EXPECT_EQ(interaction->IDs.second,2);

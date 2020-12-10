@@ -10,7 +10,7 @@
 
 class QAbstractItemModel;
 
-class UniverseBridge : public Bridge {
+class UniverseBridge : public GlobalBridge {
 	Q_OBJECT
 
 public:
@@ -19,11 +19,8 @@ public:
 	virtual ~UniverseBridge();
 
 	QAbstractItemModel * model();
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
 
 	bool isDeletable(const QModelIndexList & ) const;
-
-	bool isActive() const override;
 
 	QString basepath() const;
 
@@ -31,11 +28,13 @@ public:
 
 	std::map<quint32,QString> spaceNamesByID() const;
 
+	void initialize(ExperimentBridge * experiment) override;
+
 public slots:
 	void addSpace(const QString & spaceName);
 	void deleteSpace(const QString & spaceName);
 	void addTrackingDataDirectoryToSpace(const QString & spaceName,
-	                                     const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	                                     const fmp::TrackingDataDirectory::Ptr & tdd);
 	void deleteTrackingDataDirectory(const QString & URI);
 
 
@@ -47,8 +46,12 @@ signals:
 	void spaceChanged(const fmp::Space::Ptr & space);
 
 
-	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	void trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr & tdd);
 	void trackingDataDirectoryDeleted(const QString & URI);
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private slots:
 	void onItemChanged(QStandardItem * item);
@@ -66,11 +69,10 @@ private:
 	QStandardItem * locateSpace(const QString & URI);
 	void rebuildSpaceChildren(QStandardItem * item, const fmp::Space::Ptr & z);
 
-	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	QList<QStandardItem*> buildTDD(const fmp::TrackingDataDirectory::Ptr & tdd);
 	QList<QStandardItem*> buildSpace(const fmp::Space::Ptr & z);
 
 	void rebuildAll(const fmp::SpaceByID & spaces);
 
 	QStandardItemModel   * d_model;
-	fmp::Experiment::Ptr   d_experiment;
 };

@@ -11,26 +11,28 @@ class QStandardItemModel;
 class QStandardItem;
 class QModelIndex;
 
-class MovieBridge : public Bridge {
+class MovieBridge : public GlobalBridge {
 	Q_OBJECT
 public :
 	explicit MovieBridge(QObject * parent);
 	virtual ~MovieBridge();
 
-	void setExperiment(const fmp::ExperimentConstPtr & experiment);
-
-	bool isActive() const override;
-
 	QAbstractItemModel * movieModel();
 
-	std::tuple<quint32,fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	std::tuple<quint32,fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
 	tddAndMovieSegment(const QModelIndex & index) const;
 
-	std::tuple<fmp::TrackingDataDirectory::ConstPtr,fmp::MovieSegmentConstPtr,fm::Time>
+	std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
 	findTime(fmp::SpaceID spaceID, const fm::Time & time);
 
-public slots:
-	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr & tdd);
+	void initialize(ExperimentBridge * experiment) override;
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
+
+private slots:
+	void onTrackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr & tdd);
 	void onTrackingDataDirectoryDeleted(const QString & URI);
 
 private :
@@ -42,17 +44,14 @@ private :
 
 
 	static QList<QStandardItem*> buildSpace(const fmp::SpaceConstPtr & space);
-	static QList<QStandardItem*> buildTDD(quint32 spaceID,
-	                                      const fmp::TrackingDataDirectoryConstPtr & tdd);
 	static QList<QStandardItem*> buildMovieSegment(quint32 spaceID,
-	                                               const fmp::TrackingDataDirectoryConstPtr & tdd,
+	                                               const fmp::TrackingDataDirectoryPtr & tdd,
 	                                               const fmp::MovieSegmentConstPtr & ms,
-	                                               const fm::Time & start,
-	                                               const fm::Time & end);
+	                                               const fm::Time & start);
 
+	void clearModel();
 	void rebuildModel();
 
 
-	fmp::ExperimentConstPtr d_experiment;
 	QStandardItemModel    * d_model;
 };

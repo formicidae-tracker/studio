@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 
-project(fort-studio VERSION 0.6.1
+project(fort-studio VERSION 0.7.0
                     LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
@@ -23,66 +23,34 @@ pkg_check_modules(TBB REQUIRED tbb)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
-find_package(Qt5 COMPONENTS Widgets Concurrent Test REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Concurrent Test Charts REQUIRED)
 
-include(FetchContent)
-FetchContent_Declare(googletest
-                     GIT_REPOSITORY https://github.com/google/googletest.git
-                     GIT_TAG        release-1.10.0
-                     )
+find_package(yaml-cpp REQUIRED)
 
-FetchContent_Declare(fort-tags
-                     GIT_REPOSITORY https://github.com/formicidae-tracker/fort-tags.git
-                     GIT_TAG        v1.3.1)
+include(FetchFortTags)
+include(FetchFortHermes)
+include(FetchSemver)
+include(FetchGoogleTest)
 
-FetchContent_Declare(hermes
-                     GIT_REPOSITORY https://github.com/formicidae-tracker/hermes.git
-                     GIT_TAG        v0.4.0)
+fetch_google_test(VERSION release-1.10.0)
+fetch_fort_tags(VERSION v1.4.0)
+fetch_fort_hermes(VERSION v0.4.1)
+fetch_semver(VERSION v0.2.2)
 
-FetchContent_Declare(semver
-                     GIT_REPOSITORY https://github.com/Neargye/semver.git
-                     GIT_TAG        v0.2.2)
-
-
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-	FetchContent_Populate(googletest)
-	add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif(NOT googletest_POPULATED)
 include(GoogleTest)
 include(EnableMakeCheck)
 enable_testing()
 enable_make_check()
 
 
-FetchContent_GetProperties(fort-tags)
-if(NOT fort-tags_POPULATED)
-	FetchContent_Populate(fort-tags)
-	add_subdirectory(${fort-tags_SOURCE_DIR} ${fort-tags_BINARY_DIR})
-endif(NOT fort-tags_POPULATED)
-
-
-FetchContent_GetProperties(hermes)
-if(NOT hermes_POPULATED)
-	FetchContent_Populate(hermes)
-	add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})
-endif(NOT hermes_POPULATED)
-set(HERMES_INCLUDE_DIRS ${hermes_SOURCE_DIR}/src ${hermes_BINARY_DIR}/src)
-
-FetchContent_GetProperties(semver)
-if(NOT semver_POPULATED)
-	FetchContent_Populate(semver)
-	add_subdirectory(${semver_SOURCE_DIR} ${semver_BINARY_DIR})
-endif(NOT semver_POPULATED)
-set(SEMVER_INCLUDE_DIRS ${semver_SOURCE_DIR}/include)
 
 
 include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
-                    ${FORT_HERMES_CPP_INCLUDE_DIRS}
+                    ${FORT_HERMES_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
                     ${TBB_INCLUDE_DIRS}
-                    ${fort-tags_SOURCE_DIR}/include
+                    ${FORT_TAGS_INCLUDE_DIRS}
                     ${HERMES_INCLUDE_DIRS}
                     ${SEMVER_INCLUDE_DIRS}
                     )
@@ -131,11 +99,13 @@ if ( NOT HAS_STD_VARIANT )
 endif ( NOT HAS_STD_VARIANT )
 
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+option(ENABLE_COVERAGE "Enables coverage generation" Off)
+
+if(ENABLE_COVERAGE)
 	include(CodeCoverage)
 
-	APPEND_COVERAGE_COMPILER_FLAGS()
-endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	enable_coverage()
+endif(ENABLE_COVERAGE)
 
 
 option(UNIT_TEST_CHECK_TIMING "Test timing improvements during unit tests. May fails due to kernel scheduling, disable for automation" Off)
@@ -164,19 +134,21 @@ add_subdirectory(pkgconfig)
 
 add_subdirectory(src)
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(COVERAGE_GCOVR_EXCLUDES ${PROJECT_BINARY_DIR}/src/fort-studio/*
-	                            ${PROJECT_BINARY_DIR}/src/*
-	                            ${hermes_SOURCE_DIR}/*
-	                            ${hermes_BINARY_DIR}/*
-	                            ${fort-tags_SOURCE_DIR}/*
-	                            ${fort-tags_BINARY_DIR}/*
-	                            ${googletest_SOURCE_DIR}/*
-	                            ${googletest_BINARY_DIR}/*
-	                            )
+if(ENABLE_COVERAGE)
+	setup_target_for_coverage(NAME myrmidon-coverage
+	                          DEPENDENCIES check
+	                          GCOVR_OPTIONS -f ${PROJECT_SOURCE_DIR}/src/
+	                                        -e "'(.)+UTest.hpp'"
+	                                        -e "'(.)+UTest.cpp'"
+	                                        -e ${PROJECT_SOURCE_DIR}/src/analyze-video
+	                                        -e ${PROJECT_SOURCE_DIR}/src/capsule-collision-tester
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/benchmark
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/studio/utest
+	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/TestSetup
+	                                        -e "main-check\\.cpp"
 
-	setup_target_for_coverage_gcovr_html(NAME myrmidon-coverage EXECUTABLE ctest -V -j ${PROCESSOR_COUNT} DEPENDENCIES myrmidon-tests)
-endif(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	                          )
+endif(ENABLE_COVERAGE)
 
 option(BUILD_DOCS "Builds the documentation" Off)
 option(DOCS_USES_PATCHED_HEADERS "Documentation shoudl use patched system headers" Off)

@@ -2,31 +2,40 @@
 
 #include <QDebug>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
+
 GlobalPropertyBridge::~GlobalPropertyBridge() {}
 
 GlobalPropertyBridge::GlobalPropertyBridge(QObject * parent)
-	: Bridge(parent) {
+	: GlobalBridge(parent) {
+	d_cached = fort::tags::Family::Undefined;
 }
 
+void GlobalPropertyBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        &GlobalPropertyBridge::onTDDModified);
 
-void GlobalPropertyBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	qDebug() << "[GlobalPropertyBridge]: setting new experiment";
-	setModified(false);
-	if ( experiment == d_experiment ) {
-		return;
-	}
-	d_experiment = experiment;
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,
+	        &GlobalPropertyBridge::onTDDModified);
+
+}
+
+void GlobalPropertyBridge::tearDownExperiment() {
+	d_cached = tagFamily();
+}
+
+void GlobalPropertyBridge::setUpExperiment() {
+	d_cached = tagFamily();
 	emit nameChanged(name());
 	emit authorChanged(author());
 	emit commentChanged(comment());
 	emit tagFamilyChanged(tagFamily());
-	emit thresholdChanged(threshold());
 	emit tagSizeChanged(tagSize());
-	emit activated(d_experiment.get() != NULL);
-}
-
-bool GlobalPropertyBridge::isActive() const {
-	return d_experiment.get() != NULL;
 }
 
 QString GlobalPropertyBridge::name() const {
@@ -56,14 +65,6 @@ fort::tags::Family GlobalPropertyBridge::tagFamily() const {
 		return fort::tags::Family::Undefined;
 	}
 	return d_experiment->Family();
-}
-
-int GlobalPropertyBridge::threshold() const {
-	if ( !d_experiment ) {
-		return 255;
-	}
-
-	return int(d_experiment->Threshold());
 }
 
 double GlobalPropertyBridge::tagSize() const {
@@ -104,21 +105,6 @@ void GlobalPropertyBridge::setComment(const QString & comment, bool noSignal) {
 	}
 }
 
-void GlobalPropertyBridge::setThreshold(int th) {
-	th = std::min(std::max(th,1),254);
-	if ( !d_experiment || d_experiment->Threshold() == th ) {
-		return;
-	}
-
-	auto old = d_experiment->Threshold();
-	d_experiment->SetThreshold(th);
-	if ( old != d_experiment->Threshold() ) {
-		setModified(true);
-		emit thresholdChanged(d_experiment->Threshold());
-		emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
-	}
-}
-
 void GlobalPropertyBridge::setTagSize(double tagSize) {
 	if ( !d_experiment || d_experiment->DefaultTagSize() == tagSize) {
 		return;
@@ -128,12 +114,11 @@ void GlobalPropertyBridge::setTagSize(double tagSize) {
 	emit tagSizeChanged(tagSize);
 }
 
-void GlobalPropertyBridge::setTagFamily(fort::tags::Family tf) {
-	if ( !d_experiment || d_experiment->Family() == tf) {
+
+void GlobalPropertyBridge::onTDDModified() {
+	if ( tagFamily() == d_cached ) {
 		return;
 	}
-	d_experiment->SetFamily(tf);
-	setModified(true);
-	emit tagFamilyChanged(tf);
-	emit detectionSettingChanged(d_experiment->Family(),d_experiment->Threshold());
+	d_cached = tagFamily();
+	emit tagFamilyChanged(tagFamily());
 }

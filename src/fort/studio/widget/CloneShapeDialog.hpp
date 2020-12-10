@@ -14,6 +14,7 @@ class CloneShapeDialog : public QDialog {
 	Q_OBJECT
 public:
 	explicit CloneShapeDialog(ExperimentBridge * experiment,
+	                          quint32 sourceID,
 	                          QWidget *parent = 0);
 	virtual ~CloneShapeDialog();
 

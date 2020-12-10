@@ -1,3 +1,5 @@
+include(FindGLog)
+
 option(DEBUG_VIDEO_PLAYER Off "Debugs the video player with expensive STDERR output")
 if(NOT DEBUG_VIDEO_PLAYER)
 	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")
@@ -15,13 +17,14 @@ set(CMAKE_AUTOUIC ON)
 
 set(SRC_FILES Format.cpp
               MyrmidonTypes/Conversion.cpp
+              bridge/AntGlobalModel.cpp
               bridge/Bridge.cpp
               bridge/UniverseBridge.cpp
-			  bridge/MeasurementBridge.cpp
+              bridge/MeasurementBridge.cpp
+              bridge/IdentifierBridge.cpp
+              bridge/AntDisplayBridge.cpp
+              bridge/TagCloseUpBridge.cpp
 			  bridge/GlobalPropertyBridge.cpp
-			  bridge/IdentifierBridge.cpp
-			  bridge/SelectedAntBridge.cpp
-			  bridge/SelectedIdentificationBridge.cpp
 			  bridge/ExperimentBridge.cpp
 			  bridge/IdentifiedFrameConcurrentLoader.cpp
 			  bridge/AntShapeTypeBridge.cpp
@@ -29,6 +32,9 @@ set(SRC_FILES Format.cpp
 			  bridge/MovieBridge.cpp
 			  bridge/ZoneBridge.cpp
 			  bridge/StatisticsBridge.cpp
+			  bridge/AntMeasurementBridge.cpp
+			  bridge/AntShapeBridge.cpp
+			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.cpp
 			  widget/base/ColorComboBox.cpp
 			  widget/base/TimeEditorWidget.cpp
@@ -42,30 +48,34 @@ set(SRC_FILES Format.cpp
 			  widget/vectorgraphics/Capsule.cpp
 			  widget/vectorgraphics/Polygon.cpp
 			  widget/vectorgraphics/Circle.cpp
-			  widget/Navigatable.cpp
 			  widget/Logger.cpp
 			  widget/GlobalPropertyWidget.cpp
 			  widget/UniverseEditorWidget.cpp
 			  widget/SpaceChoiceDialog.cpp
 			  widget/MeasurementTypeWidget.cpp
 			  widget/AntListWidget.cpp
-			  widget/TaggingWidget.cpp
-			  widget/AntIdentificationWidget.cpp
-			  widget/IdentificationEditorWidget.cpp
-			  widget/AntEditorWidget.cpp
 			  widget/AntShapeTypeEditorWidget.cpp
 			  widget/FrameFinderDialog.cpp
 			  widget/AntMetadataWidget.cpp
-			  widget/UserDataWidget.cpp
-			  widget/MainWindow.cpp
-			  widget/VisualizationWidget.cpp
 			  widget/TrackingVideoFrame.cpp
 			  widget/TrackingVideoWidget.cpp
 			  widget/TrackingVideoPlayer.cpp
 			  widget/TrackingVideoControl.cpp
-			  widget/ZoningWidget.cpp
 			  widget/ZonesEditorWidget.cpp
 			  widget/CloneShapeDialog.cpp
+			  widget/TagStatisticsWidget.cpp
+			  widget/CloseUpScroller.cpp
+			  widget/TagCloseUpExplorer.cpp
+			  widget/IdentificationListWidget.cpp
+			  workspace/Workspace.cpp
+			  workspace/TagStatisticsWorkspace.cpp
+			  workspace/GeneralWorkspace.cpp
+			  workspace/IdentificationWorkspace.cpp
+			  workspace/AntGeometryWorkspace.cpp
+			  workspace/ZoningWorkspace.cpp
+			  workspace/AntMetadataWorkspace.cpp
+			  workspace/VisualizationWorkspace.cpp
+			  MainWindow.cpp
 			  )
 
 set(HDR_FILES Format.hpp
@@ -83,14 +93,16 @@ set(HDR_FILES Format.hpp
               MyrmidonTypes/TrackingDataDirectory.hpp
               MyrmidonTypes/Types.hpp
               MyrmidonTypes/Zone.hpp
+              MyrmidonTypes/Capsule.hpp
               Utils.hpp
+              bridge/AntGlobalModel.cpp
 			  bridge/Bridge.hpp
 			  bridge/UniverseBridge.hpp
 			  bridge/MeasurementBridge.hpp
+			  bridge/TagCloseUpBridge.hpp
 			  bridge/GlobalPropertyBridge.hpp
 			  bridge/IdentifierBridge.hpp
-			  bridge/SelectedAntBridge.hpp
-			  bridge/SelectedIdentificationBridge.hpp
+			  bridge/AntDisplayBridge.hpp
 			  bridge/ExperimentBridge.hpp
 			  bridge/IdentifiedFrameConcurrentLoader.hpp
 			  bridge/AntShapeTypeBridge.hpp
@@ -98,6 +110,9 @@ set(HDR_FILES Format.hpp
 			  bridge/MovieBridge.hpp
 			  bridge/ZoneBridge.hpp
 			  bridge/StatisticsBridge.hpp
+			  bridge/AntMeasurementBridge.hpp
+			  bridge/AntShapeBridge.hpp
+			  widget/TrackingDataDirectoryLoader.cpp
 			  widget/base/TagFamilyComboBox.hpp
 			  widget/base/ColorComboBox.hpp
 			  widget/base/TimeEditorWidget.hpp
@@ -111,54 +126,60 @@ set(HDR_FILES Format.hpp
 			  widget/vectorgraphics/Capsule.hpp
 			  widget/vectorgraphics/Polygon.hpp
 			  widget/vectorgraphics/Circle.hpp
-			  widget/Navigatable.hpp
 			  widget/Logger.hpp
 			  widget/GlobalPropertyWidget.hpp
 			  widget/UniverseEditorWidget.hpp
 			  widget/SpaceChoiceDialog.hpp
 			  widget/MeasurementTypeWidget.hpp
 			  widget/AntListWidget.hpp
-			  widget/TaggingWidget.hpp
-			  widget/AntIdentificationWidget.hpp
-			  widget/IdentificationEditorWidget.hpp
-			  widget/AntEditorWidget.hpp
 			  widget/AntShapeTypeEditorWidget.hpp
 			  widget/FrameFinderDialog.hpp
 			  widget/AntMetadataWidget.hpp
-			  widget/UserDataWidget.hpp
-			  widget/MainWindow.hpp
-			  widget/VisualizationWidget.hpp
 			  widget/TrackingVideoFrame.hpp
 			  widget/TrackingVideoWidget.hpp
 			  widget/TrackingVideoPlayer.hpp
 			  widget/TrackingVideoControl.hpp
-			  widget/ZoningWidget.hpp
 			  widget/ZonesEditorWidget.hpp
 			  widget/CloneShapeDialog.hpp
+			  widget/TagStatisticsWidget.hpp
+			  widget/CloseUpScroller.hpp
+			  widget/TagCloseUpExplorer.hpp
+			  widget/IdentificationListWidget.hpp
+			  workspace/Workspace.hpp
+			  workspace/TagStatisticsWorkspace.cpp
+			  workspace/GeneralWorkspace.cpp
+			  workspace/IdentificationWorkspace.cpp
+			  workspace/AntGeometryWorkspace.cpp
+			  workspace/ZoningWorkspace.cpp
+			  workspace/AntMetadataWorkspace.cpp
+			  workspace/VisualizationWorkspace.cpp
+			  MainWindow.hpp
 			  )
 
 
 set(UI_FILES widget/GlobalPropertyWidget.ui
              widget/UniverseEditorWidget.ui
-             widget/MainWindow.ui
              widget/LoggerWidget.ui
              widget/SpaceChoiceDialog.ui
              widget/MeasurementTypeWidget.ui
-             widget/AntListWidget.ui
-             widget/TaggingWidget.ui
-             widget/AntIdentificationWidget.ui
-             widget/IdentificationEditorWidget.ui
              widget/base/TimeEditorWidget.ui
-             widget/AntEditorWidget.ui
              widget/AntShapeTypeEditorWidget.ui
              widget/FrameFinderDialog.ui
              widget/AntMetadataWidget.ui
-             widget/UserDataWidget.ui
-             widget/VisualizationWidget.ui
              widget/TrackingVideoControl.ui
-             widget/ZoningWidget.ui
              widget/ZonesEditorWidget.ui
              widget/CloneShapeDialog.ui
+             widget/TagStatisticsWidget.ui
+             widget/TagCloseUpExplorer.ui
+             widget/IdentificationListWidget.ui
+             workspace/GeneralWorkspace.ui
+             workspace/TagStatisticsWorkspace.ui
+             workspace/IdentificationWorkspace.ui
+             workspace/AntGeometryWorkspace.ui
+             workspace/ZoningWorkspace.ui
+             workspace/AntMetadataWorkspace.ui
+             workspace/VisualizationWorkspace.ui
+             MainWindow.ui
 			 )
 
 set(RCC_FILES resources/resources.qrc)
@@ -173,6 +194,8 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/AntShapeTypeUTest.cpp
                     utest/AntMetadataUTest.cpp
                     utest/ZoneUTest.cpp
+                    utest/AntMeasurementUTest.cpp
+                    utest/AntShapeUTest.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -183,6 +206,8 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/AntShapeTypeUTest.hpp
                     utest/AntMetadataUTest.hpp
                     utest/ZoneUTest.hpp
+                    utest/AntMeasurementUTest.hpp
+                    utest/AntShapeUTest.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src
@@ -190,21 +215,23 @@ include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_BINARY_DIR}/src/fort-studio
                     ${PROJECT_SOURCE_DIR}/src
                     ${GLOG_INCLUDE_DIRS}
-                    ${apriltag_INCLUDE_DIR})
+                    ${apriltag_INCLUDE_DIR}
+                    ${GLOG_INCLUDE_DIRS})
 
 add_library(fort-studio-common STATIC ${SRC_FILES}
                                       ${HDR_FILES}
                                       ${UI_FILES}
-                                      ${RCC_FILES}
                                       )
 
 target_link_libraries(fort-studio-common Qt5::Widgets
                                          Qt5::Concurrent
+                                         Qt5::Charts
                                          fort-myrmidon
                                          fort-tags
-                                         Threads::Threads)
+                                         Threads::Threads
+                                         ${GLOG_LIBRARIES})
 
-add_executable(fort-studio main.cpp)
+add_executable(fort-studio main.cpp ${RCC_FILES})
 
 target_link_libraries(fort-studio fort-studio-common)
 

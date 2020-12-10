@@ -2,6 +2,7 @@
 #include "ui_GlobalPropertyWidget.h"
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
+#include <fort/studio/bridge/GlobalPropertyBridge.hpp>
 #include <QDoubleSpinBox>
 
 #include <QAction>
@@ -11,7 +12,6 @@ GlobalPropertyWidget::GlobalPropertyWidget(QWidget *parent)
 	, d_ui(new Ui::GlobalPropertyWidget) {
 	d_ui->setupUi(this);
 
-	d_ui->familySelector->setEnabled(false);
 	d_ui->tagSizeEdit->setEnabled(false);
 	d_ui->nameEdit->setEnabled(false);
 	d_ui->authorEdit->setEnabled(false);
@@ -23,24 +23,8 @@ GlobalPropertyWidget::~GlobalPropertyWidget() {
 	delete d_ui;
 }
 
-void GlobalPropertyWidget::setup(ExperimentBridge * experiment,
-                                 QAction * loadTagCloseUpAction) {
+void GlobalPropertyWidget::setup(ExperimentBridge * experiment) {
 	auto properties = experiment->globalProperties();
-	connect(properties,
-	        &GlobalPropertyBridge::activated,
-	        d_ui->familySelector,
-	        &TagFamilyComboBox::setEnabled);
-
-	connect(properties,
-	        &GlobalPropertyBridge::tagFamilyChanged,
-	        d_ui->familySelector,
-	        &TagFamilyComboBox::setFamily);
-
-	connect(d_ui->familySelector,
-	        &TagFamilyComboBox::familyModified,
-	        properties,
-	        &GlobalPropertyBridge::setTagFamily);
-
 
 
 	connect(properties,
@@ -110,15 +94,15 @@ void GlobalPropertyWidget::setup(ExperimentBridge * experiment,
 		        properties->setComment(d_ui->commentEdit->toPlainText(),true);
 	        });
 
-
-	connect(experiment->measurements(),
-	        &MeasurementBridge::progressChanged,
-	        [this](size_t done,size_t toDo) {
+	connect(properties,
+	        &GlobalPropertyBridge::tagFamilyChanged,
+	        this,
+	        [this](fort::tags::Family f) {
+		        auto name = fort::tags::GetFamilyName(f);
+		        d_ui->familyValueLabel->setText(name == "undefined" ? tr("undefined") : name.c_str());
 	        });
 
-	connect(loadTagCloseUpAction,&QAction::changed,
-	        this,[this,loadTagCloseUpAction]() {
-		             d_ui->familySelector->setEnabled(loadTagCloseUpAction->isEnabled());
-	             });
+
+
 
 }

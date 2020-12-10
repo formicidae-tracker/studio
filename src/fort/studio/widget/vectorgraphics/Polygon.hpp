@@ -20,6 +20,10 @@ public:
 
 	QVector<QPointF> vertices() const;
 
+	void updateLast(const QPointF & point);
+
+	void removeLast();
+
 	Handle * appendPoint(const QPointF & point);
 
 	void close();

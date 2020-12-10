@@ -84,6 +84,21 @@ Handle * Polygon::appendPoint(const QPointF & point) {
 	return h;
 }
 
+void Polygon::updateLast(const QPointF & point) {
+	auto p = polygon();
+	p.last() = point;
+	d_handles.back()->setPos(point);
+	setPolygon(p);
+}
+
+void Polygon::removeLast() {
+	delete d_handles.back();
+	d_handles.pop_back();
+	auto p = polygon();
+	p.pop_back();
+	setPolygon(p);
+}
+
 void Polygon::close() {
 	auto p = polygon();
 	if ( p.isClosed() == true || p.size() < 2 ) {

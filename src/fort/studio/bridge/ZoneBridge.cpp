@@ -2,13 +2,15 @@
 
 #include <QStandardItemModel>
 #include <QDebug>
-
+#include <QtConcurrent>
 #include <fort/studio/Format.hpp>
 
 #include <fort/studio/MyrmidonTypes/Zone.hpp>
 #include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
 #include <fort/studio/MyrmidonTypes/Space.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
 
 const int ZoneBridge::TypeRole = Qt::UserRole+1;
 const int ZoneBridge::DataRole = Qt::UserRole+2;
@@ -18,7 +20,7 @@ Q_DECLARE_METATYPE(ZoneBridge::FullFrame)
 ZoneBridge::~ZoneBridge() {}
 
 ZoneBridge::ZoneBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_spaceModel(new QStandardItemModel(this))
 	, d_fullFrameModel( new QStandardItemModel(this)) {
 
@@ -41,20 +43,38 @@ ZoneBridge::ZoneBridge(QObject * parent)
 	             });
 }
 
+void ZoneBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),&UniverseBridge::spaceDeleted,
+	        this,&ZoneBridge::rebuildSpaces);
 
-void ZoneBridge::setExperiment(const fmp::Experiment::Ptr & experiment) {
-	d_experiment = experiment;
+	connect(experiment->universe(),&UniverseBridge::spaceAdded,
+	        this,&ZoneBridge::rebuildSpaces);
+
+	connect(experiment->universe(),&UniverseBridge::spaceChanged,
+	        this,&ZoneBridge::rebuildSpaces);
+
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryAdded,
+	        this,
+	        [this](const fmp::TrackingDataDirectory::Ptr & tdd) {
+		        onTrackingDataDirectoryChange(tdd->URI().c_str());
+	        });
+	connect(experiment->universe(),
+	        &UniverseBridge::trackingDataDirectoryDeleted,
+	        this,&ZoneBridge::onTrackingDataDirectoryChange);
+
+}
+
+void ZoneBridge::tearDownExperiment() {
+	clearSpaces();
+	clearFullFrames();
+}
+
+void ZoneBridge::setUpExperiment() {
 	d_selectedSpace.reset();
 	d_selectedTime.reset();
 
-	setModified(false);
 	rebuildSpaces();
-
-	emit activated(!d_experiment == false);
-}
-
-bool ZoneBridge::isActive() const{
-	return !d_experiment == false;
 }
 
 
@@ -68,11 +88,15 @@ QAbstractItemModel * ZoneBridge::fullFrameModel() const {
 }
 
 
-void ZoneBridge::rebuildSpaces() {
+void ZoneBridge::clearSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
 	d_selectedSpace.reset();
 	d_selectedTime.reset();
+}
+
+void ZoneBridge::rebuildSpaces() {
+	clearSpaces();
 	rebuildFullFrameModel();
 	rebuildChildBridges();
 	if ( !d_experiment ) {
@@ -470,10 +494,13 @@ void ZoneBridge::activateItem(QModelIndex index) {
 	rebuildChildBridges();
 }
 
-
-void ZoneBridge::rebuildFullFrameModel() {
+void ZoneBridge::clearFullFrames() {
 	d_fullFrameModel->clear();
 	d_fullFrameModel->setHorizontalHeaderLabels({tr("URI")});
+}
+
+void ZoneBridge::rebuildFullFrameModel() {
+	clearFullFrames();
 
 	if ( !d_selectedSpace == true ) {
 		return;
@@ -482,19 +509,21 @@ void ZoneBridge::rebuildFullFrameModel() {
 
 	for ( const auto & tdd : d_selectedSpace->TrackingDataDirectories() ) {
 		const auto & tddFullFrames = tdd->FullFrames();
-		if ( tddFullFrames.empty() == false ) {
-			for ( const auto & [ref,path] : tddFullFrames ) {
-				fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
-			}
-			continue;
+		if ( tdd->FullFramesComputed() == false ) {
+			auto loaders = tdd->PrepareFullFramesLoaders();
+			QtConcurrent::blockingMap(loaders.begin(),loaders.end(),
+			                          []( const fmp::TrackingDataDirectory::Loader & l) {
+				                          l();
+			                          });
 		}
-		for ( const auto & [ref,path] : tdd->ComputedFullFrames() ) {
-			fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
+		for ( const auto & [ref,path] : tdd->FullFrames() ) {
+				fullframes.push_back(std::make_pair(ref.URI(),FullFrame{ref,path.c_str()}));
 		}
 	}
 
 	for ( const auto & [uri,ff] : fullframes ) {
-		auto item = new QStandardItem(uri.c_str());
+		auto roundedTime = ff.Reference.Time().Round(fm::Duration::Millisecond);
+		auto item = new QStandardItem(ToQString(roundedTime));
 		item->setEditable(false);
 		item->setData(QVariant::fromValue(ff));
 		d_fullFrameModel->appendRow({item});

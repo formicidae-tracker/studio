@@ -16,8 +16,8 @@ namespace proto {
 
 const std::string TDDCache::CACHE_FILENAME = "myrmidon-tdd-pb.cache";
 const uint32_t TDDCache::CACHE_VERSION = 1;
-TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath ,
-                                               const std::string & URI) {
+TrackingDataDirectory::Ptr TDDCache::Load(const fs::path & absoluteFilePath ,
+                                          const std::string & URI) {
 
 	FORT_MYRMIDON_CHECK_PATH_IS_ABSOLUTE(absoluteFilePath);
 
@@ -75,7 +75,7 @@ TrackingDataDirectory::ConstPtr TDDCache::Load(const fs::path & absoluteFilePath
 	                                     cache);
 }
 
-void TDDCache::Save(const TrackingDataDirectory::ConstPtr & tdd) {
+void TDDCache::Save(const TrackingDataDirectory::Ptr & tdd) {
 	auto cachePath = tdd->AbsoluteFilePath() / CACHE_FILENAME;
 
 	pb::TrackingDataDirectory h;

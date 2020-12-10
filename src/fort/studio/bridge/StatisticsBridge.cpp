@@ -6,55 +6,65 @@
 #include <fort/studio/Format.hpp>
 #include <fort/myrmidon/priv/Query.hpp>
 
+#include "ExperimentBridge.hpp"
+#include "UniverseBridge.hpp"
+
 StatisticsBridge::StatisticsBridge(QObject * parent)
-	: Bridge(parent)
+	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this) )
-	, d_seed(0)
 	, d_outdated(false)
-	, d_watcher(nullptr) {
+	, d_watcher(nullptr)
+	, d_frameCount(0) {
 	rebuildModel();
 }
 
 StatisticsBridge::~StatisticsBridge() {
 }
 
-void StatisticsBridge::setExperiment(const fmp::Experiment::ConstPtr  & experiment) {
-	d_experiment = experiment;
-	emit activated(!d_experiment == false);
-	setOutdated(true);
+void StatisticsBridge::initialize(ExperimentBridge * experiment) {
+	connect(experiment->universe(),&UniverseBridge::trackingDataDirectoryAdded,
+	        this,&StatisticsBridge::onTrackingDataDirectoryAdded);
+
+	connect(experiment->universe(),&UniverseBridge::trackingDataDirectoryDeleted,
+	        this,&StatisticsBridge::onTrackingDataDirectoryDeleted);
 }
 
-bool StatisticsBridge::isActive() const {
-	return !d_experiment == false;
+void StatisticsBridge::tearDownExperiment() {
+	d_stats.clear();
+	clear();
 }
-
-bool StatisticsBridge::isOutdated() const {
-	return d_outdated;
-}
-
-bool StatisticsBridge::isReady() const {
-	return d_watcher == nullptr;
+void StatisticsBridge::setUpExperiment() {
+	compute();
 }
 
 QAbstractItemModel * StatisticsBridge::stats() const {
 	return d_model;
 }
 
+size_t StatisticsBridge::frameCount() const {
+	return d_frameCount;
+}
+
 const fm::TagStatistics & StatisticsBridge::statsForTag(fmp::TagID tagID) const {
-	auto static empty =  fmp::TagStatisticsHelper::Create(0,fm::Time());
-	return empty;
+	auto fi  = d_stats.find(tagID);
+	if ( fi == d_stats.cend() ) {
+		static auto empty = fmp::TagStatisticsHelper::Create(0,fm::Time());
+		return empty;
+	}
+	return fi->second;
 }
 
 
-void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::ConstPtr tdd) {
-	setOutdated(true);
+void StatisticsBridge::onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd) {
+	compute();
 }
 
 void StatisticsBridge::onTrackingDataDirectoryDeleted(QString tddURI) {
-	setOutdated(true);
+	compute();
 }
 
-void StatisticsBridge::rebuildModel() {
+void StatisticsBridge::clear() {
+	d_frameCount = 0;
 	d_model->clear();
 	auto nSpaces = 0;
 	if ( d_experiment ) {
@@ -75,11 +85,16 @@ void StatisticsBridge::rebuildModel() {
 		                                    tr("Gap <1s"),tr("Other gaps (largely over estimated)")});
 	}
 
-	if ( !d_experiment == true ) {
+
+}
+
+void StatisticsBridge::rebuildModel() {
+	if ( d_experiment == nullptr ) {
 		return;
 	}
-
+	auto nSpaces = d_experiment->CSpaces().size();
 	for ( const auto & [tagID,tagStats] : d_stats ) {
+
 		QList<QStandardItem*> row;
 		row.push_back(new QStandardItem(fmp::FormatTagID(tagStats.ID).c_str()));
 		row.back()->setData(tagStats.ID);
@@ -111,60 +126,31 @@ void StatisticsBridge::rebuildModel() {
 }
 
 
-void StatisticsBridge::setOutdated(bool outdated_) {
-	if ( outdated_ == true ) {
-		++d_seed;
-		d_stats.clear();
-		rebuildModel();
-	}
-	if ( d_outdated == outdated_ ) {
-		return;
-	}
-	d_outdated = outdated_;
-	emit outdated(d_outdated);
-}
 
 
 void StatisticsBridge::compute() {
-	if ( !d_experiment == true
-	     || isReady() == false
-	     || d_outdated == false ) {
+	clear();
+	if ( d_experiment != nullptr ) {
+		try {
+			fmp::Query::ComputeTagStatistics(d_experiment,d_stats);
+		} catch ( const std::exception & e ) {
+			qCritical() << "Could not compute tag statistics: " << e.what();
+		}
+	}
+	rebuildModel();
+
+	recountFrames();
+}
+
+void StatisticsBridge::recountFrames() {
+	d_frameCount = 0;
+
+	if ( !d_experiment == true ) {
+
 		return;
 	}
 
-	size_t currentSeed = d_seed;
-	auto future = QtConcurrent::run([this]() -> Stats * {
-		                                auto stats = new Stats();
-		                                try {
-			                                fmp::Query::ComputeTagStatistics(d_experiment,
-			                                                                 *stats);
-		                                } catch (const std::exception & e) {
-			                                std::cerr << "Could not compute stats: " << e.what() <<  std::endl;
-			                                return nullptr;
-		                                }
-		                                return stats;
-	                                });
-
-	d_watcher = new QFutureWatcher<Stats*>(this);
-	connect(d_watcher,
-	        &QFutureWatcher<Stats*>::finished,
-	        this,
-	        [this,currentSeed]() {
-		        auto result = d_watcher->result();
-		        d_watcher->deleteLater();
-		        d_watcher = nullptr;
-		        emit ready(true);
-
-		        if ( currentSeed != d_seed
-		             || result == nullptr) {
-			        return;
-		        }
-		        d_stats = *result;
-		        rebuildModel();
-		        setOutdated(false);
-	        },Qt::QueuedConnection);
-
-	d_watcher->setFuture(future);
-	emit ready(false);
-
+	for ( const auto & [tddUri,tdd]: d_experiment->TrackingDataDirectories() ) {
+		d_frameCount  += tdd->EndFrame() - tdd->StartFrame() + 1;
+	}
 }

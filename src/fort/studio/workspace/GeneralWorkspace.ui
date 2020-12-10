@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GeneralWorkspace</class>
+ <widget class="QWidget" name="GeneralWorkspace">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="globalBox">
+     <property name="toolTip">
+      <string>Global properties for this experiment</string>
+     </property>
+     <property name="title">
+      <string>Global Properties</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="GlobalPropertyWidget" name="globalProperties" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="universeBox">
+     <property name="toolTip">
+      <string>Manages space and tracking data directory</string>
+     </property>
+     <property name="title">
+      <string>Spaces and Data Directories</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="UniverseEditorWidget" name="universeEditor" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GlobalPropertyWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/GlobalPropertyWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UniverseEditorWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">fort/studio/widget/UniverseEditorWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

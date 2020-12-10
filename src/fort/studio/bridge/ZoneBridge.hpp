@@ -32,14 +32,11 @@ private:
 };
 
 
-class ZoneBridge : public Bridge {
+class ZoneBridge : public GlobalBridge {
 	Q_OBJECT
 public :
 	ZoneBridge(QObject * parent);
 	virtual ~ZoneBridge();
-	void setExperiment(const fmp::Experiment::Ptr & experiment);
-
-	bool isActive() const override;
 
 	QAbstractItemModel * spaceModel() const;
 	QAbstractItemModel * fullFrameModel() const;
@@ -56,6 +53,7 @@ public :
 
 	std::pair<bool,FullFrame> fullFrameAtIndex(const QModelIndex & index) const;
 
+	void initialize(ExperimentBridge * experiment) override;
 
 signals:
 	void newZoneDefinitionBridge(QList<ZoneDefinitionBridge*>);
@@ -66,13 +64,19 @@ public slots:
 	void removeItemAtIndex(const QModelIndex & index);
 
 
-	void rebuildSpaces();
-	void onTrackingDataDirectoryChange(const QString & uri);
 
 	void activateItem(QModelIndex index);
 
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
+
+
 private slots:
 	void onItemChanged(QStandardItem * item);
+
+	void rebuildSpaces();
+	void onTrackingDataDirectoryChange(const QString & uri);
 
 private:
 	const static int TypeRole;
@@ -81,6 +85,10 @@ private:
 	const static int SpaceType       = 1;
 	const static int ZoneType        = 2;
 	const static int DefinitionType  = 3;
+
+	void clearSpaces();
+
+	void clearFullFrames();
 
 	void rebuildFullFrameModel();
 
@@ -103,7 +111,6 @@ private:
 
 	QStandardItemModel  * d_spaceModel;
 	QStandardItemModel  * d_fullFrameModel;
-	fmp::Experiment::Ptr  d_experiment;
 	fmp::Space::Ptr       d_selectedSpace;
 	fm::Time::ConstPtr    d_selectedTime;
 

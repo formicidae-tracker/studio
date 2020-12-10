@@ -14,7 +14,7 @@ protected:
 	static void SetUpTestSuite();
 	static void TearDownTestSuite();
 
-	static TrackingDataDirectory::ConstPtr s_foo[3];
+	static TrackingDataDirectory::Ptr s_foo[3];
 };
 
 } //namespace priv

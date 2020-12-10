@@ -11,7 +11,7 @@
 #include <QSignalSpy>
 #include <QTest>
 
-fort::myrmidon::priv::TrackingDataDirectory::ConstPtr UniverseUTest::s_foo[3];
+fort::myrmidon::priv::TrackingDataDirectory::Ptr UniverseUTest::s_foo[3];
 
 
 void UniverseUTest::SetUpTestSuite() {
@@ -31,9 +31,9 @@ void UniverseUTest::SetUp() {
 			experiment->Save(TestSetup::Basedir() / "universe.myrmidon");
 			auto foo = experiment->CreateSpace("foo");
 			auto bar = experiment->CreateSpace("bar");
-			foo->AddTrackingDataDirectory(s_foo[0]);
-			foo->AddTrackingDataDirectory(s_foo[1]);
-			bar->AddTrackingDataDirectory(s_foo[2]);
+			experiment->AddTrackingDataDirectory(foo,s_foo[0]);
+			experiment->AddTrackingDataDirectory(foo,s_foo[1]);
+			experiment->AddTrackingDataDirectory(bar,s_foo[2]);
 		});
 	universe = new UniverseBridge(NULL);
 }
@@ -59,7 +59,6 @@ TEST_F(UniverseUTest,Activation) {
 	ASSERT_EQ(activatedSignal.count(),2);
 	EXPECT_TRUE(activatedSignal.at(1).at(0).toBool());
 
-
 	universe->setExperiment(fmp::Experiment::Ptr());
 	EXPECT_FALSE(universe->isActive());
 	ASSERT_EQ(activatedSignal.count(),3);
@@ -72,7 +71,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	QSignalSpy sapceAddedSignal(universe,SIGNAL(spaceAdded(const fmp::Space::Ptr &)));
 	QSignalSpy spaceDeletedSignal(universe,SIGNAL(spaceDeleted(const QString &)));
 	QSignalSpy spaceChangedSignal(universe,SIGNAL(spaceChanged(const fmp::Space::Ptr &)));
-	QSignalSpy tddAdded(universe,SIGNAL(trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::ConstPtr &)));
+	QSignalSpy tddAdded(universe,SIGNAL(trackingDataDirectoryAdded(const fmp::TrackingDataDirectory::Ptr &)));
 	QSignalSpy tddDeleted(universe,SIGNAL(trackingDataDirectoryDeleted(const QString &)));
 
 	EXPECT_FALSE(universe->isModified());
@@ -141,7 +140,7 @@ TEST_F(UniverseUTest,AdditionAndDeletion) {
 	EXPECT_TRUE(modifiedSignal.at(4).at(0).toBool());
 	ASSERT_EQ(spaceChangedSignal.count(),2);
 	ASSERT_EQ(tddAdded.count(),1);
-	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::ConstPtr>()->URI(),"foo.0001");
+	EXPECT_EQ(tddAdded.at(0).at(0).value<fmp::TrackingDataDirectory::Ptr>()->URI(),"foo.0001");
 	EXPECT_EQ(spaceChangedSignal.at(1).at(0).value<fmp::Space::Ptr>()->URI(),
 	          "spaces/3");
 

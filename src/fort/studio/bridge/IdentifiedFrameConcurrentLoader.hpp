@@ -34,7 +34,7 @@ public:
 
 public slots:
 	void loadMovieSegment(quint32 spaceID,
-	                      const fmp::TrackingDataDirectoryConstPtr & tdd,
+	                      const fmp::TrackingDataDirectoryPtr & tdd,
 	                      const fmp::MovieSegmentConstPtr & segment);
 	void clear();
 

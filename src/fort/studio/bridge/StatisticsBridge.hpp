@@ -10,52 +10,41 @@
 class QStandardItemModel;
 class QAbstractItemModel;
 
-class StatisticsBridge : public Bridge {
+class StatisticsBridge : public GlobalBridge {
 	Q_OBJECT
-	Q_PROPERTY(bool isOutdated
-	           READ isOutdated
-	           NOTIFY outdated)
-	Q_PROPERTY(bool isReady
-	           READ isReady
-	           NOTIFY ready)
 
 public:
 	StatisticsBridge(QObject * parent );
 	virtual ~StatisticsBridge();
 
-	void setExperiment(const fmp::Experiment::ConstPtr  & experiment);
-
-	bool isActive() const override;
-
-	bool isOutdated() const;
-	bool isReady() const;
+	void initialize(ExperimentBridge * experiment) override;
 
 	QAbstractItemModel * stats() const;
 
 	const fm::TagStatistics & statsForTag(fmp::TagID tagID) const;
 
-signals:
-	void outdated(bool);
-	void ready(bool);
+	size_t frameCount() const;
 
 public slots:
-	void compute();
-
-
-	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::ConstPtr tdd);
+	void onTrackingDataDirectoryAdded(fmp::TrackingDataDirectory::Ptr tdd);
 	void onTrackingDataDirectoryDeleted(QString tddURI);
+
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private:
 	typedef fm::TagStatistics::ByTagID Stats;
-	void setOutdated(bool outdated);
 
-
+	void clear();
+	void compute();
 	void rebuildModel();
+	void recountFrames();
 
-	fmp::Experiment::ConstPtr  d_experiment;
 	QStandardItemModel       * d_model;
 	bool                       d_outdated;
 	QFutureWatcher<Stats*>   * d_watcher;
+
 	Stats                      d_stats;
-	size_t                     d_seed;
+	size_t                     d_frameCount;
 };

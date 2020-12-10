@@ -31,22 +31,34 @@
      </item>
      <item>
       <widget class="QToolButton" name="addButton">
+       <property name="toolTip">
+        <string>Adds a tracking data directory to this experiment</string>
+       </property>
+       <property name="statusTip">
+        <string>Adds a tracking data directory to this experiment</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-add">
+        <iconset theme="list-add-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QToolButton" name="deleteButton">
+       <property name="toolTip">
+        <string>Removes selected tracking data directory or space</string>
+       </property>
+       <property name="statusTip">
+        <string>Removes selected tracking data directory or space</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove">
+        <iconset theme="list-remove-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>

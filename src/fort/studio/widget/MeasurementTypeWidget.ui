@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>974</width>
+    <width>500</width>
     <height>254</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>500</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -35,7 +41,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-add">
+        <iconset theme="list-add-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
@@ -46,7 +52,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove">
+        <iconset theme="list-remove-symbolic">
          <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>

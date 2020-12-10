@@ -29,7 +29,7 @@ Identifier::UnmanagedTag::UnmanagedTag(TagID ID) noexcept
 	                     }()) {}
 
 Identifier::Identifier()
-	: d_callback([](const Identification::Ptr &){}) {
+	: d_callback([](const Identification::Ptr &, const std::vector<AntPoseEstimateConstPtr> &){}) {
 }
 
 Identifier::~Identifier() {}
@@ -271,28 +271,40 @@ void Identifier::DeleteAntPoseEstimate(const AntPoseEstimateConstPtr & ape ) {
 }
 
 
-void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
+void Identifier::QueryAntPoseEstimate(std::vector<AntPoseEstimateConstPtr> & estimations,
+                                      const Identification::ConstPtr & identification) const {
+	estimations.clear();
 	if ( identification->HasUserDefinedAntPose() == true ) {
 		return;
 	}
-	std::vector<AntPoseEstimateConstPtr> matched;
-	auto & APEs = d_tagPoseEstimates[identification->TagValue()];
-	matched.reserve(APEs.size());
-	for (const auto & ape : APEs ) {
+	auto APEs = d_tagPoseEstimates.find(identification->TagValue());
+	if ( APEs == d_tagPoseEstimates.cend() ) {
+		return;
+	}
+	estimations.reserve(APEs->second.size());
+	for (const auto & ape : APEs->second ) {
 		if ( ape->TargetTagID() != identification->TagValue() ) {
 			throw std::logic_error("Unexpected TagID");
 		}
 		if ( identification->IsValid(ape->Reference().Time()) == false ) {
 			continue;
 		}
-		matched.push_back(ape);
+		estimations.push_back(ape);
 	}
+}
+
+void Identifier::UpdateIdentificationAntPosition(const Identification::Ptr & identification) {
+	if ( identification->HasUserDefinedAntPose() == true ) {
+		return;
+	}
+	std::vector<AntPoseEstimateConstPtr> matched;
+	QueryAntPoseEstimate(matched,identification);
 	Eigen::Vector2d newPosition;
 	double newAngle;
 	AntPoseEstimate::ComputeMeanPose(newPosition,newAngle,matched.begin(),matched.end());
 	if ( newPosition != identification->AntPosition() || newAngle != identification->AntAngle() ) {
 		Identification::Accessor::SetAntPosition(*identification,newPosition,newAngle);
-		d_callback(identification);
+		d_callback(identification,matched);
 	}
 }
 

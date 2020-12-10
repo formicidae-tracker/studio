@@ -7,6 +7,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <fort/hermes/FileContext.h>
+#include <fort/tags/options.hpp>
 
 #include "LocatableTypes.hpp"
 #include "TimeValid.hpp"
@@ -34,7 +35,7 @@ namespace priv {
 // Each directory has a start and end time and a start and end frame
 class TrackingDataDirectory : public TimeValid, public FileSystemLocatable, public Identifiable {
 public:
-	typedef std::shared_ptr<const TrackingDataDirectory> ConstPtr;
+	typedef std::shared_ptr<TrackingDataDirectory> Ptr;
 
 
 	typedef int32_t                                    UID;
@@ -43,9 +44,13 @@ public:
 	typedef std::map<FrameID,FrameReference>           FrameReferenceCache;
 	typedef std::shared_ptr<const FrameReferenceCache> FrameReferenceCacheConstPtr;
 
+
+	typedef std::pair<fs::path,std::shared_ptr<TagID>>     TagCloseUpFileAndFilter;
+	typedef std::multimap<FrameID,TagCloseUpFileAndFilter> TagCloseUpListing;
+
 	class const_iterator {
 	public:
-		const_iterator(const ConstPtr & tdd,uint64_t current);
+		const_iterator(const Ptr & tdd,uint64_t current);
 
 		const const_iterator & operator=(const const_iterator & other) = delete;
 		const_iterator & operator=(const_iterator && other);
@@ -68,9 +73,9 @@ public:
 
 		void OpenAt(uint64_t frameID);
 
-		ConstPtr LockParent() const;
+		Ptr LockParent() const;
 
-		std::weak_ptr<const TrackingDataDirectory> d_parent;
+		std::weak_ptr<TrackingDataDirectory>       d_parent;
 		FrameID d_current;
 
 		std::unique_ptr<fort::hermes::FileContext> d_file;
@@ -80,6 +85,31 @@ public:
 
 
 	static UID GetUID(const fs::path & absoluteFilePath);
+
+	static TagCloseUpListing ListTagCloseUpFiles(const fs::path & subdir);
+
+	// Opens an actual TrackingDataDirectory on the filesystem
+	// @path path to the tracking data directory.
+	// @experimentRoot root of the <Experiment>
+	// @return a new <trackingDataDirectory> with all field populated accordingly
+	//
+	// Opens an actual TrackingDataDirectory on the filesystem, and
+	// populate its data form its actual content. This function will
+	// look for tracking data file open the first and last segment to
+	// obtain infoirmation on the first and last frame.
+	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath, const fs::path & experimentRoot);
+
+	static TrackingDataDirectory::Ptr Create(const std::string & uri,
+	                                         const fs::path & absoluteFilePath,
+	                                         uint64_t startFrame,
+	                                         uint64_t endFrame,
+	                                         const Time & start,
+	                                         const Time & end,
+	                                         const TrackingIndex::Ptr & segments,
+	                                         const MovieIndex::Ptr & movies,
+	                                         const FrameReferenceCacheConstPtr & referenceCache);
+
+
 
 	virtual ~TrackingDataDirectory();
 
@@ -133,27 +163,6 @@ public:
 
 	FrameReference FrameReferenceAfter(const Time & t) const;
 
-	// Opens an actual TrackingDataDirectory on the filesystem
-	// @path path to the tracking data directory.
-	// @experimentRoot root of the <Experiment>
-	// @return a new <trackingDataDirectory> with all field populated accordingly
-	//
-	// Opens an actual TrackingDataDirectory on the filesystem, and
-	// populate its data form its actual content. This function will
-	// look for tracking data file open the first and last segment to
-	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory::ConstPtr Open(const fs::path & TDpath, const fs::path & experimentRoot);
-
-	static TrackingDataDirectory::ConstPtr Create(const std::string & uri,
-	                                              const fs::path & absoluteFilePath,
-	                                              uint64_t startFrame,
-	                                              uint64_t endFrame,
-	                                              const Time & start,
-	                                              const Time & end,
-	                                              const TrackingIndex::Ptr & segments,
-	                                              const MovieIndex::Ptr & movies,
-	                                              const FrameReferenceCacheConstPtr & referenceCache);
-
 
 	const TrackingIndex & TrackingSegments() const;
 
@@ -161,21 +170,96 @@ public:
 
 	const FrameReferenceCache & ReferenceCache() const;
 
-	const TagCloseUp::Lister::Ptr TagCloseUpLister(tags::Family f,
-	                                               uint8_t threshold) const;
 
-	std::map<FrameReference,fs::path> FullFrames() const;
+	class ComputedRessourceUnavailable : public std::runtime_error {
+	public:
+		ComputedRessourceUnavailable(const std::string & typeName) noexcept;
+		virtual ~ComputedRessourceUnavailable() noexcept;
+	};
 
-	std::map<FrameReference,fs::path> ComputedFullFrames() const;
+	const std::vector<TagCloseUp::ConstPtr> & TagCloseUps() const;
+	const std::map<FrameReference,fs::path> & FullFrames() const;
+	const TagStatisticsHelper::Timed & TagStatistics() const;
 
-	std::vector<TagStatisticsHelper::Loader> StatisticsLoader() const;
+
+	bool TagCloseUpsComputed() const;
+	bool TagStatisticsComputed() const;
+	bool FullFramesComputed() const;
+
+	typedef std::function<void()> Loader;
+
+	std::vector<Loader> PrepareTagCloseUpsLoaders();
+	std::vector<Loader> PrepareTagStatisticsLoaders();
+	std::vector<Loader> PrepareFullFramesLoaders();
+
+	const tags::ApriltagOptions & DetectionSettings() const;
 
 private:
 
 	typedef std::pair<FrameID,Time> TimedFrame;
 	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
 
-	std::weak_ptr<const TrackingDataDirectory> d_itself;
+	friend class FullFramesReducer;
+	friend class TagCloseUpsReducer;
+	friend class TagStatisticsReducer;
+
+
+
+	static void CheckPaths(const fs::path & path,
+	                       const fs::path & experimentRoot);
+
+	static void LookUpFiles(const fs::path & absoluteFilePath,
+	                        std::vector<fs::path> & hermesFile,
+	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
+
+	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
+	                              const std::string & parentURI,
+	                              MovieSegment::List & movies);
+
+	static TrackingDataDirectory::Ptr LoadFromCache(const fs::path & absoluteFilePath,
+	                                                const std::string & URI);
+
+	static std::pair<TimedFrame,TimedFrame>
+	BuildIndexes(const std::string & URI,
+	             Time::MonoclockID monoID,
+	             const std::vector<fs::path> & hermesFile,
+	             const TrackingIndex::Ptr & trackingIndexer);
+
+	static void
+	BuildFrameReferenceCache(const std::string & URI,
+	                         Time::MonoclockID monoID,
+	                         const fs::path & tddPath,
+	                         const TrackingIndex::ConstPtr & trackingIndexer,
+	                         FrameReferenceCache & cache);
+
+	static Ptr
+	OpenFromFiles(const fs::path & absoluteFilePath,
+	              const std::string & URI);
+
+
+	TrackingDataDirectory(const std::string & uri,
+	                      const fs::path & absoluteFilePath,
+	                      uint64_t startFrame,
+	                      uint64_t endFrame,
+	                      const Time & start,
+	                      const Time & end,
+	                      const TrackingIndex::Ptr & segments,
+	                      const MovieIndex::Ptr & movies,
+	                      const FrameReferenceCacheConstPtr & referenceCache);
+
+	std::shared_ptr<std::map<FrameReference,fs::path>> EnumerateFullFrames(const fs::path & subpath) const noexcept;
+
+
+	void SaveToCache() const;
+
+	void LoadComputedFromCache();
+
+	void LoadDetectionSettings();
+
+	Ptr Itself() const;
+
+
+	std::weak_ptr<TrackingDataDirectory> d_itself;
 
 	fs::path       d_absoluteFilePath;
 	std::string    d_URI;
@@ -189,53 +273,13 @@ private:
 	MovieIndex::Ptr             d_movies;
 	FrameReferenceCacheConstPtr d_referencesByFID;
 	FrameIDByTime               d_frameIDByTime;
+	tags::ApriltagOptions       d_detectionSettings;
 
-	static void CheckPaths(const fs::path & path,
-	                       const fs::path & experimentRoot);
+	// cached data
+	std::shared_ptr<std::vector<TagCloseUp::ConstPtr>> d_tagCloseUps;
+	std::shared_ptr<std::map<FrameReference,fs::path>> d_fullFrames;
+	std::shared_ptr<TagStatisticsHelper::Timed>        d_tagStatistics;
 
-	static void LookUpFiles(const fs::path & absoluteFilePath,
-	                        std::vector<fs::path> & hermesFile,
-	                        std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths);
-
-	static void LoadMovieSegments(const std::map<uint32_t,std::pair<fs::path,fs::path> > & moviesPaths,
-	                              const std::string & parentURI,
-	                              MovieSegment::List & movies);
-
-	static TrackingDataDirectory::ConstPtr LoadFromCache(const fs::path & absoluteFilePath,
-	                                                     const std::string & URI);
-
-	static std::pair<TimedFrame,TimedFrame>
-	BuildIndexes(const std::string & URI,
-	             Time::MonoclockID monoID,
-	             const std::vector<fs::path> & hermesFile,
-	             const TrackingIndex::Ptr & trackingIndexer);
-
-	static void BuildCache(const std::string & URI,
-	                       Time::MonoclockID monoID,
-	                       const fs::path & tddPath,
-	                       const TrackingIndex::ConstPtr & trackingIndexer,
-	                       FrameReferenceCache & cache);
-
-
-
-	TrackingDataDirectory(const std::string & uri,
-	                      const fs::path & absoluteFilePath,
-	                      uint64_t startFrame,
-	                      uint64_t endFrame,
-	                      const Time & start,
-	                      const Time & end,
-	                      const TrackingIndex::Ptr & segments,
-	                      const MovieIndex::Ptr & movies,
-	                      const FrameReferenceCacheConstPtr & referenceCache);
-
-	std::map<FrameReference,fs::path> FullFramesFor(const fs::path & subpath ) const;
-
-	void ComputeFullFrames() const;
-
-
-	void SaveToCache() const;
-
-	ConstPtr Itself() const;
 
 };
 

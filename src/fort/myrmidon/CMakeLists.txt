@@ -1,4 +1,5 @@
-include_directories(${OPENCV_INCLUDE_DIRS})
+include_directories(${OPENCV_INCLUDE_DIRS}
+                    ${YAML_CPP_INCLUDE_DIR})
 
 include(CheckCXXSourceRuns)
 
@@ -51,6 +52,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
                     ${PROJECT_SOURCE_DIR}/src)
 
 set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
+                      utils/ObjectPool.hpp
                       priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp
@@ -83,6 +85,8 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/proto/ExperimentReadWriter.hpp
                       priv/proto/TDDCache.hpp
                       priv/proto/IOUtils.hpp
+                      priv/proto/TagStatisticsCache.hpp
+                      priv/proto/TagCloseUpCache.hpp
                       utils/Checker.hpp
                       utils/Defer.hpp
                       priv/AntPoseEstimate.hpp
@@ -142,6 +146,8 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/proto/ExperimentReadWriter.cpp
                       priv/proto/TDDCache.cpp
                       priv/proto/IOUtils.cpp
+                      priv/proto/TagStatisticsCache.cpp
+                      priv/proto/TagCloseUpCache.cpp
                       utils/Checker.cpp
                       utils/Defer.cpp
                       priv/AntPoseEstimate.cpp
@@ -180,6 +186,7 @@ set(COMMON_UTEST_HDR_FILES TestSetup.hpp
 set(SRC_UTEST_FILES main-check.cpp
                     TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
+                    utils/ObjectPoolUTest.cpp
                     priv/UtilsUTest.cpp
                     priv/DenseMapUTest.cpp
                     priv/TimedMapUTest.cpp
@@ -220,6 +227,7 @@ set(SRC_UTEST_FILES main-check.cpp
 
 set(HDR_UTEST_FILES TimeUTest.hpp
                     utils/NotYetImplementedUTest.hpp
+                    utils/ObjectPoolUTest.cpp
                     priv/UtilsUTest.hpp
                     priv/DenseMapUTest.hpp
                     priv/TimedMapUTest.hpp
@@ -271,6 +279,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     ${OpenCV_LIBS}
                                     ${TBB_LIBRARIES}
                                     Threads::Threads
+                                    ${YAML_CPP_LIBRARIES}
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES

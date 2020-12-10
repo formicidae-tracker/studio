@@ -24,7 +24,9 @@
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
 #include <apriltag/apriltag.h>
+#include <apriltag/tag36h11.h>
 
 #include <fort/myrmidon/priv/proto/IOUtils.hpp>
 
@@ -287,8 +289,6 @@ void TestSetup::CreateMyrmidonFile(const std::string & name,
 	e.set_author("myrmidon-tests");
 	e.set_name("myrmidon test data");
 	e.set_comment("automatically generated data");
-	e.set_threshold(42);
-	e.set_tagfamily(fm::pb::TAG16H5);
 
 	auto mt = e.add_custommeasurementtypes();
 	mt->set_id(1);
@@ -353,7 +353,14 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 	fs::create_directories(tmppath);
 	s_testdir = tmppath;
 
-	auto foodirs = {"foo.0000","foo.0001","foo.0002","cache-test.0000"};
+	auto foodirs = {"foo.0000",
+	                "foo.0001",
+	                "foo.0002",
+	                "cache-test.0000",
+	                "computed-cache-test.0000",
+	                "no-family.0000",
+	                "artag.0000",
+	};
 	auto bardirs = {"bar.0000"};
 
 	google::protobuf::Timestamp ts;
@@ -370,7 +377,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		startTime = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
 		                                            startTime.MonotonicValue(),
 		                                            priv::TrackingDataDirectory::GetUID(s_testdir/ d));
-		const static size_t NB_FILES = 10;
+		const static size_t NB_FILES = 2;
 		std::vector<uint64_t> bounds = {0};
 		for(size_t i = 0; i < NB_FILES; ++i) {
 			auto next = std::make_shared<size_t>(i+1);
@@ -391,22 +398,97 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 		fs::create_directories(antdir);
 		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
 
+		touch << "experiment: " << d << std::endl
+		      << "legacy-mode: true" << std::endl
+		      << "new-ant-roi: 800" << std::endl
+		      << "new-ant-renew-period: 2h0m0s" << std::endl
+		      << "stream:" << std::endl
+		      << "  host: some-hostname" << std::endl
+		      << "  bitrate: 2000" << std::endl
+		      << "  bitrate-max-ratio: 1.5" << std::endl
+		      << "  quality: fast" << std::endl
+		      << "  tuning: film" << std::endl
+		      << "camera:" << std::endl
+		      << "  strobe-delay: 0s" << std::endl
+		      << "  strobe-duration: 1.5ms" << std::endl
+		      << "  fps: 8" << std::endl
+		      << "  stub-path: \"\"" << std::endl
+		      << "apriltag:" << std::endl;
+		if (d != "no-family.0000" ) {
+			touch << "  family: " << (d == "artag.0000" ? "36ARTag" : "36h11") <<  std::endl
+			      << "  quad:" << std::endl
+			      << "    decimate: 1" << std::endl
+			      << "    sigma: 0" << std::endl
+			      << "    refine-edges: false" << std::endl
+			      << "    min-cluster-pixel: 25" << std::endl
+			      << "    max-n-maxima: 10" << std::endl
+			      << "    critical-angle-radian: 0.17453299" << std::endl
+			      << "    max-line-mean-square-error: 10" << std::endl
+			      << "    min-black-white-diff: 75" << std::endl
+			      << "    deglitch: false" << std::endl;
+		}
+		touch << "highlights: []" << std::endl;
 
-		CreateMovieFiles(bounds, Basedir() / d );
-		CreateSnapshotFiles(bounds,antdir);
+		if ( d != "computed-cache-test.0000" ) {
+			CreateMovieFiles(bounds, Basedir() / d );
+			CreateSnapshotFiles(bounds,antdir);
+		}
 
 	}
+	auto computedCacheTestPath = TestSetup::Basedir() / "computed-cache-test.0000";
+	fs::create_directories(computedCacheTestPath / "ants");
+	WriteTagFile(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
+	auto f = cv::imread((computedCacheTestPath / "ants" / "ant_0_frame_0.png").string());
+	cv::VideoWriter vw((computedCacheTestPath / "stream.0000.mp4").string(),
+	                   cv::VideoWriter::fourcc('H','2','6', '4'),
+	                   10,f.size(),true);
+	vw << f;
+	vw << f;
+	std::ofstream fm((computedCacheTestPath / "stream.frame-matching.0000.txt").string());
+	fm << "0 0" << std::endl;
+	fm << "1 1" << std::endl;
+
+
 
 
 	startTime = startTime.Add(3 * 24 * Duration::Hour);
 	for(auto const & d : bardirs) {
 		fs::create_directories(Basedir() / d / "ants");
-		WriteTagFile(Basedir() / d / "ants" / "ant_0_frame_0.png");
+		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
+
+		touch << "experiment: " << d << std::endl
+		      << "legacy-mode: true" << std::endl
+		      << "new-ant-roi: 800" << std::endl
+		      << "new-ant-renew-period: 2h0m0s" << std::endl
+		      << "stream:" << std::endl
+		      << "  host: some-hostname" << std::endl
+		      << "  bitrate: 2000" << std::endl
+		      << "  bitrate-max-ratio: 1.5" << std::endl
+		      << "  quality: fast" << std::endl
+		      << "  tuning: film" << std::endl
+		      << "camera:" << std::endl
+		      << "  strobe-delay: 0s" << std::endl
+		      << "  strobe-duration: 1.5ms" << std::endl
+		      << "  fps: 8" << std::endl
+		      << "  stub-path: \"\"" << std::endl
+		      << "apriltag:" << std::endl
+		      << "highlights: []" << std::endl;
 	}
 
-	CreateMyrmidonFile("test.myrmidon",semver::version("0.2.0"));
+	CreateMyrmidonFile("test.myrmidon",semver::version("0.3.0"));
 	CreateMyrmidonFile("test-0.1.myrmidon",semver::version("0.1.0"));
 	CreateMyrmidonFile("test-future.myrmidon",semver::version("42.42.42"));
+
+
+	auto noConfigDir =Basedir() / "no-config.0000";
+
+	fs::create_directories(noConfigDir / "ants");
+	WriteHermesFile(noConfigDir, 0, nullptr,
+	                Time::FromTimestampAndMonotonic(ts,
+	                                                123456,
+	                                                priv::TrackingDataDirectory::GetUID(noConfigDir)),
+	                1, 12);
+
 
 }
 

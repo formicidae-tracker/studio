@@ -11,7 +11,7 @@ class QStandardItemModel;
 class QStandardItem;
 class QAbstractItemModel;
 
-class AntMetadataBridge : public Bridge {
+class AntMetadataBridge : public GlobalBridge {
 	Q_OBJECT
 	Q_PROPERTY(quint32 selectedAntID
 	           READ selectedAntID
@@ -20,16 +20,14 @@ public :
 	AntMetadataBridge(QObject * parent = nullptr);
 	virtual ~AntMetadataBridge();
 
-	bool isActive() const override;
-
-	void setExperiment(const fmp::ExperimentPtr & experiment);
-
 	QAbstractItemModel * columnModel();
 	QAbstractItemModel * dataModel();
 	QAbstractItemModel * typeModel();
 	QAbstractItemModel * timedChangeModel();
 
 	quint32 selectedAntID() const;
+
+	void initialize(ExperimentBridge * experiment) override;
 
 signals:
 	void metadataColumnChanged(const QString & name, quint32 type);
@@ -39,8 +37,6 @@ signals:
 public slots:
 	void addMetadataColumn(const QString & name, quint32 type);
 	void removeMetadataColumn(const QString & name);
-
-	void onAntListModified();
 
 	void selectRow(int row);
 
@@ -54,6 +50,11 @@ private slots:
 	void onTimedChangeItemChanged(QStandardItem * item);
 
 	void rebuildDataModel();
+
+	void onAntListModified();
+protected:
+	void setUpExperiment() override;
+	void tearDownExperiment() override;
 
 private:
 	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Column::Ptr & column);
@@ -71,7 +72,9 @@ private:
 	                     const fmp::AntMetadata::Column::ConstPtr & column);
 
 	void setSelectedAntID(quint32 ID);
-	fmp::ExperimentPtr   d_experiment;
+
+	void clearDataModel();
+
 	QStandardItemModel * d_columnModel;
 	QStandardItemModel * d_typeModel;
 	QStandardItemModel * d_dataModel;

@@ -9,7 +9,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TrackingDataDirectory::ConstPtr SpaceUTest::s_foo[3];
+TrackingDataDirectory::Ptr SpaceUTest::s_foo[3];
 
 void SpaceUTest::SetUpTestSuite() {
 	s_foo[0] = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",
@@ -170,7 +170,7 @@ TEST_F(SpaceUTest,ExceptionFormatting) {
 		{
 		 {
 		  Space::TDDOverlap(s_foo[0],s_foo[0]),
-		  "TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} and TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:02:00.848126001Z} overlaps in time",
+		  "TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:00:40.024014001Z} and TDD{URI:'foo.0000', start:2019-11-02T09:00:20.021Z, end:2019-11-02T09:00:40.024014001Z} overlaps in time",
 		 },
 		 {
 		  Space::UnmanagedTrackingDataDirectory("doo"),

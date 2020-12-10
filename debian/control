@@ -5,7 +5,8 @@ Build-Depends: debhelper (>= 10), cmake (>=3.11), libeigen3-dev,
  qtbase5-dev, libasio-dev, libopencv-imgproc-dev,
  libopencv-imgcodecs-dev, libopencv-dev, libprotobuf-dev (>=3.3.0),
  protobuf-compiler, git, libboost-filesystem-dev, ca-certificates,
- imagemagick, librsvg2-bin
+ imagemagick, librsvg2-bin, libgoogle-glog-dev, libqt5charts5-dev,
+ libyaml-cpp-dev
 Standards-Version: 4.5.0
 Section: science
 Homepage: https://github.com/formicidae-tracker/studio
@@ -83,7 +84,7 @@ Description: Tracking data IO for the FORmicidae Tracker - c runtime
 Package: libfort-myrmidon-dev
 Section: libdevel
 Architecture: any
-Depends: libfort-myrmidon0.6 (= ${binary:Version}), ${misc:Depends},
+Depends: libfort-myrmidon0.7 (= ${binary:Version}), ${misc:Depends},
  libfort-tags-dev, libfort-hermes-cpp-dev
 Description: Experiment data API for the FORmicidae Tracker - dev files
  This library provides an API to access and edit experimental data for
@@ -92,7 +93,7 @@ Description: Experiment data API for the FORmicidae Tracker - dev files
  .
  This package contains header and development files
 
-Package: libfort-myrmidon0.6
+Package: libfort-myrmidon0.7
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -105,7 +106,7 @@ Description: Experiment data API for the FORmicidae Tracker - runtime
 
 Package: fort-studio
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, qt5-style-plugins
 Description: Graphical Interface of the FORmicidae Tracker
  Graphical interface of the FORmicidae Tracker, to edit Ant Pose,
  Shape, Metadata , and experiment definition.

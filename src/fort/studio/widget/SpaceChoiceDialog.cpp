@@ -11,6 +11,7 @@ SpaceChoiceDialog::SpaceChoiceDialog(UniverseBridge * universe,
 	, d_ui(new Ui::SpaceChoiceDialog) {
 	setWindowModality(Qt::ApplicationModal);
 	d_ui->setupUi(this);
+	setWindowTitle(tr("Choose a Space"));
 	const auto & m = universe->model();
 	for (size_t i = 0; i < m->rowCount(); ++i) {
 		auto sName = m->data(m->index(i,0),Qt::DisplayRole).toString();

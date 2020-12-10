@@ -1,3 +1,11 @@
+fort-studio (0.7.0~rc1-0ubuntu1) focal; urgency=medium
+
+  * New upstream release candidate 0.7.0
+  * Adds `qt5-style-plugins` as runtime dependency for `fort-studio`
+  * Changes `libfort-myrmidon0.6` package name to `libfort-myrmidon0.7`
+
+ -- Alexandre Tuleu <alexandre.tuleu.2005@polytechnique.org>  Thu, 10 Dec 2020 18:45:13 +0100
+
 fort-studio (0.6.1-0ubuntu1) focal; urgency=medium
 
   * New upstream release 0.6.1

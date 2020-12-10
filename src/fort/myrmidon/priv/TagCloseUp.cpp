@@ -2,6 +2,18 @@
 
 #include <regex>
 
+#include <apriltag/tag16h5.h>
+#include <apriltag/tag25h9.h>
+#include <fort/tags/tag36h10.h>
+#include <apriltag/tag36h11.h>
+#include <fort/tags/tag36ARTag.h>
+#include <apriltag/tagCircle21h7.h>
+#include <apriltag/tagCircle49h12.h>
+#include <apriltag/tagCustom48h12.h>
+#include <apriltag/tagStandard41h12.h>
+#include <apriltag/tagStandard52h13.h>
+
+
 #include <fort/myrmidon/utils/Checker.hpp>
 #include <fort/myrmidon/priv/proto/FileReadWriter.hpp>
 #include <fort/myrmidon/priv/proto/IOUtils.hpp>
@@ -25,6 +37,7 @@ double TagCloseUp::ComputeAngleFromCorners(const Eigen::Vector2d & c0,
 	Eigen::Vector2d delta = (c1 + c2) / 2.0 - (c0 + c3) / 2.0;
 	return atan2(delta.y(),delta.x());
 }
+
 
 std::string TagCloseUp::FormatURI(const std::string & tddURI,
                                   FrameID frameID,
@@ -72,7 +85,6 @@ TagCloseUp::TagCloseUp(const fs::path & absoluteFilePath,
 	                                     d_corners[3]);
 }
 
-
 TagCloseUp::~TagCloseUp() {}
 
 const FrameReference & TagCloseUp::Frame() const {
@@ -102,307 +114,6 @@ double TagCloseUp::TagAngle() const {
 const Vector2dList & TagCloseUp::Corners() const {
 	return d_corners;
 }
-
-TagCloseUp::Lister::Ptr
-TagCloseUp::Lister::Create(const fs::path & absoluteBaseDir,
-                           tags::Family f,
-                           uint8_t threshold,
-                           FrameReferenceResolver resolver,
-                           bool forceCache) {
-	Ptr res(new Lister(absoluteBaseDir,
-	                   f,
-	                   threshold,
-	                   resolver,
-	                   forceCache));
-	res->d_itself = res;
-	return res;
-}
-
-
-
-TagCloseUp::Lister::Lister(const fs::path & absoluteBaseDir,
-                           tags::Family f,
-                           uint8_t threshold,
-                           FrameReferenceResolver resolver,
-                           bool forceCache)
-	: d_absoluteBaseDir(absoluteBaseDir)
-	, d_family(f)
-	, d_threshold(threshold)
-	, d_resolver(resolver) {
-	PERF_FUNCTION();
-	if ( f == tags::Family::Undefined ) {
-		throw std::invalid_argument("Cannot list for undefined family tag");
-	}
-	d_saveCacheOnDelete = true;
-	try {
-		LoadCache();
-		d_saveCacheOnDelete = false;
-	} catch (const std::exception & e) {
-		if ( forceCache == true ) {
-			throw std::runtime_error(std::string("Could not list from cache: ") + e.what());
-		}
-	}
-}
-
-TagCloseUp::Lister::~Lister() {
-	if ( d_saveCacheOnDelete == true ) {
-		UnsafeSaveCache();
-	}
-}
-
-std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
-TagCloseUp::Lister::ListFiles(const fs::path & path) {
-	PERF_FUNCTION();
-	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
-
-	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
-	static std::regex multiRx("frame_([0-9]+).png");
-
-	for ( const auto & de : fs::directory_iterator(path) ) {
-		auto ext = de.path().extension().string();
-		std::transform(ext.begin(),ext.end(),ext.begin(),
-		               [](unsigned char c) {
-			               return std::tolower(c);
-		               });
-		if ( ext != ".png" ) {
-			continue;
-		}
-
-		std::smatch ID;
-		std::string filename = de.path().filename().string();
-		FrameID frameID;
-		if(std::regex_search(filename,ID,singleRx) && ID.size() > 2) {
-			std::istringstream IDS(ID.str(1));
-			std::istringstream FrameS(ID.str(2));
-			auto tagID = std::make_shared<TagID>(0);
-
-			IDS >> *(tagID);
-			FrameS >> frameID;
-			res.insert(std::make_pair(frameID,std::make_pair(de.path(),tagID)));
-			continue;
-		}
-		if(std::regex_search(filename,ID,multiRx) && ID.size() > 1) {
-			std::istringstream FrameS(ID.str(1));
-			FrameS >> frameID;
-			res.insert(std::make_pair(frameID,std::make_pair(de.path(),std::shared_ptr<TagID>())));
-			continue;
-		}
-
-	}
-
-	return res;
-}
-
-
-
-fs::path TagCloseUp::Lister::CacheFilePath(const fs::path & filepath) {
-	return filepath / "tag-close-up.cache";
-}
-
-std::pair<apriltag_family_t*,TagCloseUp::Lister::ATFamilyDestructor>
-TagCloseUp::Lister::LoadFamily(tags::Family family) {
-	struct FamilyInterface {
-		typedef apriltag_family_t* (*Constructor) ();
-		typedef void (*Destructor) (apriltag_family_t *);
-		Constructor c;
-		Destructor  d;
-	};
-	static std::map<tags::Family,FamilyInterface>  familyFactory = {
-		 {fort::tags::Family::Tag16h5,{.c = tag16h5_create, .d = tag16h5_destroy}},
-		 {fort::tags::Family::Tag25h9,{.c =tag25h9_create, .d=tag25h9_destroy}},
-		 {fort::tags::Family::Tag36h10,{.c =tag36h10_create, .d=tag36h10_destroy}},
-		 {fort::tags::Family::Tag36h11,{.c =tag36h11_create, .d=tag36h11_destroy}},
-		 {fort::tags::Family::Tag36ARTag,{.c =tag36ARTag_create, .d=tag36ARTag_destroy}},
-		 {fort::tags::Family::Circle21h7,{.c =tagCircle21h7_create, .d=tagCircle21h7_destroy}},
-		 {fort::tags::Family::Circle49h12,{.c =tagCircle49h12_create, .d=tagCircle49h12_destroy}},
-		 {fort::tags::Family::Custom48h12,{.c =tagCustom48h12_create, .d=tagCustom48h12_destroy}},
-		 {fort::tags::Family::Standard41h12,{.c =tagStandard41h12_create, .d=tagStandard41h12_destroy}},
-		 {fort::tags::Family::Standard52h13,{.c =tagStandard52h13_create, .d=tagStandard52h13_destroy}},
-	};
-
-	auto fi = familyFactory.find(family);
-	if ( fi == familyFactory.cend() ) {
-		std::ostringstream oss;
-		oss << "Unsupported family: " << (int)family;
-		throw std::invalid_argument(oss.str());
-	}
-	return std::make_pair(fi->second.c(),fi->second.d);
-}
-
-void TagCloseUp::Lister::UnsafeSaveCache() {
-	typedef proto::FileReadWriter<pb::TagCloseUpCacheHeader,pb::TagCloseUp> RW;
-
-	auto cachePath = CacheFilePath(d_absoluteBaseDir);
-
-	pb::TagCloseUpCacheHeader h;
-	h.set_threshold(d_threshold);
-	h.set_family(proto::IOUtils::SaveFamily(d_family));
-	std::vector<RW::LineWriter> lines;
-	for ( const auto & [p,tcus] : d_cache ) {
-		for (const auto & tcu : tcus ) {
-			lines.push_back([tcu,this](pb::TagCloseUp & pb) {
-				                proto::IOUtils::SaveTagCloseUp(&pb,
-				                                               tcu,
-				                                               d_absoluteBaseDir);
-			                });
-		}
-	}
-	RW::Write(cachePath,h,lines);
-}
-
-void TagCloseUp::Lister::LoadCache() {
-	PERF_FUNCTION();
-	typedef proto::FileReadWriter<pb::TagCloseUpCacheHeader,pb::TagCloseUp> RW;
-
-	auto cachePath = CacheFilePath(d_absoluteBaseDir);
-
-	RW::Read(cachePath,
-	         [this](const pb::TagCloseUpCacheHeader & pb) {
-		         if ( proto::IOUtils::LoadFamily(pb.family()) != d_family ) {
-			         throw std::runtime_error("Mismatched cached tag family");
-		         }
-		         if ( pb.threshold() != d_threshold ) {
-			         throw std::runtime_error("Mismatched cache threshold");
-		         }
-	         },
-	         [this]( const pb::TagCloseUp & line) {
-		         auto tcu = proto::IOUtils::LoadTagCloseUp(line,
-		                                                   d_absoluteBaseDir,
-		                                                   d_resolver);
-		         auto relativePath = fs::relative(tcu->AbsoluteFilePath(),d_absoluteBaseDir);
-		         d_cache[relativePath].push_back(tcu);
-	         });
-}
-
-
-apriltag_detector_t *
-TagCloseUp::Lister::CreateDetector() {
-	apriltag_detector_t * detector =  apriltag_detector_create();
-
-	detector->qtp.min_white_black_diff = d_threshold;
-
-	detector->nthreads = 1;
-	detector->quad_decimate = 1.0;
-	detector->quad_sigma = 0.0;
-	detector->refine_edges = 0;
-	detector->debug = false;
-	detector->qtp.min_cluster_pixels = 25;
-	detector->qtp.max_nmaxima = 10;
-	detector->qtp.critical_rad = 10.0 * M_PI / 180.0;
-	detector->qtp.max_line_fit_mse = 10.0;
-	detector->qtp.deglitch = 0;
-	return detector;
-}
-
-TagCloseUp::List TagCloseUp::Lister::LoadFileFromCache(const fs::path & file) {
-	return d_cache.at(file);
-}
-
-TagCloseUp::List TagCloseUp::Lister::LoadFile(const FileAndFilter & f,
-                                              FrameID frameID,
-                                              size_t nbFiles) {
-	auto relativePath = fs::relative(f.first,d_absoluteBaseDir);
-
-	auto ref = d_resolver(frameID);
-
-	std::vector<ConstPtr> tags;
-	apriltag_detector_t * detector = CreateDetector();
-
-	Defer saveToCache([&,this]() {
-		                  std::lock_guard<std::mutex> lock(d_mutex);
-		                  d_cache.insert(std::make_pair(relativePath,tags));
-	                  });
-
-	auto [family,family_destructor] = LoadFamily(d_family);
-	apriltag_detector_add_family(detector,family);
-	Defer destroyDetector([detector,
-	                       family = family,
-	                       family_destructor = family_destructor ]() {
-		                      apriltag_detector_destroy(detector);
-		                      family_destructor(family);
-	                      });
-
-	auto imgCv = cv::imread(f.first.string(),cv::IMREAD_GRAYSCALE);
-
-	if ( imgCv.empty() ) {
-		return tags;
-	}
-
-	image_u8_t img =
-		{
-		 .width = imgCv.cols,
-		 .height = imgCv.rows,
-		 .stride = imgCv.cols,
-		 .buf = imgCv.data
-		};
-	zarray_t * detections
-		= apriltag_detector_detect(detector,&img);
-	Defer destroyDetections([detections]() {
-							  apriltag_detections_destroy(detections);
-							});
-
-	apriltag_detection * d;
-
-	for(size_t i = 0; i < zarray_size(detections); ++i ) {
-		zarray_get(detections,i,&d);
-		if (f.second && d->id != *(f.second)) {
-			continue;
-		}
-		tags.push_back(std::make_shared<TagCloseUp>(f.first,
-		                                            ref,
-		                                            d));
-	}
-
-
-	return tags;
-}
-
-
-
-std::vector<TagCloseUp::Lister::Loader> TagCloseUp::Lister::PrepareLoaders() {
-	PERF_FUNCTION();
-	auto itself = d_itself.lock();
-	if (!itself) {
-		throw DeletedReference<Lister>();
-	}
-
-	std::vector<Loader> res;
-
-	if ( d_saveCacheOnDelete == false ) {
-		res.reserve(d_cache.size());
-		for( const auto & [path,list] : d_cache ) {
-			res.push_back([=,
-			               path = path]() {
-				              return itself->LoadFileFromCache(path);
-			              });
-		}
-
-		return res;
-	}
-
-	auto files = ListFiles(d_absoluteBaseDir);
-	auto nbFiles = files.size();
-	res.reserve(files.size());
-
-	for( const auto & [frameID,f] : files ) {
-		res.push_back([=,
-		               f = f,
-		               frameID = frameID]() {
-			              return itself->LoadFile(f,frameID,nbFiles);
-		              });
-	}
-
-	return res;
-}
-
-tags::Family TagCloseUp::Lister::Family() const {
-	return d_family;
-}
-
-uint8_t TagCloseUp::Lister::Threshold() const {
-	return d_threshold;
-}
-
 
 Isometry2Dd TagCloseUp::ImageToTag() const {
 	return Isometry2Dd(d_tagAngle,d_tagPosition).inverse();
