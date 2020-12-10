@@ -128,6 +128,7 @@ ZoningWorkspace::~ZoningWorkspace() {
 	delete d_ui;
 }
 
+
 void ZoningWorkspace::initialize(QMainWindow * main, ExperimentBridge * experiment) {
 	d_zones = experiment->zones();
 	d_ui->zonesEditor->setup(d_zones);
@@ -135,6 +136,11 @@ void ZoningWorkspace::initialize(QMainWindow * main, ExperimentBridge * experime
 	d_listView->setSelectionMode(QAbstractItemView::SingleSelection);
 	d_listView->setSelectionBehavior(QAbstractItemView::SelectRows);
 	auto sModel = d_listView->selectionModel();
+	connect(d_zones->fullFrameModel(),&QAbstractItemModel::modelReset,
+	        this,[this]() {
+		        display(nullptr);
+	        });
+
 	connect(sModel,&QItemSelectionModel::selectionChanged,
 	        this,
 	        [this,sModel]() {
