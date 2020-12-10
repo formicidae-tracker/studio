@@ -49,8 +49,7 @@ AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 	d_editAction->setStatusTip(d_editAction->toolTip());
 	d_editAction->setObjectName("editAction");
 
-	d_insertAction = d_editToolBar->addAction(QIcon::fromTheme("list-add-symbolic"),
-	                                          tr("Insert primitive"));
+	d_insertAction = d_editToolBar->addAction(tr("Insert primitive"));
 	d_insertAction->setToolTip(tr("Insert a new primitive"));
 	d_insertAction->setStatusTip(d_insertAction->toolTip());
 	d_insertAction->setObjectName("insertAction");
@@ -244,6 +243,7 @@ AntMeasurementWorkspace::AntMeasurementWorkspace(QWidget * parent)
 	d_editAction->setStatusTip(d_editAction->toolTip());
 
 	d_insertAction->setText(tr("New Measurement Tool"));
+	d_insertAction->setIcon(QIcon(":/icons/line.svg"));
 	d_insertAction->setToolTip(tr("Add a new  measurement by clicking two points on the image"));
 	d_insertAction->setStatusTip(d_insertAction->toolTip());
 
@@ -542,6 +542,7 @@ AntShapeWorkspace::AntShapeWorkspace(QWidget *parent)
 	d_editAction->setStatusTip(d_editAction->toolTip());
 
 	d_insertAction->setText(tr("New Capsule Tool"));
+	d_insertAction->setIcon(QIcon(":/icons/capsule.svg"));
 	d_insertAction->setToolTip(tr("Add a new capsule by clicking two points on the image"));
 	d_insertAction->setStatusTip(d_insertAction->toolTip());
 

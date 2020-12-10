@@ -6,5 +6,9 @@
 	<file>icons/hide.svg</file>
 	<file>icons/eye.svg</file>
 	<file>icons/cursor.svg</file>
+	<file>icons/line.svg</file>
+	<file>icons/circle.svg</file>
+	<file>icons/capsule.svg</file>
+	<file>icons/polygon.svg</file>
 </qresource>
 </RCC>
