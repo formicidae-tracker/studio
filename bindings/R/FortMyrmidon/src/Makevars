@@ -1,5 +1,5 @@
-FM_CFLAGS = $(shell pkg-config --cflags "fort-myrmidon >= 0.6.0 fort-myrmidon < 0.7.0" ||  echo "FORT-MYRMIDON-NOT-FOUND")
-FM_LIBS = $(shell pkg-config --libs "fort-myrmidon >= 0.6.0 fort-myrmidon < 0.7.0" || echo "FORT-MYRMIDON-NOT-FOUND")
+FM_CFLAGS = $(shell pkg-config --cflags "fort-myrmidon >= 0.7.0 fort-myrmidon < 0.8.0" ||  echo "FORT-MYRMIDON-NOT-FOUND")
+FM_LIBS = $(shell pkg-config --libs "fort-myrmidon >= 0.7.0 fort-myrmidon < 0.8.0" || echo "FORT-MYRMIDON-NOT-FOUND")
 
 PKG_CPPFLAGS = $(FM_CFLAGS) --std=c++17 -I../inst/include/
 PKG_LIBS = $(FM_LIBS)
