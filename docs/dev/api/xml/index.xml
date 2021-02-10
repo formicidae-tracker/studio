@@ -35,11 +35,11 @@ interactions or trajectories.
   <category name="named_values" ref="named_values#named_values">
     <brief>Non-tracking timed data</brief>
   </category>
-  <category name="ant_identification" ref="ant_identification#ant_identification">
-    <brief>Ant Identification mechanism</brief>
-  </category>
   <category name="queries" ref="queries#queries">
     <brief>Complex queries and matchers.</brief>
+  </category>
+  <category name="ant_identification" ref="ant_identification#ant_identification">
+    <brief>Ant Identification mechanism</brief>
   </category>
   <namespace name="fort" ref="fort#fort">
     <brief>the FORmidae Tracker namespace</brief>
