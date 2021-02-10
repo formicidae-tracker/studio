@@ -153,10 +153,10 @@ void AntListWidget::selectAnt(quint32 antID) {
 }
 
 void AntSimpleListWidget::setUpUI() {
-	setMaximumSize(QSize(250,16777215));
+	setMaximumSize(QSize(500,16777215));
 
 	d_tableView->setMinimumSize(QSize(180,0));
-	d_tableView->setMaximumSize(QSize(300,16777215));
+	d_tableView->setMaximumSize(QSize(500,16777215));
 
 	d_antLabel = new QLabel(tr("Number of ants: %1").arg(0),this);
 	d_antLabel->setObjectName("antLabel");
@@ -283,7 +283,7 @@ void AntSimpleListWidget::onDeleteButtonClicked() {
 
 
 void AntDisplayListWidget::setUpUI() {
-	setMaximumSize(QSize(400,65535));
+	setMaximumSize(QSize(500,65535));
 
 	d_colorLayout = new QHBoxLayout();
 
