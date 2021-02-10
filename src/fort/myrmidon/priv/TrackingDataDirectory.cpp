@@ -8,6 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
+#include <opencv2/highgui.hpp>
 
 #include <yaml-cpp/yaml.h>
 
@@ -814,6 +815,8 @@ private:
 				return res;
 			}
 
+
+
 			image_u8_t img = {.width = imgCv.cols,.height = imgCv.rows, .stride = imgCv.cols, .buf = imgCv.data};
 			zarray_t * detections = apriltag_detector_detect(d_detector,&img);
 			Defer destroyDetections([detections]() { apriltag_detections_destroy(detections);});
@@ -825,6 +828,7 @@ private:
 				}
 				res.push_back(std::make_shared<TagCloseUp>(fileAndFilter.first,reference,d));
 			}
+
 			return res;
 		}
 
