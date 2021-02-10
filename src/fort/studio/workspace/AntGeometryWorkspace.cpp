@@ -75,6 +75,14 @@ AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 	connect(d_vectorialScene, &VectorialScene::modeChanged,
 	        this,&AntGeometryWorkspace::onVectorialSceneModeChanged);
 
+
+	connect(d_comboBox,
+	        qOverload<int>(&QComboBox::currentIndexChanged),
+	        this,
+	        [this] (int index) {
+		        d_insertAction->setEnabled(index >= 0);
+	        });
+	d_insertAction->setEnabled(false);
 }
 
 AntGeometryWorkspace::~AntGeometryWorkspace() {
@@ -125,6 +133,14 @@ void AntGeometryWorkspace::tearDown(const NavigationAction & actions ) {
 
 	d_copyTimeAction = nullptr;
 	d_editToolBar->hide();
+}
+
+QAction * AntGeometryWorkspace::insertAction() const {
+	return d_insertAction;
+}
+
+QComboBox * AntGeometryWorkspace::typeBox() const {
+	return d_comboBox;
 }
 
 
@@ -601,6 +617,9 @@ void AntShapeWorkspace::initialize(QMainWindow * main, ExperimentBridge * experi
 	main->addDockWidget(Qt::LeftDockWidgetArea,d_shapeTypesDock);
 	d_shapeTypesDock->hide();
 
+	connect(experiment->antShapes(),&AntShapeBridge::capsuleCreated,
+	        this,&AntShapeWorkspace::updateCloneAction);
+
 }
 
 void AntShapeWorkspace::setUp(const NavigationAction & actions ) {
@@ -662,6 +681,7 @@ void AntShapeWorkspace::onClearScene() {
 }
 
 void AntShapeWorkspace::onNewCloseUp() {
+	updateCloneAction();
 	if ( d_closeUp == nullptr
 	     || d_experiment == nullptr ) {
 		return;
@@ -761,6 +781,7 @@ void AntShapeWorkspace::onCapsuleCreated(QSharedPointer<Capsule> capsule) {
 	        this,
 	        &AntShapeWorkspace::onCapsuleUpdated);
 
+
 }
 
 void AntShapeWorkspace::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
@@ -772,6 +793,7 @@ void AntShapeWorkspace::onCapsuleRemoved(QSharedPointer<Capsule> capsule) {
 
 	d_capsules.erase(fi);
 	rebuildCapsules();
+
 }
 
 void AntShapeWorkspace::onCloneShapeActionTriggered() {
