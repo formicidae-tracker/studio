@@ -197,6 +197,7 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/AntMeasurementUTest.cpp
 					utest/AntShapeUTest.cpp
 					utest/AntGeometryWorkspace.cpp
+					utest/TagCloseUpBridge.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -210,6 +211,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/AntMeasurementUTest.hpp
                     utest/AntShapeUTest.hpp
 					utest/AntGeometryWorkspace.hpp
+					utest/TagCloseUpBridge.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src

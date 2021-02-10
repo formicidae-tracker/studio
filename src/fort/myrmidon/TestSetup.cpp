@@ -170,8 +170,7 @@ void CreateMovieFiles(std::vector<uint64_t> bounds,
 
 }
 
-void WriteTagFile(const fs::path & path ) {
-
+void WriteTagFile(const fs::path & path, uint32_t tagID ) {
 	apriltag_family_t * f = tag36h11_create();
 
 	size_t pxSize = 5;
@@ -211,7 +210,7 @@ void WriteTagFile(const fs::path & path ) {
 		}
 	}
 
-	uint64_t code = f->codes[0];
+	uint64_t code = f->codes[tagID % f->ncodes];
 	for ( size_t i = 0; i < f->nbits; ++i) {
 		uint8_t color = (code & 1) ?  255 : 0 ;
 		code = code >> 1;
@@ -251,6 +250,8 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 		IDset.insert(toAdd);
 	}
 
+	bool once = true;
+
 	for ( const auto & b : bounds ) {
 		std::vector<int> IDs;
 		IDs.reserve(IDset.size());
@@ -269,8 +270,14 @@ void TestSetup::CreateSnapshotFiles(std::vector<uint64_t> bounds,
 				multi << "frame_" << frameID << ".png";
 				auto singleTouchPath = basedir / single.str();
 				auto multiTouchPath = basedir / multi.str();
-				std::ofstream singleTouch(singleTouchPath.c_str());
+				if ( once == true ) {
+					WriteTagFile(singleTouchPath,tagID);
+					once = false;
+				} else {
+					std::ofstream singleTouch(singleTouchPath.c_str());
+				}
 				std::ofstream multiTouch(multiTouchPath.c_str());
+
 				s_closeUpFiles[parentPath].insert(std::make_pair(singleTouchPath,std::make_shared<uint32_t>(tagID)));
 				s_closeUpFiles[parentPath].insert(std::make_pair(multiTouchPath,std::shared_ptr<uint32_t>()));
 			}
@@ -433,11 +440,10 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 			CreateMovieFiles(bounds, Basedir() / d );
 			CreateSnapshotFiles(bounds,antdir);
 		}
-
 	}
 	auto computedCacheTestPath = TestSetup::Basedir() / "computed-cache-test.0000";
 	fs::create_directories(computedCacheTestPath / "ants");
-	WriteTagFile(computedCacheTestPath / "ants" / "ant_0_frame_0.png");
+	WriteTagFile(computedCacheTestPath / "ants" / "ant_0_frame_0.png",0);
 	auto f = cv::imread((computedCacheTestPath / "ants" / "ant_0_frame_0.png").string());
 	cv::VideoWriter vw((computedCacheTestPath / "stream.0000.mp4").string(),
 	                   cv::VideoWriter::fourcc('H','2','6', '4'),
