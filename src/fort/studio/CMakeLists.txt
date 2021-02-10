@@ -195,7 +195,8 @@ set(SRC_UTEST_FILES utest/main.cpp
                     utest/AntMetadataUTest.cpp
                     utest/ZoneUTest.cpp
                     utest/AntMeasurementUTest.cpp
-                    utest/AntShapeUTest.cpp
+					utest/AntShapeUTest.cpp
+					utest/AntGeometryWorkspace.cpp
                     )
 
 set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
@@ -208,6 +209,7 @@ set(HDR_UTEST_FILES utest/ExperimentBridgeUTest.hpp
                     utest/ZoneUTest.hpp
                     utest/AntMeasurementUTest.hpp
                     utest/AntShapeUTest.hpp
+					utest/AntGeometryWorkspace.hpp
                     )
 
 include_directories(${PROJECT_BINARY_DIR}/src
