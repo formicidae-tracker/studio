@@ -36,6 +36,9 @@ public:
 	explicit AntGeometryWorkspace(QWidget * parent = nullptr);
 	virtual ~AntGeometryWorkspace();
 
+	QAction * insertAction() const;
+	QComboBox * typeBox() const;
+
 protected:
 	void initialize(QMainWindow * main, ExperimentBridge * experiment) override;
 	void setUp(const NavigationAction & actions ) override;

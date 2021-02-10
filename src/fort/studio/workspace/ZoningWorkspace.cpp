@@ -61,13 +61,14 @@ void ZoningWorkspace::setUpUI() {
 	auto layout = new QVBoxLayout();
 
 	d_listView = new QListView(widget);
-	d_listView->setMaximumSize(QSize(250,65535));
+	d_listView->setMaximumSize(QSize(500,65535));
 	layout->addWidget(d_listView);
 
 	widget->setLayout(layout);
 
 	d_fullFramesDock = new QDockWidget(tr("Space's Full-Frames"));
 	d_fullFramesDock->setWidget(widget);
+	d_fullFramesDock->setMaximumSize(QSize(500,65535));
 
 
 }
