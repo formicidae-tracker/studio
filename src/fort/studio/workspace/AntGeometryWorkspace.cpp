@@ -75,6 +75,14 @@ AntGeometryWorkspace::AntGeometryWorkspace(QWidget *parent)
 	connect(d_vectorialScene, &VectorialScene::modeChanged,
 	        this,&AntGeometryWorkspace::onVectorialSceneModeChanged);
 
+
+	connect(d_comboBox,
+	        qOverload<int>(&QComboBox::currentIndexChanged),
+	        this,
+	        [this] (int index) {
+		        d_insertAction->setEnabled(index >= 0);
+	        });
+	d_insertAction->setEnabled(false);
 }
 
 AntGeometryWorkspace::~AntGeometryWorkspace() {
@@ -125,6 +133,14 @@ void AntGeometryWorkspace::tearDown(const NavigationAction & actions ) {
 
 	d_copyTimeAction = nullptr;
 	d_editToolBar->hide();
+}
+
+QAction * AntGeometryWorkspace::insertAction() const {
+	return d_insertAction;
+}
+
+QComboBox * AntGeometryWorkspace::typeBox() const {
+	return d_comboBox;
 }
 
 
