@@ -117,8 +117,8 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 	experiment->AddAntMetadataColumn("bar",AntMetadata::Type::INT);
 
 	auto a = experiment->CreateAnt();
-	a->SetValue("bar",42,Time::ConstPtr());
-	a->SetValue("bar",43,std::make_shared<Time>());
+	a->SetValue("bar",42,Time::SinceEver());
+	a->SetValue("bar",43,Time());
 
 	auto identifiedFrame = std::make_shared<IdentifiedFrame>();
 	identifiedFrame->FrameTime = Time().Add(-1);

@@ -33,7 +33,7 @@ void AntShapeWorkspaceUTest::SetUp() {
 	static_cast<Workspace*>(shapeWs)->initialize(mainWindow,bridge);
 
 	bridge->createAnt();
-	bridge->identifier()->addIdentification(1,1,nullptr,nullptr);
+	bridge->identifier()->addIdentification(1,1,fm::Time::SinceEver(),fm::Time::Forever());
 
 	bridge->antShapeTypes()->addType("foo");
 

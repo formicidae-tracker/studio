@@ -97,7 +97,7 @@ AntStaticValue Ant::GetBaseValue(const std::string & name) const {
 	auto it = std::find_if(values.cbegin(),
 	                       values.cend(),
 	                       [](const AntTimedValue & item ) {
-		                       return !item.first;
+		                       return item.first.IsSinceEver();
 	                       });
 	if ( it == values.cend() ) {
 		throw std::out_of_range("No base value for '" + name + "'");
@@ -106,34 +106,22 @@ AntStaticValue Ant::GetBaseValue(const std::string & name) const {
 }
 
 std::vector<AntTimedValue>::iterator Ant::Find(const AntDataMap::iterator & iter,
-                                               const Time::ConstPtr & time) {
+                                               const Time & time) {
 	return std::find_if(iter->second.begin(),
 	                    iter->second.end(),
 	                    [time]( const AntTimedValue & tValue) -> bool {
-		                    if ( !time ) {
-			                    return !tValue.first;
-		                    }
-		                    if ( !tValue.first ) {
-			                    return false;
-		                    }
-		                    return time->Equals(*tValue.first);
+		                    return time.Equals(tValue.first);
 	                    });
 }
 
-bool Ant::CompareTime(const AntTimedValue & a, const AntTimedValue &b) {
-	if ( !a.first ) {
-		return true;
-	}
-	if ( !b.first ) {
-		return false;
-	}
-	return a.first->Before(*b.first);
-}
 
 void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
-                   const Time::ConstPtr & time,
+                   const Time & time,
                    bool noOverwrite) {
+	if ( time.IsForever() ) {
+		throw std::invalid_argument("Time cannot be +∞");
+	}
 	auto fi = d_metadata->CColumns().find(name);
 	if ( fi == d_metadata->CColumns().end() ) {
 		throw std::invalid_argument("Unknown value key '" + name + "'");
@@ -154,7 +142,9 @@ void Ant::SetValue(const std::string & name,
 		vi->second.push_back(std::make_pair(time,value));
 		std::sort(vi->second.begin(),
 		          vi->second.end(),
-		          &CompareTime);
+		          [](const AntTimedValue & a, const AntTimedValue & b) -> bool {
+			          return a.first < b.first;
+		          });
 	}
 	CompileData();
 }
@@ -164,20 +154,22 @@ void Ant::SetValues(const AntDataMap & map) {
 	for ( auto & [name,tValues] : d_data ) {
 		std::sort(tValues.begin(),
 		          tValues.end(),
-		          &CompareTime);
+		          [](const AntTimedValue & a, const AntTimedValue & b) -> bool {
+			          return a.first < b.first;
+		          });
 	}
 	CompileData();
 }
 
 void Ant::DeleteValue(const std::string & name,
-                      const Time::ConstPtr & time) {
+                      const Time & time) {
 	auto vi = d_data.find(name);
 	if ( vi == d_data.end() ) {
 		throw std::out_of_range("No stored values for '" + name + "'");
 	}
 	auto ti = Find(vi,time);
 	if ( ti == vi->second.end() ) {
-		throw std::out_of_range("No stored values for '" + name + "' at requested time");
+		throw std::out_of_range("No stored values for '" + name + "' at requested time '" + time.Format() + "'");
 	}
 	vi->second.erase(ti);
 	if ( vi->second.empty() ) {
@@ -204,7 +196,7 @@ void Ant::CompileData() {
 
 	for ( const auto & [name,tValues] : d_data ) {
 		for ( const auto & [time,value] : tValues ) {
-			if ( !time ) {
+			if ( time.IsSinceEver() == true ) {
 				defaults.erase(name);
 			}
 			d_compiledData.Insert(name,value,time);
@@ -212,7 +204,7 @@ void Ant::CompileData() {
 	}
 
 	for ( const auto & [name,defaultValue] : defaults ) {
-		d_compiledData.Insert(name,defaultValue,Time::ConstPtr());
+		d_compiledData.Insert(name,defaultValue,Time::SinceEver());
 	}
 
 }

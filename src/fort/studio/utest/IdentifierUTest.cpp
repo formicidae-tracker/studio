@@ -70,8 +70,8 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 
 	auto identification = identifier->addIdentification(ant->AntID(),
 	                                                    1,
-	                                                    fm::Time::ConstPtr(),
-	                                                    std::make_shared<fm::Time>(fm::Time::FromTimeT(1)));
+	                                                    fm::Time::SinceEver(),
+	                                                    fm::Time::FromTimeT(1));
 
 	EXPECT_TRUE(identifier->isModified());
 	ASSERT_EQ(modified.count(),1);
@@ -88,8 +88,8 @@ TEST_F(IdentifierUTest,IdentificationModification) {
 
 	identification = identifier->addIdentification(ant->AntID(),
 	                                               2,
-	                                               std::make_shared<fm::Time>(fm::Time::FromTimeT(2)),
-	                                               fm::Time::ConstPtr());
+	                                               fm::Time::FromTimeT(2),
+	                                               fm::Time::Forever());
 
 	EXPECT_EQ(identificationCreated.count(),2);
 	EXPECT_EQ(identificationCreated.last().at(0).value<fmp::Identification::ConstPtr>(),

@@ -53,8 +53,8 @@ public:
 	// ```
 	//
 	// @return the <Time> after which this Identification is
-	//         valid. nullptr represents -∞
-	Time::ConstPtr Start() const;
+	//         valid. It can return <Time::Forever>
+	Time Start() const;
 
 	// Gets the ending validity time
 	//
@@ -66,8 +66,8 @@ public:
 	// ```
 	//
 	// @return the <Time> after which this Identification is
-	//         unvalid. nullptr represents +∞
-	Time::ConstPtr End() const;
+	//         unvalid. It can return <Time::Forever>
+	Time End() const;
 
 	// Gets the Ant position relatively to the tag center
 	//
@@ -196,8 +196,7 @@ public:
 	AntID TargetAntID() const;
 
 	// Sets the starting validity time for this Identification
-	// @start the starting <Time> could be an empty pointer to
-	//        represent -∞
+	// @start the starting <Time>. It can be <Time::SinceEver>.
 	//
 	// Sets the starting validity <Time> for this Identification. This
 	// method will throw any <OverlappingIdentification> if such
@@ -211,11 +210,10 @@ public:
 	// # const_ptr is needed to cast fmTime to fmTimeCPtr
 	// i$setStart(fmTimeParse("XXX")$const_ptr())
 	// ```
-	void SetStart(const Time::ConstPtr & start);
+	void SetStart(const Time & start);
 
 	// Sets the ending validity time for this Identification
-	// @end the endinf <Time> could be an empty pointer to
-	//        represent +∞
+	// @end the ending <Time>. It can be <Time::Forever>.
 	//
 	// Sets the endibf validity <Time> for this Identification. This
 	// method will throw any <OverlappingIdentification> if such
@@ -229,7 +227,7 @@ public:
 	// # const_ptr is needed to cast fmTime to fmTimeCPtr
 	// i$setEnd(fmTimeParse("XXX")$const_ptr())
 	// ```
-	void SetEnd(const Time::ConstPtr & end);
+	void SetEnd(const Time & end);
 
 	// Gets the starting validity time
 	//
@@ -241,8 +239,8 @@ public:
 	// ```
 	//
 	// @return the <Time> after which this Identification is
-	//         valid. nullptr represents -∞
-	Time::ConstPtr Start() const;
+	//         valid. It can return <Time::SinceEver>
+	Time Start() const;
 
 	// Gets the ending validity time
 	//
@@ -254,8 +252,8 @@ public:
 	// ```
 	//
 	// @return the <Time> after which this Identification is
-	//         unvalid. nullptr represents +∞
-	Time::ConstPtr End() const;
+	//         unvalid. It can return <Time::Forever>
+	Time End() const;
 
 	// Gets the Ant position relatively to the tag center
 	//

@@ -100,8 +100,8 @@ public:
 	static IdentificationPtr AddIdentification(const Identifier::Ptr & itself,
 	                                           AntID id,
 	                                           TagID tagValue,
-	                                           const Time::ConstPtr & start,
-	                                           const Time::ConstPtr & end);
+	                                           const Time & start,
+	                                           const Time & end);
 
 	// Removes an Identification
 	// @ident the <priv::Identification> to remove
@@ -147,9 +147,9 @@ public:
 
 
 	// Return the first next frame if any where tag is not used
-	Time::ConstPtr UpperUnidentifiedBound(TagID tag, const Time & t) const;
+	Time UpperUnidentifiedBound(TagID tag, const Time & t) const;
 	// Return the first previoys frame if any where tag is not used
-	Time::ConstPtr LowerUnidentifiedBound(TagID tag, const Time & t) const;
+	Time LowerUnidentifiedBound(TagID tag, const Time & t) const;
 
 	// Returns the number of time a given tag is used.
 	size_t UseCount(TagID tag) const;
@@ -168,9 +168,10 @@ public:
 	// time, returns false. Otherwise returns true and sets <start>
 	// and <end> accordingly. Note that a reset <time::ConstPtr> means
 	// +/-∞.
-	bool FreeRangeContaining(Time::ConstPtr & start,
-	                         Time::ConstPtr & end,
-	                         TagID tag, const Time & t) const;
+	bool FreeRangeContaining(Time & start,
+	                         Time & end,
+	                         TagID tag,
+	                         const Time & t) const;
 
 
 	void SetAntPoseEstimate(const AntPoseEstimateConstPtr & ape);

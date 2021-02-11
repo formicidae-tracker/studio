@@ -132,13 +132,13 @@ public:
 
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
-	              const Time::ConstPtr & time,
+	              const Time & time,
 	              bool noOverwrite = false);
 
 	void SetValues(const AntDataMap & map);
 
 	void DeleteValue(const std::string & name,
-	                 const Time::ConstPtr & time);
+	                 const Time & time);
 
 	AntStaticValue GetBaseValue(const std::string & name) const;
 
@@ -166,9 +166,7 @@ private:
 
 
 	static std::vector<AntTimedValue>::iterator Find(const AntDataMap::iterator & iter,
-	                                                 const Time::ConstPtr & time);
-
-	static bool CompareTime(const AntTimedValue & a, const AntTimedValue &b);
+	                                                 const Time & time);
 
 	ID                      d_ID;
 	Identification::List    d_identifications;

@@ -79,7 +79,7 @@ TEST_F(AntMeasurementUTest,EndToEnd) {
 	          "head-tail");
 
 	d_experiment.createAnt();
-	d_experiment.identifier()->addIdentification(1,0,nullptr,nullptr);
+	d_experiment.identifier()->addIdentification(1,0,fm::Time::SinceEver(),fm::Time::Forever());
 	EXPECT_EQ(m->rowCount(),1);
 	EXPECT_EQ(std::string(m->data(m->index(0,0)).toString().toUtf8().constData()),
 	          "001 ↤ {0x000}");
@@ -156,7 +156,7 @@ TEST_F(AntMeasurementUTest,EndToEnd) {
 	EXPECT_EQ(std::string(m->data(m->index(1,0)).toString().toUtf8().constData()),
 	          "002 <no-tags>");
 
-	d_experiment.identifier()->addIdentification(2,1,nullptr,nullptr);
+	d_experiment.identifier()->addIdentification(2,1,fm::Time::SinceEver(),fm::Time::Forever());
 	EXPECT_EQ(std::string(m->data(m->index(1,0)).toString().toUtf8().constData()),
 	          "002 ↤ {0x001}");
 

@@ -39,8 +39,8 @@ public:
 	ComputeCollisions(const IdentifiedFrame::Ptr & frame) const;
 private:
 	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
-	typedef TimeMap<ZoneID,Zone::Geometry::ConstPtr>                 TimedZoneGeometries;
-	typedef DenseMap<SpaceID,TimedZoneGeometries>                    GeometriesBySpaceID;
+	typedef TimeMap<ZoneID,ZoneDefinition::ConstPtr>                 ZoneDefinitionsByTime;
+	typedef DenseMap<SpaceID,ZoneDefinitionsByTime>                  DefinitionsBySpaceID;
 	typedef DenseMap<SpaceID,std::vector<ZoneID>>                    ZoneIDsBySpaceID;
 	typedef std::unordered_map<Zone::ID,std::vector<PositionedAnt> > LocatedAnts;
 
@@ -51,9 +51,9 @@ private:
 	                       const std::vector<PositionedAnt> & ants,
 	                       ZoneID zoneID) const;
 
-	AntGeometriesByID   d_antGeometries;
-	GeometriesBySpaceID d_spaceGeometries;
-	ZoneIDsBySpaceID    d_zoneIDs;
+	AntGeometriesByID    d_antGeometries;
+	DefinitionsBySpaceID d_spaceDefinitions;
+	ZoneIDsBySpaceID     d_zoneIDs;
 
 };
 

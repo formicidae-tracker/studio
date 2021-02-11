@@ -201,7 +201,7 @@ public:
 private:
 
 	typedef std::pair<FrameID,Time> TimedFrame;
-	typedef std::map<Time::SortableKey,FrameID> FrameIDByTime;
+	typedef std::map<Time,FrameID>  FrameIDByTime;
 
 	friend class FullFramesReducer;
 	friend class TagCloseUpsReducer;

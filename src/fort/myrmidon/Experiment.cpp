@@ -117,9 +117,9 @@ std::map<Ant::ID,CAnt> CExperiment::CAnts() const {
 }
 
 Identification Experiment::AddIdentification(Ant::ID antID,
-                                                  TagID tagID,
-                                                  const Time::ConstPtr & start,
-                                                  const Time::ConstPtr & end) {
+                                             TagID tagID,
+                                             const Time & start,
+                                             const Time & end) {
 	return Identification(priv::Identifier::AddIdentification(d_p->Identifier(),
 	                                                          antID,
 	                                                          tagID,
@@ -131,15 +131,15 @@ void Experiment::DeleteIdentification(const Identification & identification) {
 	d_p->Identifier()->DeleteIdentification(identification.ToPrivate());
 }
 
-bool Experiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
-                                           Time::ConstPtr & end,
+bool Experiment::FreeIdentificationRangeAt(Time & start,
+                                           Time & end,
                                            TagID tagID, const Time & time) const {
 	return FORT_MYRMIDON_CONST_HELPER(Experiment,FreeIdentificationRangeAt,start,end,tagID,time);
 }
 
 
-bool CExperiment::FreeIdentificationRangeAt(Time::ConstPtr & start,
-                                            Time::ConstPtr & end,
+bool CExperiment::FreeIdentificationRangeAt(Time & start,
+                                            Time & end,
                                             TagID tagID, const Time & time) const {
 	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
@@ -333,7 +333,7 @@ TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::Ptr &
 
 
 SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
-	SpaceDataInfo res = {.URI = space->URI(),.Name = space->Name(), .Frames = 0 };
+	SpaceDataInfo res = {.URI = space->URI(),.Name = space->Name(), .Frames = 0 , .Start = Time(), .End = Time()};
 	const auto & tdds = space->TrackingDataDirectories();
 	if ( tdds.empty() == true ) {
 		return res;
@@ -353,19 +353,12 @@ ExperimentDataInfo Experiment::GetDataInformations() const {
 }
 
 ExperimentDataInfo CExperiment::GetDataInformations() const {
-	ExperimentDataInfo res = { .Frames = 0 };
+	ExperimentDataInfo res = { .Frames = 0, .Start = Time::Forever(), .End = Time::SinceEver() };
 	const auto & spaces = d_p->CSpaces();
-	bool set = false;
 	for ( const auto & [spaceID,space] : spaces ) {
 		auto sInfo = buildSpaceInfos(space);
-		if ( set == false ) {
-			res.Start = sInfo.Start;
-			res.End = sInfo.End;
-			set = true;
-		} else {
-			res.Start = std::min(res.Start,sInfo.Start);
-			res.End = std::max(res.End,sInfo.End);
-		}
+		res.Start = std::min(res.Start,sInfo.Start);
+		res.End = std::max(res.End,sInfo.End);
 		res.Frames += sInfo.Frames;
 		res.Spaces[spaceID] = sInfo;
 	}

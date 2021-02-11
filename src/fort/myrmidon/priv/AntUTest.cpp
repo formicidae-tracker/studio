@@ -61,20 +61,21 @@ TEST_F(AntUTest,StaticDataTest) {
 		ADD_FAILURE() << "Got unexpected exception: " << e.what();
 	}
 
-	EXPECT_THROW(ant->SetValue("isQueen",true,Time::ConstPtr()),std::invalid_argument);
-	EXPECT_THROW(ant->SetValue("dead",0,Time::ConstPtr()),std::bad_variant_access);
+	EXPECT_THROW(ant->SetValue("isQueen",true,Time::SinceEver()),std::invalid_argument);
+	EXPECT_THROW(ant->SetValue("dead",0,Time::SinceEver()),std::bad_variant_access);
+	EXPECT_THROW({ant->SetValue("dead",false,Time::Forever());},std::invalid_argument);
 	EXPECT_NO_THROW({
-			ant->SetValue("dead",true,Time::ConstPtr());
-			ant->SetValue("dead",false,std::make_shared<Time>(Time::FromTimeT(42)));
-			ant->SetValue("dead",false,Time::ConstPtr());
-			ant->SetValue("dead",true,std::make_shared<Time>(Time::FromTimeT(42)));
+			ant->SetValue("dead",true,Time::SinceEver());
+			ant->SetValue("dead",false,Time::FromTimeT(42));
+			ant->SetValue("dead",false,Time::SinceEver());
+			ant->SetValue("dead",true,Time::FromTimeT(42));
 			EXPECT_EQ(ant->DataMap().size(),1);
-			ant->SetValue("group",std::string("forager"),Time::ConstPtr());
+			ant->SetValue("group",std::string("forager"),Time::SinceEver());
 		});
 
-	EXPECT_THROW(ant->DeleteValue("isQueen",Time::ConstPtr()),std::out_of_range);
-	EXPECT_THROW(ant->DeleteValue("dead",std::make_shared<Time>(Time())),std::out_of_range);
-	EXPECT_NO_THROW(ant->DeleteValue("dead",Time::ConstPtr()));
+	EXPECT_THROW(ant->DeleteValue("isQueen",Time::SinceEver()),std::out_of_range);
+	EXPECT_THROW(ant->DeleteValue("dead",Time()),std::out_of_range);
+	EXPECT_NO_THROW(ant->DeleteValue("dead",Time::SinceEver()));
 
 }
 

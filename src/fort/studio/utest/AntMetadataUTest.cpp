@@ -154,7 +154,7 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 
 	ASSERT_NO_THROW({
 			auto ant = experiment->CreateAnt();
-			ant->SetValue("foo",fm::Time::Parse("2019-11-02T23:46:23.453Z"),fm::Time::ConstPtr());
+			ant->SetValue("foo",fm::Time::Parse("2019-11-02T23:46:23.453Z"),fm::Time::SinceEver());
 		});
 
 	metadata->setExperiment(experiment);

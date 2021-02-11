@@ -93,8 +93,8 @@ public:
 	// ```
 static void IdentifyFramesFunctor(const CExperiment & experiment,
 	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-	                                  const Time::ConstPtr & start,
-	                                  const Time::ConstPtr & end,
+	                                  const Time & start,
+	                                  const Time & end,
 	                                  bool computeZones = false,
 	                                  bool singleThreaded = false);
 
@@ -122,8 +122,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	// ```
 	static void IdentifyFrames(const CExperiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
-	                           const Time::ConstPtr & start,
-	                           const Time::ConstPtr & end,
+	                           const Time & start,
+	                           const Time & end,
 	                           bool computeZones = false,
 	                           bool singleThreaded = false);
 
@@ -150,8 +150,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	// ```
 	static void CollideFramesFunctor(const CExperiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
-	                                 const Time::ConstPtr & start,
-	                                 const Time::ConstPtr & end,
+	                                 const Time & start,
+	                                 const Time & end,
 	                                 bool singleThread = false);
 
 
@@ -177,8 +177,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	// ```
 	static void CollideFrames(const CExperiment & experiment,
 	                          std::vector<CollisionData> & result,
-	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end,
+	                          const Time & start,
+	                          const Time & end,
 	                          bool singleThread = false);
 
 	// Computes trajectories for ants - functor version
@@ -212,8 +212,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	// ```
 	static void ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
 	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-	                                          const Time::ConstPtr & start,
-	                                          const Time::ConstPtr & end,
+	                                          const Time & start,
+	                                          const Time & end,
 	                                          Duration maximumGap,
 	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                          bool computeZones = false,
@@ -251,8 +251,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	// ```
 	static void ComputeAntTrajectories(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                   const Time::ConstPtr & start,
-	                                   const Time::ConstPtr & end,
+	                                   const Time & start,
+	                                   const Time & end,
 	                                   Duration maximumGap,
 	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool computeZones = false,
@@ -291,8 +291,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	static void ComputeAntInteractionsFunctor(const CExperiment & experiment,
 	                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
 	                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
-	                                          const Time::ConstPtr & start,
-	                                          const Time::ConstPtr & end,
+	                                          const Time & start,
+	                                          const Time & end,
 	                                          Duration maximumGap,
 	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                          bool singleThread = false);
@@ -329,8 +329,8 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	static void ComputeAntInteractions(const CExperiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,
-	                                   const Time::ConstPtr & start,
-	                                   const Time::ConstPtr & end,
+	                                   const Time & start,
+	                                   const Time & end,
 	                                   Duration maximumGap,
 	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool singleThread = false);

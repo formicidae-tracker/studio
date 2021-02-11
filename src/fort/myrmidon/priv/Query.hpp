@@ -24,21 +24,21 @@ public:
 
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
 	                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-	                           const Time::ConstPtr & start,
-	                           const Time::ConstPtr & end,
+	                           const Time & start,
+	                           const Time & end,
 	                           bool computeZones = false,
 	                           bool singleThreaded = false);
 
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
 	                          std::function<void (const CollisionData & data) > storeData,
-	                          const Time::ConstPtr & start,
-	                          const Time::ConstPtr & end,
+	                          const Time & start,
+	                          const Time & end,
 	                          bool singleThreaded = false);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                                std::function<void (const AntTrajectory::ConstPtr &)> storeData,
-	                                const Time::ConstPtr & start,
-	                                const Time::ConstPtr & end,
+	                                const Time & start,
+	                                const Time & end,
 	                                Duration maximumGap,
 	                                const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                bool computeZones = false,
@@ -51,8 +51,8 @@ public:
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,
-	                                   const Time::ConstPtr & start,
-	                                   const Time::ConstPtr & end,
+	                                   const Time & start,
+	                                   const Time & end,
 	                                   Duration maximumGap,
 	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
 	                                   bool singleThreaded = false);
@@ -102,8 +102,8 @@ private:
 
 
 	static void BuildRange(const Experiment::ConstPtr & experiment,
-	                       const Time::ConstPtr & start,
-	                       const Time::ConstPtr & end,
+	                       const Time & start,
+	                       const Time & end,
 	                       DataRangeBySpaceID & ranges);
 
 	class DataLoader {

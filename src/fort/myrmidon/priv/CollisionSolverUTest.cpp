@@ -117,14 +117,14 @@ void CollisionSolverUTest::SetUpTestSuite() {
 	auto nest = foo->CreateZone("nest");
 	std::vector<Shape::ConstPtr> nestShapes = {std::make_shared<Polygon>(Vector2dList({{WIDTH/2,0},{WIDTH,0},{WIDTH,HEIGHT},{WIDTH/2,HEIGHT}}))};
 	nest->AddDefinition(nestShapes,
-	                    {},{});
+	                    Time::SinceEver(),Time::Forever());
 
 	auto food = foo->CreateZone("food");
 	std::vector<Shape::ConstPtr> foodShapes = { std::make_shared<Circle>(Eigen::Vector2d(WIDTH/4,HEIGHT/2),
 	                                                                    WIDTH/8),
 	};
 	food->AddDefinition(foodShapes,
-	                    {},{});
+	                    Time::SinceEver(),Time::Forever());
 
 	collisions = NaiveCollisions();
 

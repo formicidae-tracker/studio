@@ -49,8 +49,8 @@ bool ZoneGeometry::Contains(const Eigen::Vector2d & point ) const {
 
 ZoneDefinition::ZoneDefinition(const Zone::Ptr & zone,
                                Geometry::ConstPtr geometry,
-                               const Time::ConstPtr & start,
-                               const Time::ConstPtr & end)
+                               const Time & start,
+                               const Time & end)
 	: d_zone(zone)
 	, d_geometry(geometry) {
 	d_start = start;
@@ -67,26 +67,26 @@ void ZoneDefinition::SetGeometry(const Geometry::ConstPtr & geometry) {
 	d_geometry = geometry;
 }
 
-const Time::ConstPtr & ZoneDefinition::Start() const {
+const Time & ZoneDefinition::Start() const {
 	return d_start;
 }
 
-const Time::ConstPtr & ZoneDefinition::End() const {
+const Time & ZoneDefinition::End() const {
 	return d_end;
 }
 
-void ZoneDefinition::SetStart(const Time::ConstPtr & start) {
+void ZoneDefinition::SetStart(const Time & start) {
 	SetBound(start,d_end);
 }
 
-void ZoneDefinition::SetEnd(const Time::ConstPtr & end) {
+void ZoneDefinition::SetEnd(const Time & end) {
 	SetBound(d_start,end);
 }
 
-void ZoneDefinition::SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end) {
-	if ( !start == false && !end == false && end->Before(*start) ) {
+void ZoneDefinition::SetBound(const Time & start, const Time & end) {
+	if ( end.Before(start) ) {
 		std::ostringstream os;
-		os << "Invalid time range [" << *start << "," << *end << "]";
+		os << "Invalid time range [" << start << "," << end << "]";
 		throw std::invalid_argument(os.str());
 	}
 
@@ -116,8 +116,8 @@ Zone::Ptr Zone::Create(ID ZID,const std::string & name,const std::string & paren
 }
 
 ZoneDefinition::Ptr Zone::AddDefinition(const std::vector<Shape::ConstPtr> & shapes,
-                                        const Time::ConstPtr & start,
-                                        const Time::ConstPtr & end) {
+                                        const Time & start,
+                                        const Time & end) {
 	auto itself = d_itself.lock();
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
@@ -171,32 +171,20 @@ Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
 	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(ZID)).generic_string() ) {
 }
 
-static bool TimePtrEqual(const Time::ConstPtr & a,
-                  const Time::ConstPtr & b) {
-	if ( !a ) {
-		return !b;
-	}
-	if ( !b ) {
-		return false;
-	}
-	return *a == *b;
-}
 
-
-
-bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const {
+bool Zone::NextFreeTimeRegion(Time & start,Time & end) const {
 	if ( d_definitions.empty() ) {
-		start.reset();
-		end.reset();
+		start = Time::SinceEver();
+		end = Time::Forever();
 		return true;
 	}
-	Time::ConstPtr lastEnd;
+	Time lastEnd = Time::SinceEver();
 	for ( const auto & def : d_definitions ) {
-		if ( TimePtrEqual(lastEnd,def->Start()) ) {
+		if ( lastEnd == def->Start() ) {
 			continue;
 		}
 
-		auto t = def->Start()->Add(-1);
+		auto t = def->Start().Add(-1);
 		try {
 			end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
 			start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
@@ -205,19 +193,16 @@ bool Zone::NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const
 		}
 	}
 
-	if ( !d_definitions.back()->End() == true ) {
-		start.reset();
-		end.reset();
+	if ( d_definitions.back()->End().IsForever() == true ) {
 		return false;
 	}
-	auto t = *d_definitions.back()->End();
+
+	auto t = d_definitions.back()->End();
 	try {
 		end = TimeValid::UpperUnvalidBound(t,d_definitions.begin(),d_definitions.end());
 		start = TimeValid::LowerUnvalidBound(t,d_definitions.begin(),d_definitions.end());
 		return true;
 	} catch ( const std::invalid_argument &) {
-		start.reset();
-		end.reset();
 		return false;
 	}
 }

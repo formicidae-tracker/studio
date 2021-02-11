@@ -119,8 +119,9 @@ public :
 	//
 	// Queries for a valid time range for a given <TagID> and
 	// <Time>. The result will be a range [<start>,<end>[ containing
-	// <time> where <tagID> is not used. If it returns false <start>
-	// and <end> will be resetted if such a range does not exists.
+	// <time> where <tagID> is not used. It returns false if such a
+	// range does not exists. <start> and <end> could be set
+	// respectively to <Time::SinceEver> and <Time::Forever>
 	//
 	// R Version :
 	// ```R
@@ -131,9 +132,10 @@ public :
 	// ```
 	//
 	// @return `true` if such a range exist, false otherwise.
-	bool FreeIdentificationRangeAt(Time::ConstPtr & start,
-	                               Time::ConstPtr & end,
-	                               TagID tagID, const Time & time) const;
+	bool FreeIdentificationRangeAt(Time & start,
+	                               Time & end,
+	                               TagID tagID,
+	                               const Time & time) const;
 
 	// The name of the Experiment.
 	//
@@ -526,8 +528,8 @@ public:
 	// Adds an <Identification> to the Experiment
 	// @antID the targetted <Ant> designated by its <Ant::ID>
 	// @tagID the tag to associate with the Ant
-	// @start the first valid <Time>, nullptr means -∞
-	// @end  the first invalid <Time>, nullptr means +∞
+	// @start the first valid <Time>. It can be <Time::SinceEver>
+	// @end  the first invalid <Time>. It can be <Time::Forever>
 	//
 	// Adds an <Identification> to the Experiment. <Identification>
 	// are valid for [<start>,<end>[. One may obtain a valid time
@@ -543,8 +545,8 @@ public:
 	// @return the new <Identification>
 	Identification AddIdentification(Ant::ID antID,
 	                                 TagID tagID,
-	                                 const Time::ConstPtr & start,
-	                                 const Time::ConstPtr & end);
+	                                 const Time & start,
+	                                 const Time & end);
 
 	// Deletes an <Identification>
 	// @identification the <Identification> to delete
@@ -564,8 +566,9 @@ public:
 	//
 	// Queries for a valid time range for a given <TagID> and
 	// <Time>. The result will be a range [<start>,<end>[ containing
-	// <time> where <tagID> is not used. If it returns false <start>
-	// and <end> will be resetted if such a range does not exists.
+	// <time> where <tagID> is not used. It returns false if such a
+	// range does not exists. <start> and <end> can respectively be
+	// set to <Time::SinceEver> and <Time::Forever>.
 	//
 	// R Version :
 	// ```R
@@ -576,20 +579,13 @@ public:
 	// ```
 	//
 	// @return `true` if such a range exist, false otherwise.
-	bool FreeIdentificationRangeAt(Time::ConstPtr & start,
-	                               Time::ConstPtr & end,
-	                               TagID tagID, const Time & time) const;
+	bool FreeIdentificationRangeAt(Time & start,
+	                               Time & end,
+	                               TagID tagID,
+	                               const Time & time) const;
 
 	// The name of the Experiment.
-	//
-	// R Version :
-	// ```R
-	// # initializes return value as fmTimeCPtr
-	// start <- new ( FortMyrmidon::fmTimeCPtr )
-	// end <- new ( FortMyrmidon::fmTimeCPtr )
-	// e$freeIdentificationRangeAt(start,end,tagID,time)
-	// ```
-	//
+   	//
 	// R Version :
 	// ```R
 	// e$name()

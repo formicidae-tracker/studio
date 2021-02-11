@@ -227,7 +227,7 @@ public:
 	// @name the wanted column name
 	// @value the wanted <AntStaticValue>
 	// @time the first <Time> after which <name> will be set to
-	//       <value>
+	//       <value>. It can be <Time::SinceEver>.
 	//
 	// Sets <name> to <value> starting from <time>. If <time> is
 	// nullptr, sets the starting <value> for <name>. <GetValue> is
@@ -241,11 +241,11 @@ public:
 	// ```
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
-	              const Time::ConstPtr & time);
+	              const Time & time);
 
 	// Removes any value defined for a time
 	// @name the named value to remove
-	// @time the <Time> to remove
+	// @time the <Time> to remove. It can be <Time::SinceEver>.
 	//
 	// Removes any value defined at a <Time>.
 	//
@@ -255,7 +255,7 @@ public:
 	// ant$deleteValue(name,time)
 	// ```
 	void DeleteValue(const std::string & name,
-	                 const Time::ConstPtr & time);
+	                 const Time & time);
 
 
 	// Adds a Capsule to the Ant virtual shape

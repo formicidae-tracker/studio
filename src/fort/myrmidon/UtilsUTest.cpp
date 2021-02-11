@@ -47,17 +47,6 @@
 	return ::testing::AssertionSuccess();
 }
 
-::testing::AssertionResult TimePtrEqual(const fort::myrmidon::Time::ConstPtr & a,
-                                         const fort::myrmidon::Time::ConstPtr & b) {
-	if (!a && !b) {
-		return ::testing::AssertionSuccess();
-	}
-
-	if ( (!a && b) || (!b && a) ) {
-		return ::testing::AssertionFailure() << "a: " << a << " != b: " << b;
-	}
-	return TimeEqual(*a,*b);
-}
 
 
 ::testing::AssertionResult VectorAlmostEqual(const Eigen::Vector2d & a,

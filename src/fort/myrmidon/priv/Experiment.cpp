@@ -494,13 +494,13 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 
 		for(const auto & measurements : measurementsByTDD->second ) {
 			auto start = measurements.second.cbegin();
-			if ( ident->Start() ) {
-				start = measurements.second.lower_bound(*ident->Start());
+			if ( ident->Start().IsSinceEver() == false ) {
+				start = measurements.second.lower_bound(ident->Start());
 			}
 
 			auto end = measurements.second.cend();
-			if ( ident->End() ) {
-				end = measurements.second.upper_bound(*ident->End());
+			if ( ident->End().IsForever() == false ) {
+				end = measurements.second.upper_bound(ident->End());
 			}
 			for ( ; start != end; ++start ) {
 				double distancePixel = (start->second->StartFromTag() - start->second->EndFromTag()).norm();

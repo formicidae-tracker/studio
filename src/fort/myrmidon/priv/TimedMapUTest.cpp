@@ -12,9 +12,13 @@ TEST_F(TimedMapUTest,E2ETest) {
 
 	TM map;
 
-	map.Insert("foo",0,Time::ConstPtr());
-	map.Insert("foo",3,std::make_shared<Time>(Time::FromTimeT(42)));
-	map.Insert("bar",6,std::make_shared<Time>(Time::FromTimeT(42)));
+	map.Insert("foo",0,Time::SinceEver());
+	map.Insert("foo",3,Time::FromTimeT(42));
+	map.Insert("bar",6,Time::FromTimeT(42));
+
+	EXPECT_THROW({
+			map.Insert("doesnotmatter",42,Time::Forever());
+		},std::invalid_argument);
 
 	EXPECT_NO_THROW({
 			EXPECT_EQ(map.At("foo",Time()),0);

@@ -82,34 +82,32 @@ public:
 	TagID TagValue() const;
 
 	// Sets the starting validity time for this Identification
-	// @start the starting <Time> could be an empty pointer to remove
-	//        any boundaries
+	// @start the starting <Time>. <Time::SinceEver> is a valid value.
 	//
 	// Sets the starting validity <Time> for this
 	// <Identification>. This methods will throw any
 	// <OverlappingIdentification> if such modification will create
 	// any collision for the same <TagID> or the same <priv::Ant>. In
 	// such a case the boundaries remain unchanged.
-	void SetStart(const Time::ConstPtr & start);
+	void SetStart(const Time & start);
 
 	// Sets the ending validity time for this Identification
-	// @end the ending <Time>, could be an empty pointer to remove
-	//        any boundary
+	// @end the ending <Time>. <Time::Forever> is a valid value.
 	//
 	// Sets the ending validity <Time> for this <Identification>. This
 	// methods will throw any <OverlappingIdentification> if such
 	// modification will create any collision for the same <TagID> or
 	// the same <priv::Ant>. In such a case the boundaries remain
 	// unchanged.
-	void SetEnd(const Time::ConstPtr & end);
+	void SetEnd(const Time & end);
 
 	// Gets the starting validity time
 	// @return the time after which this Identification is valid.
-	Time::ConstPtr Start() const;
+	const Time & Start() const;
 
 	// Get the ending validity time
 	// @return the time after which this identification is unvalid.
-	Time::ConstPtr End() const;
+	const Time & End() const;
 
 	// Gets the tag position in the Ant reference frame
 	// @return a vector from the <priv::Ant> origin to the tag center
@@ -172,9 +170,9 @@ public:
 		                  const IdentifierPtr & identifier,
 		                  const AntPtr & ant);
 		static void SetStart(Identification & identification,
-		                     const Time::ConstPtr & start);
+		                     const Time & start);
 		static void SetEnd(Identification & identification,
-		                   const Time::ConstPtr & end);
+		                   const Time & end);
 		static void SetAntPosition(Identification & identification,
 		                           const Eigen::Vector2d& position,
 		                           double angle);
@@ -201,8 +199,8 @@ private:
 	void SetAntPosition(const Eigen::Vector2d & position,
 	                    double angle);
 
-	void SetBound(const Time::ConstPtr & start,
-	              const Time::ConstPtr & end);
+	void SetBound(const Time & start,
+	              const Time & end);
 	friend class IdentificationUTest;
 
 	Isometry2Dd               d_antToTag;

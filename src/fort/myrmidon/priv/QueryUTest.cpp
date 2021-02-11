@@ -57,7 +57,7 @@ TEST_F(QueryUTest,TagStatistics) {
 TEST_F(QueryUTest,IdentifiedFrame) {
 	ASSERT_NO_THROW({
 			experiment->CreateAnt(1);
-			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
+			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
 	std::vector<IdentifiedFrame::ConstPtr> identifieds;
@@ -67,8 +67,8 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 				                      identifieds.push_back(i);
 			                      },
-			                      {},
-			                      {});
+			                      Time::SinceEver(),
+			                      Time::Forever());
 		});
 	ASSERT_EQ(identifieds.size(),600);
 	for ( const auto & frame : identifieds ) {
@@ -84,8 +84,8 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 				                      identifieds.push_back(i);
 			                      },
-			                      {},
-			                      std::make_shared<Time>(t.Add(1)));
+			                      Time::SinceEver(),
+			                      t.Add(1));
 		});
 	EXPECT_EQ(identifieds.size(),1);
 
@@ -95,8 +95,8 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 		                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 			                      identifieds.push_back(i);
 		                      },
-		                      std::make_shared<Time>(t.Add(1)),
-		                      {});
+		                      t.Add(1),
+		                      Time::Forever());
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Unexpected exception: " << e.what();
 		return;
@@ -109,8 +109,8 @@ TEST_F(QueryUTest,InteractionFrame) {
 	ASSERT_NO_THROW({
 			auto a1 = experiment->CreateAnt(1);
 			auto a2 = experiment->CreateAnt(2);
-			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
-			Identifier::AddIdentification(experiment->Identifier(),2,124,{},{});
+			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
+			Identifier::AddIdentification(experiment->Identifier(),2,124,Time::SinceEver(),Time::Forever());
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
@@ -127,7 +127,7 @@ TEST_F(QueryUTest,InteractionFrame) {
 			                     [&collisionData] (const Query::CollisionData & data) {
 				                     collisionData.push_back(data);
 			                     },
-			                     {},{});
+			                     Time::SinceEver(),Time::Forever());
 		});
 
 	ASSERT_EQ(collisionData.size(),600);
@@ -148,7 +148,7 @@ TEST_F(QueryUTest,InteractionFrame) {
 TEST_F(QueryUTest,TrajectoryComputation) {
 	ASSERT_NO_THROW({
 			experiment->CreateAnt(1);
-			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
+			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
 	std::vector<AntTrajectory::ConstPtr> trajectories;
@@ -158,10 +158,10 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 			                           [&trajectories]( const AntTrajectory::ConstPtr & t) {
 				                           trajectories.push_back(t);
 			                           },
-			                           {},
-			                           {},
+			                           Time::SinceEver(),
+			                           Time::Forever(),
 			                           20000 * Duration::Millisecond,
-			                           {});
+			                           nullptr);
 		});
 
 	ASSERT_EQ(trajectories.size(),3);
@@ -179,8 +179,8 @@ TEST_F(QueryUTest,InteractionComputation) {
 	ASSERT_NO_THROW({
 			auto a1 = experiment->CreateAnt(1);
 			auto a2 = experiment->CreateAnt(2);
-			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
-			Identifier::AddIdentification(experiment->Identifier(),2,124,{},{});
+			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
+			Identifier::AddIdentification(experiment->Identifier(),2,124,Time::SinceEver(),Time::Forever());
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
@@ -200,10 +200,10 @@ TEST_F(QueryUTest,InteractionComputation) {
 			                              [&interactions]( const AntInteraction::ConstPtr & i) {
 				                              interactions.push_back(i);
 			                              },
-			                              {},
-			                              {},
+			                              Time::SinceEver(),
+			                              Time::Forever(),
 			                              220 * Duration::Millisecond,
-			                              {});
+			                              nullptr);
 		});
 
 
@@ -234,7 +234,7 @@ TEST_F(QueryUTest,InteractionComputation) {
 TEST_F(QueryUTest,FrameSelection) {
 	ASSERT_NO_THROW({
 			experiment->CreateAnt(1);
-			Identifier::AddIdentification(experiment->Identifier(),1,123,{},{});
+			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
 	auto firstDate = experiment->CSpaces().at(1)->TrackingDataDirectories().front()->StartDate();
@@ -246,8 +246,8 @@ TEST_F(QueryUTest,FrameSelection) {
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      std::make_shared<Time>(firstDate),
-	                      {});
+	                      firstDate,
+	                      Time::Forever());
 
 	EXPECT_FALSE(frames.empty());
 	frames.clear();
@@ -257,8 +257,8 @@ TEST_F(QueryUTest,FrameSelection) {
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      std::make_shared<Time>(firstDate),
-	                      std::make_shared<Time>(firstDate.Add(1)));
+	                      firstDate,
+	                      firstDate.Add(1));
 
 	ASSERT_EQ(frames.size(),1);
 	ASSERT_EQ(frames[0]->FrameTime,firstDate);
@@ -269,8 +269,8 @@ TEST_F(QueryUTest,FrameSelection) {
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      std::make_shared<Time>(firstDate),
-	                      std::make_shared<Time>(firstDate));
+	                      firstDate,
+	                      firstDate);
 
 	ASSERT_EQ(frames.size(),0);
 

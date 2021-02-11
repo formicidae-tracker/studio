@@ -247,15 +247,15 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	auto identBefore1 = Identifier::AddIdentification(e->Identifier(),
 	                                                  antBefore->AntID(),
 	                                                  1,
-	                                                  Time::ConstPtr(),
-	                                                  std::make_shared<Time>(foo0->EndDate()));
+	                                                  Time::SinceEver(),
+	                                                  foo0->EndDate());
 	identBefore1->SetTagSize(2.0);
 
 	auto identBefore2 = Identifier::AddIdentification(e->Identifier(),
 	                                                  antBefore->AntID(),
 	                                                  0,
-	                                                  std::make_shared<Time>(foo1->StartDate()),
-	                                                  Time::ConstPtr());
+	                                                  foo1->StartDate(),
+	                                                  Time::Forever());
 	identBefore2->SetTagSize(2.0);
 
 
@@ -310,16 +310,16 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	auto identAfter1 = Identifier::AddIdentification(e->Identifier(),
 	                                                 antAfter->AntID(),
 	                                                 0,
-	                                                 Time::ConstPtr(),
-	                                                 std::make_shared<Time>(foo0->EndDate()));
+	                                                 Time::SinceEver(),
+	                                                 foo0->EndDate());
 
 
 
 	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
 	                                                 antAfter->AntID(),
 	                                                 1,
-	                                                 std::make_shared<Time>(foo1->StartDate()),
-	                                                 Time::ConstPtr());
+	                                                 foo1->StartDate(),
+	                                                 Time::Forever());
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),
 	                              Eigen::Vector2d(6.0,0.0)));
@@ -373,8 +373,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	Identifier::AddIdentification(e->Identifier(),
 	                              antLast->AntID(),
 	                              22,
-	                              Time::ConstPtr(),
-	                              Time::ConstPtr());
+	                              Time::SinceEver(),
+	                              Time::Forever());
 
 	e->ComputeMeasurementsForAnt(measurements,
 	                             antAfter->AntID(),
@@ -476,8 +476,8 @@ TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
 	auto ident = Identifier::AddIdentification(e->Identifier(),
 	                                           ant->AntID(),
 	                                           1,
-	                                           Time::ConstPtr(),
-	                                           Time::ConstPtr());
+	                                           Time::SinceEver(),
+	                                           Time::Forever());
 
 
 	auto tcuPath = fs::path(foo0->URI())
@@ -580,7 +580,7 @@ TEST_F(ExperimentUTest,AntMetadataManipulation) {
 	auto alive = e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
 	auto group = e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
 	auto ant = e->CreateAnt();
-	ant->SetValue("group",std::string("nurse"),Time::ConstPtr());
+	ant->SetValue("group",std::string("nurse"),Time::SinceEver());
 	//should throw because ant has a value
 	EXPECT_THROW(group->SetMetadataType(AntMetadata::Type::INT),std::runtime_error);
 	//OK to change a column without any values

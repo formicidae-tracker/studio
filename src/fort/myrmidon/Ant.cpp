@@ -95,12 +95,12 @@ const AntStaticValue & CAnt::GetValue(const std::string & name,
 
 void Ant::SetValue(const std::string & name,
                    const AntStaticValue & value,
-                   const Time::ConstPtr & time) {
+                   const Time & time) {
 	d_p->SetValue(name,value,time);
 }
 
 void Ant::DeleteValue(const std::string & name,
-                      const Time::ConstPtr & time) {
+                      const Time & time) {
 	d_p->DeleteValue(name,time);
 }
 

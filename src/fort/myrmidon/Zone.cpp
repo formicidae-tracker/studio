@@ -28,34 +28,34 @@ void ZoneDefinition::SetGeometry(const Shape::ConstList & shapes) {
 	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(Shape::Cast(shapes)));
 }
 
-const Time::ConstPtr & ZoneDefinition::Start() const {
+const Time & ZoneDefinition::Start() const {
 	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,Start);
 }
 
-const Time::ConstPtr & CZoneDefinition::Start() const {
+const Time & CZoneDefinition::Start() const {
 	return d_p->Start();
 }
 
-const Time::ConstPtr & ZoneDefinition::End() const {
+const Time & ZoneDefinition::End() const {
 	return FORT_MYRMIDON_CONST_HELPER(ZoneDefinition,End);
 }
 
-const Time::ConstPtr & CZoneDefinition::End() const {
+const Time & CZoneDefinition::End() const {
 	return d_p->End();
 }
 
-void ZoneDefinition::SetStart(const Time::ConstPtr & start) {
+void ZoneDefinition::SetStart(const Time & start) {
 	d_p->SetStart(start);
 }
 
 
-void ZoneDefinition::SetEnd(const Time::ConstPtr & end) {
+void ZoneDefinition::SetEnd(const Time & end) {
 	d_p->SetEnd(end);
 }
 
 ZoneDefinition Zone::AddDefinition(const Shape::ConstList & geometry,
-                                   const Time::ConstPtr & start,
-                                   const Time::ConstPtr & end) {
+                                   const Time & start,
+                                   const Time & end) {
 	return ZoneDefinition(d_p->AddDefinition(Shape::Cast(geometry),
 	                                         start,end));
 }

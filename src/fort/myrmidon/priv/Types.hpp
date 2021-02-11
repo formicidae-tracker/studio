@@ -31,7 +31,7 @@ typedef uint32_t TagID;
 typedef Eigen::AlignedBox<double,2> AABB;
 
 
-typedef std::pair<Time::ConstPtr,AntStaticValue>   AntTimedValue;
+typedef std::pair<Time,AntStaticValue>   AntTimedValue;
 
 typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
 typedef std::unordered_map<std::string,const std::vector<AntTimedValue> > AntConstDataMap;

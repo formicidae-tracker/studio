@@ -37,8 +37,8 @@ TEST_F(ZoneUTest,GeometryHaveAABB) {
 
 TEST_F(ZoneUTest,DefinitionOwnsGeometry) {
 	auto definition = zone->AddDefinition({},
-	                                      Time::ConstPtr(),
-	                                      Time::ConstPtr());
+	                                      Time::SinceEver(),
+	                                      Time::Forever());
 
 	// Even if we pass a nullptr, geometry is not null
 	ASSERT_FALSE(!definition->GetGeometry());
@@ -60,56 +60,57 @@ TEST_F(ZoneUTest,ZoneCanBeRenamed) {
 
 TEST_F(ZoneUTest,DefinitionAreTimeValidObject) {
 
-	Time::ConstPtr start,end;
+	auto start = Time::SinceEver();
+	auto end = Time::Forever();
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
-	EXPECT_TRUE(TimePtrEqual(start,Time::ConstPtr()));
-	EXPECT_TRUE(TimePtrEqual(end,Time::ConstPtr()));
+	EXPECT_TRUE(TimeEqual(start,Time::SinceEver()));
+	EXPECT_TRUE(TimeEqual(end,Time::Forever()));
 
 
-	auto definition = zone->AddDefinition(shapes,Time::ConstPtr(),Time::ConstPtr());
+	auto definition = zone->AddDefinition(shapes,Time::SinceEver(),Time::Forever());
 
 
 
 	EXPECT_THROW({
 			zone->AddDefinition(shapes,
-			                    std::make_shared<Time>(Time::FromTimeT(0)),
-			                    Time::ConstPtr());
+			                    Time::FromTimeT(0),
+			                    Time::Forever());
 		},std::runtime_error);
 
-	definition->SetStart(std::make_shared<Time>(Time::FromTimeT(1)));
+	definition->SetStart(Time::FromTimeT(1));
 
 	EXPECT_THROW({
-			definition->SetEnd(std::make_shared<Time>(Time::FromTimeT(0)));
+			definition->SetEnd(Time::FromTimeT(0));
 		},std::invalid_argument);
 
 	EXPECT_NO_THROW({
-			definition->SetEnd(std::make_shared<Time>(Time::FromTimeT(2)));
+			definition->SetEnd(Time::FromTimeT(2));
 		});
 
 
 	EXPECT_NO_THROW({
 			zone->AddDefinition(shapes,
-			                    std::make_shared<Time>(Time::FromTimeT(3)),
-			                    std::make_shared<Time>(Time::FromTimeT(4)));
+			                    Time::FromTimeT(3),
+			                    Time::FromTimeT(4));
 		});
 
 
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
-	EXPECT_TRUE(TimePtrEqual(start,Time::ConstPtr()));
-	EXPECT_TRUE(TimePtrEqual(end,std::make_shared<Time>(Time::FromTimeT(1))));
+	EXPECT_TRUE(TimeEqual(start,Time::SinceEver()));
+	EXPECT_TRUE(TimeEqual(end,Time::FromTimeT(1)));
 	EXPECT_NO_THROW({
 			zone->AddDefinition(shapes,start,end);
 		});
 
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
-	EXPECT_TRUE(TimePtrEqual(start,std::make_shared<Time>(Time::FromTimeT(2))));
-	EXPECT_TRUE(TimePtrEqual(end,std::make_shared<Time>(Time::FromTimeT(3))));
+	EXPECT_TRUE(TimeEqual(start,Time::FromTimeT(2)));
+	EXPECT_TRUE(TimeEqual(end,Time::FromTimeT(3)));
 	EXPECT_NO_THROW({
 			zone->AddDefinition(shapes,start,end);
 		});
 	EXPECT_TRUE(zone->NextFreeTimeRegion(start,end));
-	EXPECT_TRUE(TimePtrEqual(start,std::make_shared<Time>(Time::FromTimeT(4))));
-	EXPECT_TRUE(TimePtrEqual(end,Time::ConstPtr()));
+	EXPECT_TRUE(TimeEqual(start,Time::FromTimeT(4)));
+	EXPECT_TRUE(TimeEqual(end,Time::Forever()));
 	EXPECT_NO_THROW({
 			zone->AddDefinition(shapes,start,end);
 		});

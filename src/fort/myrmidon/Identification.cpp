@@ -40,27 +40,27 @@ AntID CIdentification::TargetAntID() const {
 }
 
 
-void Identification::SetStart(const Time::ConstPtr & start) {
+void Identification::SetStart(const Time & start) {
 	d_p->SetStart(start);
 }
 
-void Identification::SetEnd(const Time::ConstPtr & end) {
+void Identification::SetEnd(const Time & end) {
 	d_p->SetEnd(end);
 }
 
-Time::ConstPtr Identification::Start() const {
+Time Identification::Start() const {
 	return FORT_MYRMIDON_CONST_HELPER(Identification, Start);
 }
 
-Time::ConstPtr CIdentification::Start() const {
+Time CIdentification::Start() const {
 	return d_p->Start();
 }
 
-Time::ConstPtr Identification::End() const {
+Time Identification::End() const {
 	return FORT_MYRMIDON_CONST_HELPER(Identification, End);
 }
 
-Time::ConstPtr CIdentification::End() const {
+Time CIdentification::End() const {
 	return d_p->End();
 }
 

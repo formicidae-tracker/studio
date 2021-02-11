@@ -56,14 +56,14 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 	layout->addWidget(d_calendar);
 	d_popupWidget->setLayout(layout);
 
-	auto timeFromValue = [this](fm::Time::ConstPtr time) {
-		                     if (!time) {
+	auto timeFromValue = [this](fm::Time time) {
+		                     if (time.IsInfinite()) {
 			                     if ( !d_universe || d_universe->trackingDataDirectories().empty() == true) {
 				                     return;
 			                     }
-			                     time = std::make_shared<fm::Time>(d_universe->trackingDataDirectories().begin()->second->StartDate());
+			                     time = d_universe->trackingDataDirectories().begin()->second->StartDate();
 		                     }
-		                     QDateTime date = QDateTime::fromSecsSinceEpoch(time->ToTimeT());
+		                     QDateTime date = QDateTime::fromSecsSinceEpoch(time.ToTimeT());
 		                     d_timeEdit->setTime(date.time());
 		                     d_calendar->setSelectedDate(date.date());
 	                     };
@@ -71,7 +71,7 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 	auto updateTimeFromPopup = [this]() {
 		                           QDateTime dateTime(d_calendar->selectedDate(),d_timeEdit->time());
 		                           try {
-			                           auto time = std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(dateTime.toString("yyyy-MM-ddThh:mm:ss.zzzZ"))));
+			                           auto time = fm::Time::Parse(ToStdString(dateTime.toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
 			                           setTime(time);
 			                           emit timeChanged(time);
 		                           } catch (const std::exception & e) {
@@ -98,21 +98,21 @@ TimeEditorWidget::~TimeEditorWidget() {
 
 }
 
-fm::Time::ConstPtr TimeEditorWidget::time() const {
+fm::Time TimeEditorWidget::time() const {
 	if ( d_ui->lineEdit->text().isEmpty() ) {
-		return fm::Time::ConstPtr();
+		return fm::Time::Forever();
 	}
 
 	try {
-		return std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(d_ui->lineEdit->text())));
+		return fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e) {
-		return fm::Time::ConstPtr();
+		return fm::Time::Forever();
 	}
 }
 
-void TimeEditorWidget::setTime(const fm::Time::ConstPtr & time) {
+void TimeEditorWidget::setTime(const fm::Time & time) {
 	d_warning->setVisible(false);
-	if ( !time ) {
+	if ( time.IsInfinite() ) {
 		d_ui->lineEdit->setText("");
 		d_decrement->setEnabled(false);
 		d_increment->setEnabled(false);
@@ -121,20 +121,20 @@ void TimeEditorWidget::setTime(const fm::Time::ConstPtr & time) {
 	d_decrement->setEnabled(true);
 	d_increment->setEnabled(true);
 
-	d_ui->lineEdit->setText(ToQString(*time));
+	d_ui->lineEdit->setText(ToQString(time));
 }
 
 
 void TimeEditorWidget::on_lineEdit_editingFinished() {
 	if ( d_ui->lineEdit->text().isEmpty() == true ) {
-		setTime(fm::Time::ConstPtr());
-		emit timeChanged(fm::Time::ConstPtr());
+		setTime(fm::Time::Forever());
+		emit timeChanged(fm::Time::Forever());
 		return;
 	}
 
-	fm::Time::ConstPtr res;
+	fm::Time res;
 	try {
-		res = std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(d_ui->lineEdit->text())));
+		res = fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e) {
 		d_warning->setVisible(true);
 		return;
@@ -156,13 +156,13 @@ void TimeEditorWidget::incrementBy(fm::Duration duration) {
 	if ( d_ui->lineEdit->text().isEmpty() == true ) {
 		return;
 	}
-	fm::Time::ConstPtr res;
+	fm::Time res;
 	try {
-		res = std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(d_ui->lineEdit->text())));
+		res = fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e ) {
 		return;
 	}
-	res = std::make_shared<fm::Time>(res->Add(duration));
+	res = res.Add(duration);
 	setTime(res);
 	emit timeChanged(res);
 }
@@ -189,7 +189,7 @@ void TimeEditorWidget::on_frameButton_clicked() {
 	if ( !ref ) {
 		return;
 	}
-	auto time = std::make_shared<fm::Time>(ref->Time());
+	auto time = ref->Time();
 	setTime(time);
 	emit timeChanged(time);
 }

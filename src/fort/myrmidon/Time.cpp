@@ -468,10 +468,6 @@ std::string Time::DebugString() const {
 	return os.str();
 }
 
-Time::SortableKey Time::SortKey(const Time::ConstPtr & timePtr ) {
-	return !timePtr ? std::make_pair(std::numeric_limits<int64_t>::min(),std::numeric_limits<int32_t>::min()) : timePtr->SortKey();
-}
-
 
 std::string Time::Format() const {
 	if ( IsForever() == true ) {
@@ -542,12 +538,4 @@ std::ostream & operator<<(std::ostream & out,
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t) {
 	return out << t.Format();
-}
-
-
-std::ostream & operator<<(std::ostream & out, const fort::myrmidon::Time::ConstPtr & t ) {
-	if (!t) {
-		return out << "+/-∞";
-	}
-	return out << *t;
 }

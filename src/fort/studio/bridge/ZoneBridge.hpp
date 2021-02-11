@@ -112,7 +112,7 @@ private:
 	QStandardItemModel  * d_spaceModel;
 	QStandardItemModel  * d_fullFrameModel;
 	fmp::Space::Ptr       d_selectedSpace;
-	fm::Time::ConstPtr    d_selectedTime;
+	fm::Time              d_selectedTime;
 
 	std::vector<std::shared_ptr<ZoneDefinitionBridge>> d_childBridges;
 };

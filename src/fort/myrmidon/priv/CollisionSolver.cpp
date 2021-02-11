@@ -17,21 +17,13 @@ CollisionSolver::CollisionSolver(const SpaceByID & spaces,
 	}
 
 	for ( const auto & [spaceID,space] : spaces ) {
-		auto res = d_spaceGeometries.insert(std::make_pair(spaceID,TimedZoneGeometries()));
+		auto res = d_spaceDefinitions.insert(std::make_pair(spaceID,ZoneDefinitionsByTime()));
 		d_zoneIDs.insert(std::make_pair(spaceID,std::vector<ZoneID>()));
-		auto & geometries = res.first->second;
+		auto & definitions = res.first->second;
 		for ( const auto & [zID,zone] : space->Zones() ) {
 			d_zoneIDs.at(spaceID).push_back(zID);
-			Time::ConstPtr last;
 			for ( const auto & definition : zone->Definitions() ) {
-				if ( Time::SortKey(definition->Start()) != Time::SortKey(last) ) {
-					geometries.Insert(zID,{},last);
-				}
-				last = definition->End();
-				geometries.Insert(zID,definition->GetGeometry(),definition->Start());
-			}
-			if ( !last ) {
-				geometries.Insert(zID,{},last);
+				definitions.Insert(zID,definition,definition->Start());
 			}
 		}
 	}
@@ -52,16 +44,23 @@ CollisionSolver::ComputeCollisions(const IdentifiedFrame::Ptr & frame) const {
 
 
 AntZoner::ConstPtr CollisionSolver::ZonerFor(const IdentifiedFrame::ConstPtr & frame) const {
-	if ( d_spaceGeometries.count(frame->Space) == 0) {
+	if ( d_spaceDefinitions.count(frame->Space) == 0) {
 		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame->Space) + " in IdentifiedFrame");
 	}
-	const auto & allGeometries = d_spaceGeometries.at(frame->Space);
+	const auto & allDefinitions = d_spaceDefinitions.at(frame->Space);
 
 	// first we build geometries for the right time;
 	std::vector<std::pair<ZoneID,Zone::Geometry::ConstPtr> > currentGeometries;
 	for ( const auto & zID : d_zoneIDs.at(frame->Space) ) {
 		try {
-			currentGeometries.push_back(std::make_pair(zID,allGeometries.At(zID,frame->FrameTime)));
+			auto definition = allDefinitions.At(zID,frame->FrameTime);
+			if ( definition->IsValid(frame->FrameTime) == false ) {
+				continue;
+			}
+			auto geometry = definition->GetGeometry();
+			if ( geometry ) {
+				currentGeometries.push_back(std::make_pair(zID,geometry));
+			}
 		} catch ( const std::exception & e ) {
 			continue;
 		}

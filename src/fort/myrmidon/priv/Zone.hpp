@@ -55,23 +55,23 @@ public:
 
 	ZoneDefinition(const ZonePtr & zone,
 	               Geometry::ConstPtr geometry,
-	               const Time::ConstPtr & start,
-	               const Time::ConstPtr & end);
+	               const Time & start,
+	               const Time & end);
 	virtual ~ZoneDefinition();
 	const Geometry::ConstPtr & GetGeometry() const;
 
 	void SetGeometry(const Geometry::ConstPtr & geometry);
 
-	const Time::ConstPtr & Start() const;
+	const Time & Start() const;
 
-	const Time::ConstPtr & End() const;
+	const Time & End() const;
 
-	void SetStart(const Time::ConstPtr & start);
+	void SetStart(const Time & start);
 
-	void SetEnd(const Time::ConstPtr & end);
+	void SetEnd(const Time & end);
 
 private:
-	void SetBound(const Time::ConstPtr & start, const Time::ConstPtr & end);
+	void SetBound(const Time & start, const Time & end);
 
 	std::weak_ptr<Zone> d_zone;
 	Geometry::ConstPtr  d_geometry;
@@ -92,11 +92,11 @@ public:
 	static Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
 
 	Definition::Ptr AddDefinition(const std::vector<Shape::ConstPtr> & shapes,
-	                              const Time::ConstPtr & start,
-	                              const Time::ConstPtr & end);
+	                              const Time & start,
+	                              const Time & end);
 
 
-	bool NextFreeTimeRegion(Time::ConstPtr & start,Time::ConstPtr & end) const;
+	bool NextFreeTimeRegion(Time & start,Time & end) const;
 
 	const Definition::List & Definitions();
 

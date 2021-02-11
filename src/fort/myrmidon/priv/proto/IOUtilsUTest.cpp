@@ -73,38 +73,38 @@ TEST_F(IOUtilsUTest,TimeIO) {
 
 TEST_F(IOUtilsUTest,IdentificationIO) {
 	struct TestData {
-		Time::ConstPtr Start,End;
-		double         TagSize;
-		TagID          Value;
-		bool           HasPose;
+		Time            Start,End;
+		double          TagSize;
+		TagID           Value;
+		bool            HasPose;
 		Eigen::Vector3d Pose;
 	};
 
 	std::vector<TestData> data
 		= {
 		   {
-		    Time::ConstPtr(),Time::ConstPtr(),
+		    Time::SinceEver(),Time::Forever(),
 		    0.0,
 		    123,
 		    false,
 		    Eigen::Vector3d(1,2,0.3)
 		   },
 		   {
-		    std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
+		    Time::FromTimeT(2),Time::Forever(),
 		    2.3,
 		    23,
 		    false,
 		    Eigen::Vector3d(3,2,0.1)
 		   },
 		   {
-		    Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(2)),
+		    Time::SinceEver(),Time::FromTimeT(2),
 		    0.0,
 		    34,
 		    false,
 		    Eigen::Vector3d(4,5,0.0)
 		   },
 		   {
-		    Time::ConstPtr(),Time::ConstPtr(),
+		    Time::SinceEver(),Time::Forever(),
 		    0.0,
 		    123,
 		    true,
@@ -120,11 +120,11 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		ident->SetTagSize(d.TagSize);
 		pb::Identification identPb;
 		pb::Identification expected;
-		if ( d.Start ) {
-			d.Start->ToTimestamp(expected.mutable_start());
+		if ( d.Start.IsInfinite() == false ) {
+			d.Start.ToTimestamp(expected.mutable_start());
 		}
-		if ( d.End ) {
-			d.End->ToTimestamp(expected.mutable_end());
+		if ( d.End.IsInfinite() == false ) {
+			d.End.ToTimestamp(expected.mutable_end());
 		}
 		if ( d.HasPose ) {
 			ident->SetUserDefinedAntPose(d.Pose.block<2,1>(0,0),d.Pose.z());
@@ -156,9 +156,8 @@ TEST_F(IOUtilsUTest,IdentificationIO) {
 		}
 		auto finalIdent = a->Identifications()[0];
 		EXPECT_EQ(finalIdent->TagValue(),d.Value);
-		EXPECT_EQ(!finalIdent->Start(),!d.Start);
-		EXPECT_TRUE(TimePtrEqual(finalIdent->Start(),d.Start));
-		EXPECT_TRUE(TimePtrEqual(finalIdent->End(),d.End));
+		EXPECT_TRUE(TimeEqual(finalIdent->Start(),d.Start));
+		EXPECT_TRUE(TimeEqual(finalIdent->End(),d.End));
 		if ( d.HasPose == false ) {
 			EXPECT_FLOAT_EQ(finalIdent->AntPosition().x(),d.Pose.x());
 			EXPECT_FLOAT_EQ(finalIdent->AntPosition().y(),d.Pose.y());
@@ -342,9 +341,9 @@ TEST_F(IOUtilsUTest,AntStaticValueIO) {
 
 TEST_F(IOUtilsUTest,AntIO) {
 	struct IdentificationData {
-		Time::ConstPtr    Start,End;
-		double            X,Y,Angle;
-		TagID             Value;
+		Time    Start,End;
+		double  X,Y,Angle;
+		TagID   Value;
 	};
 
 
@@ -361,12 +360,12 @@ TEST_F(IOUtilsUTest,AntIO) {
 		   {
 		    {
 		     {
-		      Time::ConstPtr(),std::make_shared<Time>(Time::FromTimeT(1)),
+		      Time::SinceEver(),Time::FromTimeT(1),
 		      2.0,3.0,M_PI,
 		      1,
 		     },
 		     {
-		      std::make_shared<Time>(Time::FromTimeT(2)),Time::ConstPtr(),
+		      Time::FromTimeT(2),Time::Forever(),
 		      2.0,3.0,M_PI,
 		      2,
 		     },
@@ -384,15 +383,15 @@ TEST_F(IOUtilsUTest,AntIO) {
 		    {
 		     {"alive",
 		      {
-		       std::make_pair(Time::ConstPtr(),true),
-		       std::make_pair(std::make_shared<Time>(Time::FromTimeT(12)),
+		       std::make_pair(Time::SinceEver(),true),
+		       std::make_pair(Time::FromTimeT(12),
 		                      false),
 		      },
 		     },
 		     {
 		      "group",
 		      {
-		       std::make_pair(Time::ConstPtr(),std::string("nurse")),
+		       std::make_pair(Time::SinceEver(),std::string("nurse")),
 		      },
 		     },
 		    },
@@ -444,8 +443,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 				auto ev = expected.add_namedvalues();
 				ev->set_name(name);
 				IOUtils::SaveAntStaticValue(ev->mutable_value(),value);
-				if ( !time == false ) {
-					time->ToTimestamp(ev->mutable_time());
+				if ( time.IsSinceEver() == false ) {
+					time.ToTimestamp(ev->mutable_time());
 				}
 			}
 		}
@@ -482,8 +481,8 @@ TEST_F(IOUtilsUTest,AntIO) {
 			auto ii = res->CIdentifications()[i];
 			auto ie = dIdents[i];
 			EXPECT_EQ(ii->TagValue(),ie->TagValue());
-			EXPECT_TRUE(TimePtrEqual(ii->Start(),ie->Start()));
-			EXPECT_TRUE(TimePtrEqual(ii->End(),ie->End()));
+			EXPECT_TRUE(TimeEqual(ii->Start(),ie->Start()));
+			EXPECT_TRUE(TimeEqual(ii->End(),ie->End()));
 			EXPECT_TRUE(VectorAlmostEqual(ii->AntPosition(),ie->AntPosition()));
 			EXPECT_NEAR(ii->AntAngle(),ie->AntAngle(),M_PI/100000.0);
 			EXPECT_EQ(ii->Target()->AntID(),ie->Target()->AntID());
@@ -652,23 +651,23 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 	auto s1 = e->CreateSpace("foo");
 
 	auto dZ = s1->CreateZone("hole");
-	auto stamp = std::make_shared<Time>(Time::FromTimeT(1));
+	auto stamp = Time::FromTimeT(1);
 	auto def1 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),10)},
-	                              Time::ConstPtr(),
+	                              Time::SinceEver(),
 	                              stamp);
 
 	auto def2 = dZ->AddDefinition({std::make_shared<Circle>(Eigen::Vector2d(0,0),12)},
-	                               stamp,
-	                               Time::ConstPtr());
+	                              stamp,
+	                              Time::Forever());
 
 	pb::Zone z,expected;
 	expected.set_id(dZ->ZoneID());
 	expected.set_name(dZ->Name());
 	auto pbDef1 = expected.add_definitions();
-	stamp->ToTimestamp(pbDef1->mutable_end());
+	stamp.ToTimestamp(pbDef1->mutable_end());
 	IOUtils::SaveShape(pbDef1->add_shapes(),def1->GetGeometry()->Shapes().front());
 	auto pbDef2 = expected.add_definitions();
-	stamp->ToTimestamp(pbDef2->mutable_start());
+	stamp.ToTimestamp(pbDef2->mutable_start());
 	IOUtils::SaveShape(pbDef2->add_shapes(),def2->GetGeometry()->Shapes().front());
 
 	IOUtils::SaveZone(&z,dZ);
@@ -683,8 +682,8 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 	for(size_t i = 0; i < std::min(dZ->Definitions().size(),res->Definitions().size()); ++i ) {
 		const auto & expectedDefinition = dZ->Definitions()[i];
 		const auto & definition = res->Definitions()[i];
-		EXPECT_TRUE(TimePtrEqual(definition->Start(),expectedDefinition->Start()));
-		EXPECT_TRUE(TimePtrEqual(definition->End(),expectedDefinition->End()));
+		EXPECT_TRUE(TimeEqual(definition->Start(),expectedDefinition->Start()));
+		EXPECT_TRUE(TimeEqual(definition->End(),expectedDefinition->End()));
 		ASSERT_FALSE(!expectedDefinition->GetGeometry());
 		ASSERT_FALSE(!definition->GetGeometry());
 		EXPECT_EQ(definition->GetGeometry()->Shapes().size(),

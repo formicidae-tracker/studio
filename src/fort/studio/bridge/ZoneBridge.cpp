@@ -72,7 +72,7 @@ void ZoneBridge::tearDownExperiment() {
 
 void ZoneBridge::setUpExperiment() {
 	d_selectedSpace.reset();
-	d_selectedTime.reset();
+	d_selectedTime = fm::Time::Forever();
 
 	rebuildSpaces();
 }
@@ -92,7 +92,7 @@ void ZoneBridge::clearSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
 	d_selectedSpace.reset();
-	d_selectedTime.reset();
+	d_selectedTime = fm::Time::Forever();
 }
 
 void ZoneBridge::rebuildSpaces() {
@@ -170,22 +170,22 @@ void ZoneBridge::removeItemAtIndex(const QModelIndex & index) {
 void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 	fmp::Zone::Definition::Ptr definition;
 	auto z = zoneRootItem->data(DataRole).value<fmp::Zone::Ptr>();
-	fm::Time::ConstPtr start,end;
+	fm::Time start,end;
 	if ( !z == true || z->NextFreeTimeRegion(start,end) == false ) {
 		return;
 	}
 
 	auto geometry = std::make_shared<const fmp::Zone::Geometry>(std::vector<fmp::Shape::ConstPtr>());
-	if ( !start == false ) {
-		geometry = z->AtTime(start->Add(-1));
-	} else if ( !end == false ) {
-		geometry = z->AtTime(end->Add(1));
+	if ( start.IsInfinite() == false ) {
+		geometry = z->AtTime(start.Add(-1));
+	} else if ( end.IsInfinite() == false ) {
+		geometry = z->AtTime(end.Add(1));
 	}
 
 	try {
 		qDebug() << "[ZoneBridge]: Calling fmp::Zone::AddDefinition({},"
-		         << ToQString(start,"-") << ","
-		         << ToQString(end,"+")
+		         << ToQString(start) << ","
+		         << ToQString(end)
 		         << ")";
 		z->AddDefinition(geometry->Shapes(),
 		                 start,end);
@@ -214,10 +214,10 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 	try {
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Space::CreateZone('new-zone')";
 		z = space->CreateZone(ToStdString(tr("new-zone")));
-		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Zone::AddDefinition({},nullptr,nullptr)";
+		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Zone::AddDefinition({},-∞,+∞)";
 		z->AddDefinition({},
-		                 fm::Time::ConstPtr(),
-		                 fm::Time::ConstPtr());
+		                 fm::Time::SinceEver(),
+		                 fm::Time::Forever());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Zone: " << e.what();
 		return;
@@ -327,8 +327,8 @@ QList<QStandardItem*> ZoneBridge::buildDefinition(const fmp::Zone::Definition::P
 	auto typeData = QVariant(DefinitionType);
 	auto data = QVariant::fromValue(definition);
 	QList<QStandardItem*> res;
-	res.push_back(new QStandardItem(ToQString(definition->Start(),"-")));
-	res.push_back(new QStandardItem(ToQString(definition->End(),"+")));
+	res.push_back(new QStandardItem(ToQString(definition->Start())));
+	res.push_back(new QStandardItem(ToQString(definition->End())));
 	res.push_back(new QStandardItem(QString::number(definition->GetGeometry()->Shapes().size())));
 	for ( const auto & i : res ) {
 		i->setEditable(true);
@@ -346,7 +346,7 @@ bool ZoneBridge::canAddItemAt(const QModelIndex & index) {
 		return false;
 	}
 	item = getSibling(item,0);
-	fm::Time::ConstPtr start,end;
+	fm::Time start,end;
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
 		return true;
@@ -431,22 +431,22 @@ void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool s
 
 	auto prefix = start == true ? "-" : "+";
 	auto oldTime = start == true ? d->Start() : d->End();
-	auto oldTimeStr = ToQString(oldTime,prefix);
+	auto oldTimeStr = ToQString(oldTime);
 	if ( oldTimeStr  == definitionTimeItem->text() ) {
 		return;
 	}
 
-	fm::Time::ConstPtr newTime;
+	fm::Time newTime = start == true ? fm::Time::SinceEver() : fm::Time::Forever();
 	if ( definitionTimeItem->text().isEmpty() == false ) {
 		try {
-			newTime = std::make_shared<fm::Time>(fm::Time::Parse(ToStdString(definitionTimeItem->text())));
+			newTime = fm::Time::Parse(ToStdString(definitionTimeItem->text()));
 		} catch ( const std::exception & e ) {
 			qCritical() << "Could not parse time " << definitionTimeItem->text();
 			definitionTimeItem->setText(oldTimeStr);
 			return;
 		}
 	}
-	auto newTimeStr = ToQString(newTime,prefix);
+	auto newTimeStr = ToQString(newTime);
 
 	try {
 		if ( start == true ) {
@@ -575,9 +575,9 @@ void ZoneBridge::rebuildChildBridges() {
 	for( int i = 0; i < spaceRootItem->rowCount(); ++i) {
 		auto zoneRootItem = spaceRootItem->child(i,0);
 		auto zone = zoneRootItem->data(DataRole).value<fmp::Zone::Ptr>();
-		if ( !d_selectedTime == true ) {
+		if ( d_selectedTime.IsInfinite() == true ) {
 			if ( zone->Definitions().empty() == false
-			     && !zone->Definitions().front()->Start() == true ) {
+			     && zone->Definitions().front()->Start().IsInfinite() == true ) {
 				addChildBridge(zone,zone->Definitions().front(),zoneRootItem->child(0,2));
 			}
 			continue;
@@ -585,7 +585,7 @@ void ZoneBridge::rebuildChildBridges() {
 
 		for ( int j = 0; j < zoneRootItem->rowCount(); ++j ) {
 			auto d = zoneRootItem->child(j,0)->data(DataRole).value<fmp::Zone::Definition::Ptr>();
-			if ( d->IsValid(*d_selectedTime) == true ) {
+			if ( d->IsValid(d_selectedTime) == true ) {
 				addChildBridge(zone,d,zoneRootItem->child(j,2));
 				break;
 			}
@@ -600,7 +600,7 @@ void ZoneBridge::rebuildChildBridges() {
 }
 
 void ZoneBridge::selectTime(const fm::Time & time) {
-	d_selectedTime = std::make_shared<fm::Time>(time);
+	d_selectedTime = time;
 	rebuildChildBridges();
 }
 

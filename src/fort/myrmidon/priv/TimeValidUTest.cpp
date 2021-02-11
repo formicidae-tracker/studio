@@ -14,25 +14,17 @@ using namespace fort::myrmidon;
 
 class TestObject : public priv::TimeValid {
 public:
-	TestObject(const Time::ConstPtr & start, const Time::ConstPtr & end) {
+	TestObject(const Time & start, const Time & end) {
 		d_start = start;
 		d_end = end;
 	};
 	std::string String() const {
 		std::ostringstream os;
-		os <<"TestObject{start:";
-		if (!d_start) {
-			os << "-∞";
-		} else {
-			os << *d_start;
-		}
-		os << ";end:";
-		if (!d_end) {
-			os << "+∞";
-		} else {
-			os << *d_end;
-		}
-		os <<"}";
+		os <<"TestObject{start:"
+		   <<d_start
+		   << ";end:"
+		   << d_end
+		   << "}";
 		return os.str();
 	}
 };
@@ -42,8 +34,8 @@ std::ostream & operator<<(std::ostream & out, const TestObject & o ) {
 }
 
 TEST_F(TimeValidUTest,HaveTimeValidity) {
-	TestObject o(std::make_shared<Time>(Time::FromTimeT(1)),
-	             std::make_shared<Time>(Time::FromTimeT(10)));
+	TestObject o(Time::FromTimeT(1),
+	             Time::FromTimeT(10));
 
 	EXPECT_FALSE(o.IsValid(Time::FromTimeT(0)));
 	EXPECT_TRUE(o.IsValid(Time::FromTimeT(1)));
@@ -79,8 +71,8 @@ TEST_F(TimeValidUTest,CanCheckOverlap) {
 
 		std::vector<std::shared_ptr<TestObject> > list;
 		for(size_t i = 0; i < d.Times.size(); ++i) {
-			auto s = std::make_shared<const Time>(Time::FromTimeT(d.Times[i]));
-			auto e = std::make_shared<const Time>(Time::FromTimeT(d.Times[++i]));
+			auto s = Time::FromTimeT(d.Times[i]);
+			auto e = Time::FromTimeT(d.Times[++i]);
 			list.push_back(std::make_shared<TestObject>(s,e));
 		}
 
@@ -106,8 +98,8 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 	std::vector<std::shared_ptr<TestObject> > list;
 
 	for(size_t i = 0; i < Times.size(); ++i) {
-		auto s = std::make_shared<const Time>(Time::FromTimeT(Times[i]));
-		auto e = std::make_shared<const Time>(Time::FromTimeT(Times[++i]));
+		auto s = Time::FromTimeT(Times[i]);
+		auto e = Time::FromTimeT(Times[++i]);
 		list.push_back(std::make_shared<TestObject>(s,e));
 	}
 
@@ -116,42 +108,42 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 
 	struct TestData {
 		time_t T;
-		Time::ConstPtr ExpectedLower;
-		Time::ConstPtr ExpectedUpper;
+		Time ExpectedLower;
+		Time ExpectedUpper;
 	};
 
 	std::vector<TestData> data
 		= {
-		   {-1,Time::ConstPtr(),std::make_shared<const Time>(Time::FromTimeT(0))},
+		   {-1,Time::SinceEver(),Time::FromTimeT(0)},
 		   {
 		    10,
-		    std::make_shared<const Time>(Time::FromTimeT(10)),
-		    std::make_shared<const Time>(Time::FromTimeT(12))
+		    Time::FromTimeT(10),
+		    Time::FromTimeT(12)
 		   },
 		   {
 		    11,
-		    std::make_shared<const Time>(Time::FromTimeT(10)),
-		    std::make_shared<const Time>(Time::FromTimeT(12))
+		    Time::FromTimeT(10),
+		    Time::FromTimeT(12)
 		   },
 		   {
 		    40,
-		    std::make_shared<const Time>(Time::FromTimeT(40)),
-		    std::make_shared<const Time>(Time::FromTimeT(45))
+		    Time::FromTimeT(40),
+		    Time::FromTimeT(45)
 		   },
 		   {
 		    42,
-		    std::make_shared<const Time>(Time::FromTimeT(40)),
-		    std::make_shared<const Time>(Time::FromTimeT(45))
+		    Time::FromTimeT(40),
+		    Time::FromTimeT(45)
 		   },
 		   {
 		    60,
-		    std::make_shared<const Time>(Time::FromTimeT(60)),
-		    Time::ConstPtr(),
+		    Time::FromTimeT(60),
+		    Time::Forever(),
 		   },
 		   {
 		    65,
-		    std::make_shared<const Time>(Time::FromTimeT(60)),
-		    Time::ConstPtr(),
+		    Time::FromTimeT(60),
+		    Time::Forever(),
 		   },
 
 	};
@@ -161,8 +153,8 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 				auto t = Time::FromTimeT(d.T);
 				auto lower = priv::TimeValid::LowerUnvalidBound(t,list.begin(),list.end());
 				auto upper = priv::TimeValid::UpperUnvalidBound(t,list.begin(),list.end());
-				EXPECT_TRUE(TimePtrEqual(upper,d.ExpectedUpper));
-				EXPECT_TRUE(TimePtrEqual(lower,d.ExpectedLower));
+				EXPECT_TRUE(TimeEqual(upper,d.ExpectedUpper));
+				EXPECT_TRUE(TimeEqual(lower,d.ExpectedLower));
 			});
 
 	}

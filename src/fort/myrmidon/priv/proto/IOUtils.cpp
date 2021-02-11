@@ -43,12 +43,13 @@ void IOUtils::SaveTime(pb::Time * pb,const Time & t) {
 
 void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
                                  const fort::myrmidon::pb::Identification & pb) {
-	Time::ConstPtr start,end;
+	auto start = Time::SinceEver();
+	auto end =  Time::Forever();
 	if ( pb.has_start() ) {
-		start = std::make_shared<Time>(Time::FromTimestamp(pb.start()));
+		start = Time::FromTimestamp(pb.start());
 	}
 	if ( pb.has_end() ) {
-		end = std::make_shared<Time>(Time::FromTimestamp(pb.end()));
+		end = Time::FromTimestamp(pb.end());
 	}
 
 	auto res = Identifier::AddIdentification(e->Identifier(),target->AntID(),pb.id(),start,end);
@@ -75,11 +76,11 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 void IOUtils::SaveIdentification(fort::myrmidon::pb::Identification * pb,
                                  const Identification::ConstPtr & ident) {
 	pb->Clear();
-	if ( ident->Start() ) {
-		ident->Start()->ToTimestamp(pb->mutable_start());
+	if ( ident->Start().IsSinceEver() == false ) {
+		ident->Start().ToTimestamp(pb->mutable_start());
 	}
-	if ( ident->End() ) {
-		ident->End()->ToTimestamp(pb->mutable_end());
+	if ( ident->End().IsForever() == false ) {
+		ident->End().ToTimestamp(pb->mutable_end());
 	}
 	pb->set_id(ident->TagValue());
 	if ( ident->UseDefaultTagSize() == false ) {
@@ -205,9 +206,9 @@ void IOUtils::LoadAnt(const ExperimentPtr & e, const fort::myrmidon::pb::AntDesc
 
 	AntDataMap antData;
 	for ( const auto & v : pb.namedvalues() ) {
-		Time::ConstPtr time;
+		auto time = Time::SinceEver();
 		if ( v.has_time() ) {
-			time = std::make_shared<Time>(Time::FromTimestamp(v.time()));
+			time = Time::FromTimestamp(v.time());
 		}
 		antData[v.name()].push_back(std::make_pair(time,LoadAntStaticValue(v.value())));
 	}
@@ -235,8 +236,8 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr
 		for ( const auto & [time, value] : tValues ) {
 			auto vPb = pb->add_namedvalues();
 			vPb->set_name(name);
-			if ( !time == false ) {
-				time->ToTimestamp(vPb->mutable_time());
+			if ( time.IsSinceEver() == false ) {
+				time.ToTimestamp(vPb->mutable_time());
 			}
 			SaveAntStaticValue(vPb->mutable_value(),value);
 		}
@@ -309,13 +310,14 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 			shapes.push_back(LoadShape(sPb));
 		}
 
-		Time::ConstPtr start,end;
+		auto start = Time::SinceEver();
+		auto end = Time::Forever();
 
 		if ( dPb.has_start() ) {
-			start = std::make_shared<Time>(Time::FromTimestamp(dPb.start()));
+			start = Time::FromTimestamp(dPb.start());
 		}
 		if ( dPb.has_end() ) {
-			end = std::make_shared<Time>(Time::FromTimestamp(dPb.end()));
+			end = Time::FromTimestamp(dPb.end());
 		}
 
 		z->AddDefinition(shapes,start,end);
@@ -329,11 +331,11 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	pb->set_name(zone->Name());
 	for ( const auto & d : zone->CDefinitions() ) {
 		auto dPb = pb->add_definitions();
-		if ( d->Start() ) {
-			d->Start()->ToTimestamp(dPb->mutable_start());
+		if ( d->Start().IsSinceEver() == false ) {
+			d->Start().ToTimestamp(dPb->mutable_start());
 		}
-		if ( d->End() ) {
-			d->End()->ToTimestamp(dPb->mutable_end());
+		if ( d->End().IsForever() == false ) {
+			d->End().ToTimestamp(dPb->mutable_end());
 		}
 		if ( !d->GetGeometry() ) {
 			continue;

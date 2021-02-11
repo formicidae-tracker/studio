@@ -316,21 +316,6 @@ private:
 // Every time are considered UTC.
 class Time {
 public:
-	// A pointer to a Time
-	typedef std::shared_ptr<Time>       Ptr;
-
-	// A const pointer to a Time
-	typedef std::shared_ptr<const Time> ConstPtr;
-
-	// An object optimized for std::map or std::set keys
-	//
-	// <SortableKey> is an object constructed from current <Time> to be
-	// used as a computationnaly efficient key in std::map or
-	// std::set. please note that this key has lost any monotonic
-	// information.
-	typedef std::pair<int64_t,int32_t>  SortableKey;
-
-
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
@@ -503,7 +488,7 @@ public:
 	void ToTimestamp(google::protobuf::Timestamp * timestamp) const;
 
 	// Default constructor
-	Time();
+	explicit Time();
 
 	// Adds a Duration to a Time
 	// @d the <Duration> to add
@@ -700,26 +685,6 @@ public:
 		return !Before(other);
 	}
 
-	// Builds a SortableKey for std::map and std::set.
-	//
-	// Builds a <SortableKey> representing this <myrmidon::Time>
-	// suitable for <std::map> and <std::set>.
-	// @return a <SortableKey> representing this <myrmidon::Time>
-	inline SortableKey SortKey() const {
-		return std::make_pair(d_wallSec,d_wallNsec);
-	}
-
-	// Builds a SortableKey representing a Time pointer
-	// @timePtr the source <ConstPtr> to build a <SortableKey> for.
-	//
-	// Builds a <SortableKey> representing a <ConstPtr>. Passing a
-	// nullptr to this function, will represent the smallest possible
-	// key possible, which is then mathematically equivalent to -∞
-	// <myrmidon::Time> (no result of <Parse> can represent this
-	// value).
-	// @return a <SortableKey> representing the <ConstPtr>
-	static SortableKey SortKey(const ConstPtr & timePtr);
-
 private:
 
 	// Number of nanoseconds in a second.
@@ -786,18 +751,3 @@ std::ostream & operator<<(std::ostream & out,
 // @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t);
-
-// Formats to RFC 3339 date string format
-// @out the output iostream
-// @t the <fort::myrmidon::Time::ConstPtr> to format
-//
-// Formats to [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) date
-// string format, i.e. string of the form
-// `1972-01-01T10:00:20.021Z`. It is merely a wrapper from
-// google::protobuf::time_util functions.
-//
-// Please note that null pointer formats to `+/-∞`
-//
-// @return a reference to <out>
-std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::Time::ConstPtr & t );

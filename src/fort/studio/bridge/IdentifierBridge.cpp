@@ -58,8 +58,8 @@ void IdentifierBridge::setUpExperiment() {
 
 fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
                                                              fmp::TagID tagID,
-                                                             const fm::Time::ConstPtr & start,
-                                                             const fm::Time::ConstPtr & end) {
+                                                             const fm::Time & start,
+                                                             const fm::Time & end) {
 
 	if ( !d_experiment) {
 		qWarning() << "Not Adding Identification to Ant " << fmp::Ant::FormatID(antID).c_str();
@@ -71,15 +71,15 @@ fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
 		qDebug() << "[IdentifierBridge]: Calling fort::myrmidon::priv::Identifider::AddIdentification( "
 		         << fmp::Ant::FormatID(antID).c_str()
 		         << "," << fmp::FormatTagID(tagID).c_str()
-		         <<  "," << ToQString(start,"-")
-		         << "," << ToQString(end,"+") << ")";
+		         <<  "," << ToQString(start)
+		         << "," << ToQString(end) << ")";
 		identification = fmp::Identifier::AddIdentification(d_experiment->Identifier(),
 		                                                    antID,tagID,start,end);
 	} catch (const std::exception & e) {
 		qCritical() << "Could not create Identification " << fmp::Ant::FormatID(antID).c_str()
 		            << " ↤ " << fmp::FormatTagID(tagID).c_str()
-		            << " [" << ToQString(start,"-")
-		            << ";" << ToQString(end,"+")
+		            << " [" << ToQString(start)
+		            << ";" << ToQString(end)
 		            << "]: " << e.what();
 		return fmp::Identification::Ptr();
 	}
@@ -143,8 +143,8 @@ QList<QStandardItem*> IdentifierBridge::buildIdentification(const fmp::Identific
 
 	auto tagID = new QStandardItem(fm::FormatTagID(identification->TagValue()).c_str());
 	auto antID = new QStandardItem(identification->Target()->FormattedID().c_str());
-	auto start = new QStandardItem(ToQString(identification->Start(),"-"));
-	auto end = new QStandardItem(ToQString(identification->End(),"+"));
+	auto start = new QStandardItem(ToQString(identification->Start()));
+	auto end = new QStandardItem(ToQString(identification->End()));
 	auto size = new QStandardItem();
 	setSizeItem(size,d_experiment->DefaultTagSize(),identification);
 	std::vector<fmp::AntPoseEstimateConstPtr> estimations;
@@ -193,8 +193,8 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 }
 
 
-bool IdentifierBridge::freeRangeContaining(fm::Time::ConstPtr & start,
-                                           fm::Time::ConstPtr & end,
+bool IdentifierBridge::freeRangeContaining(fm::Time & start,
+                                           fm::Time & end,
                                            fmp::TagID tagID, const fm::Time & time) const {
 	if ( !d_experiment ) {
 		return false;
@@ -244,40 +244,34 @@ void IdentifierBridge::onAntPositionUpdate(const fmp::Identification::ConstPtr &
 }
 
 
-static fm::Time::ConstPtr parseTime(const QString & timeStr) {
-	if ( timeStr.isEmpty() == true || timeStr == "-∞" || timeStr == "+∞" ) {
-		return nullptr;
+static fm::Time parseTime(const QString & timeStr,
+                          const std::string & prefix ) {
+	if ( timeStr.isEmpty() == true  || timeStr == (prefix + "∞").c_str() ) {
+		if ( prefix == "-" ) {
+			return fm::Time::SinceEver();
+		} else {
+			return fm::Time::Forever();
+		}
 	}
-	return  std::make_shared<fm::Time>(fm::Time::Parse(timeStr.toUtf8().constData()));
+	return  fm::Time::Parse(timeStr.toUtf8().constData());
 }
 
-static bool timePtrEqual(const fm::Time::ConstPtr & a,
-                         const fm::Time::ConstPtr & b ) {
-	if (!a) {
-		return !b;
-	}
-	if ( !b ) {
-		return false;
-	};
-
-	return *a == *b;
-}
 
 #define onRangeItemChanged(RangeName,prefix) do {	  \
 	auto identification = item->data().value<fmp::Identification::Ptr>(); \
 	try { \
-		auto RangeName ## Time = parseTime(item->text()); \
-		if ( timePtrEqual(RangeName ## Time,identification->RangeName()) == false) { \
+		auto RangeName ## Time = parseTime(item->text(),prefix); \
+		if ( (RangeName ## Time == identification->RangeName()) == false) { \
 			identification->Set## RangeName (RangeName ## Time); \
 			setModified(true); \
-			qInfo() << ToQString(*identification) << #RangeName " time to " << ToQString(identification->RangeName(),prefix); \
+			qInfo() << ToQString(*identification) << #RangeName " time to " << ToQString(identification->RangeName()); \
 			emit identificationRangeModified(identification); \
 		} \
 	} catch ( const std::exception & e) { \
-		qCritical() << "Could not set " #RangeName " time " << item->text() << ": " << e.what(); \
+		qCritical() << "Could not set " #RangeName " time to " << item->text() << ": " << e.what(); \
 	} \
 	QSignalBlocker blocker(d_model); \
-	item->setText(ToQString(identification->RangeName(),prefix));\
+	item->setText(ToQString(identification->RangeName())); \
 	} while(0)
 
 void IdentifierBridge::onStartItemChanged(QStandardItem * item) {

@@ -89,22 +89,23 @@ TrackingDataDirectory::TrackingDataDirectory(const std::string & uri,
 	, d_movies(movies)
 	, d_referencesByFID(referenceCache) {
 
-	d_start = std::make_shared<const Time>(startdate);
-	d_end = std::make_shared<const Time>(enddate);
+	d_start = startdate;
+	d_end = enddate;
+
 	if ( d_startFrame >= d_endFrame ) {
 		std::ostringstream os;
 		os << "TrackingDataDirectory: startFrame:" << d_startFrame << " >= endDate: " << d_endFrame;
 		throw std::invalid_argument(os.str());
 	}
 
-	if ( d_start->Before(*d_end) == false ) {
+	if ( startdate.Before(enddate) == false ) {
 		std::ostringstream os;
-		os << "TrackingDataDirectory: startDate:" << *d_start << " >= endDate: " << *d_end;
+		os << "TrackingDataDirectory: startDate:" << startdate << " >= endDate: " << enddate;
 		throw std::invalid_argument(os.str());
 	}
 
 	for ( const auto & [frameID,ref] : *referenceCache ) {
-		d_frameIDByTime.insert(std::make_pair(ref.Time().SortKey(),frameID));
+		d_frameIDByTime.insert(std::make_pair(ref.Time(),frameID));
 	}
 
 }
@@ -127,11 +128,11 @@ uint64_t TrackingDataDirectory::EndFrame() const {
 }
 
 const Time & TrackingDataDirectory::StartDate() const {
-	return *d_start;
+	return d_start;
 }
 
 const Time & TrackingDataDirectory::EndDate() const {
-	return *d_end;
+	return d_end;
 }
 
 TrackingDataDirectory::UID TrackingDataDirectory::GetUID(const fs::path & filepath) {
@@ -647,7 +648,7 @@ FrameReference TrackingDataDirectory::FrameReferenceAt(FrameID frameID) const {
 }
 
 FrameReference TrackingDataDirectory::FrameReferenceAfter(const Time & t) const {
-	auto fi = d_frameIDByTime.find(t.SortKey());
+	auto fi = d_frameIDByTime.find(t);
 	if ( fi != d_frameIDByTime.cend() ) {
 		return FrameReferenceAt(fi->second);
 	}

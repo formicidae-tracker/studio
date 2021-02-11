@@ -66,8 +66,8 @@ const ConstAntByID & Identifier::CAnts() const {
 Identification::Ptr Identifier::AddIdentification(const Identifier::Ptr & itself,
                                                   fort::myrmidon::Ant::ID ID,
                                                   TagID tagValue,
-                                                  const Time::ConstPtr & start,
-                                                  const Time::ConstPtr & end) {
+                                                  const Time & start,
+                                                  const Time & end) {
 	auto fi = itself->Ants().find(ID);
 	if ( fi == itself->Ants().end() ) {
 		throw UnmanagedObject(ID);
@@ -196,19 +196,19 @@ Identification::ConstPtr Identifier::Identify(TagID tag,const Time & t) const {
 	return Identification::Ptr();
 }
 
-Time::ConstPtr Identifier::UpperUnidentifiedBound(TagID tag, const Time & t) const {
+Time Identifier::UpperUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
-		return Time::ConstPtr();
+		return Time::Forever();
 	}
 
 	return TimeValid::UpperUnvalidBound(t,fi->second.begin(),fi->second.end());
 }
 
-Time::ConstPtr Identifier::LowerUnidentifiedBound(TagID tag, const Time & t) const {
+Time Identifier::LowerUnidentifiedBound(TagID tag, const Time & t) const {
 	auto fi = d_identifications.find(tag) ;
 	if ( fi == d_identifications.end() ) {
-		return Time::ConstPtr();
+		return Time::SinceEver();
 	}
 
 	return TimeValid::LowerUnvalidBound(t,fi->second.begin(),fi->second.end());
@@ -228,17 +228,15 @@ bool Identifier::AntPoseEstimateComparator::operator() (const AntPoseEstimateCon
 	return a->URI() < b->URI();
 }
 
-bool Identifier::FreeRangeContaining(Time::ConstPtr & start,
-                                     Time::ConstPtr & end,
-                                     TagID tag, const Time & t) const {
-	Time::ConstPtr upperBound, lowerBound;
+bool Identifier::FreeRangeContaining(Time & start,
+                                     Time & end,
+                                     TagID tag,
+                                     const Time & t) const {
 	try {
 		end = UpperUnidentifiedBound(tag,t);
 		start = LowerUnidentifiedBound(tag,t);
 		return true;
 	} catch ( const std::invalid_argument &) {
-		end.reset();
-		start.reset();
 		return false;
 	}
 }

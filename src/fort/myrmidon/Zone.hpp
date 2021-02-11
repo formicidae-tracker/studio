@@ -42,8 +42,8 @@ public:
 	// ```
 	//
 	// @return a <Time::ConstPtr> for the first valid
-	//         time. nullptr means -∞.
-	const Time::ConstPtr & Start() const;
+	//         time. It can be <Time::SinceEver>.
+	const Time & Start() const;
 
 	// Gets the ending valid time of the Definition
 	//
@@ -53,8 +53,8 @@ public:
 	// ```
 	//
 	// @return a <Time::ConstPtr> before which the Definition is
-	//         valid. nullptr means +∞.
-	const Time::ConstPtr & End() const;
+	//         valid. It can be <Time::Forever>
+	const Time & End() const;
 
 	// Opaque implementation pointer
 	typedef std::shared_ptr<const priv::ZoneDefinition> ConstPPtr;
@@ -108,8 +108,8 @@ public:
 	// ```
 	//
 	// @return a <Time::ConstPtr> for the first valid
-	//         time. nullptr means -∞.
-	const Time::ConstPtr & Start() const;
+	//         time. It can be <Time::SinceEver>.
+	const Time & Start() const;
 
 	// Gets the ending valid time of the Definition
 	//
@@ -119,30 +119,30 @@ public:
 	// ```
 	//
 	// @return a <Time::ConstPtr> before which the Definition is
-	//         valid. nullptr means +∞.
-	const Time::ConstPtr & End() const;
+	//         valid. It can be <Time::Forever>.
+	const Time & End() const;
 
 	// Sets the first valid time of the Definition
-	// @start the first valid <Time> for the Definition. nullptr
-	//        means -∞
+	// @start the first valid <Time> for the Definition. It accepts
+	//        <Time::SinceEver>
 	//
 	// R version:
 	// ```R
 	// # const_ptr() is needed to convert to fmTimeCPtr
 	// zd$setStart(fmTimeParse()$const_ptr())
 	// ```
-	void SetStart(const Time::ConstPtr & start);
+	void SetStart(const Time & start);
 
 	// Sets the last valid time of the Definition
 	// @end the <Time> before which the Definition is
-	//      valid. nullptr means -∞
+	//      valid. It accepts <Time::Forever>
 	//
 	// R version:
 	// ```R
 	// # const_ptr() is needed to convert to fmTimeCPtr
 	// zd$setEnd(fmTimeParse()$const_ptr())
 	// ```
-	void SetEnd(const Time::ConstPtr & end);
+	void SetEnd(const Time & end);
 
 	// Opaque implementation pointer
 	typedef std::shared_ptr<priv::ZoneDefinition> PPtr;
@@ -260,8 +260,9 @@ public:
 	// @start the starting validi <Time> for this definition.
 	// @end the ending valid <Time> for this definition
 	//
-	// Adds a new timed <ZoneDefinition> valid for
-	// [<start>,<end>[. nullptr means -/+∞.
+	// Adds a new timed <ZoneDefinition> valid for [<start>,<end>[. It
+	// accepts <Time::SinceEver> and <Time::Forever> for <start> or
+	// <end>.
 	//
 	// R version:
 	// ```R
@@ -272,8 +273,8 @@ public:
 	//
 	// @return the new <ZoneDefinition>
 	ZoneDefinition AddDefinition(const Shape::ConstList & geometry,
-	                             const Time::ConstPtr & start,
-	                             const Time::ConstPtr & end);
+	                             const Time & start,
+	                             const Time & end);
 
 	// const access to the ZoneDefinition
 	//

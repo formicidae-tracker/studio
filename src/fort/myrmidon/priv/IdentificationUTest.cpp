@@ -25,45 +25,45 @@ void IdentificationUTest::SetUp() {
 	//2
 	d_list.push_back(Identification::Accessor::Create(2,d_identifier,d_ant));
 	t = Time::FromTimeT(11);
-	d_list.back()->d_end = std::make_shared<Time>(t);
+	d_list.back()->d_end = t;
 
 	//3
 	d_list.push_back(Identification::Accessor::Create(3,d_identifier,d_ant));
 	t = Time::FromTimeT(11);
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 	//4
 	d_list.push_back(Identification::Accessor::Create(4,d_identifier,d_ant));
 	t = Time::FromTimeT(14);
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 	//5
 	d_list.push_back(Identification::Accessor::Create(5,d_identifier,d_ant));
 	t = Time::FromTimeT(11);
-	d_list.back()->d_end = std::make_shared<Time>(t);
+	d_list.back()->d_end = t;
 	//6
 	d_list.push_back(Identification::Accessor::Create(6,d_identifier,d_ant));
 	t = Time::FromTimeT(11);
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 	t = Time::FromTimeT(14);
-	d_list.back()->d_end = std::make_shared<Time>(t);
+	d_list.back()->d_end = t;
 	//7
 	d_list.push_back(Identification::Accessor::Create(7,d_identifier,d_ant));
 	t = Time::FromTimeT(14);
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 	//8
 	t = Time::FromTimeT(14);
 	d_list.push_back(Identification::Accessor::Create(8,d_identifier,d_ant));
-	d_list.back()->d_end = std::make_shared<Time>(t);
+	d_list.back()->d_end = t;
 	//9
 	t = Time::FromTimeT(15);
 	d_list.push_back(Identification::Accessor::Create(9,d_identifier,d_ant));
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 	t = Time::FromTimeT(17);
-	d_list.back()->d_end = std::make_shared<Time>(t);
+	d_list.back()->d_end = t;
 
 	//10
 	d_list.push_back(Identification::Accessor::Create(10,d_identifier,d_ant));
 	t = Time::FromTimeT(16);
-	d_list.back()->d_start = std::make_shared<Time>(t);
+	d_list.back()->d_start = t;
 }
 
 
@@ -137,12 +137,12 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 	auto ant1 = identifier->CreateAnt(shapeTypes,metadata);
 	auto ant2 = identifier->CreateAnt(shapeTypes,metadata);
 	Identification::Ptr ant1ID1,ant2ID1,ant1ID2,ant2ID2;
-	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->AntID(),0,NULL,NULL);});
+	ASSERT_NO_THROW({ant1ID1 = Identifier::AddIdentification(identifier,ant1->AntID(),0,Time::SinceEver(),Time::Forever());});
 	// the two ant cannot share the same tag
-	ASSERT_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),0,NULL,NULL);},OverlappingIdentification);
-	ASSERT_NO_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),1,NULL,NULL);});
+	ASSERT_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),0,Time::SinceEver(),Time::Forever());},OverlappingIdentification);
+	ASSERT_NO_THROW({ant2ID1 = Identifier::AddIdentification(identifier,ant2->AntID(),1,Time::SinceEver(),Time::Forever());});
 	// we can always reduce the validity of ID1
-	auto swapTime = std::make_shared<Time>(Time::FromTimeT(0));
+	auto swapTime = Time::FromTimeT(0);
 
 	ASSERT_NO_THROW({
 			ant1ID1->SetEnd(swapTime);
@@ -152,8 +152,8 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 			ant1ID2 = Identifier::AddIdentification(identifier,
 			                                        ant1->AntID(),
 			                                        0,
-			                                        Time::ConstPtr(),
-			                                        Time::ConstPtr());
+			                                        Time::SinceEver(),
+			                                        Time::Forever());
 		},OverlappingIdentification);
 	// overlaps with ant2ID1
 	ASSERT_THROW({
@@ -161,7 +161,7 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 			                                        ant1->AntID(),
 			                                        1,
 			                                        swapTime,
-			                                        Time::ConstPtr());
+			                                        Time::Forever());
 		},OverlappingIdentification);
 	ASSERT_NO_THROW({
 			ant2ID1->SetEnd(swapTime);
@@ -173,19 +173,19 @@ TEST_F(IdentificationUTest,TestIdentificationBoundary) {
 			                                        ant1->AntID(),
 			                                        1,
 			                                        swapTime,
-			                                        Time::ConstPtr());
+			                                        Time::Forever());
 		});
 	ASSERT_NO_THROW({
 			ant2ID2 = Identifier::AddIdentification(identifier,
 			                                        ant2->AntID(),
 			                                        0,
 			                                        swapTime,
-			                                        Time::ConstPtr());
+			                                        Time::Forever());
 		});
 
 	std::ostringstream oss;
 	oss << *ant2ID2;
-	EXPECT_EQ(oss.str(),"Identification{ID:0x000 ↦ 2, From:'{Time:1970-01-01T00:00:00Z}', To:'+∞'}");
+	EXPECT_EQ(oss.str(),"Identification{ID:0x000 ↦ 2, From:1970-01-01T00:00:00Z, To:+∞}");
 
 }
 

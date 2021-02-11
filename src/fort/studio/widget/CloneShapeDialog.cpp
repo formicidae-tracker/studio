@@ -73,7 +73,7 @@ CloneShapeDialog::get(ExperimentBridge * experiment,
 		dialog = std::make_shared<CloneShapeDialog>(experiment,experiment->selectedAntID(),parent);
 	} catch ( const std::exception & e ) {
 		qCritical() << e.what();
-		return {};
+		return nullptr;
 	}
 	QEventLoop loop;
 	connect(dialog.get(), &QDialog::finished,
@@ -81,7 +81,7 @@ CloneShapeDialog::get(ExperimentBridge * experiment,
 	dialog->open();
 	loop.exec();
 	if ( dialog->result() == QDialog::Rejected ) {
-		return {};
+		return nullptr;
 	}
 	return std::make_shared<CloneOptions>(CloneOptions{.OverwriteShapes = dialog->d_ui->overwriteBox->checkState() == Qt::Checked,
 	                                                   .ScaleToSize = dialog->d_ui->scaleBox->checkState() == Qt::Checked

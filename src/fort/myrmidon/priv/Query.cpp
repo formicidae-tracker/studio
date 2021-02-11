@@ -53,26 +53,26 @@ void Query::ComputeTagStatistics(const Experiment::ConstPtr & experiment,TagStat
 }
 
 void Query::BuildRange(const Experiment::ConstPtr & experiment,
-                       const Time::ConstPtr & start,
-                       const Time::ConstPtr & end,
+                       const Time & start,
+                       const Time & end,
                        DataRangeBySpaceID & ranges) {
 	const auto & spaces = experiment->CSpaces();
 	for ( const auto & [spaceID,space] : spaces ) {
 		for ( const auto & tdd : space->TrackingDataDirectories() ) {
 			TrackingDataDirectory::const_iterator ibegin(tdd->begin()),iend(tdd->end());
-			if ( !start == false ) {
-				if ( tdd->EndDate().Before(*start) == true ) {
+			if ( start.IsSinceEver() == false ) {
+				if ( tdd->EndDate().Before(start) == true ) {
 					continue;
 				}
-				if ( start->After(tdd->StartDate()) == true ) {
-					ibegin = tdd->FrameAfter(*start);
+				if ( start.After(tdd->StartDate()) == true ) {
+					ibegin = tdd->FrameAfter(start);
 				}
 			}
-			if (!end == false ) {
-				if (end->Before(tdd->StartDate()) == true ) {
+			if (end.IsForever() == false ) {
+				if (end.Before(tdd->StartDate()) == true ) {
 					continue;
 				}
-				iend = tdd->FrameAfter(*end);
+				iend = tdd->FrameAfter(end);
 			}
 			ranges[spaceID].push_back(std::make_pair(ibegin,iend));
 		}
@@ -414,8 +414,8 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
                            std::function<void ( const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
-                           const Time::ConstPtr & start,
-                           const Time::ConstPtr & end,
+                           const Time & start,
+                           const Time & end,
                            bool computeZones,
                            bool singleThread) {
 	auto identifier = experiment->CIdentifier().Compile();
@@ -476,8 +476,8 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           std::function<void (const CollisionData &)> storeDataFunctor,
-                          const Time::ConstPtr & start,
-                          const Time::ConstPtr & end,
+                          const Time & start,
+                          const Time & end,
                           bool singleThreaded) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
@@ -524,8 +524,8 @@ void Query::CollideFrames(const Experiment::ConstPtr & experiment,
 
 void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
                                 std::function<void (const AntTrajectory::ConstPtr &)> storeDataFunctor,
-                                const Time::ConstPtr & start,
-                                const Time::ConstPtr & end,
+                                const Time & start,
+                                const Time & end,
                                 Duration maximumGap,
                                 const Matcher::Ptr & matcher,
                                 bool computeZones,
@@ -604,8 +604,8 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
                                    std::function<void ( const AntTrajectory::ConstPtr &) > storeTrajectory,
                                    std::function<void ( const AntInteraction::ConstPtr &) > storeInteraction,
-                                   const Time::ConstPtr & start,
-                                   const Time::ConstPtr & end,
+                                   const Time & start,
+                                   const Time & end,
                                    Duration maximumGap,
                                    const Matcher::Ptr & matcher,
                                    bool singleThreaded) {

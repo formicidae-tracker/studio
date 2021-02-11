@@ -27,8 +27,8 @@ TagStatistics::ByTagID Query::ComputeTagStatistics(const CExperiment & experimen
 
 void Query::IdentifyFramesFunctor(const CExperiment & experiment,
                                   std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-                                  const Time::ConstPtr & start,
-                                  const Time::ConstPtr & end,
+                                  const Time & start,
+                                  const Time & end,
                                   bool computeZones,
                                   bool singleThreaded) {
 	priv::Query::IdentifyFrames(experiment.d_p,storeData,start,end,computeZones,singleThreaded);
@@ -37,8 +37,8 @@ void Query::IdentifyFramesFunctor(const CExperiment & experiment,
 
 void Query::IdentifyFrames(const CExperiment & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
-                           const Time::ConstPtr & start,
-                           const Time::ConstPtr & end,
+                           const Time & start,
+                           const Time & end,
                            bool computeZones,
                            bool singleThread) {
 	priv::Query::IdentifyFrames(experiment.d_p,
@@ -51,8 +51,8 @@ void Query::IdentifyFrames(const CExperiment & experiment,
 
 void Query::CollideFramesFunctor(const CExperiment & experiment,
                                  std::function<void (const CollisionData & data)> storeData,
-                                 const Time::ConstPtr & start,
-                                 const Time::ConstPtr & end,
+                                 const Time & start,
+                                 const Time & end,
                                  bool singleThread) {
 	priv::Query::CollideFrames(experiment.d_p,storeData,start,end,singleThread);
 }
@@ -60,8 +60,8 @@ void Query::CollideFramesFunctor(const CExperiment & experiment,
 
 void Query::CollideFrames(const CExperiment & experiment,
                           std::vector<CollisionData> & result,
-                          const Time::ConstPtr & start,
-                          const Time::ConstPtr & end,
+                          const Time & start,
+                          const Time & end,
                           bool singleThread) {
 	priv::Query::CollideFrames(experiment.d_p,
 	                           [&result](const CollisionData & data) {
@@ -72,8 +72,8 @@ void Query::CollideFrames(const CExperiment & experiment,
 
 void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
                                           std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-                                          const Time::ConstPtr & start,
-                                          const Time::ConstPtr & end,
+                                          const Time & start,
+                                          const Time & end,
                                           Duration maximumGap,
                                           const Matcher::Ptr & matcher,
                                           bool computeZones,
@@ -92,8 +92,8 @@ void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
 
 void Query::ComputeAntTrajectories(const CExperiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
-                                   const Time::ConstPtr & start,
-                                   const Time::ConstPtr & end,
+                                   const Time & start,
+                                   const Time & end,
                                    Duration maximumGap,
                                    const Matcher::Ptr & matcher,
                                    bool computeZones,
@@ -113,8 +113,8 @@ void Query::ComputeAntTrajectories(const CExperiment & experiment,
 void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
                                           std::function<void ( const AntTrajectory::ConstPtr&) > storeTrajectory,
                                           std::function<void ( const AntInteraction::ConstPtr&) > storeInteraction,
-                                          const Time::ConstPtr & start,
-                                          const Time::ConstPtr & end,
+                                          const Time & start,
+                                          const Time & end,
                                           Duration maximumGap,
                                           const Matcher::Ptr & matcher,
                                           bool singleThread) {
@@ -132,8 +132,8 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
 void Query::ComputeAntInteractions(const CExperiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
                                    std::vector<AntInteraction::ConstPtr> & interactions,
-                                   const Time::ConstPtr & start,
-                                   const Time::ConstPtr & end,
+                                   const Time & start,
+                                   const Time & end,
                                    Duration maximumGap,
                                    const Matcher::Ptr & matcher,
                                    bool singleThread) {

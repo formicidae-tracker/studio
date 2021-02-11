@@ -68,7 +68,7 @@ TEST_F(IdentifierUTest,AntsCanBeDeleted) {
 
 	IdentificationPtr ident;
 	EXPECT_NO_THROW({
-			ident = Identifier::AddIdentification(i,a->AntID(), 123, Time::ConstPtr(), Time::ConstPtr());
+			ident = Identifier::AddIdentification(i,a->AntID(), 123, Time::SinceEver(), Time::Forever());
 		});
 
 	EXPECT_THROW({
@@ -89,15 +89,15 @@ TEST_F(IdentifierUTest,AntCanBeAttachedToIdentification) {
 	auto metadata = std::make_shared<AntMetadata>();
 	auto a = i->CreateAnt(shapeTypes,metadata);
 	EXPECT_THROW({
-			Identifier::AddIdentification(i,a->AntID()+1,123,Time::ConstPtr(),Time::ConstPtr());
+			Identifier::AddIdentification(i,a->AntID()+1,123,Time::SinceEver(),Time::Forever());
 		},Container::UnmanagedObject);
 
 	IdentificationPtr ident1,ident2;
-	EXPECT_NO_THROW(ident1 = Identifier::AddIdentification(i,a->AntID(),123,Time::ConstPtr(),Time::ConstPtr()));
+	EXPECT_NO_THROW(ident1 = Identifier::AddIdentification(i,a->AntID(),123,Time::SinceEver(),Time::Forever()));
 
 	auto ii = std::make_shared<Identifier>();
 	auto aa = ii->CreateAnt(shapeTypes,metadata);
-	ident2 = Identifier::AddIdentification(ii,aa->AntID(),124,Time::ConstPtr(),Time::ConstPtr());
+	ident2 = Identifier::AddIdentification(ii,aa->AntID(),124,Time::SinceEver(),Time::Forever());
 
 	EXPECT_THROW({
 			i->DeleteIdentification(ident2);
@@ -113,49 +113,49 @@ TEST_F(IdentifierUTest,CanIdentifyAntByTag) {
 	auto shapeTypes = std::make_shared<AntShapeTypeContainer>();
 	auto metadata = std::make_shared<AntMetadata>();
 	auto a = i->CreateAnt(shapeTypes,metadata);
-	auto start = std::make_shared<const Time>(Time::Parse("2019-11-02T22:00:20.021+01:00"));
-	auto end = std::make_shared<const Time>(Time::Parse("2019-11-02T22:30:25.863+01:00"));
-	auto secondStart = std::make_shared<const Time>(Time::Parse("2019-11-02T22:34:25.412+01:00"));
+	auto start = Time::Parse("2019-11-02T22:00:20.021+01:00");
+	auto end = Time::Parse("2019-11-02T22:30:25.863+01:00");
+	auto secondStart = Time::Parse("2019-11-02T22:34:25.412+01:00");
 	auto ident = Identifier::AddIdentification(i,a->AntID(),123,start,end);
 
 	EXPECT_EQ(i->UseCount(123),1);
 	EXPECT_EQ(i->UseCount(124),0);
 
-	EXPECT_EQ(i->Identify(123,*start),ident);
-	EXPECT_EQ(i->Identify(123,start->Add(1 * Duration::Minute)),ident);
-	EXPECT_EQ(i->Identify(124,start->Add(1 * Duration::Minute)),IdentificationPtr());
-	EXPECT_EQ(i->Identify(123,start->Add(-1 * Duration::Nanosecond)),IdentificationPtr());
-	EXPECT_EQ(i->Identify(123,*end),IdentificationPtr());
-	EXPECT_EQ(i->Identify(123,end->Add(-1)),ident);
+	EXPECT_EQ(i->Identify(123,start),ident);
+	EXPECT_EQ(i->Identify(123,start.Add(1 * Duration::Minute)),ident);
+	EXPECT_EQ(i->Identify(124,start.Add(1 * Duration::Minute)),IdentificationPtr());
+	EXPECT_EQ(i->Identify(123,start.Add(-1 * Duration::Nanosecond)),IdentificationPtr());
+	EXPECT_EQ(i->Identify(123,end),IdentificationPtr());
+	EXPECT_EQ(i->Identify(123,end.Add(-1)),ident);
 
 
 	EXPECT_THROW({
-			i->UpperUnidentifiedBound(123,*start);
+			i->UpperUnidentifiedBound(123,start);
 		}, std::invalid_argument);
-	EXPECT_EQ(i->UpperUnidentifiedBound(124,*start),Time::ConstPtr());
-	EXPECT_EQ(i->UpperUnidentifiedBound(123,start->Add(-1)),start);
-	EXPECT_EQ(i->UpperUnidentifiedBound(123,*end),Time::ConstPtr());
+	EXPECT_EQ(i->UpperUnidentifiedBound(124,start),Time::Forever());
+	EXPECT_EQ(i->UpperUnidentifiedBound(123,start.Add(-1)),start);
+	EXPECT_EQ(i->UpperUnidentifiedBound(123,end),Time::Forever());
 
 	EXPECT_THROW({
-			i->LowerUnidentifiedBound(123,*start);
+			i->LowerUnidentifiedBound(123,start);
 		}, std::invalid_argument);
-	EXPECT_EQ(i->LowerUnidentifiedBound(124,*start),Time::ConstPtr());
-	EXPECT_EQ(i->LowerUnidentifiedBound(123,*end),end);
-	EXPECT_EQ(i->LowerUnidentifiedBound(123,start->Add(-1)),Time::ConstPtr());
+	EXPECT_EQ(i->LowerUnidentifiedBound(124,start),Time::SinceEver());
+	EXPECT_EQ(i->LowerUnidentifiedBound(123,end),end);
+	EXPECT_EQ(i->LowerUnidentifiedBound(123,start.Add(-1)),Time::SinceEver());
 
 	EXPECT_NO_THROW({
-			Identifier::AddIdentification(i,a->AntID(),123,secondStart,Time::ConstPtr());
+			Identifier::AddIdentification(i,a->AntID(),123,secondStart,Time::Forever());
 		});
 
 
-	Time::ConstPtr freeStart,freeEnd;
-	EXPECT_FALSE(i->FreeRangeContaining(freeStart,freeEnd,123,*start));
-	EXPECT_TRUE(TimePtrEqual(freeStart,Time::ConstPtr()));
-	EXPECT_TRUE(TimePtrEqual(freeEnd,Time::ConstPtr()));
+	Time freeStart,freeEnd;
+	EXPECT_FALSE(i->FreeRangeContaining(freeStart,freeEnd,123,start));
+	EXPECT_TRUE(TimeEqual(freeStart,Time()));
+	EXPECT_TRUE(TimeEqual(freeEnd,Time()));
 
-	EXPECT_TRUE(i->FreeRangeContaining(freeStart,freeEnd,123,*end));
-	EXPECT_TRUE(TimePtrEqual(freeStart,end));
-	EXPECT_TRUE(TimePtrEqual(freeEnd,secondStart));
+	EXPECT_TRUE(i->FreeRangeContaining(freeStart,freeEnd,123,end));
+	EXPECT_TRUE(TimeEqual(freeStart,end));
+	EXPECT_TRUE(TimeEqual(freeEnd,secondStart));
 
 }
 
@@ -181,18 +181,17 @@ TEST_F(IdentifierUTest,Compilation) {
 		while( uniform(e1) < 0.8 ) {
 			antTimes.insert(Time::FromTimeT(0).Add(duration(e1) * Duration::Millisecond));
 		}
-		Time::ConstPtr lastTime;
+		Time lastTime = Time::SinceEver();
 
 		for ( const auto & t : antTimes ) {
 			times.insert(t);
 			auto tagID = NB_ANTS * a->Identifications().size() + i;
 			tags.insert(tagID);
-			auto end = std::make_shared<Time>(t);
 			Identifier::AddIdentification(identifier,
 			                              a->AntID(),tagID,
 			                              lastTime,
-			                              end);
-			lastTime = end;
+			                              t);
+			lastTime = t;
 		}
 
 		auto tagID = NB_ANTS * a->Identifications().size() + i;
@@ -200,7 +199,7 @@ TEST_F(IdentifierUTest,Compilation) {
 		Identifier::AddIdentification(identifier,
 		                              a->AntID(),
 		                              tagID,
-		                              lastTime,Time::ConstPtr());
+		                              lastTime,Time::Forever());
 	}
 
 	auto start = Time::Now();

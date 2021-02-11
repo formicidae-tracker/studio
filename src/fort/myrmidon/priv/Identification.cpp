@@ -18,13 +18,15 @@ Identification::Identification(TagID tagValue,
 	, d_identifier(identifier)
 	, d_tagSize(DEFAULT_TAG_SIZE)
 	, d_userDefinedPose(false) {
+	d_start = Time::SinceEver();
+	d_end = Time::Forever();
 }
 
-Time::ConstPtr Identification::Start() const {
+const Time & Identification::Start() const {
 	return d_start;
 }
 
-Time::ConstPtr Identification::End() const {
+const Time & Identification::End() const {
 	return d_end;
 }
 
@@ -66,12 +68,12 @@ Identification::Ptr Identification::Accessor::Create(TagID tagValue,
 }
 
 void Identification::Accessor::SetStart(Identification & identification,
-                                        const Time::ConstPtr & start) {
+                                        const Time & start) {
 	identification.d_start = start;
 }
 
 void Identification::Accessor::SetEnd(Identification & identification,
-                                      const Time::ConstPtr & end) {
+                                      const Time & end) {
 	identification.d_end = end;
 }
 
@@ -87,9 +89,9 @@ void Identification::SetAntPosition(const Eigen::Vector2d & position, double ang
 }
 
 
-void Identification::SetBound(const Time::ConstPtr & start,
-                              const Time::ConstPtr & end) {
-	Time::ConstPtr oldStart(d_start),oldEnd(d_end);
+void Identification::SetBound(const Time & start,
+                              const Time & end) {
+	Time oldStart(d_start),oldEnd(d_end);
 
 	d_start = start;
 	d_end = end;
@@ -106,11 +108,11 @@ void Identification::SetBound(const Time::ConstPtr & start,
 	Identifier::Accessor::UpdateIdentificationAntPosition(*identifier,this);
 }
 
-void Identification::SetStart(const Time::ConstPtr & start) {
+void Identification::SetStart(const Time & start) {
 	SetBound(start,d_end);
 }
 
-void Identification::SetEnd(const Time::ConstPtr & end) {
+void Identification::SetEnd(const Time & end) {
 	SetBound(d_start,end);
 }
 
@@ -161,17 +163,10 @@ std::ostream & operator<<(std::ostream & out,
 	    << fort::myrmidon::FormatTagID(a.TagValue())
 	    << " ↦ "
 	    << a.Target()->AntID()
-	    << ", From:'";
-	if (a.Start()) {
-		out << a.Start()->DebugString();
-	} else {
-		out << "-∞";
-	}
-	out << "', To:'";
-	if (a.End()) {
-		out << a.End()->DebugString();
-	} else {
-		out << "+∞";
-	}
-	return out << "'}";
+	    << ", From:"
+	    << a.Start()
+	    << ", To:"
+		<< a.End()
+	    << "}";
+	return out;
 }

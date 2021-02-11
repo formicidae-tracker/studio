@@ -6,6 +6,5 @@
 
 namespace fm = fort::myrmidon;
 
-Q_DECLARE_METATYPE(fm::Time::ConstPtr)
 Q_DECLARE_METATYPE(fm::Time)
 Q_DECLARE_METATYPE(fm::Duration)
