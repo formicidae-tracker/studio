@@ -182,6 +182,21 @@ Time Time::Now() {
 	             HAS_MONO_BIT | SYSTEM_MONOTONIC_CLOCK);
 }
 
+Time Time::Forever() {
+	Time res;
+	res.d_wallSec = std::numeric_limits<int64_t>::max();
+	res.d_wallNsec = 1e9L;
+	return res;
+}
+
+Time Time::SinceEver() {
+	Time res;
+	res.d_wallSec = std::numeric_limits<int64_t>::min();
+	res.d_wallNsec = -1;
+	return res;
+}
+
+
 Time Time::FromTimeT(time_t value) {
 	return Time(value,0 ,0,0);
 }
@@ -203,6 +218,11 @@ timeval Time::ToTimeval() const {
 
 Time Time::FromTimestamp(const google::protobuf::Timestamp & timestamp) {
 	return Time(timestamp.seconds(), timestamp.nanos(), 0, 0);
+}
+
+Time Time::FromUnix(int64_t seconds,
+                    int32_t nanoseconds) {
+	return Time(seconds,nanoseconds,0,0);
 }
 
 google::protobuf::Timestamp Time::ToTimestamp() const {
@@ -281,6 +301,12 @@ Time Time::Add(const Duration & d) const{
 		}
 
 		mono = d_mono + toAdd;
+	} else if ( IsInfinite() == true ) {
+		if ( d == 0 ) {
+			return *this;
+		} else {
+			throw Overflow("Wall");
+		}
 	}
 
 	int64_t seconds = toAdd / NANOS_PER_SECOND_SINT64;
@@ -290,8 +316,6 @@ Time Time::Add(const Duration & d) const{
 }
 
 
-
-
 Time Time::Round(const Duration & d) const {
 	auto res = * this;
 	// strip mono data
@@ -299,6 +323,10 @@ Time Time::Round(const Duration & d) const {
 	res.d_monoID = 0;
 	if (d.d_nanoseconds < 0 ) {
 		return res;
+	}
+
+	if ( IsInfinite() == true ) {
+		return *this;
 	}
 
 	auto r = Reminder(d);
@@ -326,6 +354,10 @@ Duration Time::Reminder(const Duration & d) const {
 			nsec += NANOS_PER_SECOND;
 			sec--;
 		}
+	}
+
+	if ( IsInfinite() == true ) {
+		return 0;
 	}
 
 	if ( d.d_nanoseconds % NANOS_PER_SECOND == 0) {
@@ -359,6 +391,18 @@ bool Time::Equals(const Time & t) const {
 	return d_wallSec == t.d_wallSec && d_wallNsec == t.d_wallNsec;
 }
 
+bool Time::IsForever() const {
+	return d_wallSec == std::numeric_limits<int64_t>::max() && d_wallNsec == 1e9L;
+}
+
+bool Time::IsSinceEver() const {
+	return d_wallSec == std::numeric_limits<int64_t>::min() && d_wallNsec == -1;
+}
+
+bool Time::IsInfinite() const {
+	return IsForever() || IsSinceEver();
+}
+
 bool Time::Before(const Time & t) const {
 	if ( d_monoID != 0 && d_monoID == t.d_monoID) {
 		return d_mono < t.d_mono;
@@ -373,6 +417,8 @@ Duration Time::Sub(const Time & t) const {
 	if ( d_monoID != 0 && d_monoID == t.d_monoID ) {
 		// both have a monotonic timestamp issued from the same clock
 		return int64_t(d_mono - t.d_mono);
+	} else if ( IsInfinite() == true || t.IsInfinite() == true ) {
+		throw Overflow("Wall");
 	}
 
 	int64_t seconds = d_wallSec - t.d_wallSec;
@@ -426,6 +472,16 @@ Time::SortableKey Time::SortKey(const Time::ConstPtr & timePtr ) {
 	return !timePtr ? std::make_pair(std::numeric_limits<int64_t>::min(),std::numeric_limits<int32_t>::min()) : timePtr->SortKey();
 }
 
+
+std::string Time::Format() const {
+	if ( IsForever() == true ) {
+		return "+∞";
+	}
+	if ( IsSinceEver() == true ) {
+		return "-∞";
+	}
+	return google::protobuf::util::TimeUtil::ToString(ToTimestamp());
+}
 
 } // namespace myrmidon
 } // namespace fort
@@ -485,7 +541,7 @@ std::ostream & operator<<(std::ostream & out,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Time & t) {
-	return out << google::protobuf::util::TimeUtil::ToString(t.ToTimestamp());
+	return out << t.Format();
 }
 
 

@@ -358,6 +358,50 @@ TEST_F(TimeUTest,Overflow) {
 			                                uint32_t(std::numeric_limits<int32_t>::max()) + uint32_t(1));
 		}, Time::Overflow);
 
+
+}
+
+TEST_F(TimeUTest,InfiniteTimeComputationOverflow) {
+
+	EXPECT_NO_THROW({
+			Time::Forever().Add(0);
+		});
+
+	EXPECT_THROW({
+			Time::Forever().Add(1);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::Forever().Add(-1);
+		},Time::Overflow);
+
+	EXPECT_NO_THROW({
+			Time::SinceEver().Add(0);
+		});
+
+	EXPECT_THROW({
+			Time::SinceEver().Add(1);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::SinceEver().Add(-1);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::Forever().Sub(Time());
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::SinceEver().Sub(Time());
+		},Time::Overflow);
+}
+
+TEST_F(TimeUTest,InfiniteRoundingIsNoOp) {
+	EXPECT_TRUE(Time::Forever().Round(0).Equals(Time::Forever()));
+	EXPECT_TRUE(Time::SinceEver().Round(0).Equals(Time::SinceEver()));
+
+	EXPECT_EQ(Time::Forever().Reminder(0),0);
+	EXPECT_EQ(Time::SinceEver().Reminder(0),0);
 }
 
 
@@ -383,12 +427,31 @@ TEST_F(TimeUTest,TimeConversion) {
 
 	EXPECT_EQ(resC,pb);
 	EXPECT_EQ(resInPlace,pb);
+}
 
+TEST_F(TimeUTest,TimeFormat) {
+	struct TestData {
+		Time        T;
+		std::string Expected;
+	};
+
+	std::vector<TestData> data
+		= {
+		   {Time(),"1970-01-01T00:00:00Z"},
+		   {Time::Forever(),"+∞"},
+		   {Time::SinceEver(),"-∞"},
+	};
+
+	for ( const auto & d : data ) {
+		std::ostringstream oss;
+		oss << d.T;
+		EXPECT_EQ(oss.str(),d.Expected);
+	}
 
 }
 
 
-TEST_F(TimeUTest,TimeFormat) {
+TEST_F(TimeUTest,TimeIO) {
 	struct TestData {
 		int64_t Sec;
 		int64_t Nanos;
@@ -513,6 +576,45 @@ TEST_F(TimeUTest,Rounding) {
 	auto now = Time::Now();
 	ASSERT_TRUE(now.HasMono());
 	EXPECT_FALSE(now.Round(Duration::Nanosecond).HasMono());
+
+}
+
+
+TEST_F(TimeUTest,InfiniteComparison) {
+	std::vector<Time> data
+		= {
+		   Time(),
+		   Time::FromUnix(std::numeric_limits<int64_t>::max(),1e9L-1),
+		   Time::FromUnix(std::numeric_limits<int64_t>::min(),0),
+	};
+
+	for ( const auto & d : data ) {
+		EXPECT_TRUE(Time::Forever().After(d));
+		EXPECT_TRUE(Time::SinceEver().Before(d));
+	}
+	EXPECT_FALSE(Time::Forever().After(Time::Forever()));
+	EXPECT_FALSE(Time::Forever().Before(Time::Forever()));
+	EXPECT_TRUE(Time::Forever().Equals(Time::Forever()));
+
+	EXPECT_FALSE(Time::SinceEver().After(Time::SinceEver()));
+	EXPECT_FALSE(Time::SinceEver().Before(Time::SinceEver()));
+	EXPECT_TRUE(Time::SinceEver().Equals(Time::SinceEver()));
+
+	EXPECT_TRUE(Time::Forever().After(Time::SinceEver()));
+	EXPECT_TRUE(Time::SinceEver().Before(Time::Forever()));
+
+	EXPECT_FALSE(Time::Forever().Before(Time::SinceEver()));
+	EXPECT_FALSE(Time::SinceEver().After(Time::Forever()));
+}
+
+TEST_F(TimeUTest,InfiniteCannotBeConstructedFromOtherValues) {
+	EXPECT_THROW({
+			Time::FromUnix(std::numeric_limits<int64_t>::max(),1e9L);
+		},Time::Overflow);
+
+	EXPECT_THROW({
+			Time::FromUnix(std::numeric_limits<int64_t>::min(),-1);
+		},Time::Overflow);
 
 }
 

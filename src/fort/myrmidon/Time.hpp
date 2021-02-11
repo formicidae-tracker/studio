@@ -330,6 +330,7 @@ public:
 	// information.
 	typedef std::pair<int64_t,int32_t>  SortableKey;
 
+
 	// Time values can overflow when performing operation on them.
 	class Overflow : public std::runtime_error {
 	public:
@@ -343,6 +344,39 @@ public:
 
 	// ID for a Monotonic Clock
 	typedef uint32_t MonoclockID;
+
+
+	// Returns the positive infinite Time
+	//
+	// Returns the positive infinite Time. For any other Time value,
+	// <Before> will return true. Any computation with this value will
+	// <Overflow>. Calling this method is the only to construct such
+	// Time, as operation on other regular Time will <Overflow>
+	// before.
+	//
+	// R version:
+	// ```R
+	// t <- fmTimeForever()
+	// ```
+	//
+	// @return a positive infinite Time
+	static Time Forever();
+
+	// Returns the negative infinite Time
+	//
+	// Returns the negative infinite Time. For any other Time value,
+	// <After> will return true. Any computation with this value will
+	// <Overflow>. Calling this method is the only to construct such
+	// Time, as operation on other regular Time will <Overflow>
+	// before.
+	//
+	// R version:
+	// ```R
+	// t <- fmTimeSinceEver()
+	// ```
+	//
+	// @return a negative infinite Time
+	static Time SinceEver();
 
 	// Gets the current Time
 	//
@@ -392,6 +426,17 @@ public:
 	//
 	// @return the converted <myrmidon::Time>
 	static Time FromTimestamp(const google::protobuf::Timestamp & timestamp);
+
+
+
+	// Creates a Time from Unix EPOCH
+	// @seconds number of seconds since 1970-01-01T00:00:00.000Z
+	// @nanoseconds number of nanoseconds since 1970-01-01T00:00:00.000Z
+	//
+	// @return the corresponding Time
+	static Time FromUnix(int64_t seconds,
+	                     int32_t nanoseconds);
+
 
 	// Creates a Time from a protobuf Timestamp and an external Monotonic clock
 	// @timestamp the `google.protobuf.Timestamp` message
@@ -457,7 +502,7 @@ public:
 	// @timestamp the timestamp to modify to represent the <myrmidon::Time>
 	void ToTimestamp(google::protobuf::Timestamp * timestamp) const;
 
-	// Zero time constructor
+	// Default constructor
 	Time();
 
 	// Adds a Duration to a Time
@@ -486,6 +531,18 @@ public:
 	//
 	// @return a new <myrmidon::Time> rounded to the wanted duration
 	Time Round(const Duration & d) const;
+
+	// Gets the Reminder of the division by a Duration
+	// @d the <Duration> to divide by
+	//
+	// Finds the <Duration> which remains if this Time would be
+	// divided by <d>. Only multiple of <Duration::Second> or power of
+	// 10 of <Duration::Nanosecond> smaller than a second are
+	// supported.
+	//
+	// @return a <Duration> that would remain if this Time would be
+	//         divided by <d>
+	Duration Reminder(const Duration & d) const;
 
 	// Reports if this time is after t
 	// @t the <myrmidon::Time> to test against
@@ -519,6 +576,21 @@ public:
 	//
 	// @return `true` if this <myrmidon::Time> is the same than <t>
 	bool Equals(const Time & t) const;
+
+	// Reports if this Time is +∞
+	//
+	// @return true if this Time is <Forever>
+	bool IsForever() const;
+
+	// Reports if this Time is -∞
+	//
+	// @return true if this Time is <SinceEver>
+	bool IsSinceEver() const;
+
+	// Reports if this Time is either Forever or SinceEver
+	//
+	// @return true if this Time is <Forever> or <SinceEver>
+	bool IsInfinite() const;
 
 	// Computes time difference with another time
 	// @t the <myrmidon::Time> to substract to this one.
@@ -562,10 +634,18 @@ public:
 	// @return the monotonic clock value.
 	uint64_t MonotonicValue() const;
 
+
+	// Returns a RFC 3339 string representing this Time or +/-∞
+	//
+	// @return a string representing this Time. Either using RFC 3339
+	//         or +/-∞ if this Time <IsInfinite>
+	std::string Format() const;
+
+
 	// Builds a debug string
 	//
 	// This method is useful for internal debugging. Prefer the
-	// standard c++ formatting operator on <std::ostream>.
+	// standard c++ formatting operator on <std::ostream> or <Format>.
 	//
 	// @return a debug string with the complete time internal state.
 	std::string DebugString() const;
@@ -651,7 +731,6 @@ private:
 
 	Time(int64_t wallsec, int32_t wallnsec, uint64_t mono, MonoclockID ID);
 
-	Duration Reminder(const Duration & d) const;
 
 	const static uint32_t HAS_MONO_BIT = 0x80000000ULL;
 	int64_t     d_wallSec;
