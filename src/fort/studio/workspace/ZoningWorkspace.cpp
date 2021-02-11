@@ -77,7 +77,8 @@ ZoningWorkspace::ZoningWorkspace(QWidget *parent)
 	: Workspace(false,parent)
 	, d_ui(new Ui::ZoningWorkspace)
 	, d_zones(nullptr)
-	, d_vectorialScene(new VectorialScene(this)) {
+	, d_vectorialScene(new VectorialScene(this))
+	, d_copyAction(nullptr) {
 	setUpUI();
 	d_ui->setupUi(this);
 
@@ -123,6 +124,7 @@ ZoningWorkspace::ZoningWorkspace(QWidget *parent)
             this,&ZoningWorkspace::onShapeRemoved);
 
 	setUpFullFrameLabels(nullptr);
+
 
 }
 
