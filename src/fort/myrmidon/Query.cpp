@@ -10,7 +10,7 @@ namespace fort {
 namespace myrmidon {
 
 
-ComputedMeasurement::List Query::ComputeMeasurementFor(const CExperiment & experiment,
+ComputedMeasurement::List Query::ComputeMeasurementFor(const Experiment & experiment,
                                                        Ant::ID antID,
                                                        MeasurementTypeID mTypeID) {
 	ComputedMeasurement::List res;
@@ -18,14 +18,14 @@ ComputedMeasurement::List Query::ComputeMeasurementFor(const CExperiment & exper
 	return res;
 }
 
-TagStatistics::ByTagID Query::ComputeTagStatistics(const CExperiment & experiment) {
+TagStatistics::ByTagID Query::ComputeTagStatistics(const Experiment & experiment) {
 	TagStatistics::ByTagID res;
 	priv::Query::ComputeTagStatistics(experiment.d_p,res);
 	return res;
 }
 
 
-void Query::IdentifyFramesFunctor(const CExperiment & experiment,
+void Query::IdentifyFramesFunctor(const Experiment & experiment,
                                   std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
                                   const Time & start,
                                   const Time & end,
@@ -35,7 +35,7 @@ void Query::IdentifyFramesFunctor(const CExperiment & experiment,
 }
 
 
-void Query::IdentifyFrames(const CExperiment & experiment,
+void Query::IdentifyFrames(const Experiment & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
                            const Time & start,
                            const Time & end,
@@ -49,7 +49,7 @@ void Query::IdentifyFrames(const CExperiment & experiment,
 }
 
 
-void Query::CollideFramesFunctor(const CExperiment & experiment,
+void Query::CollideFramesFunctor(const Experiment & experiment,
                                  std::function<void (const CollisionData & data)> storeData,
                                  const Time & start,
                                  const Time & end,
@@ -58,7 +58,7 @@ void Query::CollideFramesFunctor(const CExperiment & experiment,
 }
 
 
-void Query::CollideFrames(const CExperiment & experiment,
+void Query::CollideFrames(const Experiment & experiment,
                           std::vector<CollisionData> & result,
                           const Time & start,
                           const Time & end,
@@ -70,7 +70,7 @@ void Query::CollideFrames(const CExperiment & experiment,
 	                           start,end,singleThread);
 }
 
-void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
+void Query::ComputeAntTrajectoriesFunctor(const Experiment & experiment,
                                           std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
                                           const Time & start,
                                           const Time & end,
@@ -90,7 +90,7 @@ void Query::ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
 
 
 
-void Query::ComputeAntTrajectories(const CExperiment & experiment,
+void Query::ComputeAntTrajectories(const Experiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
                                    const Time & start,
                                    const Time & end,
@@ -110,7 +110,7 @@ void Query::ComputeAntTrajectories(const CExperiment & experiment,
 	                                 singleThread);
 }
 
-void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
+void Query::ComputeAntInteractionsFunctor(const Experiment & experiment,
                                           std::function<void ( const AntTrajectory::ConstPtr&) > storeTrajectory,
                                           std::function<void ( const AntInteraction::ConstPtr&) > storeInteraction,
                                           const Time & start,
@@ -129,7 +129,7 @@ void Query::ComputeAntInteractionsFunctor(const CExperiment & experiment,
 }
 
 
-void Query::ComputeAntInteractions(const CExperiment & experiment,
+void Query::ComputeAntInteractions(const Experiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
                                    std::vector<AntInteraction::ConstPtr> & interactions,
                                    const Time & start,

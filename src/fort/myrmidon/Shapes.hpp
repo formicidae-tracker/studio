@@ -7,6 +7,7 @@
 namespace fort {
 namespace myrmidon {
 
+
 namespace priv {
 // private <fort::myrmidon::priv> implementation
 class Shape;
@@ -26,42 +27,64 @@ class Polygon;
 // methods to convert from and to opaque Shape.
 class Shape {
 public:
-	// An opaque private pointer
-	typedef std::shared_ptr<const priv::Shape> ConstPPtr;
 	// A pointer to a Shape
 	typedef std::shared_ptr<Shape>             Ptr;
 	// A const pointer to a Shape
 	typedef std::shared_ptr<const Shape>       ConstPtr;
 	// A const list of Shape
 	typedef std::vector<ConstPtr>              ConstList;
-	// An opaque const list Shape
-	typedef std::vector<ConstPPtr>             ConstPList;
+
+	// The type of a Shape.
+	enum class Type {
+	    // A <Capsule>
+		Capsule = 0,
+		// A <Circle>
+		Circle  = 1,
+		// A <Polygon>
+		Polygon = 2
+	};
+
 	// Default destructor
 	virtual ~Shape();
 
-	// Casts from opaque pointer.
-	// @pShape an opaque Shape
+	// Gets the Shape <Type>
 	//
-	// @return a <ConstPtr> of the Shape
-	static ConstPtr Cast(const ConstPPtr & pShape);
+	// @return the <Type> of the Shape
+	Type ShapeType() const;
 
-	// Casts to opaque pointer.
-	// @shape a Shape
-	//
-	// @return a <ConstPPtr> to the opaque implementation
-	static ConstPPtr Cast(const ConstPtr & shape);
-	// Cast from opaque list
-	// @pShapes an opaque list of shape
-	//
-	// @return a <ConstList> of Shape
-	static ConstList Cast( const ConstPList & pShapes);
+protected:
+	friend class ZoneDefinition;
+	friend class Zone;
+	// const pointer to private implementation
+	typedef std::shared_ptr<const priv::Shape> ConstPPtr;
+	// list of private implementation
+	typedef std::vector<ConstPPtr>             ConstPList;
 
-	// Cast to opaque list
-	// @shapes a list of shape
+	// internal conversion functions
+	// @shape the shape to convert
 	//
-	// @return an opaque list of shapes
-	static ConstPList Cast( const ConstList & shapes);
+	// @return a converted Shape
+	static ConstPtr PublicCast(const ConstPPtr & pShape);
+	// internal conversion functions
+	// @shape the shape to convert
+	//
+	// @return a converted Shape
+	static ConstPPtr PrivateCast(const ConstPtr & shape);
+	// internal conversion functions
+	// @shape the shape to convert
+	//
+	// @return a converted Shape
+	static ConstList PublicListCast(const ConstPList & pShapes);
+	// internal conversion functions
+	// @shape the shape to convert
+	//
+	// @return a converted Shape
+	static ConstPList PrivateListCast(const ConstList & shapes);
 
+	// Protected constructor. Use a child classes.
+	Shape();
+
+	priv::Shape * d_q;
 };
 
 // A circle
@@ -128,7 +151,6 @@ public:
 	//
 	// @return the private implementation
 	const PPtr & ToPrivate() const;
-
 private:
 	friend class Shape;
 	PPtr d_p;
@@ -240,10 +262,8 @@ public:
 	//
 	// @return the private implementation
 	const PPtr & ToPrivate() const;
-
 private:
 	friend class Shape;
-
 	PPtr d_p;
 };
 
@@ -312,11 +332,9 @@ public:
 	//
 	// @return the private implementation
 	const PPtr & ToPrivate() const;
-
 private:
 	friend class Shape;
-
-	PPtr d_p;
+	PPtr  d_p;
 };
 
 

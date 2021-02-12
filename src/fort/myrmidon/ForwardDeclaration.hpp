@@ -31,6 +31,21 @@ typedef std::shared_ptr<Capsule> CapsulePtr;
 // Forward declaration for <Capsule::ConstPtr>
 typedef std::shared_ptr<const Capsule> CapsuleConstPtr;
 
+class Circle;
+// Forward declaration for <Circle::Ptr>
+typedef std::shared_ptr<Circle> CirclePtr;
+// Forward declaration for <Circle::ConstPtr>
+typedef std::shared_ptr<const Circle> CircleConstPtr;
+
+class Polygon;
+// Forward declaration for <Polygon::Ptr>
+typedef std::shared_ptr<Polygon> PolygonPtr;
+// Forward declaration for <Polygon::ConstPtr>
+typedef std::shared_ptr<const Polygon> PolygonConstPtr;
+
+
+
+
 
 
 

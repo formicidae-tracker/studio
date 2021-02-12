@@ -8,21 +8,21 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-Shape::Shape(Type type)
+Shape::Shape(myrmidon::Shape::Type type)
 	: d_type(type) {
 }
 
 Shape::~Shape() {
 }
 
-Shape::Type Shape::ShapeType() const {
+myrmidon::Shape::Type Shape::ShapeType() const {
 	return d_type;
 }
 
 
 #define implement_caster(SType) \
 SType ## ConstPtr Shape::To ## SType(const ConstPtr & s) { \
-	if ( s->ShapeType() != Type::SType ) { \
+	if ( s->ShapeType() != myrmidon::Shape::Type::SType ) { \
 		return SType::ConstPtr(); \
 	} \
 	return std::static_pointer_cast<const SType>(s); \

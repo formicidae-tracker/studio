@@ -5,7 +5,7 @@ namespace myrmidon {
 namespace priv {
 
 Capsule::Capsule()
-	: Shape(Shape::Type::Capsule)
+	: Shape(myrmidon::Shape::Type::Capsule)
 	, d_c1(0,0)
 	, d_c2(0,0)
 	, d_r1(0)
@@ -15,7 +15,7 @@ Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,
                  double r2)
-	: Shape(Shape::Type::Capsule)
+	: Shape(myrmidon::Shape::Type::Capsule)
 	, d_c1(c1)
 	, d_c2(c2)
 	, d_r1(r1)

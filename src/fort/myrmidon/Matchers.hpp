@@ -11,6 +11,11 @@ class Matcher;
 }
 }
 
+// Formats a <fort::myrmidon::Matcher>.
+// @out the stream to format to
+// @m the <fort::Myrmidon::Matcher> to format
+//
+// @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Matcher & m);
 

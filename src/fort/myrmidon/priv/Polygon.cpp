@@ -5,7 +5,7 @@ namespace myrmidon {
 namespace priv {
 
 Polygon::Polygon( const Vector2dList & vertices)
-	: Shape(Shape::Type::Polygon)
+	: Shape(myrmidon::Shape::Type::Polygon)
 	, d_vertices(vertices) {
 	if (d_vertices.size() < 3 ) {
 		throw std::invalid_argument("A polygon needs at leas 3 points");

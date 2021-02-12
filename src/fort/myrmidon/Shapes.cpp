@@ -8,16 +8,25 @@
 namespace fort {
 namespace myrmidon {
 
+Shape::Shape()
+	: d_q(nullptr) {
+}
+
+Shape::Type Shape::ShapeType() const {
+	return d_q->ShapeType();
+}
+
 Shape::~Shape() {
 }
 
-Shape::ConstPtr Shape::Cast(const ConstPPtr & pShape) {
+
+Shape::ConstPtr Shape::PublicCast(const ConstPPtr & pShape) {
 	switch(pShape->ShapeType()) {
-	case priv::Shape::Type::Capsule:
+	case Shape::Type::Capsule:
 		return std::make_shared<const Capsule>(std::const_pointer_cast<priv::Capsule>(priv::Shape::ToCapsule(pShape)));
-	case priv::Shape::Type::Circle:
+	case Shape::Type::Circle:
 		return std::make_shared<const Circle>(std::const_pointer_cast<priv::Circle>(priv::Shape::ToCircle(pShape)));
-	case priv::Shape::Type::Polygon:
+	case Shape::Type::Polygon:
 		return std::make_shared<const Polygon>(std::const_pointer_cast<priv::Polygon>(priv::Shape::ToPolygon(pShape)));
 	default:
 		throw std::runtime_error("Unknown shape type");
@@ -25,7 +34,7 @@ Shape::ConstPtr Shape::Cast(const ConstPPtr & pShape) {
 	}
 }
 
-Shape::ConstPPtr Shape::Cast(const ConstPtr & shape) {
+Shape::ConstPPtr Shape::PrivateCast(const ConstPtr & shape) {
 	if ( auto c = std::dynamic_pointer_cast<const Capsule>(shape) ) {
 		return std::static_pointer_cast<const priv::Shape>(c->d_p);
 	}
@@ -38,24 +47,28 @@ Shape::ConstPPtr Shape::Cast(const ConstPtr & shape) {
 	throw std::runtime_error("Unknown shape Type");
 }
 
-Shape::ConstPList Shape::Cast( const ConstList & shapes) {
+Shape::ConstPList Shape::PrivateListCast( const ConstList & shapes) {
 	Shape::ConstPList res;
+	res.reserve(shapes.size());
 	for ( const auto & shape : shapes ) {
-		res.push_back(Shape::Cast(shape));
+		res.push_back(Shape::PrivateCast(shape));
 	}
 	return res;
 }
 
-Shape::ConstList Shape::Cast( const ConstPList & pShapes) {
+Shape::ConstList Shape::PublicListCast( const ConstPList & pShapes) {
 	Shape::ConstList res;
+	res.reserve(pShapes.size());
 	for ( const auto & pShape : pShapes ) {
-		res.push_back(Shape::Cast(pShape));
+		res.push_back(Shape::PublicCast(pShape));
 	}
 	return res;
 }
+
 
 Circle::Circle(const Eigen::Vector2d & center, double radius)
 	: d_p(std::make_shared<priv::Circle>(center,radius)) {
+	d_q = d_p.get();
 }
 
 Circle::Circle(const PPtr & pCircle)
@@ -90,6 +103,7 @@ Capsule::Capsule(const Eigen::Vector2d & c1,
                  double r1,
                  double r2)
 	: d_p(std::make_shared<priv::Capsule>(c1,c2,r1,r2)) {
+	d_q = d_p.get();
 }
 
 Capsule::Capsule(const PPtr & pCapsule)
@@ -136,6 +150,7 @@ const Capsule::PPtr & Capsule::ToPrivate() const {
 
 Polygon::Polygon(const Vector2dList & vertices)
 	: d_p(std::make_shared<priv::Polygon>(vertices)) {
+	d_q = d_p.get();
 }
 
 Polygon::Polygon(const PPtr & pPolygon)

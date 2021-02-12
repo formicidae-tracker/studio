@@ -623,13 +623,13 @@ Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 
 void IOUtils::SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape) {
 	switch(shape->ShapeType()) {
-	case Shape::Type::Capsule:
+	case myrmidon::Shape::Type::Capsule:
 		SaveCapsule(pb->mutable_capsule(),*std::static_pointer_cast<const Capsule>(shape));
 		return;
-	case Shape::Type::Circle:
+	case myrmidon::Shape::Type::Circle:
 		SaveCircle(pb->mutable_circle(),std::static_pointer_cast<const Circle>(shape));
 		return;
-	case Shape::Type::Polygon:
+	case myrmidon::Shape::Type::Polygon:
 		SavePolygon(pb->mutable_polygon(),std::static_pointer_cast<const Polygon>(shape));
 		return;
 	default:

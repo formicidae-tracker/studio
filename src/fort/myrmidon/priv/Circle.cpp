@@ -7,7 +7,7 @@ namespace priv {
 
 Circle::Circle(const Eigen::Vector2d & center,
                double radius)
-	: Shape(Shape::Type::Circle)
+	: Shape(myrmidon::Shape::Type::Circle)
 	, d_center(center)
 	, d_radius(radius) {
 }

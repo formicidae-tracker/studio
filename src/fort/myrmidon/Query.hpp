@@ -52,7 +52,7 @@ public:
 	// ```
 	//
 	// @return a <ComputedMeasurement::List> of the Measurement for the <Ant>
-	static ComputedMeasurement::List ComputeMeasurementFor(const CExperiment & experiment,
+	static ComputedMeasurement::List ComputeMeasurementFor(const Experiment & experiment,
 	                                                       Ant::ID antID,
 	                                                       MeasurementTypeID mTypeID);
 
@@ -65,7 +65,7 @@ public:
 	// ```
 	//
 	// @return the tag statistics index by <TagID>
-	static TagStatistics::ByTagID ComputeTagStatistics(const CExperiment & experiment);
+	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment & experiment);
 
 
 	// Identifies ants in frames - functor version
@@ -91,7 +91,7 @@ public:
 	//                       singleThreaded = FALSE,
 	//                       showProgress = FALSE)
 	// ```
-static void IdentifyFramesFunctor(const CExperiment & experiment,
+	static void IdentifyFramesFunctor(const Experiment & experiment,
 	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
 	                                  const Time & start,
 	                                  const Time & end,
@@ -120,7 +120,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                       singleThreaded = FALSE,
 	//                       showProgress = FALSE)
 	// ```
-	static void IdentifyFrames(const CExperiment & experiment,
+	static void IdentifyFrames(const Experiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const Time & start,
 	                           const Time & end,
@@ -148,7 +148,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                      singleThreaded = FALSE,
 	//                      showProgress = FALSE)
 	// ```
-	static void CollideFramesFunctor(const CExperiment & experiment,
+	static void CollideFramesFunctor(const Experiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
 	                                 const Time & start,
 	                                 const Time & end,
@@ -175,7 +175,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                      singleThreaded = FALSE,
 	//                      showProgress = FALSE)
 	// ```
-	static void CollideFrames(const CExperiment & experiment,
+	static void CollideFrames(const Experiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const Time & start,
 	                          const Time & end,
@@ -210,7 +210,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                               singleThreaded = FALSE,
 	//                               showProgress = FALSE)
 	// ```
-	static void ComputeAntTrajectoriesFunctor(const CExperiment & experiment,
+	static void ComputeAntTrajectoriesFunctor(const Experiment & experiment,
 	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                          const Time & start,
 	                                          const Time & end,
@@ -249,7 +249,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                               singleThreaded = FALSE,
 	//                               showProgress = FALSE)
 	// ```
-	static void ComputeAntTrajectories(const CExperiment & experiment,
+	static void ComputeAntTrajectories(const Experiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   const Time & start,
 	                                   const Time & end,
@@ -288,7 +288,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                               showProgress = FALSE,
 	//                               reportTrajectories = FALSE)
 	// ```
-	static void ComputeAntInteractionsFunctor(const CExperiment & experiment,
+	static void ComputeAntInteractionsFunctor(const Experiment & experiment,
 	                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
 	                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
 	                                          const Time & start,
@@ -326,7 +326,7 @@ static void IdentifyFramesFunctor(const CExperiment & experiment,
 	//                               showProgress = FALSE,
 	//                               reportTrajectories = FALSE)
 	// ```
-	static void ComputeAntInteractions(const CExperiment & experiment,
+	static void ComputeAntInteractions(const Experiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,
 	                                   const Time & start,

@@ -13,71 +13,6 @@ class Space;
 } // namespace priv
 
 
-// const version of Space
-//
-// Simply a strip down copy of <Space> . Its an helper class
-// to support const correctness of object and for language binding
-// that does not enforce constness, such as R.
-class CSpace {
-public :
-	// Gets the Space ID
-	//
-	// R version:
-	// ```R
-	// s$spaceID()
-	// ```
-	//
-	// @return this Space <SpaceID>;
-	fort::myrmidon::SpaceID SpaceID() const;
-
-	// Gets the Space name
-	//
-	// Gets the Space name. Space names should be unique, valid
-	// non-empty filename.
-	//
-	// R version:
-	// ```R
-	// s$name()
-	// ```
-	//
-	// @return the Space name
-	const std::string & Name() const;
-
-	// Gets the Zones in this space (const)
-	//
-	// R version:
-	// ```R
-	// s$cZones()
-	// ```
-	//
-	// @return a map of <Zone::ConstByID> of all <Zone> in this Space.
-	Zone::ConstByID CZones() const;
-
-
-	// Locates a movie file and frame number
-	//
-	// @return a pair of an absolute file path to the movie file, and
-	// the wanted movie frame number.
-	//
-	// R version:
-	// ```R
-	// s$locateMovieFrame(fmTimeParse("XXX"))
-	// ```
-	std::pair<std::string,uint64_t> LocateMovieFrame(const Time & time) const;
-
-	// Opaque pointer for implementation
-	typedef std::shared_ptr<const priv::Space> ConstPPtr;
-
-	// Private implementation constructor
-	// @pSpace opaque pointer to implementation
-	//
-	// User cannot build Space directly. They must be build and
-	// accessed from <Experiment>.
-	CSpace(const ConstPPtr & pSpace);
-private:
-	ConstPPtr d_p;
-};
-
 // An homogenous coordinate system for tracking data
 //
 // A Space represent the physical space tracked by one single
@@ -95,6 +30,11 @@ private:
 // <Zone> are manipulated with <CreateZone> and <DeleteZone>.
 class Space {
 public:
+	// A pointer to a Space
+	typedef std::shared_ptr<Space>       Ptr;
+	// A pointer to a const Space
+	typedef std::shared_ptr<const Space> ConstPtr;
+
 	// A unique ID for a Space
 	//
 	// <SpaceID> are unique within an <Experiment>
@@ -174,6 +114,16 @@ public:
 	//
 	// @return a map of <Zone::ConstByID> of all <Zone> in this Space.
 	Zone::ConstByID CZones() const;
+
+	// Gets the Zones in this space (const)
+	//
+	// R version:
+	// ```R
+	// s$cZones()
+	// ```
+	//
+	// @return a map of <Zone::ConstByID> of all <Zone> in this Space.
+	Zone::ConstByID Zones() const;
 
 
 	// Locates a movie file and frame number

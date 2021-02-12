@@ -16,126 +16,6 @@ class Identification;
 }
 
 
-// const version of Identification
-//
-// Simply a strip down copy of <Identification> . Its an helper class
-// to support const correctness of object and for language binding
-// that does not enforce constness, such as R.
-class CIdentification {
-public:
-	// Gets the TagID of this Identification
-	//
-	// R Version :
-	// ```R
-	// i$tagValue()
-	// ```
-	//
-	// @return the <TagID> used by this Identification
-	TagID TagValue() const;
-
-	// Gets the AntID of the targeted Ant
-	//
-	// R Version :
-	// ```R
-	// i$targetAntID()
-	// ```
-	//
-	// @return the <AntID> of the targetted <Ant>
-	AntID TargetAntID() const;
-
-	// Gets the starting validity time
-	//
-	// Identification are valid for [<Start>,<End>[
-	//
-	// R Version :
-	// ```R
-	// i$start()
-	// ```
-	//
-	// @return the <Time> after which this Identification is
-	//         valid. It can return <Time::Forever>
-	Time Start() const;
-
-	// Gets the ending validity time
-	//
-	// Identification are valid for [<Start>,<End>[
-	//
-	// R Version :
-	// ```R
-	// i$end()
-	// ```
-	//
-	// @return the <Time> after which this Identification is
-	//         unvalid. It can return <Time::Forever>
-	Time End() const;
-
-	// Gets the Ant position relatively to the tag center
-	//
-	// Gets the Ant position relatively to the tag center. This offset
-	// is expressed in the tag reference frame.
-	//
-	// R Version :
-	// ```R
-	// i$antPosition()
-	// ```
-	//
-	// @return an <Eigen::Vector2d> of the <Ant> center relative to
-	// the tag center.
-	Eigen::Vector2d AntPosition() const;
-
-	// Gets the Ant angle relatively to the tag rotation
-	//
-	// Gets the Ant position relatively to the tag center. This offset
-	// is expressed in the tag reference frame.
-	//
-	// Angles use standard mathematical orientation. One has to
-	// remember that the y-axis in image processing is pointing from
-	// top to bottom, so when looking at the image, positive angle are
-	// clockwise, which is the opposite of most mathematical drawing
-	// when y is pointing from bottom to top.
-	//
-	// R Version :
-	// ```R
-	// i$antAngle()
-	// ```
-	//
-	// @return the angle in radian between the tag orientation and the
-	//         ant orientation.
-	double AntAngle() const;
-
-
-	// Tests if Identification has a user defined pose
-	//
-	// R Version :
-	// ```R
-	// i$hasUserDefinedAntPose()
-	// ```
-	//
-	// @return `true` if the Identification has a user defined pose
-	//         through <Identification::SetUserDefinedAntPose>
-	bool HasUserDefinedAntPose() const;
-
-
-	// An opaque pointer to implementation
-	typedef std::shared_ptr<const priv::Identification> ConstPPtr;
-
-	// Private implementation constructor
-	// @pptr opaque pointer to implementation
-	//
-	// User cannot build Identification directly. They must be build
-	// from <Experiment> and accessed from <Ant>
-	CIdentification(const ConstPPtr & pptr);
-
-	// Private implementation downcaster
-	//
-	// @return the opaque private implementation
-	const ConstPPtr & ToPrivate() const;
-private:
-	ConstPPtr d_p;
-
-};
-
-
 // Relates <TagID> to <Ant>
 //
 // An Identification relates a <TagID> to an <Ant>.
@@ -169,11 +49,17 @@ private:
 //
 class Identification {
 public:
-	// A list of Identification
-	typedef std::vector<Identification> List;
+	// A pointer to an Identification
+	typedef std::shared_ptr<Identification>       Ptr;
+
+	// A pointer to a const Identification
+	typedef std::shared_ptr<const Identification> ConstPtr;
 
 	// A list of Identification
-	typedef std::vector<CIdentification> ConstList;
+	typedef std::vector<Ptr>                      List;
+
+	// A list of Identification
+	typedef std::vector<ConstPtr>                 ConstList;
 
 	// Gets the TagID of this Identification
 	//

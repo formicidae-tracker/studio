@@ -59,7 +59,7 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 	}
 
 	switch(a->ShapeType()) {
-	case fort::myrmidon::priv::Shape::Type::Capsule: {
+	case fort::myrmidon::Shape::Type::Capsule: {
 		auto aa = fort::myrmidon::priv::Shape::ToCapsule(a);
 		auto bb = fort::myrmidon::priv::Shape::ToCapsule(b);
 		if ( !aa || !bb ) {
@@ -68,7 +68,7 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		return CapsuleEqual(*aa,*bb);
 
 	}
-	case fort::myrmidon::priv::Shape::Type::Circle: {
+	case fort::myrmidon::Shape::Type::Circle: {
 		auto aa = fort::myrmidon::priv::Shape::ToCircle(a);
 		auto bb = fort::myrmidon::priv::Shape::ToCircle(b);
 		if ( !aa || !bb ) {
@@ -76,7 +76,7 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		}
 		return CircleEqual(*aa,*bb);
 	}
-	case fort::myrmidon::priv::Shape::Type::Polygon: {
+	case fort::myrmidon::Shape::Type::Polygon: {
 		auto aa = fort::myrmidon::priv::Shape::ToPolygon(a);
 		auto bb = fort::myrmidon::priv::Shape::ToPolygon(b);
 		if ( !aa || !bb ) {

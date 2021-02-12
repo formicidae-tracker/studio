@@ -8,7 +8,7 @@ namespace priv {
 
 TEST_F(PolygonUTest,Type) {
 	Polygon p({{0,0},{0,0},{0,0}});
-	EXPECT_EQ(p.ShapeType(),Shape::Type::Polygon);
+	EXPECT_EQ(p.ShapeType(),myrmidon::Shape::Type::Polygon);
 };
 
 TEST_F(PolygonUTest,PointCollision) {

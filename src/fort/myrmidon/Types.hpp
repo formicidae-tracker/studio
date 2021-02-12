@@ -187,7 +187,7 @@ struct Collision {
 	// ensure uniqueness of IDs for <AntInteraction>.
 	InteractionID                IDs;
 	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
-	InteractionTypes Types;
+	InteractionTypes             Types;
 	// Reports the <Zone> where the interaction happened.
 	//
 	// Reports the <Zone> where the interaction happened, the
@@ -238,6 +238,11 @@ struct AntTrajectory {
 	// Optional vector of either size 0 or Data.rows(). O value means
 	// currentlty not in a zone.
 	std::vector<uint32_t>                  Zones;
+
+	// End <Time> for this Trajectory
+	//
+	// @return a <Time> computed from <Start> and the <Positions>
+	//         data.
 	Time End() const;
 };
 

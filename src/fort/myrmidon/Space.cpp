@@ -12,19 +12,11 @@ Space::Space(const PPtr & pSpace)
 	: d_p(pSpace) {
 }
 
-fort::myrmidon::SpaceID Space::SpaceID() const {
-	return FORT_MYRMIDON_CONST_HELPER(Space,SpaceID);
-}
-
-Space::ID CSpace::SpaceID() const {
+Space::ID Space::SpaceID() const {
 	return d_p->SpaceID();
 }
 
 const std::string & Space::Name() const {
-	return FORT_MYRMIDON_CONST_HELPER(Space,Name);
-}
-
-const std::string & CSpace::Name() const {
 	return d_p->Name();
 }
 
@@ -49,22 +41,18 @@ Zone::ByID Space::Zones() {
 }
 
 Zone::ConstByID Space::CZones() const {
-	return FORT_MYRMIDON_CONST_HELPER(Space,CZones);
-}
-
-Zone::ConstByID CSpace::CZones() const {
 	Zone::ConstByID res;
 	for ( const auto & [zID,zone] : d_p->CZones() ) {
-		res.insert(std::make_pair(zID,CZone(zone)));
+		res.insert(std::make_pair(zID,Zone(std::const_pointer_cast<priv::Zone>(zone))));
 	}
 	return res;
 }
 
-std::pair<std::string,uint64_t> Space::LocateMovieFrame(const Time & time) const {
-	return FORT_MYRMIDON_CONST_HELPER(Space,LocateMovieFrame,time);
+Zone::ConstByID Space::Zones() const {
+	return CZones();
 }
 
-std::pair<std::string,uint64_t> CSpace::LocateMovieFrame(const Time & time) const {
+std::pair<std::string,uint64_t> Space::LocateMovieFrame(const Time & time) const {
 	for ( const auto & tdd : d_p->TrackingDataDirectories() ) {
 		if ( tdd->IsValid(time) == false ) {
 			continue;
@@ -79,10 +67,6 @@ std::pair<std::string,uint64_t> CSpace::LocateMovieFrame(const Time & time) cons
 	std::ostringstream oss;
 	oss << "Could not find time " << time << " in space " << d_p->Name();
 	throw std::runtime_error(oss.str());
-}
-
-CSpace::CSpace(const ConstPPtr & pSpace) :
-	d_p(pSpace) {
 }
 
 

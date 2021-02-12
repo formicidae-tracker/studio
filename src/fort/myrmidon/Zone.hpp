@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <vector>
 #include <memory>
 
 #include "Shapes.hpp"
@@ -16,70 +16,21 @@ class ZoneDefinition;
 }
 
 
-// const version of ZoneDefinition
-//
-// Simply a strip down copy of <ZoneDefinition> . Its an helper class
-// to support const correctness of object and for language binding
-// that does not enforce constness, such as R.
-class CZoneDefinition {
-public:
-
-	// Gets the geometry of this definition
-	//
-	// R version:
-	// ```R
-	// zd$geometry()
-	// ```
-	//
-	// @return a union of <Shape> defining the geometry
-	Shape::ConstList Geometry() const;
-
-	// Gets the first valid time of the Definition
-	//
-	// R version:
-	// ```R
-	// zd$start()
-	// ```
-	//
-	// @return a <Time::ConstPtr> for the first valid
-	//         time. It can be <Time::SinceEver>.
-	const Time & Start() const;
-
-	// Gets the ending valid time of the Definition
-	//
-	// R version:
-	// ```R
-	// zd$end()
-	// ```
-	//
-	// @return a <Time::ConstPtr> before which the Definition is
-	//         valid. It can be <Time::Forever>
-	const Time & End() const;
-
-	// Opaque implementation pointer
-	typedef std::shared_ptr<const priv::ZoneDefinition> ConstPPtr;
-
-	// Private implementation constructor
-	// @pDefinition opaque pointer to implementation
-	//
-	// User cannot build Defoninition directly. They must be build and
-	// accessed from <Zone>.
-	CZoneDefinition(const ConstPPtr & pDefinition);
-private:
-	ConstPPtr d_p;
-};
-
-
 // Defines the geometry of a <Zone> in <Time>
 //
 // ZoneDefinition sets for a time range [<Start>,<End>[ a <Geometry>
 // for a <Zone>. nullptr for <Start> or <End> represents -/+∞.
 class ZoneDefinition {
 public:
-	// A list of Definition
-	typedef std::vector<ZoneDefinition>  List;
-	// A const list of Definition
-	typedef std::vector<CZoneDefinition> ConstList;
+
+	// A pointer to a ZoneDefinition
+	typedef std::shared_ptr<ZoneDefinition>       Ptr;
+	// A const pointer to a ZoneDefinition
+	typedef std::shared_ptr<const ZoneDefinition> ConstPtr;
+	// A list of ZoneDefinition
+	typedef std::vector<Ptr>                       List;
+	// A const list of ZoneDefinition
+	typedef std::vector<ConstPtr>                  ConstList;
 
 	// Gets the geometry of this definition
 	//
@@ -158,64 +109,7 @@ private:
 };
 
 
-// const version of Zone
-//
-// Simply a strip down copy of <Zone> . Its an helper class
-// to support const correctness of object and for language binding
-// that does not enforce constness, such as R.
-class CZone {
-public :
-	// const access to the ZoneDefinition
-	//
-	// R version:
-	// ```R
-	// z$cDefinitions()
-	// ```
-	//
-	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
-	ZoneDefinition::ConstList CDefinitions() const;
-
-	// Gets the Zone name
-	//
-	// R version:
-	// ```R
-	// z$name()
-	// ```
-	//
-	// @return the Zone name
-	const std::string & Name() const;
-
-	// Gets the Zone ID
-	//
-	// Gets the Zone <ZoneID>. <ZoneID> are unique within a <Space>, but two
-	// Zone in different <Space> can have the same <ZoneID>.
-	//
-	// R version:
-	// ```R
-	// z$zoneID()
-	// ```
-	//
-	// @return the Zone <ZoneID>
-	fort::myrmidon::ZoneID ZoneID() const;
-
-	// Opaque pointer for implementation
-	typedef std::shared_ptr<const priv::Zone> ConstPPtr;
-
-	// Private implementation constructor
-	// @pZone opaque pointer to implementation
-	//
-	// User cannot build Zone directly. They must be build and
-	// accessed from <Space>.
-	CZone(const ConstPPtr & pZone);
-
-private:
-	ConstPPtr d_p;
-
-
-};
-
-
-// A tracking region where interaction are computed.
+// A tracking region where collisions/interactions are computed.
 //
 // A Zone defines a tracked area region where interaction can be
 // computed. I.e. two <Ant> in different Zone won't report
@@ -251,8 +145,8 @@ public:
 	typedef uint32_t                    ID;
 	// A map of Zone indexed by <ZoneID>
 	typedef std::map<ID,Zone>            ByID;
-	// A map of const CZone indexed by <ZoneID>
-	typedef std::map<ID,CZone>           ConstByID;
+	// A map of const Zone indexed by <ZoneID>
+	typedef std::map<ID,const Zone>      ConstByID;
 
 
 	// Adds a new timed Definition
@@ -276,6 +170,7 @@ public:
 	                             const Time & start,
 	                             const Time & end);
 
+
 	// const access to the ZoneDefinition
 	//
 	// R version:
@@ -285,6 +180,18 @@ public:
 	//
 	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
 	ZoneDefinition::ConstList CDefinitions() const;
+
+
+	// Gets Zone's ZoneDefinition (const overload)
+	//
+	// R version:
+	// ```R
+	// z$cDefinitions()
+	// ```
+	//
+	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
+	ZoneDefinition::ConstList Definitions() const;
+
 
 	// Gets Zone's ZoneDefinition
 	//

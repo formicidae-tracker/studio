@@ -17,14 +17,14 @@ Experiment Experiment::Open(const std::string & filepath) {
 	return Experiment(priv::Experiment::Open(filepath));
 }
 
-CExperiment Experiment::OpenReadOnly(const std::string & filepath) {
+const Experiment Experiment::OpenReadOnly(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
-	return CExperiment(priv::Experiment::OpenReadOnly(filepath));
+	return Experiment(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenReadOnly(filepath)));
 }
 
-CExperiment Experiment::OpenDataLess(const std::string & filepath) {
+const Experiment Experiment::OpenDataLess(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
-	return CExperiment(priv::Experiment::OpenDataLess(filepath));
+	return Experiment(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenDataLess(filepath)));
 }
 
 Experiment Experiment::NewFile(const std::string & filepath) {
@@ -40,10 +40,6 @@ void Experiment::Save(const std::string & filepath) {
 }
 
 std::string Experiment::AbsoluteFilePath() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AbsoluteFilePath);
-}
-
-std::string CExperiment::AbsoluteFilePath() const {
 	return d_p->AbsoluteFilePath().string();
 }
 
@@ -55,24 +51,26 @@ void Experiment::DeleteSpace(Space::ID spaceID) {
 	d_p->DeleteSpace(spaceID);
 }
 
-std::map<Space::ID,Space> Experiment::Spaces() {
-	std::map<Space::ID,Space> res;
+std::map<Space::ID,Space::Ptr> Experiment::Spaces() {
+	std::map<Space::ID,Space::Ptr> res;
 	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
-		res.insert(std::make_pair(spaceID,Space(space)));
+		res.insert(std::make_pair(spaceID,std::make_shared<Space>(space)));
 	}
 	return res;
 }
 
-std::map<Space::ID,CSpace> Experiment::CSpaces() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,CSpaces);
-}
-
-std::map<Space::ID,CSpace> CExperiment::CSpaces() const {
-	std::map<Space::ID,CSpace> res;
+std::map<Space::ID,Space::ConstPtr> Experiment::CSpaces() const {
+	std::map<Space::ID,Space::ConstPtr> res;
 	for ( const auto & [spaceID, space] : d_p->CSpaces() ) {
-		res.insert(std::make_pair(spaceID,CSpace(space)));
+		auto pSpace = std::const_pointer_cast<priv::Space>(space);
+		res.insert(std::make_pair(spaceID,
+		                          std::make_shared<Space>(pSpace)));
 	}
 	return res;
+}
+
+std::map<Space::ID,Space::ConstPtr> Experiment::Spaces() const {
+	return CSpaces();
 }
 
 std::string Experiment::AddTrackingDataDirectory(Space::ID spaceID,
@@ -91,65 +89,60 @@ void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 }
 
 
-Ant Experiment::CreateAnt() {
-	return Ant(d_p->CreateAnt());
+Ant::Ptr Experiment::CreateAnt() {
+	return std::make_shared<Ant>(d_p->CreateAnt());
 }
 
-std::map<Ant::ID,Ant> Experiment::Ants() {
-	std::map<Ant::ID,Ant> res;
+std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
+	std::map<Ant::ID,Ant::Ptr> res;
 	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
-		res.insert(std::make_pair(antID,Ant(ant)));
+		res.insert(std::make_pair(antID,
+		                          std::make_shared<Ant>(ant)));
 	}
 	return res;
 }
 
-std::map<Ant::ID,CAnt> Experiment::CAnts() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,CAnts);
-}
-
-
-std::map<Ant::ID,CAnt> CExperiment::CAnts() const {
-	std::map<Ant::ID,CAnt> res;
+std::map<Ant::ID,Ant::ConstPtr> Experiment::CAnts() const {
+	std::map<Ant::ID,Ant::ConstPtr> res;
 	for ( const auto & [antID, ant] : d_p->CIdentifier().CAnts() ) {
-		res.insert(std::make_pair(antID,CAnt(ant)));
+		auto pAnt = std::const_pointer_cast<priv::Ant>(ant);
+		res.insert(std::make_pair(antID,
+		                          std::make_shared<Ant>(pAnt)));
 	}
 	return res;
 }
 
-Identification Experiment::AddIdentification(Ant::ID antID,
-                                             TagID tagID,
-                                             const Time & start,
-                                             const Time & end) {
-	return Identification(priv::Identifier::AddIdentification(d_p->Identifier(),
-	                                                          antID,
-	                                                          tagID,
-	                                                          start,
-	                                                          end));
+std::map<Ant::ID,Ant::ConstPtr> Experiment::Ants() const {
+	return CAnts();
 }
 
-void Experiment::DeleteIdentification(const Identification & identification) {
-	d_p->Identifier()->DeleteIdentification(identification.ToPrivate());
+
+Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
+                                                  TagID tagID,
+                                                  const Time & start,
+                                                  const Time & end) {
+	auto i = priv::Identifier::AddIdentification(d_p->Identifier(),
+	                                             antID,
+	                                             tagID,
+	                                             start,
+	                                             end);
+	return std::make_shared<Identification>(i);
 }
+
+void Experiment::DeleteIdentification(const Identification::ConstPtr & identification) {
+	d_p->Identifier()->DeleteIdentification(identification->ToPrivate());
+}
+
 
 bool Experiment::FreeIdentificationRangeAt(Time & start,
-                                           Time & end,
-                                           TagID tagID, const Time & time) const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,FreeIdentificationRangeAt,start,end,tagID,time);
-}
-
-
-bool CExperiment::FreeIdentificationRangeAt(Time & start,
                                             Time & end,
                                             TagID tagID, const Time & time) const {
 	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 
 
-const std::string & Experiment::Name() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Name);
-}
 
-const std::string & CExperiment::Name() const {
+const std::string & Experiment::Name() const {
 	return d_p->Name();
 }
 
@@ -158,10 +151,6 @@ void Experiment::SetName(const std::string & name) {
 }
 
 const std::string & Experiment::Author() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Author);
-}
-
-const std::string & CExperiment::Author() const {
 	return d_p->Author();
 }
 
@@ -170,10 +159,6 @@ void Experiment::SetAuthor(const std::string & author) {
 }
 
 const std::string & Experiment::Comment() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Comment);
-}
-
-const std::string & CExperiment::Comment() const {
 	return d_p->Comment();
 }
 
@@ -182,19 +167,10 @@ void Experiment::SetComment(const std::string & comment) {
 }
 
 fort::tags::Family Experiment::Family() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,Family);
-}
-
-fort::tags::Family CExperiment::Family() const {
 	return d_p->Family();
 }
 
-
 double Experiment::DefaultTagSize() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,DefaultTagSize);
-}
-
-double CExperiment::DefaultTagSize() const {
 	return d_p->DefaultTagSize();
 }
 
@@ -221,11 +197,6 @@ void Experiment::SetMeasurementTypeName(MeasurementTypeID mTypeID,
 
 
 std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypeNames() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,MeasurementTypeNames);
-}
-
-
-std::map<MeasurementTypeID,std::string> CExperiment::MeasurementTypeNames() const {
 	std::map<MeasurementTypeID,std::string> res;
 	for ( const auto & [mtID,mt] : d_p->CMeasurementTypes() ) {
 		res.insert(std::make_pair(mtID,mt->Name()));
@@ -238,10 +209,6 @@ AntShapeTypeID Experiment::CreateAntShapeType(const std::string & name) {
 }
 
 std::map<AntShapeTypeID,std::string> Experiment::AntShapeTypeNames() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntShapeTypeNames);
-}
-
-std::map<AntShapeTypeID,std::string> CExperiment::AntShapeTypeNames() const {
 	std::map<AntShapeTypeID,std::string> res;
 	for ( const auto & [shapeTypeID,shapeType] : d_p->CAntShapeTypes() ) {
 		res.insert(std::make_pair(shapeTypeID,shapeType->Name()));
@@ -274,14 +241,9 @@ void Experiment::DeleteMetadataColumn(const std::string & name) {
 	d_p->DeleteAntMetadataColumn(name);
 }
 
-std::map<std::string,std::pair<AntMetadataType,AntStaticValue> >
-Experiment::AntMetadataColumns() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,AntMetadataColumns);
-}
-
 
 std::map<std::string,std::pair<AntMetadataType,AntStaticValue>>
-CExperiment::AntMetadataColumns() const {
+Experiment::AntMetadataColumns() const {
 	std::map<std::string,std::pair<AntMetadataType,AntStaticValue>> res;
 	for ( const auto & [name,column] : d_p->AntMetadataConstPtr()->CColumns() ) {
 		res.insert(std::make_pair(name,std::make_pair(column->MetadataType(),column->DefaultValue())));
@@ -348,11 +310,8 @@ SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
 	return res;
 }
 
-ExperimentDataInfo Experiment::GetDataInformations() const {
-	return FORT_MYRMIDON_CONST_HELPER(Experiment,GetDataInformations);
-}
 
-ExperimentDataInfo CExperiment::GetDataInformations() const {
+ExperimentDataInfo Experiment::GetDataInformations() const {
 	ExperimentDataInfo res = { .Frames = 0, .Start = Time::Forever(), .End = Time::SinceEver() };
 	const auto & spaces = d_p->CSpaces();
 	for ( const auto & [spaceID,space] : spaces ) {
@@ -371,37 +330,14 @@ std::map<AntID,TagID> Experiment::IdentificationsAt(const Time & time,
 	return d_p->CIdentifier().IdentificationsAt(time,removeUnidentifiedAnt);
 }
 
-std::map<AntID,TagID> CExperiment::IdentificationsAt(const Time & time,
-                                                    bool removeUnidentifiedAnt) const {
-	return d_p->CIdentifier().IdentificationsAt(time,removeUnidentifiedAnt);
-}
-
-CExperiment Experiment::Const() const {
-	return CExperiment(d_p);
-}
-
-
 TrackingSolver Experiment::CompileTrackingSolver() const {
 	return TrackingSolver(std::make_shared<priv::TrackingSolver>(d_p->Identifier(),
 	                                                             d_p->CompileCollisionSolver()));
 }
 
-TrackingSolver CExperiment::CompileTrackingSolver() const {
-	// ok to const cast here as the identifier is immediatly casted back to a const.
-	return TrackingSolver(std::make_shared<priv::TrackingSolver>(std::const_pointer_cast<priv::Experiment>(d_p)->Identifier(),
-	                                                             d_p->CompileCollisionSolver()));
-}
-
-
-CExperiment::CExperiment(const ConstPPtr & pExperiment)
-	: d_p(pExperiment) {
-}
-
-
 TrackingSolver::TrackingSolver(const PPtr & pTracker)
 	: d_p(pTracker) {
 }
-
 
 IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameReadout & frame,
                                                 Space::ID spaceID) const {
@@ -412,11 +348,9 @@ CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr
 	return d_p->CollideFrame(identified);
 }
 
-
 AntID TrackingSolver::IdentifyTag(TagID tagID, const Time & time) {
 	return d_p->IdentifyTag(tagID,time);
 }
-
 
 
 } // namespace mrymidon

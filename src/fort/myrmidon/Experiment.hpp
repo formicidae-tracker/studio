@@ -62,241 +62,11 @@ public :
 	// @pTracker opaque pointer to implementation
 	//
 	// User cannot create a TrackingSolver directly. They must use
-	// <Experiment::CompileTrackingSolver> and
-	// <CExperiment::CompileTrackingSolver>.
+	// <Experiment::CompileTrackingSolver>.
 	TrackingSolver(const PPtr & pTracker);
 private:
 
 	PPtr d_p;
-};
-
-
-
-// const version of Experiment
-//
-// Simply a strip down copy of <Experiment> . Its an helper class
-// to support const correctness of object and for language binding
-// that does not enforce constness, such as R.
-class CExperiment {
-public :
-	// Path to the underlying `.myrmidon` file
-	//
-	// R Version :
-	// ```R
-	// e$absoluteFilePath()
-	// ```
-	//
-	// @return the path to the `.myrmidon` file
-	std::string AbsoluteFilePath() const;
-
-	// Gets the Space in the Experiment with const access
-	//
-	// R Version :
-	// ```R
-	// e$cSpaces()
-	// ```
-	//
-	// @return a const map of the Experiment <Space>
-	std::map<Space::ID,CSpace> CSpaces() const;
-
-	// Gets the <Ant> in the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$cAnts()
-	// ```
-	//
-	// @return the const <Ant> indexed by their <Ant::ID> in the
-	// Experiment.
-	std::map<Ant::ID,CAnt> CAnts() const;
-
-
-	// Queries for a valid time range
-	// @start return value by reference for the start of the range
-	// @end return value by reference for the end of the range
-	// @tagID the <TagID> we want a range for
-	// @time the <Time> that must be included in the result time range
-	//
-	// Queries for a valid time range for a given <TagID> and
-	// <Time>. The result will be a range [<start>,<end>[ containing
-	// <time> where <tagID> is not used. It returns false if such a
-	// range does not exists. <start> and <end> could be set
-	// respectively to <Time::SinceEver> and <Time::Forever>
-	//
-	// R Version :
-	// ```R
-	// # initializes return value as fmTimeCPtr
-	// start <- new ( FortMyrmidon::fmTimeCPtr )
-	// end <- new ( FortMyrmidon::fmTimeCPtr )
-	// e$freeIdentificationRangeAt(start,end,tagID,time)
-	// ```
-	//
-	// @return `true` if such a range exist, false otherwise.
-	bool FreeIdentificationRangeAt(Time & start,
-	                               Time & end,
-	                               TagID tagID,
-	                               const Time & time) const;
-
-	// The name of the Experiment.
-	//
-	// R Version :
-	// ```R
-	// e$name()
-	// ```
-	//
-	// @return a reference to the Experiment's name
-	const std::string & Name() const;
-
-	// The author of the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$author()
-	// ```
-	//
-	// @return a reference to the author name
-	const std::string & Author() const;
-
-	// Comments about the experiment
-	//
-	// R Version :
-	// ```R
-	// e$family()
-	// ```
-	//
-	// @return a reference to the Experiment's comment
-	const std::string & Comment() const;
-
-	// The kind of tag used in the Experiment
-	//
-	// R Version :
-	// ```R
-	// f <- e$family()
-	// # to get its name
-	// names(which( f == fmTagFamilies ) )
-	// ```
-	//
-	// @return the family of tag used in the Experiment
-	fort::tags::Family Family() const;
-
-
-	// The default physical tag size
-	//
-	// Usually an Ant colony are tagged with a majority of tag of a
-	// given size. Some individuals (like Queens) may often use a
-	// bigger tag size that should be set in their
-	// Identification. This value is used for
-	// <Query::ComputeMeasurementFor>.
-	//
-	// myrmidon uses without white border convention for ARTag and
-	// with white border convention Apriltag.
-	//
-	// R Version :
-	// ```R
-	// f <- e$family()
-	// # to get its name
-	// names(which( f == fmTagFamily ) )
-	// ```
-	//
-	// @return the default tag size for the experiment in mm
-	double DefaultTagSize() const;
-
-	// The threshold used for tag detection
-	//
-	// R Version :
-	// ```R
-	// e$threshold()
-	// ```
-	//
-	// @return the threshold used for detection
-	uint8_t Threshold() const;
-
-	// Gets the Experiment defined measurement type
-	//
-	// R Version :
-	// ```R
-	// e$measurementTypeNames()
-	// ```
-	//
-	// @return a map of measurement type name by their <MeasurementTypeID>
-	std::map<MeasurementTypeID,std::string> MeasurementTypeNames() const;
-
-	// Gets the defined Ant shape type
-	//
-	// R Version :
-	// ```R
-	// e$antShapeTypeNames()
-	// ```
-	//
-	// @return the <Ant> shape type name by their <AntShapeTypeID>
-	std::map<AntShapeTypeID,std::string> AntShapeTypeNames() const;
-
-	// Gets the types for non-tracking data columns
-	//
-	// R Version :
-	// ```R
-	// md <- e$antMetadataColumns()
-	// md$foo # get column name "foo"
-	// names(which( md$foo$type == fmAntMetadataType )) # get the type ofr "foo"
-	// md$foo$defaultValue # gets the default value for "foo"
-	// ```
-	//
-	// @return a pairs of <AntMetadataType> and <AntStaticValue>
-	// indexed by column name for all columns defined in the
-	// experiment.
-	std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > AntMetadataColumns() const;
-
-	// Gets tracking data statistics about the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$getDataInformations()
-	// ```
-	//
-	// @return an <ExperimentDataInfo> list of informations
-	ExperimentDataInfo GetDataInformations() const;
-
-	// Gets AntID <- TagID correspondances at a given time
-	// @time the wanted <Time> to query for the correspondances
-	// @removeUnidentifiedAnt if `true`, just do not report
-	//                        unidentified at this time. If `false`
-	//                        `std::numeric_limits<TagID>::max()` will
-	//                        be returned as a TagID for unidentified
-	//                        Ant (or `NA` for R).
-	//
-	// R Version
-	// ```R
-	// # will report NA for unidentified Ant
-	// e$identificationsAt(fmTimeParse("2029-11-02T23:42:00.000Z"),FALSE)
-	// ```
-	//
-	// @return a map with the correspondance between AntID and TagID. Unidentified Ant will be ommi
-	std::map<AntID,TagID> IdentificationsAt(const Time & time,
-	                                        bool removeUnidentifiedAnt = true) const;
-
-	// Compiles a TrackingSolver
-	//
-	// Compiles a <TrackingSolver>, typically use to identify and
-	// collide frame from live tracking data.
-	//
-	// @return a <TrackingSolver> for the experiment.
-	TrackingSolver CompileTrackingSolver() const;
-
-	// Opaque pointer to implementation
-	typedef const std::shared_ptr<const priv::Experiment> ConstPPtr;
-
-	// Private implementation constructor
-	// @pExperiment opaque pointer to implementation
-	//
-	// User cannot create an Experiment directly. They must use
-	// <Experiment::Open>, <Experiment::OpenReadOnly>,
-	// <Experiment::Create> and <Experiment::NewFile>.
-	CExperiment(const ConstPPtr & pExperiment);
-private:
-	friend class fort::myrmidon::Query;
-
-	ConstPPtr d_p;
-
 };
 
 
@@ -350,8 +120,8 @@ public:
 	// fmExperimentOpenReadOnly(path)
 	// ```
 	//
-	// @return the <CExperiment>
-	static CExperiment OpenReadOnly(const std::string & filepath);
+	// @return the <Experiment>
+	static const Experiment OpenReadOnly(const std::string & filepath);
 
 
 	// Opens an Experiment without associated tracking data
@@ -374,8 +144,8 @@ public:
 	// fmExperimentOpenDataLess(path)
 	// ```
 	//
-	// @return the <CExperiment>
-	static CExperiment OpenDataLess(const std::string & filepath);
+	// @return the <Experiment>
+	static const Experiment OpenDataLess(const std::string & filepath);
 
 	// Creates a new Experiment file
 	// @filepath the wanted filepath
@@ -457,7 +227,7 @@ public:
 	// ```
 	//
 	// @return a map of the Experiment <Space> by their <Space::ID>
-	std::map<Space::ID,Space> Spaces();
+	std::map<Space::ID,Space::Ptr> Spaces();
 
 	// Gets the <Space> in the Experiment with const access
 	//
@@ -467,7 +237,17 @@ public:
 	// ```
 	//
 	// @return a const map of the Experiment <CSpace>
-	std::map<Space::ID,CSpace> CSpaces() const;
+	std::map<Space::ID,Space::ConstPtr> CSpaces() const;
+
+	// Gets the <Space> in the Experiment (const overload)
+	//
+	// R Version :
+	// ```R
+	// e$cSpaces()
+	// ```
+	//
+	// @return a const map of the Experiment <CSpace>
+	std::map<Space::ID,Space::ConstPtr> Spaces() const;
 
 
 	// Adds a tracking data directory to Experiment
@@ -502,7 +282,7 @@ public:
 	// ```
 	//
 	// @return the new <Ant>
-	Ant CreateAnt();
+	Ant::Ptr CreateAnt();
 
 	// Gets the <Ant> in the Experiment
 	//
@@ -512,7 +292,7 @@ public:
 	// ```
 	//
 	// @return the <Ant> indexed by their <Ant::ID> in the Experiment.
-	std::map<Ant::ID,Ant> Ants();
+	std::map<Ant::ID,Ant::Ptr> Ants();
 
 	// Gets the <Ant> in the Experiment
 	//
@@ -523,7 +303,18 @@ public:
 	//
 	// @return the const <Ant> indexed by their <Ant::ID> in the
 	// Experiment.
-	std::map<Ant::ID,CAnt> CAnts() const;
+	std::map<Ant::ID,Ant::ConstPtr> CAnts() const;
+
+	// Gets the <Ant> in the Experiment (const overload)
+	//
+	// R Version :
+	// ```R
+	// e$cAnts()
+	// ```
+	//
+	// @return the const <Ant> indexed by their <Ant::ID> in the
+	// Experiment.
+	std::map<Ant::ID,Ant::ConstPtr> Ants() const;
 
 	// Adds an <Identification> to the Experiment
 	// @antID the targetted <Ant> designated by its <Ant::ID>
@@ -543,10 +334,10 @@ public:
 	// ```
 	//
 	// @return the new <Identification>
-	Identification AddIdentification(Ant::ID antID,
-	                                 TagID tagID,
-	                                 const Time & start,
-	                                 const Time & end);
+	Identification::Ptr AddIdentification(Ant::ID antID,
+	                                      TagID tagID,
+	                                      const Time & start,
+	                                      const Time & end);
 
 	// Deletes an <Identification>
 	// @identification the <Identification> to delete
@@ -556,7 +347,7 @@ public:
 	// # i is the wanted fmIdentification to delete
 	// e$deleteIdentification(i)
 	// ```
-	void DeleteIdentification(const Identification & identification);
+	void DeleteIdentification(const Identification::ConstPtr & identification);
 
 	// Queries for a valid time range
 	// @start return value by reference for the start of the range
@@ -878,9 +669,6 @@ public:
 	TrackingSolver CompileTrackingSolver() const;
 
 
-	// Casts down to a CExperiment
-	CExperiment Const() const;
-
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Experiment> PPtr;
 
@@ -891,7 +679,7 @@ public:
 	// <Open>, <OpenReadOnly>, <Create> and <NewFile>.
 	Experiment(const PPtr & pExperiment);
 private:
-
+	friend class Query;
 	PPtr d_p;
 };
 
