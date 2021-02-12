@@ -226,8 +226,6 @@ public:
 	// @return the opaque private implementation
 	const PPtr & ToPrivate() const;
 
-	// Put
-	CIdentification ToConst() const;
 private:
 
 	PPtr d_p;
@@ -247,6 +245,8 @@ public:
 	// @b the second overlapping identification
 	OverlappingIdentification(const priv::Identification & a,
 	                          const priv::Identification & b) noexcept;
+
+	// virtual destructor
 	virtual ~OverlappingIdentification();
 private:
 	static std::string Reason(const priv::Identification & a,

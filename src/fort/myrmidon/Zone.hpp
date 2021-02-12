@@ -58,8 +58,8 @@ public:
 	// zd$start()
 	// ```
 	//
-	// @return a <Time::ConstPtr> for the first valid
-	//         time. It can be <Time::SinceEver>.
+	// @return a <Time> for the first valid time. It can be
+	//         <Time::SinceEver>.
 	const Time & Start() const;
 
 	// Gets the ending valid time of the Definition
@@ -69,8 +69,8 @@ public:
 	// zd$end()
 	// ```
 	//
-	// @return a <Time::ConstPtr> before which the Definition is
-	//         valid. It can be <Time::Forever>.
+	// @return a <Time> before which the Definition is valid. It can
+	//         be <Time::Forever>.
 	const Time & End() const;
 
 	// Sets the first valid time of the Definition

@@ -61,7 +61,7 @@ protected:
 	typedef std::vector<ConstPPtr>             ConstPList;
 
 	// internal conversion functions
-	// @shape the shape to convert
+	// @pShape the shape to convert
 	//
 	// @return a converted Shape
 	static ConstPtr PublicCast(const ConstPPtr & pShape);
@@ -71,19 +71,20 @@ protected:
 	// @return a converted Shape
 	static ConstPPtr PrivateCast(const ConstPtr & shape);
 	// internal conversion functions
-	// @shape the shape to convert
+	// @pShapes the shapes to convert
 	//
-	// @return a converted Shape
+	// @return a converted Shape List
 	static ConstList PublicListCast(const ConstPList & pShapes);
 	// internal conversion functions
-	// @shape the shape to convert
+	// @shapes the shapes to convert
 	//
-	// @return a converted Shape
+	// @return a converted Shape List
 	static ConstPList PrivateListCast(const ConstList & shapes);
 
 	// Protected constructor. Use a child classes.
 	Shape();
 
+	// opaque pointer to implementation. Is set by child class.
 	priv::Shape * d_q;
 };
 

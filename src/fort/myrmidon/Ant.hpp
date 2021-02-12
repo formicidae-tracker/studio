@@ -100,8 +100,8 @@ public:
 	// ```
 	//
 	// @return a <TagID> that identify this ant at this time if it
-	// exists (throw an exception otherwise)
-	TagID IdentifiedAt(const Time &) const;
+	//         exists (throw an exception otherwise)
+	TagID IdentifiedAt(const Time & time) const;
 
 
 
@@ -190,13 +190,12 @@ public:
 
 
 	// Sets the Ant display color
+	// @color the new <Color> to display the Ant
 	//
 	// R Version :
 	// ```R
 	// ant$setDisplayColor(color = fmRGBColor(r,g,b))
 	// ```
-	//
-	// @color the new <Color> for the Ant
 	void SetDisplayColor(const Color & color);
 
 	// Gets the Ant display state

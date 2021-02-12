@@ -13,7 +13,7 @@ class Matcher;
 
 // Formats a <fort::myrmidon::Matcher>.
 // @out the stream to format to
-// @m the <fort::Myrmidon::Matcher> to format
+// @m the <fort::myrmidon::Matcher> to format
 //
 // @return a reference to <out>
 std::ostream & operator<<(std::ostream & out,
@@ -31,8 +31,8 @@ class Matcher;
 //
 // Matchers reduces down output of <Query> with some criterions.
 //
-// * <AntIDMatcher> : <AntID> must match a given ID
-// * <AntColumnMatcher> : an <AntStaticValue> must match a given value.
+// * <AntID> : <Ant::ID> must match a given ID
+// * <AntColumn> : an <AntStaticValue> must match a given value.
 // * <AntDistanceSmallerThan>,<AntDistanceGreaterThan> : for
 //   interaction queries anly, ensure some criterion for the distance
 //   between <Ant>.
@@ -90,7 +90,7 @@ public:
 	// fmMatcherAntID(andID)
 	// ```
 	//
-	// @return a <Ptr> that matches <Ant>  of the given ID
+	// @return a Matcher that matches <Ant> with the given ID
 	static Ptr AntID(AntID ID);
 
 	// Matches a given <AntStaticValue>
@@ -106,7 +106,7 @@ public:
 	// fmMatcherAntColumn("group",fmAntStaticString("nurses"))
 	// ```
 	//
-	// @return a <Ptr> that matches <Ant> with the value matching that
+	// @return a Matcher that matches <Ant> with the value matching that
 	// <Ant>
 	static Ptr AntColumn(const std::string & name, const AntStaticValue & value);
 
@@ -121,7 +121,7 @@ public:
 	// fmMatcherAntDistanceSmallerThan(distance)
 	// ```
 	//
-	// @return a <Ptr> that matches two <Ant> within the given
+	// @return a Matcher that matches two <Ant> within the given
 	// <distance>
 	static Ptr AntDistanceSmallerThan(double distance);
 
@@ -136,7 +136,7 @@ public:
 	// fmMatcherAntDistanceGreaterThan(distance)
 	// ```
 	//
-	// @return a <Ptr> that matches two <Ant> outside the given
+	// @return a Matcher that matches two <Ant> outside the given
 	// <distance>
 	static Ptr AntDistanceGreaterThan(double distance);
 
@@ -151,7 +151,7 @@ public:
 	// fmMatcherAntAngleSmallerThan(angle)
 	// ```
 	//
-	// @return a <Ptr> that matches when two <Ant> are facing the same
+	// @return a Matcher that matches when two <Ant> are facing the same
 	// direction with <angle> threshold.
 	static Ptr AntAngleSmallerThan(double angle);
 
@@ -166,7 +166,7 @@ public:
 	// fmMatcherAntAngleGreaterThan(angle)
 	// ```
 	//
-	// @return a <Ptr> that matches when two <Ant> are not facing the
+	// @return a Matcher that matches when two <Ant> are not facing the
 	// same direction with <angle> threshold.
 	static Ptr AntAngleGreaterThan(double angle);
 
@@ -185,7 +185,7 @@ public:
 	// fmMatcherInteractionType(type1,type2)
 	// ```
 	//
-	// @return a <Ptr> that matches a given <InteractionType> or its
+	// @return a Matcher that matches a given <InteractionType> or its
 	// opposite.
 	static Ptr InteractionType(AntShapeTypeID type1,
 	                           AntShapeTypeID type2);

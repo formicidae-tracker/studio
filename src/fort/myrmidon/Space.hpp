@@ -127,6 +127,7 @@ public:
 
 
 	// Locates a movie file and frame number
+	// @time the <Time> we want a movie for.
 	//
 	// R version:
 	// ```R
@@ -134,7 +135,7 @@ public:
 	// ```
 	//
 	// @return a pair of an absolute file path to the movie file, and
-	// the wanted movie frame number.
+	//         the wanted movie frame number.
 	std::pair<std::string,uint64_t> LocateMovieFrame(const Time & time) const;
 
 

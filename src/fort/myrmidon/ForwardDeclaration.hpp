@@ -10,13 +10,6 @@ namespace myrmidon {
 // Forward declaration for Ant::ID
 typedef uint32_t AntID;
 
-class CIdentification;
-class Identification;
-// Forward declaration  for <Identification::List>
-typedef std::vector<Identification> IdentificationList;
-// Forward declaration  for <Identification::ConstList>
-typedef std::vector<CIdentification> IdentificationConstList;
-
 // forward declaration for <Space::ID>
 typedef uint32_t SpaceID;
 class Space;

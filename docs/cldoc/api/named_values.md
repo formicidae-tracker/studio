@@ -33,7 +33,7 @@ current columns name, types and default values.
 Once a column is set, one can use <fort::myrmidon::Ant::SetValue> to
 set a value starting from a specified time. Values are timed, if no
 value is set prior to a time point, the default value for the column
-will be returned. One can use empty <fort::myrmidon::Time::ConstPtr> to
+will be returned. One can use <fort::myrmidon::Time::SinceEver> to
 specify new starting time value for an ant.
 
 Accessing values is performed using

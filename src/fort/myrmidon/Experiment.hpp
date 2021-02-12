@@ -15,6 +15,7 @@ namespace myrmidon {
 namespace priv {
 // private <fort::myrmidon::priv> Implementation
 class Experiment;
+// private <fort::myrmidon::priv> Implementation
 class TrackingSolver;
 } // namespace priv
 
@@ -134,9 +135,10 @@ public:
 	// identify or collides ants from realtime tracking data acquired
 	// over the network. When opened in 'data-less' mode, no tracking
 	// data, tag statistic or measurement will be returned ( the
-	// experiment will appear empty ). However <IdentifyFrame> and
-	// <CollideFrame> will work as expected as the user is required to
-	// provide the data to these function.
+	// experiment will appear empty ). However
+	// <TrackingSolver::IdentifyFrame> and
+	// <TrackingSolver::CollideFrame> will work as expected as the
+	// user is required to provide the data to these function.
 	//
 	//
 	// R Version :
@@ -236,7 +238,7 @@ public:
 	// e$cSpaces()
 	// ```
 	//
-	// @return a const map of the Experiment <CSpace>
+	// @return a const map of the Experiment <Space>
 	std::map<Space::ID,Space::ConstPtr> CSpaces() const;
 
 	// Gets the <Space> in the Experiment (const overload)
@@ -246,7 +248,7 @@ public:
 	// e$cSpaces()
 	// ```
 	//
-	// @return a const map of the Experiment <CSpace>
+	// @return a const map of the Experiment <Space>
 	std::map<Space::ID,Space::ConstPtr> Spaces() const;
 
 
