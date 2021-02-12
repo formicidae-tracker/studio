@@ -77,9 +77,13 @@ private:
 		void Append(const Collision & collision,
 		            const Time & curTime);
 
+		AntTrajectorySegment FindTrajectorySubSegment(const BuildingTrajectory & t) const;
+
+		static void SummarizeTrajectorySegment(AntTrajectorySegment & s);
 
 		AntInteraction::ConstPtr Terminate(const BuildingTrajectory & a,
-		                                   const BuildingTrajectory & b) const;
+		                                   const BuildingTrajectory & b,
+		                                   bool summarize) const;
 	};
 
 	typedef std::map<AntID,BuildingTrajectory> BuildingTrajectoryData;
@@ -120,7 +124,8 @@ private:
 	                  BuildingTrajectoryData & currentTrajectories,
 	                  BuildingInteractionData & currentInteractions,
 	                  Duration maxGap,
-	                  const Matcher::Ptr & matcher);
+	                  const Matcher::Ptr & matcher,
+	                  bool summarizeSegment);
 
 
 

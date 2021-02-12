@@ -255,6 +255,9 @@ struct AntTrajectorySegment {
 	size_t Begin;
 	// The index after the last index in the referring trajectory.
 	size_t End;
+
+	// Optionally report the mean trajectory.
+	std::unique_ptr<Eigen::Vector3d> Mean;
 };
 
 
@@ -281,13 +284,14 @@ struct AntInteraction {
 	// interaction. The Trajectory are truncated to the interaction
 	// timing.
 	std::pair<AntTrajectorySegment,
-	          AntTrajectorySegment> Trajectories;
+	          AntTrajectorySegment>    Trajectories;
 	// Reports the <Time> the interaction starts
 	Time                               Start;
 	// Reports the <Time> the interaction ends
 	Time                               End;
 	// Reports the <SpaceID> where the interaction happend
 	SpaceID                            Space;
+
 };
 
 

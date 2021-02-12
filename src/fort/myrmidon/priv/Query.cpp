@@ -209,8 +209,34 @@ void Query::BuildingInteraction::Append(const Collision & collision,
 	}
 }
 
+AntTrajectorySegment Query::BuildingInteraction::FindTrajectorySubSegment(const BuildingTrajectory & t) const {
+	double startTime = Start.Sub(t.Trajectory->Start).Seconds();
+	auto startIter = t.Durations.cbegin();
+	for ( ; startIter != t.Durations.cend(); ++startIter ) {
+		if ( *startIter >= startTime ) {
+			break;
+		}
+	}
+	return {
+	        .Trajectory = t.Trajectory,
+	        .Begin = size_t(startIter - t.Durations.cbegin()),
+	        .End = t.Durations.size(),
+	};
+}
+
+void Query::BuildingInteraction::SummarizeTrajectorySegment(AntTrajectorySegment & s) {
+	s.Mean = std::make_unique<Eigen::Vector3d>(Eigen::Vector3d::Zero());
+	for ( int i = s.Begin; i < s.End; ++i ) {
+		*(s.Mean) += s.Trajectory->Positions.block<1,3>(i,1).transpose() / (s.End - s.Begin);
+	}
+	s.Trajectory.reset();
+	s.Begin = 0;
+	s.End = 0;
+}
+
 AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTrajectory & a,
-                                                               const BuildingTrajectory & b ) const {
+                                                               const BuildingTrajectory & b,
+                                                               bool summarize) const {
 	if (Start == Last ) {
 		return AntInteraction::ConstPtr();
 	}
@@ -224,25 +250,13 @@ AntInteraction::ConstPtr Query::BuildingInteraction::Terminate(const BuildingTra
 		res->Types(i,1) = type.second;
 		++i;
 	}
-	auto findTrajectorySubSegment
-		= [this](const BuildingTrajectory & t) {
-			  double startTime = Start.Sub(t.Trajectory->Start).Seconds();
-			  auto startIter = t.Durations.cbegin();
-			  for ( ; startIter != t.Durations.cend(); ++startIter ) {
-				  if ( *startIter >= startTime ) {
-					  break;
-				  }
-			  }
-			  AntTrajectorySegment res
-				  = {
-				     .Trajectory = t.Trajectory,
-				     .Begin = size_t(startIter - t.Durations.cbegin()),
-				     .End = t.Durations.size(),
-			  };
-			  return res;
-		  };
-	res->Trajectories.first = findTrajectorySubSegment(a);
-	res->Trajectories.second = findTrajectorySubSegment(b);
+
+	res->Trajectories.first = FindTrajectorySubSegment(a);
+	res->Trajectories.second = FindTrajectorySubSegment(b);
+	if ( summarize == true ) {
+		SummarizeTrajectorySegment(res->Trajectories.first);
+		SummarizeTrajectorySegment(res->Trajectories.second);
+	}
 	res->Start = Start;
 	res->End = Last;
 	return res;
@@ -306,13 +320,15 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
                          BuildingTrajectoryData & currentTrajectories,
                          BuildingInteractionData & currentInteractions,
                          Duration maxGap,
-                         const Matcher::Ptr & matcher) {
+                         const Matcher::Ptr & matcher,
+                         bool summarizeSegment) {
 	return [storeTrajectory,
 	        storeInteraction,
 	        &currentTrajectories,
 	        &currentInteractions,
 	        &matcher,
-	        maxGap]( const CollisionData & data ) {
+	        maxGap,
+	        summarizeSegment]( const CollisionData & data ) {
 		       if ( matcher ) {
 			       matcher->SetUp(std::get<0>(data),std::get<1>(data));
 		       }
@@ -346,7 +362,8 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 						       toRemove.push_back(IDs);
 						       try {
 							       auto toStore = interaction.Terminate(currentTrajectories.at(IDs.first),
-							                                            currentTrajectories.at(IDs.second));
+							                                            currentTrajectories.at(IDs.second),
+							                                            summarizeSegment);
 							       if ( toStore ) {
 								       storeInteraction(toStore);
 							       }
@@ -389,7 +406,8 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 				            || curTime.Sub(fi->second.Last) > maxGap ) {
 					       try {
 						       auto toStore = fi->second.Terminate(currentTrajectories.at(pInter.IDs.first),
-						                                           currentTrajectories.at(pInter.IDs.second));
+						                                           currentTrajectories.at(pInter.IDs.second),
+						                                           summarizeSegment);
 						       if ( toStore ) {
 							       storeInteraction(toStore);
 						       }
@@ -603,6 +621,12 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
+
+	if ( args.ReportFullTrajectories == false ) {
+		// we discard trajectory if we are not interested in them
+		storeTrajectory = [](const AntTrajectory::ConstPtr &) {};
+	}
+
 	DataRangeBySpaceID ranges;
 	BuildRange(experiment,args.Start,args.End,ranges);
 	if ( ranges.empty() ) {
@@ -617,7 +641,8 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 		                  currentTrajectories,
 		                  currentInteractions,
 		                  args.MaximumGap,
-		                  matcher);
+		                  matcher,
+		                  args.ReportFullTrajectories == false);
 
 	if ( args.SingleThreaded == true ) {
 		DataLoader loader(ranges);
@@ -654,7 +679,8 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 
 	for ( const auto & [IDs,bInteraction] : currentInteractions ) {
 		auto res = bInteraction.Terminate(currentTrajectories.at(IDs.first),
-		                                  currentTrajectories.at(IDs.second));
+		                                  currentTrajectories.at(IDs.second),
+		                                  args.ReportFullTrajectories == false);
 		if ( res ) {
 			storeInteraction(res);
 		}
