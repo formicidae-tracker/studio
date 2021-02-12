@@ -24,119 +24,103 @@ TagStatistics::ByTagID Query::ComputeTagStatistics(const Experiment & experiment
 	return res;
 }
 
+Query::IdentifyFramesArgs::IdentifyFramesArgs()
+	: Start(Time::SinceEver())
+	, End(Time::Forever())
+	, ComputeZones(false)
+	, SingleThreaded(false) {
+}
 
 void Query::IdentifyFramesFunctor(const Experiment & experiment,
                                   std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-                                  const Time & start,
-                                  const Time & end,
-                                  bool computeZones,
-                                  bool singleThreaded) {
-	priv::Query::IdentifyFrames(experiment.d_p,storeData,start,end,computeZones,singleThreaded);
+                                  const IdentifyFramesArgs & args) {
+	priv::Query::IdentifyFrames(experiment.d_p,storeData,args);
 }
 
 
 void Query::IdentifyFrames(const Experiment & experiment,
                            std::vector<IdentifiedFrame::ConstPtr> & result,
-                           const Time & start,
-                           const Time & end,
-                           bool computeZones,
-                           bool singleThread) {
+                           const IdentifyFramesArgs & args) {
 	priv::Query::IdentifyFrames(experiment.d_p,
 	                            [&result] (const IdentifiedFrame::ConstPtr & i) {
 		                            result.push_back(i);
 	                            },
-	                            start,end,computeZones,singleThread);
+	                            args);
 }
 
+Query::CollideFramesArgs::CollideFramesArgs()
+	: Start(Time::SinceEver())
+	, End(Time::Forever())
+	, SingleThreaded(false) {
+}
 
 void Query::CollideFramesFunctor(const Experiment & experiment,
                                  std::function<void (const CollisionData & data)> storeData,
-                                 const Time & start,
-                                 const Time & end,
-                                 bool singleThread) {
-	priv::Query::CollideFrames(experiment.d_p,storeData,start,end,singleThread);
+                                 const CollideFramesArgs & args) {
+	priv::Query::CollideFrames(experiment.d_p,storeData,args);
 }
 
 
 void Query::CollideFrames(const Experiment & experiment,
                           std::vector<CollisionData> & result,
-                          const Time & start,
-                          const Time & end,
-                          bool singleThread) {
+                          const CollideFramesArgs & args) {
 	priv::Query::CollideFrames(experiment.d_p,
 	                           [&result](const CollisionData & data) {
 		                           result.push_back(data);
 	                           },
-	                           start,end,singleThread);
+	                           args);
 }
+
+Query::ComputeAntTrajectoriesArgs::ComputeAntTrajectoriesArgs()
+	: Start(Time::SinceEver())
+	, End(Time::Forever())
+	, MaximumGap(1 * Duration::Second)
+	, ComputeZones(false)
+	, SingleThreaded(false) {
+}
+
 
 void Query::ComputeAntTrajectoriesFunctor(const Experiment & experiment,
                                           std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-                                          const Time & start,
-                                          const Time & end,
-                                          Duration maximumGap,
-                                          const Matcher::Ptr & matcher,
-                                          bool computeZones,
-                                          bool singleThread) {
+                                          const ComputeAntTrajectoriesArgs & args) {
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 storeTrajectory,
-	                                 start,
-	                                 end,
-	                                 maximumGap,
-	                                 !matcher ? Matcher::PPtr() : matcher->d_p,
-	                                 computeZones,
-	                                 singleThread);
+	                                 args);
 }
-
 
 
 void Query::ComputeAntTrajectories(const Experiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
-                                   const Time & start,
-                                   const Time & end,
-                                   Duration maximumGap,
-                                   const Matcher::Ptr & matcher,
-                                   bool computeZones,
-                                   bool singleThread) {
+                                   const ComputeAntTrajectoriesArgs & args) {
 	priv::Query::ComputeTrajectories(experiment.d_p,
 	                                 [&trajectories](const AntTrajectory::ConstPtr & trajectory) {
 		                                 trajectories.push_back(trajectory);
 	                                 },
-	                                 start,
-	                                 end,
-	                                 maximumGap,
-	                                 !matcher ? Matcher::PPtr() : matcher->d_p,
-	                                 computeZones,
-	                                 singleThread);
+	                                 args);
+}
+
+Query::ComputeAntInteractionsArgs::ComputeAntInteractionsArgs()
+	: Start(Time::SinceEver())
+	, End(Time::Forever())
+	, MaximumGap(1 * Duration::Second)
+	, SingleThreaded(false)
+	, ReportFullTrajectories(true) {
 }
 
 void Query::ComputeAntInteractionsFunctor(const Experiment & experiment,
                                           std::function<void ( const AntTrajectory::ConstPtr&) > storeTrajectory,
                                           std::function<void ( const AntInteraction::ConstPtr&) > storeInteraction,
-                                          const Time & start,
-                                          const Time & end,
-                                          Duration maximumGap,
-                                          const Matcher::Ptr & matcher,
-                                          bool singleThread) {
+                                          const ComputeAntInteractionsArgs & args) {
 	priv::Query::ComputeAntInteractions(experiment.d_p,
 	                                    storeTrajectory,
 	                                    storeInteraction,
-	                                    start,
-	                                    end,
-	                                    maximumGap,
-	                                    !matcher ? Matcher::PPtr() : matcher->d_p,
-	                                    singleThread);
+	                                    args);
 }
-
 
 void Query::ComputeAntInteractions(const Experiment & experiment,
                                    std::vector<AntTrajectory::ConstPtr> & trajectories,
                                    std::vector<AntInteraction::ConstPtr> & interactions,
-                                   const Time & start,
-                                   const Time & end,
-                                   Duration maximumGap,
-                                   const Matcher::Ptr & matcher,
-                                   bool singleThread) {
+                                   const ComputeAntInteractionsArgs & args) {
 	priv::Query::ComputeAntInteractions(experiment.d_p,
 	                                    [&trajectories](const AntTrajectory::ConstPtr & trajectory) {
 		                                    trajectories.push_back(trajectory);
@@ -144,11 +128,7 @@ void Query::ComputeAntInteractions(const Experiment & experiment,
 	                                    [&interactions](const AntInteraction::ConstPtr & interaction) {
 		                                    interactions.push_back(interaction);
 	                                    },
-	                                    start,
-	                                    end,
-	                                    maximumGap,
-	                                    !matcher ? Matcher::PPtr() : matcher->d_p,
-	                                    singleThread);
+	                                    args);
 }
 
 

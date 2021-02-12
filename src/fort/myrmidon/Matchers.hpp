@@ -198,6 +198,12 @@ public:
 	inline Matcher(const PPtr & pMatcher)
 		: d_p(pMatcher) {
 	}
+
+	// Cast to opaque implementation
+	//
+	// @return an opaque <PPtr>
+	PPtr ToPrivate() const;
+
 private:
 	friend class Query;
 	friend std::ostream & ::operator<<(std::ostream & out,

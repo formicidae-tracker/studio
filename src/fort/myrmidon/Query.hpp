@@ -67,16 +67,27 @@ public:
 	// @return the tag statistics index by <TagID>
 	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment & experiment);
 
+	// Arguments for IdentifyFrames
+	//
+	// Arguments for <IdentifyFrames> and <IdentifyFramesFunctor>.
+	struct IdentifyFramesArgs {
+		// Start of the <Time> range (default: <Time::SinceEver>)
+		Time Start;
+		// End of the <Time> range (default: <Time::Forever>)
+		Time End;
+		// Computes the zone of each Ant (default: false)
+		bool ComputeZones;
+		// Uses a single thread for computation (default: false)
+		bool SingleThreaded;
+
+		// Builds default arguments
+		IdentifyFramesArgs();
+	};
 
 	// Identifies ants in frames - functor version
 	// @experiment the <Experiment> to query for
 	// @storeData a functor to store/convert the data
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @computeZones should compute zones for, makes computation slower
-	// @singleThreaded run this query on a single thread
+	// @args the <IdentifyFrameArgs> to use for this query
 	//
 	// Identifies Ants in frames, data will be reported ordered by
 	// time.  This version aimed to be used by language bindings to
@@ -93,21 +104,13 @@ public:
 	// ```
 	static void IdentifyFramesFunctor(const Experiment & experiment,
 	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-	                                  const Time & start,
-	                                  const Time & end,
-	                                  bool computeZones = false,
-	                                  bool singleThreaded = false);
+	                                  const IdentifyFramesArgs & params = IdentifyFramesArgs());
 
 
 	// Identifies ants in frames
 	// @experiment the <Experiment> to query for
 	// @result the resulting <IdentifiedFrame>
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @computeZones should compute zones for, makes computation slower
-	// @singleThreaded run this query on a single thread
+	// @args the <IdentifyFrameArgs> to use for this query
 	//
 	// Identifies Ants in frames, data will be reported ordered by time.
 	//
@@ -122,19 +125,28 @@ public:
 	// ```
 	static void IdentifyFrames(const Experiment & experiment,
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
-	                           const Time & start,
-	                           const Time & end,
-	                           bool computeZones = false,
-	                           bool singleThreaded = false);
+	                           const IdentifyFramesArgs & args = IdentifyFramesArgs() );
+
+	// Arguments for CollideFrames
+	//
+	// Arguments for <CollideFrames> and <CollideFramesFunctor>.
+	struct CollideFramesArgs {
+		// Start of the <Time> range (default: <Time::SinceEver>)
+		Time Start;
+		// End of the <Time> range (default: <Time::Forever>)
+		Time End;
+		// Uses a single thread for computation (default: false)
+		bool SingleThreaded;
+
+		// Builds default arguments
+		CollideFramesArgs();
+	};
+
 
 	// Finds <Collision> in data frame - functor version
 	// @experiment the <Experiment> to query for
 	// @storeData a functor to store the data as it is produced
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @singleThreaded forces execution on a single thread.
+	// @args the <CollideFramesArgs> to use for this query
 	//
 	// Finds <Collision> between ants in frames, data will be reported
 	// ordered by time. This version aimed to be used by language bindings to
@@ -150,19 +162,13 @@ public:
 	// ```
 	static void CollideFramesFunctor(const Experiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
-	                                 const Time & start,
-	                                 const Time & end,
-	                                 bool singleThreaded = false);
+	                                 const CollideFramesArgs & args = CollideFramesArgs());
 
 
 	// Finds <Collision> in data frame
 	// @experiment the <Experiment> to query for
 	// @result the resulting <IdentifiedFrame> and <CollisionFrame>
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @singleThreaded run this query on a single thread
+	// @args the <CollideFramesArgs> to use for this query
 	//
 	// Finds <Collision> between ants in frames, data will be reported
 	// ordered by time.
@@ -177,23 +183,38 @@ public:
 	// ```
 	static void CollideFrames(const Experiment & experiment,
 	                          std::vector<CollisionData> & result,
-	                          const Time & start,
-	                          const Time & end,
-	                          bool singleThreaded = false);
+	                          const CollideFramesArgs & args = CollideFramesArgs());
+
+
+	// Arguments for ComputeAntTrajectories
+	//
+	// Arguments for <ComputeAntTrajectories> and
+	// <ComputeAntTrajectoriesFunctor>.
+	struct ComputeAntTrajectoriesArgs {
+		// Start of the <Time> range (default: <Time::SinceEver>)
+		Time Start;
+		// End of the <Time> range (default: <Time::Forever>)
+		Time End;
+		// Maximum duration before considering the trajectory be two
+		// different parts (default: 1s)
+		Duration MaximumGap;
+		// <Matcher> to reduce the query to an Ant subset (default: to
+		// nullptr, i.e. anything).
+		myrmidon::Matcher::Ptr Matcher;
+		// Computes the zone of each Ant (default: false)
+		bool ComputeZones;
+		// Uses a single thread for computation (default: false)
+		bool SingleThreaded;
+
+		// Builds default arguments
+		ComputeAntTrajectoriesArgs();
+	};
+
 
 	// Computes trajectories for ants - functor version
 	// @experiment the <Experiment> to query for
 	// @storeTrajectory a functor to store/covert the data
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @maximumGap the maximal undetected duration before cutting the
-	//             trajectory in two
-	// @matcher a <Matcher> to specify more precise, less memory
-	//          intensive queries.
-	// @computeZones enables ant zone computation, but slower query
-	// @singleThreaded run this query on a single thread
+	// @args the <ComputeAntTrajectoriesArgs> to use for this query
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
@@ -212,28 +233,14 @@ public:
 	// ```
 	static void ComputeAntTrajectoriesFunctor(const Experiment & experiment,
 	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-	                                          const Time & start,
-	                                          const Time & end,
-	                                          Duration maximumGap,
-	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                          bool computeZones = false,
-	                                          bool singleThreaded = false);
+	                                          const ComputeAntTrajectoriesArgs & args = ComputeAntTrajectoriesArgs());
 
 
 
 	// Computes trajectories for ants
 	// @experiment the <Experiment> to query for
 	// @trajectories the resulting <IdentifiedFrame> and <CollisionFrame>
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @maximumGap the maximal undetected duration before cutting the
-	//             trajectory in two
-	// @matcher a <Matcher> to specify more precise, less memory
-	//          intensive queries.
-	// @computeZones enables ant zone computation, but slower query
-	// @singleThreaded run this query on a single thread
+	// @args the <ComputeAntTrajectoriesArgs> to use for this query
 	//
 	// Computes trajectories for <Ant>. Those will be reported ordered
 	// by ending time
@@ -251,27 +258,42 @@ public:
 	// ```
 	static void ComputeAntTrajectories(const Experiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                   const Time & start,
-	                                   const Time & end,
-	                                   Duration maximumGap,
-	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                   bool computeZones = false,
-	                                   bool singleThreaded = false);
+	                                   const ComputeAntTrajectoriesArgs & args = ComputeAntTrajectoriesArgs());
+
+	// Arguments for ComputeAntInteractions
+	//
+	// Arguments for <ComputeAntInteractions> and
+	// <ComputeAntInteractionsFunctor>.
+	struct ComputeAntInteractionsArgs {
+		// Start of the <Time> range (default: <Time::SinceEver>)
+		Time Start;
+		// End of the <Time> range (default: <Time::Forever>)
+		Time End;
+		// Maximum duration before considering the trajectory be two
+		// different parts (default: 1s)
+		Duration MaximumGap;
+		// <Matcher> to reduce the query to an Ant subset (default: to
+		// nullptr, i.e. anything).
+		myrmidon::Matcher::Ptr Matcher;
+		// Uses a single thread for computation (default: false)
+		bool SingleThreaded;
+
+		// Reports full trajectories. If false only mean trajectory
+		// during interactions will be reported, otherwise trajectory
+		// will be computed like <ComputeAntTrajectories> and
+		// Interaction points to sub-segment (default: true).
+		bool ReportFullTrajectories;
+
+		// Builds default arguments
+		ComputeAntInteractionsArgs();
+	};
 
 
 	// Computes interactions for ants - functor version
 	// @experiment the <Experiment> to query for
 	// @storeTrajectory a functor to store/convert trajectories
 	// @storeInteraction  a functor to store/convert interaction
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @maximumGap the maximal undetected duration before cutting the
-	//             trajectory in two
-	// @matcher a <Matcher> to specify more precise, less memory
-	//          intensive queries.
-	// @singleThreaded run this query on a single thread
+	// @args the ComputeAntInteractionsArgs
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time. This version aimed to be used by language bindings to
@@ -291,11 +313,7 @@ public:
 	static void ComputeAntInteractionsFunctor(const Experiment & experiment,
 	                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
 	                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
-	                                          const Time & start,
-	                                          const Time & end,
-	                                          Duration maximumGap,
-	                                          const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                          bool singleThreaded = false);
+	                                          const ComputeAntInteractionsArgs & args = ComputeAntInteractionsArgs());
 
 
 
@@ -303,15 +321,7 @@ public:
 	// @experiment the <Experiment> to query for
 	// @trajectories the resulting <AntTrajectory>
 	// @interactions the resulting <AntInteraction>
-	// @start the start time for the query use nullptr for the starts
-	//        of the experiment.
-	// @end the end time for the query, use nullptr for the end of the
-	//      experiment
-	// @maximumGap the maximal undetected duration before cutting the
-	//             trajectory in two
-	// @matcher a <Matcher> to specify more precise, less memory
-	//          intensive queries.
-	// @singleThreaded run this query on a single thread
+	// @args the ComputeAntInteractionsArgs
 	//
 	// Computes interactions for <Ant>. Those will be reported ordered
 	// by ending time.
@@ -330,11 +340,7 @@ public:
 	static void ComputeAntInteractions(const Experiment & experiment,
 	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
 	                                   std::vector<AntInteraction::ConstPtr> & interactions,
-	                                   const Time & start,
-	                                   const Time & end,
-	                                   Duration maximumGap,
-	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                   bool singleThreaded = false);
+	                                   const ComputeAntInteractionsArgs & args = ComputeAntInteractionsArgs());
 
 
 };

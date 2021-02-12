@@ -63,12 +63,11 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	std::vector<IdentifiedFrame::ConstPtr> identifieds;
 
 	ASSERT_NO_THROW({
+			myrmidon::Query::IdentifyFramesArgs args;
 			Query::IdentifyFrames(experiment,
 			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 				                      identifieds.push_back(i);
-			                      },
-			                      Time::SinceEver(),
-			                      Time::Forever());
+			                      },args);
 		});
 	ASSERT_EQ(identifieds.size(),600);
 	for ( const auto & frame : identifieds ) {
@@ -80,23 +79,25 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	auto t = experiment->CSpaces().begin()->second->TrackingDataDirectories().front()->StartDate();
 	identifieds.clear();
 	ASSERT_NO_THROW({
+			myrmidon::Query::IdentifyFramesArgs args;
+			args.End = t.Add(1);
 			Query::IdentifyFrames(experiment,
 			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 				                      identifieds.push_back(i);
 			                      },
-			                      Time::SinceEver(),
-			                      t.Add(1));
+			                      args);
 		});
 	EXPECT_EQ(identifieds.size(),1);
 
 	identifieds.clear();
 	try {
+		myrmidon::Query::IdentifyFramesArgs args;
+		args.Start = t.Add(1);
 		Query::IdentifyFrames(experiment,
 		                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
 			                      identifieds.push_back(i);
 		                      },
-		                      t.Add(1),
-		                      Time::Forever());
+		                      args);
 	} catch ( const std::exception & e) {
 		ADD_FAILURE() << "Unexpected exception: " << e.what();
 		return;
@@ -123,11 +124,12 @@ TEST_F(QueryUTest,InteractionFrame) {
 	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
+			myrmidon::Query::CollideFramesArgs args;
 			Query::CollideFrames(experiment,
 			                     [&collisionData] (const Query::CollisionData & data) {
 				                     collisionData.push_back(data);
 			                     },
-			                     Time::SinceEver(),Time::Forever());
+			                     args);
 		});
 
 	ASSERT_EQ(collisionData.size(),600);
@@ -154,14 +156,13 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 
 	ASSERT_NO_THROW({
+			myrmidon::Query::ComputeAntTrajectoriesArgs args;
+			args.MaximumGap = 20000 * Duration::Millisecond;
 			Query::ComputeTrajectories(experiment,
 			                           [&trajectories]( const AntTrajectory::ConstPtr & t) {
 				                           trajectories.push_back(t);
 			                           },
-			                           Time::SinceEver(),
-			                           Time::Forever(),
-			                           20000 * Duration::Millisecond,
-			                           nullptr);
+			                           args);
 		});
 
 	ASSERT_EQ(trajectories.size(),3);
@@ -193,6 +194,9 @@ TEST_F(QueryUTest,InteractionComputation) {
 	std::vector<AntTrajectory::ConstPtr> trajectories;
 	std::vector<AntInteraction::ConstPtr> interactions;
 	ASSERT_NO_THROW({
+			myrmidon::Query::ComputeAntInteractionsArgs args;
+			args.MaximumGap = 220 * Duration::Millisecond;
+
 			Query::ComputeAntInteractions(experiment,
 			                              [&trajectories]( const AntTrajectory::ConstPtr & t) {
 				                              trajectories.push_back(t);
@@ -200,10 +204,7 @@ TEST_F(QueryUTest,InteractionComputation) {
 			                              [&interactions]( const AntInteraction::ConstPtr & i) {
 				                              interactions.push_back(i);
 			                              },
-			                              Time::SinceEver(),
-			                              Time::Forever(),
-			                              220 * Duration::Millisecond,
-			                              nullptr);
+			                              args);
 		});
 
 
@@ -241,36 +242,40 @@ TEST_F(QueryUTest,FrameSelection) {
 
 	std::vector<IdentifiedFrame::ConstPtr> frames;
 
+	myrmidon::Query::IdentifyFramesArgs args;
+
 	// issue 138, should select all frames
+	args.Start = firstDate;
 	Query::IdentifyFrames(experiment,
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      firstDate,
-	                      Time::Forever());
+	                      args);
 
 	EXPECT_FALSE(frames.empty());
 	frames.clear();
 
 	//selects the first frame
+	args.Start = firstDate;
+	args.End = firstDate.Add(1);
 	Query::IdentifyFrames(experiment,
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      firstDate,
-	                      firstDate.Add(1));
+	                      args);
 
 	ASSERT_EQ(frames.size(),1);
 	ASSERT_EQ(frames[0]->FrameTime,firstDate);
 
 	frames.clear();
 	// won't access any
+	args.Start = firstDate;
+	args.End = firstDate;
 	Query::IdentifyFrames(experiment,
 	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
 		                      frames.push_back(f);
 	                      },
-	                      firstDate,
-	                      firstDate);
+	                      args);
 
 	ASSERT_EQ(frames.size(),0);
 

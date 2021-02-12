@@ -414,22 +414,19 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
                            std::function<void ( const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
-                           const Time & start,
-                           const Time & end,
-                           bool computeZones,
-                           bool singleThread) {
+                           const myrmidon::Query::IdentifyFramesArgs & args) {
 	auto identifier = experiment->CIdentifier().Compile();
 	CollisionSolver::ConstPtr collider;
-	if ( computeZones == true ) {
+	if ( args.ComputeZones == true ) {
 		collider = experiment->CompileCollisionSolver();
 	}
 	DataRangeBySpaceID ranges;
-	BuildRange(experiment,start,end,ranges);
+	BuildRange(experiment,args.Start,args.End,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
 
-	if (singleThread == true ) {
+	if (args.SingleThreaded == true ) {
 		DataLoader loader(ranges);
 		for(;;) {
 			auto raw = loader();
@@ -476,18 +473,16 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 
 void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           std::function<void (const CollisionData &)> storeDataFunctor,
-                          const Time & start,
-                          const Time & end,
-                          bool singleThreaded) {
+                          const myrmidon::Query::CollideFramesArgs & args) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
 	DataRangeBySpaceID ranges;
-	BuildRange(experiment,start,end,ranges);
+	BuildRange(experiment,args.Start,args.End,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
 
-	if ( singleThreaded == true ) {
+	if ( args.SingleThreaded == true ) {
 		DataLoader loader(ranges);
 		for (;;) {
 			auto raw = loader();
@@ -524,22 +519,18 @@ void Query::CollideFrames(const Experiment::ConstPtr & experiment,
 
 void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
                                 std::function<void (const AntTrajectory::ConstPtr &)> storeDataFunctor,
-                                const Time & start,
-                                const Time & end,
-                                Duration maximumGap,
-                                const Matcher::Ptr & matcher,
-                                bool computeZones,
-                                bool singleThreaded) {
+                                const myrmidon::Query::ComputeAntTrajectoriesArgs & args) {
 	auto identifier = experiment->CIdentifier().Compile();
 	CollisionSolver::ConstPtr collider;
-	if ( computeZones == true ) {
+	if ( args.ComputeZones == true ) {
 		collider = experiment->CompileCollisionSolver();
 	}
+	auto matcher = !args.Matcher ? Matcher::Ptr() : args.Matcher->ToPrivate();
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
 	DataRangeBySpaceID ranges;
-	BuildRange(experiment,start,end,ranges);
+	BuildRange(experiment,args.Start,args.End,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
@@ -547,9 +538,9 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	auto computeTrajectoriesFunction =
 		BuildTrajectories(storeDataFunctor,
 		                  currentTrajectories,
-		                  maximumGap,
+		                  args.MaximumGap,
 		                  matcher);
-	if ( singleThreaded == true ) {
+	if ( args.SingleThreaded == true ) {
 		DataLoader loader(ranges);
 		for (;;) {
 			auto raw = loader();
@@ -604,20 +595,16 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
                                    std::function<void ( const AntTrajectory::ConstPtr &) > storeTrajectory,
                                    std::function<void ( const AntInteraction::ConstPtr &) > storeInteraction,
-                                   const Time & start,
-                                   const Time & end,
-                                   Duration maximumGap,
-                                   const Matcher::Ptr & matcher,
-                                   bool singleThreaded) {
+                                   const myrmidon::Query::ComputeAntInteractionsArgs & args) {
 
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
-
+	auto matcher = !args.Matcher ? Matcher::Ptr() : args.Matcher->ToPrivate();
 	if ( matcher ) {
 		matcher->SetUpOnce(experiment->CIdentifier().CAnts());
 	}
 	DataRangeBySpaceID ranges;
-	BuildRange(experiment,start,end,ranges);
+	BuildRange(experiment,args.Start,args.End,ranges);
 	if ( ranges.empty() ) {
 		return;
 	}
@@ -629,10 +616,10 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 		                  storeInteraction,
 		                  currentTrajectories,
 		                  currentInteractions,
-		                  maximumGap,
+		                  args.MaximumGap,
 		                  matcher);
 
-	if ( singleThreaded == true ) {
+	if ( args.SingleThreaded == true ) {
 		DataLoader loader(ranges);
 		for (;;) {
 			auto raw = loader();

@@ -51,6 +51,10 @@ Matcher::Ptr Matcher::InteractionType(AntShapeTypeID type1,
 }
 
 
+Matcher::PPtr Matcher::ToPrivate() const {
+	return d_p;
+}
+
 } // namespace myrmidon
 } // namespace fort
 

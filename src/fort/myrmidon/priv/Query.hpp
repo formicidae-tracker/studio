@@ -24,25 +24,15 @@ public:
 
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
 	                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
-	                           const Time & start,
-	                           const Time & end,
-	                           bool computeZones = false,
-	                           bool singleThreaded = false);
+	                           const myrmidon::Query::IdentifyFramesArgs & args);
 
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
 	                          std::function<void (const CollisionData & data) > storeData,
-	                          const Time & start,
-	                          const Time & end,
-	                          bool singleThreaded = false);
+	                          const myrmidon::Query::CollideFramesArgs & args);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                                std::function<void (const AntTrajectory::ConstPtr &)> storeData,
-	                                const Time & start,
-	                                const Time & end,
-	                                Duration maximumGap,
-	                                const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                bool computeZones = false,
-	                                bool singleThreaded = false);
+	                                const myrmidon::Query::ComputeAntTrajectoriesArgs & args);
 
 
 	// computes trajectories and interactions. Bad invariant
@@ -51,12 +41,7 @@ public:
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
 	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,
-	                                   const Time & start,
-	                                   const Time & end,
-	                                   Duration maximumGap,
-	                                   const Matcher::Ptr & matcher = Matcher::Ptr(),
-	                                   bool singleThreaded = false);
-
+	                                   const myrmidon::Query::ComputeAntInteractionsArgs & args);
 private:
 	typedef std::pair<TrackingDataDirectory::const_iterator,
 	                  TrackingDataDirectory::const_iterator> DataRange;
