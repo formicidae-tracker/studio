@@ -10,7 +10,7 @@
 #include "Identifier.hpp"
 #include "RawFrame.hpp"
 #include "CollisionSolver.hpp"
-
+#include "QueryRunner.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -433,65 +433,24 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
                            std::function<void ( const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
                            const myrmidon::Query::IdentifyFramesArgs & args) {
-	auto identifier = experiment->CIdentifier().Compile();
-	CollisionSolver::ConstPtr collider;
-	if ( args.ComputeZones == true ) {
-		collider = experiment->CompileCollisionSolver();
-	}
-	DataRangeBySpaceID ranges;
-	BuildRange(experiment,args.Start,args.End,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
 
-	if (args.SingleThreaded == true ) {
-		DataLoader loader(ranges);
-		for(;;) {
-			auto raw = loader();
-			if ( std::get<0>(raw) == 0 ) {
-				break;
-			}
-			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
-			if ( collider ) {
-				auto zoner = collider->ZonerFor(identified);
-				identified->Zones.reserve(identified->Positions.size());
-				for ( const auto & p : identified->Positions ) {
-					identified->Zones.push_back(zoner->LocateAnt(p));
-				}
-			}
-			storeDataFunctor(identified);
-		}
-		return;
-	}
-
-	tbb::filter_t<void,RawData>
-		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
-
-	tbb::filter_t<RawData,IdentifiedFrame::ConstPtr>
-		computeData(tbb::filter::parallel,
-		            [identifier,collider](const RawData & rawData ) -> IdentifiedFrame::ConstPtr {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            if ( collider ) {
-				            auto zoner = collider->ZonerFor(identified);
-				            identified->Zones.reserve(identified->Positions.size());
-				            for ( const auto & p : identified->Positions ) {
-					            identified->Zones.push_back(zoner->LocateAnt(p));
-				            }
-			            }
-			            return identified;
-		            });
-
-
-	tbb::filter_t<IdentifiedFrame::ConstPtr,void>
-		storeData(tbb::filter::serial_in_order,
-		          storeDataFunctor);
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
+	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
+										 false);
+	runner(experiment,
+		   {
+			.Start = args.Start,
+			.End = args.End,
+			.Localize = args.ComputeZones,
+			.Collide = false,
+		   },
+		   [=](const Query::CollisionData & data) {
+			   storeDataFunctor(data.first);
+		   });
 }
 
 void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           std::function<void (const CollisionData &)> storeDataFunctor,
-                          const myrmidon::Query::CollideFramesArgs & args) {
+                          const myrmidon::Query::QueryArgs & args) {
 	auto identifier = experiment->CIdentifier().Compile();
 	auto solver = experiment->CompileCollisionSolver();
 	DataRangeBySpaceID ranges;

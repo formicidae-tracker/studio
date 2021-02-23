@@ -56,6 +56,23 @@ public:
 	                                                       Ant::ID antID,
 	                                                       MeasurementTypeID mTypeID);
 
+
+	struct QueryArgs {
+		// Start of the <Time> range (default: <Time::SinceEver>)
+		Time Start;
+		// End of the <Time> range (default: <Time::Forever>)
+		Time End;
+		// Uses a single thread for computation (default: false)
+		bool SingleThreaded;
+		// Forces result allocation from the calling thread (default: false)
+		bool AllocationInCurrentThread;
+
+		// Builds default arguments
+		QueryArgs();
+	};
+
+
+
 	// Computes <TagStatistics> for an experiment
 	// @experiment the <Experiment> to query for
 	//
@@ -70,15 +87,8 @@ public:
 	// Arguments for IdentifyFrames
 	//
 	// Arguments for <IdentifyFrames> and <IdentifyFramesFunctor>.
-	struct IdentifyFramesArgs {
-		// Start of the <Time> range (default: <Time::SinceEver>)
-		Time Start;
-		// End of the <Time> range (default: <Time::Forever>)
-		Time End;
-		// Computes the zone of each Ant (default: false)
+	struct IdentifyFramesArgs : public QueryArgs {
 		bool ComputeZones;
-		// Uses a single thread for computation (default: false)
-		bool SingleThreaded;
 
 		// Builds default arguments
 		IdentifyFramesArgs();
@@ -127,21 +137,6 @@ public:
 	                           std::vector<IdentifiedFrame::ConstPtr> & result,
 	                           const IdentifyFramesArgs & args = IdentifyFramesArgs() );
 
-	// Arguments for CollideFrames
-	//
-	// Arguments for <CollideFrames> and <CollideFramesFunctor>.
-	struct CollideFramesArgs {
-		// Start of the <Time> range (default: <Time::SinceEver>)
-		Time Start;
-		// End of the <Time> range (default: <Time::Forever>)
-		Time End;
-		// Uses a single thread for computation (default: false)
-		bool SingleThreaded;
-
-		// Builds default arguments
-		CollideFramesArgs();
-	};
-
 
 	// Finds <Collision> in data frame - functor version
 	// @experiment the <Experiment> to query for
@@ -162,7 +157,7 @@ public:
 	// ```
 	static void CollideFramesFunctor(const Experiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
-	                                 const CollideFramesArgs & args = CollideFramesArgs());
+	                                 const QueryArgs & args = QueryArgs());
 
 
 	// Finds <Collision> in data frame
@@ -183,18 +178,14 @@ public:
 	// ```
 	static void CollideFrames(const Experiment & experiment,
 	                          std::vector<CollisionData> & result,
-	                          const CollideFramesArgs & args = CollideFramesArgs());
+	                          const QueryArgs & args = QueryArgs());
 
 
 	// Arguments for ComputeAntTrajectories
 	//
 	// Arguments for <ComputeAntTrajectories> and
 	// <ComputeAntTrajectoriesFunctor>.
-	struct ComputeAntTrajectoriesArgs {
-		// Start of the <Time> range (default: <Time::SinceEver>)
-		Time Start;
-		// End of the <Time> range (default: <Time::Forever>)
-		Time End;
+	struct ComputeAntTrajectoriesArgs : public QueryArgs {
 		// Maximum duration before considering the trajectory be two
 		// different parts (default: 1s)
 		Duration MaximumGap;
@@ -203,8 +194,6 @@ public:
 		myrmidon::Matcher::Ptr Matcher;
 		// Computes the zone of each Ant (default: false)
 		bool ComputeZones;
-		// Uses a single thread for computation (default: false)
-		bool SingleThreaded;
 
 		// Builds default arguments
 		ComputeAntTrajectoriesArgs();
@@ -264,19 +253,13 @@ public:
 	//
 	// Arguments for <ComputeAntInteractions> and
 	// <ComputeAntInteractionsFunctor>.
-	struct ComputeAntInteractionsArgs {
-		// Start of the <Time> range (default: <Time::SinceEver>)
-		Time Start;
-		// End of the <Time> range (default: <Time::Forever>)
-		Time End;
+	struct ComputeAntInteractionsArgs : public QueryArgs{
 		// Maximum duration before considering the trajectory be two
 		// different parts (default: 1s)
 		Duration MaximumGap;
 		// <Matcher> to reduce the query to an Ant subset (default: to
 		// nullptr, i.e. anything).
 		myrmidon::Matcher::Ptr Matcher;
-		// Uses a single thread for computation (default: false)
-		bool SingleThreaded;
 
 		// Reports full trajectories. If false only mean trajectory
 		// during interactions will be reported, otherwise trajectory

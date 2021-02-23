@@ -86,6 +86,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/Query.hpp
                       priv/Matchers.hpp
                       priv/TrackingSolver.hpp
+					  priv/QueryRunner.hpp
                       )
 
 
@@ -146,6 +147,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/Query.cpp
                       priv/Matchers.cpp
                       priv/TrackingSolver.cpp
+					  priv/QueryRunner.cpp
                       )
 
 set(SRC_FILES ForwardDeclaration.cpp

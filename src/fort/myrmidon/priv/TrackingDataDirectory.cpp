@@ -359,7 +359,6 @@ TrackingDataDirectory::BuildIndexes(const std::string & URI,
 
 std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>>
 TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
-	PERF_FUNCTION();
 	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
 
 	static std::regex singleRx("ant_([0-9]+)_(frame_)?([0-9]+).png");

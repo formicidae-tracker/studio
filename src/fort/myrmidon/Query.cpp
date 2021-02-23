@@ -25,10 +25,7 @@ TagStatistics::ByTagID Query::ComputeTagStatistics(const Experiment & experiment
 }
 
 Query::IdentifyFramesArgs::IdentifyFramesArgs()
-	: Start(Time::SinceEver())
-	, End(Time::Forever())
-	, ComputeZones(false)
-	, SingleThreaded(false) {
+	: ComputeZones(false) {
 }
 
 void Query::IdentifyFramesFunctor(const Experiment & experiment,
@@ -48,22 +45,23 @@ void Query::IdentifyFrames(const Experiment & experiment,
 	                            args);
 }
 
-Query::CollideFramesArgs::CollideFramesArgs()
+Query::QueryArgs::QueryArgs()
 	: Start(Time::SinceEver())
 	, End(Time::Forever())
-	, SingleThreaded(false) {
+	, SingleThreaded(false)
+	, AllocationInCurrentThread(false) {
 }
 
 void Query::CollideFramesFunctor(const Experiment & experiment,
                                  std::function<void (const CollisionData & data)> storeData,
-                                 const CollideFramesArgs & args) {
+                                 const QueryArgs & args) {
 	priv::Query::CollideFrames(experiment.d_p,storeData,args);
 }
 
 
 void Query::CollideFrames(const Experiment & experiment,
                           std::vector<CollisionData> & result,
-                          const CollideFramesArgs & args) {
+                          const QueryArgs & args) {
 	priv::Query::CollideFrames(experiment.d_p,
 	                           [&result](const CollisionData & data) {
 		                           result.push_back(data);
@@ -72,11 +70,8 @@ void Query::CollideFrames(const Experiment & experiment,
 }
 
 Query::ComputeAntTrajectoriesArgs::ComputeAntTrajectoriesArgs()
-	: Start(Time::SinceEver())
-	, End(Time::Forever())
-	, MaximumGap(1 * Duration::Second)
-	, ComputeZones(false)
-	, SingleThreaded(false) {
+	: MaximumGap(1 * Duration::Second)
+	, ComputeZones(false) {
 }
 
 
@@ -100,10 +95,7 @@ void Query::ComputeAntTrajectories(const Experiment & experiment,
 }
 
 Query::ComputeAntInteractionsArgs::ComputeAntInteractionsArgs()
-	: Start(Time::SinceEver())
-	, End(Time::Forever())
-	, MaximumGap(1 * Duration::Second)
-	, SingleThreaded(false)
+	: MaximumGap(1 * Duration::Second)
 	, ReportFullTrajectories(true) {
 }
 

@@ -28,7 +28,7 @@ public:
 
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
 	                          std::function<void (const CollisionData & data) > storeData,
-	                          const myrmidon::Query::CollideFramesArgs & args);
+	                          const myrmidon::Query::QueryArgs & args);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
 	                                std::function<void (const AntTrajectory::ConstPtr &)> storeData,
@@ -94,7 +94,6 @@ private:
 	                       const Time & start,
 	                       const Time & end,
 	                       DataRangeBySpaceID & ranges);
-
 	class DataLoader {
 	public:
 		DataLoader(const DataRangeBySpaceID & dataRanges);

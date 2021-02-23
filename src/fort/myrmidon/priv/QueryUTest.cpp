@@ -61,7 +61,6 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 		});
 
 	std::vector<IdentifiedFrame::ConstPtr> identifieds;
-
 	ASSERT_NO_THROW({
 			myrmidon::Query::IdentifyFramesArgs args;
 			Query::IdentifyFrames(experiment,
@@ -124,7 +123,7 @@ TEST_F(QueryUTest,InteractionFrame) {
 	std::vector<Query::CollisionData> collisionData;
 
 	ASSERT_NO_THROW({
-			myrmidon::Query::CollideFramesArgs args;
+			myrmidon::Query::QueryArgs args;
 			Query::CollideFrames(experiment,
 			                     [&collisionData] (const Query::CollisionData & data) {
 				                     collisionData.push_back(data);
