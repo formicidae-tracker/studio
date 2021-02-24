@@ -431,11 +431,11 @@ Query::BuildInteractions(std::function<void(const AntTrajectory::ConstPtr&)> sto
 }
 
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
-                           std::function<void ( const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
+                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
                            const myrmidon::Query::IdentifyFramesArgs & args) {
 
 	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
-										 false);
+										 args.AllocationInCurrentThread);
 	runner(experiment,
 		   {
 			.Start = args.Start,
@@ -451,47 +451,19 @@ void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
 void Query::CollideFrames(const Experiment::ConstPtr & experiment,
                           std::function<void (const CollisionData &)> storeDataFunctor,
                           const myrmidon::Query::QueryArgs & args) {
-	auto identifier = experiment->CIdentifier().Compile();
-	auto solver = experiment->CompileCollisionSolver();
-	DataRangeBySpaceID ranges;
-	BuildRange(experiment,args.Start,args.End,ranges);
-	if ( ranges.empty() ) {
-		return;
-	}
 
-	if ( args.SingleThreaded == true ) {
-		DataLoader loader(ranges);
-		for (;;) {
-			auto raw = loader();
-			if ( std::get<0>(raw) == 0 ) {
-				break;
-			}
-			auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
-			auto collided = solver->ComputeCollisions(identified);
-			storeDataFunctor({identified,collided});
-		}
-		return;
-	}
-
-	tbb::filter_t<void,RawData >
-		loadData(tbb::filter::serial_in_order,DataLoader(ranges));
-
-	tbb::filter_t<RawData,
-	              CollisionData>
-		computeData(tbb::filter::parallel,
-		            [identifier,solver](const RawData & rawData ) -> CollisionData {
-			            auto identified = std::get<1>(rawData)->IdentifyFrom(*identifier,std::get<0>(rawData));
-			            auto interacted = solver->ComputeCollisions(identified);
-			            return std::make_pair(identified,interacted);
-		            });
-
-
-	tbb::filter_t<CollisionData,void>
-		storeData(tbb::filter::serial_in_order,
-		          storeDataFunctor);
-
-	tbb::parallel_pipeline(std::thread::hardware_concurrency()*2,loadData & computeData & storeData);
-
+	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
+										 args.AllocationInCurrentThread);
+	runner(experiment,
+		   {
+			.Start = args.Start,
+			.End = args.End,
+			.Localize = false,
+			.Collide = true,
+		   },
+		   [=](const Query::CollisionData & data) {
+			   storeDataFunctor(data);
+		   });
 }
 
 void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,

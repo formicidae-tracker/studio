@@ -87,6 +87,7 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/Matchers.hpp
                       priv/TrackingSolver.hpp
 					  priv/QueryRunner.hpp
+					  priv/DataSegmenter.hpp
                       )
 
 
@@ -148,6 +149,7 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/Matchers.cpp
                       priv/TrackingSolver.cpp
 					  priv/QueryRunner.cpp
+					  priv/DataSegmenter.cpp
                       )
 
 set(SRC_FILES ForwardDeclaration.cpp
