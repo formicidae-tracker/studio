@@ -12,14 +12,14 @@ namespace myrmidon {
 namespace priv {
 
 class DataSegmenter {
-
+public:
 	struct Args {
 		std::function<void (AntTrajectory::ConstPtr &)> StoreTrajectory;
 		std::function<void (AntInteraction::ConstPtr &)> StoreInteraction;
 
-		Duration             MaximumGap;
-		priv::Matcher::Ptr & Matcher;
-		bool                 SummarizeSegment;
+		Duration            MaximumGap;
+		priv::Matcher::Ptr  Matcher;
+		bool                SummarizeSegment;
 	};
 
 	DataSegmenter(const Args & args);
