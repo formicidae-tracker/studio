@@ -24,7 +24,9 @@ int main(int argc, char ** argv) {
 	MainWindow window;
 	window.show();
 
-
+	if ( fortStudio.arguments().size() >= 2 && fortStudio.arguments()[1] == "--debug-quit" ) {
+		return 0;
+	}
 
 	return fortStudio.exec();
 }
