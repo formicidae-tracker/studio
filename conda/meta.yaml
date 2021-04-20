@@ -1,0 +1,39 @@
+package:
+  name: "fort-myrmidon"
+  version: "{{ GIT_DESCRIBE_TAG[1:] }}"
+
+source:
+  git_url: ../
+
+build:
+  number: 0
+
+
+requirements:
+  build:
+    - cmake 3.16.3
+    - make [unix]
+    - git
+
+outputs:
+  - name: libfort-myrmidon
+    script: install_libfort-myrmidon.sh
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+      host:
+        - tbb-devel 2020.2
+        - libopencv
+        - libprotobuf
+        - mesalib
+        - yaml-cpp
+        - asio
+        - glog
+      run:
+        - eigen 3.3.7
+    test:
+      script: test-libfort-myrmidon.sh
+      files:
+        - hello-world-myrmidon/main.cpp
+        - hello-world-myrmidon/CMakeLists.txt
