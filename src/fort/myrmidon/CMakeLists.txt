@@ -3,19 +3,7 @@ include_directories(${OPENCV_INCLUDE_DIRS}
 
 include(CheckCXXSourceRuns)
 
-Check_CXX_Source_Runs(
-"
-#include <system_error>
-
-
-int main() {
-	if (std::error_code(EDOM,std::system_category()) == std::errc::argument_out_of_domain ) {
-		return 0;
-	}
-	return 1;
-}
-"
-MYRMIDON_USE_SYSTEM_CATEGORY)
+set(MYRMIDON_USE_SYSTEM_CATEGORY 1)
 
 configure_file(config.h.in myrmidon-config.h)
 
