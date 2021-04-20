@@ -18,11 +18,15 @@ else
   CMAKE_BUILD_TYPE=Release
 fi
 
+mkdir -p build
+
+pushd build
+
 cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} \
       -DCMAKE_INSTALL_LIBDIR="lib" \
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-      -DCMAKE_C_FLAGS_RELEASE=${CFLAGS} \
-      -DCMAKE_C_FLAGS_DEBUG=${CFLAGS} \
+      -DCMAKE_C_FLAGS_RELEASE="${CFLAGS}" \
+      -DCMAKE_C_FLAGS_DEBUG="${CFLAGS}" \
 	  -DBUILD_STUDIO=On \
       ${CMAKE_PLATFORM_FLAGS[@]} \
       ${SRC_DIR}
@@ -30,3 +34,5 @@ cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} \
 make -j${CPU_COUNT} ${VERBOSE_CM} all check
 
 make install -j${CPU_COUNT}
+
+popd
