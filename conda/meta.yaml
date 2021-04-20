@@ -29,11 +29,14 @@ outputs:
         - mesalib
         - yaml-cpp
         - asio
-        - glog
       run:
-        - eigen 3.3.7
+        - eigen >=3.3.7
     test:
       script: test-libfort-myrmidon.sh
+      requires:
+        - cmake
+        - make [unix]
       files:
+        - cross-linux.cmake
         - hello-world-myrmidon/main.cpp
         - hello-world-myrmidon/CMakeLists.txt

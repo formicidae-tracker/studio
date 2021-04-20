@@ -8,7 +8,7 @@ if [[ ${HOST} =~ .*darwin.* ]]; then
 	CMAKE_PLATFORM_FLAGS+=(-DCMAKE_OSX_SYSROOT="${CONDA_BUILD_SYSROOT}")
 	export LDFLAGS=$(echo "${LDFLAGS}" | sed "s/-Wl,-dead_strip_dylibs//g")
 else
-	CMAKE_PLATFORM_FLAGS+=(-DCMAKE_TOOLCHAIN_FILE="${RECIPE_DIR}/cross-linux.cmake")
+	CMAKE_PLATFORM_FLAGS+=(-DCMAKE_TOOLCHAIN_FILE="../cross-linux.cmake")
 fi
 
 cd hello-world-myrmidon
@@ -18,4 +18,6 @@ cmake ${CMAKE_PLATFORM_FLAGS[@]} ..
 
 make
 
-g++ -o hello-world-pkg-config main.cpp $(pkg-config --cflags --libs fort-myrmidon)
+cd ..
+
+g++ -o hello-world-pkg-config main.cpp --std=c++17 $(pkg-config --cflags --libs fort-myrmidon)
