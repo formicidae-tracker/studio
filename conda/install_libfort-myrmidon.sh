@@ -23,9 +23,10 @@ cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} \
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
       -DCMAKE_C_FLAGS_RELEASE=${CFLAGS} \
       -DCMAKE_C_FLAGS_DEBUG=${CFLAGS} \
+	  -DBUILD_STUDIO=Off \
       ${CMAKE_PLATFORM_FLAGS[@]} \
       ${SRC_DIR}
 
-make -j${CPU_COUNT} ${VERBOSE_CM}
+make -j${CPU_COUNT} ${VERBOSE_CM} all check
 
 make install -j${CPU_COUNT}
