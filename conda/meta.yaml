@@ -14,23 +14,33 @@ requirements:
     - cmake 3.16.3
     - make [unix]
     - git
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
+    - tbb-devel 2020.2
+    - libopencv
+    - libprotobuf
+    - mesalib
+    - yaml-cpp
+    - asio
+
 
 outputs:
   - name: libfort-myrmidon
-    script: install_libfort-myrmidon.sh
+    files:
+      - lib/FortMyrmidon
+      - lib/FortTags
+      - lib/FortHermesCpp
+      - lib/pkgconfig/fort-*.pc
+      - lib/libfort-*
+      - include/fort
+      - include/apriltag
     requirements:
-      build:
-        - {{ compiler('c') }}
-        - {{ compiler('cxx') }}
-      host:
-        - tbb-devel 2020.2
-        - libopencv
-        - libprotobuf
-        - mesalib
-        - yaml-cpp
-        - asio
       run:
         - eigen >=3.3.7
+        - libprotobuf
+        - libopencv
+        - yaml-cpp
     test:
       script: test-libfort-myrmidon.sh
       requires:
