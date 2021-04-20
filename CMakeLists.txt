@@ -18,8 +18,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(TBB REQUIRED tbb)
+find_package(TBB REQUIRED)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
@@ -49,7 +48,6 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIRS}
                     ${FORT_HERMES_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
-                    ${TBB_INCLUDE_DIRS}
                     ${FORT_TAGS_INCLUDE_DIRS}
                     ${HERMES_INCLUDE_DIRS}
                     ${SEMVER_INCLUDE_DIRS}

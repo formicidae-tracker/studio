@@ -277,7 +277,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     ${CXXFS_LIBRARY}
                                     fort-tags
                                     ${OpenCV_LIBS}
-                                    ${TBB_LIBRARIES}
+                                    TBB::tbb
                                     Threads::Threads
                                     ${YAML_CPP_LIBRARIES}
                                     )
