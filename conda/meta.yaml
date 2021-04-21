@@ -1,12 +1,17 @@
+{% set name = "fort-myrmidon" %}
+{% set version = environ.get('GIT_DESCRIBE_TAG', 'vuntagged')[1:]|string|replace('-','_') %}
+{% set build_number = environ.get('GIT_DESCRIBE_NUMBER', '0') %}
+
 package:
-  name: "fort-myrmidon"
-  version: "{{ GIT_DESCRIBE_TAG[1:] }}"
+  name: {{ name | lower }}
+  version: {{ version }}
 
 source:
   git_url: ../
 
 build:
-  number: 0
+  number: {{ build_number }}
+  string: {{ [build_number, ('h' + PKG_HASH), environ.get('GIT_DESCRIBE_HASH', '')]|join('_') }}
 
 
 requirements:
