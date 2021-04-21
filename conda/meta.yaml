@@ -64,7 +64,7 @@ outputs:
     requirements:
       run:
         - glog
-        - libfort-myrmidon
+        - {{ pin_subpackage('libfort-myrmidon', exact=True) }}
         - libprotobuf
         - libopencv
         - yaml-cpp
@@ -83,14 +83,14 @@ outputs:
         - {{ compiler('cxx') }}
         - make
       host:
-        - r-base
+        - r-base {{ r_base }}
         - r-rcpp
-        - libfort-myrmidon
+        - {{ pin_subpackage('libfort-myrmidon', exact=True) }}
         - libprotobuf
         - libopencv
         - yaml-cpp
       run:
-        - r-base
+        - r-base {{ r_base }}
         - r-rcpp
         - libfort-myrmidon
         - libprotobuf
@@ -101,3 +101,11 @@ outputs:
         - test-r-fort-myrmidon.r
       commands:
         - Rscript test-r-fort-myrmidon.r
+
+about:
+  home: https://github.com/formicidae-tracker/studio
+  license: LGPL-v3
+  summary: "FORmicidae Tracker post-processing API and tool"
+  description: |
+    This module provides fort-myrmidon the FORmicidae Tracker
+    post-processing API and FORT Studio, the post-processing GUI
