@@ -5,44 +5,88 @@ description: |
     fort-studio is a graphical interface that helps set up the
     post-processing of the FORmicidae Tracker tracking data through
     the fort-myrmidon API.
+
 base: core20
 confinement: strict
+
+apps:
+  fort-studio:
+    adapter: full
+    command: usr/bin/fort-studio
+    command-chain:
+      - bin/desktop-launch
+    environment:
+      # Use GTK3 cursor theme, icon theme and open/save file dialogs.
+      QT_QPA_PLATFORMTHEME: gtk3
+    plugs:
+      - x11
+      - desktop
+      - wayland
+      - gsettings
+      - home
+      - opengl
+
 parts:
+  desktop-qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+    build-packages:
+      - build-essential
+      - qtbase5-dev
+      - dpkg-dev
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libqt5svg5 # for loading icon themes which are svg
+      - try: [appmenu-qt5] # not available on core18
+      - locales-all
+      - xdg-user-dirs
+      - fcitx-frontend-qt5
+
+
+  qt5-gtk-platform:
+    plugin: nil
+    stage-packages:
+      - qt5-gtk-platformtheme
+
+
   fort-studio:
     plugin: cmake
     source: .
     source-type: local
     build-packages:
-      - g++
       - make
       - git
       - libeigen3-dev
       - libopencv-dev
       - libprotobuf-dev
       - protobuf-compiler
-      - qtbase5-dev
       - libasio-dev
       - libboost-dev
+      - libyaml-cpp-dev
+      - libgoogle-glog-dev
+      - qtbase5-dev
+      - libqt5charts5-dev
+    stage-packages:
+      - libopencv-videoio4.2
+      - libopencv-imgproc4.2
+      - libopencv-imgcodecs4.2
+      - libqt5charts5
+      - libprotobuf17
+      - libyaml-cpp0.6
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DBUILD_STUDIO=On
+      - -DCMAKE_BUILD_TYPE=Release
     stage:
       - usr/lib/libfort-*
-      - usr/bin/fort-studio-*
-
-apps:
-  fort-studio:
-    command: usr/bin/fort-studio
-    environment:
-      GST_PLUGIN_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0"
-      GST_PLUGIN_SYSTEM_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0"
-      GST_PLUGIN_SCANNER: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner"
-      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP_DESKTOP_RUNTIME/usr/lib/$ARCH/qt5/libs:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/"
-      QT_PLUGIN_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET"
-#      QT_QPA_PLATFORMTHEME: "gtk3"
-    plugs:
-      - home
-      - x11
-      - desktop
-      - desktop-legacy
-      - wayland
-      - opengl
+      - usr/bin/fort-studio*
