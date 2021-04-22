@@ -7,7 +7,21 @@ description: |
     the fort-myrmidon API.
 
 base: core20
-confinement: strict
+confinement: classic
+
+plugs: # plugs for theming, font settings, cursor and to use gtk3 file chooser
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes:gtk-3-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes:icon-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes:sounds-themes
 
 apps:
   fort-studio:
@@ -15,16 +29,20 @@ apps:
     command: usr/bin/fort-studio
     command-chain:
       - bin/desktop-launch
+      - blas-wrapper.sh
     environment:
       # Use GTK3 cursor theme, icon theme and open/save file dialogs.
       QT_QPA_PLATFORMTHEME: gtk3
-    plugs:
-      - x11
-      - desktop
-      - wayland
-      - gsettings
-      - home
-      - opengl
+    # plugs:
+    #   - opengl
+    #   - home
+    #   - x11
+    #   - wayland
+    #   - desktop
+    #   - desktop-legacy
+    #   - network
+    #   - network-bind
+    #   - gsettings
 
 parts:
   desktop-qt5:
@@ -57,6 +75,12 @@ parts:
     plugin: nil
     stage-packages:
       - qt5-gtk-platformtheme
+      - qt5-style-plugins
+
+  blas-wrapper:
+    plugin: dump
+    source: snap/local
+    source-type: local
 
 
   fort-studio:
@@ -81,12 +105,13 @@ parts:
       - libopencv-imgproc4.2
       - libopencv-imgcodecs4.2
       - libqt5charts5
+      - libqt5concurrent5
       - libprotobuf17
       - libyaml-cpp0.6
+      - libgoogle-glog0v5
+      - libglu1-mesa
+      - qt5-style-plugins
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DBUILD_STUDIO=On
       - -DCMAKE_BUILD_TYPE=Release
-    stage:
-      - usr/lib/libfort-*
-      - usr/bin/fort-studio*
