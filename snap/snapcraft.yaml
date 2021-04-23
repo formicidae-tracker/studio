@@ -29,7 +29,7 @@ apps:
     command: usr/bin/fort-studio
     command-chain:
       - bin/desktop-launch
-      - blas-wrapper.sh
+      - launch-blas-lapack-style
     environment:
       # Use GTK3 cursor theme, icon theme and open/save file dialogs.
       SNAP_DESKTOP_RUNTIME: $SNAP/data-dir/gnome-platform
@@ -87,8 +87,7 @@ parts:
       - qt5-gtk-platformtheme
 
   desktop-settings-packages:
-    after:
-      - desktop-qt5
+    after: [desktop-qt5]
     plugin: nil
     build-packages:
       - libglib2.0-bin
@@ -100,18 +99,15 @@ parts:
 
   desktop-settings-build:
     plugin: nil
-    after:
-      - fort-studio
-      - desktop-settings-packages
+    after: [ fort-studio, desktop-settings-packages ]
     override-prime: |
       set -eux
       glib-compile-schemas usr/share/glib-2.0/schemas
 
-  blas-wrapper:
+  launcher:
     plugin: dump
     source: snap/local
     source-type: local
-
 
   fort-studio:
     plugin: cmake
