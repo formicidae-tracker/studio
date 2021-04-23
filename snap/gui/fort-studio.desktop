@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=FOrmicidae Tracker Studio
+GenericName=FORT Studio
+Comment=FORmicidae Tracker post-processing pipeline User Interface.
+TryExec=fort-studio
+Exec=fort-studio
+Icon=${SNAP}/meta/gui/fort-studio.png
+Type=Application
+Terminal=false
+Categories=Science;
+Keywords=FORmicidae Tracker;FORT;

@@ -6,3 +6,4 @@ debug/
 perf.data*
 /user
 /prime/
+/*.snap

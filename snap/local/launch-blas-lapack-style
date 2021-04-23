@@ -27,6 +27,6 @@ function append_dir() {
 append_dir LD_LIBRARY_PATH $SNAP/usr/lib/$ARCH/blas
 append_dir LD_LIBRARY_PATH $SNAP/usr/lib/$ARCH/lapack
 
-QT_STYLE_OVERRIDE=adwaita-dark
+QT_STYLE_OVERRIDE=adwaita
 
 exec "$@"
