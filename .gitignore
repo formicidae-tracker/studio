@@ -4,3 +4,5 @@ debug/
 *.autosave
 .Rproj.user
 perf.data*
+/user
+/prime/

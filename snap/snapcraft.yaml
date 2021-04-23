@@ -7,7 +7,7 @@ description: |
     the fort-myrmidon API.
 
 base: core20
-confinement: classic
+confinement: strict
 
 plugs: # plugs for theming, font settings, cursor and to use gtk3 file chooser
   gtk-3-themes:
@@ -32,17 +32,20 @@ apps:
       - blas-wrapper.sh
     environment:
       # Use GTK3 cursor theme, icon theme and open/save file dialogs.
+      SNAP_DESKTOP_RUNTIME: $SNAP/data-dir/gnome-platform
+      GTK_EXE_PREFIX: $SNAP/usr
       QT_QPA_PLATFORMTHEME: gtk3
-    # plugs:
-    #   - opengl
-    #   - home
-    #   - x11
-    #   - wayland
-    #   - desktop
-    #   - desktop-legacy
-    #   - network
-    #   - network-bind
-    #   - gsettings
+    plugs:
+      - opengl
+      - home
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - network
+      - network-bind
+      - gsettings
+      - removable-media
 
 parts:
   desktop-qt5:
@@ -62,11 +65,18 @@ parts:
       - adwaita-icon-theme
       - gnome-themes-standard
       - shared-mime-info
+      - libgtk-3-0
+      - libglib2.0-bin
+      - libgtk-3-bin
+      - unity-gtk3-module
+      - libappindicator3-1
+      - ibus-gtk3
       - libqt5gui5
       - libgdk-pixbuf2.0-0
       - libqt5svg5 # for loading icon themes which are svg
       - try: [appmenu-qt5] # not available on core18
       - locales-all
+      - adwaita-qt
       - xdg-user-dirs
       - fcitx-frontend-qt5
 
@@ -75,7 +85,27 @@ parts:
     plugin: nil
     stage-packages:
       - qt5-gtk-platformtheme
-      - qt5-style-plugins
+
+  desktop-settings-packages:
+    after:
+      - desktop-qt5
+    plugin: nil
+    build-packages:
+      - libglib2.0-bin
+    stage-packages:
+      - gsettings-desktop-schemas
+      - ubuntu-settings
+    prime:
+      - usr/share/glib-2.0/schemas/*
+
+  desktop-settings-build:
+    plugin: nil
+    after:
+      - fort-studio
+      - desktop-settings-packages
+    override-prime: |
+      set -eux
+      glib-compile-schemas usr/share/glib-2.0/schemas
 
   blas-wrapper:
     plugin: dump
@@ -110,7 +140,6 @@ parts:
       - libyaml-cpp0.6
       - libgoogle-glog0v5
       - libglu1-mesa
-      - qt5-style-plugins
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DBUILD_STUDIO=On
