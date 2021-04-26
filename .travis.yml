@@ -43,7 +43,7 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DBUILD_DOCS=On -DENABLE_COVERAGE=On ..
+  - cmake -DBUILD_DOCS=On -DENABLE_COVERAGE=On -DBUILD_STUDIO=On ..
   - make all check
   - CLDOC_CLANG_VERSION=9 make docs-api
   - git clone -b gh-pages https://github.com/formicidae-tracker/studio.git gh-pages
