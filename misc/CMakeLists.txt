@@ -11,9 +11,9 @@ if(BUILD_XDESKTOP_ENTRY)
     add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/misc/fort-studio.svg
 	                   COMMAND ${CMAKE_COMMAND} ARGS -E
 	                                                  copy
-	                                                  ${PROJECT_SOURCE_DIR}/resources/icons/flaticon.com/eucalyp/qr-code.svg
+	                                                  ${PROJECT_SOURCE_DIR}/resources/icons/fort-studio.svg
 	                                                  ${PROJECT_BINARY_DIR}/misc/fort-studio.svg
-		               DEPENDS ${PROJECT_SOURCE_DIR}/resources/icons/flaticon.com/eucalyp/qr-code.svg
+		               DEPENDS ${PROJECT_SOURCE_DIR}/resources/icons/fort-studio.svg
 		               COMMENT "Generating FORT Studio scalable icon")
 
     add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/misc/fort-studio.png
