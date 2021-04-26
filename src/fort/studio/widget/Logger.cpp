@@ -149,7 +149,12 @@ LoggerWidget::LoggerWidget(Logger * logger, QWidget * parent)
 	d_ui->comboBox->insertItem(1,"Warning");
 	d_ui->comboBox->insertItem(2,"Error");
 
-	setWindowTitle(tr("FORT Studio Log (/tmp/fort-studio.INFO)"));
+	std::string logDir = "/tmp";
+	if ( FLAGS_log_dir.empty() == false ) {
+		logDir = FLAGS_log_dir;
+	}
+
+	setWindowTitle(tr("FORT Studio Log (%1/fort-studio.INFO)").arg(logDir.c_str()));
 
 	connect(d_ui->comboBox,
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
