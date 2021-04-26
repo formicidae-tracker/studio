@@ -29,4 +29,8 @@ append_dir LD_LIBRARY_PATH $SNAP/usr/lib/$ARCH/lapack
 
 QT_STYLE_OVERRIDE=adwaita
 
+export GLOG_log_dir=$XDG_DATA_HOME/fort-studio/logs
+
+mkdir -p $GLOG_log_dir
+
 exec "$@"
