@@ -97,6 +97,7 @@ This project uses CMake as a build system. It requires a minimum version of 3.11
 * Google Protobuf (>=3.3.0)
 * Google glog
 * yaml-cpp
+* TBB
 
 
 ## Contributing
