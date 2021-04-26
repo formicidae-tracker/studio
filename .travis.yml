@@ -31,6 +31,7 @@ addons:
       - libqt5charts5-dev
       - libyaml-cpp-dev
       - libgoogle-glog-dev
+      - libtbb-dev
 
 before_install:
   - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
