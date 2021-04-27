@@ -34,10 +34,13 @@ addons:
       - libtbb-dev
       - libprotobuf-dev
       - protobuf-compiler
+      - python2
 
 before_install:
-  - pip install --user cpp-coveralls
-  - pip install --user git+https://github.com/atuleu/cldoc.git@dev/clang-version
+  - curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+  - python2 get-pip.py
+  - pip3 install --user cpp-coveralls
+  - pip2 install --user git+https://github.com/atuleu/cldoc.git@dev/clang-version
 
 script:
   - mkdir -p build
