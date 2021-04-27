@@ -48,7 +48,7 @@ script:
   - cmake -DBUILD_DOCS=On -DENABLE_COVERAGE=On -DBUILD_STUDIO=On ..
   - make all check
   - CLDOC_CLANG_VERSION=9 make docs-api
-  - git clone -b gh-pages https://github.com/formicidae-tracker/studio.git gh-pages
+  - git clone -b gh-pages https://github.com/formicidae-tracker/myrmidon.git gh-pages
   - mkdir -p gh-pages/docs/dev/api
   - cp -r ../docs/api/* gh-pages/docs/dev/api/
   - cd ..
