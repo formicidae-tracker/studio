@@ -41,7 +41,7 @@ s$cZones()
 the wanted movie frame number.</doc>
       <type class="template" name="std::pair">
         <template-arguments>
-          <type name="std::__cxx11::string" />
+          <type name="std::string" />
           <type name="uint64_t" />
         </template-arguments>
       </type>
@@ -63,7 +63,7 @@ s$name()
 </doc>
     <return>
       <doc>the Space name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CSpace::SpaceID" name="SpaceID">

@@ -3,11 +3,11 @@
   <brief>Reports information about a tracking data directory.</brief>
   <field id="fort::myrmidon::TrackingDataDirectoryInfo::URI" name="URI">
     <brief>The URI used in the GUI to designate the tracking data directory</brief>
-    <type name="std::__cxx11::string" />
+    <type name="std::string" />
   </field>
   <field id="fort::myrmidon::TrackingDataDirectoryInfo::AbsoluteFilePath" name="AbsoluteFilePath">
     <brief>The absolute filepath on the directory on the system</brief>
-    <type name="std::__cxx11::string" />
+    <type name="std::string" />
   </field>
   <field id="fort::myrmidon::TrackingDataDirectoryInfo::Frames" name="Frames">
     <brief>The number of Frames in this directory</brief>

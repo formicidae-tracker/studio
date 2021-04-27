@@ -50,7 +50,7 @@ zoneID &lt;- s$createZone(name)
     </return>
     <argument id="fort::myrmidon::Space::CreateZone::name" name="name">
       <doc>the <ref ref="fort::myrmidon::Zone#fort::myrmidon::Zone::Name">fort::myrmidon::Zone::Name</ref></doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::CZones" name="CZones">
@@ -93,7 +93,7 @@ s$locateMovieFrame(fmTimeParse("XXX"))
 the wanted movie frame number.</doc>
       <type class="template" name="std::pair">
         <template-arguments>
-          <type name="std::__cxx11::string" />
+          <type name="std::string" />
           <type name="uint64_t" />
         </template-arguments>
       </type>
@@ -115,7 +115,7 @@ s$name()
 </doc>
     <return>
       <doc>the Space name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::SetName" name="SetName">
@@ -132,7 +132,7 @@ s$setName(name)
     </return>
     <argument id="fort::myrmidon::Space::SetName::name" name="name">
       <doc>the new Space name.</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Space::SpaceID" name="SpaceID">

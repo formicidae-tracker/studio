@@ -307,7 +307,7 @@ It may throw &amp;lt;std::exception&amp;gt; on any parsing error.
     </return>
     <argument id="fort::myrmidon::Duration::Parse::str" name="str">
       <doc>the string to Parse in the form  `"2h"` or `"1m"`</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Duration::Seconds" name="Seconds">

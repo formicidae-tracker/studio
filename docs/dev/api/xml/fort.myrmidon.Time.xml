@@ -142,7 +142,7 @@ standard c++ formatting operator on &amp;lt;std::ostream&amp;gt;.
 </doc>
     <return>
       <doc>a debug string with the complete time internal state.</doc>
-      <type name="std::__cxx11::string" />
+      <type name="std::string" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Equals" name="Equals">
@@ -388,7 +388,7 @@ t &lt;- fmTimeParse("1972-01-01T00:00:00.000Z")
     </return>
     <argument id="fort::myrmidon::Time::Parse::input" name="input">
       <doc>the string to parse</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Time::Round" name="Round">

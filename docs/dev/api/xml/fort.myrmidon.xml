@@ -165,7 +165,7 @@ The main entry point is the <ref ref="fort::myrmidon::Experiment#fort::myrmidon:
         <type builtin="yes" name="bool" />
         <type name="int32_t" />
         <type builtin="yes" name="double" />
-        <type name="std::__cxx11::string" />
+        <type name="std::string" />
         <type name="Time" ref="fort::myrmidon::Time#fort::myrmidon::Time" />
       </template-arguments>
     </type>

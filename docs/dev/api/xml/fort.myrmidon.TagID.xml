@@ -9,7 +9,7 @@ the definition of <ref ref="fort::myrmidon::Ant#fort::myrmidon::Ant">fort::myrmi
     <brief>Formats a TagID to convention format</brief>
     <return>
       <doc><ref ref="fort::myrmidon::TagID#fort::myrmidon::FormatTagID::tagID">tagID</ref> formatted to the myrmidon convetion for <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref>.</doc>
-      <type name="std::__cxx11::string" />
+      <type name="std::string" />
     </return>
     <argument id="fort::myrmidon::FormatTagID::tagID" name="tagID">
       <doc>the <ref ref="fort::myrmidon::TagID#fort::myrmidon::TagID">fort::myrmidon::TagID</ref> to format</doc>

@@ -128,7 +128,7 @@ fmMatcherAntColumn("group",fmAntStaticString("nurses"))
     </return>
     <argument id="fort::myrmidon::Matcher::AntColumn::name" name="name">
       <doc>the name of the column to match against</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::Matcher::AntColumn::value" name="value">
       <doc>the value to match against</doc>

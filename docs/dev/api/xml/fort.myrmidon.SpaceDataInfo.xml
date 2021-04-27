@@ -5,12 +5,12 @@
   <field id="fort::myrmidon::SpaceDataInfo::URI" name="URI">
     <brief>The URI used to designate the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
     </brief>
-    <type name="std::__cxx11::string" />
+    <type name="std::string" />
   </field>
   <field id="fort::myrmidon::SpaceDataInfo::Name" name="Name">
     <brief>The name of the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>
     </brief>
-    <type name="std::__cxx11::string" />
+    <type name="std::string" />
   </field>
   <field id="fort::myrmidon::SpaceDataInfo::Frames" name="Frames">
     <brief>The number of frame in the <ref ref="fort::myrmidon::Space#fort::myrmidon::Space">fort::myrmidon::Space</ref>

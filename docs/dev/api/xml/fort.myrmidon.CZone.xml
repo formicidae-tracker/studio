@@ -44,7 +44,7 @@ z$name()
 </doc>
     <return>
       <doc>the Zone name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CZone::ZoneID" name="ZoneID">

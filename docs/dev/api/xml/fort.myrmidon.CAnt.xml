@@ -119,7 +119,7 @@ ant$formattedID()
 </doc>
     <return>
       <doc>a string with the formatted ID</doc>
-      <type name="std::__cxx11::string" />
+      <type name="std::string" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CAnt::GetValue" name="GetValue">
@@ -140,7 +140,7 @@ ant$getValue(name,time)
     </return>
     <argument id="fort::myrmidon::CAnt::GetValue::name" name="name">
       <doc>the name of the non-tracking data value</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::CAnt::GetValue::time" name="time">
       <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> we want the value for</doc>

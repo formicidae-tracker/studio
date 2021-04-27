@@ -185,7 +185,7 @@ ant$deleteValue(name,time)
     </return>
     <argument id="fort::myrmidon::Ant::DeleteValue::name" name="name">
       <doc>the named value to remove</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::Ant::DeleteValue::time" name="time">
       <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> to remove</doc>
@@ -244,7 +244,7 @@ ant$formattedID()
 </doc>
     <return>
       <doc>a string with the formatted ID</doc>
-      <type name="std::__cxx11::string" />
+      <type name="std::string" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Ant::GetValue" name="GetValue">
@@ -265,7 +265,7 @@ ant$getValue(name,time)
     </return>
     <argument id="fort::myrmidon::Ant::GetValue::name" name="name">
       <doc>the name of the non-tracking data value</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::Ant::GetValue::time" name="time">
       <doc>the <ref ref="fort::myrmidon::Time#fort::myrmidon::Time">fort::myrmidon::Time</ref> we want the value for</doc>
@@ -355,7 +355,7 @@ ant$setValue(name,value,time)
     </return>
     <argument id="fort::myrmidon::Ant::SetValue::name" name="name">
       <doc>the wanted column name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
     <argument id="fort::myrmidon::Ant::SetValue::value" name="value">
       <doc>the wanted <ref ref="fort::myrmidon#fort::myrmidon::AntStaticValue">fort::myrmidon::AntStaticValue</ref></doc>

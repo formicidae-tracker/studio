@@ -32,7 +32,7 @@ e$absoluteFilePath()
 </doc>
     <return>
       <doc>the path to the `.myrmidon` file</doc>
-      <type name="std::__cxx11::string" />
+      <type name="std::string" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CExperiment::AntMetadataColumns" name="AntMetadataColumns">
@@ -52,7 +52,7 @@ indexed by column name for all columns defined in the
 experiment.</doc>
       <type class="template" name="std::map">
         <template-arguments>
-          <type name="std::__cxx11::string" />
+          <type name="std::string" />
           <type class="template" name="std::pair">
             <template-arguments>
               <type name="AntMetadataType" ref="fort::myrmidon#fort::myrmidon::AntMetadataType" />
@@ -76,7 +76,7 @@ e$antShapeTypeNames()
       <type class="template" name="std::map">
         <template-arguments>
           <type name="AntShapeTypeID" ref="fort::myrmidon#fort::myrmidon::AntShapeTypeID" />
-          <type name="std::__cxx11::string" />
+          <type name="std::string" />
         </template-arguments>
       </type>
     </return>
@@ -91,7 +91,7 @@ e$author()
 </doc>
     <return>
       <doc>a reference to the author name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CExperiment::CAnts" name="CAnts">
@@ -123,7 +123,7 @@ e$family()
 </doc>
     <return>
       <doc>a reference to the Experiment's comment</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CExperiment::CompileTrackingSolver" name="CompileTrackingSolver">
@@ -288,7 +288,7 @@ e$measurementTypeNames()
       <type class="template" name="std::map">
         <template-arguments>
           <type name="MeasurementTypeID" ref="fort::myrmidon#fort::myrmidon::MeasurementTypeID" />
-          <type name="std::__cxx11::string" />
+          <type name="std::string" />
         </template-arguments>
       </type>
     </return>
@@ -303,7 +303,7 @@ e$name()
 </doc>
     <return>
       <doc>a reference to the Experiment's name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::CExperiment::Threshold" name="Threshold">

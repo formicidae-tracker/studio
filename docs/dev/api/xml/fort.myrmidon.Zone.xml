@@ -145,7 +145,7 @@ z$name()
 </doc>
     <return>
       <doc>the Zone name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </return>
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::SetName" name="SetName">
@@ -161,7 +161,7 @@ There are no restrictions on Zone name</doc>
     </return>
     <argument id="fort::myrmidon::Zone::SetName::name" name="name">
       <doc>the wanted new Zone name</doc>
-      <type name="std::__cxx11::string" qualifier=" const &amp;" />
+      <type name="std::string" qualifier=" const &amp;" />
     </argument>
   </method>
   <method abstract="yes" id="fort::myrmidon::Zone::ZoneID" name="ZoneID">
