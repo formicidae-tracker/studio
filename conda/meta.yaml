@@ -113,7 +113,7 @@ outputs:
 
 
 about:
-  home: https://github.com/formicidae-tracker/studio
+  home: https://github.com/formicidae-tracker/myrmidon
   license: LGPL-v3
   summary: "FORmicidae Tracker post-processing API and tool"
   description: |
