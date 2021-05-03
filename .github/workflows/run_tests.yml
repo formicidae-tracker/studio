@@ -8,13 +8,17 @@ on:
       - master
 
 jobs:
-  run-tests:
+  run-tests-and-coverage:
     runs-on: ubuntu-20.04
+    env:
+      COVERALLS_REPO_TOKEN : ${{ secrets.github_token }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2.0.0
         - name: Install dependencies
           run: sudo apt install build-essential git cmake libopencv-dev libasio-dev libboost-dev libgoogle-glog-dev libyaml-cpp-dev qtbase5-dev libqt5charts5-dev libeigen3-dev libprotobuf-dev protobuf-compiler gcovr
+        - name: Installs coveralls-cpp
+          run: pip3 install --user cpp-coveralls
         - name: Uses ccache
           uses: hendrikmuhs/ccache-action@v1
         - name: Configure
@@ -27,14 +31,5 @@ jobs:
           with:
             run: make check
             working-directory: ${{github.workspace}}/build
-
-  send-coverage:
-    runs-on: ubuntu-20.04
-    needs: run-tests
-    env:
-      COVERALLS_REPO_TOKEN : ${{ secrets.github_token }}
-    steps:
-      - name: Installs coveralls-cpp
-        run: pip3 install --user cpp-coveralls
-      - name: Sends coverage
-        run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
+        - name: Sends coverage
+          run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
