@@ -17,7 +17,7 @@ jobs:
         - name: Install dependencies
           run: sudo apt install build-essential git cmake libopencv-dev libasio-dev libboost-dev libgoogle-glog-dev libyaml-cpp-dev qtbase5-dev libqt5charts5-dev libeigen3-dev
         - name: Configure
-          working_directory: build
+          working-directory: build
           run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_STUDIO=On -DENABLE_COVERAGE=On ..
         - name: Build and tests
           working-directory: ${{github.workspace}}/build
