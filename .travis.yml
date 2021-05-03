@@ -26,8 +26,6 @@ addons:
       - libopencv-dev
       - libxkbcommon-x11-0
       - libgl1-mesa-dev
-      - libclang-9-dev
-      - clang-9
       - libqt5charts5-dev
       - libyaml-cpp-dev
       - libgoogle-glog-dev
@@ -35,6 +33,10 @@ addons:
       - libprotobuf-dev
       - protobuf-compiler
       - python2
+      - libclang-10-dev
+      - libclang-common-10-dev
+      - clang-10
+
 
 before_install:
   - curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
@@ -47,7 +49,7 @@ script:
   - cd build
   - cmake -DBUILD_DOCS=On -DENABLE_COVERAGE=On -DBUILD_STUDIO=On ..
   - make all check
-  - CLDOC_CLANG_VERSION=9 make docs-api
+  - CLDOC_CLANG_VERSION=10 make docs-api
   - git clone -b gh-pages https://github.com/formicidae-tracker/myrmidon.git gh-pages
   - mkdir -p gh-pages/docs/dev/api
   - cp -r ../docs/api/* gh-pages/docs/dev/api/
