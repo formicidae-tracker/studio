@@ -30,4 +30,4 @@ jobs:
             run: make check
             working-directory: ${{github.workspace}}/build
         - name: Sends coverage
-          run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*' --repo-token ${{ secrets.GITHUB_TOKEN }}
+          run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*' --repo-token ${{ secrets.COVERALLS_TOKEN }}
