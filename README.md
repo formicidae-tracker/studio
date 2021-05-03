@@ -124,17 +124,17 @@ This project is licensed under the GNU Lesser General Public License v3.0 or lat
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[build-status-shield]: https://img.shields.io/travis/com/formicidae-tracker/myrmidon/master?style=flat-square
-[build-status-url]: https://travis-ci.com/formicidae-tracker/myrmidon
-[coverage-status-shield]: https://img.shields.io/coveralls/github/formicidae-tracker/myrmidon?style=flat-square
+[build-status-shield]: https://github.com/formicidae-tacker/myrmidon/actions/workflows/run_tests.yml/badge.svg
+[build-status-url]: https://github.com/formicidae-tacker/myrmidon/actions/workflows/run_tests.yml
+[coverage-status-shield]: https://img.shields.io/coveralls/github/formicidae-tracker/myrmidon
 [coverage-status-url]: https://coveralls.io/github/formicidae-tracker/myrmidon
-[contributors-shield]: https://img.shields.io/github/contributors/formicidae-tracker/myrmidon.svg?style=flat-square
+[contributors-shield]: https://img.shields.io/github/contributors/formicidae-tracker/myrmidon.svg
 [contributors-url]: https://github.com/formicidae-tracker/myrmidon/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/formicidae-tracker/myrmidon.svg?style=flat-square
+[forks-shield]: https://img.shields.io/github/forks/formicidae-tracker/myrmidon.svg
 [forks-url]: https://github.com/formicidae-tracker/myrmidon/network/members
-[stars-shield]: https://img.shields.io/github/stars/formicidae-tracker/myrmidon.svg?style=flat-square
+[stars-shield]: https://img.shields.io/github/stars/formicidae-tracker/myrmidon.svg
 [stars-url]: https://github.com/formicidae-tracker/myrmidon/stargazers
-[issues-shield]: https://img.shields.io/github/issues/formicidae-tracker/myrmidon.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/formicidae-tracker/myrmidon.svg
 [issues-url]: https://github.com/formicidae-tracker/myrmidon/issues
-[license-shield]: https://img.shields.io/github/license/formicidae-tracker/myrmidon.svg?style=flat-square
+[license-shield]: https://img.shields.io/github/license/formicidae-tracker/myrmidon.svg
 [license-url]: https://github.com/formicidae-tracker/myrmidon/blob/master/COPYING.LESSER
