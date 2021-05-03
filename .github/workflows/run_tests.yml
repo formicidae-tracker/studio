@@ -17,6 +17,11 @@ jobs:
           run: sudo apt install build-essential git cmake libopencv-dev libasio-dev libboost-dev libgoogle-glog-dev libyaml-cpp-dev qtbase5-dev libqt5charts5-dev libeigen3-dev libprotobuf-dev protobuf-compiler gcovr
         - name: Configure
           run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_STUDIO=On -DENABLE_COVERAGE=On
-        - name: Build and tests
+        - name: Build
           working-directory: ${{github.workspace}}/build
-          run: make all check
+          run: make all
+        - name: Test
+          uses: GabrielBB/xvfb-action@v1
+          with:
+            run: make check
+            working-directory: ${{github.workspace}}/build
