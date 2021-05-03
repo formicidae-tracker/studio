@@ -10,8 +10,6 @@ on:
 jobs:
   run-tests-and-coverage:
     runs-on: ubuntu-20.04
-    env:
-      COVERALLS_REPO_TOKEN : ${{ secrets.GITHUB_TOKEN }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2.0.0
@@ -32,4 +30,4 @@ jobs:
             run: make check
             working-directory: ${{github.workspace}}/build
         - name: Sends coverage
-          run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
+          run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*' --repo-token ${{ secrets.GITHUB_TOKEN }}
