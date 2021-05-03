@@ -37,4 +37,4 @@ jobs:
       - name: Installs coveralls-cpp
         run: pip3 install --user cpp-coveralls
       - name: Sends coverage
-        run: coveralls -b ${{github.workspace}}/build -r {{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
+        run: coveralls -b ${{github.workspace}}/build -r ${{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
