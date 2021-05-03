@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  run-tests-and-coverage:
+  run-tests:
     runs-on: ubuntu-20.04
     steps:
         - name: Checkout
@@ -25,3 +25,14 @@ jobs:
           with:
             run: make check
             working-directory: ${{github.workspace}}/build
+
+  send-coverage:
+    runs-on: ubuntu-20.04
+    needs: run-tests
+    env:
+      COVERALLS_REPO_TOKEN : ${{ secrets.github_token }}
+    steps:
+      - name: Installs coveralls-cpp
+        run: pip3 install --user cpp-coveralls
+      - name: Sends coverage
+        run: coveralls -b ${{github.workspace}}/build -r {{github.workspace}} -i 'src/for/myrmidon/priv' -E '.*UTest.*'
