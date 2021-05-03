@@ -17,7 +17,10 @@ void AntMeasurementUTest::SetUp() {
 	                                            TestSetup::Basedir());
 	if ( tdd->TagCloseUpsComputed() == false ) {
 		for (const auto & l : tdd->PrepareTagCloseUpsLoaders() ) {
-			l();
+			try {
+				l();
+			} catch ( const std::exception & ) {
+			}
 		}
 	}
 

@@ -760,10 +760,14 @@ public:
 	             const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter) {
 		auto detector = d_detectorPool.Get(d_tdd->DetectionSettings());
 
-		auto tcus = detector->Detect(fileAndFilter,
-		                             d_tdd->FrameReferenceAt(frameID));
-
-		Reduce(index,tcus);
+		try {
+			auto tcus = detector->Detect(fileAndFilter,
+			                             d_tdd->FrameReferenceAt(frameID));
+			Reduce(index,tcus);
+		} catch ( const std::exception & ) {
+			Reduce(index,{});
+			throw;
+		}
 	}
 
 	void Reduce(size_t index,
@@ -805,14 +809,10 @@ private:
 			std::vector<TagCloseUp::ConstPtr> res;
 			cv::Mat imgCv;
 
-			try {
-				imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
-			} catch ( const std::exception	&  ) {
-				return res;
-			}
+			imgCv = cv::imread(fileAndFilter.first.string(),cv::IMREAD_GRAYSCALE);
 
 			if ( imgCv.empty() ) {
-				return res;
+				throw std::runtime_error(fileAndFilter.first.string() + " is an empty image");
 			}
 
 
@@ -827,6 +827,15 @@ private:
 					continue;
 				}
 				res.push_back(std::make_shared<TagCloseUp>(fileAndFilter.first,reference,d));
+			}
+
+			if ( fileAndFilter.second != nullptr && res.empty() == true ) {
+				std::ostringstream oss;
+				oss << "could not detect tag 0x" << std::hex << *fileAndFilter.second
+				    << " (decimal: " << std::dec << *fileAndFilter.second << ") in "
+				    << fileAndFilter.first;
+				throw std::runtime_error(oss.str());
+
 			}
 
 			return res;
