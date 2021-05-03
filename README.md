@@ -124,8 +124,8 @@ This project is licensed under the GNU Lesser General Public License v3.0 or lat
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[build-status-shield]: https://github.com/formicidae-tacker/myrmidon/actions/workflows/run_tests.yml/badge.svg
-[build-status-url]: https://github.com/formicidae-tacker/myrmidon/actions/workflows/run_tests.yml
+[build-status-shield]: https://github.com/formicidae-tracker/myrmidon/actions/workflows/run_tests.yml/badge.svg
+[build-status-url]: https://github.com/formicidae-tracker/myrmidon/actions/workflows/run_tests.yml
 [coverage-status-shield]: https://img.shields.io/coveralls/github/formicidae-tracker/myrmidon
 [coverage-status-url]: https://coveralls.io/github/formicidae-tracker/myrmidon
 [contributors-shield]: https://img.shields.io/github/contributors/formicidae-tracker/myrmidon.svg
