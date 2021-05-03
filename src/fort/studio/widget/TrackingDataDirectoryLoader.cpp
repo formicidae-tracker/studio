@@ -88,7 +88,11 @@ void TrackingDataDirectoryLoader::load(const std::vector<fmp::TrackingDataDirect
 
 	watcher.setFuture(QtConcurrent::map(loaders,
 	                                    [&counts,this](const fmp::TrackingDataDirectory::Loader & l) {
-		                                    l();
+		                                    try {
+			                                    l();
+		                                    } catch( const std::exception & e) {
+			                                    qWarning() << e.what();
+		                                    }
 		                                    int done = counts.fetch_add(1)+1;
 		                                    emit valueChanged(done);
 	                                    }));

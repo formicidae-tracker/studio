@@ -30,7 +30,10 @@ TEST_F(TagCloseUpUTest,ListTagsForNewFolder) {
 	auto foo = fmp::TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 	auto loaders = foo->PrepareTagCloseUpsLoaders();
 	for ( const auto & l : loaders ) {
-		l();
+		try {
+			l();
+		} catch ( const std::exception &  ) {
+		}
 	}
 	bridge->universe()->addTrackingDataDirectoryToSpace("foo",foo);
 
