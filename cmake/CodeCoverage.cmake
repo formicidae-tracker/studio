@@ -1,6 +1,5 @@
-
-# Copyright (c) 2012 - 2017, Lars Bilke,
-# Copyright (c) 2020 Alexandre Tuleu
+# Copyright (c) 2012 - 2017, Lars Bilke
+# Copyright (c) 2020 - 2021 Alexandre Tuleu
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -29,13 +28,14 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # Changes: 2020-11-12: Rewrite by A. Tuleu
+# Changes: 2021-05-04: Moves to lcov
 #
 
 include(CMakeParseArguments)
 
 
-find_program(GCOV_PATH gcov REQUIRED)
-find_program(GCOVR_PATH gcovr REQUIRED)
+find_program(LCOV_EXECUTABLE lcov REQUIRED)
+find_program(GENHTML_EXECUTABLE genhtml REQUIRED)
 
 
 
@@ -66,27 +66,27 @@ endfunction(enable_coverage)
 
 function(setup_target_for_coverage)
 	set(options NONE)
-    set(oneValueArgs NAME)
-    set(multiValueArgs DEPENDENCIES GCOVR_OPTIONS)
-    cmake_parse_arguments(opts "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+	set(oneValueArgs NAME)
+	set(multiValueArgs DEPENDENCIES LCOV_OPTIONS)
+	cmake_parse_arguments(opts "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    add_custom_target(${opts_NAME}
+	add_custom_target(${opts_NAME}
 	                  COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${opts_NAME}
-	                  COMMAND ${GCOVR_PATH} --html
-	                                        --html-details
-	                                        -r ${PROJECT_SOURCE_DIR}
-	                                        --object-directory=${PROJECT_BINARY_DIR}
-	                                        -o ${opts_NAME}/index.html
-	                                        ${opts_GCOVR_OPTIONS}
+	                  COMMAND ${LCOV_EXECUTABLE} --directory ${CMAKE_CURRENT_BINARY_DIR}
+	                                             --base-directory ${PROJECT_SOURCE_DIR}
+	                                             --output-file ${PROJECT_BINARY_DIR}/${opts_NAME}/lcov.info
+												 -c
+	                                            ${opts_LCOV_OPTIONS}
+	                  COMMAND ${GENHTML_EXECUTABLE} ${PROJECT_BINARY_DIR}/${opts_NAME}/lcov.info
+	                          --output ${PROJECT_BINARY_DIR}/${opts_NAME}
 	                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 	                  DEPENDS ${opts_DEPENDENCIES}
 	                  COMMENT "Producing HTML report for ${opts_NAME}"
 	                  )
 
-    add_custom_command(TARGET ${opts_NAME} POST_BUILD
+	add_custom_command(TARGET ${opts_NAME} POST_BUILD
 	                   COMMAND ;
-                       COMMENT "Open ./${opts_NAME}/index.html in your browser to view the coverage report."
-                       )
-
+	                   COMMENT "Open ./${opts_NAME}/index.html in your browser to view the coverage report."
+	                   )
 
 endfunction(setup_target_for_coverage)
