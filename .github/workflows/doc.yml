@@ -1,0 +1,52 @@
+name: release-doc
+on: [push]
+
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-20.04
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+      - name: Installs dependencies
+        run: |
+          sudo apt install python2 libclang-9-dev clang-9 libasio-dev libyaml-cpp-dev libeigen3-dev libprotobuf-deev protobuf-compiler
+          curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py
+          sudo python2 /tmp/get-pip.py
+          pip2 install --user git+https://github.com/atuleu/cldoc.git@dev/clang-version
+      - name: Configure
+        run: cmake -B ${{github.workspace}}/build-docs -DBUILD_DOCS=On -DBUILD_STUDIO=Off
+      - name: Build docs
+        working-directory: ${{github.workspace}}/build-docs
+        run: make fort-hermes docs-api
+      - name: Releases docs
+        run: |
+          git clone -b gh-pages https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git gh-pages
+          mkdir -p gh-pages/docs/${GITHUB_REF}/api
+          cp -r ${{ github.workspace }}/build-docs/docs/api/* gh-pages/docs/${GITHUB_REF}/api/
+          rm -Rf gh-pages/docs/latest
+          echo "# Documentation for FORT Studio and myrmidon API\n\n## Myrmidon documentation\n" > gh-pages/index.md
+          once="1"
+          for f in $(ls gh-pages/docs | sort -n)
+          do
+            if [ -d gh-pages/docs/$f ]
+            then
+              if [ $once == "1"]
+              then
+                once="0"
+                echo " * [latest ($f)](/studio/docs/$f/api/)" > gh-pages/index.md
+              else
+                oecho " * [$f](/studio/docs/$f/api/)" > gh-pages/index.md
+              fi
+            fi
+          done
+          cd gh-pages/docs
+          ln -s $GITHUB_REF latest
+          cd ..
+          git add .
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "noreply@github.com"
+          git commit -am "Adds documentation for ${GITHUB_REF}"
+          git push origin gh-pages
