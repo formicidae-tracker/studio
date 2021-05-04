@@ -15,7 +15,7 @@ namespace priv {
 namespace proto {
 
 const std::string TDDCache::CACHE_FILENAME = "myrmidon-tdd-pb.cache";
-const uint32_t TDDCache::CACHE_VERSION = 1;
+const uint32_t TDDCache::CACHE_VERSION = 2;
 TrackingDataDirectory::Ptr TDDCache::Load(const fs::path & absoluteFilePath ,
                                           const std::string & URI) {
 
