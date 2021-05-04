@@ -20,7 +20,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build-docs -DBUILD_DOCS=On -DBUILD_STUDIO=Off
       - name: Build docs
         working-directory: ${{github.workspace}}/build-docs
-        run: make fort-hermes docs-api
+        run: CLDOC_CLANG_VERSION=9 make fort-hermes docs-api
       - name: Releases docs
         run: |
           git clone -b gh-pages https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git gh-pages
