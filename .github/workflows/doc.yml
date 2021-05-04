@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v2.0.0
       - name: Installs dependencies
         run: |
-          sudo apt install python2 libclang-9-dev clang-9 libasio-dev libyaml-cpp-dev libeigen3-dev libprotobuf-dev protobuf-compiler
+          sudo apt install python2 libclang-9-dev clang-9 libasio-dev libyaml-cpp-dev libeigen3-dev libopencv-dev libprotobuf-dev protobuf-compiler
           curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py
           sudo python2 /tmp/get-pip.py
           pip2 install --user git+https://github.com/atuleu/cldoc.git@dev/clang-version
