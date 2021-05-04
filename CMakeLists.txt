@@ -133,18 +133,11 @@ add_subdirectory(pkgconfig)
 add_subdirectory(src)
 
 if(ENABLE_COVERAGE)
-	setup_target_for_coverage(NAME myrmidon-coverage
+	setup_target_for_coverage(NAME coverage
 	                          DEPENDENCIES check
-	                          GCOVR_OPTIONS -f ${PROJECT_SOURCE_DIR}/src/
-	                                        -e "'(.)+UTest.hpp'"
-	                                        -e "'(.)+UTest.cpp'"
-	                                        -e ${PROJECT_SOURCE_DIR}/src/analyze-video
-	                                        -e ${PROJECT_SOURCE_DIR}/src/capsule-collision-tester
-	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/benchmark
-	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/studio/utest
-	                                        -e ${PROJECT_SOURCE_DIR}/src/fort/myrmidon/TestSetup
-	                                        -e "main-check\\.cpp"
-
+	                          LCOV_OPTIONS --exclude "'*UTest.*'"
+	                                       --exclude "main-check.cpp"
+										   --include "'${PROJECT_SOURCE_DIR}/src/fort/myrmidon/priv/*'"
 	                          )
 endif(ENABLE_COVERAGE)
 
