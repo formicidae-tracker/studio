@@ -356,7 +356,7 @@ TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
 	PERF_FUNCTION();
 	std::multimap<FrameID,std::pair<fs::path,std::shared_ptr<TagID>>> res;
 
-	static std::regex singleRx("ant_([0-9]+)_frame_([0-9]+).png");
+	static std::regex singleRx("ant_([0-9]+)_(frame_)?([0-9]+).png");
 	static std::regex multiRx("frame_([0-9]+).png");
 
 	for ( const auto & de : fs::directory_iterator(path) ) {
@@ -372,9 +372,9 @@ TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
 		std::smatch ID;
 		std::string filename = de.path().filename().string();
 		FrameID frameID;
-		if(std::regex_search(filename,ID,singleRx) && ID.size() > 2) {
+		if(std::regex_search(filename,ID,singleRx) && ID.size() > 3) {
 			std::istringstream IDS(ID.str(1));
-			std::istringstream FrameS(ID.str(2));
+			std::istringstream FrameS(ID.str(3));
 			auto tagID = std::make_shared<TagID>(0);
 
 			IDS >> *(tagID);
@@ -806,6 +806,7 @@ private:
 
 		std::vector<TagCloseUp::ConstPtr> Detect(const TrackingDataDirectory::TagCloseUpFileAndFilter & fileAndFilter,
 		                                         const FrameReference & reference) {
+
 			std::vector<TagCloseUp::ConstPtr> res;
 			cv::Mat imgCv;
 

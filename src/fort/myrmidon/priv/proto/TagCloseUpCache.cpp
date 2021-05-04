@@ -10,7 +10,7 @@ namespace priv {
 namespace proto {
 
 
-const uint32_t TagCloseUpCache::CACHE_VERSION = 1;
+const uint32_t TagCloseUpCache::CACHE_VERSION = 2;
 
 const std::string TagCloseUpCache::CACHE_PATH = "ants/tag-close-up.cache";
 
