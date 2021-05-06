@@ -6,6 +6,10 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProgressDialog>
+#include <QFutureWatcher>
+#include <QtConcurrent>
+#include <QEventLoop>
 
 #include "SpaceChoiceDialog.hpp"
 
@@ -56,6 +60,53 @@ void UniverseEditorWidget::setup(UniverseBridge * universe) {
 }
 
 
+
+fmp::TrackingDataDirectory::Ptr UniverseEditorWidget::openTDD(const QString & path) {
+
+	QFutureWatcher<void> watcher;
+	QEventLoop loop;
+
+	fmp::TrackingDataDirectory::Ptr res;
+
+	connect(&watcher,&QFutureWatcher<void>::finished,
+	        &loop,&QEventLoop::quit);
+
+	auto dialog  = new QProgressDialog(tr("Gathering %1 time data").arg(path),
+	                                   QString(),
+	                                   0,-1,
+	                                   this,
+	                                   Qt::Dialog | Qt::WindowTitleHint | Qt::FramelessWindowHint);
+	dialog->setAutoReset(false);
+	dialog->setMinimumDuration(250);
+	dialog->setValue(0);
+	dialog->setWindowModality(Qt::ApplicationModal);
+	watcher.setFuture(QtConcurrent::run([&res,
+	                                     &path,
+	                                     dialog,
+	                                     this]() {
+	                                        try {
+		                                        res = fmp::TrackingDataDirectory::Open(path.toUtf8().constData(),
+			         d_universe->basepath().toUtf8().constData(),
+			         [dialog](int done, int total ) {
+				         QMetaObject::invokeMethod(dialog, "setMaximum", Qt::QueuedConnection,
+				                                   Q_ARG( int, total ) );
+				         QMetaObject::invokeMethod(dialog, "setValue", Qt::QueuedConnection,
+				                                   Q_ARG( int, done ) );
+
+			         });
+		                                    } catch (const std::exception & e) {
+		                                        qCritical() << "Could not open TrackingDataDirectory"
+			                                                << path << ": " << e.what();
+		                                    }
+		                                    dialog->reset();
+	                                    }));
+
+
+	loop.exec();
+	dialog->deleteLater();
+	return res;
+}
+
 void UniverseEditorWidget::on_addButton_clicked() {
 	if ( d_universe == NULL ) {
 		return;
@@ -64,18 +115,11 @@ void UniverseEditorWidget::on_addButton_clicked() {
 	auto tddFilePath = QFileDialog::getExistingDirectory(this, tr("Open Tracking Data Directory"),
 	                                                     d_universe->basepath(),
 	                                                     QFileDialog::ShowDirsOnly);
-	fmp::TrackingDataDirectory::Ptr tdd;
+	fmp::TrackingDataDirectory::Ptr tdd = openTDD(tddFilePath);
+
 	try {
-		tdd = fmp::TrackingDataDirectory::Open(tddFilePath.toUtf8().constData(),
-		                                       d_universe->basepath().toUtf8().constData());
 		TrackingDataDirectoryLoader::EnsureLoaded({tdd},this);
 	} catch ( const std::exception & e ) {
-		qCritical() << "Could not open TrackingDataDirectory"
-		            << tddFilePath << ": " << e.what();
-		QMessageBox::warning(this,tr("Data Error"),
-		                     tr("Could not open Tracking Data Directory '%1'.\n"
-		                        "Error: %2").arg(tddFilePath,e.what()),
-		                     QMessageBox::Ok     );
 		return;
 	}
 

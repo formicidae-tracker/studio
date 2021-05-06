@@ -220,7 +220,8 @@ void TrackingDataDirectory::BuildFrameReferenceCache(const std::string & URI,
                                                      Time::MonoclockID monoID,
                                                      const fs::path & tddPath,
                                                      const TrackingIndex::ConstPtr & trackingIndexer,
-                                                     FrameReferenceCache & cache) {
+                                                     FrameReferenceCache & cache,
+                                                     const ProgressCallback & progress) {
 	struct CacheSegment {
 		std::string AbsoluteFilePath;
 		std::set<FrameID> ToFind;
@@ -269,13 +270,17 @@ void TrackingDataDirectory::BuildFrameReferenceCache(const std::string & URI,
 		flattened.push_back(segment);
 	}
 
+	std::atomic<int> counts;
+	counts.store(0);
 	// do the parrallel computations
+	progress(0,flattened.size());
 	tbb::parallel_for(tbb::blocked_range<size_t>(0,flattened.size()),
-	                  [&flattened,monoID](const tbb::blocked_range<size_t> & range) {
+	                  [&flattened,monoID,&counts,&progress](const tbb::blocked_range<size_t> & range) {
 		                  for ( size_t idx = range.begin();
 		                        idx != range.end();
 		                        ++idx ) {
 			                  flattened[idx].Load(monoID);
+			                  progress(counts.fetch_add(1)+1,flattened.size());
 		                  }
 	                  });
 	// merge all
@@ -396,7 +401,9 @@ TrackingDataDirectory::ListTagCloseUpFiles(const fs::path & path) {
 
 
 
-TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath, const fs::path & experimentRoot) {
+TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath,
+                                                       const fs::path & experimentRoot,
+                                                       const ProgressCallback & progress) {
 	CheckPaths(filepath,experimentRoot);
 
 	auto absoluteFilePath = fs::weakly_canonical(fs::absolute(filepath));
@@ -407,7 +414,7 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath
 	try {
 		res = LoadFromCache(absoluteFilePath,URI.generic_string());
 	} catch (const std::exception & e ) {
-		res = OpenFromFiles(absoluteFilePath,URI.generic_string());
+		res = OpenFromFiles(absoluteFilePath,URI.generic_string(),progress);
 		try {
 			res->SaveToCache();
 		} catch ( const std::exception & e) {}
@@ -421,7 +428,8 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath
 
 
 TrackingDataDirectory::Ptr TrackingDataDirectory::OpenFromFiles(const fs::path & absoluteFilePath,
-                                                                const std::string & URI) {
+                                                                const std::string & URI,
+                                                                const ProgressCallback & progress) {
 
 
 	std::vector<fs::path> hermesFiles;
@@ -458,7 +466,8 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::OpenFromFiles(const fs::path &
 	                         monoID,
 	                         absoluteFilePath,
 	                         ti,
-	                         *referenceCache);
+	                         *referenceCache,
+	                         progress);
 	// caches the last frame
 	referenceCache->insert(std::make_pair(bounds.second.first,
 	                                      FrameReference(URI,

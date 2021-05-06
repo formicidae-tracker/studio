@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <fort/studio/MyrmidonTypes/TrackingDataDirectory.hpp>
+
 class QItemSelection;
 class UniverseBridge;
 
@@ -26,8 +28,15 @@ public slots:
 
 	void onSelectionChanged(const QItemSelection &);
 
+
 private:
 	friend class UniverseUTest_WidgetTest_Test;
+
+	fmp::TrackingDataDirectory::Ptr openTDD(const QString & path);
+
 	Ui::UniverseEditorWidget * d_ui;
 	UniverseBridge           * d_universe;
+
+
+
 };

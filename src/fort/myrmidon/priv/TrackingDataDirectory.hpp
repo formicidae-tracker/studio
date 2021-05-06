@@ -48,6 +48,8 @@ public:
 	typedef std::pair<fs::path,std::shared_ptr<TagID>>     TagCloseUpFileAndFilter;
 	typedef std::multimap<FrameID,TagCloseUpFileAndFilter> TagCloseUpListing;
 
+	typedef std::function<void (int,int)>                  ProgressCallback;
+
 	class const_iterator {
 	public:
 		const_iterator(const Ptr & tdd,uint64_t current);
@@ -97,7 +99,9 @@ public:
 	// populate its data form its actual content. This function will
 	// look for tracking data file open the first and last segment to
 	// obtain infoirmation on the first and last frame.
-	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath, const fs::path & experimentRoot);
+	static TrackingDataDirectory::Ptr Open(const fs::path & TDpath,
+	                                       const fs::path & experimentRoot,
+	                                       const ProgressCallback & progress = [](int,int){});
 
 	static TrackingDataDirectory::Ptr Create(const std::string & uri,
 	                                         const fs::path & absoluteFilePath,
@@ -230,11 +234,13 @@ private:
 	                         Time::MonoclockID monoID,
 	                         const fs::path & tddPath,
 	                         const TrackingIndex::ConstPtr & trackingIndexer,
-	                         FrameReferenceCache & cache);
+	                         FrameReferenceCache & cache,
+	                         const ProgressCallback & progress);
 
 	static Ptr
 	OpenFromFiles(const fs::path & absoluteFilePath,
-	              const std::string & URI);
+	              const std::string & URI,
+	              const ProgressCallback & progress);
 
 
 	TrackingDataDirectory(const std::string & uri,
