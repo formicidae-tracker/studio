@@ -404,16 +404,10 @@ TrackingDataDirectory::Ptr TrackingDataDirectory::Open(const fs::path & filepath
 
 	Ptr res;
 
-	bool cacheData = false;
-
 	try {
 		res = LoadFromCache(absoluteFilePath,URI.generic_string());
 	} catch (const std::exception & e ) {
 		res = OpenFromFiles(absoluteFilePath,URI.generic_string());
-		cacheData = true;
-	}
-
-	if ( cacheData == true ) {
 		try {
 			res->SaveToCache();
 		} catch ( const std::exception & e) {}
