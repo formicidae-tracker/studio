@@ -293,6 +293,8 @@ void AntShapeBridge::rebuildColumnIndex() {
 	}
 	int index = 0;
 	for ( const auto & [typeID,type] : d_experiment->CAntShapeTypes() ) {
-		d_columnIndex[typeID] = ++index;
+		if ( ++index < d_model->columnCount() ) {
+			d_columnIndex[typeID] = index;
+		}
 	}
 }
