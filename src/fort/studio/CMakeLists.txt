@@ -240,7 +240,7 @@ add_executable(fort-studio main.cpp ${RCC_FILES})
 target_link_libraries(fort-studio fort-studio-common)
 
 set_target_properties(fort-studio PROPERTIES VERSION ${PROJECT_VERSION}
-                                             SOVERSION ${VERSION_ABI})
+                                             SOVERSION ${PROJECT_VERSION_ABI})
 
 install(TARGETS fort-studio DESTINATION bin)
 

@@ -275,8 +275,8 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     )
 
 set_target_properties(fort-myrmidon PROPERTIES
-                                    VERSION ${VERSION_API}
-                                    SOVERSION ${VERSION_ABI})
+                                    VERSION ${PROJECT_VERSION_API}
+                                    SOVERSION ${PROJECT_VERSION_ABI})
 
 install(TARGETS fort-myrmidon DESTINATION lib)
 install(FILES ${HDR_PUBLIC_FILES} DESTINATION include/fort/myrmidon)

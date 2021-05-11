@@ -1,19 +1,12 @@
-cmake_policy(SET CMP0048 NEW)
-
-project(fort-studio VERSION 0.7.2
-                    LANGUAGES C CXX)
+project(fort-studio LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
 
-set(VERSION_API ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-if(${PROJECT_VERSION_MAJOR} EQUAL 0)
-	set(VERSION_ABI ${VERSION_API})
-else(${PROJECT_VERSION_MAJOR} EQUAL 0)
-	set(VERSION_ABI ${PROJECT_VERSION_MAJOR})
-endif(${PROJECT_VERSION_MAJOR} EQUAL 0)
-
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(VersionFromGit)
+version_from_git()
 
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(Protobuf 3.3.0 REQUIRED)
