@@ -1,7 +1,7 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include <fort/myrmidon/myrmidon-config.h>
+#include <fort/myrmidon/myrmidon-version.h>
 
 #include <QtDebug>
 #include <QFileDialog>

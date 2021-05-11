@@ -1,0 +1,3 @@
+#pragma once
+
+#define MYRMIDON_VERSION "@PROJECT_SEMVER@"

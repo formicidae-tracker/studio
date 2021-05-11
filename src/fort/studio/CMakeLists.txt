@@ -1,5 +1,6 @@
 include(FindGLog)
 
+
 option(DEBUG_VIDEO_PLAYER Off "Debugs the video player with expensive STDERR output")
 if(NOT DEBUG_VIDEO_PLAYER)
 	add_definitions("-DFORT_STUDIO_VIDEO_PLAYER_NDEBUG=1")

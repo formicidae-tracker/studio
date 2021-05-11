@@ -6,6 +6,7 @@ include(CheckCXXSourceRuns)
 set(MYRMIDON_USE_SYSTEM_CATEGORY 1)
 
 configure_file(config.h.in myrmidon-config.h)
+configure_file(version.h.in myrmidon-version.h)
 
 
 set(PROTO_FILES priv/proto/Experiment.proto
