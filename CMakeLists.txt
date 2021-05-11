@@ -1,3 +1,5 @@
+cmake_policy(SET CMP0048 NEW)
+
 project(fort-studio LANGUAGES C CXX)
 
 cmake_minimum_required(VERSION 3.11)
