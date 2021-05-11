@@ -41,7 +41,7 @@ public :
 	QAbstractItemModel * spaceModel() const;
 	QAbstractItemModel * fullFrameModel() const;
 
-	void selectTime(const fm::Time & time);
+	void selectTime(const fort::Time & time);
 
 	bool canAddItemAt(const QModelIndex & index);
 	bool canRemoveItemAt(const QModelIndex & index);
@@ -112,7 +112,7 @@ private:
 	QStandardItemModel  * d_spaceModel;
 	QStandardItemModel  * d_fullFrameModel;
 	fmp::Space::Ptr       d_selectedSpace;
-	fm::Time              d_selectedTime;
+	fort::Time            d_selectedTime;
 
 	std::vector<std::shared_ptr<ZoneDefinitionBridge>> d_childBridges;
 };

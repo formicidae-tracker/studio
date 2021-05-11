@@ -96,7 +96,7 @@ TEST_F(ZoneUTest,ZoneManipulation) {
 	EXPECT_TRUE( (m->flags(m->index(0,0,firstZoneIndex)) & Qt::ItemIsEditable) != 0);
 	EXPECT_FALSE(zones->canAddItemAt(m->index(0,0,firstZoneIndex)));
 	m->setData(m->index(0,1,firstZoneIndex),
-	           ToQString(fm::Time::FromTimeT(1)));
+	           ToQString(fort::Time::FromTimeT(1)));
 
 	EXPECT_TRUE(zones->canAddItemAt(m->index(0,0,firstZoneIndex)));
 	EXPECT_TRUE(zones->isModified());

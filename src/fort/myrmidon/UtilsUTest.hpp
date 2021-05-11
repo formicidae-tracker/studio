@@ -2,13 +2,13 @@
 
 #include <gtest/gtest.h>
 
-#include "Time.hpp"
+#include <fort/time/Time.hpp>
 #include <Eigen/Core>
 
 #include <google/protobuf/message.h>
 
-::testing::AssertionResult TimeEqual(const fort::myrmidon::Time & a,
-                                     const fort::myrmidon::Time & b);
+::testing::AssertionResult TimeEqual(const fort::Time & a,
+                                     const fort::Time & b);
 
 ::testing::AssertionResult VectorAlmostEqual(const Eigen::Vector2d & a,
                                              const Eigen::Vector2d & b);

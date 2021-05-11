@@ -56,7 +56,7 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 	layout->addWidget(d_calendar);
 	d_popupWidget->setLayout(layout);
 
-	auto timeFromValue = [this](fm::Time time) {
+	auto timeFromValue = [this](fort::Time time) {
 		                     if (time.IsInfinite()) {
 			                     if ( !d_universe || d_universe->trackingDataDirectories().empty() == true) {
 				                     return;
@@ -71,7 +71,7 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 	auto updateTimeFromPopup = [this]() {
 		                           QDateTime dateTime(d_calendar->selectedDate(),d_timeEdit->time());
 		                           try {
-			                           auto time = fm::Time::Parse(ToStdString(dateTime.toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
+			                           auto time = fort::Time::Parse(ToStdString(dateTime.toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
 			                           setTime(time);
 			                           emit timeChanged(time);
 		                           } catch (const std::exception & e) {
@@ -98,19 +98,19 @@ TimeEditorWidget::~TimeEditorWidget() {
 
 }
 
-fm::Time TimeEditorWidget::time() const {
+fort::Time TimeEditorWidget::time() const {
 	if ( d_ui->lineEdit->text().isEmpty() ) {
-		return fm::Time::Forever();
+		return fort::Time::Forever();
 	}
 
 	try {
-		return fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
+		return fort::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e) {
-		return fm::Time::Forever();
+		return fort::Time::Forever();
 	}
 }
 
-void TimeEditorWidget::setTime(const fm::Time & time) {
+void TimeEditorWidget::setTime(const fort::Time & time) {
 	d_warning->setVisible(false);
 	if ( time.IsInfinite() ) {
 		d_ui->lineEdit->setText("");
@@ -127,14 +127,14 @@ void TimeEditorWidget::setTime(const fm::Time & time) {
 
 void TimeEditorWidget::on_lineEdit_editingFinished() {
 	if ( d_ui->lineEdit->text().isEmpty() == true ) {
-		setTime(fm::Time::Forever());
-		emit timeChanged(fm::Time::Forever());
+		setTime(fort::Time::Forever());
+		emit timeChanged(fort::Time::Forever());
 		return;
 	}
 
-	fm::Time res;
+	fort::Time res;
 	try {
-		res = fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
+		res = fort::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e) {
 		d_warning->setVisible(true);
 		return;
@@ -145,20 +145,20 @@ void TimeEditorWidget::on_lineEdit_editingFinished() {
 }
 
 void TimeEditorWidget::increment() {
-	incrementBy(1 * fm::Duration::Second);
+	incrementBy(1 * fort::Duration::Second);
 }
 
 void TimeEditorWidget::decrement() {
-	incrementBy(-1 * fm::Duration::Second);
+	incrementBy(-1 * fort::Duration::Second);
 }
 
-void TimeEditorWidget::incrementBy(fm::Duration duration) {
+void TimeEditorWidget::incrementBy(fort::Duration duration) {
 	if ( d_ui->lineEdit->text().isEmpty() == true ) {
 		return;
 	}
-	fm::Time res;
+	fort::Time res;
 	try {
-		res = fm::Time::Parse(ToStdString(d_ui->lineEdit->text()));
+		res = fort::Time::Parse(ToStdString(d_ui->lineEdit->text()));
 	} catch ( const std::exception & e ) {
 		return;
 	}

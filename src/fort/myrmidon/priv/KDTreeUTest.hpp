@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 #include "KDTree.hpp"
 
 namespace fort {

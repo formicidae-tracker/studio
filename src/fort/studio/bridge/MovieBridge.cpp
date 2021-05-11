@@ -23,7 +23,7 @@ MovieBridge::MovieBridge(QObject * parent)
 	: GlobalBridge(parent)
 	, d_model(new QStandardItemModel(this) ) {
 	qRegisterMetaType<fmp::MovieSegment::ConstPtr>();
-	qRegisterMetaType<fm::Time>();
+	qRegisterMetaType<fort::Time>();
 	qRegisterMetaType<fmp::TrackingDataDirectory::Ptr>();
 }
 
@@ -56,24 +56,24 @@ QAbstractItemModel * MovieBridge::movieModel() {
 	return d_model;
 }
 
-std::tuple<quint32,fmp::TrackingDataDirectory::Ptr,fmp::MovieSegment::ConstPtr,fm::Time>
+std::tuple<quint32,fmp::TrackingDataDirectory::Ptr,fmp::MovieSegment::ConstPtr,fort::Time>
 MovieBridge::tddAndMovieSegment(const QModelIndex & index) const {
 	auto item = d_model->itemFromIndex(index);
 	if ( item == nullptr ) {
-		return std::make_tuple(0,fmp::TrackingDataDirectory::Ptr(),fmp::MovieSegment::ConstPtr(),fm::Time());
+		return std::make_tuple(0,fmp::TrackingDataDirectory::Ptr(),fmp::MovieSegment::ConstPtr(),fort::Time());
 	}
 	return std::make_tuple(item->data(SpaceIDRole).toInt(),
 	                       item->data(TddRole).value<fmp::TrackingDataDirectory::Ptr>(),
 	                       item->data(PtrRole).value<fmp::MovieSegment::ConstPtr>(),
-	                       item->data(StartRole).value<fm::Time>());
+	                       item->data(StartRole).value<fort::Time>());
 }
 
-std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
+std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fort::Time>
 
-MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
+MovieBridge::findTime(fmp::SpaceID spaceID, const fort::Time & time) {
 	auto fi = d_experiment->CSpaces().find(spaceID);
 	if ( fi == d_experiment->CSpaces().end() ) {
-		return std::make_tuple(nullptr,nullptr,fm::Time());
+		return std::make_tuple(nullptr,nullptr,fort::Time());
 	}
 	const auto & tdds = fi->second->TrackingDataDirectories();
 
@@ -83,7 +83,7 @@ MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
 		                         return tdd->IsValid(time);
 	                         });
 	if ( tddi == tdds.end() ) {
-		return std::make_tuple(nullptr,nullptr,fm::Time());
+		return std::make_tuple(nullptr,nullptr,fort::Time());
 	}
 
 	const auto & tdd = *tddi;
@@ -94,7 +94,7 @@ MovieBridge::findTime(fmp::SpaceID spaceID, const fm::Time & time) {
 		return std::make_tuple(tdd,segment.second,start);
 	} catch ( const std::exception & e ) {
 	}
-	return std::make_tuple(nullptr,nullptr,fm::Time());
+	return std::make_tuple(nullptr,nullptr,fort::Time());
 }
 
 
@@ -142,7 +142,7 @@ QList<QStandardItem*> MovieBridge::buildSpace(const fmp::SpaceConstPtr & space) 
 QList<QStandardItem*> MovieBridge::buildMovieSegment(quint32 spaceID,
                                                      const fmp::TrackingDataDirectory::Ptr & tdd,
                                                      const fmp::MovieSegmentConstPtr & ms,
-                                                     const fm::Time & start) {
+                                                     const fort::Time & start) {
 	auto ptrData = QVariant::fromValue(ms);
 	auto startData = QVariant::fromValue(start);
 	auto tddData = QVariant::fromValue(tdd);

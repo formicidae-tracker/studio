@@ -28,7 +28,7 @@ class TrackingVideoPlayer : public QObject {
 	Q_PROPERTY(State playbackState
 	           READ playbackState
 	           NOTIFY playbackStateChanged)
-	Q_PROPERTY(fm::Duration position
+	Q_PROPERTY(fort::Duration position
 	           READ position
 	           NOTIFY positionChanged);
 	Q_PROPERTY(bool scrollMode
@@ -52,11 +52,11 @@ public:
 
 	State playbackState() const;
 
-	fm::Duration position() const;
+	fort::Duration position() const;
 
-	fm::Duration duration() const;
+	fort::Duration duration() const;
 
-	fm::Time start() const;
+	fort::Time start() const;
 
 	bool isSeekReady() const;
 
@@ -73,20 +73,20 @@ public slots:
 	void setMovieSegment(quint32 spaceID,
 	                     const fmp::TrackingDataDirectory::Ptr & tdd,
 	                     const fmp::MovieSegment::ConstPtr & segment,
-	                     const fm::Time & start);
+	                     const fort::Time & start);
 
 	void clearMovieSegment();
 
 	void setPlaybackRate(qreal rate);
 
-	void setPosition(fm::Duration position);
+	void setPosition(fort::Duration position);
 
 	void jumpNextFrame();
 	void jumpPrevFrame();
 
-	void skipDuration(fm::Duration duration);
+	void skipDuration(fort::Duration duration);
 
-	void setTime(const fm::Time & time);
+	void setTime(const fort::Time & time);
 
 	void setScrollMode(bool scrollMode);
 
@@ -96,8 +96,8 @@ public slots:
 signals:
 	void seekReady(bool ready);
 
-	void durationChanged(fm::Time start,fm::Duration duration,double fps);
-	void positionChanged(fm::Duration duration);
+	void durationChanged(fort::Time start,fort::Duration duration,double fps);
+	void positionChanged(fort::Duration duration);
 
 	void playbackRateChanged(qreal rate);
 
@@ -132,10 +132,10 @@ private:
 	qreal                       d_rate;
 	QThread                   * d_movieThread;
 	QTimer                    * d_timer;
-	fm::Time                    d_start;
-	fm::Duration                d_interval;
-	fm::Duration                d_position;
-	fm::Duration                d_duration;
+	fort::Time                  d_start;
+	fort::Duration              d_interval;
+	fort::Duration              d_position;
+	fort::Duration              d_duration;
 
 	bool                        d_displayNext;
 	bool                        d_scrollMode;
@@ -168,7 +168,7 @@ public:
 
 	void processNewFrame(TrackingVideoFrame frame);
 
-	void seek(size_t seekID, fm::Duration);
+	void seek(size_t seekID, fort::Duration);
 
 	void setRate(size_t rate);
 
@@ -176,7 +176,7 @@ signals:
 	void newFrame(size_t taskID, size_t seekID, TrackingVideoFrame frame);
 
 private slots:
-	void seekUnsafe(size_t seekID, fm::Duration);
+	void seekUnsafe(size_t seekID, fort::Duration);
 
 	void processNewFrameUnsafe(TrackingVideoFrame frame);
 
@@ -191,5 +191,5 @@ private:
 	IdentifiedFrameConcurrentLoader * d_loader;
 	int                               d_width,d_height;
 	size_t                            d_taskID,d_seekID,d_rate;
-	fm::Duration                      d_expectedFrameDuration;
+	fort::Duration                    d_expectedFrameDuration;
 };

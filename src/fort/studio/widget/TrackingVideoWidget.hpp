@@ -29,7 +29,7 @@ public:
 	bool showCollisions() const;
 
 
-	fm::Time trackingTime() const;
+	fort::Time trackingTime() const;
 
 	bool hasTrackingTime() const;
 

@@ -302,9 +302,9 @@ bool TrackingVideoWidget::hasTrackingTime() const {
 	return d_hasTrackingTime;
 }
 
-fm::Time TrackingVideoWidget::trackingTime() const {
+fort::Time TrackingVideoWidget::trackingTime() const {
 	if ( !d_frame.TrackingFrame == true ) {
-		return fm::Time();
+		return fort::Time();
 	}
 	return d_frame.TrackingFrame->FrameTime;
 }

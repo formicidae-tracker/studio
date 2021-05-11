@@ -25,7 +25,7 @@ public:
 
 
 signals:
-	void seek(fm::Duration duration);
+	void seek(fort::Duration duration);
 	void play();
 	void pause();
 	void stop();
@@ -47,8 +47,8 @@ private slots:
 	void onPlayerPlaybackStateChanged(TrackingVideoPlayer::State state);
 	void onPlayerPlaybackRateChanged(qreal rate);
 
-	void onPlayerPositionChanged(fm::Duration positionMS);
-	void onPlayerDurationChanged(const fm::Time & time, fm::Duration duration,double fps);
+	void onPlayerPositionChanged(fort::Duration positionMS);
+	void onPlayerDurationChanged(const fort::Time & time, fort::Duration duration,double fps);
 
 	void onAntSelection(quint32 antID);
 
@@ -65,7 +65,7 @@ private slots:
 private:
 	qreal zoomValue() const;
 	quint32 currentAntID() const;
-	static QString formatDuration(fm::Duration duration);
+	static QString formatDuration(fort::Duration duration);
 
 	Ui::TrackingVideoControl * d_ui;
 	TrackingVideoPlayer    * d_player;

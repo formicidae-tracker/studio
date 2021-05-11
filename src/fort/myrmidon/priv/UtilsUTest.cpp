@@ -1,4 +1,4 @@
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 
 #include "UtilsUTest.hpp"
 
@@ -126,9 +126,9 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::priv::Shape::ConstPtr 
 		}
 		break;
 	case 4:
-		if ( std::get<fort::myrmidon::Time>(a).Equals(std::get<fort::myrmidon::Time>(b)) == false ) {
-			return ::testing::AssertionFailure() << "a:" <<  std::get<fort::myrmidon::Time>(a)
-			                                     << " b:" << std::get<fort::myrmidon::Time>(b)
+		if ( std::get<fort::Time>(a).Equals(std::get<fort::Time>(b)) == false ) {
+			return ::testing::AssertionFailure() << "a:" <<  std::get<fort::Time>(a)
+			                                     << " b:" << std::get<fort::Time>(b)
 			                                     << " differs!";
 		}
 		break;

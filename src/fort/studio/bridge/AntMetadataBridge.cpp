@@ -25,7 +25,7 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	, d_selectedAntID(0) {
 	qRegisterMetaType<fmp::AntMetadata::Column::Ptr>();
 	qRegisterMetaType<fmp::Ant::Ptr>();
-	qRegisterMetaType<fm::Time>();
+	qRegisterMetaType<fort::Time>();
 
 	connect(d_columnModel,
 	        &QStandardItemModel::itemChanged,
@@ -386,7 +386,7 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 		try {
 			qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Ant::DeleteValue('"
 			         << ToQString(col->Name()) << "',0)";
-			ant->DeleteValue(col->Name(),fm::Time::SinceEver());
+			ant->DeleteValue(col->Name(),fort::Time::SinceEver());
 			setModified(true);
 		} catch ( const std::exception & e ) {
 			qWarning() << "Could not set " << ant->FormattedID().c_str()
@@ -411,7 +411,7 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 		qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Ant::SetValue('"
 		         << ToQString(col->Name()) << "',"
 		         << item->text() << ",0)";
-		ant->SetValue(col->Name(),v,fm::Time::SinceEver());
+		ant->SetValue(col->Name(),v,fort::Time::SinceEver());
 
 		setModified(true);
 	} catch (const std::exception & e) {
@@ -480,7 +480,7 @@ void AntMetadataBridge::setSelectedAntID(quint32 antID) {
 
 QList<QStandardItem*> AntMetadataBridge::buildTimedChange(const fmp::Ant::Ptr & ant,
                                                           const fmp::AntMetadata::Column::Ptr & column,
-                                                          const fm::Time & time,
+                                                          const fort::Time & time,
                                                           const fm::AntStaticValue & value) {
 	auto data = QVariant::fromValue(ant);
 	auto columnData = QVariant::fromValue(column);
@@ -530,18 +530,18 @@ void AntMetadataBridge::addTimedChange(quint32 antID,const QString & name) {
 	try {
 		qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::Ant::SetValue("
 		         << name << "," << ToQString(column->DefaultValue()) << ","
-		         << ToQString(fm::Time()) << ")";
+		         << ToQString(fort::Time()) << ")";
 
 
-		ant->SetValue(column->Name(),column->DefaultValue(),fm::Time(),true);
+		ant->SetValue(column->Name(),column->DefaultValue(),fort::Time(),true);
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not set Ant " << antLabel << " column " << name << " at "
-		            << ToQString(fm::Time()) << " to " << ToQString(column->DefaultValue())
+		            << ToQString(fort::Time()) << " to " << ToQString(column->DefaultValue())
 		            << ": " << e.what();
 		return;
 	}
 	qInfo() << "Set Ant " << antLabel << " column " << name << " at "
-	        << ToQString(fm::Time()) << " to "
+	        << ToQString(fort::Time()) << " to "
 	        << ToQString(column->DefaultValue());
 
 	setModified(true);
@@ -549,7 +549,7 @@ void AntMetadataBridge::addTimedChange(quint32 antID,const QString & name) {
 	auto countItem = d_dataModel->itemFromIndex(d_dataModel->index(antItem->row(),1));
 	countItem->setText(QString::number(countItem->text().toInt()+1));
 
-	d_timedChangeModel->appendRow(buildTimedChange(ant,column,fm::Time(),column->DefaultValue()));
+	d_timedChangeModel->appendRow(buildTimedChange(ant,column,fort::Time(),column->DefaultValue()));
 
 	d_timedChangeModel->sort(0,Qt::AscendingOrder);
 	d_timedChangeModel->sort(1,Qt::AscendingOrder);
@@ -565,9 +565,9 @@ void AntMetadataBridge::removeTimedChange(const QModelIndex & index) {
 	auto antLabel = ToQString(ant->FormattedID());
 	auto name = d_timedChangeModel->index(index.row(),0).data(Qt::DisplayRole).toString();
 	auto timeStr = d_timedChangeModel->index(index.row(),1).data(Qt::DisplayRole).toString();
-	fm::Time time = fm::Time::SinceEver();
+	fort::Time time = fort::Time::SinceEver();
 	try {
-		time = fm::Time::Parse(ToStdString(timeStr));
+		time = fort::Time::Parse(ToStdString(timeStr));
 	} catch ( const std::exception & e ) {
 		qWarning() << "Could not parse '" << timeStr << "': " << e.what();
 		return;
@@ -614,13 +614,13 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 
 	QStandardItem *nameItem,*timeItem,*valueItem;
 	std::string name;
-	fm::Time time;
+	fort::Time time;
 	fm::AntStaticValue value;
 	try {
 		nameItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),0));
 		name = ToStdString(nameItem->data(Qt::UserRole+3).toString());
 		timeItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),1));
-		time = fm::Time::Parse(ToStdString(timeItem->data(Qt::UserRole+3).toString()));
+		time = fort::Time::Parse(ToStdString(timeItem->data(Qt::UserRole+3).toString()));
 		valueItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),2));
 		value = fmp::AntMetadata::FromString(column->MetadataType(),ToStdString(valueItem->data(Qt::UserRole+3).toString()));
 	} catch ( const std::exception & e) {
@@ -630,9 +630,9 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 	}
 	if ( item->column() == 1 ) {
 
-		fmp::Time newTime;
+		fort::Time newTime;
 		try {
-			newTime = fm::Time::Parse(ToStdString(item->text()));
+			newTime = fort::Time::Parse(ToStdString(item->text()));
 		} catch (const std::exception & e) {
 			qWarning() << "Could not parse time " << item->text();
 			item->setText(item->data(Qt::UserRole+3).toString());

@@ -23,12 +23,14 @@ find_package(yaml-cpp REQUIRED)
 
 include(FetchFortTags)
 include(FetchFortHermes)
+include(FetchFortTime)
 include(FetchSemver)
 include(FetchGoogleTest)
 
 fetch_google_test(VERSION release-1.10.0)
 fetch_fort_tags(VERSION v1.4.0)
 fetch_fort_hermes(VERSION v0.4.1)
+fetch_fort_time(VERSION v1.0.2)
 fetch_semver(VERSION v0.2.2)
 
 include(GoogleTest)
@@ -44,6 +46,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS}
                     ${FORT_HERMES_INCLUDE_DIRS}
                     ${APRILTAG_INCLUDE_DIRS}
                     ${FORT_TAGS_INCLUDE_DIRS}
+                    ${FORT_TIME_INCLUDE_DIRS}
                     ${HERMES_INCLUDE_DIRS}
                     ${SEMVER_INCLUDE_DIRS}
                     )

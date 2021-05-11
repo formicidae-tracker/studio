@@ -94,7 +94,6 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
 set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Types.hpp
                      Color.hpp
-                     Time.hpp
                      Shapes.hpp
                      Identification.hpp
                      Ant.hpp
@@ -155,7 +154,6 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
 set(SRC_FILES ForwardDeclaration.cpp
               Types.cpp
               Color.cpp
-              Time.cpp
               Shapes.cpp
               Identification.cpp
               Ant.cpp
@@ -176,7 +174,6 @@ set(COMMON_UTEST_HDR_FILES TestSetup.hpp
 
 
 set(SRC_UTEST_FILES main-check.cpp
-                    TimeUTest.cpp
                     utils/NotYetImplementedUTest.cpp
                     utils/ObjectPoolUTest.cpp
                     priv/UtilsUTest.cpp
@@ -217,8 +214,7 @@ set(SRC_UTEST_FILES main-check.cpp
                     )
 
 
-set(HDR_UTEST_FILES TimeUTest.hpp
-                    utils/NotYetImplementedUTest.hpp
+set(HDR_UTEST_FILES utils/NotYetImplementedUTest.hpp
                     utils/ObjectPoolUTest.cpp
                     priv/UtilsUTest.hpp
                     priv/DenseMapUTest.hpp
@@ -268,6 +264,7 @@ target_link_libraries(fort-myrmidon ${PROTOBUF_LIBRARIES}
                                     fort-hermes-cpp
                                     ${CXXFS_LIBRARY}
                                     fort-tags
+                                    fort-time
                                     ${OpenCV_LIBS}
                                     TBB::tbb
                                     Threads::Threads

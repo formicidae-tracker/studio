@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fort/myrmidon/Vector2d.pb.h>
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 
 #include <Eigen/Core>
 

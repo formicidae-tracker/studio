@@ -150,11 +150,11 @@ TEST_F(AntMetadataUTest,ModificationTest) {
 	EXPECT_EQ(columnChanged.last().at(1).toInt(),
 	          quint32(fmp::AntMetadata::Type::TIME));
 	EXPECT_EQ(ToStdString(m->index(0,2).data(Qt::DisplayRole).toString()),
-	          ToStdString(ToQString(fm::Time())));
+	          ToStdString(ToQString(fort::Time())));
 
 	ASSERT_NO_THROW({
 			auto ant = experiment->CreateAnt();
-			ant->SetValue("foo",fm::Time::Parse("2019-11-02T23:46:23.453Z"),fm::Time::SinceEver());
+			ant->SetValue("foo",fort::Time::Parse("2019-11-02T23:46:23.453Z"),fort::Time::SinceEver());
 		});
 
 	metadata->setExperiment(experiment);

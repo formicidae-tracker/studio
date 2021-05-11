@@ -41,7 +41,7 @@ TEST_F(TagCloseUpUTest,CanBeFormatted) {
 	for(const auto & d : data ) {
 		FrameReference a(d.Path.generic_string(),
 		                 d.FrameID,
-		                 fort::myrmidon::Time::FromTimeT(0));
+		                 fort::Time::FromTimeT(0));
 		TagCloseUp t(TestSetup::Basedir() / "foo", a,d.TagID,Eigen::Vector2d::Zero(),0.0,corners);
 		fs::path expectedParentPath(d.Path.generic_string().empty() ? "/" : d.Path);
 		std::ostringstream os;

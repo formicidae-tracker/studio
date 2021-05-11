@@ -72,7 +72,7 @@ void ZoneBridge::tearDownExperiment() {
 
 void ZoneBridge::setUpExperiment() {
 	d_selectedSpace.reset();
-	d_selectedTime = fm::Time::Forever();
+	d_selectedTime = fort::Time::Forever();
 
 	rebuildSpaces();
 }
@@ -92,7 +92,7 @@ void ZoneBridge::clearSpaces() {
 	d_spaceModel->clear();
 	d_spaceModel->setHorizontalHeaderLabels({tr("ID"),tr("Name"),tr("Size")});
 	d_selectedSpace.reset();
-	d_selectedTime = fm::Time::Forever();
+	d_selectedTime = fort::Time::Forever();
 }
 
 void ZoneBridge::rebuildSpaces() {
@@ -170,7 +170,7 @@ void ZoneBridge::removeItemAtIndex(const QModelIndex & index) {
 void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 	fmp::Zone::Definition::Ptr definition;
 	auto z = zoneRootItem->data(DataRole).value<fmp::Zone::Ptr>();
-	fm::Time start,end;
+	fort::Time start,end;
 	if ( !z == true || z->NextFreeTimeRegion(start,end) == false ) {
 		return;
 	}
@@ -216,8 +216,8 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 		z = space->CreateZone(ToStdString(tr("new-zone")));
 		qDebug() << "[ZoneBridge]: Calling fort::myrmidon::priv::Zone::AddDefinition({},-∞,+∞)";
 		z->AddDefinition({},
-		                 fm::Time::SinceEver(),
-		                 fm::Time::Forever());
+		                 fort::Time::SinceEver(),
+		                 fort::Time::Forever());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create Zone: " << e.what();
 		return;
@@ -346,7 +346,7 @@ bool ZoneBridge::canAddItemAt(const QModelIndex & index) {
 		return false;
 	}
 	item = getSibling(item,0);
-	fm::Time start,end;
+	fort::Time start,end;
 	switch(item->data(TypeRole).toInt()) {
 	case SpaceType:
 		return true;
@@ -436,10 +436,10 @@ void ZoneBridge::changeDefinitionTime(QStandardItem * definitionTimeItem, bool s
 		return;
 	}
 
-	fm::Time newTime = start == true ? fm::Time::SinceEver() : fm::Time::Forever();
+	fort::Time newTime = start == true ? fort::Time::SinceEver() : fort::Time::Forever();
 	if ( definitionTimeItem->text().isEmpty() == false ) {
 		try {
-			newTime = fm::Time::Parse(ToStdString(definitionTimeItem->text()));
+			newTime = fort::Time::Parse(ToStdString(definitionTimeItem->text()));
 		} catch ( const std::exception & e ) {
 			qCritical() << "Could not parse time " << definitionTimeItem->text();
 			definitionTimeItem->setText(oldTimeStr);
@@ -522,7 +522,7 @@ void ZoneBridge::rebuildFullFrameModel() {
 	}
 
 	for ( const auto & [uri,ff] : fullframes ) {
-		auto roundedTime = ff.Reference.Time().Round(fm::Duration::Millisecond);
+		auto roundedTime = ff.Reference.Time().Round(fort::Duration::Millisecond);
 		auto item = new QStandardItem(ToQString(roundedTime));
 		item->setEditable(false);
 		item->setData(QVariant::fromValue(ff));
@@ -599,7 +599,7 @@ void ZoneBridge::rebuildChildBridges() {
 	emit newZoneDefinitionBridge(res);
 }
 
-void ZoneBridge::selectTime(const fm::Time & time) {
+void ZoneBridge::selectTime(const fort::Time & time) {
 	d_selectedTime = time;
 	rebuildChildBridges();
 }

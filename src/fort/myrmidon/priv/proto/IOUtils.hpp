@@ -2,6 +2,8 @@
 
 #include <fort/tags/fort-tags.h>
 
+#include <fort/time/Time.hpp>
+
 #include <fort/myrmidon/Time.pb.h>
 #include <fort/myrmidon/AntDescription.pb.h>
 #include <fort/myrmidon/Experiment.pb.h>
@@ -11,7 +13,6 @@
 #include <fort/myrmidon/Zone.pb.h>
 #include <fort/myrmidon/Space.pb.h>
 
-#include <fort/myrmidon/Time.hpp>
 #include <fort/myrmidon/Color.hpp>
 
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>

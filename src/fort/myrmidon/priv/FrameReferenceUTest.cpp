@@ -28,7 +28,7 @@ TEST_F(FrameReferenceUTest,CanBeFormatted) {
 	for(const auto & d : data ) {
 		fort::myrmidon::priv::FrameReference a(d.Path.generic_string(),
 		                                       d.FrameID,
-		                                       fort::myrmidon::Time::FromTimeT(0));
+		                                       fort::Time::FromTimeT(0));
 		std::ostringstream os;
 		os << a;
 

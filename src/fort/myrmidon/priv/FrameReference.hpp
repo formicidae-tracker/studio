@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 
 #include "Types.hpp"
 #include "LocatableTypes.hpp"
@@ -18,7 +18,7 @@ public:
 
 	FrameReference(const std::string & parentURI,
 	               priv::FrameID frameID,
-	               const fort::myrmidon::Time & Time);
+	               const fort::Time & Time);
 
 	virtual ~FrameReference();
 
@@ -27,7 +27,7 @@ public:
 	// The Time of the Frame
 	//
 	// @return the <Time> of the designated frame
-	const fort::myrmidon::Time & Time() const;
+	const fort::Time & Time() const;
 
 	// The FrameID of the frame
 	//
@@ -43,10 +43,10 @@ public:
 
 
 private:
-	std::string          d_parentURI;
-	std::string          d_URI;
-	priv::FrameID        d_id;
-	fort::myrmidon::Time d_time;
+	std::string    d_parentURI;
+	std::string    d_URI;
+	priv::FrameID  d_id;
+	fort::Time     d_time;
 };
 
 } //namespace priv

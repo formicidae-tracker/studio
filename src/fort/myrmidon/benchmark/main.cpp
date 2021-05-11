@@ -1,10 +1,11 @@
 #include <random>
 
+#include <fort/time/Time.hpp>
+
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include <fort/myrmidon/priv/KDTreePrinter.hpp>
-#include <fort/myrmidon/Time.hpp>
 #include <fort/myrmidon/utils/FileSystem.hpp>
 #include <fort/myrmidon/priv/Capsule.hpp>
 #include <fort/myrmidon/priv/KDTree.hpp>

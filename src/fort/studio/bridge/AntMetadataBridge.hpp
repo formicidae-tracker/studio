@@ -60,7 +60,7 @@ private:
 	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Column::Ptr & column);
 	QList<QStandardItem*> buildTimedChange(const fmp::Ant::Ptr & ant,
 	                                       const fmp::AntMetadata::Column::Ptr & name,
-	                                       const fm::Time & time,
+	                                       const fort::Time & time,
 	                                       const fm::AntStaticValue & value);
 	QString findTypeName(fmp::AntMetadata::Type type);
 

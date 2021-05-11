@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fort/hermes/FrameReadout.pb.h>
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 
 
 namespace fort {

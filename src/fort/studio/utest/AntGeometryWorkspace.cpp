@@ -33,12 +33,12 @@ void AntShapeWorkspaceUTest::SetUp() {
 	static_cast<Workspace*>(shapeWs)->initialize(mainWindow,bridge);
 
 	bridge->createAnt();
-	bridge->identifier()->addIdentification(1,1,fm::Time::SinceEver(),fm::Time::Forever());
+	bridge->identifier()->addIdentification(1,1,fort::Time::SinceEver(),fort::Time::Forever());
 
 	bridge->antShapeTypes()->addType("foo");
 
 	shapeWs->setTagCloseUp(std::make_shared<fmp::TagCloseUp>(TestSetup::Basedir() / "",
-	                                                         fmp::FrameReference("foo.0000",1,fm::Time()),
+	                                                         fmp::FrameReference("foo.0000",1,fort::Time()),
 	                                                         1,
 	                                                         Eigen::Vector2d::Zero(),
 	                                                         0.0,

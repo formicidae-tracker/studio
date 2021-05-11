@@ -4,8 +4,9 @@
 #define FORT_STUDIO_VIDEO_PLAYER_NDEBUG 1
 #endif
 
+#include <fort/time/Time.hpp>
+
 #include <fort/myrmidon/priv/Types.hpp>
-#include <fort/myrmidon/Time.hpp>
 
 #include <QObject>
 #include <QImage>
@@ -29,7 +30,7 @@ namespace fm = fort::myrmidon;
 struct TrackingVideoFrame {
 	TrackingVideoFrame();
 	std::shared_ptr<QImage>       Image;
-	fm::Duration                  StartPos,EndPos;
+	fort::Duration                StartPos,EndPos;
 	fmp::MovieFrameID             FrameID;
 	fm::IdentifiedFrame::ConstPtr TrackingFrame;
 	fm::CollisionFrame::ConstPtr  CollisionFrame;

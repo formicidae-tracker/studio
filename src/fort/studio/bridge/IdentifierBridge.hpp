@@ -30,13 +30,13 @@ public:
 
 
 	fmp::IdentificationConstPtr identify(fmp::TagID tagID,
-	                                     const fm::Time & time) const;
+	                                     const fort::Time & time) const;
 
-	bool freeRangeContaining(fm::Time & start,
-	                         fm::Time & end,
-	                         fmp::TagID tagID, const fm::Time & time) const;
+	bool freeRangeContaining(fort::Time & start,
+	                         fort::Time & end,
+	                         fmp::TagID tagID, const fort::Time & time) const;
 
-	std::vector<fm::Ant::ID> unidentifiedAntAt(const fm::Time & time) const;
+	std::vector<fm::Ant::ID> unidentifiedAntAt(const fort::Time & time) const;
 signals:
 	void identificationCreated(fmp::Identification::ConstPtr);
 	void identificationRangeModified(fmp::Identification::ConstPtr);
@@ -47,8 +47,8 @@ signals:
 public slots:
 	fmp::Identification::Ptr addIdentification(quint32 antID,
 	                                           fmp::TagID tagID,
-	                                           const fm::Time & start,
-	                                           const fm::Time & end);
+	                                           const fort::Time & start,
+	                                           const fort::Time & end);
 
 	void deleteIdentification(const fmp::Identification::ConstPtr & ident);
 

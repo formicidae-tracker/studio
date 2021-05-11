@@ -72,9 +72,9 @@ VisualizationWorkspace::VisualizationWorkspace(QWidget *parent)
 	auto skipForwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+L"),this);
 	auto skipBackwardLargeShortcut = new QShortcut(tr("Ctrl+Shift+J"),this);
 
-	static fm::Duration small = 10 * fm::Duration::Second;
-	static fm::Duration medium = 1 * fm::Duration::Minute;
-	static fm::Duration large = 10 * fm::Duration::Minute;
+	static fort::Duration small = 10 * fort::Duration::Second;
+	static fort::Duration medium = 1 * fort::Duration::Minute;
+	static fort::Duration large = 10 * fort::Duration::Minute;
 
 	connect(d_videoPlayer,
 	        &TrackingVideoPlayer::displayVideoFrame,
@@ -292,7 +292,7 @@ void VisualizationWorkspace::jumpToTime() {
     connect(lineEdit,&QLineEdit::editingFinished,
             &dialog,[lineEdit,warning,okButton,&dialog](){
 	                    try {
-		                    fm::Time::Parse(ToStdString(lineEdit->text()));
+		                    fort::Time::Parse(ToStdString(lineEdit->text()));
 		                    okButton->setEnabled(true);
 		                    warning->setVisible(false);
 	                    } catch ( const std::exception & e) {
@@ -313,9 +313,9 @@ void VisualizationWorkspace::jumpToTime() {
 	    return;
     }
 
-    fm::Time wanted;
+    fort::Time wanted;
     try {
-	    wanted = fm::Time::Parse(ToStdString(lineEdit->text()));
+	    wanted = fort::Time::Parse(ToStdString(lineEdit->text()));
     } catch (  const std::exception & e ) {
 	    return;
     }

@@ -22,8 +22,8 @@ TrackingVideoPlayer::TrackingVideoPlayer(QObject * parent)
 	, d_seekReady(true)
 	, d_scrollMode(false) {
 	d_movieThread->start();
-	qRegisterMetaType<fm::Time>();
-	qRegisterMetaType<fm::Duration>();
+	qRegisterMetaType<fort::Time>();
+	qRegisterMetaType<fort::Duration>();
 	qRegisterMetaType<size_t>();
 	qRegisterMetaType<TrackingVideoFrame>();
 
@@ -67,15 +67,15 @@ qreal TrackingVideoPlayer::playbackRate() const {
 	return d_rate;
 }
 
-fm::Duration TrackingVideoPlayer::position() const {
+fort::Duration TrackingVideoPlayer::position() const {
 	return d_position;
 }
 
-fm::Duration TrackingVideoPlayer::duration() const {
+fort::Duration TrackingVideoPlayer::duration() const {
 	return d_duration;
 }
 
-fm::Time TrackingVideoPlayer::start() const {
+fort::Time TrackingVideoPlayer::start() const {
 	return d_start;
 }
 
@@ -124,14 +124,14 @@ void TrackingVideoPlayer::clearMovieSegment() {
 	stop();
 	stopTask();
 	d_segment.reset();
-	emit durationChanged(fm::Time(),0,8);
+	emit durationChanged(fort::Time(),0,8);
 	emit positionChanged(0);
 }
 
 void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
                                           const fmp::TrackingDataDirectory::Ptr & tdd,
                                           const fmp::MovieSegment::ConstPtr & segment,
-                                          const fm::Time & start) {
+                                          const fort::Time & start) {
 	if ( segment == nullptr ) {
 		return;
 	}
@@ -143,7 +143,7 @@ void TrackingVideoPlayer::setMovieSegment(quint32 spaceID,
 	try {
 		d_task = new TrackingVideoPlayerTask(d_currentTaskID,d_segment,computeRate(d_rate),d_loader);
 		d_currentSeekID = 0;
-		d_interval = fm::Duration::Second.Nanoseconds() / d_task->fps();
+		d_interval = fort::Duration::Second.Nanoseconds() / d_task->fps();
 		d_start = start;
 		d_duration = d_interval * d_task->numberOfFrame();
 		emit durationChanged(start,d_duration,d_task->fps());
@@ -208,9 +208,9 @@ void TrackingVideoPlayer::setPlaybackRate(qreal rate) {
 	emit playbackRateChanged(rate);
 }
 
-void TrackingVideoPlayer::setPosition(fm::Duration position) {
+void TrackingVideoPlayer::setPosition(fort::Duration position) {
 	VIDEO_PLAYER_DEBUG(std::cerr << "[Player][setPosition]: Thread is " << QThread::currentThread() << " myself is " << thread() << std::endl);
-	position = std::clamp(position,fm::Duration(0),d_duration);
+	position = std::clamp(position,fort::Duration(0),d_duration);
 
 	if ( d_task == nullptr || position == d_position ) {
 		return;
@@ -423,20 +423,20 @@ void TrackingVideoPlayer::jumpPrevFrame() {
 		setPlaybackRate(1.0);
 	}
 #if CV_MAJOR_VERSION == 4
-	setPosition(d_position - fm::Duration::Millisecond);
+	setPosition(d_position - fort::Duration::Millisecond);
 #else
 	setPosition(d_position - d_interval);
 #endif
 }
 
-void TrackingVideoPlayer::skipDuration(fm::Duration duration) {
+void TrackingVideoPlayer::skipDuration(fort::Duration duration) {
 	if ( d_task == nullptr ) {
 		return;
 	}
 	setPosition(d_position + duration);
 }
 
-void TrackingVideoPlayer::setTime(const fm::Time & time) {
+void TrackingVideoPlayer::setTime(const fort::Time & time) {
 	if ( d_task == nullptr ) {
 		return;
 	}
@@ -503,7 +503,7 @@ TrackingVideoPlayerTask::TrackingVideoPlayerTask(size_t taskID,
 	}
 	d_width = d_capture.get(cv::CAP_PROP_FRAME_WIDTH);
 	d_height = d_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
-	d_expectedFrameDuration = double(fm::Duration::Second.Nanoseconds()) / d_capture.get(cv::CAP_PROP_FPS);
+	d_expectedFrameDuration = double(fort::Duration::Second.Nanoseconds()) / d_capture.get(cv::CAP_PROP_FPS);
 }
 
 TrackingVideoPlayerTask::~TrackingVideoPlayerTask() {
@@ -522,14 +522,14 @@ void TrackingVideoPlayerTask::processNewFrame(TrackingVideoFrame frame) {
 	                           Q_ARG(TrackingVideoFrame,frame));
 }
 
-void TrackingVideoPlayerTask::seek(size_t seekID, fm::Duration position) {
+void TrackingVideoPlayerTask::seek(size_t seekID, fort::Duration position) {
 	VIDEO_PLAYER_DEBUG({
 			std::cerr << "[task] seek to " << seekID << " at " << position << std::endl;
 			std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 	metaObject()->invokeMethod(this,"seekUnsafe",Qt::BlockingQueuedConnection,
 	                           Q_ARG(size_t,seekID),
-	                           Q_ARG(fm::Duration,position));
+	                           Q_ARG(fort::Duration,position));
 }
 
 void TrackingVideoPlayerTask::setRate(size_t rate) {
@@ -564,7 +564,7 @@ void TrackingVideoPlayerTask::processNewFrameUnsafe(TrackingVideoFrame frame) {
 	cv::Mat mat(d_height,d_width,CV_8UC3,const_cast<uchar*>(frame.Image->constBits()),frame.Image->bytesPerLine());
 	d_capture.retrieve(mat);
 
-	frame.EndPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond;
+	frame.EndPos = d_capture.get(cv::CAP_PROP_POS_MSEC) * fort::Duration::Millisecond;
 	frame.StartPos = frame.EndPos - d_expectedFrameDuration;
 
 
@@ -582,13 +582,13 @@ std::shared_ptr<QImage> TrackingVideoPlayerTask::allocate() const {
 }
 
 
-void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fm::Duration position) {
+void TrackingVideoPlayerTask::seekUnsafe(size_t seekID, fort::Duration position) {
 	VIDEO_PLAYER_DEBUG({
 		std::cerr << "[task] seek unsafe to " << seekID << " at " << position << std::endl;
 		std::cerr << "[task] Current thread: " << QThread::currentThread() << " my thread: " << thread() << std::endl;
 		});
 	d_seekID = seekID;
-	if ( d_capture.get(cv::CAP_PROP_POS_MSEC) * fm::Duration::Millisecond == position ) {
+	if ( d_capture.get(cv::CAP_PROP_POS_MSEC) * fort::Duration::Millisecond == position ) {
 		return;
 	}
 	d_capture.set(cv::CAP_PROP_POS_MSEC,qint64(position.Milliseconds()));

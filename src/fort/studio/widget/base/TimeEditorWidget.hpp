@@ -16,7 +16,7 @@ class QTimeEdit;
 
 class TimeEditorWidget : public QWidget {
 	Q_OBJECT
-	Q_PROPERTY(fm::Time time
+	Q_PROPERTY(fort::Time time
 	           READ time
 	           WRITE setTime
 	           NOTIFY timeChanged)
@@ -24,12 +24,12 @@ public:
 	explicit TimeEditorWidget(QWidget *parent = 0);
 	virtual ~TimeEditorWidget();
 
-	fm::Time time() const;
+	fort::Time time() const;
 
 	void setup(UniverseBridge * universe);
 
 public slots:
-	void setTime(const fm::Time & time);
+	void setTime(const fort::Time & time);
 
 
 	void increment();
@@ -41,10 +41,10 @@ private slots:
 	void onPopup();
 
 signals:
-	void timeChanged(const fm::Time & time);
+	void timeChanged(const fort::Time & time);
 
 private:
-	void incrementBy(fm::Duration duration);
+	void incrementBy(fort::Duration duration);
 
 	Ui::TimeEditorWidget * d_ui;
 	QAction              * d_increment;

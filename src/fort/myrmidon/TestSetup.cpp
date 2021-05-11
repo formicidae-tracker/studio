@@ -4,7 +4,10 @@
 #include <google/protobuf/util/delimited_message_util.h>
 #include <google/protobuf/util/time_util.h>
 #include <google/protobuf/io/gzip_stream.h>
+
 #include <fort/hermes/Header.pb.h>
+
+#include <fort/time/Time.hpp>
 
 #include <fort/myrmidon/ExperimentFile.pb.h>
 
@@ -15,7 +18,6 @@
 
 #include "utils/PosixCall.h"
 
-#include "Time.hpp"
 #include "priv/TrackingDataDirectory.hpp"
 
 #include <cmath>
@@ -42,12 +44,12 @@ std::string HermesFileName(size_t i) {
 	return os.str();
 }
 
-std::map<fs::path,std::pair<Time,Time>> TestSetup::s_times;
+std::map<fs::path,std::pair<fort::Time,fort::Time>> TestSetup::s_times;
 std::map<fs::path,std::map<fs::path,std::shared_ptr<uint32_t> > > TestSetup::s_closeUpFiles;
 
-std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, size_t * next,
-                                     const Time & startTime,
-                                     uint64_t start, uint64_t end) {
+std::pair<fort::Time,fort::Time> WriteHermesFile(const fs::path & basepath, size_t number, size_t * next,
+                                                 const fort::Time & startTime,
+                                                 uint64_t start, uint64_t end) {
 
 	fort::hermes::Header hHeader;
 	auto v = hHeader.mutable_version();
@@ -77,9 +79,9 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 	}
 
 	fort::hermes::FileLine lineRO,lineFooter;
-	Time fTime;
+	fort::Time fTime;
 	for( uint64_t i = start; i <= end; ++i) {
-		fTime = startTime.Add((i-start)* 100 * fort::myrmidon::Duration::Millisecond);
+		fTime = startTime.Add((i-start)* 100 * fort::Duration::Millisecond);
 		auto ro = lineRO.mutable_readout();
 		ro->Clear();
 		fTime.ToTimestamp(ro->mutable_time());
@@ -108,13 +110,13 @@ std::pair<Time,Time> WriteHermesFile(const fs::path & basepath, size_t number, s
 		throw std::runtime_error("Could not write footer");
 	}
 
-	auto resStart = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
-	                                                (startTime.MonotonicValue() / 1000) * 1000,
-	                                                startTime.MonoID());
+	auto resStart = fort::Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
+	                                                      (startTime.MonotonicValue() / 1000) * 1000,
+	                                                      startTime.MonoID());
 
-	fTime = Time::FromTimestampAndMonotonic(fTime.ToTimestamp(),
-	                                        (fTime.MonotonicValue()/1000)*1000,
-	                                        fTime.MonoID());
+	fTime = fort::Time::FromTimestampAndMonotonic(fTime.ToTimestamp(),
+	                                              (fTime.MonotonicValue()/1000)*1000,
+	                                              fTime.MonoID());
 	fTime = fTime.Add(1);
 	return std::make_pair(resStart,fTime);
 }
@@ -372,18 +374,18 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 	google::protobuf::Timestamp ts;
 	google::protobuf::util::TimeUtil::FromString("2019-11-02T10:00:20.021+01:00",&ts);
-	auto startTime = Time::FromTimestampAndMonotonic(ts,
-	                                                 123456,
-	                                                 priv::TrackingDataDirectory::GetUID(s_testdir /"foo.0001"));
+	auto startTime = fort::Time::FromTimestampAndMonotonic(ts,
+	                                                       123456,
+	                                                       priv::TrackingDataDirectory::GetUID(s_testdir /"foo.0001"));
 	auto saveStartTime = startTime;
 
 
 
 	for(auto const & d : foodirs) {
 		fs::create_directories(Basedir() / d);
-		startTime = Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
-		                                            startTime.MonotonicValue(),
-		                                            priv::TrackingDataDirectory::GetUID(s_testdir/ d));
+		startTime = fort::Time::FromTimestampAndMonotonic(startTime.ToTimestamp(),
+		                                                  startTime.MonotonicValue(),
+		                                                  priv::TrackingDataDirectory::GetUID(s_testdir/ d));
 		const static size_t NB_FILES = 2;
 		std::vector<uint64_t> bounds = {0};
 		for(size_t i = 0; i < NB_FILES; ++i) {
@@ -395,11 +397,11 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 			s_times[fs::path(d) / HermesFileName(i) ] = WriteHermesFile(s_testdir / d,i,next.get(),
 			                             startTime,i*100,last);
 			bounds.push_back(last);
-			startTime = startTime.Add(10 * Duration::Second
-			                          + 103 * Duration::Millisecond
-			                          + 14 * Duration::Microsecond);
+			startTime = startTime.Add(10 * fort::Duration::Second
+			                          + 103 * fort::Duration::Millisecond
+			                          + 14 * fort::Duration::Microsecond);
 		}
-		startTime = startTime.Add(13 * Duration::Second);
+		startTime = startTime.Add(13 * fort::Duration::Second);
 
 		auto antdir = Basedir() / d / "ants";
 		fs::create_directories(antdir);
@@ -457,7 +459,7 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 
 
-	startTime = startTime.Add(3 * 24 * Duration::Hour);
+	startTime = startTime.Add(3 * 24 * fort::Duration::Hour);
 	for(auto const & d : bardirs) {
 		fs::create_directories(Basedir() / d / "ants");
 		std::ofstream touch( (Basedir() / d / "leto-final-config.yml").c_str());
@@ -490,9 +492,9 @@ void TestSetup::OnTestProgramStart(const ::testing::UnitTest& /* unit_test */)  
 
 	fs::create_directories(noConfigDir / "ants");
 	WriteHermesFile(noConfigDir, 0, nullptr,
-	                Time::FromTimestampAndMonotonic(ts,
-	                                                123456,
-	                                                priv::TrackingDataDirectory::GetUID(noConfigDir)),
+	                fort::Time::FromTimestampAndMonotonic(ts,
+	                                                      123456,
+	                                                      priv::TrackingDataDirectory::GetUID(noConfigDir)),
 	                1, 12);
 
 

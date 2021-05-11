@@ -2,9 +2,7 @@
 
 #include <QObject>
 
-#include <fort/myrmidon/Time.hpp>
+#include <fort/time/Time.hpp>
 
-namespace fm = fort::myrmidon;
-
-Q_DECLARE_METATYPE(fm::Time)
-Q_DECLARE_METATYPE(fm::Duration)
+Q_DECLARE_METATYPE(fort::Time)
+Q_DECLARE_METATYPE(fort::Duration)

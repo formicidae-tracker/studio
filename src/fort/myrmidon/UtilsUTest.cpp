@@ -2,8 +2,8 @@
 
 #include <google/protobuf/util/message_differencer.h>
 
-::testing::AssertionResult TimeEqual(const fort::myrmidon::Time & a,
-                                     const fort::myrmidon::Time & b) {
+::testing::AssertionResult TimeEqual(const fort::Time & a,
+                                     const fort::Time & b) {
 	if ( a.Equals(b) == false ) {
 		return ::testing::AssertionFailure() << "a: " << a.DebugString()
 		                                     << "b: " << b.DebugString()

@@ -19,11 +19,11 @@ public :
 
 	QAbstractItemModel * movieModel();
 
-	std::tuple<quint32,fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
+	std::tuple<quint32,fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fort::Time>
 	tddAndMovieSegment(const QModelIndex & index) const;
 
-	std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fm::Time>
-	findTime(fmp::SpaceID spaceID, const fm::Time & time);
+	std::tuple<fmp::TrackingDataDirectory::Ptr,fmp::MovieSegmentConstPtr,fort::Time>
+	findTime(fmp::SpaceID spaceID, const fort::Time & time);
 
 	void initialize(ExperimentBridge * experiment) override;
 
@@ -47,7 +47,7 @@ private :
 	static QList<QStandardItem*> buildMovieSegment(quint32 spaceID,
 	                                               const fmp::TrackingDataDirectoryPtr & tdd,
 	                                               const fmp::MovieSegmentConstPtr & ms,
-	                                               const fm::Time & start);
+	                                               const fort::Time & start);
 
 	void clearModel();
 	void rebuildModel();

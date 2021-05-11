@@ -51,7 +51,7 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 
 	connect(d_ui->positionSlider,&QAbstractSlider::sliderMoved,
 	        d_player,[this]( int value ) {
-		        d_player->setPosition(qint64(value) * fm::Duration::Millisecond);
+		        d_player->setPosition(qint64(value) * fort::Duration::Millisecond);
 	        },
 	        Qt::QueuedConnection);
 
@@ -73,12 +73,12 @@ void TrackingVideoControl::setup(TrackingVideoPlayer * player,
 
 	connect(d_ui->seekForwardButton,&QToolButton::clicked,
 	        d_player,[this]() {
-		        d_player->skipDuration(10*fm::Duration::Second);
+		        d_player->skipDuration(10*fort::Duration::Second);
 	        },Qt::QueuedConnection);
 
 	connect(d_ui->seekBackwardButton,&QToolButton::clicked,
 	        d_player,[this]() {
-		        d_player->skipDuration(-10*fm::Duration::Second);
+		        d_player->skipDuration(-10*fort::Duration::Second);
 	        },Qt::QueuedConnection);
 
 	connect(d_ui->skipForwardButton,&QToolButton::clicked,
@@ -113,16 +113,16 @@ void TrackingVideoControl::onPlayerPlaybackStateChanged(TrackingVideoPlayer::Sta
 	}
 }
 
-void TrackingVideoControl::onPlayerPositionChanged(fm::Duration position) {
+void TrackingVideoControl::onPlayerPositionChanged(fort::Duration position) {
 	auto currentTime = d_player->start().Add(position);
-	d_ui->currentLabel->setText(ToQString(currentTime.Round(fm::Duration::Millisecond)));
+	d_ui->currentLabel->setText(ToQString(currentTime.Round(fort::Duration::Millisecond)));
 	d_ui->remainingLabel->setText(formatDuration(position- d_player->duration()));
 	if ( d_ui->positionSlider->isSliderDown() == false ) {
 		d_ui->positionSlider->setValue(position.Milliseconds());
 	}
 }
 
-void TrackingVideoControl::onPlayerDurationChanged(const fm::Time & time, fm::Duration duration,double fps) {
+void TrackingVideoControl::onPlayerDurationChanged(const fort::Time & time, fort::Duration duration,double fps) {
 	d_ui->positionSlider->setMinimum(0);
 	d_ui->positionSlider->setMaximum(duration.Milliseconds());
 
@@ -156,7 +156,7 @@ void TrackingVideoControl::on_playButton_clicked() {
 }
 
 
-QString TrackingVideoControl::formatDuration(fm::Duration duration) {
+QString TrackingVideoControl::formatDuration(fort::Duration duration) {
 	QString format = "%1:%2:%3.%4";
 	if ( duration < 0 ) {
 		duration = -duration;
@@ -164,19 +164,19 @@ QString TrackingVideoControl::formatDuration(fm::Duration duration) {
 	}
 	int hours(0),minutes(0),seconds(0);
 
-	if ( duration > fm::Duration::Hour ) {
+	if ( duration > fort::Duration::Hour ) {
 		hours = std::floor(duration.Hours());
-		duration = duration - hours * fm::Duration::Hour;
+		duration = duration - hours * fort::Duration::Hour;
 	}
 
-	if ( duration > fm::Duration::Minute ) {
+	if ( duration > fort::Duration::Minute ) {
 		minutes = std::floor(duration.Minutes());
-		duration = duration - minutes * fm::Duration::Minute;
+		duration = duration - minutes * fort::Duration::Minute;
 	}
 
-	while ( duration > fm::Duration::Second ) {
+	while ( duration > fort::Duration::Second ) {
 		seconds = std::floor(duration.Seconds());
-		duration = duration - seconds * fm::Duration::Second;
+		duration = duration - seconds * fort::Duration::Second;
 	}
 
 	return format

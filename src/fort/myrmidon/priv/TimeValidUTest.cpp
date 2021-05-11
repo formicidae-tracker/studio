@@ -14,7 +14,7 @@ using namespace fort::myrmidon;
 
 class TestObject : public priv::TimeValid {
 public:
-	TestObject(const Time & start, const Time & end) {
+	TestObject(const fort::Time & start, const fort::Time & end) {
 		d_start = start;
 		d_end = end;
 	};
@@ -34,16 +34,16 @@ std::ostream & operator<<(std::ostream & out, const TestObject & o ) {
 }
 
 TEST_F(TimeValidUTest,HaveTimeValidity) {
-	TestObject o(Time::FromTimeT(1),
-	             Time::FromTimeT(10));
+	TestObject o(fort::Time::FromTimeT(1),
+	             fort::Time::FromTimeT(10));
 
-	EXPECT_FALSE(o.IsValid(Time::FromTimeT(0)));
-	EXPECT_TRUE(o.IsValid(Time::FromTimeT(1)));
-	EXPECT_TRUE(o.IsValid(Time::FromTimeT(5)));
-	EXPECT_TRUE(o.IsValid(Time::FromTimeT(9)));
-	EXPECT_TRUE(o.IsValid(Time::FromTimeT(10).Add(-1 * Duration::Nanosecond)));
-	EXPECT_FALSE(o.IsValid(Time::FromTimeT(10)));
-	EXPECT_FALSE(o.IsValid(Time::FromTimeT(11)));
+	EXPECT_FALSE(o.IsValid(fort::Time::FromTimeT(0)));
+	EXPECT_TRUE(o.IsValid(fort::Time::FromTimeT(1)));
+	EXPECT_TRUE(o.IsValid(fort::Time::FromTimeT(5)));
+	EXPECT_TRUE(o.IsValid(fort::Time::FromTimeT(9)));
+	EXPECT_TRUE(o.IsValid(fort::Time::FromTimeT(10).Add(-1 * fort::Duration::Nanosecond)));
+	EXPECT_FALSE(o.IsValid(fort::Time::FromTimeT(10)));
+	EXPECT_FALSE(o.IsValid(fort::Time::FromTimeT(11)));
 }
 
 
@@ -71,8 +71,8 @@ TEST_F(TimeValidUTest,CanCheckOverlap) {
 
 		std::vector<std::shared_ptr<TestObject> > list;
 		for(size_t i = 0; i < d.Times.size(); ++i) {
-			auto s = Time::FromTimeT(d.Times[i]);
-			auto e = Time::FromTimeT(d.Times[++i]);
+			auto s = fort::Time::FromTimeT(d.Times[i]);
+			auto e = fort::Time::FromTimeT(d.Times[++i]);
 			list.push_back(std::make_shared<TestObject>(s,e));
 		}
 
@@ -98,8 +98,8 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 	std::vector<std::shared_ptr<TestObject> > list;
 
 	for(size_t i = 0; i < Times.size(); ++i) {
-		auto s = Time::FromTimeT(Times[i]);
-		auto e = Time::FromTimeT(Times[++i]);
+		auto s = fort::Time::FromTimeT(Times[i]);
+		auto e = fort::Time::FromTimeT(Times[++i]);
 		list.push_back(std::make_shared<TestObject>(s,e));
 	}
 
@@ -108,49 +108,49 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 
 	struct TestData {
 		time_t T;
-		Time ExpectedLower;
-		Time ExpectedUpper;
+		fort::Time ExpectedLower;
+		fort::Time ExpectedUpper;
 	};
 
 	std::vector<TestData> data
 		= {
-		   {-1,Time::SinceEver(),Time::FromTimeT(0)},
+		   {-1,fort::Time::SinceEver(),fort::Time::FromTimeT(0)},
 		   {
 		    10,
-		    Time::FromTimeT(10),
-		    Time::FromTimeT(12)
+		    fort::Time::FromTimeT(10),
+		    fort::Time::FromTimeT(12)
 		   },
 		   {
 		    11,
-		    Time::FromTimeT(10),
-		    Time::FromTimeT(12)
+		    fort::Time::FromTimeT(10),
+		    fort::Time::FromTimeT(12)
 		   },
 		   {
 		    40,
-		    Time::FromTimeT(40),
-		    Time::FromTimeT(45)
+		    fort::Time::FromTimeT(40),
+		    fort::Time::FromTimeT(45)
 		   },
 		   {
 		    42,
-		    Time::FromTimeT(40),
-		    Time::FromTimeT(45)
+		    fort::Time::FromTimeT(40),
+		    fort::Time::FromTimeT(45)
 		   },
 		   {
 		    60,
-		    Time::FromTimeT(60),
-		    Time::Forever(),
+		    fort::Time::FromTimeT(60),
+		    fort::Time::Forever(),
 		   },
 		   {
 		    65,
-		    Time::FromTimeT(60),
-		    Time::Forever(),
+		    fort::Time::FromTimeT(60),
+		    fort::Time::Forever(),
 		   },
 
 	};
 
 	for(const auto & d : data ) {
 		EXPECT_NO_THROW({
-				auto t = Time::FromTimeT(d.T);
+				auto t = fort::Time::FromTimeT(d.T);
 				auto lower = priv::TimeValid::LowerUnvalidBound(t,list.begin(),list.end());
 				auto upper = priv::TimeValid::UpperUnvalidBound(t,list.begin(),list.end());
 				EXPECT_TRUE(TimeEqual(upper,d.ExpectedUpper));
@@ -162,7 +162,7 @@ TEST_F(TimeValidUTest,CanGiveBoundaries) {
 	std::vector<time_t> invalidTimes = {0,5,12,17,20,24,45,55};
 
 	for(const auto & tt : invalidTimes) {
-		auto t = Time::FromTimeT(tt);
+		auto t = fort::Time::FromTimeT(tt);
 		EXPECT_THROW({
 				::priv::TimeValid::LowerUnvalidBound(t,list.begin(),list.end());
 			},std::invalid_argument) << " for time " << t;

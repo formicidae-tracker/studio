@@ -219,7 +219,7 @@ void IdentificationWorkspace::addIdentification() {
 		return;
 	}
 
-	fm::Time start,end;
+	fort::Time start,end;
 	if ( d_experiment->identifier()->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
 		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "
@@ -261,7 +261,7 @@ void IdentificationWorkspace::newAnt() {
 	if ( !m ) {
 		return;
 	}
-	fm::Time start,end;
+	fort::Time start,end;
 	if ( d_experiment->identifier()->freeRangeContaining(start,end,d_tcu->TagValue(),d_tcu->Frame().Time()) == false ) {
 		qCritical() << "TagID:" << fmp::FormatTagID(d_tcu->TagValue()).c_str()
 		            << " already identifies an Ant at Time "

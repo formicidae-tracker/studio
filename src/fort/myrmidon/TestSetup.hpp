@@ -4,7 +4,7 @@
 
 #include <fort/myrmidon/utils/FileSystem.hpp>
 
-#include "Time.hpp"
+#include <fort/time/Time.hpp>
 
 #include "semver.hpp"
 
@@ -14,11 +14,11 @@ public:
 		return s_testdir;
 	}
 
-	inline static const fort::myrmidon::Time StartTime(const fs::path & fs) {
+	inline static const fort::Time StartTime(const fs::path & fs) {
 		return s_times[fs].first;
 	}
 
-	inline static const fort::myrmidon::Time EndTime(const fs::path & fs) {
+	inline static const fort::Time EndTime(const fs::path & fs) {
 		return s_times[fs].second;
 	}
 
@@ -46,7 +46,7 @@ private:
 
 
 
-	static fs::path s_testdir;
-	static std::map<fs::path,std::pair<fort::myrmidon::Time,fort::myrmidon::Time> > s_times;
+	static fs::path                                                          s_testdir;
+	static std::map<fs::path,std::pair<fort::Time,fort::Time> >              s_times;
 	static std::map<fs::path,std::map<fs::path,std::shared_ptr<uint32_t> > > s_closeUpFiles;
 };  // class TestSetup
