@@ -67,6 +67,13 @@ The following packages are available from the anaconda channel
   `fort-myrmidon` may not match anymore the application `FORT Studio`
   available through the `snap` package.
 
+**Important**: These packages requires your conda installation to
+source the `conda-forge` channel, or you may most likely run into
+dependency conflict errors. Please follow the [official conda-forge
+instructions](https://conda-forge.org/docs/user/introduction.html#how-can-i-install-packages-from-conda-forge)
+to enable sourcing packages from `conda-forge`.
+
+
 ### Install `fort-studio` from snap
 
 `fort-studio` is available through its own snap. It comes with its own
