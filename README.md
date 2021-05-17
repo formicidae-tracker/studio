@@ -90,7 +90,7 @@ you must allow `fort-studio` the access to removable media using the
 following command:
 
 ``` bash
-sudo connect fort-studio:removable-media :removable-media`
+sudo snap connect fort-studio:removable-media :removable-media`
 
 ```
 
