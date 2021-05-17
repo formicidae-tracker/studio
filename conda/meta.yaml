@@ -30,7 +30,7 @@ requirements:
     - {{ cdt('libxfixes') }}         [linux]
     - {{ cdt('libxxf86vm') }}        [linux]
   host:
-    - tbb-devel <=2020.2
+    - tbb-devel =2020.2
     - libprotobuf
     - yaml-cpp
     - asio
@@ -53,6 +53,7 @@ outputs:
         - libprotobuf
         - libopencv
         - yaml-cpp
+        - tbb =2020.2
     test:
       script: test-libfort-myrmidon.sh
       requires:
