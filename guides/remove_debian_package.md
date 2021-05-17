@@ -3,8 +3,8 @@
 Since version v0.7.2, `fort-myrmidon` and `fort-studio` does not
 uses debian packages listed on `packages.tuleu.science`
 anymore. Instead they are using
-[conda](https://docs.conda.io/en/latest) ( `libfort-myrmidon` ) and
-[snap](https://snapcraft.io) ( `fort-studio`). In order to move to
+[conda](https://docs.conda.io/en/latest) ( for `libfort-myrmidon` ) and
+[snap](https://snapcraft.io) ( for `fort-studio`). In order to move to
 this new distribution, old debian packages and APT listing of
 `packages.tuleu.science` should be removed.
 
@@ -13,7 +13,7 @@ this new distribution, old debian packages and APT listing of
 You should use apt to remove the packages:
 
  ``` bash
- sudo apt purge libfort-* fort-myrmidon
+ sudo apt purge libfort-* fort-studio
  ```
 
 ## 2. Edit your apt source file to remove
