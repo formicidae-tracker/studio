@@ -61,10 +61,13 @@ The following packages are available from the anaconda channel
 * `r-fort-myrmidon`: R bindings for `libfort-myrmidon`. R 3.6 and 4.0 are currently supported
 * [not available yet] `py-fort-myrmidon`: Python bindings for `libfort-myrmidon`
 * `fort-studio`: conda distibution of `fort-studio`. It is provided to
-  allow pinpointing a perticular version. The snap distribution should
-  be preferred in most use case. Please remind that care must be taken
+  allow pinpointing a perticular version for archiving purpose. ** In
+  almost all cases, users should not install this package on their
+  system and the `snap` package should be preferred **. Indeed this
+  package is provided to be able to install an older, archived version
+  to re-perform an experiment. Please remind that care must be taken
   if you install this conda package, as the command line executable
-  `fort-myrmidon` may not match anymore the application `FORT Studio`
+  `fort-studio` may not match anymore the application `FORT Studio`
   available through the `snap` package.
 
 **Important**: These packages requires your conda installation to

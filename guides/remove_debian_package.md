@@ -47,3 +47,7 @@ packages:
 * https://docs.anaconda.com/anaconda/navigator/tutorials/create-r-environment/
 
 At the moment, `r-fort-myrmidon` is compiled for R 3.6 and 4.0.
+
+Please note that for `fort-studio` it is advised not to install the
+`conda` package `fort-studio` but prefer the `snap` package
+`fort-studio`.
