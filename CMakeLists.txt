@@ -29,7 +29,7 @@ include(FetchGoogleTest)
 
 fetch_google_test(VERSION release-1.10.0)
 fetch_fort_tags(VERSION v1.4.0)
-fetch_fort_hermes(VERSION v0.4.1)
+fetch_fort_hermes(VERSION v0.5.0-rc2)
 fetch_fort_time(VERSION v1.0.2)
 fetch_semver(VERSION v0.2.2)
 
