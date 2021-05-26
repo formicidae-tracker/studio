@@ -146,3 +146,5 @@ if(BUILD_DOCS)
 endif(BUILD_DOCS)
 
 add_subdirectory(misc)
+
+add_subdirectory(bindings/python)

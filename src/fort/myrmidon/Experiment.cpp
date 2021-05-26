@@ -17,11 +17,6 @@ Experiment Experiment::Open(const std::string & filepath) {
 	return Experiment(priv::Experiment::Open(filepath));
 }
 
-const Experiment Experiment::OpenReadOnly(const std::string & filepath) {
-	// its ok to const cast as we cast back as a const
-	return Experiment(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenReadOnly(filepath)));
-}
-
 const Experiment Experiment::OpenDataLess(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
 	return Experiment(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenDataLess(filepath)));

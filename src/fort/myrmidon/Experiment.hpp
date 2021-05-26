@@ -109,22 +109,6 @@ public:
 	// @return the <Experiment>
 	static Experiment Open(const std::string & filepath);
 
-	// Opens a read only Experiment
-	// @filepath the path to the wanted file.
-	//
-	// Opens an Experiment with read only access to a `.myrmidon`
-	// file. Only a single program can open the same myrmidon file
-	// with full access (read only access must be closed).
-	//
-	// R Version :
-	// ```R
-	// fmExperimentOpenReadOnly(path)
-	// ```
-	//
-	// @return the <Experiment>
-	static const Experiment OpenReadOnly(const std::string & filepath);
-
-
 	// Opens an Experiment without associated tracking data
 	// @filepath the path to the wanted file.
 	//
