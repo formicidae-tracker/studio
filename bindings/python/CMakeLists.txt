@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.4...3.18)
-project(cmake_example)
+
+project(py-fort-myrmidon)
 
 find_package(pybind11 REQUIRED)
 find_package(FortMyrmidon REQUIRED)
+
 include_directories(${FORT_MYRMIDON_INCLUDE_DIRS})
 
 add_subdirectory(src)
