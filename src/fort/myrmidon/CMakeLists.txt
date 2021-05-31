@@ -100,6 +100,7 @@ set(HDR_PUBLIC_FILES ForwardDeclaration.hpp
                      Ant.hpp
                      Zone.hpp
                      Space.hpp
+                     TrackingSolver.hpp
                      Experiment.hpp
                      Query.hpp
                      Matchers.hpp
@@ -160,6 +161,7 @@ set(SRC_FILES ForwardDeclaration.cpp
               Ant.cpp
               Zone.cpp
               Space.cpp
+              TrackingSolver.cpp
               Experiment.cpp
               Query.cpp
               Matchers.cpp
