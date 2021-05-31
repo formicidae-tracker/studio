@@ -147,4 +147,12 @@ endif(BUILD_DOCS)
 
 add_subdirectory(misc)
 
-add_subdirectory(bindings/python)
+
+option(BUILD_PYTHON "Build python bindings" Off)
+
+if(BUILD_PYTHON)
+	find_package(pybind11 REQUIRED)
+	include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src)
+	set(FORT_MYRMIDON_LIBRARIES fort-myrmidon)
+	add_subdirectory(bindings/python/src)
+endif(BUILD_PYTHON)
