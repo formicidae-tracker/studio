@@ -1,4 +1,7 @@
-set(SRC_FILES Experiment.cpp)
+set(SRC_FILES Experiment.cpp
+              Ant.cpp
+              main.cpp
+              )
 
 pybind11_add_module(py_fort_myrmidon ${SRC_FILES})
 target_link_libraries(py_fort_myrmidon PRIVATE ${FORT_MYRMIDON_LIBRARIES})
