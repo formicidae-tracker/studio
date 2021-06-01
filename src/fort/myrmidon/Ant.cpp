@@ -15,19 +15,7 @@ TagID Ant::IdentifiedAt(const Time & time) const {
 	return d_p->IdentifiedAt(time);
 }
 
-Identification::ConstList Ant::CIdentifications() const {
-	Identification::ConstList res;
-	const auto & idents = d_p->CIdentifications();
-	res.reserve(idents.size());
-	for ( const auto & pIdent : idents ) {
-		res.push_back(std::make_shared<Identification>(std::const_pointer_cast<priv::Identification>(pIdent)));
-	}
-	return res;
-}
 
-Identification::ConstList Ant::Identifications() const {
-	return CIdentifications();
-}
 
 Identification::List Ant::Identifications() {
 	Identification::List res;

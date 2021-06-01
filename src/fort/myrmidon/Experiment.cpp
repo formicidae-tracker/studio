@@ -67,14 +67,14 @@ void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
 
 
 Ant::Ptr Experiment::CreateAnt() {
-	return std::make_shared<Ant>(d_p->CreateAnt());
+	return Ant::Ptr(new Ant(d_p->CreateAnt()));
 }
 
 std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
 	std::map<Ant::ID,Ant::Ptr> res;
 	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
 		res.insert(std::make_pair(antID,
-		                          std::make_shared<Ant>(ant)));
+		                          Ant::Ptr(new Ant(ant))));
 	}
 	return res;
 }

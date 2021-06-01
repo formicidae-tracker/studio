@@ -570,5 +570,5 @@ private:
 	PPtr d_p;
 };
 
-} //namespace mrymidon
+} // namespace mrymidon
 } // namespace fort

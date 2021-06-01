@@ -70,8 +70,6 @@ class Ant {
 public:
 	// A pointer to an Ant
 	typedef std::shared_ptr<Ant>       Ptr;
-	// A pointer to a const Ant
-	typedef std::shared_ptr<const Ant> ConstPtr;
 
 	// The ID of an Ant.
 	//
@@ -92,7 +90,7 @@ public:
 	// Gets the TagID identifying this Ant at a given time.
 	// @time the <Time> for which we want the identification
 	//
-	// Gets the <TagID> identifying this Ant at a given. There may not
+	// Gets the <TagID> identifying this Ant at a given <Time>. There may not
 	// have an identification at this given time, an an exception will be thrown.
 	// R version:
 	// ```R
@@ -103,21 +101,6 @@ public:
 	//         exists (throw an exception otherwise)
 	TagID IdentifiedAt(const Time & time) const;
 
-
-
-	// Gets the const Identifications for this Ant
-	//
-	// Gets the <Identification> targetting this Ant. These
-	// <Identification> will always be sorted in <Time> and not
-	// overlapping.
-	//
-	// R Version :
-	// ```R
-	// ant$cIdentifications()
-	// ```
-	//
-	// @return a  <Identification::ConstList>
-	Identification::ConstList CIdentifications() const;
 
 	// Gets the Identifications for this Ant
 	//
@@ -133,23 +116,6 @@ public:
 	// @return an <Identification::List> copy of all
 	//         <Identification>
 	Identification::List Identifications();
-
-
-	// Gets the Identifications for this Ant
-	//
-	// Gets the <Identification> targetting this Ant. These
-	// <Identification> will always be sorted in <Time> and not
-	// overlapping.
-	//
-	// R Version :
-	// ```R
-	// ant$identifications()
-	// ```
-	//
-	// @return an <Identification::List> copy of all
-	//         <Identification>
-	Identification::ConstList Identifications() const;
-
 
 	// Gets the ID of an Ant
 	//
@@ -323,7 +289,8 @@ public:
 	// ```
 	void ClearCapsules();
 
-
+private:
+	friend class Experiment;
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Ant> PPtr;
 
@@ -334,7 +301,6 @@ public:
 	// from <Experiment>.
 	Ant(const PPtr & pAnt);
 
-private:
 	PPtr d_p;
 };
 
