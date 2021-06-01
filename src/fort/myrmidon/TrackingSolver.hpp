@@ -11,6 +11,7 @@
 namespace fort {
 namespace myrmidon {
 
+class Experiment;
 
 namespace priv {
 // private <fort::myrmidon::priv> Implementation
@@ -51,6 +52,8 @@ public :
 	// @return a <CollisionFrame> with all current Ant collisions.
 	CollisionFrame::ConstPtr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
 
+private:
+	friend class Experiment;
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::TrackingSolver> PPtr;
 
@@ -60,7 +63,9 @@ public :
 	// User cannot create a TrackingSolver directly. They must use
 	// <Experiment::CompileTrackingSolver>.
 	TrackingSolver(const PPtr & pTracker);
-private:
+
+	TrackingSolver & operator=(const TrackingSolver &) = delete;
+	TrackingSolver(const TrackingSolver &) = delete;
 
 	PPtr d_p;
 };

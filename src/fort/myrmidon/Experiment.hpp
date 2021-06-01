@@ -47,6 +47,12 @@ class Query;
 // ( read-only program must have released the Experiment too !!!).
 class Experiment {
 public:
+	// A pointer to an Experiment.
+	typedef std::unique_ptr<Experiment> Ptr;
+
+	// A pointer to a const Experiment
+	typedef std::unique_ptr<const Experiment> ConstPtr;
+
 	// Opens an Experiment with full access
 	// @filepath the path to the wanted file
 	//
@@ -60,23 +66,18 @@ public:
 	// ```
 	//
 	// @return the <Experiment>
-	static Experiment Open(const std::string & filepath);
+	static Experiment::Ptr Open(const std::string & filepath);
 
 	// Opens an Experiment without associated tracking data
 	// @filepath the path to the wanted file.
 	//
 	// Opens an Experiment to a `.myrmidon` file without opening its
-	// associated tracking data. Please also note that the file will
-	// be opened in Read Only mode. This functionalities is useful to
-	// be able to parse the Ant desciption list, and for example
-	// identify or collides ants from realtime tracking data acquired
-	// over the network. When opened in 'data-less' mode, no tracking
-	// data, tag statistic or measurement will be returned ( the
-	// experiment will appear empty ). However
-	// <TrackingSolver::IdentifyFrame> and
-	// <TrackingSolver::CollideFrame> will work as expected as the
-	// user is required to provide the data to these function.
-	//
+	// associated tracking data. This is useful, by example, identify
+	// or collides ants from realtime tracking data acquired over the
+	// network using a <TrackingSolver> obtained with
+	// <CompileTrackingSolver>. When opened in 'data-less' mode, no
+	// tracking data, tag statistic or measurement will be returned (
+	// the experiment will appear empty ).
 	//
 	// R Version :
 	// ```R
@@ -84,28 +85,14 @@ public:
 	// ```
 	//
 	// @return the <Experiment>
-	static const Experiment OpenDataLess(const std::string & filepath);
+	static Experiment::Ptr OpenDataLess(const std::string & filepath);
 
-	// Creates a new Experiment file
-	// @filepath the wanted filepath
-	//
-	// Creates a new Experiment at the wanted filesystem
-	// location. Will throw an error if a file already exists at this
-	// location.
-	//
-	// R Version :
-	// ```R
-	// fmExperimentNewFile(path)
-	// ```
-	//
-	// @return  the new empty <Experiment>
-	static Experiment NewFile(const std::string & filepath);
 
-	// Creates a new Experiment without file association
+	// Creates a new Experiment associated with the given filepath.
 	// @filepath the wanted filepath
 	//
 	// Creates a new Experiment virtually associated with the desired
-	// filesystem location. Will not create a file.
+	// filepath location. It will not create a new file on the filesystem.
 	//
 	// R Version :
 	// ```R
@@ -113,12 +100,12 @@ public:
 	// ```
 	//
 	// @return the new empty <Experiment>
-	static Experiment Create(const std::string & filepath);
+	static Experiment::Ptr Create(const std::string & filepath);
 
-	// Saves the Experiment
+	// Saves the Experiment at the desired filepath
 	// @filepath the desired filesystem location to save the Experiment to
 	//
-	// Saves the Experiment to its location. It is forbidden to change
+	// Saves the Experiment to <filepath>. It is not possible to change
 	// its parent directory (but file renaming is permitted).
 	//
 	// R Version :
@@ -147,7 +134,7 @@ public:
 	// ```
 	//
 	// @return the new <Space>
-	Space CreateSpace(const std::string & name);
+	Space::Ptr CreateSpace(const std::string & name);
 
 	// Deletes a <Space>
 	// @spaceID the <Space::ID> of the <Space> we want to delete.
@@ -167,27 +154,6 @@ public:
 	//
 	// @return a map of the Experiment <Space> by their <Space::ID>
 	std::map<Space::ID,Space::Ptr> Spaces();
-
-	// Gets the <Space> in the Experiment with const access
-	//
-	// R Version :
-	// ```R
-	// e$cSpaces()
-	// ```
-	//
-	// @return a const map of the Experiment <Space>
-	std::map<Space::ID,Space::ConstPtr> CSpaces() const;
-
-	// Gets the <Space> in the Experiment (const overload)
-	//
-	// R Version :
-	// ```R
-	// e$cSpaces()
-	// ```
-	//
-	// @return a const map of the Experiment <Space>
-	std::map<Space::ID,Space::ConstPtr> Spaces() const;
-
 
 	// Adds a tracking data directory to Experiment
 	// @spaceID the <Space> the data directory is associated with
@@ -233,28 +199,6 @@ public:
 	// @return the <Ant> indexed by their <Ant::ID> in the Experiment.
 	std::map<Ant::ID,Ant::Ptr> Ants();
 
-	// Gets the <Ant> in the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$cAnts()
-	// ```
-	//
-	// @return the const <Ant> indexed by their <Ant::ID> in the
-	// Experiment.
-	std::map<Ant::ID,Ant::ConstPtr> CAnts() const;
-
-	// Gets the <Ant> in the Experiment (const overload)
-	//
-	// R Version :
-	// ```R
-	// e$cAnts()
-	// ```
-	//
-	// @return the const <Ant> indexed by their <Ant::ID> in the
-	// Experiment.
-	std::map<Ant::ID,Ant::ConstPtr> Ants() const;
-
 	// Adds an <Identification> to the Experiment
 	// @antID the targetted <Ant> designated by its <Ant::ID>
 	// @tagID the tag to associate with the Ant
@@ -286,7 +230,7 @@ public:
 	// # i is the wanted fmIdentification to delete
 	// e$deleteIdentification(i)
 	// ```
-	void DeleteIdentification(const Identification::ConstPtr & identification);
+	void DeleteIdentification(const Identification::Ptr & identification);
 
 	// Queries for a valid time range
 	// @start return value by reference for the start of the range
@@ -409,7 +353,7 @@ public:
 	// # sets the tag size to 0.7 mm
 	// e$setDefaultTagSize(0.7)
 	// ```
-	void   SetDefaultTagSize(double defaultTagSize);
+	void SetDefaultTagSize(double defaultTagSize);
 
 
 	/* cldoc:begin-category(manual_measurement) */
@@ -599,6 +543,7 @@ public:
 
 	/* cldoc:end-category() */
 
+
 	// Compiles a TrackingSolver
 	//
 	// Compiles a <TrackingSolver>, typically use to identify and
@@ -607,6 +552,9 @@ public:
 	// @return a <TrackingSolver> for the experiment.
 	TrackingSolver CompileTrackingSolver() const;
 
+
+private:
+	friend class Query;
 
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Experiment> PPtr;
@@ -617,8 +565,8 @@ public:
 	// User cannot create an Experiment directly. They must use
 	// <Open>, <OpenReadOnly>, <Create> and <NewFile>.
 	Experiment(const PPtr & pExperiment);
-private:
-	friend class Query;
+
+
 	PPtr d_p;
 };
 

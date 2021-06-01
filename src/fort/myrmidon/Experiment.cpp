@@ -13,21 +13,17 @@ namespace fort {
 namespace myrmidon {
 
 
-Experiment Experiment::Open(const std::string & filepath) {
-	return Experiment(priv::Experiment::Open(filepath));
+Experiment::Ptr Experiment::Open(const std::string & filepath) {
+	return Experiment::Ptr(new Experiment(priv::Experiment::Open(filepath)));
 }
 
-const Experiment Experiment::OpenDataLess(const std::string & filepath) {
+Experiment::Ptr Experiment::OpenDataLess(const std::string & filepath) {
 	// its ok to const cast as we cast back as a const
-	return Experiment(std::const_pointer_cast<priv::Experiment>(priv::Experiment::OpenDataLess(filepath)));
+	return Experiment::Ptr(new Experiment(priv::Experiment::OpenDataLess(filepath)));
 }
 
-Experiment Experiment::NewFile(const std::string & filepath) {
-	return Experiment(priv::Experiment::NewFile(filepath));
-}
-
-Experiment Experiment::Create(const std::string & filepath) {
-	return Experiment(priv::Experiment::Create(filepath));
+Experiment::Ptr Experiment::Create(const std::string & filepath) {
+	return Experiment::Ptr(new Experiment(priv::Experiment::Create(filepath)));
 }
 
 void Experiment::Save(const std::string & filepath) {
@@ -38,8 +34,8 @@ std::string Experiment::AbsoluteFilePath() const {
 	return d_p->AbsoluteFilePath().string();
 }
 
-Space Experiment::CreateSpace(const std::string & name) {
-	return Space(d_p->CreateSpace(name));
+Space::Ptr Experiment::CreateSpace(const std::string & name) {
+	return std::make_shared<Space>(d_p->CreateSpace(name));
 }
 
 void Experiment::DeleteSpace(Space::ID spaceID) {
@@ -52,20 +48,6 @@ std::map<Space::ID,Space::Ptr> Experiment::Spaces() {
 		res.insert(std::make_pair(spaceID,std::make_shared<Space>(space)));
 	}
 	return res;
-}
-
-std::map<Space::ID,Space::ConstPtr> Experiment::CSpaces() const {
-	std::map<Space::ID,Space::ConstPtr> res;
-	for ( const auto & [spaceID, space] : d_p->CSpaces() ) {
-		auto pSpace = std::const_pointer_cast<priv::Space>(space);
-		res.insert(std::make_pair(spaceID,
-		                          std::make_shared<Space>(pSpace)));
-	}
-	return res;
-}
-
-std::map<Space::ID,Space::ConstPtr> Experiment::Spaces() const {
-	return CSpaces();
 }
 
 std::string Experiment::AddTrackingDataDirectory(Space::ID spaceID,
@@ -97,21 +79,6 @@ std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
 	return res;
 }
 
-std::map<Ant::ID,Ant::ConstPtr> Experiment::CAnts() const {
-	std::map<Ant::ID,Ant::ConstPtr> res;
-	for ( const auto & [antID, ant] : d_p->CIdentifier().CAnts() ) {
-		auto pAnt = std::const_pointer_cast<priv::Ant>(ant);
-		res.insert(std::make_pair(antID,
-		                          std::make_shared<Ant>(pAnt)));
-	}
-	return res;
-}
-
-std::map<Ant::ID,Ant::ConstPtr> Experiment::Ants() const {
-	return CAnts();
-}
-
-
 Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
                                                   TagID tagID,
                                                   const Time & start,
@@ -124,7 +91,7 @@ Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
 	return std::make_shared<Identification>(i);
 }
 
-void Experiment::DeleteIdentification(const Identification::ConstPtr & identification) {
+void Experiment::DeleteIdentification(const Identification::Ptr & identification) {
 	d_p->Identifier()->DeleteIdentification(identification->ToPrivate());
 }
 

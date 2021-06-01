@@ -33,27 +33,6 @@ void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data =  std::vector<uint8_t>(std::istreambuf_iterator<char>(f),{});
 }
 
-TEST_F(ExperimentUTest,ExclusiveOpening) {
-	auto e = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-	EXPECT_THROW({
-			auto b = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		},std::exception);
-
-	EXPECT_THROW({
-			auto b = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
-		},std::exception);
-
-	e.reset();
-	auto ce = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
-	EXPECT_NO_THROW({
-			auto cb = Experiment::OpenReadOnly(TestSetup::Basedir() / "test.myrmidon");
-		});
-
-	EXPECT_THROW({
-			auto b = Experiment::Open(TestSetup::Basedir() / "test.myrmidon");
-		},std::exception);
-}
-
 
 TEST_F(ExperimentUTest,CanAddTrackingDataDirectory) {
 	try {
@@ -148,7 +127,8 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	TrackingDataDirectory::Ptr foo0,foo1;
 	Space::Ptr s;
 	ASSERT_NO_THROW({
-			e = Experiment::NewFile(TestSetup::Basedir() / "new-file.myrmidon");
+			e = Experiment::Create(TestSetup::Basedir() / "new-file.myrmidon");
+			e->Save(TestSetup::Basedir() / "new-file.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			foo1 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0001",TestSetup::Basedir());
 			s = e->CreateSpace("box");
@@ -465,7 +445,8 @@ TEST_F(ExperimentUTest,TooSmallHeadTailMeasurementAreNotPermitted) {
 	TrackingDataDirectory::Ptr foo0;
 	Space::Ptr s;
 	ASSERT_NO_THROW({
-			e = Experiment::NewFile(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");
+			e = Experiment::Create(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");
+			e->Save(TestSetup::Basedir() / "small-head-tail-measurement-failure.myrmidon");
 			foo0 = TrackingDataDirectory::Open(TestSetup::Basedir() / "foo.0000",TestSetup::Basedir());
 			s = e->CreateSpace("box");
 			e->AddTrackingDataDirectory(s,foo0);
@@ -610,7 +591,7 @@ TEST_F(ExperimentUTest,AntMetadataManipulation) {
 
 TEST_F(ExperimentUTest,OldFilesAreOpenable) {
 	EXPECT_NO_THROW({
-			Experiment::OpenReadOnly(TestSetup::Basedir() / "test-0.1.myrmidon");
+			Experiment::Open(TestSetup::Basedir() / "test-0.1.myrmidon");
 		});
 }
 
@@ -618,7 +599,7 @@ TEST_F(ExperimentUTest,WillNotOpenFileQhichAreTooRecent) {
 	auto path = TestSetup::Basedir() / "test-future.myrmidon";
 
 	try {
-		Experiment::OpenReadOnly(path);
+		Experiment::Open(path);
 		ADD_FAILURE() << "Opening " << path << " should have thrown a std::runtime_error";
 	} catch ( const std::runtime_error & e) {
 		std::ostringstream expected;

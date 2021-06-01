@@ -134,40 +134,13 @@ Experiment::Ptr Experiment::Create(const fs::path & filename) {
 	return std::shared_ptr<Experiment>(new Experiment(filename));
 }
 
-Experiment::Ptr Experiment::NewFile(const fs::path & filepath) {
-	auto absolutePath = fs::absolute(fs::weakly_canonical(filepath));
-	if ( fs::exists(absolutePath) == true ) {
-		throw std::runtime_error("'" + filepath.string() + "' already exists");
-	}
-	auto base = absolutePath;
-	base.remove_filename();
-	auto res = Create(absolutePath);
-
-	fs::create_directories(base);
-	res->Save(absolutePath);
-	return res;
-}
 
 Experiment::Ptr Experiment::Open(const fs::path & filepath) {
-	auto lock = std::make_shared<ExperimentLock>(filepath,false);
-	auto res =  ExperimentReadWriter::Open(filepath);
-	res->d_lock = lock;
-	return res;
+	return ExperimentReadWriter::Open(filepath);
 }
 
-
-Experiment::ConstPtr Experiment::OpenReadOnly(const fs::path & filepath) {
-	auto lock = std::make_shared<ExperimentLock>(filepath,true);
-	auto res = ExperimentReadWriter::Open(filepath);
-	res->d_lock = lock;
-	return res;
-}
-
-Experiment::ConstPtr Experiment::OpenDataLess(const fs::path & filepath) {
-	auto lock = std::make_shared<ExperimentLock>(filepath,true);
-	auto res = ExperimentReadWriter::Open(filepath,true);
-	res->d_lock = lock;
-	return res;
+Experiment::Ptr Experiment::OpenDataLess(const fs::path & filepath) {
+	return ExperimentReadWriter::Open(filepath,true);
 }
 
 void Experiment::Save(const fs::path & filepath) {
@@ -183,15 +156,10 @@ void Experiment::Save(const fs::path & filepath) {
 		touching.open(filepath.c_str(),std::ios_base::app);
 	}
 
-	auto lock = d_lock;
-	if ( !lock || filepath != d_absoluteFilepath ) {
-		lock = std::make_shared<ExperimentLock>(filepath,false);
-	}
 	ExperimentReadWriter::Save(*this,filepath);
 	if ( filepath != d_absoluteFilepath ) {
 		d_absoluteFilepath = filepath;
 	}
-	d_lock = lock;
 }
 
 Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {
@@ -697,10 +665,6 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 CollisionSolver::ConstPtr Experiment::CompileCollisionSolver() const {
 	return std::make_shared<CollisionSolver>(d_universe->Spaces(),
 	                                         d_identifier->Ants());
-}
-
-void Experiment::UnlockFile() {
-	d_lock.reset();
 }
 
 

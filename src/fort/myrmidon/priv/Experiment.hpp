@@ -19,9 +19,6 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-class ExperimentLock;
-
-
 using namespace fort::myrmidon;
 
 // Entry point of the myrmidon private interface
@@ -49,6 +46,7 @@ public :
 
 	// A Pointer to an Experiment.
 	typedef std::shared_ptr<Experiment>       Ptr;
+	// A Pointer to a const Experiment.
 	typedef std::shared_ptr<const Experiment> ConstPtr;
 
 	// Opens an existing experiment given its fs::path
@@ -57,20 +55,13 @@ public :
 	static Ptr Open(const fs::path & filename);
 
 
-	// Opens an existing experiment given its fs::path
-	// @filename the fs::path to the ".myrmidon" file
-	// @return a <Ptr> to the <Experiment>.
-	static ConstPtr OpenReadOnly(const fs::path & filename);
-
 	// Opens an existing experiment given its fs::path, without
 	// opening any actual data.
 	//
 	// @filename the fs::path to the ".myrmidon" file
 	//
 	// @return a <Ptr> to the <Experiment>.
-	static ConstPtr OpenDataLess(const fs::path & filename);
-
-
+	static Ptr OpenDataLess(const fs::path & filename);
 
 	// Creates a new <Experiment> given a fs::path
 	// @filename the fs::path to the ".myrmidon" file
@@ -80,15 +71,6 @@ public :
 	// itself.** Use either <NewFile> or <Save>
 	// @return a <Ptr> to the empty <Experiment>
 	static Ptr Create(const fs::path & filename);
-
-	// Creates a new <Experiment> on the filesystem.
-	// @filename the fs::path to the ".myrmidon" file
-	//
-	// Creates a new experiment and save it on a new file.
-	// TODO: Is it too much. mconsider removing it.
-	// @return a <Ptr> to the empty <Experiment>
-	static Ptr NewFile(const fs::path & filename);
-
 
 	virtual ~Experiment();
 
@@ -294,8 +276,6 @@ public :
 	// @return the right ratio
 	static double CornerWidthRatio(fort::tags::Family f);
 
-	void UnlockFile();
-
 private:
 	typedef std::map<MeasurementTypeID,
 	                 std::map<TagID,
@@ -329,7 +309,6 @@ private:
 
 	AntShapeTypeContainerPtr             d_antShapeTypes;
 	fort::myrmidon::priv::AntMetadataPtr d_antMetadata;
-	std::shared_ptr<ExperimentLock>      d_lock;
 };
 
 } //namespace priv
