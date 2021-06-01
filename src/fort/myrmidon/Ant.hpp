@@ -301,6 +301,9 @@ private:
 	// from <Experiment>.
 	Ant(const PPtr & pAnt);
 
+	Ant & operator=(const Ant &) = delete;
+	Ant(const Ant &) = delete;
+
 	PPtr d_p;
 };
 

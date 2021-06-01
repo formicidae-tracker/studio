@@ -35,7 +35,7 @@ std::string Experiment::AbsoluteFilePath() const {
 }
 
 Space::Ptr Experiment::CreateSpace(const std::string & name) {
-	return std::make_shared<Space>(d_p->CreateSpace(name));
+	return Space::Ptr(new Space(d_p->CreateSpace(name)));
 }
 
 void Experiment::DeleteSpace(Space::ID spaceID) {
@@ -45,7 +45,7 @@ void Experiment::DeleteSpace(Space::ID spaceID) {
 std::map<Space::ID,Space::Ptr> Experiment::Spaces() {
 	std::map<Space::ID,Space::Ptr> res;
 	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
-		res.insert(std::make_pair(spaceID,std::make_shared<Space>(space)));
+		res.insert(std::make_pair(spaceID,Space::Ptr(new Space(space))));
 	}
 	return res;
 }
@@ -88,11 +88,11 @@ Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
 	                                             tagID,
 	                                             start,
 	                                             end);
-	return std::make_shared<Identification>(i);
+	return Identification::Ptr(new Identification(i));
 }
 
 void Experiment::DeleteIdentification(const Identification::Ptr & identification) {
-	d_p->Identifier()->DeleteIdentification(identification->ToPrivate());
+	d_p->Identifier()->DeleteIdentification(identification->d_p);
 }
 
 

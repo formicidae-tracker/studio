@@ -7,6 +7,24 @@
 
 #include "Types.hpp"
 
+
+namespace fort {
+namespace myrmidon {
+class Identification;
+class Experiment;
+
+}
+}
+
+// Formats an Identification to an std::ostream
+// @out the stream to format to
+// @identification the <fort::myrmidon::Identification> to format
+//
+// @return a reference to <out>
+std::ostream & operator<<(std::ostream & out,
+                          const fort::myrmidon::Identification & identification);
+
+
 namespace fort {
 namespace myrmidon {
 
@@ -52,14 +70,8 @@ public:
 	// A pointer to an Identification
 	typedef std::shared_ptr<Identification>       Ptr;
 
-	// A pointer to a const Identification
-	typedef std::shared_ptr<const Identification> ConstPtr;
-
 	// A list of Identification
 	typedef std::vector<Ptr>                      List;
-
-	// A list of Identification
-	typedef std::vector<ConstPtr>                 ConstList;
 
 	// Gets the TagID of this Identification
 	//
@@ -211,8 +223,15 @@ public:
 	// ```
 	void ClearUserDefinedAntPose();
 
+private:
+	friend class Ant;
+	friend class Experiment;
+	friend std::ostream & ::operator<<(std::ostream &, const Identification&);
+
 	// An opaque pointer to implementation
 	typedef std::shared_ptr<priv::Identification> PPtr;
+
+	PPtr d_p;
 
 	// Private implementation constructor
 	// @pptr opaque pointer to implementation
@@ -221,14 +240,8 @@ public:
 	// from <Experiment> and accessed from <Ant>
 	Identification(const PPtr & pptr);
 
-	// Private implementation downcaster
-	//
-	// @return the opaque private implementation
-	const PPtr & ToPrivate() const;
-
-private:
-
-	PPtr d_p;
+	Identification & operator= (const Identification &) = delete;
+	Identification(const Identification &) = delete;
 };
 
 // Exception when two <Identification> overlaps in time.
@@ -255,15 +268,5 @@ private:
 
 
 
-
-
 } // namespace fort
 } // namespace myrmidon
-
-// Formats an Identification to an std::ostream
-// @out the stream to format to
-// @identification the <fort::myrmidon::Identification> to format
-//
-// @return a reference to <out>
-std::ostream & operator<<(std::ostream & out,
-                          const fort::myrmidon::Identification & identification);

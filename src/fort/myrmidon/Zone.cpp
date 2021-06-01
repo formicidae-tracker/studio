@@ -41,29 +41,17 @@ void ZoneDefinition::SetEnd(const Time & end) {
 	d_p->SetEnd(end);
 }
 
-ZoneDefinition Zone::AddDefinition(const Shape::ConstList & geometry,
+ZoneDefinition::Ptr Zone::AddDefinition(const Shape::ConstList & geometry,
                                    const Time & start,
                                    const Time & end) {
-	return ZoneDefinition(d_p->AddDefinition(Shape::PrivateListCast(geometry),
-	                                         start,end));
+	return ZoneDefinition::Ptr(new ZoneDefinition(d_p->AddDefinition(Shape::PrivateListCast(geometry),
+	                                                                 start,end)));
 }
-
-ZoneDefinition::ConstList Zone::Definitions() const {
-	return CDefinitions();
-}
-
-ZoneDefinition::ConstList Zone::CDefinitions() const {
-	ZoneDefinition::ConstList res;
-	for ( const auto & d : d_p->CDefinitions() ) {
-		res.push_back(std::make_shared<ZoneDefinition>(std::const_pointer_cast<priv::ZoneDefinition>(d)));
-	}
-	return res;
- }
 
 ZoneDefinition::List Zone::Definitions() {
 	ZoneDefinition::List res;
 	for ( const auto & d : d_p->Definitions() ) {
-		res.push_back(std::make_shared<ZoneDefinition>(d));
+		res.push_back(ZoneDefinition::Ptr(new ZoneDefinition(d)));
 	}
 	return res;
 }

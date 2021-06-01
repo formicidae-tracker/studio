@@ -13,10 +13,6 @@ Identification::Identification(const PPtr & pptr)
 	: d_p(pptr) {
 }
 
-const Identification::PPtr & Identification::ToPrivate() const {
-	return d_p;
-}
-
 
 TagID Identification::TagValue() const {
 	return d_p->TagValue();
@@ -85,5 +81,5 @@ std::string OverlappingIdentification::Reason(const priv::Identification & a,
 
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Identification & identification) {
-	return out << *(identification.ToPrivate());
+	return out << *identification.d_p;
 }

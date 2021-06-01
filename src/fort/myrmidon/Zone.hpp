@@ -25,12 +25,8 @@ public:
 
 	// A pointer to a ZoneDefinition
 	typedef std::shared_ptr<ZoneDefinition>       Ptr;
-	// A const pointer to a ZoneDefinition
-	typedef std::shared_ptr<const ZoneDefinition> ConstPtr;
 	// A list of ZoneDefinition
-	typedef std::vector<Ptr>                       List;
-	// A const list of ZoneDefinition
-	typedef std::vector<ConstPtr>                  ConstList;
+	typedef std::vector<Ptr>                      List;
 
 	// Gets the geometry of this definition
 	//
@@ -95,6 +91,9 @@ public:
 	// ```
 	void SetEnd(const Time & end);
 
+private:
+	friend class Zone;
+
 	// Opaque implementation pointer
 	typedef std::shared_ptr<priv::ZoneDefinition> PPtr;
 
@@ -104,7 +103,10 @@ public:
 	// User cannot build Defoninition directly. They must be build and
 	// accessed from <Zone>.
 	ZoneDefinition(const PPtr & pDefinition);
-private:
+
+	ZoneDefinition & operator=( const ZoneDefinition &) = delete;
+	ZoneDefinition(const ZoneDefinition & ) = delete;
+
 	PPtr d_p;
 };
 
@@ -143,10 +145,12 @@ public:
 	// ID are unique within the same <Space>. Zone from two different
 	// <Space> can have the same <ZoneID>.
 	typedef uint32_t                    ID;
+
+	// A pointer to a Zone
+	typedef std::shared_ptr<Zone>       Ptr;
+
 	// A map of Zone indexed by <ZoneID>
-	typedef std::map<ID,Zone>            ByID;
-	// A map of const Zone indexed by <ZoneID>
-	typedef std::map<ID,const Zone>      ConstByID;
+	typedef std::map<ID,Zone::Ptr>      ByID;
 
 
 	// Adds a new timed Definition
@@ -166,32 +170,9 @@ public:
 	// ```
 	//
 	// @return the new <ZoneDefinition>
-	ZoneDefinition AddDefinition(const Shape::ConstList & geometry,
-	                             const Time & start,
-	                             const Time & end);
-
-
-	// const access to the ZoneDefinition
-	//
-	// R version:
-	// ```R
-	// z$cDefinitions()
-	// ```
-	//
-	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
-	ZoneDefinition::ConstList CDefinitions() const;
-
-
-	// Gets Zone's ZoneDefinition (const overload)
-	//
-	// R version:
-	// ```R
-	// z$cDefinitions()
-	// ```
-	//
-	// @return a <ZoneDefinition::ConstList> of <ZoneDefinition> for this Zone
-	ZoneDefinition::ConstList Definitions() const;
-
+	ZoneDefinition::Ptr AddDefinition(const Shape::ConstList & geometry,
+	                                  const Time & start,
+	                                  const Time & end);
 
 	// Gets Zone's ZoneDefinition
 	//
@@ -241,6 +222,10 @@ public:
 	// @return the Zone <ID>x
 	ID ZoneID() const;
 
+
+private:
+	friend class Space;
+
 	// Opaque pointer for implementation
 	typedef std::shared_ptr<priv::Zone> PPtr;
 
@@ -251,8 +236,9 @@ public:
 	// accessed from <Space>.
 	Zone(const PPtr & pZone);
 
+	Zone & operator=( const Zone &) = delete;
+	Zone(const Zone &) = delete;
 
-private:
 	PPtr d_p;
 };
 

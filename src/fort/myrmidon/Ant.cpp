@@ -22,7 +22,7 @@ Identification::List Ant::Identifications() {
 	const auto & idents = d_p->Identifications();
 	res.reserve(idents.size());
 	for ( const auto & pIdent : idents ) {
-		res.push_back(std::make_shared<Identification>(pIdent));
+		res.push_back(Identification::Ptr(new Identification(pIdent)));
 	}
 	return res;
 }

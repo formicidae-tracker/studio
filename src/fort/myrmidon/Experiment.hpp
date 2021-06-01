@@ -567,6 +567,9 @@ private:
 	Experiment(const PPtr & pExperiment);
 
 
+	Experiment & operator=(const Experiment &) = delete;
+	Experiment(const Experiment &) = delete;
+
 	PPtr d_p;
 };
 

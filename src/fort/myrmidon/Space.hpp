@@ -32,8 +32,6 @@ class Space {
 public:
 	// A pointer to a Space
 	typedef std::shared_ptr<Space>       Ptr;
-	// A pointer to a const Space
-	typedef std::shared_ptr<const Space> ConstPtr;
 
 	// A unique ID for a Space
 	//
@@ -84,7 +82,7 @@ public:
 	// ```
 	//
 	// @return the new created <Zone>
-	Zone CreateZone(const std::string & name);
+	Zone::Ptr CreateZone(const std::string & name);
 
 	// Deletes a Zone in this Space.
 	// @ID the <Zone::ID> to delete.
@@ -105,27 +103,6 @@ public:
 	// @return a map of <Zone::ByID> of all <Zone> in this Space.
 	Zone::ByID Zones();
 
-	// Gets the Zones in this space (const)
-	//
-	// R version:
-	// ```R
-	// s$cZones()
-	// ```
-	//
-	// @return a map of <Zone::ConstByID> of all <Zone> in this Space.
-	Zone::ConstByID CZones() const;
-
-	// Gets the Zones in this space (const)
-	//
-	// R version:
-	// ```R
-	// s$cZones()
-	// ```
-	//
-	// @return a map of <Zone::ConstByID> of all <Zone> in this Space.
-	Zone::ConstByID Zones() const;
-
-
 	// Locates a movie file and frame number
 	// @time the <Time> we want a movie for.
 	//
@@ -139,6 +116,9 @@ public:
 	std::pair<std::string,uint64_t> LocateMovieFrame(const Time & time) const;
 
 
+private:
+	friend class Experiment;
+
 	// Opaque pointer for implementation
 	typedef std::shared_ptr<priv::Space> PPtr;
 
@@ -148,9 +128,11 @@ public:
 	// User cannot build Space directly. They must be build and
 	// accessed from <Experiment>.
 	Space(const PPtr & pSpace);
-private:
-	PPtr d_p;
 
+	Space & operator=(const Space &) = delete;
+	Space(const Space &) = delete;
+
+	PPtr d_p;
 };
 
 } // namespace myrmidon

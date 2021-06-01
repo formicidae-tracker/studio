@@ -24,8 +24,8 @@ void Space::SetName(const std::string & name) {
 	d_p->SetName(name);
 }
 
-Zone Space::CreateZone(const std::string & name) {
-	return Zone(d_p->CreateZone(name,0));
+Zone::Ptr Space::CreateZone(const std::string & name) {
+	return Zone::Ptr(new Zone(d_p->CreateZone(name,0)));
 }
 
 void Space::DeleteZone(Zone::ID ID) {
@@ -35,21 +35,9 @@ void Space::DeleteZone(Zone::ID ID) {
 Zone::ByID Space::Zones() {
 	Zone::ByID res;
 	for ( const auto & [zID,zone] : d_p->Zones() ) {
-		res.insert(std::make_pair(zID,Zone(zone)));
+		res.insert(std::make_pair(zID,Zone::Ptr(new Zone(zone))));
 	}
 	return res;
-}
-
-Zone::ConstByID Space::CZones() const {
-	Zone::ConstByID res;
-	for ( const auto & [zID,zone] : d_p->CZones() ) {
-		res.insert(std::make_pair(zID,Zone(std::const_pointer_cast<priv::Zone>(zone))));
-	}
-	return res;
-}
-
-Zone::ConstByID Space::Zones() const {
-	return CZones();
 }
 
 std::pair<std::string,uint64_t> Space::LocateMovieFrame(const Time & time) const {
