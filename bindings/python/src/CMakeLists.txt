@@ -1,4 +1,5 @@
-set(SRC_FILES Experiment.cpp
+set(SRC_FILES Time.cpp
+              Experiment.cpp
               Ant.cpp
               main.cpp
               )

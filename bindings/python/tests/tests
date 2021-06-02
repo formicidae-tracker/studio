@@ -1,0 +1,5 @@
+  /home/atuleu/devel/github.com/formicidae-tracker/myrmidon/bindings/python/tests:
+  total used in directory 24 available 171652908
+  drwxrwxr-x 3 atuleu atuleu 4096 juin   2 11:04 .
+  drwxrwxr-x 8 atuleu atuleu 4096 juin   2 11:19 ..
+  -rw-rw-r-- 1 atuleu atuleu  237 juin   2 11:22 test_time.py

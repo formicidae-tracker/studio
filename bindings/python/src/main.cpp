@@ -9,6 +9,7 @@
 
 namespace py = pybind11;
 
+void BindTime(py::module_ &);
 void BindAnt(py::module_ & );
 void BindExperiment(py::module_ & );
 
@@ -16,6 +17,7 @@ void BindExperiment(py::module_ & );
 PYBIND11_MODULE(py_fort_myrmidon, m) {
     m.doc() = "Bindings for libfort-myrmidon"; // optional module docstring
 
+    BindTime(m);
     BindAnt(m);
     BindExperiment(m);
 

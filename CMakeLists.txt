@@ -155,4 +155,15 @@ if(BUILD_PYTHON)
 	include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src)
 	set(FORT_MYRMIDON_LIBRARIES fort-myrmidon)
 	add_subdirectory(bindings/python/src)
+
+	add_test(NAME py_fort_myrmidon-tests
+             COMMAND ${CMAKE_COMMAND} -E env
+                     PYTHONPATH=${PROJECT_BINARY_DIR}/bindings/python/src
+                     ${PYTHON_EXECUTABLE} -m unittest discover -s tests -v
+             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/bindings/python
+             )
+
+	add_dependencies(check py_fort_myrmidon)
+
+
 endif(BUILD_PYTHON)
