@@ -1,12 +1,9 @@
-#include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <pybind11/chrono.h>
 
+#include "BindMethods.hpp"
 
 #include <fort/time/Time.hpp>
-
-namespace py = pybind11;
-
 
 
 void BindDuration(py::module_ & m) {
