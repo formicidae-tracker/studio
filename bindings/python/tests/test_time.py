@@ -1,5 +1,6 @@
 import py_fort_myrmidon as m
 import unittest
+import datetime
 
 class DurationTestCase(unittest.TestCase):
     def test_constructors(self):
@@ -50,3 +51,46 @@ class DurationTestCase(unittest.TestCase):
         with self.assertRaises(Exception):
             self.assertEqual(m.Duration.Microsecond,int(1e3))
             m.Duration.Microsecond = 0
+
+class TimeTestCase(unittest.TestCase):
+    def test_constructor(self):
+        self.assertEqual(m.Time(),m.Time(0.0))
+        self.assertEqual(m.Time(),0.0)
+
+    def test_has_infinite_support(self):
+        self.assertEqual(m.Time.SinceEver().ToTimestamp(),float('-inf'))
+        self.assertEqual(m.Time.Forever().ToTimestamp(),float('inf'))
+        self.assertEqual(m.Time(float('-inf')),m.Time.SinceEver())
+        self.assertEqual(m.Time(float('inf')),m.Time.Forever())
+
+    def test_has_math_support(self):
+        t = m.Time.Now().Round(m.Duration.Second)
+
+        # we makes a deep copy of the time we use by passing it forth
+        # and back to a float
+        u = m.Time(t.ToTimestamp())
+
+        self.assertEqual(t.Add(1).Sub(t),1)
+        self.assertEqual(t.Add(1*m.Duration.Second).Sub(t),m.Duration.Second)
+
+        # we can use the verbose comparators Equals/After/Before or
+        # the overloaded operators
+        self.assertFalse(t > t)
+        self.assertFalse(t.After(t))
+        self.assertFalse(t < t)
+        self.assertFalse(t.Before(t))
+        self.assertTrue(t.Add(1) > t)
+        self.assertTrue(t.Add(1).After(t))
+        self.assertFalse(t > t.Add(1))
+        self.assertFalse(t.After(t.Add(1)))
+        self.assertTrue(t == t)
+        self.assertTrue(t.Equals(t))
+
+        ## all modification did not modify the original t
+        self.assertEqual(t,u)
+
+    def test_formats_itself(self):
+        d = datetime.datetime(year=2019,month=11,day=2,hour=23,minute=12,second=13,microsecond=0,tzinfo=datetime.timezone.utc)
+        t = m.Time(d.timestamp())
+        self.assertEqual(t.__str__(),"2019-11-02T23:12:13Z")
+        self.assertEqual(t,m.Time.Parse("2019-11-02T23:12:13Z"))
