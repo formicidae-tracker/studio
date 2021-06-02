@@ -33,6 +33,7 @@ class DurationTestCase(unittest.TestCase):
         self.assertEqual(m.Duration.Hour.__str__(),"1h0m0s")
         self.assertEqual(m.Duration.Minute.__str__(),"1m0s")
         self.assertEqual(m.Duration.Second.__str__(),"1s")
+        self.assertEqual((34*m.Duration.Millisecond).__str__(),"34ms")
         self.assertEqual((m.Duration.Second+100*m.Duration.Microsecond).__str__(),"1.0001s")
 
     def test_constant(self):
@@ -68,7 +69,7 @@ class TimeTestCase(unittest.TestCase):
 
         # we makes a deep copy of the time we use by passing it forth
         # and back to a float
-        u = m.Time(t.ToTimestamp())
+        u = m.Time(t.ToDateTime())
 
         self.assertEqual(t.Add(1).Sub(t),1)
         self.assertEqual(t.Add(1*m.Duration.Second).Sub(t),m.Duration.Second)
@@ -89,8 +90,9 @@ class TimeTestCase(unittest.TestCase):
         ## all modification did not modify the original t
         self.assertEqual(t,u)
 
-    def test_formats_itself(self):
-        d = datetime.datetime(year=2019,month=11,day=2,hour=23,minute=12,second=13,microsecond=0,tzinfo=datetime.timezone.utc)
-        t = m.Time(d.timestamp())
-        self.assertEqual(t.__str__(),"2019-11-02T23:12:13Z")
-        self.assertEqual(t,m.Time.Parse("2019-11-02T23:12:13Z"))
+    def test_datetime_conversion(self):
+        # create a datetime from UTC, and convert it to localtime
+        d = datetime.datetime.fromisoformat("2019-11-02T23:12:13.000014+00:00").astimezone(None)
+        t = m.Time(d)
+        self.assertEqual(t,m.Time.Parse("2019-11-02T23:12:13.000014Z"))
+        self.assertEqual(d,t.ToDateTime().astimezone(None))

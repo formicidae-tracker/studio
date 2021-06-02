@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/chrono.h>
 
 
 #include <fort/time/Time.hpp>
@@ -69,6 +70,20 @@ fort::Time timeFromPythonTimestamp(const double & t) {
 	return fort::Time::FromUnix(s,ns);
 }
 
+fort::Time timeFromPythonDatetime(const std::chrono::system_clock::time_point & t) {
+	using namespace std::chrono;
+
+	auto ns = duration_cast<nanoseconds>(t.time_since_epoch() % seconds(1));
+	if ( ns.count() < 0 ) {
+		ns += seconds(1);
+	}
+
+	std::time_t ltime = system_clock::to_time_t(time_point_cast<system_clock::duration>(t - ns));
+
+	return fort::Time::FromUnix(ltime,ns.count());
+}
+
+
 void BindTime(py::module_ & m) {
 	BindDuration(m);
 
@@ -80,6 +95,10 @@ void BindTime(py::module_ & m) {
 Creates a Time from an amount of second ellapsed since epoch. Since this amount is represented as a float, only a precision of 10us is guaranted for time around years 2020. Indeed, the iEEEE 754 standard for `double` only ensure a precision of 15 significant digit, which result only to 5 sub-second digits.
 
 This function support the mapping of `float('inf')`/`float('-inf')` to `time.ForEver()/time.SinceEver()`)pydoc")
+		.def(py::init(&timeFromPythonDatetime),R"pydoc(Constructor from a datetime.datetime object
+
+Creates a Time from a datetime.datetime object. The object will be treated as a local naive datetime, i.e. not UTC, use datetime.datetime.astimezone(None) to convert the object to the appropriate timezone.
+)pydoc")
 		.def_static("SinceEver",&fort::Time::SinceEver,"A Time representing -∞")
 		.def_static("Forever",&fort::Time::Forever,"A Time representing +∞")
 		.def_static("Now",&fort::Time::Now,"A Time representing current time")
@@ -94,6 +113,17 @@ This function support the mapping of `float('inf')`/`float('-inf')` to `time.For
 			     res += 1e-9 * ts.nanos();
 			     return res;
 		     },"Returns a float as would time.time() or datetime.timestamp() would return")
+		.def("ToDateTime",
+		     [](const fort::Time & t) -> std::chrono::system_clock::time_point {
+			     if ( t.IsInfinite() == true ) {
+				     throw std::runtime_error("Cannot cast " + t.Format() + " to a datetime.datetime object");
+			     }
+			     auto ts = t.ToTimestamp();
+			     return std::chrono::system_clock::time_point(std::chrono::seconds(ts.seconds()) + std::chrono::nanoseconds(ts.nanos()));
+		     },R"pydoc(Returns a naive datetime.datetime object.
+
+Converts the Time to naïve datetime.datetime object. In order to convert it to a timezone aware object, one can use datetime.astimezone().)pydoc")
+
 		.def("Add",&fort::Time::Add,"Add a Duration to a Time")
 		.def("Round",&fort::Time::Round,"Rounds a Time to the closest Duration")
 		.def("Reminder",&fort::Time::Reminder,"Gets the remaining Duration of rounding by given Duration")
@@ -114,5 +144,6 @@ This function support the mapping of `float('inf')`/`float('-inf')` to `time.For
 		;
 
 	py::implicitly_convertible<double,fort::Time>();
+	py::implicitly_convertible<std::chrono::system_clock::time_point,fort::Time>();
 
 }
