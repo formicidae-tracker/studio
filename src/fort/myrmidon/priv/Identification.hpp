@@ -136,7 +136,8 @@ public:
 		return d_antToTag;
 	}
 
-	void ComputePositionFromTag(Vector2dRef antPosition,
+	void ComputePositionFromTag(double & x,
+	                            double & y,
 	                            double & angle,
 	                            const Eigen::Vector2d & tagPosition,
 	                            double tagAngle) const;

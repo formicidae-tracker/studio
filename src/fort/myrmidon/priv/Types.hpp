@@ -38,8 +38,8 @@ typedef std::unordered_map<std::string,const std::vector<AntTimedValue> > AntCon
 
 typedef Eigen::Ref<Eigen::Vector2d> Vector2dRef;
 
-typedef Eigen::Ref<Eigen::Matrix<double,1,5,Eigen::RowMajor>>       PositionedAntRef;
-typedef Eigen::Ref<const Eigen::Matrix<double,1,5,Eigen::RowMajor>> PositionedAntConstRef;
+typedef Eigen::Ref<IdentifiedFrame::PositionMatrix>       PositionedAntRef;
+typedef Eigen::Ref<const IdentifiedFrame::PositionMatrix> PositionedAntConstRef;
 
 
 

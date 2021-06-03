@@ -80,7 +80,8 @@ IdentifiedFrame::Ptr RawFrame::IdentifyFrom(const IdentifierIF & identifier,Spac
 		res->Positions(index,0) = identification->Target()->AntID();
 		res->Positions(index,4) = 0;
 
-		identification->ComputePositionFromTag(res->Positions.block<1,2>(index,1).transpose(),
+		identification->ComputePositionFromTag(res->Positions(index,1),
+		                                       res->Positions(index,2),
 		                                       res->Positions(index,3),
 		                                       Eigen::Vector2d(t.x(),t.y()),
 		                                       t.theta());
