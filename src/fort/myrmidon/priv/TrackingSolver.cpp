@@ -21,17 +21,22 @@ IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameRead
 	res->FrameTime = Time::FromTimestamp(frame.time());
 	res->Width = frame.width();
 	res->Height = frame.height();
-	res->Positions.reserve(frame.tags().size());
-	Eigen::Vector2d position;
-	double angle;
+	res->Positions.resize(frame.tags().size(),5);
+	size_t index = 0;
 	for ( const auto & t : frame.tags() ) {
 		auto identification = d_identifier->Identify(t.id(),res->FrameTime);
 		if ( !identification == true ) {
 			continue;
 		}
-		identification->ComputePositionFromTag(position,angle,Eigen::Vector2d(t.x(),t.y()),t.theta());
-		res->Positions.push_back({position,angle,identification->Target()->AntID()});
+		res->Positions(index,0) = identification->Target()->AntID();
+		res->Positions(index,4) = 0;
+		identification->ComputePositionFromTag(res->Positions.block<1,2>(index,1).transpose(),
+		                                       res->Positions(index,3),
+		                                       Eigen::Vector2d(t.x(),t.y()),
+		                                       t.theta());
+		++index;
 	}
+	res->Positions.conservativeResize(index,5);
 	return res;
 }
 

@@ -36,6 +36,10 @@ typedef std::pair<Time,AntStaticValue>   AntTimedValue;
 typedef std::unordered_map<std::string,std::vector<AntTimedValue> > AntDataMap;
 typedef std::unordered_map<std::string,const std::vector<AntTimedValue> > AntConstDataMap;
 
+typedef Eigen::Ref<Eigen::Vector2d> Vector2dRef;
+
+typedef Eigen::Ref<Eigen::Matrix<double,1,5,Eigen::RowMajor>>       PositionedAntRef;
+typedef Eigen::Ref<const Eigen::Matrix<double,1,5,Eigen::RowMajor>> PositionedAntConstRef;
 
 
 

@@ -6,11 +6,7 @@ namespace fort {
 namespace myrmidon {
 
 bool IdentifiedFrame::Contains(uint64_t antID) const {
-	return std::find_if(Positions.cbegin(),
-	                    Positions.cend(),
-	                    [antID](const PositionedAnt & ant) {
-		                    return antID == ant.ID;
-	                    }) != Positions.cend();
+	return (Positions.array().col(0) == double(antID)).any();
 }
 
 Time AntTrajectory::End() const {

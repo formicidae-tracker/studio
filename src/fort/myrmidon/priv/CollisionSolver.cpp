@@ -73,15 +73,16 @@ AntZoner::AntZoner(const ZoneGeometries & zoneGeometries)
 	: d_zoneGeometries(zoneGeometries) {
 }
 
-ZoneID AntZoner::LocateAnt(const PositionedAnt & ant) const {
+ZoneID AntZoner::LocateAnt(PositionedAntRef ant) const {
 	auto fi =  std::find_if(d_zoneGeometries.begin(),
 	                        d_zoneGeometries.end(),
 	                        [&ant](const std::pair<ZoneID,Zone::Geometry::ConstPtr> & iter ) -> bool {
-		                        return iter.second->Contains(ant.Position);
+		                        return iter.second->Contains(ant.block<1,2>(0,1).transpose());
 	                        });
 	if ( fi == d_zoneGeometries.end() ) {
 		return 0;
 	}
+	ant(0,4) = fi->first;
 	return fi->first;
 }
 
@@ -92,18 +93,15 @@ void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
 	auto zoner = ZonerFor(frame);
 
 	// now for each geometry. we test if the ants is in the zone
-	frame->Zones.reserve(frame->Positions.size());
-	for ( const auto & p : frame->Positions ) {
-		auto zoneID = zoner->LocateAnt(p);
-		locatedAnts[zoneID].push_back(p);
-		frame->Zones.push_back(zoneID);
+	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
+		ZoneID zoneID = zoner->LocateAnt(frame->Positions.row(i));
+		locatedAnts[zoneID].push_back(frame->Positions.row(i));
 	}
-
 }
 
 
 void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
-                                        const std::vector<PositionedAnt> & ants,
+                                        const std::vector<PositionedAntConstRef> & ants,
                                         ZoneID zoneID) const {
 
 	//first-pass we compute possible interactions
@@ -126,16 +124,17 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 	std::vector<KDT::Element> nodes;
 
 	for ( const auto & ant : ants) {
-		auto fiGeom = d_antGeometries.find(ant.ID);
+		AntID antID = ant(0,0);
+		auto fiGeom = d_antGeometries.find(antID);
 		if ( fiGeom == d_antGeometries.end() ) {
 			continue;
 		}
-		Isometry2Dd antToOrig(ant.Angle,ant.Position);
+		Isometry2Dd antToOrig(ant(0,3),ant.block<1,2>(0,1).transpose());
 
 		for ( const auto & [typeID,c] : fiGeom->second ) {
 			auto data =
 				AntTypedCapsule { .C = c.Transform(antToOrig),
-				                  .ID = uint32_t(ant.ID),
+				                  .ID = antID,
 				                  .TypeID = typeID,
 			};
 			nodes.push_back({.Object = data, .Volume = data.C.ComputeAABB() });

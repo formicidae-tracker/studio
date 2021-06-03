@@ -19,7 +19,7 @@ public:
 
 	AntZoner(const ZoneGeometries & zoneGeometries);
 
-	ZoneID LocateAnt(const PositionedAnt & ant) const;
+	ZoneID LocateAnt(PositionedAntRef antRow) const;
 private:
 	ZoneGeometries d_zoneGeometries;
 };
@@ -38,17 +38,17 @@ public:
 	CollisionFrame::ConstPtr
 	ComputeCollisions(const IdentifiedFrame::Ptr & frame) const;
 private:
-	typedef DenseMap<AntID,Ant::TypedCapsuleList>                    AntGeometriesByID;
-	typedef TimeMap<ZoneID,ZoneDefinition::ConstPtr>                 ZoneDefinitionsByTime;
-	typedef DenseMap<SpaceID,ZoneDefinitionsByTime>                  DefinitionsBySpaceID;
-	typedef DenseMap<SpaceID,std::vector<ZoneID>>                    ZoneIDsBySpaceID;
-	typedef std::unordered_map<Zone::ID,std::vector<PositionedAnt> > LocatedAnts;
+	typedef DenseMap<AntID,Ant::TypedCapsuleList>                           AntGeometriesByID;
+	typedef TimeMap<ZoneID,ZoneDefinition::ConstPtr>                        ZoneDefinitionsByTime;
+	typedef DenseMap<SpaceID,ZoneDefinitionsByTime>                         DefinitionsBySpaceID;
+	typedef DenseMap<SpaceID,std::vector<ZoneID>>                           ZoneIDsBySpaceID;
+	typedef std::unordered_map<Zone::ID,std::vector<PositionedAntConstRef>> LocatedAnts;
 
 	void LocateAnts(LocatedAnts & locatedAnts,
 	                const IdentifiedFrame::Ptr & frame) const;
 
 	void ComputeCollisions(std::vector<Collision> &  result,
-	                       const std::vector<PositionedAnt> & ants,
+	                       const std::vector<PositionedAntConstRef> & positions,
 	                       ZoneID zoneID) const;
 
 	AntGeometriesByID    d_antGeometries;

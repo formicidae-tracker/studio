@@ -76,11 +76,11 @@ struct ComputedMeasurement {
 	// A list of measurement
 	typedef std::vector<ComputedMeasurement> List;
 	// The <Time> of the Measurement
-	Time   MTime;
+	fort::Time Time;
 	// the value in mm of the measurement
-	double LengthMM;
+	double     LengthMM;
 	// the value of the measurement in pixels
-	double LengthPixel;
+	double     LengthPixel;
 };
 // Statistics about a <TagID> in the experiment.
 struct TagStatistics {
@@ -122,27 +122,16 @@ struct TagStatistics {
 	CountVector Counts;
 };
 
-// A PositionnedAnt gives an <Ant> position and orientation in a
-// <IdentifiedFrame>
-struct PositionedAnt {
-	// Memory management issue with Eigen
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	// The position in the image.
-	Eigen::Vector2d Position;
-	// The angle in the image
-	double          Angle;
-	// The <AntID> this position refers to.
-	AntID        ID;
-};
-// A List of <PositionedAnt>
-typedef std::vector<PositionedAnt,Eigen::aligned_allocator<PositionedAnt>> PositionedAntList;
-
 // A visual frame were <Ant> have been identified from their <TagID>
 struct IdentifiedFrame {
 	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<IdentifiedFrame>       Ptr;
 	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
+
+	// A Matrix of posi
+	typedef Eigen::Matrix<double,Eigen::Dynamic,5,Eigen::RowMajor> PositionMatrix;
+
 	// The <Time> at which this frame was taken.
 	Time              FrameTime;
 	// The <Space> this frame belongs to
@@ -152,14 +141,15 @@ struct IdentifiedFrame {
 	// The width of the frame
 	size_t            Width;
 	// The list of identified <Ant> in the frame
-	PositionedAntList Positions;
-	// optionnal Zones for ants
-	std::vector<ZoneID> Zones;
+	PositionMatrix    Positions;
+
 	// Tests if the frame contains an <Ant>
 	// @antID the <AntID> of the <Ant> to test for.
 	//
 	// @return `true` if <antID> is in <Positions>
 	bool Contains(uint64_t antID) const;
+
+	std::tuple<AntID,Eigen::Ref<Eigen::Vector3d>,ZoneID> At(size_t index) const;
 };
 
 // Designates an interaction between two <Ant>
@@ -232,12 +222,8 @@ struct AntTrajectory {
 	// * fourth column: Angle in ]-π,π], in trigonometric
 	//   orientation. As in images Y axis points bottom, positove
 	//   angle appears clockwise.
-	Eigen::Matrix<double,Eigen::Dynamic,4> Positions;
-	// Reports zone of ant if asked.
-	//
-	// Optional vector of either size 0 or Data.rows(). O value means
-	// currentlty not in a zone.
-	std::vector<uint32_t>                  Zones;
+	// * fith column: the zone of the ant
+	Eigen::Matrix<double,Eigen::Dynamic,5> Positions;
 
 	// End <Time> for this Trajectory
 	//

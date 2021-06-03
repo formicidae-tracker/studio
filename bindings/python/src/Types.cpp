@@ -37,10 +37,38 @@ void BindAntStaticValue(py::module_ & m) {
 		;
 
 
+
 }
 
+void BindComputedMeasurement(py::module_ & m) {
+	using namespace fort::myrmidon;
+	py::class_<ComputedMeasurement>(m,"ComputedMeasurement")
+		// .def("Time",&ComputedMeasurement::Time)
+		// .def("LengthMM",&ComputedMeasurement::LengthMM)
+		// .def("LengthPixel",&ComputedMeasurement::LengthPixel)
+		;
+}
+
+void BindTagStatistics(py::module_ & m) {
+	using namespace fort::myrmidon;
+	py::class_<TagStatistics>(m,"TagStatistics")
+		.def_readonly("TagID",&TagStatistics::ID)
+		.def_readonly("FirstSeen",&TagStatistics::FirstSeen)
+		.def_readonly("LastSeen",&TagStatistics::LastSeen)
+		// .def_readonly("Counts",
+		//               [](const TagStatistics & ts) -> const TagStatistics::CountVector & {
+		// 	              return ts.Counts;
+		//               },
+		//               py::return_value_policy::reference_internal)
+		;
+}
+
+void BindPositionnedAnt(py::module_ & m) {
+	using namespace fort::myrmidon;
+}
 
 void BindTypes(py::module_ & m) {
 	BindTime(m);
 	BindAntStaticValue(m);
+	BindComputedMeasurement(m);
 }

@@ -28,12 +28,15 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 	debug.setTo(cv::Scalar(255,255,255));
 
 	std::map<int,cv::Point> converted;
-	for ( const auto & p : frame->Positions ) {
-		converted.insert(std::make_pair(p.ID,
-		                                cv::Point(p.Position.x(),
-		                                          p.Position.y())/3));
-		auto ant = ants.at(p.ID);
-		auto antIso = Isometry2Dd(p.Angle,p.Position);
+	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
+		AntID antID = frame->Positions(i,0);
+		Eigen::Vector2d position = frame->Positions.block<1,2>(i,1).transpose();
+		double angle = frame->Positions(i,3);
+		converted.insert(std::make_pair(antID,
+		                                cv::Point(position.x(),
+		                                          position.y())/3));
+		auto ant = ants.at(antID);
+		auto antIso = Isometry2Dd(angle,position);
 		for ( const auto & [t,c] : ant->Capsules() ) {
 			auto color = t == 1 ? cv::Scalar(0,255,0) : cv::Scalar(255,0,255);
 			auto cc = c.Transform(antIso);
@@ -85,6 +88,7 @@ void CollisionSolverUTest::SetUpTestSuite() {
 	auto metadata = std::make_shared<AntMetadata>();
 	shapeTypes->Create("body",1);
 	shapeTypes->Create("antennas",2);
+	identifiedFrame->Positions.resize(200,5);
 	for ( size_t i = 0; i < 200; ++i ) {
 		auto ant = std::make_shared<Ant>(shapeTypes,
 		                                 metadata,
@@ -102,11 +106,12 @@ void CollisionSolverUTest::SetUpTestSuite() {
 
 		ants.insert(std::make_pair(ant->AntID(),ant));
 
-		identifiedFrame->Positions.push_back(PositionedAnt{.Position = Eigen::Vector2d(xPos(e1),yPos(e1)),
-		                                                   .Angle = angle(e1),
-		                                                   .ID = ant->AntID(),
+		identifiedFrame->Positions(i,0) = ant->AntID();
+		identifiedFrame->Positions(i,1) = xPos(e1);
+		identifiedFrame->Positions(i,2) = yPos(e1);
+		identifiedFrame->Positions(i,3) = angle(e1);
+		identifiedFrame->Positions(i,4) = 0;
 
-			});
 	}
 
 
@@ -127,35 +132,36 @@ void CollisionSolverUTest::SetUpTestSuite() {
 	                    Time::SinceEver(),Time::Forever());
 
 	collisions = NaiveCollisions();
-
 	debugToImage(frame,collisions,ants);
 }
 
 
 CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
-	std::unordered_map<Zone::ID,std::vector<PositionedAnt> > locatedAnt;
-	for ( const auto & p : frame->Positions ) {
+	std::unordered_map<Zone::ID,std::vector<PositionedAntConstRef> > locatedAnt;
+	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
 		bool found =  false;
 		for ( const auto & [zID,zone] : universe->Spaces().at(1)->Zones() ) {
-			if ( zone->AtTime(Time())->Contains(p.Position) == true ) {
-				locatedAnt[zID].push_back(p);
+			if ( zone->AtTime(Time())->Contains(frame->Positions.block<1,2>(i,1).transpose()) == true ) {
+				locatedAnt[zID].push_back(frame->Positions.row(i));
 				found = true;
 				break;
 			}
 		}
 		if ( found == false ) {
-			locatedAnt[0].push_back(p);
+			locatedAnt[0].push_back(frame->Positions.row(i));
 		}
 	}
 
 	auto collides =
-		[](const PositionedAnt & a,
-		   const PositionedAnt & b) {
+		[](const PositionedAntConstRef & a,
+		   const PositionedAntConstRef & b) {
 			std::vector<std::pair<uint32_t,uint32_t>> res;
-			auto aAnt = ants.at(a.ID);
-			auto bAnt = ants.at(b.ID);
-			Isometry2Dd aIso(a.Angle,a.Position);
-			Isometry2Dd bIso(b.Angle,b.Position);
+			AntID aID = a(0,0);
+			AntID bID = b(0,0);
+			auto aAnt = ants.at(aID);
+			auto bAnt = ants.at(bID);
+			Isometry2Dd aIso(a(0,3),a.block<1,2>(0,1).transpose());
+			Isometry2Dd bIso(b(0,3),b.block<1,2>(0,1).transpose());
 			for ( const auto & [aType,aC] : aAnt->Capsules() ) {
 				Capsule aCapsule = aC.Transform(aIso);
 				for ( const auto & [bType,bC] : bAnt->Capsules() ) {
@@ -181,7 +187,7 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 			for ( size_t j = i+1; j < ants.size(); ++j ) {
 				auto collisions = collides(ants[i],ants[j]);
 				if ( collisions.rows() != 0 )  {
-					res->Collisions.push_back({std::make_pair(ants[i].ID,ants[j].ID),
+					res->Collisions.push_back({std::make_pair(ants[i](0,0),ants[j](0,0)),
 					                             collisions,
 					                             zID});
 				}

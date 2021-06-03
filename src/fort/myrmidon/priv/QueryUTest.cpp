@@ -71,8 +71,8 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 	ASSERT_EQ(identifieds.size(),600);
 	for ( const auto & frame : identifieds ) {
 		EXPECT_EQ(frame->Space,1);
-		ASSERT_EQ(frame->Positions.size(),1);
-		ASSERT_EQ(frame->Positions[0].ID,1);
+		ASSERT_EQ(frame->Positions.size(),5);
+		ASSERT_EQ(AntID(frame->Positions(0,0)),1);
 	}
 
 	auto t = experiment->CSpaces().begin()->second->TrackingDataDirectories().front()->StartDate();

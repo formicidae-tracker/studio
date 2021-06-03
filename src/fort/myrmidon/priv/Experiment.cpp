@@ -473,7 +473,7 @@ void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & re
 			for ( ; start != end; ++start ) {
 				double distancePixel = (start->second->StartFromTag() - start->second->EndFromTag()).norm();
 				double distanceMM = distancePixel * tagSizeMM /start->second->TagSizePx();
-				result.push_back(ComputedMeasurement{.MTime = start->first,
+				result.push_back(ComputedMeasurement{.Time = start->first,
 				                                     .LengthMM = distanceMM,
 				                                     .LengthPixel = distancePixel,
 					});

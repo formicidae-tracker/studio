@@ -129,14 +129,14 @@ bool Identification::UseDefaultTagSize() const {
 	return d_tagSize == DEFAULT_TAG_SIZE;
 }
 
-void Identification::ComputePositionFromTag(Eigen::Vector2d & position,
-                                            double & angle,
+void Identification::ComputePositionFromTag(Vector2dRef antPosition,
+                                            double & antAngle,
                                             const Eigen::Vector2d & tagPosition,
                                             double tagAngle) const {
 	Isometry2Dd tagToOrig(tagAngle,tagPosition);
 	auto antToOrig = tagToOrig * d_antToTag;
-	position = antToOrig.translation();
-	angle = antToOrig.angle();
+	antPosition = antToOrig.translation();
+	antAngle = antToOrig.angle();
 }
 
 

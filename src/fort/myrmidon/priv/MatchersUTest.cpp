@@ -152,9 +152,10 @@ TEST_F(MatchersUTest,DistanceMatcher) {
 
 
 	auto identifiedFrame = std::make_shared<IdentifiedFrame>();
-	identifiedFrame->Positions.push_back({{0,0},0,1});
-	identifiedFrame->Positions.push_back({{0,12},0,2});
-	identifiedFrame->Positions.push_back({{0,8},0,3});
+	identifiedFrame->Positions.resize(3,5);
+	identifiedFrame->Positions.row(0) << 1,0,0,0,0;
+	identifiedFrame->Positions.row(1) << 2,0,12,0,0;
+	identifiedFrame->Positions.row(2) << 3,0,8,0,0;
 	auto collisionFrame = std::make_shared<CollisionFrame>();
 
 	ASSERT_NO_THROW({ greaterMatcher->SetUpOnce({}); });
@@ -191,9 +192,10 @@ TEST_F(MatchersUTest,AngleMatcher) {
 
 
 	auto identifiedFrame = std::make_shared<IdentifiedFrame>();
-	identifiedFrame->Positions.push_back({{0,0},0,1});
-	identifiedFrame->Positions.push_back({{0,0},M_PI/5,2});
-	identifiedFrame->Positions.push_back({{0,0},-M_PI/3,3});
+	identifiedFrame->Positions.resize(3,5);
+	identifiedFrame->Positions.row(0) << 1,0,0,0,0;
+	identifiedFrame->Positions.row(1) << 2,0,0,M_PI/5,0;
+	identifiedFrame->Positions.row(2) << 3,0,0,-M_PI/3,0;
 	auto collisionFrame = std::make_shared<CollisionFrame>();
 
 	ASSERT_NO_THROW({ greaterMatcher->SetUpOnce({}); });

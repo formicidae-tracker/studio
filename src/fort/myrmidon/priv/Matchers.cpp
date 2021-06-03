@@ -190,10 +190,30 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 	return std::make_shared<AntColumnMatcher>(name,value);
 }
 
-class AntDistanceMatcher : public Matcher {
+
+class AntGeometryMatcher : public Matcher {
+protected:
+	DenseMap<AntID,size_t>                   d_index;
+	IdentifiedFrame::ConstPtr                d_identifiedFrame;
+public:
+	virtual ~AntGeometryMatcher(){}
+	void SetUpOnce(const ConstAntByID & ) override {}
+	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
+	           const CollisionFrame::ConstPtr & collisionFrame) override {
+		if ( !identifiedFrame ) {
+			throw std::runtime_error("This matcher requires ant position, which are unavailable in the current context");
+		}
+		d_identifiedFrame = identifiedFrame;
+		d_index.clear();
+		for ( size_t i = 0; i < identifiedFrame->Positions.rows(); ++i) {
+			d_index.insert(std::make_pair(AntID(identifiedFrame->Positions(i,0)),i));
+		}
+	}
+};
+
+class AntDistanceMatcher : public AntGeometryMatcher {
 private:
 	double                                   d_distanceSquare;
-	DenseMap<AntID,std::pair<double,double>> d_positions;
 	bool                                     d_greater;
 public:
 	AntDistanceMatcher (double distance, bool greater)
@@ -201,32 +221,16 @@ public:
 		, d_greater(greater) {
 	}
 	virtual ~AntDistanceMatcher() {}
-	void SetUpOnce(const ConstAntByID & ants) override {
-	}
-
-	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const CollisionFrame::ConstPtr & collisionFrame) override {
-		if ( !identifiedFrame ) {
-			throw std::runtime_error("This matcher requires ant position, which are unavailable in the current context");
-		}
-		d_positions.clear();
-		for ( const auto & pa : identifiedFrame->Positions) {
-			d_positions.insert(std::make_pair(pa.ID,std::make_pair(pa.Position.x(),pa.Position.y())));
-		}
-	}
-
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
 	           const fort::myrmidon::InteractionTypes & types) override {
-		auto fi1 = d_positions.find(ant1);
-		auto fi2 = d_positions.find(ant2);
-		if ( fi1 == d_positions.end() || fi2 == d_positions.end() ) {
+		auto fi1 = d_index.find(ant1);
+		auto fi2 = d_index.find(ant2);
+		if ( fi1 == d_index.end() || fi2 == d_index.end() ) {
 			return true;
 		}
-		double sDist = (Eigen::Vector2d(fi1->second.first,
-		                                fi1->second.second)
-		                - Eigen::Vector2d(fi2->second.first,
-		                                  fi2->second.second)).squaredNorm();
+		double sDist = (d_identifiedFrame->Positions.block<1,2>(fi1->second,1)
+		                - d_identifiedFrame->Positions.block<1,2>(fi2->second,1)).squaredNorm();
 		if ( d_greater == true ) {
 			return d_distanceSquare < sDist;
 		} else {
@@ -240,10 +244,9 @@ public:
 };
 
 
-class AntAngleMatcher : public Matcher {
+class AntAngleMatcher : public AntGeometryMatcher {
 private:
 	double                 d_angle;
-	DenseMap<AntID,double> d_angles;
 	bool                   d_greater;
 public:
 	AntAngleMatcher (double angle, bool greater)
@@ -251,30 +254,17 @@ public:
 		, d_greater(greater) {
 	}
 	virtual ~AntAngleMatcher() {}
-	void SetUpOnce(const ConstAntByID & ants) override {
-
-	}
-
-	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const CollisionFrame::ConstPtr & collisionFrame) override {
-		if ( !identifiedFrame ) {
-			throw std::runtime_error("This matcher requires ant position, which are unavailable in the current context");
-		}
-		d_angles.clear();
-		for ( const auto & pa : identifiedFrame->Positions) {
-			d_angles.insert(std::make_pair(pa.ID,pa.Angle));
-		}
-	}
 
 	bool Match(fort::myrmidon::AntID ant1,
 	           fort::myrmidon::AntID ant2,
 	           const fort::myrmidon::InteractionTypes & types) override {
-		auto fi1 = d_angles.find(ant1);
-		auto fi2 = d_angles.find(ant2);
-		if ( fi1 == d_angles.end() || fi2 == d_angles.end() ) {
+		auto fi1 = d_index.find(ant1);
+		auto fi2 = d_index.find(ant2);
+		if ( fi1 == d_index.end() || fi2 == d_index.end() ) {
 			return true;
 		}
-		double angle = std::abs(fi1->second - fi2->second);
+		double angle = std::abs(d_identifiedFrame->Positions(fi1->second,3)
+		                        - d_identifiedFrame->Positions(fi2->second,3));
 		if ( d_greater == true ) {
 			return angle > d_angle;
 		} else {

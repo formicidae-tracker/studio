@@ -5,45 +5,34 @@ namespace myrmidon {
 namespace priv {
 
 DataSegmenter::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
-													  const PositionedAnt & ant,
-													  const ZoneID * zone)
+													  const PositionedAntConstRef & ant)
 	: Trajectory(std::make_shared<AntTrajectory>())
 	, Last(frame->FrameTime)
-	, DataPoints({ant.Position.x(),ant.Position.y(),ant.Angle})
-	, Durations({0.0})
+	, DataPoints({0.0,ant(0,1),ant(0,2),ant(0,3),ant(0,4)})
 	, ForceKeep(false) {
-	Trajectory->Ant = ant.ID;
+	Trajectory->Ant = ant(0,0);
 	Trajectory->Start = frame->FrameTime;
 	Trajectory->Space = frame->Space;
-
-	if ( zone != nullptr ) {
-		Zones.push_back(*zone);
-	}
 }
 
+size_t DataSegmenter::BuildingTrajectory::Size() const {
+	return DataPoints.size()/5;
+}
 
 void DataSegmenter::BuildingTrajectory::Append(const IdentifiedFrame::ConstPtr & frame,
-                                       const PositionedAnt & ant,
-                                       const ZoneID * zone) {
+                                       const PositionedAntConstRef & ant) {
 	Last = frame->FrameTime;
-	Durations.push_back(frame->FrameTime.Sub(Trajectory->Start).Seconds());
+	double t = frame->FrameTime.Sub(Trajectory->Start).Seconds();
 	DataPoints.insert(DataPoints.end(),
-	                  {ant.Position.x(),ant.Position.y(),ant.Angle});
-	if ( zone != nullptr ) {
-		Zones.push_back(*zone);
-	}
+	                  {t,ant(0,1),ant(0,2),ant(0,3),ant(0,4)});
 }
 
 
 AntTrajectory::ConstPtr DataSegmenter::BuildingTrajectory::Terminate() const {
-	if ( Durations.size() < 2 ) {
+	if ( Size() < 2 ) {
 		return AntTrajectory::ConstPtr();
 	}
-	size_t nPoints = Durations.size();
-	Trajectory->Positions.resize(nPoints,4);
-	Trajectory->Positions.block(0,1,nPoints,3) = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor>>(&DataPoints[0],nPoints,3);
-	Trajectory->Positions.block(0,0,nPoints,1) = Eigen::Map<const Eigen::VectorXd>(&Durations[0],nPoints);
-	Trajectory->Zones = Zones;
+	Trajectory->Positions = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,5,Eigen::RowMajor>>(&DataPoints[0],Size(),5);
 	return Trajectory;
 }
 
@@ -54,8 +43,8 @@ DataSegmenter::BuildingInteraction::BuildingInteraction(const Collision & collis
 	, Start(curTime)
 	, Last(curTime)
 	, Trajectories(trajectories) {
-	SegmentStarts.first = trajectories.first->Durations.size()-1;
-	SegmentStarts.second = trajectories.second->Durations.size()-1;
+	SegmentStarts.first = trajectories.first->Size()-1;
+	SegmentStarts.second = trajectories.second->Size()-1;
 	trajectories.first->ForceKeep = true;
 	trajectories.second->ForceKeep = true;
 	for ( size_t i = 0; i < collision.Types.rows(); ++i ) {
@@ -102,13 +91,13 @@ AntInteraction::ConstPtr DataSegmenter::BuildingInteraction::Terminate(bool summ
 	res->Trajectories.first = {
 							   .Trajectory = Trajectories.first->Trajectory,
 							   .Begin = SegmentStarts.first,
-							   .End = Trajectories.first->Durations.size(),
+							   .End = Trajectories.first->Size(),
 	};
 
 	res->Trajectories.second = {
 							   .Trajectory = Trajectories.second->Trajectory,
 							   .Begin = SegmentStarts.second,
-							   .End = Trajectories.second->Durations.size(),
+							   .End = Trajectories.second->Size(),
 	};
 
 	if ( summarize == true ) {
@@ -178,26 +167,20 @@ void DataSegmenter::operator()(const Query::CollisionData & data) {
 void
 DataSegmenter::BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
 								 bool conserveAllTrajectory) {
-	size_t i = 0;
-	for ( const auto & pa : identified->Positions ) {
-		const ZoneID * zone = nullptr;
-		if ( identified->Zones.size() != 0 ) {
-			zone = &(identified->Zones[i]);
-		}
-		++i;
-
+	for ( size_t i = 0; i < identified->Positions.rows(); ++i ) {
+		AntID antID = identified->Positions(i,0);
 		if ( conserveAllTrajectory == false
 			 && d_args.Matcher
-			 && d_args.Matcher->Match(pa.ID,0,{}) == false ) {
+			 && d_args.Matcher->Match(antID,0,{}) == false ) {
 			continue;
 		}
 
-		auto fi = d_trajectories.find(pa.ID);
+
+		auto fi = d_trajectories.find(antID);
 		if ( fi == d_trajectories.end() ) {
-			d_trajectories.insert(std::make_pair(pa.ID,
+			d_trajectories.insert(std::make_pair(antID,
 												 std::make_shared<BuildingTrajectory>(identified,
-																					  pa,
-																					  zone)));
+												                                      identified->Positions.row(i))));
 			continue;
 		}
 
@@ -205,9 +188,10 @@ DataSegmenter::BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
 			 || identified->FrameTime.Sub(fi->second->Last) > d_args.MaximumGap
 			 || identified->Space != fi->second->Trajectory->Space ) {
 			TerminateTrajectory(fi->second);
-			fi->second = std::make_shared<BuildingTrajectory>(identified,pa,zone);
+			fi->second = std::make_shared<BuildingTrajectory>(identified,
+			                                                  identified->Positions.row(i));
 		} else {
-			fi->second->Append(identified,pa,zone);
+			fi->second->Append(identified,identified->Positions.row(i));
 		}
 	}
 

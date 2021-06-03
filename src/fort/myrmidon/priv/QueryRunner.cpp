@@ -208,9 +208,8 @@ QueryRunner::computeData(const Experiment::ConstPtr & experiment,
 		return [identifier,collider] (const RawData & raw) {
 				   auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));
 				   auto zoner = collider->ZonerFor(identified);
-				   identified->Zones.reserve(identified->Positions.size());
-				   for ( const auto & p : identified->Positions ) {
-					   identified->Zones.push_back(zoner->LocateAnt(p));
+				   for ( size_t i = 0; i < identified->Positions.rows(); ++i ) {
+					   zoner->LocateAnt(identified->Positions.row(i));
 				   }
 				   return std::make_pair(identified,nullptr);
 			   };

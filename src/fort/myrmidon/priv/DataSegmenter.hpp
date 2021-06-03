@@ -35,17 +35,16 @@ private:
 
 		Time                  Last;
 		std::vector<double>   DataPoints;
-		std::vector<double>   Durations;
-		std::vector<uint32_t> Zones;
 		bool                  ForceKeep;
 
 		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
-		                   const PositionedAnt & ant,
-		                   const ZoneID * zone);
+		                   const PositionedAntConstRef & ant);
 
 		void Append(const IdentifiedFrame::ConstPtr & frame,
-		            const PositionedAnt & ant,
-		            const ZoneID * zone);
+		            const PositionedAntConstRef & ant);
+
+		size_t Size() const;
+
 
 		AntTrajectory::ConstPtr Terminate() const;
 	};
@@ -66,6 +65,8 @@ private:
 
 		void Append(const Collision & collision,
 		            const Time & curTime);
+
+
 
 
 		static void SummarizeTrajectorySegment(AntTrajectorySegment & s);

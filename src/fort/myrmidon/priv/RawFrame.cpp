@@ -67,18 +67,26 @@ IdentifiedFrame::Ptr RawFrame::IdentifyFrom(const IdentifierIF & identifier,Spac
 	res->FrameTime = Frame().Time();
 	res->Width = d_width;
 	res->Height = d_height;
-	res->Positions.reserve(d_tags.size());
-	Eigen::Vector2d position;
-	double angle;
+
+
+	res->Positions.resize(d_tags.size(),5);
+	size_t index = 0;
 	for ( const auto & t : d_tags ) {
 		auto identification = identifier.Identify(t.id(),res->FrameTime);
 		if ( !identification ) {
 			continue;
 		}
-		identification->ComputePositionFromTag(position,angle,Eigen::Vector2d(t.x(),t.y()),t.theta());
-		res->Positions.push_back({position,angle,identification->Target()->AntID()});
+		double angle;
+		res->Positions(index,0) = identification->Target()->AntID();
+		res->Positions(index,4) = 0;
 
+		identification->ComputePositionFromTag(res->Positions.block<1,2>(index,1).transpose(),
+		                                       res->Positions(index,3),
+		                                       Eigen::Vector2d(t.x(),t.y()),
+		                                       t.theta());
+		++index;
 	}
+	res->Positions.conservativeResize(index,5);
 	return res;
 }
 
