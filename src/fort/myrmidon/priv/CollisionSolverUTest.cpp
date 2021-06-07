@@ -19,19 +19,19 @@ namespace priv {
 IdentifiedFrame::Ptr     CollisionSolverUTest::frame;
 Space::Universe::Ptr     CollisionSolverUTest::universe;
 AntByID                  CollisionSolverUTest::ants;
-CollisionFrame::ConstPtr CollisionSolverUTest::collisions;
+CollisionFrame::Ptr      CollisionSolverUTest::collisions;
 
-void debugToImage(const IdentifiedFrame::ConstPtr & frame,
-                  const CollisionFrame::ConstPtr & collision,
+void debugToImage(const IdentifiedFrame & frame,
+                  const CollisionFrame & collision,
                   const AntByID & ants ) {
-	cv::Mat debug(frame->Height/3,frame->Width/3,CV_8UC3);
+	cv::Mat debug(frame.Height/3,frame.Width/3,CV_8UC3);
 	debug.setTo(cv::Scalar(255,255,255));
 
 	std::map<int,cv::Point> converted;
-	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
-		AntID antID = frame->Positions(i,0);
-		Eigen::Vector2d position = frame->Positions.block<1,2>(i,1).transpose();
-		double angle = frame->Positions(i,3);
+	for ( size_t i = 0; i < frame.Positions.rows(); ++i ) {
+		AntID antID = frame.Positions(i,0);
+		Eigen::Vector2d position = frame.Positions.block<1,2>(i,1).transpose();
+		double angle = frame.Positions(i,3);
 		converted.insert(std::make_pair(antID,
 		                                cv::Point(position.x(),
 		                                          position.y())/3));
@@ -48,7 +48,7 @@ void debugToImage(const IdentifiedFrame::ConstPtr & frame,
 		}
 	}
 
-	for ( const auto & inter : collision->Collisions ) {
+	for ( const auto & inter : collision.Collisions ) {
 		const auto & a = converted.at(inter.IDs.first);
 		const auto & b = converted.at(inter.IDs.second);
 		cv::line(debug,a,b,cv::Scalar(0,0,255),4);
@@ -132,11 +132,11 @@ void CollisionSolverUTest::SetUpTestSuite() {
 	                    Time::SinceEver(),Time::Forever());
 
 	collisions = NaiveCollisions();
-	debugToImage(frame,collisions,ants);
+	debugToImage(*frame,*collisions,ants);
 }
 
 
-CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
+CollisionFrame::Ptr CollisionSolverUTest::NaiveCollisions() {
 	std::unordered_map<Zone::ID,std::vector<PositionedAntConstRef> > locatedAnt;
 	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
 		bool found =  false;
@@ -201,7 +201,7 @@ CollisionFrame::ConstPtr CollisionSolverUTest::NaiveCollisions() {
 TEST_F(CollisionSolverUTest,TestE2E) {
 	auto solver = std::make_shared<CollisionSolver>(universe->Spaces(),
 	                                                  ants);
-	CollisionFrame::ConstPtr res;
+	CollisionFrame::Ptr res;
 	EXPECT_THROW({
 			frame->Space = 2;
 			res = solver->ComputeCollisions(frame);

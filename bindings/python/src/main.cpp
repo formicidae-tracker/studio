@@ -21,6 +21,8 @@ PYBIND11_MODULE(py_fort_myrmidon, m) {
     BindAnt(m);
     BindExperiment(m);
 
+    BindQuery(m);
+
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
 #else

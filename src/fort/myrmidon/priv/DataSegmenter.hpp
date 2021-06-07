@@ -14,8 +14,8 @@ namespace priv {
 class DataSegmenter {
 public:
 	struct Args {
-		std::function<void (AntTrajectory::ConstPtr &)> StoreTrajectory;
-		std::function<void (AntInteraction::ConstPtr &)> StoreInteraction;
+		std::function<void (AntTrajectory::Ptr &)> StoreTrajectory;
+		std::function<void (AntInteraction::Ptr &)> StoreInteraction;
 
 		Duration            MaximumGap;
 		priv::Matcher::Ptr  Matcher;
@@ -37,16 +37,16 @@ private:
 		std::vector<double>   DataPoints;
 		bool                  ForceKeep;
 
-		BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
+		BuildingTrajectory(const IdentifiedFrame & frame,
 		                   const PositionedAntConstRef & ant);
 
-		void Append(const IdentifiedFrame::ConstPtr & frame,
+		void Append(const IdentifiedFrame & frame,
 		            const PositionedAntConstRef & ant);
 
 		size_t Size() const;
 
 
-		AntTrajectory::ConstPtr Terminate() const;
+		AntTrajectory::Ptr Terminate() const;
 	};
 
 
@@ -71,16 +71,16 @@ private:
 
 		static void SummarizeTrajectorySegment(AntTrajectorySegment & s);
 
-		AntInteraction::ConstPtr Terminate(bool summarize) const;
+		AntInteraction::Ptr Terminate(bool summarize) const;
 	};
 
 
-	void BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
+	void BuildTrajectories(const IdentifiedFrame::Ptr & identified,
 						   bool conserveAllTrajectory);
 
 	void TerminateTrajectory(const BuildingTrajectory::Ptr & trajectory);
 
-	void BuildInteractions(const CollisionFrame::ConstPtr & collisions);
+	void BuildInteractions(const CollisionFrame::Ptr & collisions);
 
 
 

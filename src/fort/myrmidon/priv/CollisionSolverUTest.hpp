@@ -14,12 +14,12 @@ class CollisionSolverUTest : public ::testing::Test {
 protected:
 	static void SetUpTestSuite();
 
-	static CollisionFrame::ConstPtr NaiveCollisions();
+	static CollisionFrame::Ptr NaiveCollisions();
 
 	static IdentifiedFrame::Ptr      frame;
 	static Space::Universe::Ptr      universe;
 	static AntByID                   ants;
-	static CollisionFrame::ConstPtr  collisions;
+	static CollisionFrame::Ptr       collisions;
 };
 
 } // namespace priv

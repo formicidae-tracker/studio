@@ -40,7 +40,7 @@ public :
 	// modified to contains for each Ant its current zone.
 	//
 	// @return a <CollisionFrame> with all current Ant collisions.
-	CollisionFrame::ConstPtr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
+	CollisionFrame::Ptr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
 private :
 	std::shared_ptr<const Identifier> d_rawIdentifier;
 	Identifier::Compiled::ConstPtr    d_identifier;

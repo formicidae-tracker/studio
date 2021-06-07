@@ -39,7 +39,7 @@ class Query {
 public:
 
 	// Data returned by <CollideFrames>.
-	typedef std::pair<IdentifiedFrame::ConstPtr,CollisionFrame::ConstPtr> CollisionData;
+	typedef std::pair<IdentifiedFrame::Ptr,CollisionFrame::Ptr> CollisionData;
 
 	// Computes all measurement for an Ant
 	// @experiment the <Experiment> to query for
@@ -52,7 +52,7 @@ public:
 	// ```
 	//
 	// @return a <ComputedMeasurement::List> of the Measurement for the <Ant>
-	static ComputedMeasurement::List ComputeMeasurementFor(const Experiment::ConstPtr & experiment,
+	static ComputedMeasurement::List ComputeMeasurementFor(const Experiment & experiment,
 	                                                       Ant::ID antID,
 	                                                       MeasurementTypeID mTypeID);
 
@@ -81,7 +81,7 @@ public:
 	// ```
 	//
 	// @return the tag statistics index by <TagID>
-	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment::ConstPtr & experiment);
+	static TagStatistics::ByTagID ComputeTagStatistics(const Experiment & experiment);
 
 	// Arguments for IdentifyFrames
 	//
@@ -111,8 +111,8 @@ public:
 	//                       singleThreaded = FALSE,
 	//                       showProgress = FALSE)
 	// ```
-	static void IdentifyFramesFunctor(const Experiment::ConstPtr & experiment,
-	                                  std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
+	static void IdentifyFramesFunctor(const Experiment & experiment,
+	                                  std::function<void (const IdentifiedFrame::Ptr &)> storeData,
 	                                  const IdentifyFramesArgs & params = IdentifyFramesArgs());
 
 
@@ -132,8 +132,8 @@ public:
 	//                       singleThreaded = FALSE,
 	//                       showProgress = FALSE)
 	// ```
-	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::vector<IdentifiedFrame::ConstPtr> & result,
+	static void IdentifyFrames(const Experiment & experiment,
+	                           std::vector<IdentifiedFrame::Ptr> & result,
 	                           const IdentifyFramesArgs & args = IdentifyFramesArgs() );
 
 
@@ -154,7 +154,7 @@ public:
 	//                      singleThreaded = FALSE,
 	//                      showProgress = FALSE)
 	// ```
-	static void CollideFramesFunctor(const Experiment::ConstPtr & experiment,
+	static void CollideFramesFunctor(const Experiment & experiment,
 	                                 std::function<void (const CollisionData & data)> storeData,
 	                                 const QueryArgs & args = QueryArgs());
 
@@ -175,7 +175,7 @@ public:
 	//                      singleThreaded = FALSE,
 	//                      showProgress = FALSE)
 	// ```
-	static void CollideFrames(const Experiment::ConstPtr & experiment,
+	static void CollideFrames(const Experiment & experiment,
 	                          std::vector<CollisionData> & result,
 	                          const QueryArgs & args = QueryArgs());
 
@@ -219,8 +219,8 @@ public:
 	//                               singleThreaded = FALSE,
 	//                               showProgress = FALSE)
 	// ```
-	static void ComputeAntTrajectoriesFunctor(const Experiment::ConstPtr & experiment,
-	                                          std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
+	static void ComputeAntTrajectoriesFunctor(const Experiment & experiment,
+	                                          std::function<void (const AntTrajectory::Ptr &)> storeTrajectory,
 	                                          const ComputeAntTrajectoriesArgs & args = ComputeAntTrajectoriesArgs());
 
 
@@ -244,8 +244,8 @@ public:
 	//                               singleThreaded = FALSE,
 	//                               showProgress = FALSE)
 	// ```
-	static void ComputeAntTrajectories(const Experiment::ConstPtr & experiment,
-	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
+	static void ComputeAntTrajectories(const Experiment & experiment,
+	                                   std::vector<AntTrajectory::Ptr> & trajectories,
 	                                   const ComputeAntTrajectoriesArgs & args = ComputeAntTrajectoriesArgs());
 
 	// Arguments for ComputeAntInteractions
@@ -292,9 +292,9 @@ public:
 	//                               showProgress = FALSE,
 	//                               reportTrajectories = FALSE)
 	// ```
-	static void ComputeAntInteractionsFunctor(const Experiment::ConstPtr & experiment,
-	                                          std::function<void ( const AntTrajectory::ConstPtr&)> storeTrajectory,
-	                                          std::function<void ( const AntInteraction::ConstPtr&)> storeInteraction,
+	static void ComputeAntInteractionsFunctor(const Experiment & experiment,
+	                                          std::function<void ( const AntTrajectory::Ptr&)> storeTrajectory,
+	                                          std::function<void ( const AntInteraction::Ptr&)> storeInteraction,
 	                                          const ComputeAntInteractionsArgs & args = ComputeAntInteractionsArgs());
 
 
@@ -319,9 +319,9 @@ public:
 	//                               showProgress = FALSE,
 	//                               reportTrajectories = FALSE)
 	// ```
-	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-	                                   std::vector<AntTrajectory::ConstPtr> & trajectories,
-	                                   std::vector<AntInteraction::ConstPtr> & interactions,
+	static void ComputeAntInteractions(const Experiment & experiment,
+	                                   std::vector<AntTrajectory::Ptr> & trajectories,
+	                                   std::vector<AntInteraction::Ptr> & interactions,
 	                                   const ComputeAntInteractionsArgs & args = ComputeAntInteractionsArgs());
 
 

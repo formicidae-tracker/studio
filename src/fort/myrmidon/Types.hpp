@@ -126,8 +126,6 @@ struct TagStatistics {
 struct IdentifiedFrame {
 	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<IdentifiedFrame>       Ptr;
-	// A pointer to an IdentifiedFrame
-	typedef std::shared_ptr<const IdentifiedFrame> ConstPtr;
 
 	// A Matrix of posi
 	typedef Eigen::Matrix<double,Eigen::Dynamic,5,Eigen::RowMajor> PositionMatrix;
@@ -149,7 +147,7 @@ struct IdentifiedFrame {
 	// @return `true` if <antID> is in <Positions>
 	bool Contains(uint64_t antID) const;
 
-	std::tuple<AntID,Eigen::Ref<Eigen::Vector3d>,ZoneID> At(size_t index) const;
+	std::tuple<AntID,const Eigen::Ref<const Eigen::Vector3d>,ZoneID> At(size_t index) const;
 };
 
 // Designates an interaction between two <Ant>
@@ -189,7 +187,7 @@ struct Collision {
 // Reports all <Collision> happening at a given time.
 struct CollisionFrame {
 	// A pointer to a CollisionFrame
-	typedef std::shared_ptr<const CollisionFrame> ConstPtr;
+	typedef std::shared_ptr<CollisionFrame> Ptr;
 	// The <Time> when the interaction happens
 	Time                   FrameTime;
 	// Reports the <Space> this frame is taken from
@@ -202,7 +200,7 @@ struct CollisionFrame {
 // Defines a trajectory for an <Ant>
 struct AntTrajectory {
 	// A pointer to the trajectory
-	typedef std::shared_ptr<const AntTrajectory> ConstPtr;
+	typedef std::shared_ptr<AntTrajectory> Ptr;
 
 	// Reports the <AntID> of the <Ant> this trajectory refers to.
 	AntID   Ant;
@@ -235,7 +233,7 @@ struct AntTrajectory {
 // Defines a sub segment of a trajectory
 struct AntTrajectorySegment {
 	// The refering trajectory
-	AntTrajectory::ConstPtr Trajectory;
+	AntTrajectory::Ptr Trajectory;
 
 	// The starting index of the segment in the referring trajectory.
 	size_t Begin;
@@ -252,7 +250,7 @@ struct AntTrajectorySegment {
 // Defines an interaction between two Ants
 struct AntInteraction {
 	// A pointer to the interaction structure
-	typedef std::shared_ptr<const AntInteraction> ConstPtr;
+	typedef std::shared_ptr<AntInteraction> Ptr;
 
 	// The IDs of the two <Ant>.
 	//

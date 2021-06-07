@@ -4,33 +4,33 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-DataSegmenter::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame::ConstPtr & frame,
+DataSegmenter::BuildingTrajectory::BuildingTrajectory(const IdentifiedFrame & frame,
 													  const PositionedAntConstRef & ant)
 	: Trajectory(std::make_shared<AntTrajectory>())
-	, Last(frame->FrameTime)
+	, Last(frame.FrameTime)
 	, DataPoints({0.0,ant(0,1),ant(0,2),ant(0,3),ant(0,4)})
 	, ForceKeep(false) {
 	Trajectory->Ant = ant(0,0);
-	Trajectory->Start = frame->FrameTime;
-	Trajectory->Space = frame->Space;
+	Trajectory->Start = frame.FrameTime;
+	Trajectory->Space = frame.Space;
 }
 
 size_t DataSegmenter::BuildingTrajectory::Size() const {
 	return DataPoints.size()/5;
 }
 
-void DataSegmenter::BuildingTrajectory::Append(const IdentifiedFrame::ConstPtr & frame,
-                                       const PositionedAntConstRef & ant) {
-	Last = frame->FrameTime;
-	double t = frame->FrameTime.Sub(Trajectory->Start).Seconds();
+void DataSegmenter::BuildingTrajectory::Append(const IdentifiedFrame & frame,
+                                               const PositionedAntConstRef & ant) {
+	Last = frame.FrameTime;
+	double t = frame.FrameTime.Sub(Trajectory->Start).Seconds();
 	DataPoints.insert(DataPoints.end(),
 	                  {t,ant(0,1),ant(0,2),ant(0,3),ant(0,4)});
 }
 
 
-AntTrajectory::ConstPtr DataSegmenter::BuildingTrajectory::Terminate() const {
+AntTrajectory::Ptr DataSegmenter::BuildingTrajectory::Terminate() const {
 	if ( Size() < 2 ) {
-		return AntTrajectory::ConstPtr();
+		return AntTrajectory::Ptr();
 	}
 	Trajectory->Positions = Eigen::Map<const Eigen::Matrix<double,Eigen::Dynamic,5,Eigen::RowMajor>>(&DataPoints[0],Size(),5);
 	return Trajectory;
@@ -73,9 +73,9 @@ void DataSegmenter::BuildingInteraction::SummarizeTrajectorySegment(AntTrajector
 	s.End = 0;
 }
 
-AntInteraction::ConstPtr DataSegmenter::BuildingInteraction::Terminate(bool summarize) const {
+AntInteraction::Ptr DataSegmenter::BuildingInteraction::Terminate(bool summarize) const {
 	if (Start == Last ) {
-		return AntInteraction::ConstPtr();
+		return AntInteraction::Ptr();
 	}
 	auto res = std::make_shared<AntInteraction>();
 	res->IDs = IDs;
@@ -165,7 +165,7 @@ void DataSegmenter::operator()(const Query::CollisionData & data) {
 }
 
 void
-DataSegmenter::BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
+DataSegmenter::BuildTrajectories(const IdentifiedFrame::Ptr & identified,
 								 bool conserveAllTrajectory) {
 	for ( size_t i = 0; i < identified->Positions.rows(); ++i ) {
 		AntID antID = identified->Positions(i,0);
@@ -179,7 +179,7 @@ DataSegmenter::BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
 		auto fi = d_trajectories.find(antID);
 		if ( fi == d_trajectories.end() ) {
 			d_trajectories.insert(std::make_pair(antID,
-												 std::make_shared<BuildingTrajectory>(identified,
+												 std::make_shared<BuildingTrajectory>(*identified,
 												                                      identified->Positions.row(i))));
 			continue;
 		}
@@ -188,10 +188,10 @@ DataSegmenter::BuildTrajectories(const IdentifiedFrame::ConstPtr & identified,
 			 || identified->FrameTime.Sub(fi->second->Last) > d_args.MaximumGap
 			 || identified->Space != fi->second->Trajectory->Space ) {
 			TerminateTrajectory(fi->second);
-			fi->second = std::make_shared<BuildingTrajectory>(identified,
+			fi->second = std::make_shared<BuildingTrajectory>(*identified,
 			                                                  identified->Positions.row(i));
 		} else {
-			fi->second->Append(identified,identified->Positions.row(i));
+			fi->second->Append(*identified,identified->Positions.row(i));
 		}
 	}
 
@@ -244,7 +244,7 @@ void DataSegmenter::TerminateTrajectory(const BuildingTrajectory::Ptr & trajecto
 	d_args.StoreTrajectory(t);
 }
 
-void DataSegmenter::BuildInteractions(const CollisionFrame::ConstPtr & collisions) {
+void DataSegmenter::BuildInteractions(const CollisionFrame::Ptr & collisions) {
 	for ( const auto & collision : collisions->Collisions ) {
 		if ( d_args.Matcher
 			 && d_args.Matcher->Match(collision.IDs.first,

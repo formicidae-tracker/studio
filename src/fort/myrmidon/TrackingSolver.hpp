@@ -50,7 +50,7 @@ public :
 	// modified to contains for each Ant its current zone.
 	//
 	// @return a <CollisionFrame> with all current Ant collisions.
-	CollisionFrame::ConstPtr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
+	CollisionFrame::Ptr CollideFrame(const IdentifiedFrame::Ptr & identified) const;
 
 private:
 	friend class Experiment;

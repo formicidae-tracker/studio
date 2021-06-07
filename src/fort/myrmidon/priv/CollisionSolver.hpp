@@ -33,9 +33,9 @@ public:
 	CollisionSolver(const SpaceByID & spaces,
 	                const AntByID & ants);
 
-	AntZoner::ConstPtr ZonerFor(const IdentifiedFrame::ConstPtr & frame) const;
+	AntZoner::ConstPtr ZonerFor(const IdentifiedFrame & frame) const;
 
-	CollisionFrame::ConstPtr
+	CollisionFrame::Ptr
 	ComputeCollisions(const IdentifiedFrame::Ptr & frame) const;
 private:
 	typedef DenseMap<AntID,Ant::TypedCapsuleList>                           AntGeometriesByID;

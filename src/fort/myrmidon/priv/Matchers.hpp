@@ -34,8 +34,8 @@ public:
 
 	virtual void SetUpOnce(const ConstAntByID & ants) = 0;
 
-	virtual void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	                   const CollisionFrame::ConstPtr & collisionFrame) = 0;
+	virtual void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
+	                   const CollisionFrame::Ptr & collisionFrame) = 0;
 
 	virtual bool Match(fort::myrmidon::AntID ant1,
 	                   fort::myrmidon::AntID ant2,

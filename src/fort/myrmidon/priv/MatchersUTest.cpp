@@ -23,8 +23,8 @@ public:
 	void SetUpOnce(const ConstAntByID & ants) override {
 	}
 
-	void SetUp(const IdentifiedFrame::ConstPtr & identifiedFrame,
-	           const CollisionFrame::ConstPtr & collisionFrame) override{
+	void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
+	           const CollisionFrame::Ptr & collisionFrame) override{
 	};
 
 	bool Match(fort::myrmidon::AntID ant1,
@@ -46,8 +46,8 @@ public:
 class MockMatcher : public Matcher {
 public:
 	MOCK_METHOD(void,SetUpOnce,(const ConstAntByID & ants),(override));
-	MOCK_METHOD(void,SetUp,(const IdentifiedFrame::ConstPtr & f,
-	                        const CollisionFrame::ConstPtr & i),(override));
+	MOCK_METHOD(void,SetUp,(const IdentifiedFrame::Ptr & f,
+	                        const CollisionFrame::Ptr & i),(override));
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
 	                        fort::myrmidon::AntID b,
 	                        const fort::myrmidon::InteractionTypes & types), (override));

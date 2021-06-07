@@ -2,6 +2,7 @@ set(SRC_FILES Time.cpp
               Types.cpp
               Experiment.cpp
               Ant.cpp
+              Query.cpp
               main.cpp
               )
 

@@ -50,9 +50,6 @@ public:
 	// A pointer to an Experiment.
 	typedef std::unique_ptr<Experiment> Ptr;
 
-	// A pointer to a const Experiment
-	typedef std::unique_ptr<const Experiment> ConstPtr;
-
 	// Opens an Experiment with full access
 	// @filepath the path to the wanted file
 	//

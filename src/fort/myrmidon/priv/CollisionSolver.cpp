@@ -29,7 +29,7 @@ CollisionSolver::CollisionSolver(const SpaceByID & spaces,
 	}
 }
 
-CollisionFrame::ConstPtr
+CollisionFrame::Ptr
 CollisionSolver::ComputeCollisions(const IdentifiedFrame::Ptr & frame) const {
 	LocatedAnts locatedAnts;
 	LocateAnts(locatedAnts,frame);
@@ -43,18 +43,18 @@ CollisionSolver::ComputeCollisions(const IdentifiedFrame::Ptr & frame) const {
 }
 
 
-AntZoner::ConstPtr CollisionSolver::ZonerFor(const IdentifiedFrame::ConstPtr & frame) const {
-	if ( d_spaceDefinitions.count(frame->Space) == 0) {
-		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame->Space) + " in IdentifiedFrame");
+AntZoner::ConstPtr CollisionSolver::ZonerFor(const IdentifiedFrame & frame) const {
+	if ( d_spaceDefinitions.count(frame.Space) == 0) {
+		throw std::invalid_argument("Unknown SpaceID " + std::to_string(frame.Space) + " in IdentifiedFrame");
 	}
-	const auto & allDefinitions = d_spaceDefinitions.at(frame->Space);
+	const auto & allDefinitions = d_spaceDefinitions.at(frame.Space);
 
 	// first we build geometries for the right time;
 	std::vector<std::pair<ZoneID,Zone::Geometry::ConstPtr> > currentGeometries;
-	for ( const auto & zID : d_zoneIDs.at(frame->Space) ) {
+	for ( const auto & zID : d_zoneIDs.at(frame.Space) ) {
 		try {
-			auto definition = allDefinitions.At(zID,frame->FrameTime);
-			if ( definition->IsValid(frame->FrameTime) == false ) {
+			auto definition = allDefinitions.At(zID,frame.FrameTime);
+			if ( definition->IsValid(frame.FrameTime) == false ) {
 				continue;
 			}
 			auto geometry = definition->GetGeometry();
@@ -90,7 +90,7 @@ ZoneID AntZoner::LocateAnt(PositionedAntRef ant) const {
 void CollisionSolver::LocateAnts(LocatedAnts & locatedAnts,
                                  const IdentifiedFrame::Ptr & frame) const {
 
-	auto zoner = ZonerFor(frame);
+	auto zoner = ZonerFor(*frame);
 
 	// now for each geometry. we test if the ants is in the zone
 	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {

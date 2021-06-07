@@ -41,7 +41,7 @@ IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameRead
 	return res;
 }
 
-CollisionFrame::ConstPtr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr & identified) const {
+CollisionFrame::Ptr TrackingSolver::CollideFrame(const IdentifiedFrame::Ptr & identified) const {
 	return d_solver->ComputeCollisions(identified);
 }
 

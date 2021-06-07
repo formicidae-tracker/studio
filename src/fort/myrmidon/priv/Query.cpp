@@ -1,3 +1,4 @@
+
 #include "Query.hpp"
 
 #include <thread>
@@ -55,7 +56,7 @@ void Query::ComputeTagStatistics(const Experiment::ConstPtr & experiment,TagStat
 
 
 void Query::IdentifyFrames(const Experiment::ConstPtr & experiment,
-                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeDataFunctor,
+                           std::function<void (const IdentifiedFrame::Ptr &)> storeDataFunctor,
                            const myrmidon::Query::IdentifyFramesArgs & args) {
 
 	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
@@ -91,13 +92,13 @@ void Query::CollideFrames(const Experiment::ConstPtr & experiment,
 }
 
 void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
-                                std::function<void (const AntTrajectory::ConstPtr &)> storeDataFunctor,
+                                std::function<void (const AntTrajectory::Ptr &)> storeDataFunctor,
                                 const myrmidon::Query::ComputeAntTrajectoriesArgs & args) {
 	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
 										 args.AllocationInCurrentThread);
 	auto sargs = DataSegmenter::Args{
 									  .StoreTrajectory = storeDataFunctor,
-									  .StoreInteraction = [](const AntInteraction::ConstPtr &) {},
+									  .StoreInteraction = [](const AntInteraction::Ptr &) {},
 									  .MaximumGap = args.MaximumGap,
 									  .SummarizeSegment = false,};
 	if ( args.Matcher ) {
@@ -118,8 +119,8 @@ void Query::ComputeTrajectories(const Experiment::ConstPtr & experiment,
 }
 
 void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-                                   std::function<void ( const AntTrajectory::ConstPtr &) > storeTrajectory,
-                                   std::function<void ( const AntInteraction::ConstPtr &) > storeInteraction,
+                                   std::function<void ( const AntTrajectory::Ptr &) > storeTrajectory,
+                                   std::function<void ( const AntInteraction::Ptr &) > storeInteraction,
                                    const myrmidon::Query::ComputeAntInteractionsArgs & args) {
 
 	auto runner = QueryRunner::RunnerFor(args.SingleThreaded == false,
@@ -135,7 +136,7 @@ void Query::ComputeAntInteractions(const Experiment::ConstPtr & experiment,
 		sargs.StoreInteraction = storeInteraction;
 	} else {
 		sargs.SummarizeSegment = true;
-		sargs.StoreTrajectory = [](const AntTrajectory::ConstPtr &){};
+		sargs.StoreTrajectory = [](const AntTrajectory::Ptr &){};
 		sargs.StoreInteraction = storeInteraction;
 	}
 	auto segmenter = DataSegmenter(sargs);

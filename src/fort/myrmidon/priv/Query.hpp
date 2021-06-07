@@ -23,7 +23,7 @@ public:
 	                                 TagStatistics::ByTagID & result);
 
 	static void IdentifyFrames(const Experiment::ConstPtr & experiment,
-	                           std::function<void (const IdentifiedFrame::ConstPtr &)> storeData,
+	                           std::function<void (const IdentifiedFrame::Ptr &)> storeData,
 	                           const myrmidon::Query::IdentifyFramesArgs & args);
 
 	static void CollideFrames(const Experiment::ConstPtr & experiment,
@@ -31,7 +31,7 @@ public:
 	                          const myrmidon::Query::QueryArgs & args);
 
 	static void ComputeTrajectories(const Experiment::ConstPtr & experiment,
-	                                std::function<void (const AntTrajectory::ConstPtr &)> storeData,
+	                                std::function<void (const AntTrajectory::Ptr &)> storeData,
 	                                const myrmidon::Query::ComputeAntTrajectoriesArgs & args);
 
 
@@ -39,8 +39,8 @@ public:
 	// optimization: interactions will always be saved before
 	// trajectories. But there are no test.
 	static void ComputeAntInteractions(const Experiment::ConstPtr & experiment,
-	                                   std::function<void (const AntTrajectory::ConstPtr &)> storeTrajectory,
-	                                   std::function<void (const AntInteraction::ConstPtr &)> storeInteraction,
+	                                   std::function<void (const AntTrajectory::Ptr &)> storeTrajectory,
+	                                   std::function<void (const AntInteraction::Ptr &)> storeInteraction,
 	                                   const myrmidon::Query::ComputeAntInteractionsArgs & args);
 private:
 

@@ -9,3 +9,4 @@ void BindTime(py::module_ &);
 void BindTypes(py::module_ &);
 void BindAnt(py::module_ & );
 void BindExperiment(py::module_ & );
+void BindQuery(py::module_ &);

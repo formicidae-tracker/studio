@@ -60,11 +60,11 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
-	std::vector<IdentifiedFrame::ConstPtr> identifieds;
+	std::vector<IdentifiedFrame::Ptr> identifieds;
 	ASSERT_NO_THROW({
 			myrmidon::Query::IdentifyFramesArgs args;
 			Query::IdentifyFrames(experiment,
-			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
+			                      [&identifieds] (const IdentifiedFrame::Ptr & i) {
 				                      identifieds.push_back(i);
 			                      },args);
 		});
@@ -81,7 +81,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 			myrmidon::Query::IdentifyFramesArgs args;
 			args.End = t.Add(1);
 			Query::IdentifyFrames(experiment,
-			                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
+			                      [&identifieds] (const IdentifiedFrame::Ptr & i) {
 				                      identifieds.push_back(i);
 			                      },
 			                      args);
@@ -93,7 +93,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 		myrmidon::Query::IdentifyFramesArgs args;
 		args.Start = t.Add(1);
 		Query::IdentifyFrames(experiment,
-		                      [&identifieds] (const IdentifiedFrame::ConstPtr & i) {
+		                      [&identifieds] (const IdentifiedFrame::Ptr & i) {
 			                      identifieds.push_back(i);
 		                      },
 		                      args);
@@ -152,13 +152,13 @@ TEST_F(QueryUTest,TrajectoryComputation) {
 			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
-	std::vector<AntTrajectory::ConstPtr> trajectories;
+	std::vector<AntTrajectory::Ptr> trajectories;
 
 	ASSERT_NO_THROW({
 			myrmidon::Query::ComputeAntTrajectoriesArgs args;
 			args.MaximumGap = 20000 * Duration::Millisecond;
 			Query::ComputeTrajectories(experiment,
-			                           [&trajectories]( const AntTrajectory::ConstPtr & t) {
+			                           [&trajectories]( const AntTrajectory::Ptr & t) {
 				                           trajectories.push_back(t);
 			                           },
 			                           args);
@@ -190,17 +190,17 @@ TEST_F(QueryUTest,InteractionComputation) {
 			}
 		});
 
-	std::vector<AntTrajectory::ConstPtr> trajectories;
-	std::vector<AntInteraction::ConstPtr> interactions;
+	std::vector<AntTrajectory::Ptr> trajectories;
+	std::vector<AntInteraction::Ptr> interactions;
 	ASSERT_NO_THROW({
 			myrmidon::Query::ComputeAntInteractionsArgs args;
 			args.MaximumGap = 220 * Duration::Millisecond;
 
 			Query::ComputeAntInteractions(experiment,
-			                              [&trajectories]( const AntTrajectory::ConstPtr & t) {
+			                              [&trajectories]( const AntTrajectory::Ptr & t) {
 				                              trajectories.push_back(t);
 			                              },
-			                              [&interactions]( const AntInteraction::ConstPtr & i) {
+			                              [&interactions]( const AntInteraction::Ptr & i) {
 				                              interactions.push_back(i);
 			                              },
 			                              args);
@@ -239,14 +239,14 @@ TEST_F(QueryUTest,FrameSelection) {
 
 	auto firstDate = experiment->CSpaces().at(1)->TrackingDataDirectories().front()->StartDate();
 
-	std::vector<IdentifiedFrame::ConstPtr> frames;
+	std::vector<IdentifiedFrame::Ptr> frames;
 
 	myrmidon::Query::IdentifyFramesArgs args;
 
 	// issue 138, should select all frames
 	args.Start = firstDate;
 	Query::IdentifyFrames(experiment,
-	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+	                      [&frames](const IdentifiedFrame::Ptr & f) {
 		                      frames.push_back(f);
 	                      },
 	                      args);
@@ -258,7 +258,7 @@ TEST_F(QueryUTest,FrameSelection) {
 	args.Start = firstDate;
 	args.End = firstDate.Add(1);
 	Query::IdentifyFrames(experiment,
-	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+	                      [&frames](const IdentifiedFrame::Ptr & f) {
 		                      frames.push_back(f);
 	                      },
 	                      args);
@@ -271,7 +271,7 @@ TEST_F(QueryUTest,FrameSelection) {
 	args.Start = firstDate;
 	args.End = firstDate;
 	Query::IdentifyFrames(experiment,
-	                      [&frames](const IdentifiedFrame::ConstPtr & f) {
+	                      [&frames](const IdentifiedFrame::Ptr & f) {
 		                      frames.push_back(f);
 	                      },
 	                      args);
