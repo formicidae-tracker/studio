@@ -21,6 +21,7 @@ PYBIND11_MODULE(py_fort_myrmidon, m) {
     BindAnt(m);
     BindExperiment(m);
 
+    BindMatchers(m);
     BindQuery(m);
 
 #ifdef VERSION_INFO

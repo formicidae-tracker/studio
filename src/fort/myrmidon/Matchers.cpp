@@ -10,44 +10,44 @@ Matcher::Ptr Matcher::And(std::vector<Ptr> matchers) {
 	std::vector<PPtr> pMatchers;
 	pMatchers.reserve(matchers.size());
 	for ( const auto & m : matchers ) { pMatchers.push_back(m->d_p); }
-	return std::make_shared<Matcher>(priv::Matcher::And(pMatchers));
+	return Matcher::Ptr(new Matcher(priv::Matcher::And(pMatchers)));
 }
 
 Matcher::Ptr Matcher::Or(std::vector<Ptr> matchers) {
 	std::vector<PPtr> pMatchers;
 	pMatchers.reserve(matchers.size());
 	for ( const auto & m : matchers ) { pMatchers.push_back(m->d_p); }
-	return std::make_shared<Matcher>(priv::Matcher::Or(pMatchers));
+	return Matcher::Ptr(new Matcher(priv::Matcher::Or(pMatchers)));
 }
 
 Matcher::Ptr Matcher::AntID(fort::myrmidon::AntID ID) {
-	return std::make_shared<Matcher>(priv::Matcher::AntIDMatcher(ID));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntIDMatcher(ID)));
 }
 
 Matcher::Ptr Matcher::AntColumn(const std::string & name,
                                        const AntStaticValue & value) {
-	return std::make_shared<Matcher>(priv::Matcher::AntColumnMatcher(name,value));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntColumnMatcher(name,value)));
 }
 
 Matcher::Ptr Matcher::AntDistanceSmallerThan(double distance) {
-	return std::make_shared<Matcher>(priv::Matcher::AntDistanceSmallerThan(distance));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntDistanceSmallerThan(distance)));
 }
 
 Matcher::Ptr Matcher::AntDistanceGreaterThan(double distance) {
-	return std::make_shared<Matcher>(priv::Matcher::AntDistanceGreaterThan(distance));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntDistanceGreaterThan(distance)));
 }
 
 Matcher::Ptr Matcher::AntAngleGreaterThan(double angle) {
-	return std::make_shared<Matcher>(priv::Matcher::AntAngleGreaterThan(angle));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntAngleGreaterThan(angle)));
 }
 
 Matcher::Ptr Matcher::AntAngleSmallerThan(double angle) {
-	return std::make_shared<Matcher>(priv::Matcher::AntAngleSmallerThan(angle));
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntAngleSmallerThan(angle)));
 }
 
 Matcher::Ptr Matcher::InteractionType(AntShapeTypeID type1,
                                       AntShapeTypeID type2) {
-	return std::make_shared<Matcher>(priv::Matcher::InteractionType(type1,type2));
+	return Matcher::Ptr(new Matcher(priv::Matcher::InteractionType(type1,type2)));
 }
 
 

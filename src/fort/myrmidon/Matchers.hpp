@@ -190,6 +190,12 @@ public:
 	static Ptr InteractionType(AntShapeTypeID type1,
 	                           AntShapeTypeID type2);
 
+
+private:
+	friend class Query;
+	friend std::ostream & ::operator<<(std::ostream & out,
+	                                   const fort::myrmidon::Matcher & m);
+
 	// Private implementation constructor
 	// @pMatcher opaque pointer to implementation
 	//
@@ -204,10 +210,6 @@ public:
 	// @return an opaque <PPtr>
 	PPtr ToPrivate() const;
 
-private:
-	friend class Query;
-	friend std::ostream & ::operator<<(std::ostream & out,
-	                                   const fort::myrmidon::Matcher & m);
 	PPtr d_p;
 };
 
