@@ -43,32 +43,51 @@ void BindAntStaticValue(py::module_ & m) {
 void BindComputedMeasurement(py::module_ & m) {
 	using namespace fort::myrmidon;
 	py::class_<ComputedMeasurement>(m,"ComputedMeasurement")
-		// .def("Time",&ComputedMeasurement::Time)
-		// .def("LengthMM",&ComputedMeasurement::LengthMM)
-		// .def("LengthPixel",&ComputedMeasurement::LengthPixel)
+		.def_readonly("Time",&ComputedMeasurement::Time,"The Time this measurement was made")
+		.def_readonly("LengthMM",&ComputedMeasurement::LengthMM,"The length of the measurement in MM")
+		.def_readonly("LengthPixel",&ComputedMeasurement::LengthPixel,"The length of the measurement in pixels")
 		;
 }
 
 void BindTagStatistics(py::module_ & m) {
 	using namespace fort::myrmidon;
 	py::class_<TagStatistics>(m,"TagStatistics")
-		.def_readonly("TagID",&TagStatistics::ID)
-		.def_readonly("FirstSeen",&TagStatistics::FirstSeen)
-		.def_readonly("LastSeen",&TagStatistics::LastSeen)
-		// .def_readonly("Counts",
-		//               [](const TagStatistics & ts) -> const TagStatistics::CountVector & {
-		// 	              return ts.Counts;
-		//               },
-		//               py::return_value_policy::reference_internal)
+		.def_readonly("TagID",&TagStatistics::ID,"The TagID it refers to")
+		.def_readonly("FirstSeen",&TagStatistics::FirstSeen,"First time the tag was seen")
+		.def_readonly("LastSeen",&TagStatistics::LastSeen,"Last time the tag was seen")
+		.def_property_readonly("Counts",
+		                       [](const TagStatistics & ts) -> const TagStatistics::CountVector & {
+			                       return ts.Counts;
+		                       },
+		                       py::return_value_policy::reference_internal,
+		                       "Histogram of gaps of non-detection of this tag.")
 		;
 }
 
-void BindPositionnedAnt(py::module_ & m) {
+void BindIdentifiedFrame(py::module_ & m) {
 	using namespace fort::myrmidon;
+	py::class_<IdentifiedFrame,IdentifiedFrame::ConstPtr>(m,"IdentifiedFrame")
+		.def_readonly("FrameTime",&IdentifiedFrame::FrameTime,"The time of the frame")
+		.def_readonly("Space",&IdentifiedFrame::Space,"The space the frame belongs to")
+		.def_readonly("Height",&IdentifiedFrame::Height,"The height of the tracking image")
+		.def_readonly("Width",&IdentifiedFrame::Width,"The width of the tracking image")
+		.def_property_readonly("Positions",
+		                       []( const IdentifiedFrame & f ) -> const IdentifiedFrame::PositionMatrix & {
+			                       return f.Positions;
+		                       },py_return_value_polycy::reference_internal,
+		                       R"pydoc(A matrix with the ant positions.
+
+)pydoc"
+		                       )
+		.def("Contains",&IdentifiedFrame::Contains)
+		.def("At",&IdentifiedFrame::At)
+
+		;
 }
 
 void BindTypes(py::module_ & m) {
 	BindTime(m);
 	BindAntStaticValue(m);
 	BindComputedMeasurement(m);
+	BindIdentifiedFrame(m)
 }
