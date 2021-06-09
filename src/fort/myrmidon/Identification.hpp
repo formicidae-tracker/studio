@@ -185,7 +185,7 @@ public:
 	 * ```
 	 *
 	 * First Time where this Identification becomes unvalid.
-	 * @return the first <Time> where this Identification becomes
+	 * @return the first Time where this Identification becomes
 	 *         unvalid. It can return Time::Forever()
 	 */
 	Time End() const;

@@ -2,7 +2,7 @@ find_package(Doxygen REQUIRED)
 find_package(Sphinx REQUIRED)
 
 
-
+list(APPEND MYRMIDON_API_DOC_FILES ${FORT_TIME_INCLUDE_DIRS}/fort/time/Time.hpp)
 foreach(f ${MYRMIDON_API_DOC_FILES})
 	set(DOXYGEN_INPUT_FILES "${DOXYGEN_INPUT_FILES} ${f}")
 endforeach(f ${MYRMIDON_API_DOC_FILES})

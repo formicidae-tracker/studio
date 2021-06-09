@@ -15,7 +15,6 @@ Table of Contents
 ^^^^^^^^^^^^^^^^^
 
 .. toctree::
-   :maxdepth: 3
 
    self
    api/index

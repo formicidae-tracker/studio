@@ -75,6 +75,9 @@ class Ant;
  * using SetValue() and DeleteValue() and accesible through
  * GetValue().
  *
+ * Members
+ * =======
+ *
  */
 class Ant {
 public:
@@ -115,7 +118,6 @@ public:
 	                          */
 	                         SOLO    = 2,
 	};
-
 
 	/**
 	 * Gets the ::TagID identifying this Ant at a given time.
