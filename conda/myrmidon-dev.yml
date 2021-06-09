@@ -6,24 +6,28 @@ dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
   - _r-mutex=1.0.1=anacondar_1
+  - alabaster=0.7.12=py_0
   - alsa-lib=1.2.3=h516909a_0
   - anaconda-client=1.7.2=pyhd8ed1ab_1
   - asio=1.14.1=h9c3ff4c_1
   - attrs=21.2.0=pyhd8ed1ab_0
+  - babel=2.9.1=pyh44b312d_0
   - beautifulsoup4=4.9.3=pyhb0f4dca_0
   - binutils_impl_linux-64=2.35.1=h193b22a_2
   - binutils_linux-64=2.35=h67ddf6f_30
+  - breathe=4.30.0=pyhd8ed1ab_0
   - brotlipy=0.7.0=py38h497a2fe_1001
   - bwidget=1.9.14=ha770c72_0
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.17.1=h7f98852_1
-  - ca-certificates=2020.12.5=ha878542_0
+  - ca-certificates=2021.5.30=ha878542_0
   - cairo=1.16.0=h6cf1ce9_1008
-  - certifi=2020.12.5=py38h578d9bd_1
+  - certifi=2021.5.30=py38h578d9bd_0
   - cffi=1.14.5=py38ha65f79e_0
   - chardet=4.0.0=py38h578d9bd_1
   - click=8.0.1=py38h578d9bd_0
   - clyent=1.2.2=py_1
+  - colorama=0.4.4=pyh9f0ad1d_0
   - conda=4.10.1=py38h578d9bd_0
   - conda-build=3.21.4=py38h578d9bd_0
   - conda-package-handling=1.7.3=py38h497a2fe_0
@@ -31,6 +35,8 @@ dependencies:
   - cryptography=3.4.7=py38ha5dfef3_0
   - curl=7.76.1=hea6ffbf_2
   - dbus=1.13.6=h48d8840_2
+  - docutils=0.15.2=py38h578d9bd_2
+  - doxygen=1.9.1=hb166930_1
   - eigen=3.3.9=h4bd325d_1
   - expat=2.4.1=h9c3ff4c_0
   - ffmpeg=4.3.1=hca11adc_2
@@ -67,6 +73,7 @@ dependencies:
   - hdf5=1.10.6=nompi_h6a2412b_1114
   - icu=68.1=h58526e2_0
   - idna=2.10=pyh9f0ad1d_0
+  - imagesize=1.2.0=py_0
   - importlib-metadata=4.0.1=py38h578d9bd_0
   - ipython_genutils=0.2.0=py_1
   - jasper=1.900.1=h07fcdf6_1006
@@ -141,6 +148,7 @@ dependencies:
   - nss=3.65=hb5efdd6_0
   - openh264=2.1.1=h780b84a_0
   - openssl=1.1.1k=h7f98852_0
+  - packaging=20.9=pyh44b312d_0
   - pango=1.48.5=hb8ff022_0
   - patchelf=0.11=he1b5a44_0
   - pcre=8.44=he1b5a44_0
@@ -155,7 +163,9 @@ dependencies:
   - pybind11-global=2.6.2=py38h1fd1430_0
   - pycosat=0.6.3=py38h497a2fe_1006
   - pycparser=2.20=pyh9f0ad1d_2
+  - pygments=2.9.0=pyhd8ed1ab_0
   - pyopenssl=20.0.1=pyhd8ed1ab_0
+  - pyparsing=2.4.7=pyh9f0ad1d_0
   - pyrsistent=0.17.3=py38h497a2fe_2
   - pysocks=1.7.1=py38h578d9bd_3
   - python=3.8.10=h49503c6_1_cpython
@@ -173,7 +183,16 @@ dependencies:
   - sed=4.8=he412f7d_0
   - setuptools=49.6.0=py38h578d9bd_3
   - six=1.16.0=pyh6c4a22f_0
+  - snowballstemmer=2.1.0=pyhd8ed1ab_0
   - soupsieve=2.0.1=py_1
+  - sphinx=4.0.2=pyh6c4a22f_1
+  - sphinx_rtd_theme=0.5.2=pyhd8ed1ab_1
+  - sphinxcontrib-applehelp=1.0.2=py_0
+  - sphinxcontrib-devhelp=1.0.2=py_0
+  - sphinxcontrib-htmlhelp=2.0.0=pyhd8ed1ab_0
+  - sphinxcontrib-jsmath=1.0.1=py_0
+  - sphinxcontrib-qthelp=1.0.3=py_0
+  - sphinxcontrib-serializinghtml=1.1.5=pyhd8ed1ab_0
   - sqlite=3.35.5=h74cdb3f_0
   - sysroot_linux-64=2.12=h77966d4_13
   - tbb=2020.2=h4bd325d_4
