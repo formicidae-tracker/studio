@@ -14,13 +14,21 @@
 
 
 namespace fort {
+
+/**
+ * FORT post-processing namespace
+ *
+ */
+
 namespace myrmidon {
 
-// The ID for a tag
-//
-// The ID for a tag. As explained in <ant_identification> myrmidon
-// doesn't allows to access tracking tag data directly, but through
-// the definition of <Ant> and <Identification>.
+/**
+ * The ID for a tag
+ *
+ * The ID for a tag. As explained in <ant_identification> myrmidon
+ * doesn't allows to access tracking tag data directly, but through
+ * the definition of <Ant> and <Identification>.
+ */
 typedef uint32_t TagID;
 
 // A named value

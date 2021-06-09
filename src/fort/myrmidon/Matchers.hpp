@@ -25,6 +25,7 @@ namespace myrmidon {
 namespace priv {
 // private <fort::myrmidon::priv> implementation
 class Matcher;
+class Query;
 }
 
 // Reduces down output of Queries
@@ -193,6 +194,7 @@ public:
 
 private:
 	friend class Query;
+	friend class fort::myrmidon::priv::Query;
 	friend std::ostream & ::operator<<(std::ostream & out,
 	                                   const fort::myrmidon::Matcher & m);
 

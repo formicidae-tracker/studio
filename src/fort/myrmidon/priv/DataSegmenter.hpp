@@ -25,9 +25,7 @@ public:
 	DataSegmenter(const Args & args);
 	~DataSegmenter();
 
-	void operator()(const Query::CollisionData & data);
-
-
+	void operator()(const myrmidon::Query::CollisionData & data);
 private:
 	struct BuildingTrajectory {
 		typedef std::shared_ptr<BuildingTrajectory> Ptr;
