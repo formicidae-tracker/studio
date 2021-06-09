@@ -18,103 +18,126 @@ class Ant;
 
 
 
-// The main object of interest of any Experiment
-//
-//
-// Ant are the object of interest of an <Experiment>.
-//
-// ## Naming
-//
-// Ant are uniquely identified by <AntID>. By convention we use
-// decimal notation with up to two '0' prefix to display an <ID>, as
-// returned by <FormattedID>.
-//
-// ## Identification
-//
-// Instead of working directly with <TagID> myrmidon uses
-// <Identification> to relates <TagID> to an Ant. An Ant could have
-// different <Identification>, allowing us to use different <TagID> to
-// refer to the same individual. Myrmidon ensures the following
-// invariant:
-//
-// * At any <Time> there is only a single <TagID> used to designate an
-//   Ant
-// * For any Ant, there only a single <Identification> that designate
-//   this Ant at any given <Time>. I.e. <Identification::Start> and
-//   <Identification::End> must not overlap for a given Ant.
-//
-// One would use <IdentifiedAt> to obtain the <TagID> that identifies
-// an Ant at a given <Time>.
-//
-// ## Visualization property
-//
-// Visualization of <Experiment> data is done through
-// fort-studio. Ants are visualized according to their <DisplayStatus>
-// and <DisplayColor>, which can be programmaticaly modified using
-// <SetDisplayStatus> and <SetDisplayColor>. Ants are showed according
-// to <DisplayState> value.
-//
-// ## Non-tracking data (named values)
-//
-// Ant also stores timed non-tracking data, called
-// <named_values>. These are modifiable using <SetValue> and
-// <DeleteValue> and accesible through <GetValue>.
-//
-// ## Ant Shapping
-//
-// Each Ant has a virtual shape that can be modified with <AddCapsule>
-// and <DeleteCapsule>.
-//
-// More complete informations can be found in <ant_interaction>
+/**
+ * The main object of interest of any Experiment
+ *
+ * \headerfile fort/myrmidon/Ant.hpp
+ *
+ * Ant are the object of interest of an Experiment.
+ *
+ * Naming
+ * ======
+ *
+ * Ant are uniquely identified by an AntID. By convention we use
+ * decimal notation with up to two `0` prefix to display an ID, as
+ * returned by FormattedID.
+ *
+ * Identification
+ * ==============
+ *
+ * Instead of working directly with TagID `fort-myrmidon` uses
+ * Identification to relates TagID to an Ant. An Ant could have
+ * different Identification, allowing us to use different TagID to
+ * refer to the same individual. `fort-myrmidon` ensures the following
+ * invariant:
+ *
+ * * At any Time there is only a single TagID used to designate an
+ *   Ant
+ * * For any Ant, there only a single Identification that designate
+ *   this Ant at any given Time. I.e. Identification::Start and
+ *   Identification::End must not overlap for a given Ant.
+ *
+ * One would use IdentifiedAt() to obtain the TagID that identifies
+ * an Ant at a given Time.
+ *
+ * Ant Virtual Shape
+ * =================
+ *
+ * Each Ant has an associated virtual shape that is used to compute
+ * instantaneous Collision detection ( Query::CollideFrame() ), or
+ * timed AntInteraction ( Query::ComputeAntInteraction ). These shape
+ * can be defined manually in `fort-studio` or programmatically
+ * accessed and modified with Capsules(), AddCaspule(),
+ * DeleteCapsule() and ClearCapsules().
+ *
+ * Visualization meta-data
+ * =======================
+ *
+ * Basic visualization of Experiment data can be done through
+ * `fort-studio`. Ants are visualized according to their DisplayStatus()
+ * and DisplayColor(), which can be programmaticaly modified using
+ * SetDisplayStatus() and SetDisplayColor().
+ *
+ * User defined meta-data (named values)
+ * =====================================
+ *
+ * Ant can stores timed user defined metadata. These are modifiable
+ * using SetValue() and DeleteValue() and accesible through
+ * GetValue().
+ *
+ */
 class Ant {
 public:
-	// A pointer to an Ant
+	/**
+	 * A pointer to an Ant
+	 */
 	typedef std::shared_ptr<Ant>       Ptr;
 
-	// The ID of an Ant.
-	//
-	// ID are unique within an Experiment.
-	typedef uint32_t                   ID;
-
-	// The DisplayState of an Ant in an Experiment
+	/**
+	 * The DisplayState of an Ant in an Experiment
+	 */
 	enum class DisplayState {
-		// Ant is visible
-		VISIBLE = 0,
-		// Ant is hidden
-		HIDDEN  = 1,
-		// Ant is visible and all non-soloed ant will be hidden.
-		SOLO    = 2
+	                         /** Ant is visible */
+	                         VISIBLE = 0,
+	                         /** Ant is hidden */
+	                         HIDDEN  = 1,
+	                         /** Ant is visible and all non-soloed ant will be hidden. */
+	                         SOLO    = 2,
 	};
 
 
-	// Gets the TagID identifying this Ant at a given time.
-	// @time the <Time> for which we want the identification
-	//
-	// Gets the <TagID> identifying this Ant at a given <Time>. There may not
-	// have an identification at this given time, an an exception will be thrown.
-	// R version:
-	// ```R
-	// ant$identifiedBy(fmTimeParse("2020-02-19T15:14:00.000Z"))
-	// ```
-	//
-	// @return a <TagID> that identify this ant at this time if it
-	//         exists (throw an exception otherwise)
+	/**
+	 * Gets the ::TagID identifying this Ant at a given time.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.IdentifiedAt(time: py_fort_myrmidon.Time) -> int
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntIdentifiedAt(ant,time = fmTimeForever() ) # returns an integer
+	 * ```
+	 * @param time the Time for which we want the identification
+	 *
+	 * Gets the ::TagID identifying this Ant at a given Time. If no
+	 * Identification are valid for this time, an an exception will be
+	 * thrown.
+	 *
+	 *
+	 * @return a ::TagID that identify this ant at this time.
+	 *
+	 * @throws std::runtime_error if there no valid Identification for this time.
+	 */
 	TagID IdentifiedAt(const Time & time) const;
 
 
-	// Gets the Identifications for this Ant
-	//
-	// Gets the <Identification> targetting this Ant. These
-	// <Identification> will always be sorted in <Time> and not
-	// overlapping.
-	//
-	// R Version :
-	// ```R
-	// ant$identifications()
-	// ```
-	//
-	// @return an <Identification::List> copy of all
-	//         <Identification>
+	/**
+	 * Gets the Identification targetting this Ant.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.Identications() -> list(py_fort.myrmidon.Identification)
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntIdentifications(ant) # returns a slist of Rcpp_fmIdentification
+	 * ```
+	 *
+	 * Gets the Identification targetting this Ant. These
+	 * Identification will always be sorted in Time and never overlaps.
+	 *
+	 * @return an Identification::List of Identification that target this object.
+	 */
 	Identification::List Identifications();
 
 	// Gets the ID of an Ant
@@ -127,7 +150,7 @@ public:
 	// ```
 	//
 	// @return the <ID> of the Ant
-	ID AntID() const;
+	fort::myrmidon::AntID AntID() const;
 
 	// Gets the ID of the Ant formatted as a string.
 	//

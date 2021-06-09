@@ -7,16 +7,6 @@
 namespace fort {
 namespace myrmidon {
 
-// Forward declaration for Ant::ID
-typedef uint32_t AntID;
-
-// forward declaration for <Space::ID>
-typedef uint32_t SpaceID;
-class Space;
-
-// forward declaration for <Zone::ID>
-typedef uint32_t ZoneID;
-
 
 class Capsule;
 // Forward declaration for <Capsule::Ptr>

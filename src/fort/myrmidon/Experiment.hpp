@@ -24,45 +24,48 @@ class TrackingSolver;
 class Query;
 
 
-// Entry point of myrmidon API
-//
-// Experiment is the main entry point of the myrmidon API. An
-// Experiment olds a collection of <Ant>, <Identification>, <Space>
-// and <Zone> measurement and give access to the identified tracking
-// data and basic interaction detection.
-//
-// ## File convention
-//
-// Experiment are save to the disk in `.myrmidon` files. One can use
-// <Open>, <OpenReadOnly>, <Save> and <NewFile> to interact with those
-// files.
-//
-// Experiment saves relative links to the tracking data directory that
-// are acquired with the FORT system. These path are relative, so one
-// can rename a `.myrmidon` file on the filesystem, but it must keep
-// the same relative path to these tracking data directories.
-//
-// Multiple program can open an Experiment in read-only mode. However
-// a single program can at a Time open an Experiment with full access
-// ( read-only program must have released the Experiment too !!!).
+/**
+ * Entry point of the `fort-myrmidon` API
+ *
+ * An Experiment olds a collection of Ant, Identification, Space and
+ * Zone and give access to the identified tracking data instantaneous
+ * collision and interaction detection through Query.
+ *
+ * File convention
+ * ===============
+ *
+ * Experiment are save to the disk in `.myrmidon` files. One can use
+ * Open, OpenDataLess, and Save to interact with these files.
+ *
+ * Experiment saves relative links to the tracking data directory that
+ * are acquired with the FORT system. These paths are relative, so one
+ * can rename a `.myrmidon` file on the filesystem with Save, but it must keep
+ * the same relative path to the tracking data directories it links to.
+ *
+ */
 class Experiment {
 public:
-	// A pointer to an Experiment.
+	/** A pointer to an Experiment. */
 	typedef std::unique_ptr<Experiment> Ptr;
 
-	// Opens an Experiment with full access
-	// @filepath the path to the wanted file
-	//
-	// Opens an Experiment with full access to a `.myrmidon`
-	// file. Only a single program can open the same myrmidon file
-	// with full access (read only access must be closed).
-	//
-	// R Version :
-	// ```R
-	// fmExperimentOpen(path)
-	// ```
-	//
-	// @return the <Experiment>
+	/**
+	 * Opens an existing Experiment.
+	 *
+	 * * R :
+	 * ```R
+	 * fmExperimentOpen(filepath = '')
+	 * ```
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment(filpath: str) -> py_fort_myrmidon.Experiment
+	 * ```
+	 *
+	 * @param filepath the path to the wanted file
+	 *
+	 * @return a pointer to the Experiment
+	 *
+	 * @throws std::runtime_error if filepath is not a valid `.myrmidon` file.
+	 */
 	static Experiment::Ptr Open(const std::string & filepath);
 
 	// Opens an Experiment without associated tracking data

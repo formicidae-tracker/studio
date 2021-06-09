@@ -11,7 +11,9 @@
 
 #include "ForwardDeclaration.hpp"
 
-
+/**
+ * the namespace for all the FORmicidae Tracker libraries
+ */
 
 namespace fort {
 
@@ -25,69 +27,141 @@ namespace myrmidon {
 /**
  * The ID for a tag
  *
- * The ID for a tag. As explained in <ant_identification> myrmidon
- * doesn't allows to access tracking tag data directly, but through
- * the definition of <Ant> and <Identification>.
+ * * Python: TagID translates to an `int`
+ * * R: TagID translates to an `integer`
+ *
+ * The identifier for a tag, which relates to Ant using
+ * Identification.
  */
 typedef uint32_t TagID;
 
-// A named value
-//
-// AntStaticValue holds a value for a <named_values>.
+
+/**
+ * The ID for an Ant.
+ *
+ * * Python: AntID translates to an `int`
+ * * R: AntID translates to an `integer`
+ *
+ * Ant are uniquely identified within an Experiment with an AntID,
+ * which is at least `1`. `0` is an invalid AntID.
+ */
+typedef uint32_t AntID;
+
+/**
+ * The ID for a Space.
+ *
+ * * Python: SpaceID translates to an `int`
+ * * R: SpaceID translates to an `integer`
+ *
+ * Space are uniquely identified within an Experiment with a SpaceID,
+ * which is at least `1`. `0` is an invalid SpaceID.
+ */
+typedef uint32_t SpaceID;
+
+/**
+ * The ID for a Zone.
+ *
+ * * Python: ZoneID translates to an `int`
+ * * R: ZoneID translates to an `integer`
+ *
+ * Zone are uniquely identified within a Space with a ZoneID, which is
+ * at least `1`. `0` is an invalid/undefined Zone.
+ */
+typedef uint32_t ZoneID;
+
+/**
+ * C++ type for named values.
+ *
+ * * Python: any object that is either a `bool`, an `int`, a `float`, a `str` or a `py_fort_myrmidon.Time`.
+ * * R: any S expression that is either a `logical`, an `integer`, a `numeric`, a `character` or a `fmTime`.
+ *
+ * A c++ type that can hold only one of any #AntMetadataType.
+ */
 typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 
-// A List of 2D Vector
-//
-// A List of 2D Vector
+/**
+ * A List of 2D Vector.
+ *
+ */
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 
-// ID for Ant virtual body parts
-//
-// ID to designate an <Ant> virtual body part. See
-// <ant_interaction>
+/**
+ * The ID for Ant virtual body parts
+ *
+ * * Python: AntShapeTypeID translates to an `int`
+ * * R: AntShapeTypeID translates to an `integer`
+ *
+ * Uniquely identifies an Ant shape type in an Experiment, from
+ * `1`. `0` is an invalid value.
+ */
 typedef uint32_t AntShapeTypeID;
 
-// ID for manual measurements
-//
-// ID to designate a manual measurement made in the GUI
+
+/**
+ * The ID for Ant manual measurement types
+ *
+ * * Python: MeasurementTypeID translates to an `int`
+ * * R: MeasurementTypeID translates to an `integer`
+ *
+ * Uniquely identifies an Ant measurement type in an Experiment, from
+ * `1`. `0` is an invalid value. The value `1` always refers to the
+ * valid MeasurementTypeID #HEAD_TAIL_MEASUREMENT_TYPE.
+ */
 typedef uint32_t MeasurementTypeID;
 
-// Mandatory measurement type for any <Experiment>
-//
-// Any <Experiment> have this Measurement type that cannot be removed.
+/**
+ * The head-tail Measurement type.
+ *
+ * This Measurement type is always define for any Experiment and
+ * cannot be deleted. However, it can be renamed.
+ */
 const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
 
-
-// A list of Ant virtual shape part
+/** A list of Ant virtual shape part
+ *
+ * * Python: a `list` of `tuple` containing an `integer` and a `py_fort_myrmidon.Capsule`. For example:
+ * ```Python
+ * shapeList = [(1,py_fort_myrmidon.Capsule((0,0),(0,1),0.5,0.5))]
+ * ```
+ * * R: \todo define me
+ *
+ */
 typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 
-// Types for non-tracking data column
+/**
+ * Possible types for named values
+ */
 enum class AntMetadataType {
-                            // A boolean
+                            /** A boolean */
                             BOOL = 0,
-                            // An integer
+                            /** An integer */
                             INT,
-                            // a float
+                            /** a float */
                             DOUBLE,
-                            // a std::string
+                            /** a std::string */
                             STRING,
-                            // a <Time>
+                            /** a Time */
                             TIME,
 };
 
-// Represents a Measurement in mm at a given Time.
-//
-// Measurement in myrmidon are automatically converted to MM given the
-// <Experiment> tag family and size, and the size of the tag measured
-// in the image.
+/**
+ * Represents a Measurement in mm at a given Time.
+ *
+ * * Python: a `py_fort_myrmidon.ComputedMeasurement` object with read-only properties `Time`, `LengthMM` and `LengthPixel`.
+ * * R: see Query::ComputeMeasurementFor
+ *
+ * Measurement in myrmidon are automatically converted to MM given the
+ * Experiment tag family and size, and the size of the tag measured
+ * in the image.
+ */
 struct ComputedMeasurement {
-	// A list of measurement
+	/** A list of measurement */
 	typedef std::vector<ComputedMeasurement> List;
-	// The <Time> of the Measurement
+	/** The Time of the Measurement */
 	fort::Time Time;
-	// the value in mm of the measurement
+	/** the value in mm of the measurement */
 	double     LengthMM;
-	// the value of the measurement in pixels
+	/** the value of the measurement in pixels */
 	double     LengthPixel;
 };
 // Statistics about a <TagID> in the experiment.

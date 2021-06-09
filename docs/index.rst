@@ -11,17 +11,11 @@ Welcome to fort-myrmidon's documentation!
    :caption: Contents:
 
 
+Table of Contents
+^^^^^^^^^^^^^^^^^
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 3
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-Reference
-=========
-
-.. doxygennamespace:: fort::myrmidon
-   :members:
+   self
+   api/index

@@ -34,37 +34,44 @@ class Identification;
 }
 
 
-// Relates <TagID> to <Ant>
-//
-// An Identification relates a <TagID> to an <Ant>.
-//
-// ## Time definition
-//
-// Identification are bounded in <Time> in the range
-// [<Start>,<End>[. An empty <Start> or <End> respectively means -∞ or
-// +∞. Internally myrmidon ensure time validity of
-// <Identification>. It means that:
-//
-// * Two Identification using the same <TagValue> cannot overlap in <Time>.
-// * Two identification pointing to the same <Ant> cannot overlap in <Time>.
-//
-// ## Pose information
-//
-// Identification also contains geometric information on how the
-// detected tag is related to the observed <Ant>. These are the
-// translation and rotation of the <Ant>, in the tag reference frame.
-//
-// This information is either automatically generated from the
-// measurement made in FORT Studio. Otherwise user can change this
-// behavior by setting themselves this pose using
-// <SetUserDefinedAntPose>. <ClearUserDefinedAntPose> can be used to
-// revert to the internally computed pose.
-//
-// Note that any angle is measured in radians, with a standard
-// mathematical convention. Since in image processing the y-axis is
-// pointing from the top of the image to the bottom, positive angles
-// appears clockwise.
-//
+/** Relates TagID to Ant
+ *
+ * An Identification relates a TagID to an Ant, with Time validity
+ * data and geometric data.
+ *
+ * Time validy
+ * ===========
+ *
+ * Identification are bounded in Time in the range
+ * [Start(),End()[. Start() can be Time::SinceEver() and End() can be
+ * Time::ForEver(). These value are modifiable with SetStart() and
+ * SetEnd().
+ *
+ * Internally `fort-myrmidon` ensure time validity of
+ * Identification. It means that:
+ *
+ * * Two Identification using the same TagValue cannot overlap in Time.
+ * * Two Identification pointing to the same Ant cannot overlap in Time.
+ *
+ * Pose information
+ * ================
+ *
+ * Identification also contains geometric information on how the
+ * detected tag is related to the observed Ant. These are the
+ * translation and rotation of the Ant, in the tag coordinate reference.
+ *
+ * This information is either automatically generated from the manual
+ * measurement #HEAD_TAIL_MEASUREMENT_TYPE made in
+ * `fort-studio`. Alternatively, users can override this behavior by
+ * setting themselves this pose using
+ * SetUserDefinedAntPose(). ClearUserDefinedAntPose() can be used to
+ * revert to the internally computed pose.
+ *
+ * Note that any angle is measured in radians, with a standard
+ * mathematical convention. Since in image processing the y-axis is
+ * pointing from the top of the image to the bottom, positive angles
+ * appears clockwise.
+ */
 class Identification {
 public:
 	// A pointer to an Identification
@@ -110,21 +117,28 @@ public:
 	// ```
 	void SetStart(const Time & start);
 
-	// Sets the ending validity time for this Identification
-	// @end the ending <Time>. It can be <Time::Forever>.
-	//
-	// Sets the endibf validity <Time> for this Identification. This
-	// method will throw any <OverlappingIdentification> if such
-	// modification will create any collision for the same <TagID> or
-	// the same <Ant>. In such a case the boundaries remain unchanged.
-	//
-	// Identification are valid for [<Start>,<End>[
-	//
-	// R Version :
-	// ```R
-	// # const_ptr is needed to cast fmTime to fmTimeCPtr
-	// i$setEnd(fmTimeParse("XXX")$const_ptr())
-	// ```
+	/**
+	 *  Sets the ending validity time for this Identification
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Identification.Start # read-write property
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmIdentificationSetEnd(identification, start = fmTimeForever())
+	 * ```
+	 *
+	 * Sets the ending validity Time for this Identification, i.e. the
+	 * first Time where this Identification becomes invalid
+	 * (Identification are valid for [Start(),End()[).
+	 *
+	 * @param end the ending Time. It can be Time::Forever().
+	 *
+	 * @throws OverlappingIdentification if end will make two
+	 * Identification overlap in Time.
+	 *
+	 */
 	void SetEnd(const Time & end);
 
 	// Gets the starting validity time

@@ -33,11 +33,6 @@ public:
 	// A pointer to a Space
 	typedef std::shared_ptr<Space>       Ptr;
 
-	// A unique ID for a Space
-	//
-	// <SpaceID> are unique within an <Experiment>
-	typedef uint32_t                     ID;
-
 	// Gets the Space ID
 	//
 	// R version:
