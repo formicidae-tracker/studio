@@ -85,13 +85,34 @@ public:
 
 	/**
 	 * The DisplayState of an Ant in an Experiment
+	 *
+	 * * Python: \todo descibe me
+	 * * R:
+	 * ```R
+	 * fmAntDisplayState <- list(VISIBLE=0,HIDDEN=1,SOLO=2)
+	 * ```
 	 */
 	enum class DisplayState {
-	                         /** Ant is visible */
+	                         /**
+	                          * Ant is visible
+	                          *
+	                          * * Python: \todo
+	                          * * R: `fmAntDisplayState$VISIBLE`
+	                          */
 	                         VISIBLE = 0,
-	                         /** Ant is hidden */
+	                         /**
+	                          * Ant is hidden
+	                          *
+	                          * * Python: \todo
+	                          * * R: `fmAntDisplayState$HIDDEN`
+	                          */
 	                         HIDDEN  = 1,
-	                         /** Ant is visible and all non-soloed ant will be hidden. */
+	                         /**
+	                          * Ant is visible and all non-SOLO Ant will be hidden.
+	                          *
+	                          * * Python: \todo
+	                          * * R: `fmAntDisplayState$SOLO`
+	                          */
 	                         SOLO    = 2,
 	};
 
@@ -101,7 +122,7 @@ public:
 	 *
 	 * * Python:
 	 * ```python
-	 * py_fort_myrmidon.Ant.IdentifiedAt(time: py_fort_myrmidon.Time) -> int
+	 * py_fort_myrmidon.Ant.IdentifiedAt(self,time: py_fort_myrmidon.Time) -> int
 	 * ```
 	 * * R:
 	 * ```R
@@ -124,13 +145,11 @@ public:
 	/**
 	 * Gets the Identification targetting this Ant.
 	 *
-	 * * Python:
-	 * ```python
-	 * py_fort_myrmidon.Ant.Identications() -> list(py_fort.myrmidon.Identification)
-	 * ```
+	 * * Python: `Identications: list(py_fort.myrmidon.Identification)`
+	 *   read-only property of `py_fort_myrmidon.Ant` objects
 	 * * R:
 	 * ```R
-	 * fmAntIdentifications(ant) # returns a slist of Rcpp_fmIdentification
+	 * fmAntIdentifications <- function(ant) # returns a slist of Rcpp_fmIdentification
 	 * ```
 	 *
 	 * Gets the Identification targetting this Ant. These
@@ -140,176 +159,260 @@ public:
 	 */
 	Identification::List Identifications();
 
-	// Gets the ID of an Ant
-	//
-	// Ants gets an unique ID in an experiment.
-	//
-	// R Version :
-	// ```R
-	// ant$antID()
-	// ```
-	//
-	// @return the <ID> of the Ant
+	/**
+	 *  Gets the ::AntID of an Ant.
+	 *
+	 * * Python: `AntID: int` read-only property of `py_fort_myrmidon.Ant` objects
+	 * * R:
+	 * ```R
+	 * fmAntGetID <- function(ant) # return an integer
+	 * ```
+	 *
+	 * Ants gets an unique ID in an Experiment, with a minimal value
+	 * of `1`. `0` is an invalid/undefined ::AntID.
+	 *
+	 * @return the ::AntID of the Ant
+	 */
 	fort::myrmidon::AntID AntID() const;
 
-	// Gets the ID of the Ant formatted as a string.
-	//
-	// By Convention <ID> are formatted using hexadecimal notation (as
-	// opposed to tag that are formatted decimal).
-	//
-	// R Version :
-	// ```R
-	// ant$formattedID()
-	// ```
-	//
-	// @return a string with the formatted ID
+	/**
+	 * Gets the ID of the Ant formatted as a string.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.FormattedID(self) -> str
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntFormattedID <- function(ant) # returns a character
+	 * ```
+	 *
+	 * By Convention ::AntID are formatted using decimal notation with
+	 * at least two `0` prefix (as opposed to ::TagID that are
+	 * formatted using hexadecimal).
+	 *
+	 * @return a string with the formatted ID
+	 */
 	std::string FormattedID() const;
 
-	// Gets the Display Color of an Ant
-	//
-	// Each Ant has a defined color for display.
-	//
-	// R Version :
-	// ```R
-	// ant$displayColor()
-	// ```
-	//
-	// @return a const reference to the <Color> used to display the Ant
+	/**
+	 *  Gets the Display Color of an Ant.
+	 *
+	 * * Python: `DisplayColor: py_fort_myrmidon.Color` property of `py_fort_myrmidon.Ant` objects
+	 * * R:
+	 * ```R
+	 * fmAntDisplayColor <- function(ant) # returns a vector of 3 integer
+	 * ```
+	 *
+	 *  Each Ant has a defined Color for display in `fort-studio`.
+	 *
+	 * @return a const reference to the Color used to display the Ant
+	 *         in `fort-studio`.
+	 */
 	const Color & DisplayColor() const;
 
 
-	// Sets the Ant display color
-	// @color the new <Color> to display the Ant
-	//
-	// R Version :
-	// ```R
-	// ant$setDisplayColor(color = fmRGBColor(r,g,b))
-	// ```
+	/**
+	 * Sets the Ant display color
+	 *
+	 * * Python: `DisplayColor: py_fort_myrmidon.Color` property of `py_fort_myrmidon.Ant` objects
+	 * * R:
+	 * ```R
+	 * fmAntSetDisplayColor <- function(ant,color = c(255,255,255))
+	 * ```
+	 *
+	 * @param color the new Color to use to display the Ant in `fort-studio`.
+	 */
+
 	void SetDisplayColor(const Color & color);
 
-	// Gets the Ant display state
-	//
-	// When interacting with the FORT Studio, any Ant has
-	// different <DisplayState> :
-	//
-	//   * <DisplayState::VISIBLE>: the Ant is visible if
-	//     they are no Ant which are <DisplayState::SOLO>
-	//   * <DisplayState::HIDDEN>: the Ant is not displayed
-	//   * <DisplayState::SOLO>: the Ant is visible and
-	//     all non <DisplayState::SOLO> Ant are shown
-	//
-	// R Version :
-	// ```R
-	// s <- ant$displayStatus()
-	// # to get the name of the value
-	// names(which( s == fmAntDisplayState ) )
-	// ```
-	//
-	// @return the <DisplayState> for this Ant.
+	/**
+	 *  Gets the Ant display state
+	 *
+	 * * Python: `DisplayStatus: py_fort_myrmidon.DisplayState` property of `py_fort_myrmidon.Ant` objects
+	 * * R:
+	 * ```R
+	 * fmAntDisplayStatus <- function(ant) # returns an integer which is one of the value of in the fmAntDisplayState list
+	 * ```
+	 *
+	 * When visualizing ant in `fort-studio`, any Ant has
+	 * different DisplayState :
+	 *
+	 * * DisplayState::VISIBLE: the Ant is visible if
+	 *   they are no other Ant which are in DisplayState::SOLO
+	 * * DisplayState::HIDDEN: the Ant is not displayed
+	 * * DisplayState::SOLO: the Ant is visible as any other Ant
+	 *   which are in DisplayState::SOLO.
+	 *
+	 * @return the DisplayState for this Ant.
+	 */
 	DisplayState DisplayStatus() const;
 
-	// Sets the Ant display state.
-	// @s the wanted <DisplayState>
-	//
-	// R Version :
-	// ```R
-	// ant$setDisplayStatus(fmAntDisplayState["SOLO"])
-	// ```
+	/**
+	 * Sets the Ant display state.
+	 *
+	 * * Python: `DisplayStatus: py_fort_myrmidon.DisplayState` property of `py_fort_myrmidon.Ant` objects
+	 * * R:
+	 * ```R
+	 * fmAntSetDisplayStatus <- function(ant,state = fmAntDisplayState$VISIBLE)
+	 * ```
+	 *
+	 * @param s the wanted DisplayState
+	 */
 	void SetDisplayStatus(DisplayState s);
 
-	// Gets non-tracking data value
-	// @name the name of the non-tracking data value
-	// @time the <Time> we want the value for
-	//
-	// Gets the value for <name> at <time>. Values are set with
-	// <SetValue>. If no value is sets prior to <time> (including -∞),
-	// it will be using the <Experiment> default one.
-	//
-	// R Version :
-	// ```R
-	// ant$getValue(name,time)
-	// ```
-	//
-	// @return the wanted <AntStaticValue>
+	/**
+	 * Gets user defined timed metadata.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> bool
+	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> int
+	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> float
+	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> str
+	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> py_fort_myrmidon.Time
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntGetValue <- function(ant, name = '', time = fmTimeForever() ) # returns either a logical, integer, numerical, character or fmTime
+	 * ```
+	 *
+	 * @param name the name of the user defined column in Experiment
+	 * @param time the Time we want the value for (infinite Time are valid)
+	 *
+	 * Gets the value for name at time. Values are set with
+	 * SetValue(). If no value is sets prior to Time> (including -∞),
+	 * the Experiment default value for name will be returned.
+	 *
+	 * @return the wanted AntStaticValue for name at time, or the Experiment default one
+	 *
+	 * @throws std::out_of_range if name is not a defined metadata column in Experiment.
+	 */
 	const AntStaticValue & GetValue(const std::string & name,
 	                                const Time & time) const;
 
-	// Sets a non-tracking data value at given Time
-	// @name the wanted column name
-	// @value the wanted <AntStaticValue>
-	// @time the first <Time> after which <name> will be set to
-	//       <value>. It can be <Time::SinceEver>.
-	//
-	// Sets <name> to <value> starting from <time>. If <time> is
-	// nullptr, sets the starting <value> for <name>. <GetValue> is
-	// always defined even if user does not define value for nullptr
-	// <time> has the <Experiment> default value will be used.
-	//
-	// R Version :
-	// ```R
-	// time <- fmTimeParse("XXXX")$const_ptr() # could also be fmTimeInf()
-	// ant$setValue(name,value,time)
-	// ```
+	/**
+	 *  Sets a user defined timed metadata
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.SetValue(self,name: str, value: object, time: py_fort_myrmidon.Time)
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntSetValue <- function(ant, name = '', value = false, time = fmTimeSinceEver())
+	 * ```
+	 *
+	 * @param name the name of the user defined colum in Experiment
+	 * @param value the desired AntStaticValue
+	 * @param time the first Time after which name will be set to
+	 *        value. It can be Time::SinceEver().
+	 *
+	 * Sets name to value starting from time. If time is
+	 * Time::SinceEver(), sets the starting value for name instead of
+	 * the Experiment's default value for name.
+	 *
+	 * @throws std::invalid_argument if name is not a defined column in Experiment
+	 * @throws std::invalid_argument if time is Time::Forever()
+	 *
+	 */
 	void SetValue(const std::string & name,
 	              const AntStaticValue & value,
 	              const Time & time);
 
-	// Removes any value defined for a time
-	// @name the named value to remove
-	// @time the <Time> to remove. It can be <Time::SinceEver>.
-	//
-	// Removes any value defined at a <Time>.
-	//
-	// R Version :
-	// ```R
-	// time <- fmTimeParse("XXXX")$const_ptr() # could also be fmTimeInf()
-	// ant$deleteValue(name,time)
-	// ```
+	/**
+	 * Removes any user defined value at a given time
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.Delete(self,name: str, time: py_fort_myrmidon.Time)
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntDeleteValue <- function(ant, name = '', time = fmTimeSinceEver())
+	 * ```
+	 *
+	 * @param name the named value to remove
+	 * @param time the Time to remove. It can be Time::SinceEver().
+	 *
+	 * Removes any value defined at a time.
+	 *
+	 * @throws std::out_of_range if no value for name at time have
+	 *         been previously set with SetValue().
+	 */
 	void DeleteValue(const std::string & name,
 	                 const Time & time);
 
 
-	// Adds a Capsule to the Ant virtual shape
-	// @shapeTypeID the <AntShapeTypeID> for the <Capsule>
-	// @capsule the <Capsule>
-	//
-	// Adds a <Capsule> to the Ant virtual shape, associated with the
-	// <AntShapeTypeID> body part.
-	//
-	// R Version :
-	// ```R
-	// ant$addCapsule(shapeTypeID,fmCapsuleCreate(c(x1,y1),c(x2,y2),r1,r2))
-	// ```
+	/**
+	 *  Adds a Capsule to the Ant virtual shape list.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.AddCapsule(self,shapeTypeID: int, capsule: py_fort_myrmidon.Capsule)
+	 * ```
+	 * R:
+	 * ```R
+	 * fmAntAddCapsule <- function(ant, shapeTypeID = 0, capsule = fmCapsule() )
+	 * ```
+	 *
+	 * @param shapeTypeID the AntShapeTypeID for the Capsule
+	 * @param capsule the Capsule
+	 *
+	 * Adds a Capsule to the Ant virtual shape, associated with the
+	 * shapeTypeID body part.
+	 *
+	 * @throws std::out_of_range if shapeTypeID is not defined in Experiment
+	 */
 	void AddCapsule(AntShapeTypeID shapeTypeID,
 	                const Capsule & capsule);
 
-	// Gets all part of this ant
-	//
-	// R Version :
-	// ```R
-	// ant$capsulues()
-	// ```
-	//
-	// @return a <TypedCapsuleList> representing the virtual shape of
-	//         the Ant
+	/**
+	 * Gets all capsules for this Ant
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.Capsules(self) -> list((int,py_fort_myrmidon.Capsule))
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntCapsules <- function(ant) # return a slist of Rcpp_fmCapsule
+	 * ```
+	 *
+	 * @return a TypedCapsuleList representing the virtual shape of
+	 *        the Ant
+	 */
 	TypedCapsuleList Capsules() const;
 
-	// Delete a part of the virtual shape
-	// @index the index in the <Capsules> to remove
-	//
-	// R Version :
-	// ```R
-	// # ATTENTION, index are still starting from 0
-	// ant$deleteCapsule(index)
-	// ```
+	/**
+	 *  Delete a part of the virtual shape
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.DeleteCapsule(self, index: int)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmAntDeleteCapsule <- function(ant, index = 0) # WARNING index is a C index, starting at zero, not 1 !
+	 * ```
+	 * @param index the index in the Capsules() to remove
+	 *
+	 * @throws std::out_of_range if index is greate or equal to the size of Capsules().
+	 */
 	void DeleteCapsule(const size_t index);
 
-	// Deletes all virtual shape parts
-	//
-	// R Version :
-	// ```R
-	// ant$clearCapsules()
-	// ```
+	/**
+	 *  Deletes all virtual shape parts
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Ant.DeleteCapsules(self)
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmAntDeleteCapsules <- function(ant)
+	 * ```
+	 */
 	void ClearCapsules();
 
 private:
