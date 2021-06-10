@@ -32,9 +32,9 @@ public:
 
 	quint32 numberHiddenAnt() const;
 
-	fm::Ant::ID antIDForIndex(const QModelIndex & index) const;
+	fm::AntID antIDForIndex(const QModelIndex & index) const;
 
-	std::pair<fmp::Ant::DisplayState,fm::Color> displayStatusAndColor(fm::Ant::ID antID) const;
+	std::pair<fmp::Ant::DisplayState,fm::Color> displayStatusAndColor(fm::AntID antID) const;
 
 
 signals:

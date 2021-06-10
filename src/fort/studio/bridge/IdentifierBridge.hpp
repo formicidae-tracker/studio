@@ -36,7 +36,7 @@ public:
 	                         fort::Time & end,
 	                         fmp::TagID tagID, const fort::Time & time) const;
 
-	std::vector<fm::Ant::ID> unidentifiedAntAt(const fort::Time & time) const;
+	std::vector<fm::AntID> unidentifiedAntAt(const fort::Time & time) const;
 signals:
 	void identificationCreated(fmp::Identification::ConstPtr);
 	void identificationRangeModified(fmp::Identification::ConstPtr);

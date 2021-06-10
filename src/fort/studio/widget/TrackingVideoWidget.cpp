@@ -142,9 +142,10 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	bool hasSolo = d_antDisplay->numberSoloAnt() != 0;
 
 	if ( !iFrame == false && d_showCollisions == true ) {
-		fmp::DenseMap<quint32,fm::PositionedAnt> positions;
-		for ( const auto & pa : tFrame->Positions ) {
-			positions.insert(std::make_pair(pa.ID,pa));
+		fmp::DenseMap<quint32,size_t> positionIndex;
+		for ( size_t i = 0; i < tFrame->Positions.rows(); ++i ) {
+			fm::AntID antID = tFrame->Positions(i,0);
+			positionIndex.insert(std::make_pair(antID,i));
 		}
 
 		for ( const auto & collision : iFrame->Collisions ) {
@@ -160,9 +161,11 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 			          && bDisplayStatus != fmp::Ant::DisplayState::SOLO) ) {
 				continue;
 			}
+			auto aRow = positionIndex.at(aID);
+			auto bRow = positionIndex.at(bID);
 
-			auto aPos = Conversion::fromEigen(ratio * positions.at(aID).Position);
-			auto bPos = Conversion::fromEigen(ratio * positions.at(bID).Position);
+			auto aPos = Conversion::fromEigen(ratio * tFrame->Positions.block<1,2>(aRow,1).transpose());
+			auto bPos = Conversion::fromEigen(ratio * tFrame->Positions.block<1,2>(bRow,1).transpose());
 
 			if ( focusRectangle.contains(aPos) == false
 			     && focusRectangle.contains(bPos) == false ) {
@@ -177,13 +180,16 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 	}
 
 
-	for ( const auto & pa : tFrame->Positions ) {
-		const auto & [displayStatus,displayColor] = d_antDisplay->displayStatusAndColor(pa.ID);
+	for ( size_t i = 0; i < tFrame->Positions.rows(); ++i ) {
+		fm::AntID antID = tFrame->Positions(i,0);
+		auto position = tFrame->Positions.block<2,1>(i,1).transpose();
+		auto angle = tFrame->Positions(i,3);
+		const auto & [displayStatus,displayColor] = d_antDisplay->displayStatusAndColor(antID);
 		if ( displayStatus == fmp::Ant::DisplayState::HIDDEN
 		     || ( hasSolo == true && displayStatus != fmp::Ant::DisplayState::SOLO) ) {
 			continue;
 		}
-		auto correctedPos = Conversion::fromEigen(ratio * pa.Position);
+		auto correctedPos = Conversion::fromEigen(ratio * position);
 
 		if ( focusRectangle.contains(correctedPos) == false ) {
 			continue;
@@ -195,7 +201,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 
 
 		painter->translate(correctedPos);
-		painter->rotate(pa.Angle * 180.0 / M_PI);
+		painter->rotate(angle * 180.0 / M_PI);
 
 		painter->drawEllipse(QRectF(-QPointF(ANT_HALF_SIZE,ANT_HALF_SIZE),
 		                            QSize(ANT_HALF_SIZE * 2.0,
@@ -210,7 +216,7 @@ void TrackingVideoWidget::paintIdentifiedAnt(QPainter * painter, const QRectF & 
 
 		if ( d_showID == true ) {
 
-			QString idStr = fmp::Ant::FormatID(pa.ID).c_str();
+			QString idStr = fmp::Ant::FormatID(antID).c_str();
 			auto bRect = metrics.boundingRect(idStr);
 
 			bRect.translate((correctedPos + QPointF(-bRect.width()/2,bRect.height() + ANT_HALF_SIZE)).toPoint());
@@ -258,10 +264,11 @@ void TrackingVideoWidget::focusAnt(quint32 antID, bool reset) {
 		return;
 	}
 
-	for ( const auto & ap : d_frame.TrackingFrame->Positions ) {
-		if ( ap.ID == antID ) {
+	for ( size_t i = 0; i < d_frame.TrackingFrame->Positions.rows(); ++i ) {
+		const auto & [ID,position,zone] = d_frame.TrackingFrame->At(i);
+		if ( ID == antID ) {
 			double ratio = double(d_frame.Image->height())/double(d_frame.TrackingFrame->Height);
-			d_lastFocus = QPointF(ratio * ap.Position.x(),ratio * ap.Position.y());
+			d_lastFocus = QPointF(ratio * position.x(),ratio * position.y());
 			return;
 		}
 	}

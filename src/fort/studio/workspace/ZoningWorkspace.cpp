@@ -307,7 +307,7 @@ void ZoningWorkspace::setSceneMode(VectorialScene::Mode mode) {
 		onSceneModeChanged(VectorialScene::Mode::Edit);
 		return;
 	}
-	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(currentZoneID())));
+	d_vectorialScene->setColor(Conversion::colorFromFM(fm::DefaultPalette().at(currentZoneID())));
 	d_vectorialScene->setMode(mode);
 }
 
@@ -330,7 +330,7 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 	for ( const auto & b : bridges ) {\
 		auto zoneID = b->zone().ZoneID();
 		d_definitions.insert(std::make_pair(zoneID,b));
-		auto colorFM = fmp::Palette::Default().At(zoneID);
+		auto colorFM = fmp::DefaultPalette().at(zoneID);
 		auto color = Conversion::colorFromFM(colorFM);
 		d_comboBox->addItem(Conversion::iconFromFM(colorFM),
 		                    ToQString(b->zone().Name()),
@@ -465,7 +465,7 @@ void ZoningWorkspace::onSceneModeChanged(VectorialScene::Mode mode) {
 void ZoningWorkspace::onComboBoxCurrentIndexChanged(int) {
 	auto zoneID = currentZoneID();
 
-	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
+	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::DefaultPalette().at(zoneID)));
 
 	for ( const auto item : d_vectorialScene->selectedItems() ) {
 		if ( auto v = dynamic_cast<Shape*>(item) ) {
@@ -486,7 +486,7 @@ void ZoningWorkspace::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
 	}
 	auto oldZoneID = fi->second;
 	fi->second = zoneID;
-	fi->first->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(zoneID)));
+	fi->first->setColor(Conversion::colorFromFM(fmp::DefaultPalette().at(zoneID)));
 	rebuildGeometry(zoneID);
 	rebuildGeometry(oldZoneID);
 

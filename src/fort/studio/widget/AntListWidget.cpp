@@ -270,7 +270,7 @@ void AntSimpleListWidget::onAddButtonClicked() {
 void AntSimpleListWidget::onDeleteButtonClicked() {
 	auto rows = d_tableView->selectionModel()->selectedRows();
 
-	std::set<fm::Ant::ID> toDelete;
+	std::set<fm::AntID> toDelete;
 	for ( const auto & r : rows ) {
 		auto antID = sourceModel()->antIDFromIndex(d_sortedModel->mapToSource(r));
 		toDelete.insert(antID);

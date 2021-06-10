@@ -56,7 +56,7 @@ void IdentifierBridge::setUpExperiment() {
 	}
 }
 
-fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::Ant::ID antID,
+fmp::Identification::Ptr IdentifierBridge::addIdentification(fm::AntID antID,
                                                              fmp::TagID tagID,
                                                              const fort::Time & start,
                                                              const fort::Time & end) {
@@ -332,8 +332,8 @@ fmp::Identification::ConstPtr IdentifierBridge::identificationForIndex(const QMo
 	return item->data().value<fmp::Identification::Ptr>();
 }
 
-std::vector<fm::Ant::ID> IdentifierBridge::unidentifiedAntAt(const fort::Time & time) const {
-	std::vector<fm::Ant::ID> res;
+std::vector<fm::AntID> IdentifierBridge::unidentifiedAntAt(const fort::Time & time) const {
+	std::vector<fm::AntID> res;
 	for ( const auto & [antID,ant] : d_experiment->CIdentifier().CAnts() ) {
 		const auto & identifications = ant->CIdentifications();
 		if ( std::find_if(identifications.begin(),

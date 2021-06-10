@@ -29,11 +29,11 @@ namespace fm = fort::myrmidon;
 
 struct TrackingVideoFrame {
 	TrackingVideoFrame();
-	std::shared_ptr<QImage>       Image;
-	fort::Duration                StartPos,EndPos;
-	fmp::MovieFrameID             FrameID;
-	fm::IdentifiedFrame::ConstPtr TrackingFrame;
-	fm::CollisionFrame::ConstPtr  CollisionFrame;
+	std::shared_ptr<QImage>  Image;
+	fort::Duration           StartPos,EndPos;
+	fmp::MovieFrameID        FrameID;
+	fm::IdentifiedFrame::Ptr TrackingFrame;
+	fm::CollisionFrame::Ptr  CollisionFrame;
 #ifndef FORT_STUDIO_VIDEO_PLAYER_NDEBUG
 	static std::mutex debugMutex;
 #endif

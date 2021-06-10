@@ -69,9 +69,9 @@ void IdentifiedFrameConcurrentLoader::setExperimentUnsafe(fmp::Experiment::Const
 	d_experiment = experiment;
 }
 
-const fm::IdentifiedFrame::ConstPtr &
+const fm::IdentifiedFrame::Ptr &
 IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
-	static fm::IdentifiedFrame::ConstPtr empty;
+	static fm::IdentifiedFrame::Ptr empty;
 	auto fi = d_frames.find(movieID+1);
 	if ( fi == d_frames.cend() ) {
 		return empty;
@@ -79,9 +79,9 @@ IdentifiedFrameConcurrentLoader::frameAt(fmp::MovieFrameID movieID) const {
 	return fi->second;
 }
 
-const fm::CollisionFrame::ConstPtr &
+const fm::CollisionFrame::Ptr &
 IdentifiedFrameConcurrentLoader::collisionAt(fmp::MovieFrameID movieID) const {
-	static fm::CollisionFrame::ConstPtr empty;
+	static fm::CollisionFrame::Ptr empty;
 	auto fi = d_collisions.find(movieID+1);
 	if ( fi == d_collisions.cend() ) {
 		return empty;
@@ -173,8 +173,8 @@ void IdentifiedFrameConcurrentLoader::loadMovieSegment(quint32 spaceID,
 								                       collisions);
 							} catch( const std::exception & ) {
 								return std::make_tuple(segment->EndMovieFrame()+1,
-								                       fm::IdentifiedFrame::ConstPtr(),
-								                       fm::CollisionFrame::ConstPtr());
+								                       fm::IdentifiedFrame::Ptr(),
+								                       fm::CollisionFrame::Ptr());
 							}
 						};
 					CONC_LOADER_DEBUG(std::cerr << "Spawning " << frameID << std::endl);

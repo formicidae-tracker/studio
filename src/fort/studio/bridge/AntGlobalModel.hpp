@@ -15,7 +15,7 @@ public:
 	static void setItemUserData(QStandardItem * item, const fmp::Ant::Ptr & ant);
 
 	static fmp::Ant::Ptr findAnt(const fmp::Experiment::Ptr & experiment,
-	                             fm::Ant::ID antID);
+	                             fm::AntID antID);
 
 	static QString formatAntName(const fmp::Ant::ConstPtr & ant);
 
@@ -25,9 +25,9 @@ public:
 
 	void initialize(IdentifierBridge * identifier);
 
-	QStandardItem * itemFromAntID(fm::Ant::ID antID) const;
+	QStandardItem * itemFromAntID(fm::AntID antID) const;
 
-	fm::Ant::ID antIDFromIndex(const QModelIndex & index) const;
+	fm::AntID antIDFromIndex(const QModelIndex & index) const;
 	fmp::Ant::Ptr antFromIndex(const QModelIndex & index) const;
 
 

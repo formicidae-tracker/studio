@@ -10,7 +10,7 @@ void AntGlobalModel::setItemUserData(QStandardItem * item,
 }
 
 fmp::Ant::Ptr AntGlobalModel::findAnt(const fmp::Experiment::Ptr & experiment,
-                                      fm::Ant::ID antID) {
+                                      fm::AntID antID) {
 	if ( experiment == nullptr ) {
 		return nullptr;
 	}
@@ -68,7 +68,7 @@ void AntGlobalModel::initialize(IdentifierBridge * identifier) {
 
 }
 
-QStandardItem * AntGlobalModel::itemFromAntID(fm::Ant::ID antID) const {
+QStandardItem * AntGlobalModel::itemFromAntID(fm::AntID antID) const {
 	if ( rowCount() == 0 ) {
 		return nullptr;
 	}
@@ -86,7 +86,7 @@ QStandardItem * AntGlobalModel::itemFromAntID(fm::Ant::ID antID) const {
 	return fi->second;
 }
 
-fm::Ant::ID AntGlobalModel::antIDFromIndex(const QModelIndex & index) const {
+fm::AntID AntGlobalModel::antIDFromIndex(const QModelIndex & index) const {
 	const auto & ant = antFromIndex(index);
 	if ( ant == nullptr ) {
 		return 0;

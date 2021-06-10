@@ -41,7 +41,7 @@ void AntShapeBridge::initialize(ExperimentBridge * experiment) {
 	        this,&AntShapeBridge::onAntDeleted);
 }
 
-int AntShapeBridge::addCapsule(fm::Ant::ID antID,
+int AntShapeBridge::addCapsule(fm::AntID antID,
                                fmp::AntShapeTypeID typeID,
                                const fmp::CapsulePtr & capsule) {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
@@ -87,7 +87,7 @@ int AntShapeBridge::addCapsule(fm::Ant::ID antID,
 	return ant->Capsules().size();
 }
 
-void AntShapeBridge::clearCapsule(fm::Ant::ID antID) {
+void AntShapeBridge::clearCapsule(fm::AntID antID) {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	auto antItem = d_model->itemFromAntID(antID);
 	if ( ant == nullptr || antItem == nullptr ) {
@@ -118,7 +118,7 @@ void AntShapeBridge::clearCapsule(fm::Ant::ID antID) {
 }
 
 const fmp::Ant::TypedCapsuleList &
-AntShapeBridge::capsuleForAntID(fm::Ant::ID antID) const {
+AntShapeBridge::capsuleForAntID(fm::AntID antID) const {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	static fmp::Ant::TypedCapsuleList empty;
 	if ( ant == nullptr ) {
@@ -128,9 +128,9 @@ AntShapeBridge::capsuleForAntID(fm::Ant::ID antID) const {
 }
 
 
-void AntShapeBridge::cloneShape(fm::Ant::ID source,
-                              bool scaleToSize,
-                              bool overwriteShape) {
+void AntShapeBridge::cloneShape(fm::AntID source,
+                                bool scaleToSize,
+                                bool overwriteShape) {
 	auto ant = AntGlobalModel::findAnt(d_experiment,source);
 	if (ant == nullptr ) {
 		return;
@@ -258,7 +258,7 @@ QList<QStandardItem*> AntShapeBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 }
 
 
-void AntShapeBridge::countAnt(fm::Ant::ID antID,
+void AntShapeBridge::countAnt(fm::AntID antID,
                               bool sendSignals) {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	auto antItem = d_model->itemFromAntID(antID);

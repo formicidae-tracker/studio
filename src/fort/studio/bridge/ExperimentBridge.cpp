@@ -114,10 +114,6 @@ bool ExperimentBridge::saveAs(const QString & path ) {
 
 bool ExperimentBridge::open(const QString & path,QWidget * parent) {
 	fmp::Experiment::Ptr experiment;
-	if ( !d_experiment == false
-	     && d_experiment->AbsoluteFilePath().c_str() == path ) {
-		d_experiment->UnlockFile();
-	}
 	try {
 		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::Open('" << path << "')";
 		experiment = fmp::Experiment::Open(path.toUtf8().constData());
@@ -151,7 +147,9 @@ bool ExperimentBridge::create(const QString & path) {
 	fmp::Experiment::Ptr experiment;
 	try {
 		qDebug() << "[ExperimentBridge]: Calling fort::myrmidon::priv::Experiment::NewFile('" << path << "')";
-		experiment = fmp::Experiment::NewFile(path.toUtf8().constData());
+		fs::path fpath = path.toUtf8().constData();
+		experiment = fmp::Experiment::Create(fpath);
+		experiment->Save(fpath);
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not create file '" << path
 		            << "': " << e.what();
@@ -266,7 +264,7 @@ fmp::Ant::Ptr ExperimentBridge::createAnt() {
 	return ant;
 }
 
-void ExperimentBridge::deleteAnt(fm::Ant::ID antID) {
+void ExperimentBridge::deleteAnt(fm::AntID antID) {
 	if ( !d_experiment ) {
 		qWarning() << "Not removing Ant " << fmp::Ant::FormatID(antID).c_str();
 		return;
@@ -303,7 +301,7 @@ quint32 ExperimentBridge::selectedAntID() const {
 	return d_selectedID;
 }
 
-fmp::Ant::ConstPtr ExperimentBridge::ant(fm::Ant::ID aID) const {
+fmp::Ant::ConstPtr ExperimentBridge::ant(fm::AntID aID) const {
 	if ( !d_experiment == true ) {
 		return fmp::Ant::ConstPtr();
 	}

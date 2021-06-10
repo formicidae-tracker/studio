@@ -154,7 +154,8 @@ void AntGeometryWorkspace::onIdentificationAntPositionChanged(const fmp::Identif
 	Eigen::Vector2d position;
 	double angle;
 
-	identification->ComputePositionFromTag(position,
+	identification->ComputePositionFromTag(position.x(),
+	                                       position.y(),
 	                                       angle,d_closeUp->TagPosition(),
 	                                       d_closeUp->TagAngle());
 
@@ -224,7 +225,7 @@ void AntGeometryWorkspace::onVectorialSceneModeChanged(VectorialScene::Mode mode
 }
 
 void AntGeometryWorkspace::setColorFromType(quint32 typeID) {
-	d_vectorialScene->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(typeID)));
+	d_vectorialScene->setColor(Conversion::colorFromFM(fm::DefaultPalette().at(typeID)));
 }
 
 void AntGeometryWorkspace::updateAntLabel(quint32 antID) {
@@ -543,7 +544,7 @@ void AntMeasurementWorkspace::changeVectorType(Vector * vector,
 	}
 
 	d_vectors.insert(std::make_pair(mtID,fi->second));
-	fi->second->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(mtID)));
+	fi->second->setColor(Conversion::colorFromFM(fmp::DefaultPalette().at(mtID)));
 	setMeasurement(fi->second,mtID);
 	d_vectorialScene->update();
 	d_vectors.erase(fi);
@@ -845,7 +846,7 @@ void AntShapeWorkspace::changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID 
 	}
 
 	fi->second = shapeTypeID;
-	fi->first->setColor(Conversion::colorFromFM(fmp::Palette::Default().At(shapeTypeID)));
+	fi->first->setColor(Conversion::colorFromFM(fmp::DefaultPalette().at(shapeTypeID)));
 	d_vectorialScene->update();
 	rebuildCapsules();
 }

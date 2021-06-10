@@ -18,18 +18,18 @@ public:
 
 	void initialize(ExperimentBridge * experiment) override;
 
-	const fmp::Ant::TypedCapsuleList & capsuleForAntID(fm::Ant::ID antID) const;
+	const fmp::Ant::TypedCapsuleList & capsuleForAntID(fm::AntID antID) const;
 
 
 public slots:
-	int addCapsule(fm::Ant::ID antID,
+	int addCapsule(fm::AntID antID,
 	               fmp::AntShapeTypeID typeID,
 	               const fmp::CapsulePtr & capsule);
 
 
-	void clearCapsule(fm::Ant::ID antID);
+	void clearCapsule(fm::AntID antID);
 
-	void cloneShape(fm::Ant::ID source,
+	void cloneShape(fm::AntID source,
 	                bool scaleToSize,
 	                bool overwriteShape);
 
@@ -55,7 +55,7 @@ protected slots:
 private:
 	void rebuildColumnIndex();
 
-	void countAnt(fm::Ant::ID antID, bool sendSignals);
+	void countAnt(fm::AntID antID, bool sendSignals);
 
 	QList<QStandardItem*> buildAnt(const fmp::Ant::Ptr & ant);
 

@@ -294,13 +294,13 @@ void AntDisplayBridge::setAntDisplayColor(QStandardItem * item,
 	emit antDisplayChanged(ant->AntID(),ant->DisplayColor(),ant->DisplayStatus());
 }
 
-fm::Ant::ID AntDisplayBridge::antIDForIndex(const QModelIndex & index) const {
+fm::AntID AntDisplayBridge::antIDForIndex(const QModelIndex & index) const {
 	return d_model->antIDFromIndex(index);
 }
 
 
 std::pair<fmp::Ant::DisplayState,fm::Color>
-AntDisplayBridge::displayStatusAndColor(fm::Ant::ID antID) const {
+AntDisplayBridge::displayStatusAndColor(fm::AntID antID) const {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	if ( ant == nullptr ) {
 		return {fmp::Ant::DisplayState::HIDDEN,fm::Color(0,0,0)};

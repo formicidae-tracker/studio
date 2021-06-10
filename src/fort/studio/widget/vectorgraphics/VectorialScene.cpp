@@ -25,7 +25,7 @@ VectorialScene::VectorialScene(QObject * parent)
 	, d_background(nullptr)
 	, d_staticPolygon(nullptr) {
 	setBackgroundPicture("");
-	d_color = Conversion::colorFromFM(fm::Palette::Default().At(0));
+	d_color = Conversion::colorFromFM(fm::DefaultPalette().at(0));
 
 	d_editPressEH = [this](QGraphicsSceneMouseEvent *e) {
 		                QGraphicsScene::mousePressEvent(e);

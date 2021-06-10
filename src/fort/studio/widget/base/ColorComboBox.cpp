@@ -12,11 +12,12 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 
 	addItem(tr("Custom Color"),QColor());
 	insertSeparator(count());
-	const auto & palette = fm::Palette::Default();
-	for( size_t i = 0 ; i < palette.Size(); ++i ) {
-		auto color = Conversion::colorFromFM(palette.At(i));
-		addItem(Conversion::iconFromFM(palette.At(i)),
-		        tr("Color Blind Friendly %1").arg(i+1),
+	const auto & palette = fm::DefaultPalette();
+	size_t i = 0;
+	for( const auto & fmColor : fm::DefaultPalette() ) {
+		auto color = Conversion::colorFromFM(fmColor);
+		addItem(Conversion::iconFromFM(fmColor),
+		        tr("Color Blind Friendly %1").arg(++i),
 		        color);
 	}
 	connect(this,
