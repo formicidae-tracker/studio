@@ -24,7 +24,7 @@ void ExperimentUTest::TearDown() {
 }
 
 
-typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant> Container;
+typedef AlmostContiguousIDContainer<fort::myrmidon::AntID,Ant> Container;
 
 void ReadAll(const fs::path & a, std::vector<uint8_t> & data) {
 	data.clear();

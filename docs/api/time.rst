@@ -6,29 +6,15 @@ Time
 ``fort-myrmidon`` uses its own classes to represent
 :cpp:class:`fort::Time` and :cpp:class:`fort::Duration` object. These
 have been developped to handle the following features, which are not
-available from ``std::chrono``, and by python and R standard library
-time representation:
+available with ``std::chrono``, and with python and R time representations:
 
-* Precision up for microseconds and up to the nanosecond. Indeed the
-  framegrabber used in the FORT are precise to the
-  microsecond.
+* Microseconds precision (actually up to nanosecond).
 * Robustness to wall clock reset, that could naturally happen when the
   system clock is reset by ``ntp`` on windows, or when a leap second
-  occurs. And we need to support this for timestamp issued by
-  different monotonic clocks.
+  occurs. It uses a mix of wall and monotonic clocks (issued by the
+  camera/framegrabber). It support multiple monotonic clock sources.
 * Supports for representing -∞ and +∞ time concepts.
 
-
-c++ `fort::Duration` reference
-------------------------------
-
-.. doxygenclass:: fort::Duration
-   :members:
-
-c++ `fort::Time` reference
-------------------------------
-.. doxygenclass:: fort::Time
-   :members:
 
 Specificities for R and python bindings
 ---------------------------------------
@@ -71,7 +57,6 @@ Python convertion to and from ``datetime.datetime``
 ``py_fort_myrmidon.Time`` objects can be created from and converted to ``datetime.datetime``:
 
 * ``py_fort_myrmidon.Time.__init__(self,t: datetime.datetime) -> py_fort_myrmidon.Time``
-
 * ``py_fort_myrmidon.Time.ToDateTime(self) -> float``
 
 However as cpython and c++17 lacks supports for timezone, these
@@ -142,3 +127,15 @@ date and time.
    later == start
    later <= start
    later >= start
+
+
+c++ `fort::Duration` reference
+------------------------------
+
+.. doxygenclass:: fort::Duration
+   :members:
+
+c++ `fort::Time` reference
+------------------------------
+.. doxygenclass:: fort::Time
+   :members:

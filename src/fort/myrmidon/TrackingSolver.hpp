@@ -41,7 +41,7 @@ public :
 	//
 	// @return an <IdentifiedFrame> with all identified ant (without zone)
 	IdentifiedFrame::Ptr IdentifyFrame(const fort::hermes::FrameReadout & frame,
-	                                   Space::ID spaceID) const;
+	                                   SpaceID spaceID) const;
 
 	// Collides Ants from an IdentifiedFrame
 	// @identified the <IdentifiedFrame> with the ant position data.

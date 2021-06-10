@@ -53,7 +53,7 @@ public:
 	//
 	// @return a <ComputedMeasurement::List> of the Measurement for the <Ant>
 	static ComputedMeasurement::List ComputeMeasurementFor(const Experiment & experiment,
-	                                                       Ant::ID antID,
+	                                                       AntID antID,
 	                                                       MeasurementTypeID mTypeID);
 
 

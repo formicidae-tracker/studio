@@ -36,11 +36,11 @@ Identifier::~Identifier() {}
 
 AntPtr Identifier::CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
                              const AntMetadataConstPtr & antMetadata,
-                             fort::myrmidon::Ant::ID ID ) {
-	return CreateObject([&shapeTypes,&antMetadata](fort::myrmidon::Ant::ID ID) { return std::make_shared<Ant>(shapeTypes,antMetadata,ID); },ID);
+                             fort::myrmidon::AntID ID ) {
+	return CreateObject([&shapeTypes,&antMetadata](fort::myrmidon::AntID ID) { return std::make_shared<Ant>(shapeTypes,antMetadata,ID); },ID);
 }
 
-void Identifier::DeleteAnt(fort::myrmidon::Ant::ID ID) {
+void Identifier::DeleteAnt(fort::myrmidon::AntID ID) {
 	auto fi = Ants().find(ID);
 	if ( fi != Ants().end() && fi->second->Identifications().empty() == false ) {
 		std::ostringstream os;
@@ -64,7 +64,7 @@ const ConstAntByID & Identifier::CAnts() const {
 
 
 Identification::Ptr Identifier::AddIdentification(const Identifier::Ptr & itself,
-                                                  fort::myrmidon::Ant::ID ID,
+                                                  fort::myrmidon::AntID ID,
                                                   TagID tagValue,
                                                   const Time & start,
                                                   const Time & end) {

@@ -15,7 +15,7 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-typedef AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant> Container;
+typedef AlmostContiguousIDContainer<fort::myrmidon::AntID,Ant> Container;
 
 TEST_F(IdentifierUTest,AntsAreCreatedSequentially) {
 	auto i = std::make_shared<Identifier>();

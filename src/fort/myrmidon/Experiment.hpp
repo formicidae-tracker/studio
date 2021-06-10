@@ -143,7 +143,7 @@ public:
 	// ```R
 	// e$deleteSpace(spaceID)
 	// ```
-	void DeleteSpace(Space::ID spaceID);
+	void DeleteSpace(SpaceID spaceID);
 
 	// Gets the <Space> in the Experiment
 	//
@@ -153,7 +153,7 @@ public:
 	// ```
 	//
 	// @return a map of the Experiment <Space> by their <Space::ID>
-	std::map<Space::ID,Space::Ptr> Spaces();
+	std::map<SpaceID,Space::Ptr> Spaces();
 
 	// Adds a tracking data directory to Experiment
 	// @spaceID the <Space> the data directory is associated with
@@ -167,7 +167,7 @@ public:
 	// e$addTrackingDataDirectory(spaceID,filepath)
 	// ```
 	// @return the URI used to designate the tdd
-	std::string AddTrackingDataDirectory(Space::ID spaceID,
+	std::string AddTrackingDataDirectory(SpaceID spaceID,
 	                                     const std::string & filepath);
 
 	// Removes a Tracking Data Directory from the Experiment
@@ -197,7 +197,7 @@ public:
 	// ```
 	//
 	// @return the <Ant> indexed by their <Ant::ID> in the Experiment.
-	std::map<Ant::ID,Ant::Ptr> Ants();
+	std::map<AntID,Ant::Ptr> Ants();
 
 	// Adds an <Identification> to the Experiment
 	// @antID the targetted <Ant> designated by its <Ant::ID>
@@ -217,7 +217,7 @@ public:
 	// ```
 	//
 	// @return the new <Identification>
-	Identification::Ptr AddIdentification(Ant::ID antID,
+	Identification::Ptr AddIdentification(AntID antID,
 	                                      TagID tagID,
 	                                      const Time & start,
 	                                      const Time & end);

@@ -3,14 +3,11 @@
 #include <tbb/pipeline.h>
 
 #include "priv/Query.hpp"
-
-
-
 namespace fort {
 namespace myrmidon {
 
 ComputedMeasurement::List Query::ComputeMeasurementFor(const Experiment & experiment,
-                                                       Ant::ID antID,
+                                                       AntID antID,
                                                        MeasurementTypeID mTypeID) {
 	ComputedMeasurement::List res;
 	experiment.d_p->ComputeMeasurementsForAnt(res,antID,mTypeID);

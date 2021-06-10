@@ -273,7 +273,7 @@ fort::tags::Family Experiment::Family() const {
 	return tdds.begin()->second->DetectionSettings().Family;
 }
 
-Ant::Ptr Experiment::CreateAnt(fort::myrmidon::Ant::ID aID) {
+Ant::Ptr Experiment::CreateAnt(fort::myrmidon::AntID aID) {
 	return d_identifier->CreateAnt(d_antShapeTypes,
 	                               d_antMetadata,
 	                               aID);
@@ -427,11 +427,11 @@ double Experiment::CornerWidthRatio(tags::Family f) {
 }
 
 void Experiment::ComputeMeasurementsForAnt(std::vector<ComputedMeasurement> & result,
-                                           myrmidon::Ant::ID antID,
+                                           myrmidon::AntID antID,
                                            MeasurementType::ID typeID) const {
 	auto afi = d_identifier->Ants().find(antID);
 	if ( afi == d_identifier->Ants().cend() ) {
-		throw AlmostContiguousIDContainer<fort::myrmidon::Ant::ID,Ant>::UnmanagedObject(antID);
+		throw AlmostContiguousIDContainer<fort::myrmidon::AntID,Ant>::UnmanagedObject(antID);
 	}
 	result.clear();
 	double cornerWidthRatio;
@@ -607,7 +607,7 @@ void Experiment::DeleteAntMetadataColumn(const std::string & name) {
 }
 
 
-void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
+void Experiment::CloneAntShape(fort::myrmidon::AntID sourceAntID,
                                bool scaleToSize,
                                bool overwriteShapes) {
 	auto sourceIt = d_identifier->Ants().find(sourceAntID);
@@ -621,7 +621,7 @@ void Experiment::CloneAntShape(fort::myrmidon::Ant::ID sourceAntID,
 	}
 
 	auto computeSize =
-		[this](fort::myrmidon::Ant::ID antID) -> double {
+		[this](fort::myrmidon::AntID antID) -> double {
 			std::vector<ComputedMeasurement> measurements;
 			try {
 				ComputeMeasurementsForAnt(measurements,antID,Measurement::HEAD_TAIL_TYPE);

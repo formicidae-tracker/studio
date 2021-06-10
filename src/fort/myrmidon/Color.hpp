@@ -1,49 +1,53 @@
 #pragma once
 
 #include <tuple>
+#include <vector>
 
 namespace fort {
 namespace myrmidon {
 
-// Defines a RGB color
-//
-// Defines a RGB color, specified in this order.
+/**
+ * Defines a RGB color.
+ *
+ * * Python: `py_fort_myrmidon.Color` class constructible from a 3 `int` `tuple`
+ * * R:
+ * ```R
+ * fmColor <- function(color = c(255,255,255)) # returns a Rcpp_fmColor.
+ * ```
+ *
+ * Color are RGB triplet (stored in RGB order). `fort-myrmidon` also
+ * define a Palette::Default() of color-blind friendly colors.
+ */
 typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 
 
-// A collection of colors for visualization
-//
-// A Palette defines a collection of <Color>.
-//
-// The <Default> palette contains 7 color-blind friendly color.
-class Palette {
-public:
-	// A color-blind friendly palette
-	//
-	// @return a Palette with 7 color-blind friendly <Color>
-	static const Palette & Default();
+/**
+ * A Palette defines a collection of Color.
+ *
+ * * Python: a `list` of `py_fort_myrmidon.Color`
+ * * R: a `slist` of `Rcpp_fmColor`
+ */
+typedef std::vector<Color> Palette;
 
-	// Gets the color for given index.
-	// @index the index in [0;<Size>[
-	//
-	// @return the <Color> at <index>
-	virtual const Color & At(size_t index) const = 0;
 
-	// The size of the Palette
-	//
-	// @return the number of <Color> in the Palette.
-	virtual size_t Size() const = 0;
-};
-
+/**
+ * A Palette of 7 color-blind friendly colors for visualiztion.
+ *
+ * We use the color set from [Wong 2011: Nature methods 8:441].
+ *
+ */
+const Palette & DefaultPalette();
 
 
 } // namespace myrmidon
 } // namespace fort
 
-// C++ Formatting operator for Color
-// @out the <std::ostream> to format the color to
-// @color the <fort::myrmidon::Color> to format
-//
-// @return a reference to <out>
+/**
+ * C++ Formatting operator for Color
+ * @param out the std::ostream to format the color to
+ * @param color the fort::myrmidon::Color to format
+ *
+ * @return a reference to out
+ */
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::Color & color);

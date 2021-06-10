@@ -41,7 +41,7 @@ public:
 	// ```
 	//
 	// @return this Space <ID>;
-	ID SpaceID() const;
+	fort::myrmidon::SpaceID SpaceID() const;
 
 	// Gets the Space name
 	//

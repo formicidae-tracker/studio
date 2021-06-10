@@ -27,7 +27,7 @@ Identification::List Ant::Identifications() {
 	return res;
 }
 
-Ant::ID Ant::AntID() const {
+AntID Ant::AntID() const {
 	return d_p->AntID();
 }
 

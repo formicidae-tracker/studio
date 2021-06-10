@@ -38,19 +38,19 @@ Space::Ptr Experiment::CreateSpace(const std::string & name) {
 	return Space::Ptr(new Space(d_p->CreateSpace(name)));
 }
 
-void Experiment::DeleteSpace(Space::ID spaceID) {
+void Experiment::DeleteSpace(SpaceID spaceID) {
 	d_p->DeleteSpace(spaceID);
 }
 
-std::map<Space::ID,Space::Ptr> Experiment::Spaces() {
-	std::map<Space::ID,Space::Ptr> res;
+std::map<SpaceID,Space::Ptr> Experiment::Spaces() {
+	std::map<SpaceID,Space::Ptr> res;
 	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
 		res.insert(std::make_pair(spaceID,Space::Ptr(new Space(space))));
 	}
 	return res;
 }
 
-std::string Experiment::AddTrackingDataDirectory(Space::ID spaceID,
+std::string Experiment::AddTrackingDataDirectory(SpaceID spaceID,
                                                  const std::string & filepath) {
 	auto fi  = d_p->Spaces().find(spaceID);
 	if ( fi == d_p->Spaces().end() ) {
@@ -70,8 +70,8 @@ Ant::Ptr Experiment::CreateAnt() {
 	return Ant::Ptr(new Ant(d_p->CreateAnt()));
 }
 
-std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
-	std::map<Ant::ID,Ant::Ptr> res;
+std::map<AntID,Ant::Ptr> Experiment::Ants() {
+	std::map<AntID,Ant::Ptr> res;
 	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
 		res.insert(std::make_pair(antID,
 		                          Ant::Ptr(new Ant(ant))));
@@ -79,7 +79,7 @@ std::map<Ant::ID,Ant::Ptr> Experiment::Ants() {
 	return res;
 }
 
-Identification::Ptr Experiment::AddIdentification(Ant::ID antID,
+Identification::Ptr Experiment::AddIdentification(AntID antID,
                                                   TagID tagID,
                                                   const Time & start,
                                                   const Time & end) {
@@ -97,8 +97,8 @@ void Experiment::DeleteIdentification(const Identification::Ptr & identification
 
 
 bool Experiment::FreeIdentificationRangeAt(Time & start,
-                                            Time & end,
-                                            TagID tagID, const Time & time) const {
+                                           Time & end,
+                                           TagID tagID, const Time & time) const {
 	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
 }
 

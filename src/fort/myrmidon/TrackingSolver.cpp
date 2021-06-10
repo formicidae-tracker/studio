@@ -12,7 +12,7 @@ TrackingSolver::TrackingSolver(const PPtr & pTracker)
 }
 
 IdentifiedFrame::Ptr TrackingSolver::IdentifyFrame(const fort::hermes::FrameReadout & frame,
-                                                Space::ID spaceID) const {
+                                                   SpaceID spaceID) const {
 	return d_p->IdentifyFrame(frame,spaceID);
 }
 

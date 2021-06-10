@@ -44,9 +44,6 @@ public:
 	// A pointer to an Ant
 	typedef std::shared_ptr<const Ant> ConstPtr;
 
-	// An ID designating an Ant
-	typedef fort::myrmidon::Ant::ID    ID;
-
 	// A List of shape
 	typedef std::vector<std::pair<AntShapeTypeID,Capsule>> TypedCapsuleList;
 
@@ -95,7 +92,7 @@ public:
 	// by an Unique ID.
 	//
 	// @return the unique ID of the Ant
-	inline ID AntID() const {
+	inline fort::myrmidon::AntID AntID() const {
 		return d_ID;
 	}
 
@@ -106,10 +103,10 @@ public:
 		return FormatID(d_ID);
 	}
 
-	// Formats an Ant::ID to "0xabcd"
+	// Formats an AntID to "0xabcd"
 	//
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
-	static std::string FormatID(ID ID);
+	static std::string FormatID(fort::myrmidon::AntID ID);
 
 	void AddCapsule(AntShapeTypeID typeID, const Capsule & capsule);
 
@@ -168,7 +165,7 @@ private:
 	static std::vector<AntTimedValue>::iterator Find(const AntDataMap::iterator & iter,
 	                                                 const Time & time);
 
-	ID                      d_ID;
+	fort::myrmidon::AntID   d_ID;
 	Identification::List    d_identifications;
 	TypedCapsuleList        d_capsules;
 	Color                   d_displayColor;

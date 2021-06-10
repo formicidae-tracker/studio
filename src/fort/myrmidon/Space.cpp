@@ -12,7 +12,7 @@ Space::Space(const PPtr & pSpace)
 	: d_p(pSpace) {
 }
 
-Space::ID Space::SpaceID() const {
+SpaceID Space::SpaceID() const {
 	return d_p->SpaceID();
 }
 

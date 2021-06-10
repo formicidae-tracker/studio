@@ -87,12 +87,12 @@ void ExperimentReadWriter::DoSave(const Experiment & experiment, const fs::path 
 		                });
 	}
 
-	std::vector<fort::myrmidon::Ant::ID> antIDs;
+	std::vector<fort::myrmidon::AntID> antIDs;
 	for (const auto & [ID,a] : experiment.CIdentifier().CAnts() ) {
 		antIDs.push_back(ID);
 	}
-	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::Ant::ID a,
-	                                         fort::myrmidon::Ant::ID b) -> bool {
+	std::sort(antIDs.begin(),antIDs.end(),[](fort::myrmidon::AntID a,
+	                                         fort::myrmidon::AntID b) -> bool {
 		                                      return a < b;
 	                                      });
 
