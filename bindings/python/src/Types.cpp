@@ -179,8 +179,8 @@ void BindExperimentDataInfo(py::module_ & m) {
 		;
 }
 
-
 void BindTypes(py::module_ & m) {
+	BindColor(m);
 	BindTime(m);
 	BindAntStaticValue(m);
 	BindComputedMeasurement(m);

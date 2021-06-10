@@ -4,6 +4,7 @@ set(SRC_FILES Time.cpp
               Ant.cpp
               Matchers.cpp
               Query.cpp
+              Color.cpp
               main.cpp
               )
 

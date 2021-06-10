@@ -25,8 +25,6 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 	        &ColorComboBox::onActivated);
 }
 
-
-
 const QColor & ColorComboBox::color() const {
 	return d_color;
 }
