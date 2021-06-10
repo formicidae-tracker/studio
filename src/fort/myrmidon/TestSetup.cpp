@@ -342,7 +342,7 @@ void TestSetup::CreateMyrmidonFile(const std::string & name,
 	for (size_t i = 1; i <=3; ++i) {
 		fort::myrmidon::pb::AntDescription a;
 		a.set_id(i);
-		priv::proto::IOUtils::SaveColor(a.mutable_color(),DefaultPalette().at(0));
+		priv::proto::IOUtils::SaveColor(a.mutable_color(),DefaultPaletteColor(0));
 		l.set_allocated_antdescription(&a);
 		if (!google::protobuf::util::SerializeDelimitedToZeroCopyStream(l, gunziped.get()) ) {
 			throw std::runtime_error("could not write ant data " + std::to_string(i));

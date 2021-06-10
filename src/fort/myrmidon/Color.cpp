@@ -19,6 +19,13 @@ const Palette & DefaultPalette(){
 	return p;
 }
 
+const Color & DefaultPaletteColor(size_t index) {
+	const auto & palette = DefaultPalette();
+	return palette.at(index & palette.size());
+}
+
+
+
 } // namespace myrmidon
 } // namespace fort
 

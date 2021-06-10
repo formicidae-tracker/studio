@@ -21,7 +21,8 @@ TEST_F(GlobalPropertyUTest,SignalStateTest) {
 	fmp::Experiment::Ptr experiment;
 	GlobalPropertyBridge globalProperties(NULL);
 	ASSERT_NO_THROW({
-			experiment = fmp::priv::Experiment::NewFile(TestSetup::Basedir() / "globalProperty.myrmidon");
+			experiment = fmp::priv::Experiment::Create(TestSetup::Basedir() / "globalProperty.myrmidon");
+			experiment->Save(TestSetup::Basedir() / "globalProperty.myrmidon");
 		});
 
 	QSignalSpy activatedSignal(&globalProperties,SIGNAL(activated(bool)));

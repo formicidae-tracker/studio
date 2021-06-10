@@ -21,7 +21,7 @@ Ant::Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
          const AntMetadataConstPtr & metadata,
          fort::myrmidon::AntID ID)
 	: d_ID(ID)
-	, d_displayColor(DefaultPalette().at(0) )
+	, d_displayColor(DefaultPaletteColor(0) )
 	, d_displayState(DisplayState::VISIBLE)
 	, d_shapeTypes(shapeTypeContainer)
 	, d_metadata(metadata) {

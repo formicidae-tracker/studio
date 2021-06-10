@@ -33,11 +33,42 @@ typedef std::vector<Color> Palette;
 /**
  * A Palette of 7 color-blind friendly colors for visualiztion.
  *
+ * * Python:
+ * ```python
+ * py_fort_myrmidon.DefaultPalette() -> list(py_fort_myrmidon.Color)
+ * ```
+ * * R:
+ * ```R
+ * fmDefaultPalette <- function() # returns a slist of Rcpp_fmColor
+ * ```
+ *
  * We use the color set from [Wong 2011: Nature methods 8:441].
  *
  */
 const Palette & DefaultPalette();
 
+/**
+ * Safely access a color from the DefaultPalette()
+ *
+ * * Python:
+ * ```python
+ * py_fort_myrmidon.DefaultPaletteColor(index: int) -> py_fort_myrmidon.Color
+ * ```
+ * * R:
+ * ```R
+ * fmDefaultPaletteColor <- function(index = 0) # returns a Rcpp_fmColor
+ * ```
+ *
+ * It is a safe version of
+ * `fort::myrmidon::DefaultPalette().at(index)` as color will be
+ * wrapped around.
+ *
+ * @param index a wrapped around index of the wanted Color in the Palette
+ *
+ * @return the index-th Color of the Palette, wrapped around if `index
+ *         >= DefaultPalette().size()`
+ */
+const Color & DefaultPaletteColor(size_t index);
 
 } // namespace myrmidon
 } // namespace fort

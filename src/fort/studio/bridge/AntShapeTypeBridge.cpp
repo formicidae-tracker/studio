@@ -122,7 +122,7 @@ QList<QStandardItem*> AntShapeTypeBridge::buildTypeItem(const fmp::AntShapeType:
 	auto id = new QStandardItem(QString::number(shapeType->TypeID()));
 	id->setEditable(false);
 	id->setData(data);
-	auto icon = Conversion::iconFromFM(fm::DefaultPalette().at(shapeType->TypeID()));
+	auto icon = Conversion::iconFromFM(fm::DefaultPaletteColor(shapeType->TypeID()));
 	auto name = new QStandardItem(ToQString(shapeType->Name()));
 	name->setEditable(true);
 	name->setData(data);

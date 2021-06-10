@@ -107,7 +107,7 @@ IdentificationWorkspace::IdentificationWorkspace(QWidget *parent)
             &VectorialView::zoomed,
             d_vectorialScene,
             &VectorialScene::onZoomed);
-    d_vectorialScene->setColor(Conversion::colorFromFM(fmp::DefaultPalette().at(fmp::Measurement::HEAD_TAIL_TYPE)));
+    d_vectorialScene->setColor(Conversion::colorFromFM(fmp::DefaultPaletteColor(fmp::Measurement::HEAD_TAIL_TYPE)));
     connect(d_vectorialScene,
             &VectorialScene::vectorCreated,
             this,
@@ -335,7 +335,7 @@ void IdentificationWorkspace::setTagCloseUp(const fmp::TagCloseUpConstPtr & tcu)
 	double squareness = d_tcu->Squareness();
 	const static double threshold = 0.95;
 	if ( squareness < threshold ) {
-		auto color = Conversion::colorFromFM(fmp::DefaultPalette().at(5));
+		auto color = Conversion::colorFromFM(fmp::DefaultPaletteColor(5));
 		d_ui->vectorialView->setBannerMessage(tr("WARNING: Tag Squareness is Low (%1 < %2)").arg(squareness).arg(threshold),color);
 	} else {
 		d_ui->vectorialView->setBannerMessage("",QColor());

@@ -176,7 +176,7 @@ QList<QStandardItem *> MeasurementBridge::buildType(const fmp::MeasurementType::
 	mtID->setEditable(false);
 	mtID->setData(QVariant::fromValue(type));
 	auto name = new QStandardItem(type->Name().c_str());
-	auto icon = Conversion::iconFromFM(fmp::DefaultPalette().at(type->MTID()));
+	auto icon = Conversion::iconFromFM(fm::DefaultPaletteColor(type->MTID()));
 	name->setIcon(icon);
 	name->setData(QVariant::fromValue(type));
 	name->setEditable(true);

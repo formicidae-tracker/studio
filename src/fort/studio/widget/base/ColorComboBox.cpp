@@ -12,7 +12,6 @@ ColorComboBox::ColorComboBox(QWidget * parent)
 
 	addItem(tr("Custom Color"),QColor());
 	insertSeparator(count());
-	const auto & palette = fm::DefaultPalette();
 	size_t i = 0;
 	for( const auto & fmColor : fm::DefaultPalette() ) {
 		auto color = Conversion::colorFromFM(fmColor);
