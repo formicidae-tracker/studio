@@ -1,4 +1,5 @@
 #include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 
 #include "BindMethods.hpp"
 
@@ -43,45 +44,104 @@ void BindAntStaticValue(py::module_ & m) {
 
 void BindComputedMeasurement(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<ComputedMeasurement>(m,"ComputedMeasurement")
-		.def_readonly("Time",&ComputedMeasurement::Time,"The Time this measurement was made")
-		.def_readonly("LengthMM",&ComputedMeasurement::LengthMM,"The length of the measurement in MM")
-		.def_readonly("LengthPixel",&ComputedMeasurement::LengthPixel,"The length of the measurement in pixels")
+	py::class_<ComputedMeasurement>(m,
+	                                "ComputedMeasurement",
+	                                R"pydoc(
+    A manual `fort-studio` measurement and its estimated value in
+    millimeters.
+)pydoc")
+		.def_readonly("Time",
+		              &ComputedMeasurement::Time,
+		              "(py_fort_myrmidon.Time): the Time of the close-up this measurement.")
+		.def_readonly("LengthMM",
+		              &ComputedMeasurement::LengthMM,
+		              "(float): its length in millimeters."
+		              )
+		.def_readonly("LengthPixel",
+		              &ComputedMeasurement::LengthPixel,
+		              "(float): its length in pixel.")
 		;
 }
 
 void BindTagStatistics(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<TagStatistics>(m,"TagStatistics")
-		.def_readonly("TagID",&TagStatistics::ID,"The TagID it refers to")
-		.def_readonly("FirstSeen",&TagStatistics::FirstSeen,"First time the tag was seen")
-		.def_readonly("LastSeen",&TagStatistics::LastSeen,"Last time the tag was seen")
+	py::class_<TagStatistics>(m,
+	                          "TagStatistics",
+	                          "Tag detection statistics for a given TagID")
+		.def_readonly("TagID",
+		              &TagStatistics::ID,
+		              "(int): the TagID it refers to")
+		.def_readonly("FirstSeen",
+		              &TagStatistics::FirstSeen,
+		              "(py_fort_myrmidon.Time): first time the tag was seen")
+		.def_readonly("LastSeen",
+		              &TagStatistics::LastSeen,
+		              "(py_fort_myrmidon.Time): last time the tag was seen")
 		.def_property_readonly("Counts",
 		                       [](const TagStatistics & ts) -> const TagStatistics::CountVector & {
 			                       return ts.Counts;
 		                       },
 		                       py::return_value_policy::reference_internal,
-		                       "Histogram of gaps of non-detection of this tag.")
+		                       "(numpy.ndarray): histogram of gaps of non-detection of this tag.")
 		;
+
 }
 
 void BindIdentifiedFrame(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<IdentifiedFrame,std::shared_ptr<IdentifiedFrame> >(m,"IdentifiedFrame")
-		.def_readonly("FrameTime",&IdentifiedFrame::FrameTime,"The Time of the frame")
-		.def_readonly("Space",&IdentifiedFrame::Space,"The space the frame belongs to")
-		.def_readonly("Height",&IdentifiedFrame::Height,"The height of the tracking image")
-		.def_readonly("Width",&IdentifiedFrame::Width,"The width of the tracking image")
+	py::class_<IdentifiedFrame,std::shared_ptr<IdentifiedFrame> >(m,
+	                                                              "IdentifiedFrame",
+	                                                              R"pydoc(
+    An IdentifiedFrame holds ant detection information associated with
+one video frame.
+)pydoc")
+		.def_readonly("FrameTime",
+		              &IdentifiedFrame::FrameTime,
+		              "(py_fort_myrmidon.time): acquisition time of the frame")
+		.def_readonly("Space",
+		              &IdentifiedFrame::Space,
+		              "(int): the SpaceID of the Space this frame comes from")
+		.def_readonly("Height",
+		              &IdentifiedFrame::Height,
+		              "(int): height in pixel of the original video frame")
+		.def_readonly("Width",
+		              &IdentifiedFrame::Width,
+		              "(int): width in pixel of the original video frame")
 		.def_property_readonly("Positions",
 		                       []( const IdentifiedFrame & f ) -> const IdentifiedFrame::PositionMatrix & {
 			                       return f.Positions;
 		                       },py::return_value_policy::reference_internal,
-		                       R"pydoc(A matrix with the ant positions.
+		                       R"pydoc(
+( numpy.ndarray(numpy.float64[N,5]) ): an array of ant IDs, positions, orientations and current zones.
+   * first column: the ant ID
+   * second and third columns: xy coordinate of the ant, in [0;Width[ x [0;Height[ space.
+   * fourth column: orientation of the ant in radian
+   * fifth column: the current ZoneID. `0` if the Zone are not computed or if the ant is not in a zone.
+ )pydoc")
+		.def("Contains",
+		     &IdentifiedFrame::Contains,
+		     py::arg("antID"),
+		     R"pydoc(
+   Tests if the frame contains a given antID
 
-)pydoc"
-		                       )
-		.def("Contains",&IdentifiedFrame::Contains)
-		.def("At",&IdentifiedFrame::At)
+   Args:
+       antID (int): the AntID to test for.
+   Returns:
+       bool: `true` if antID is present in this IdentifiedFrame
+)pydoc")
+		.def("At",
+		     &IdentifiedFrame::At,
+		     py::arg("index"),
+		     R"pydoc(
+   Returns ant information for a given row.
+
+   Args:
+       index (int): the index in Positions
+   Returns:
+       Tuple[int,numpy.ndarray(numpy.float64[3,1]),int] : the AntID, a vector with its (x,y,theta) position, and its current zone.
+   Raises:
+       IndexError: if index >= len(Positions)
+)pydoc")
 		;
 }
 
@@ -183,6 +243,7 @@ void BindTypes(py::module_ & m) {
 	BindColor(m);
 	BindTime(m);
 	BindAntStaticValue(m);
+	BindTagStatistics(m);
 	BindComputedMeasurement(m);
 	BindIdentifiedFrame(m);
 	BindCollisionFrame(m);
