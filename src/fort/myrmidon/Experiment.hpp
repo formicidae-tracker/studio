@@ -116,7 +116,7 @@ public:
 	 *
 	 * @param filepath the filesystem location for the `.myrmidon` file.
 	 *
-	 * @return the new empty <Experiment>
+	 * @return the new empty Experiment
 	 */
 	static Experiment::Ptr Create(const std::string & filepath);
 
@@ -167,11 +167,10 @@ public:
 	 * fmExperimentCreateSpace <- function(experiment, name = '') # returns a Rcpp_fmSpace
 	 * ```
 	 *
-	 * @name wanted name for the new Space
+	 * @param name wanted name for the new Space
 	 *
 	 * @return the newly created Space.
 	 */
-
 	Space::Ptr CreateSpace(const std::string & name);
 
 	/**
@@ -186,7 +185,7 @@ public:
 	 * fmExperimentDeleteSpace <- function(experiment, spaceID = 0)
 	 * ```
 	 *
-	 * @spaceID the SpaceID of the Space we want to delete.
+	 * @param spaceID the SpaceID of the Space we want to delete.
 	 *
 	 * @throws std::invalid_argument if spaceID is not a valid ID for
 	 *         one of this Experiment Space.
@@ -304,8 +303,8 @@ public:
 	 *
 	 * @param antID the targetted Ant designated by its AntID
 	 * @param tagID the tag to associate with the Ant
-	 * @start the first valid Time. It can be Time::SinceEver()
-	 * @end the first invalid Time. It can be Time::Forever()
+	 * @param start the first valid Time. It can be Time::SinceEver()
+	 * @param end the first invalid Time. It can be Time::Forever()
 	 *
 	 * @return the new Identification
 	 *
@@ -329,7 +328,7 @@ public:
 	 * fmExperimentDeleteIdentification <- function(experiment, identification)
 	 * ```
 	 *
-	 * @identification the Identification to delete
+	 * @param identification the Identification to delete
 	 *
 	 * @throws std::invalid_argument if identification is not an
 	 *         identification for an Ant of this Experiment.
@@ -348,10 +347,8 @@ public:
 	 * fmExperimentFreeIdentificationRangeAt <- function(experiment, tagID = 0, time = fmTimeSinceEver()) # returns a list of two Rcpp_fmTime.
 	 * ```
 	 *
-	 * @start return value by reference for the start of the range
-	 * @end return value by reference for the end of the range
-	 * @tagID the <TagID> we want a range for
-	 * @time the <Time> that must be included in the result time range
+	 * @param tagID the TagID we want a range for
+	 * @param time the Time that must be included in the result time range
 	 *
 	 * Queries for a valid time range for a given TagID and
 	 * Time. The result will be a range [start,end[ containing
@@ -449,6 +446,7 @@ public:
 	 * * R:
 	 * ```R
 	 * fmExperimentTagFamily <- function(experiment) # return an integer corresponding to one of the value of `fmTagFamily` named list
+	 * ```
 	 *
 	 * Gets the family of the tags used in this Experiment. It is
 	 * automatically determined from the information in
@@ -545,12 +543,12 @@ public:
 	 * ```
 	 *
 	 * @param measurementTypeID the MeasurementTypeID to modify
-	 * @name the wanted name
+	 * @param name the wanted name
 	 *
 	 * @throws std::invalid_argument if measurementTypeID is not valid
 	 *         for this Experiment.
 	 */
-	void SetMeasurementTypeName(MeasurementTypeID mTypeID,
+	void SetMeasurementTypeName(MeasurementTypeID measurementTypeID,
 	                            const std::string & name);
 
 	/**
@@ -616,7 +614,7 @@ public:
 	 * ```
 	 *
 	 * @param shapeTypeID the AntShapeTypeID of the shape type to rename
-	 * @name param the new name for the Ant shape type
+	 * @param name param the new name for the Ant shape type
 	 *
 	 * @throws std::invalid_argument if shapeTypeID is not valid for
 	 *         this Experiment.
@@ -755,7 +753,7 @@ public:
 	 * @param time the wanted Time to query for the correspondances
 	 * @param removeUnidentifiedAnt if `true`, just do not report
 	 *        unidentified at this time. If `false`
-	 *        `std::numeric_limits<TagID>::max()` will be returned as
+	 *        std::numeric_limits<TagID>::max() will be returned as
 	 *        a TagID for unidentified Ant (or `NA` for R).
 	 *
 	 * @return a map with the correspondance between AntID and TagID.

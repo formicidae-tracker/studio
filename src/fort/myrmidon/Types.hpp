@@ -77,7 +77,7 @@ typedef uint32_t ZoneID;
  * * R: any S expression that is either a `logical`, an `integer`, a
  *      `numeric`, a `character` or a `fmTime`.
  *
- * A c++ type that can hold only one of any #AntMetadataType.
+ * A c++ type that can hold only one of any #AntMetaDataType.
  */
 typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
 
@@ -132,22 +132,45 @@ typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 
 /**
  * AntMetaDataType enumerates possible type for AntStaticValue
+ *
+ * * Python: `py_fort_myrmidon.AntMetaDataType`
+ * * R: `fnAntMetaDataType` a named list of integer
  */
 enum class AntMetaDataType {
-                            /** A boolean */
+                            /**
+                             * A boolean
+                             * * Python: `py_fort_myrmidon.AntMetaDataType.BOOL`
+                             * * R: `fmAntMetaDataType$BOOL`
+                             */
                             BOOL = 0,
-                            /** An integer */
+                            /**
+                             * An integer
+                             * * Python: `py_fort_myrmidon.AntMetaDataType.INT`
+                             * * R: `fmAntMetaDataType$INT`
+                             */
                             INT,
-                            /** a float */
+                            /**
+                             * a float
+                             * * Python: `py_fort_myrmidon.AntMetaDataType.DOUBLE`
+                             * * R: `fmAntMetaDataType$DOUBLE`
+                             */
                             DOUBLE,
-                            /** a std::string */
+                            /**
+                             * a std::string
+                             * * Python: `py_fort_myrmidon.AntMetaDataType.STRING`
+                             * * R: `fmAntMetaDataType$STRING`
+                             */
                             STRING,
-                            /** a Time */
+                            /**
+                             * a Time
+                             * * Python: `py_fort_myrmidon.AntMetaDataType.TIME`
+                             * * R: `fmAntMetaDataType$TIME`
+                             */
                             TIME,
 };
 
 /**
- * Represents a Measurement in mm at a given Time.
+ * Represents a Measurement in millimeters at a given Time.
  *
  * * Python: a `py_fort_myrmidon.ComputedMeasurement` object with read-only properties `Time`, `LengthMM` and `LengthPixel`.
  * * R: see Query::ComputeMeasurementFor
@@ -157,20 +180,30 @@ enum class AntMetaDataType {
  * in the image.
  */
 struct ComputedMeasurement {
-	/** A list of measurement */
+	/**
+	 * A list of measurement
+	 */
 	typedef std::vector<ComputedMeasurement> List;
-	/** The Time of the Measurement */
+	/**
+	 * the Time of the Measurement
+	 */
 	fort::Time Time;
-	/** the value in mm of the measurement */
+	/**
+	 * the value in mm of the measurement
+	 */
 	double     LengthMM;
-	/** the value of the measurement in pixels */
+	/**
+	 * the value of the measurement in pixels
+	 */
 	double     LengthPixel;
 };
-// Statistics about a <TagID> in the experiment.
+/**
+ * Statistics about a TagID in the experiment.
+ */
 struct TagStatistics {
-	// A map of <TagStatistics> indexed by <TagID>
+	/** A map of TagStatistics indexed by TagID */
 	typedef std::map<TagID,TagStatistics>   ByTagID;
-	// A vector of count.
+	/** A vector of count. */
 	typedef Eigen::Matrix<uint64_t,Eigen::Dynamic,1> CountVector;
 	// Designating each index of <CountVector>
 	enum CountHeader {
@@ -206,7 +239,9 @@ struct TagStatistics {
 	CountVector Counts;
 };
 
-// A visual frame were <Ant> have been identified from their <TagID>
+/**
+ * A video frame were Ant have been identified from their TagID
+ */
 struct IdentifiedFrame {
 	// A pointer to an IdentifiedFrame
 	typedef std::shared_ptr<IdentifiedFrame>       Ptr;
@@ -234,192 +269,287 @@ struct IdentifiedFrame {
 	std::tuple<AntID,const Eigen::Ref<const Eigen::Vector3d>,ZoneID> At(size_t index) const;
 };
 
-// Designates an interaction between two <Ant>
-//
-// Designates an interaction between two <Ant>, using their
-// <AntID>. InteractionID are always constructed such as the first ID
-// is strictly smaller than the second ID, so it ensures uniqueness of
-// the InteractionID to reports interactions.
+/**
+ * Designates an interaction between two Ant
+ *
+ * Designates an interaction between two Ant, using their
+ * AntID. InteractionID are always constructed such as the first ID
+ * is strictly smaller than the second ID, so it ensures uniqueness of
+ * the InteractionID to reports interactions and collisions.
+*/
 typedef std::pair<AntID,AntID>                   InteractionID;
 
-// Designates list of interaction type for an interaction.
-//
-// Designates an interaction type for an interaction. Each line
-// represent a colliding capsules type. First column the first ant and
-// the second column the second ant.
+/**
+ * Designates list of interaction type for an interaction.
+ *
+ * Designates an interaction type for an interaction. Each line
+ * represent a colliding capsules type. First column specifies the
+ * type for the first ant and the second column the second
+ * ant. Therefore (2,1) is not identical to (1,2).
+ */
 typedef Eigen::Matrix<uint32_t,Eigen::Dynamic,2> InteractionTypes;
 
-
-// Defines an interaction between two <Ant> ponctual in <Time>
+/**
+ * Defines an interaction between two Ant, ponctual in Time
+ */
 struct Collision {
-	// The <AntID> of the two Ants interacting.
-	//
-	// The <AntID> of the two Ants interacting. Please note that the
-	// constraint `IDS.first < IDs.second` is always maintained to
-	// ensure uniqueness of IDs for <AntInteraction>.
+	/**
+	 * The AntID of the two Ants interacting.
+	 *
+	 * The AntID of the two Ants interacting. Please note that
+	 * `IDS.first < IDs.second` remains always true, to ensure
+	 * uniqueness of IDs for AntInteraction.
+	 */
 	InteractionID                IDs;
-	// Reports all virtual <AntShapeTypeID> interacting between the two Ants.
+	/**
+	 * Reports all virtual AntShapeTypeID interacting between the two Ants.
+	 */
 	InteractionTypes             Types;
-	// Reports the <Zone> where the interaction happened.
-	//
-	// Reports the <Zone> where the interaction happened, the
-	// corresponding <Space> is reported in <CollisionFrame>. 0 means
-	// the default zone.
+	/**
+	 * Reports the Zone where the interaction happened.
+	 *
+	 * Reports the Zone where the interaction happened, the
+	 * corresponding Space is reported in CollisionFrame. 0 means
+	 * the default zone.
+	 */
 	ZoneID                       Zone;
 };
-
-// Reports all <Collision> happening at a given time.
+/**
+ * Reports all Collision happening at a given time.
+ */
 struct CollisionFrame {
-	// A pointer to a CollisionFrame
+	/**
+	 * A pointer to a CollisionFrame
+	 */
 	typedef std::shared_ptr<CollisionFrame> Ptr;
-	// The <Time> when the interaction happens
+	/**
+	 * The Time when the interaction happens
+	 */
 	Time                   FrameTime;
-	// Reports the <Space> this frame is taken from
+	/**
+	 * Reports the Space this frame is taken from
+	 */
 	SpaceID                Space;
-	// The <Collision> happenning at <FrameTime>
+	/**
+	 * The Collision taking place at FrameTime
+	 */
 	std::vector<Collision> Collisions;
 
 };
 
-// Defines a trajectory for an <Ant>
+/**
+ * Defines a trajectory for an Ant
+ */
 struct AntTrajectory {
-	// A pointer to the trajectory
+	/**
+	 * A pointer to the trajectory
+	 */
 	typedef std::shared_ptr<AntTrajectory> Ptr;
 
-	// Reports the <AntID> of the <Ant> this trajectory refers to.
+	/**
+	 * Reports the AntID of the Ant this trajectory refers to.
+	 */
 	AntID   Ant;
-	// Reports the <Space> this trajectory is taking place.
+	/**
+	 * Reports the Space this trajectory is taking place.
+	 */
 	SpaceID Space;
-	// Reports the starting <Time> of this trajectory.
-	//
-	// Reports the starting <Time> of this trajectory. <Positions>
-	// first column are second offset from this time.
+	/**
+	 * Reports the starting Time of this trajectory.
+	 *
+	 * Reports the starting Time of this trajectory. Positions
+	 * first column are second offset from this time.
+	 */
 	Time    Start;
-	// Reports the time and position in the frame.
-	//
-	// Reports the time and position in the frame.
-	//
-	// * first column: offset in second since <Start>
-	// * second and third column: X,Y position in the image
-	// * fourth column: Angle in ]-π,π], in trigonometric
-	//   orientation. As in images Y axis points bottom, positove
-	//   angle appears clockwise.
-	// * fith column: the zone of the ant
+	/**
+	 * Reports the time and position in the frame.
+	 *
+	 * Reports the time and position in the frame.
+	 *
+	 * * first column: offset in second since Start
+	 * * second and third column: X,Y position in the image
+	 * * fourth column: Angle in ]-π,π], in trigonometric
+	 *   orientation. As in images Y axis points bottom, positove
+	 *   angle appears clockwise.
+	 * * fith column: the zone of the ant
+	 */
 	Eigen::Matrix<double,Eigen::Dynamic,5> Positions;
 
-	// End <Time> for this Trajectory
-	//
-	// @return a <Time> computed from <Start> and the <Positions>
-	//         data.
+	/**
+	 * End Time for this Trajectory
+	 *
+	 * @return a Time computed from Start and the Positions
+	 *         data.
+	 */
 	Time End() const;
 };
 
-// Defines a sub segment of a trajectory
+/**
+ * Defines a sub segment of a trajectory
+ */
 struct AntTrajectorySegment {
-	// The refering trajectory
+	/**
+	 * The refering trajectory
+	 */
 	AntTrajectory::Ptr Trajectory;
-
-	// The starting index of the segment in the referring trajectory.
+	/**
+	 * The starting index of the segment in the referring trajectory.
+	 */
 	size_t Begin;
-	// The index after the last index in the referring trajectory.
+	/**
+	 * The index after the last index in the referring trajectory.
+	 */
 	size_t End;
 
-	// Optionally report the mean trajectory.
+	/**
+	 * Optionally report the mean trajectory.
+	 */
 	std::unique_ptr<Eigen::Vector3d> Mean;
 };
 
 
 
-
-// Defines an interaction between two Ants
+/**
+ * Defines an interaction between two Ants
+ */
 struct AntInteraction {
-	// A pointer to the interaction structure
+	/**
+	 * A pointer to the interaction structure
+	 */
 	typedef std::shared_ptr<AntInteraction> Ptr;
 
-	// The IDs of the two <Ant>.
-	//
-	// The ID of the two <Ant>. Always reports `IDs.first <
-	// IDs.second`.
+	/**
+	 * The IDs of the two Ant.
+	 *
+	 * The ID of the two Ant. Always reports `IDs.first <
+	 * IDs.second`.
+	 */
 	InteractionID                      IDs;
-	// Virtual shape body part that were in contact.
-	//
-	// Virtual shape body part that were in contact during the
-	// interaction.
+	/**
+	 * Virtual shape body part that were in contact.
+	 *
+	 * Virtual shape body part that were in contact during the
+	 * interaction.
+	 */
 	InteractionTypes                  Types;
-	// Reports the <AntTrajectory> of each Ant.
-	//
-	// Reports the <AntTrajectory> of each Ant during the
-	// interaction. The Trajectory are truncated to the interaction
-	// timing.
+	/**
+	 * Reports the AntTrajectory of each Ant.
+	 *
+	 * Reports the AntTrajectory of each Ant during the
+	 * interaction. The Trajectory are truncated to the interaction
+	 * timing.
+	 */
 	std::pair<AntTrajectorySegment,
 	          AntTrajectorySegment>    Trajectories;
-	// Reports the <Time> the interaction starts
+	/**
+	 * Reports the Time the interaction starts
+	 */
 	Time                               Start;
-	// Reports the <Time> the interaction ends
+	/**
+	 * Reports the Time the interaction ends
+	 */
 	Time                               End;
-	// Reports the <SpaceID> where the interaction happend
+	/**
+	 * Reports the SpaceID where the interaction happend
+	 */
 	SpaceID                            Space;
 
 };
 
-
-// Reports information about a tracking data directory.
+/**
+ * Reports information about a tracking data directory.
+ */
 struct TrackingDataDirectoryInfo {
-	// The URI used in the GUI to designate the tracking data directory
+	/**
+	 * The URI used in the GUI to designate the tracking data directory
+	 */
 	std::string URI;
-	// The absolute filepath on the directory on the system
+	/**
+	 * The absolute filepath on the directory on the system
+	 */
 	std::string AbsoluteFilePath;
-	// The number of Frames in this directory
+	/**
+	 * The number of Frames in this directory
+	 */
 	uint64_t    Frames;
-	// The first frame <Time>
+	/**
+	 * The first frame Time
+	 */
 	Time        Start;
-	// The last frame <Time>
+	/**
+	 * The last frame Time
+	 */
 	Time        End;
 };
 
-// Reports global tracking data stats for a <Space>
+/**
+ * Reports global tracking data stats for a Space
+ */
 struct SpaceDataInfo {
-	// The URI used to designate the <Space>
+	/**
+	 * The URI used to designate the Space
+	 */
 	std::string URI;
-	// The name of the <Space>
+	/**
+	 * The name of the Space
+	 */
 	std::string Name;
-	// The number of frame in the <Space>
+	/**
+	 * The number of frame in the Space
+	 */
 	uint64_t    Frames;
-	// The first <Time> present in the <Space>
+	/**
+	 * The first Time present in the Space
+	 */
 	Time        Start;
-	// The last <Time> present in the <Space>
+	/**
+	 * The last Time present in the Space
+	 */
 	Time        End;
-
-	// Infos for all tracking data directories, ordered in <Time>
+	/**
+	 * Infos for all tracking data directories, ordered in Time
+	 */
 	std::vector<TrackingDataDirectoryInfo> TrackingDataDirectories;
 };
 
-// Reports global tracking data stats for an <Experiment>
+/**
+ * Reports global tracking data stats for an Experiment
+ */
 struct ExperimentDataInfo {
-	// The number of tracked frame in the <Experiment>
+	/**
+	 * The number of tracked frame in the Experiment
+	 */
 	uint64_t Frames;
-	// The <Time> of the first tracked frame
+	/**
+	 * The Time of the first tracked frame
+	 */
 	Time     Start;
-	// the <Time> of the last tracked frame
+	/**
+	 * the Time of the last tracked frame
+	 */
 	Time     End;
 
-	// Data infos for all <Space>
+	/**
+	 * Data infos for all Space
+	 */
 	std::map<SpaceID,SpaceDataInfo> Spaces;
 };
-
-// Formats a TagID to convention format
-// @tagID the <TagID> to format
-//
-// @return <tagID> formatted to the myrmidon convetion for <TagID>.
+/**
+ * Formats a TagID to convention format
+ * @param tagID the TagID to format
+ *
+ * @return tagID formatted to the myrmidon convetion for TagID.
+ */
 std::string FormatTagID(TagID tagID);
 
 }
 }
 
-
-// C++ Formatting operator for AntStaticValue
-// @out the <std::ostream> to format the value to
-// @v the <fort::myrmidon::AntStaticValue> to format
-//
-// @return a reference to <out>
+/**
+ * C++ Formatting operator for AntStaticValue
+ * @param out the std::ostream to format the value to
+ * @param v the fort::myrmidon::AntStaticValue to format
+ *
+ * @return a reference to out
+ */
 std::ostream & operator<<(std::ostream & out, const fort::myrmidon::AntStaticValue & v);
