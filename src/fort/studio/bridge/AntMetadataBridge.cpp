@@ -23,7 +23,7 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 	, d_dataModel(new QStandardItemModel(this))
 	, d_timedChangeModel(new QStandardItemModel(this) )
 	, d_selectedAntID(0) {
-	qRegisterMetaType<fmp::AntMetadata::Column::Ptr>();
+	qRegisterMetaType<fmp::AntMetadata::Key::Ptr>();
 	qRegisterMetaType<fmp::Ant::Ptr>();
 	qRegisterMetaType<fort::Time>();
 
@@ -45,7 +45,7 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 
 #define add_item_type(t,T,tT) do {	  \
 		auto  item = new QStandardItem(#tT); \
-		item->setData(quint32(fmp::AntMetadata::Type::T)); \
+		item->setData(quint32(fmp::AntMetaDataType::T)); \
 		d_typeModel->appendRow(item); \
 	}while(0)
 	add_item_type(bool,BOOL,Bool);
@@ -54,11 +54,11 @@ AntMetadataBridge::AntMetadataBridge(QObject * parent)
 #undef add_item_type
 
 	auto stringItem = new QStandardItem("String");
-	stringItem->setData(quint32(fmp::AntMetadata::Type::STRING));
+	stringItem->setData(quint32(fmp::AntMetaDataType::STRING));
 	d_typeModel->appendRow(stringItem);
 
 	auto timeItem = new QStandardItem("Time");
-	timeItem->setData(quint32(fmp::AntMetadata::Type::TIME));
+	timeItem->setData(quint32(fmp::AntMetaDataType::TIME));
 	d_typeModel->appendRow(timeItem);
 
 	connect(this,
@@ -100,8 +100,8 @@ void AntMetadataBridge::setUpExperiment() {
 		return;
 	}
 
-	for ( const auto & [name,column] : d_experiment->AntMetadataPtr()->Columns() ) {
-		d_columnModel->appendRow(buildColumn(column));
+	for ( const auto & [name,key] : d_experiment->AntMetadataPtr()->Keys() ) {
+		d_columnModel->appendRow(buildColumn(key));
 	}
 
 	rebuildDataModel();
@@ -128,11 +128,11 @@ void AntMetadataBridge::addMetadataColumn(const QString & name, quint32 type) {
 	if ( !d_experiment ) {
 		return;
 	}
-	fmp::AntMetadata::Column::Ptr column;
+	fmp::AntMetadata::Key::Ptr column;
 	try {
 		qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Experiment::AddAntMetadataColumn("
 		         << name << "," << type;
-		column = d_experiment->AddAntMetadataColumn(ToStdString(name),fmp::AntMetadata::Type(type));
+		column = d_experiment->SetMetaDataKey(ToStdString(name),fmp::AntMetadata::DefaultValue(fm::AntMetaDataType(type)));
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not create AntMetadataColumn '" << name << "':" << e.what();
 		return;
@@ -159,7 +159,7 @@ void AntMetadataBridge::removeMetadataColumn(const QString & name) {
 	try {
 		qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::Experiment::DeleteAntMetadataColumn("
 		         << name << ")";
-		d_experiment->DeleteAntMetadataColumn(ToStdString(name));
+		d_experiment->DeleteMetaDataKey(ToStdString(name));
 	} catch ( const std::exception & e ) {
 		qCritical() << "Could not delete AntMetadataColumn " << name
 		            << ": " << e.what();
@@ -174,14 +174,14 @@ void AntMetadataBridge::removeMetadataColumn(const QString & name) {
 	emit metadataColumnRemoved(name);
 }
 
-QList<QStandardItem*> AntMetadataBridge::buildColumn(const fmp::AntMetadata::Column::Ptr & column) {
+QList<QStandardItem*> AntMetadataBridge::buildColumn(const fmp::AntMetadata::Key::Ptr & column) {
 	auto data = QVariant::fromValue(column);
 	auto nameItem = new QStandardItem(ToQString(column->Name()));
 	nameItem->setData(data);
 
-	auto typeItem = new QStandardItem(findTypeName(column->MetadataType()));
+	auto typeItem = new QStandardItem(findTypeName(column->Type()));
 	typeItem->setData(data);
-	typeItem->setData(quint32(column->MetadataType()),Qt::UserRole+2);
+	typeItem->setData(quint32(column->Type()),Qt::UserRole+2);
 
 	auto valueItem = new QStandardItem(ToQString(column->DefaultValue()));
 	valueItem->setEditable(true);
@@ -192,7 +192,7 @@ QList<QStandardItem*> AntMetadataBridge::buildColumn(const fmp::AntMetadata::Col
 
 
 void AntMetadataBridge::onColumnItemChanged(QStandardItem * item) {
-	auto column = item->data(Qt::UserRole+1).value<fmp::AntMetadata::Column::Ptr>();
+	auto column = item->data(Qt::UserRole+1).value<fmp::AntMetadata::Key::Ptr>();
 	if ( !column ) {
 		return;
 	}
@@ -200,7 +200,7 @@ void AntMetadataBridge::onColumnItemChanged(QStandardItem * item) {
 	if ( item->column() == 2 ) {
 
 		try {
-			auto v = fmp::AntMetadata::FromString(column->MetadataType(),ToStdString(item->text()));
+			auto v = fmp::AntMetadata::FromString(column->Type(),ToStdString(item->text()));
 			qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::AntMetadata::Column::SetDefaultValue(" << ToQString(v) << ")";
 			column->SetDefaultValue(v);
 			QSignalBlocker blocker(d_columnModel);
@@ -217,24 +217,24 @@ void AntMetadataBridge::onColumnItemChanged(QStandardItem * item) {
 		        << "' to " << item->text();
 
 		setModified(true);
-		emit metadataColumnChanged(ToQString(column->Name()),quint32(column->MetadataType()));
+		emit metadataColumnChanged(ToQString(column->Name()),quint32(column->Type()));
 		return;
 	}
 
 	if ( item->column() == 1 ) {
-		auto type = item->data(Qt::UserRole+2).toInt();
-		if ( type == int(column->MetadataType()) ) {
+		auto type = fm::AntMetaDataType(item->data(Qt::UserRole+2).toInt());
+		if ( type == column->Type() ) {
 			return;
 		}
 		try {
-			qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::AntMetadata::Column::SetMetadataType(" << type << ")";
-			column->SetMetadataType(fmp::AntMetadata::Type(type));
+			qDebug() << "[AntMetadataBridge]: Calling fort::myrmidon::priv::AntMetadata::Column::SetMetadataType(" << int(type) << ")";
+			column->SetDefaultValue(fmp::AntMetadata::DefaultValue(type));
 		} catch (const std::exception & e) {
 			qCritical() << "Could not change type for column '" << ToQString(column->Name())
 			            << "': " << e.what();
 			return;
 		}
-		auto newTypeStr = findTypeName(column->MetadataType());
+		auto newTypeStr = findTypeName(column->Type());
 
 		qInfo() << "Changed AntMetadataColumn '" << ToQString(column->Name())
 		        << "' type from " << item->text() << " to " << newTypeStr;
@@ -248,7 +248,7 @@ void AntMetadataBridge::onColumnItemChanged(QStandardItem * item) {
 
 
 		setModified(true);
-		emit metadataColumnChanged(ToQString(column->Name()),type);
+		emit metadataColumnChanged(ToQString(column->Name()),int(type));
 		return;
 	}
 
@@ -274,14 +274,14 @@ void AntMetadataBridge::onColumnItemChanged(QStandardItem * item) {
 		        << "'" ;
 		setModified(true);
 		d_columnModel->sort(0,Qt::AscendingOrder);
-		emit metadataColumnChanged(ToQString(column->Name()),quint32(column->MetadataType()));
+		emit metadataColumnChanged(ToQString(column->Name()),quint32(column->Type()));
 		return;
 	}
 
 }
 
 
-QString AntMetadataBridge::findTypeName(fmp::AntMetadata::Type type) {
+QString AntMetadataBridge::findTypeName(fmp::AntMetaDataType type) {
 	for ( int i = 0; i < d_typeModel->rowCount(); ++i ) {
 		auto item = d_typeModel->item(i,0);
 		if ( item == nullptr ) {
@@ -311,7 +311,7 @@ void AntMetadataBridge::rebuildDataModel() {
 	if ( !d_experiment  ) {
 		return;
 	}
-	const auto & columns = d_experiment->AntMetadataPtr()->Columns();
+	const auto & columns = d_experiment->AntMetadataPtr()->Keys();
 	const auto & ants  = d_experiment->Identifier()->Ants();
 	for ( const auto & [name,column] : columns ) {
 		labels.push_back(ToQString(name));
@@ -357,7 +357,7 @@ void AntMetadataBridge::rebuildDataModel() {
 
 void AntMetadataBridge::setupItemFromValue(QStandardItem * item,
                                            const fmp::Ant::ConstPtr & ant,
-                                           const fmp::AntMetadata::Column::ConstPtr & column) {
+                                           const fmp::AntMetadata::Key::ConstPtr & column) {
 	bool isDefault = true;
 	fm::AntStaticValue v;
 	try {
@@ -377,7 +377,7 @@ void AntMetadataBridge::setupItemFromValue(QStandardItem * item,
 
 void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 	auto ant = item->data(Qt::UserRole+1).value<fmp::Ant::Ptr>();
-	auto col = item->data(Qt::UserRole+2).value<fmp::AntMetadata::Column::Ptr>();
+	auto col = item->data(Qt::UserRole+2).value<fmp::AntMetadata::Key::Ptr>();
 
 	if ( !ant == true || !col == true ) {
 		return;
@@ -400,7 +400,7 @@ void AntMetadataBridge::onDataItemChanged(QStandardItem * item) {
 	}
 
 	try {
-		auto v = fmp::AntMetadata::FromString(col->MetadataType(),ToStdString(item->text()));
+		auto v = fmp::AntMetadata::FromString(col->Type(),ToStdString(item->text()));
 		try {
 			auto actual = ant->GetBaseValue(col->Name());
 			if ( v == actual ) {
@@ -445,9 +445,9 @@ void AntMetadataBridge::selectRow(int row) {
 	setSelectedAntID(ant->AntID());
 
 	for ( const auto & [name,tValues] : ant->DataMap() ) {
-		fmp::AntMetadata::Column::Ptr column;
+		fmp::AntMetadata::Key::Ptr column;
 		try {
-			column = d_experiment->AntMetadataPtr()->Columns().at(name);
+			column = d_experiment->AntMetadataPtr()->Keys().at(name);
 		} catch ( const std::exception & e) {
 			qWarning() << "Could not find column '" << ToQString(name);
 			selectRow(-1);
@@ -479,7 +479,7 @@ void AntMetadataBridge::setSelectedAntID(quint32 antID) {
 }
 
 QList<QStandardItem*> AntMetadataBridge::buildTimedChange(const fmp::Ant::Ptr & ant,
-                                                          const fmp::AntMetadata::Column::Ptr & column,
+                                                          const fmp::AntMetadata::Key::Ptr & column,
                                                           const fort::Time & time,
                                                           const fm::AntStaticValue & value) {
 	auto data = QVariant::fromValue(ant);
@@ -522,7 +522,7 @@ void AntMetadataBridge::addTimedChange(quint32 antID,const QString & name) {
 	}
 
 
-	auto column = items[0]->data(Qt::UserRole+1).value<fmp::AntMetadata::Column::Ptr>();
+	auto column = items[0]->data(Qt::UserRole+1).value<fmp::AntMetadata::Key::Ptr>();
 	if ( !ant || !column ) {
 		return;
 	}
@@ -602,7 +602,7 @@ void AntMetadataBridge::removeTimedChange(const QModelIndex & index) {
 
 void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 	auto ant = item->data().value<fmp::Ant::Ptr>();
-	auto column = item->data(Qt::UserRole+2).value<fmp::AntMetadata::Column::Ptr>();
+	auto column = item->data(Qt::UserRole+2).value<fmp::AntMetadata::Key::Ptr>();
 
 	if (!ant || !column ||  !d_experiment ) {
 		item->setText(item->data(Qt::UserRole+3).toString());
@@ -622,7 +622,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 		timeItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),1));
 		time = fort::Time::Parse(ToStdString(timeItem->data(Qt::UserRole+3).toString()));
 		valueItem = d_timedChangeModel->itemFromIndex(d_timedChangeModel->index(item->row(),2));
-		value = fmp::AntMetadata::FromString(column->MetadataType(),ToStdString(valueItem->data(Qt::UserRole+3).toString()));
+		value = fmp::AntMetadata::FromString(column->Type(),ToStdString(valueItem->data(Qt::UserRole+3).toString()));
 	} catch ( const std::exception & e) {
 		qWarning() << "Could not retrieve time change data: " << e.what();
 		item->setText(item->data(Qt::UserRole+3).toString());
@@ -666,7 +666,7 @@ void AntMetadataBridge::onTimedChangeItemChanged(QStandardItem * item) {
 	if ( item->column() == 2 ) {
 		fm::AntStaticValue newValue;
 		try {
-			newValue = fmp::AntMetadata::FromString(column->MetadataType(),ToStdString(item->text()));
+			newValue = fmp::AntMetadata::FromString(column->Type(),ToStdString(item->text()));
 		} catch ( const std::exception & e ) {
 			qWarning() << "Could not parse AntStaticValue " << item->text()
 			           << ": " << e.what();

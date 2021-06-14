@@ -325,6 +325,14 @@ void BindExperimentDataInfo(py::module_ & m) {
 }
 
 void BindTypes(py::module_ & m) {
+	py::class_<fort::myrmidon::AntStaticValue>(m,"AntStaticValue");
+	py::enum_<fort::myrmidon::AntMetaDataType>(m,"AntMetaDataType")
+		.value("BOOL",fort::myrmidon::AntMetaDataType::BOOL)
+		.value("INT",fort::myrmidon::AntMetaDataType::INT)
+		.value("DOUBLE",fort::myrmidon::AntMetaDataType::DOUBLE)
+		.value("STRING",fort::myrmidon::AntMetaDataType::STRING)
+		.value("TIME",fort::myrmidon::AntMetaDataType::TIME)
+		;
 	BindColor(m);
 	BindTime(m);
 	BindTagStatistics(m);

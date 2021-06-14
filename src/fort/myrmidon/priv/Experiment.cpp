@@ -53,8 +53,8 @@ Experiment::Experiment(const fs::path & filepath )
 
 	auto onTypeChange =
 		[this](const std::string & name,
-		       AntMetadata::Type oldType,
-		       AntMetadata::Type newType) {
+		       AntMetaDataType oldType,
+		       AntMetaDataType newType) {
 			if ( oldType == newType ) {
 				return;
 			}
@@ -567,19 +567,15 @@ AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
 	return d_antShapeTypes;
 }
 
-fort::myrmidon::priv::AntMetadataConstPtr Experiment::AntMetadataConstPtr() const {
-	return d_antMetadata;
-}
-
-fort::myrmidon::priv::AntMetadataPtr Experiment::AntMetadataPtr() {
+fort::myrmidon::priv::AntMetadataPtr Experiment::AntMetadataPtr() const {
 	return d_antMetadata;
 }
 
 
-AntMetadata::Column::Ptr
-Experiment::AddAntMetadataColumn(const std::string & name,
-                                 AntMetadata::Type type) {
-	auto res = AntMetadata::Create(d_antMetadata,name,type);
+AntMetadata::Key::Ptr
+Experiment::SetMetaDataKey(const std::string & name,
+                           AntStaticValue defaultValue) {
+	auto res = AntMetadata::SetKey(d_antMetadata,name,defaultValue);
 
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		a->CompileData();
@@ -588,22 +584,30 @@ Experiment::AddAntMetadataColumn(const std::string & name,
 	return res;
 }
 
-void Experiment::DeleteAntMetadataColumn(const std::string & name) {
+void Experiment::DeleteMetaDataKey(const std::string & key) {
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
-		if ( a->DataMap().count(name) != 0 ) {
-			throw std::runtime_error("Cannot remove AntMetadataColumn '"
-			                         + name
+		if ( a->DataMap().count(key) != 0 ) {
+			throw std::runtime_error("Cannot remove meta data key  '"
+			                         + key
 			                         + "': Ant "
 			                         + Ant::FormatID(aID)
-			                         + " contains data");
+			                         + " contains timed data");
 		}
 	}
 
-	d_antMetadata->Delete(name);
+	d_antMetadata->Delete(key);
 
 	for ( const auto & [aID,a] : d_identifier->Ants() ) {
 		a->CompileData();
 	}
+}
+
+void Experiment::RenameMetaDataKey(const std::string & oldName, const std::string & newName) {
+	auto fi = d_antMetadata->Keys().find(oldName);
+	if (fi == d_antMetadata->Keys().end() ) {
+		throw std::out_of_range("Unknow meta data key '" + oldName + "'");
+	}
+	fi->second->SetName(newName);
 }
 
 

@@ -26,13 +26,13 @@ protected:
 	}
 
 	void setEditorData ( QWidget *editor, const QModelIndex &index ) const override {
-		auto column = index.data(Qt::UserRole+1).value<fmp::AntMetadata::Column::Ptr>();
+		auto column = index.data(Qt::UserRole+1).value<fmp::AntMetadata::Key::Ptr>();
 		auto combo = qobject_cast<QComboBox*>(editor);
 		if ( combo == nullptr || !column == true ) {
 			return;
 		}
 
-		combo->setCurrentIndex(int(column->MetadataType()));
+		combo->setCurrentIndex(int(column->Type()));
 	}
 
 	void setModelData ( QWidget *editor, QAbstractItemModel *model, const QModelIndex &index ) const override {

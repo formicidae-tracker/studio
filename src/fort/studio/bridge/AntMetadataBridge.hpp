@@ -57,19 +57,19 @@ protected:
 	void tearDownExperiment() override;
 
 private:
-	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Column::Ptr & column);
+	QList<QStandardItem*> buildColumn(const fmp::AntMetadata::Key::Ptr & column);
 	QList<QStandardItem*> buildTimedChange(const fmp::Ant::Ptr & ant,
-	                                       const fmp::AntMetadata::Column::Ptr & name,
+	                                       const fmp::AntMetadata::Key::Ptr & name,
 	                                       const fort::Time & time,
 	                                       const fm::AntStaticValue & value);
-	QString findTypeName(fmp::AntMetadata::Type type);
+	QString findTypeName(fm::AntMetaDataType type);
 
 	void setupItemFromValue(QStandardItem * item,
 	                        const fmp::Ant::ConstPtr & ant,
-	                        const fmp::AntMetadata::Column::ConstPtr & column);
+	                        const fmp::AntMetadata::Key::ConstPtr & column);
 
 	QString textForValue(const fmp::Ant::ConstPtr & ant,
-	                     const fmp::AntMetadata::Column::ConstPtr & column);
+	                     const fmp::AntMetadata::Key::ConstPtr & column);
 
 	void setSelectedAntID(quint32 ID);
 

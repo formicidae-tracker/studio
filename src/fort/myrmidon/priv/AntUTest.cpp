@@ -16,9 +16,10 @@ void AntUTest::SetUp() {
 	shapeTypes->Create("antennas",2);
 
 	antMetadata = std::make_shared<AntMetadata>();
-	AntMetadata::Create(antMetadata,"dead",AntMetadata::Type::BOOL);
-	AntMetadata::Create(antMetadata,"group",AntMetadata::Type::STRING);
-
+	auto dead = AntMetadata::SetKey(antMetadata,"dead",false);
+	auto group = AntMetadata::SetKey(antMetadata,"group",std::string());
+	ASSERT_EQ(dead->Type(),AntMetaDataType::BOOL);
+	ASSERT_EQ(group->Type(),AntMetaDataType::STRING);
 	ant = std::make_shared<Ant>(shapeTypes,
 	                            antMetadata,
 	                            1);

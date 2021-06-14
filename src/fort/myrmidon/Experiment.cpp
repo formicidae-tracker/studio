@@ -61,7 +61,7 @@ std::string Experiment::AddTrackingDataDirectory(SpaceID spaceID,
 	return tdd->URI();
 }
 
-void Experiment::DeleteTrackingDataDirectory(const std::string & URI) {
+void Experiment::RemoveTrackingDataDirectory(const std::string & URI) {
 	d_p->DeleteTrackingDataDirectory(URI);
 }
 
@@ -96,10 +96,15 @@ void Experiment::DeleteIdentification(const Identification::Ptr & identification
 }
 
 
-bool Experiment::FreeIdentificationRangeAt(Time & start,
-                                           Time & end,
-                                           TagID tagID, const Time & time) const {
-	return d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time);
+std::tuple<fort::Time,fort::Time>
+Experiment::FreeIdentificationRangeAt(TagID tagID, const Time & time) const {
+	fort::Time start,end;
+	if ( d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time) == false ) {
+		std::ostringstream oss;
+		oss << fort::myrmidon::FormatTagID(tagID) << " identifies an Ant at " << time;
+		throw std::runtime_error(oss.str());
+	}
+	return {start,end};
 }
 
 
@@ -192,52 +197,30 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID antShapeTypeID) {
 }
 
 
-void Experiment::AddMetadataColumn(const std::string & name,
-                                   AntMetadataType type,
-                                   AntStaticValue defaultValue) {
-	auto md = d_p->AddAntMetadataColumn(name,type);
-	md->SetDefaultValue(defaultValue);
+void Experiment::SetMetaDataKey(const std::string & name,
+                                AntStaticValue defaultValue) {
+	d_p->SetMetaDataKey(name,defaultValue);
 }
 
-void Experiment::DeleteMetadataColumn(const std::string & name) {
-	d_p->DeleteAntMetadataColumn(name);
+void Experiment::DeleteMetaDataKey(const std::string & key) {
+	d_p->DeleteMetaDataKey(key);
 }
 
 
-std::map<std::string,std::pair<AntMetadataType,AntStaticValue>>
-Experiment::AntMetadataColumns() const {
-	std::map<std::string,std::pair<AntMetadataType,AntStaticValue>> res;
-	for ( const auto & [name,column] : d_p->AntMetadataConstPtr()->CColumns() ) {
-		res.insert(std::make_pair(name,std::make_pair(column->MetadataType(),column->DefaultValue())));
+std::map<std::string,std::pair<AntMetaDataType,AntStaticValue>>
+Experiment::MetaDataKeys() const {
+	std::map<std::string,std::pair<AntMetaDataType,AntStaticValue>> res;
+	for ( const auto & [name,key] : d_p->AntMetadataPtr()->Keys() ) {
+		res.insert(std::make_pair(name,std::make_pair(key->Type(),key->DefaultValue())));
 	}
 	return res;
 }
 
 
-priv::AntMetadata::Column & LocateColumn(const priv::Experiment::Ptr & p,
-                                                const std::string & name) {
-	auto fi = p->AntMetadataPtr()->Columns().find(name);
-	if ( fi == p->AntMetadataPtr()->Columns().end() ) {
-		throw std::invalid_argument("Unknown AntMetadata Column '" + name + "'");
-	}
-	return *(fi->second);
-}
+void Experiment::RenameMetaDataKey(const std::string & oldName,
+                                   const std::string & newName) {
+	d_p->RenameMetaDataKey(oldName,newName);
 
-void Experiment::RenameAntMetadataColumn(const std::string & oldName,
-                                         const std::string & newName) {
-	LocateColumn(d_p,oldName).SetName(newName);
-}
-
-void Experiment::SetAntMetadataColumnType(const std::string & name,
-                                          AntMetadataType type,
-                                          AntStaticValue defaultValue) {
-	auto & col = LocateColumn(d_p,name);
-	if ( col.MetadataType() == type ) {
-		col.SetDefaultValue(defaultValue);
-		return;
-	}
-	col.SetMetadataType(type);
-	col.SetDefaultValue(defaultValue);
 }
 
 Experiment::Experiment(const PPtr & pExperiment)

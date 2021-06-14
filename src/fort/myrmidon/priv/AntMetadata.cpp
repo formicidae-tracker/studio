@@ -13,33 +13,37 @@ namespace myrmidon {
 namespace priv {
 
 void AntMetadata::CheckName(const std::string & name) const {
-	auto fi = d_columns.find(name);
-	if ( fi != d_columns.cend() ) {
-		throw std::invalid_argument("Column name '" + name + "' is already used");
+	auto fi = d_keys.find(name);
+	if ( fi != d_keys.cend() ) {
+		throw std::invalid_argument("Key '" + name + "' is already used");
 	}
 }
 
-AntMetadata::Column::Ptr AntMetadata::Create(const Ptr & itself,
-                                             const std::string & name,
-                                             AntMetadata::Type type) {
-	itself->CheckName(name);
+AntMetadata::Key::Ptr AntMetadata::SetKey(const Ptr & itself,
+                                          const std::string & name,
+                                          AntStaticValue defaultValue) {
+	auto fi = itself->d_keys.find(name);
+	if ( fi != itself->d_keys.cend() ) {
+		fi->second->SetDefaultValue(defaultValue);
+		return fi->second;
+	}
 
-	auto res = std::make_shared<AntMetadata::Column>(itself,name,type);
-	itself->d_columns.insert(std::make_pair(name,res));
+	auto res = std::make_shared<AntMetadata::Key>(itself,name,defaultValue);
+	itself->d_keys.insert(std::make_pair(name,res));
 	return res;
 }
 
 void AntMetadata::Delete(const std::string & name) {
-	auto fi =  d_columns.find(name);
-	if ( fi == d_columns.end() ) {
-		throw std::out_of_range("Unmanaged column '" + name + "'");
+	auto fi =  d_keys.find(name);
+	if ( fi == d_keys.end() ) {
+		throw std::out_of_range("Unknown key '" + name + "'");
 	}
-	d_columns.erase(fi);
+	d_keys.erase(fi);
 }
 
 AntMetadata::AntMetadata()
 	: d_onNameChange([](const std::string &, const std::string) {} )
-	, d_onTypeChange([](const std::string &, Type, Type) {} )
+	, d_onTypeChange([](const std::string &, AntMetaDataType, AntMetaDataType) {})
 	, d_onDefaultChange([](const std::string &, const AntStaticValue &, const AntStaticValue &) {} ) {
 }
 
@@ -51,20 +55,17 @@ AntMetadata::AntMetadata(const NameChangeCallback & onNameChange,
 	, d_onDefaultChange(onDefaultChange) {
 }
 
-const AntMetadata::ColumnByName & AntMetadata::Columns() {
-	return d_columns;
-}
-
-const AntMetadata::ConstColumnByName & AntMetadata::CColumns() const {
-	return reinterpret_cast<const ConstColumnByName&>(d_columns);
+const AntMetadata::KeysByName & AntMetadata::Keys() const {
+	return d_keys;
 }
 
 size_t AntMetadata::Count(const std::string & name) const {
-	return d_columns.count(name);
+	return d_keys.count(name);
 }
 
 
-AntMetadata::Validity AntMetadata::Validate(Type type, const std::string & value) {
+
+AntMetadata::Validity AntMetadata::Validate(AntMetaDataType type, const std::string & value) {
 	std::vector<std::function< Validity (const std::string & value) > > validators =
 		{
 		 [](const std::string & value) {
@@ -122,7 +123,7 @@ AntMetadata::Validity AntMetadata::Validate(Type type, const std::string & value
 	return validators[idx](value);
 }
 
-void AntMetadata::CheckType(Type type, const AntStaticValue & data) {
+void AntMetadata::CheckType(AntMetaDataType type, const AntStaticValue & data) {
 	static std::vector<std::function<void (const AntStaticValue &)>> checkers =
 		{
 		 [](const AntStaticValue & data) { std::get<bool>(data); },
@@ -138,7 +139,7 @@ void AntMetadata::CheckType(Type type, const AntStaticValue & data) {
 	checkers[idx](data);
 }
 
-AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
+AntStaticValue AntMetadata::FromString(AntMetaDataType type, const std::string & value) {
 	static std::vector<std::function<AntStaticValue (const std::string &)>> converters =
 		{
 		 [](const std::string & value ) ->  AntStaticValue {
@@ -172,46 +173,31 @@ AntStaticValue AntMetadata::FromString(Type type, const std::string & value) {
 
 
 
-const std::string & AntMetadata::Column::Name() const {
+const std::string & AntMetadata::Key::Name() const {
 	return d_name;
 }
 
-void AntMetadata::Column::SetName(const std::string & name) {
+void AntMetadata::Key::SetName(const std::string & name) {
 	auto metadata = d_metadata.lock();
 	if ( !metadata ) {
 		throw DeletedReference<AntMetadata>();
 	}
 	metadata->CheckName(name);
-	auto fi = metadata->d_columns.find(d_name);
-	if ( fi == metadata->d_columns.end() ) {
-		throw std::logic_error("column '" + d_name + "' is not managed by its manager");
+	auto fi = metadata->d_keys.find(d_name);
+	if ( fi == metadata->d_keys.end() ) {
+		throw std::logic_error("Key '" + d_name + "' is not managed by its manager");
 	}
-	metadata->d_columns.insert(std::make_pair(name,fi->second));
-	metadata->d_columns.erase(d_name);
+	metadata->d_keys.insert(std::make_pair(name,fi->second));
+	metadata->d_keys.erase(d_name);
 	metadata->d_onNameChange(d_name,name);
 	d_name = name;
 }
 
-AntMetadata::Type AntMetadata::Column::MetadataType() const {
-	return d_type;
+AntMetaDataType AntMetadata::Key::Type() const {
+	return fort::myrmidon::AntMetaDataType(d_default.index());
 }
 
-void AntMetadata::Column::SetMetadataType(AntMetadata::Type type){
-	if ( type == d_type ) {
-		return;
-	}
-	auto metadata = d_metadata.lock();
-	if ( !metadata ) {
-		throw DeletedReference<AntMetadata>();
-	}
-	metadata->d_onTypeChange(d_name,d_type,type);
-	metadata->d_onDefaultChange(d_name,d_default,AntMetadata::DefaultValue(type));
-
-	d_type = type;
-	d_default = AntMetadata::DefaultValue(type);
-}
-
-AntStaticValue AntMetadata::DefaultValue(Type type) {
+AntStaticValue AntMetadata::DefaultValue(AntMetaDataType type) {
 	static std::vector<AntStaticValue> defaults =
 		{
 		 false,
@@ -229,25 +215,32 @@ AntStaticValue AntMetadata::DefaultValue(Type type) {
 	return defaults[idx];
 }
 
-AntMetadata::Column::Column(const std::weak_ptr<AntMetadata> & metadata,
-                            const std::string & name,
-                            AntMetadata::Type type)
+AntMetadata::Key::Key(const std::weak_ptr<AntMetadata> & metadata,
+                      const std::string & name,
+                      const AntStaticValue & defaultValue)
 	: d_metadata(metadata)
 	, d_name(name)
-	, d_type(type)
-	, d_default(AntMetadata::DefaultValue(type)) {
+	, d_default(defaultValue) {
+	if ( d_default.index() == std::variant_npos) {
+		throw std::runtime_error("Invalid AntStaticValue passed as default value");
+	}
 }
 
-const AntStaticValue & AntMetadata::Column::DefaultValue() const {
+const AntStaticValue & AntMetadata::Key::DefaultValue() const {
 	return d_default;
 }
 
-void AntMetadata::Column::SetDefaultValue(const AntStaticValue & value) {
-	CheckType(d_type,value);
+void AntMetadata::Key::SetDefaultValue(const AntStaticValue & value) {
 	auto metadata = d_metadata.lock();
 	if ( !metadata ) {
 		throw DeletedReference<AntMetadata>();
 	}
+	if ( value.index() != d_default.index() ) {
+		metadata->d_onTypeChange(d_name,
+		                         AntMetaDataType(d_default.index()),
+		                         AntMetaDataType(value.index()));
+	}
+
 	metadata->d_onDefaultChange(d_name,d_default,value);
 
 	d_default = value;

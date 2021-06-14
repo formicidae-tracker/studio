@@ -51,13 +51,13 @@ public:
 	/**
 	 * Opens an existing Experiment.
 	 *
-	 * * R :
-	 * ```R
-	 * fmExperimentOpen(filepath = '')
-	 * ```
 	 * * Python:
 	 * ```python
-	 * py_fort_myrmidon.Experiment(filpath: str) -> py_fort_myrmidon.Experiment
+	 * py_fort_myrmidon.Experiment.Open(filepath: str) -> py_fort_myrmidon.Experiment
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentOpen <- function(filepath = '') # returns a Rcpp_fmExperiment
 	 * ```
 	 *
 	 * @param filepath the path to the wanted file
@@ -68,488 +68,718 @@ public:
 	 */
 	static Experiment::Ptr Open(const std::string & filepath);
 
-	// Opens an Experiment without associated tracking data
-	// @filepath the path to the wanted file.
-	//
-	// Opens an Experiment to a `.myrmidon` file without opening its
-	// associated tracking data. This is useful, by example, identify
-	// or collides ants from realtime tracking data acquired over the
-	// network using a <TrackingSolver> obtained with
-	// <CompileTrackingSolver>. When opened in 'data-less' mode, no
-	// tracking data, tag statistic or measurement will be returned (
-	// the experiment will appear empty ).
-	//
-	// R Version :
-	// ```R
-	// fmExperimentOpenDataLess(path)
-	// ```
-	//
-	// @return the <Experiment>
+	/**
+     * Opens an Experiment without associated tracking data
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.OpenDataLess(filpath: str) -> py_fort_myrmidon.Experiment
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentOpenDataLess <- function(filepath = '') # returns a Rcpp_fmExperiment
+	 * ```
+	 *
+	 * Opens an Experiment to a `.myrmidon` file without opening its
+	 * associated tracking data. This is useful, by example, identify
+	 * or collides ants from realtime tracking data acquired over the
+	 * network using a TrackingSolver obtained with
+	 * CompileTrackingSolver(). When opened in 'data-less' mode, no
+	 * tracking data, tag statistic or measurement will be returned by
+	 * any Query ( the experiment will appear empty ).
+	 *
+	 * @param filepath the path to the wanted file.
+	 *
+	 * @return the Experiment
+	 *
+	 * @throws std::runtime_error if filepath is not a valid
+	 *         `.myrmidon` file.
+	 */
 	static Experiment::Ptr OpenDataLess(const std::string & filepath);
 
-
-	// Creates a new Experiment associated with the given filepath.
-	// @filepath the wanted filepath
-	//
-	// Creates a new Experiment virtually associated with the desired
-	// filepath location. It will not create a new file on the filesystem.
-	//
-	// R Version :
-	// ```R
-	// fmExperimentCreate(path)
-	// ```
-	//
-	// @return the new empty <Experiment>
+	/**
+	 * Creates a new Experiment associated with the given filepath.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.Create(filepath: str) -> py_fort_myrmidon.Experiment
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCreate <- function(filepath = '') # returns a Rcpp_fmExperiment
+	 * ```
+	 *
+	 * Creates a new Experiment virtually associated with the desired
+	 * filepath location. It will not create a new file on the
+	 * filesystem. The wanted location is required to compute relative
+	 * path to the associated Tracking Data Directory.
+	 *
+	 * @param filepath the filesystem location for the `.myrmidon` file.
+	 *
+	 * @return the new empty <Experiment>
+	 */
 	static Experiment::Ptr Create(const std::string & filepath);
 
-	// Saves the Experiment at the desired filepath
-	// @filepath the desired filesystem location to save the Experiment to
-	//
-	// Saves the Experiment to <filepath>. It is not possible to change
-	// its parent directory (but file renaming is permitted).
-	//
-	// R Version :
-	// ```R
-	// e$save(path)
-	// ```
+	/**
+	 * Saves the Experiment at the desired filepath
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.Save(self)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentSave <- function(experiment)
+	 * ```
+	 *
+	 * Saves the Experiment to filepath. It is not possible to change
+	 * its parent directory (but file renaming is permitted).
+	 *
+	 * @param filepath the desired filesystem location to save the Experiment to
+	 *
+	 * @throws std::invalid_argument if `filepath` will change the
+	 *         parent directory of the Experiment.
+	 */
 	void Save(const std::string & filepath);
 
-
-	// Path to the underlying `.myrmidon` file
-	//
-	// R Version :
-	// ```R
-	// e$absoluteFilePath()
-	// ```
-	//
-	// @return the path to the `.myrmidon` file
+	/**
+	 * Path to the underlying `.myrmidon` file
+	 *
+	 * * Python: `AbsoluteFilePath :str` read-only property of `py_fort_myrmidon.Experiment`.
+	 * R Version :
+	 * ```R
+	 * fmExperimentAbsoluteFilePath <- function(experiment)
+	 * ```
+	 *
+	 * @return the absolute filepath to the `.myrmidon` file
+	 */
 	std::string AbsoluteFilePath() const;
 
-	// Creates a new <Space>
-	// @name wanted name for the new <Space>
-	//
-	// R Version :
-	// ```R
-	// e$createSpace(name)
-	// ```
-	//
-	// @return the new <Space>
+	/**
+	 * Creates a new Space
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.CreateSpace(self, name: str) -> py_fort_myrmidon.Space
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCreateSpace <- function(experiment, name = '') # returns a Rcpp_fmSpace
+	 * ```
+	 *
+	 * @name wanted name for the new Space
+	 *
+	 * @return the newly created Space.
+	 */
+
 	Space::Ptr CreateSpace(const std::string & name);
 
-	// Deletes a <Space>
-	// @spaceID the <Space::ID> of the <Space> we want to delete.
-	//
-	// R Version :
-	// ```R
-	// e$deleteSpace(spaceID)
-	// ```
+	/**
+	 * Deletes a Space
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.DeleteSpace(self, spaceID: int)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentDeleteSpace <- function(experiment, spaceID = 0)
+	 * ```
+	 *
+	 * @spaceID the SpaceID of the Space we want to delete.
+	 *
+	 * @throws std::invalid_argument if spaceID is not a valid ID for
+	 *         one of this Experiment Space.
+	 */
 	void DeleteSpace(SpaceID spaceID);
 
-	// Gets the <Space> in the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$spaces()
-	// ```
-	//
-	// @return a map of the Experiment <Space> by their <Space::ID>
+	/**
+	 * Gets Space defined in the Experiment
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.Spaces(self) -> Dict[int,py_fort_myrmidon.Space]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentSpaces <- function(experiment) # returns a named vector of Rcpp_fmSpace
+	 * ```
+	 *
+	 * @return a map of the Experiment Space indexed by their SpaceID
+	 */
 	std::map<SpaceID,Space::Ptr> Spaces();
 
-	// Adds a tracking data directory to Experiment
-	// @spaceID the <Space> the data directory is associated with
-	// @filepath path to the directory we want to add
-	//
-	// Adds a tracking data director acquired with the fort system to
-	// the wanted <Space>.
-	//
-	// R Version :
-	// ```R
-	// e$addTrackingDataDirectory(spaceID,filepath)
-	// ```
-	// @return the URI used to designate the tdd
+	/**
+	 * Adds a tracking data directory to one of Experiment's Space
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.AddTrackingDataDirectory(self,spaceID: int, filepath: str) -> str
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentAddTrackingDataDirectory <- function(experiment,spaceID = 0, filepath = '') # returns a character
+	 * ```
+	 *
+	 * Adds a tracking data director acquired with the FORT to
+	 * the wanted Space.
+	 *
+	 * @param spaceID the Space the data directory should be associated with
+	 * @param filepath path to the directory we want to add
+	 *
+	 * @return the URI used to designate the tdd
+	 *
+	 * @throws std::runtime_error if the Tracking Data Directory
+	 *         contains data that would overlap in time with other
+	 *         Tracking Data Directory associated with the same space.
+	 */
 	std::string AddTrackingDataDirectory(SpaceID spaceID,
 	                                     const std::string & filepath);
+	/**
+	 * Removes a Tracking Data Directory from the Experiment.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.RemoveTrackingDataDirectory(self, URI: str)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentRemoveTrackingDataDirectory <- function(experiment, URI = '')
+	 * ```
+	 *
+	 * @param URI the URI of the tracking data directory to remove
+	 *
+	 * @throws std::invalid_argument if URI does not designate a
+	 *         Tracking Data Directory in the experiment.
+	 */
+	void RemoveTrackingDataDirectory(const std::string & URI);
 
-	// Removes a Tracking Data Directory from the Experiment
-	// @URI the URI of the tracking data directory to remove
-	//
-	// R Version :
-	// ```R
-	// e$deleteTrackingDataDirectory(uri)
-	// ```
-	void DeleteTrackingDataDirectory(const std::string & URI);
-
-	// Creates a new <Ant>
-	//
-	// R Version :
-	// ```R
-	// ant <- e$createAnt()
-	// ```
-	//
-	// @return the new <Ant>
+	/**
+	 * Creates a new Ant in the Experiment.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.CreateAnt(self) -> py_fort_myrmidon.Ant
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCreateAnt <- function(experiment) # returns a Rcpp_fmAnt
+	 * ```
+	 *
+	 * @return the newly created Ant
+	 */
 	Ant::Ptr CreateAnt();
 
-	// Gets the <Ant> in the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$ants()
-	// ```
-	//
-	// @return the <Ant> indexed by their <Ant::ID> in the Experiment.
+	/**
+	 * Gets the Ant in the Experiment
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.Ants(self) -> Dict[int,py_fort_myrmidon.Ant]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentAnts <- function(experiment) # returns a named vector of Rcpp_fmAnts
+	 * ```
+	 *
+	 * @return the Ant indexed by their AntID in the Experiment.
+	 */
 	std::map<AntID,Ant::Ptr> Ants();
 
-	// Adds an <Identification> to the Experiment
-	// @antID the targetted <Ant> designated by its <Ant::ID>
-	// @tagID the tag to associate with the Ant
-	// @start the first valid <Time>. It can be <Time::SinceEver>
-	// @end  the first invalid <Time>. It can be <Time::Forever>
-	//
-	// Adds an <Identification> to the Experiment. <Identification>
-	// are valid for [<start>,<end>[. One may obtain a valid time
-	// range using <FreeIdentificationRangeAt>.
-	//
-	// R Version :
-	// ```R
-	// start <- fmTimeParse("XXX")$const_ptr() # or fmTimeInf()
-	// end <- fmTimeParse("XXX")$const_ptr() # or fmTimeInf()
-	// e$addIdentification(antID,tagID,start,end)
-	// ```
-	//
-	// @return the new <Identification>
+	/**
+	 * Adds an Identification to the Experiment
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.AddIdentification(self,antID: int,tagID: int,start: py_fort_myrmidon.Time, end: py_fort_myrmidon.End) -> py_fort_myrmidon.Identification
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentAddIdentification <- function(experiment, antID = 0, tagID = 0, start = fmTimeSinceEver(), end = fmTimeForever() ) # returns a Rcpp_fmIdentification
+	 * ```
+	 *
+	 * Adds an Identification to the Experiment. Identification
+	 * are valid for [start,end[. One may obtain a valid time
+	 * range using FreeIdentificationRangeAt().
+	 *
+	 * @param antID the targetted Ant designated by its AntID
+	 * @param tagID the tag to associate with the Ant
+	 * @start the first valid Time. It can be Time::SinceEver()
+	 * @end the first invalid Time. It can be Time::Forever()
+	 *
+	 * @return the new Identification
+	 *
+	 * @throws OverlapingIdentification if it will conflict in time
+	 *         with another Identification with the same antID or
+	 *         tagID.
+	 */
 	Identification::Ptr AddIdentification(AntID antID,
 	                                      TagID tagID,
 	                                      const Time & start,
 	                                      const Time & end);
-
-	// Deletes an <Identification>
-	// @identification the <Identification> to delete
-	//
-	// R Version :
-	// ```R
-	// # i is the wanted fmIdentification to delete
-	// e$deleteIdentification(i)
-	// ```
+	/**
+	 * Deletes an Identification
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.DeleteIdentification(self,identification: py_fort_myrmidon.Identification)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentDeleteIdentification <- function(experiment, identification)
+	 * ```
+	 *
+	 * @identification the Identification to delete
+	 *
+	 * @throws std::invalid_argument if identification is not an
+	 *         identification for an Ant of this Experiment.
+	 */
 	void DeleteIdentification(const Identification::Ptr & identification);
 
-	// Queries for a valid time range
-	// @start return value by reference for the start of the range
-	// @end return value by reference for the end of the range
-	// @tagID the <TagID> we want a range for
-	// @time the <Time> that must be included in the result time range
-	//
-	// Queries for a valid time range for a given <TagID> and
-	// <Time>. The result will be a range [<start>,<end>[ containing
-	// <time> where <tagID> is not used. It returns false if such a
-	// range does not exists. <start> and <end> can respectively be
-	// set to <Time::SinceEver> and <Time::Forever>.
-	//
-	// R Version :
-	// ```R
-	// # initializes return value as fmTimeCPtr
-	// start <- new ( FortMyrmidon::fmTimeCPtr )
-	// end <- new ( FortMyrmidon::fmTimeCPtr )
-	// e$freeIdentificationRangeAt(start,end,tagID,time)
-	// ```
-	//
-	// @return `true` if such a range exist, false otherwise.
-	bool FreeIdentificationRangeAt(Time & start,
-	                               Time & end,
-	                               TagID tagID,
-	                               const Time & time) const;
+	/**
+	 * Computes a valid time range for a tagID.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.FreeIdentificationRangeAt(self,tagID: int, time: py_fort_myrmidon.Time) -> Tuple[py_fort_myrmidon.Time, py_fort_myrmidon.Time]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentFreeIdentificationRangeAt <- function(experiment, tagID = 0, time = fmTimeSinceEver()) # returns a list of two Rcpp_fmTime.
+	 * ```
+	 *
+	 * @start return value by reference for the start of the range
+	 * @end return value by reference for the end of the range
+	 * @tagID the <TagID> we want a range for
+	 * @time the <Time> that must be included in the result time range
+	 *
+	 * Queries for a valid time range for a given TagID and
+	 * Time. The result will be a range [start,end[ containing
+	 * time where tagID is not used to identify any Ant.
+	 *
+	 * @return two Time that represents a valid [start,end[ range for tagID
+	 *
+	 * @throws std::runtime_error if tagID already identifies an Ant at time.
+	 */
+	std::tuple<fort::Time,fort::Time> FreeIdentificationRangeAt(TagID tagID,
+	                                                            const Time & time) const;
 
-	// The name of the Experiment.
-   	//
-	// R Version :
-	// ```R
-	// e$name()
-	// ```
-	//
-	// @return a reference to the Experiment's name
+	/**
+	 * The name of the Experiment.
+	 *
+	 * * Python: `Name :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentName <- function(experiment) # returns a character
+	 * ```
+	 *
+	 * @return a reference to the Experiment's name
+	 */
 	const std::string & Name() const;
 
-	// Sets the Experiment's name.
-	// @name the new <priv::Experiment> name
-	//
-	// R Version :
-	// ```R
-	// e$setName(name)
-	// ```
+	/**
+	 * Sets the Experiment's name.
+	 *
+	 * * Python: `Name :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentSetName <- function(experiment, name = '')
+	 * ```
+	 *
+	 * @param name the new Experiment name
+	 */
 	void SetName(const std::string & name);
 
-	// The author of the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$author()
-	// ```
-	//
-	// @return a reference to the author name
+	/**
+	 * The author of the Experiment
+	 *
+	 * * Python: `Author :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentAuthor <- function(experiment) # return a character
+	 * ```
+	 *
+	 * @return a reference to the Experiment's author name
+	 */
 	const std::string & Author() const;
 
-	// Sets the Experiment's author
-	// @author the new value for the Experiement's author
-	//
-	// R Version :
-	// ```R
-	// e$setAuthor(author)
-	// ```
+	/**
+	 * Sets the Experiment's author
+	 *
+	 * * Python: `Author :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentSetAuthor <- function(experiment, author = '')
+	 * ```
+	 *
+	 * @param author the new value for the Experiment's author
+	 */
 	void SetAuthor(const std::string & author);
 
-	// Comments about the experiment
-	//
-	// R Version :
-	// ```R
-	// e$comment()
-	// ```
-	//
-	// @return a reference to the Experiment's comment
+	/**
+	 * Comments about the experiment
+	 *
+	 * * Python: `Comment :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentComment <- function(experiment) # return a character
+	 * ```
+	 *
+	 * @return a reference to the Experiment's comment
+	 */
 	const std::string & Comment() const;
 
-	// Sets the comment of the Experiment
-	// @comment the wnated Experiment's comment
-	//
-	// R Version :
-	// ```R
-	// e$setComment(comment)
-	// ```
+	/**
+	 * Sets the comment of the Experiment
+	 *
+	 * * Python: `Comment :str` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentSetComment <- function(experiment, comment = '')
+	 * ```
+	 *
+	 * @param comment the wanted Experiment's comment
+	 */
 	void SetComment(const std::string & comment);
 
-	// The kind of tag used in the Experiment
-	//
-	// R Version :
-	// ```R
-	// f <- e$family()
-	// names(which( f == fmTagFamily ) )
-	// ```
-	//
-	// @return the family of tag used in the Experiment
+	/**
+	 * The kind of tag used in the Experiment
+	 *
+	 * * Python: `TagFamily :py_fort_myrmidon.TagFamily` read-only property of `py_fort_myrmidon.Experiment`
+	 * * R:
+	 * ```R
+	 * fmExperimentTagFamily <- function(experiment) # return an integer corresponding to one of the value of `fmTagFamily` named list
+	 *
+	 * Gets the family of the tags used in this Experiment. It is
+	 * automatically determined from the information in
+	 * TrackingDataDirectory.
+	 *
+	 * @return the family of tag used in the Experiment
+	 */
 	fort::tags::Family Family() const;
 
-	// The default physical tag size
-	//
-	// Usually an Ant colony are tagged with a majority of tag of a
-	// given size. Some individuals (like Queens) may often use a
-	// bigger tag size that should be set in their
-	// Identification. This value is used for
-	// <Query::ComputeMeasurementFor>.
-	//
-	// myrmidon uses without white border convention for ARTag and
-	// with white border convention Apriltag.
-	//
-	// R Version :
-	// ```R
-	// e$defaultTagSize()
-	// ```
-	//
-	// @return the default tag size for the experiment in mm
+	/**
+	 * The default physical tag size
+	 *
+	 * * Python: `DefaultTagSize :float` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentDefaultTagSize <- function(experiment) # returns a numerical
+	 * ```
+	 *
+	 * Usually an Ant colony are tagged with a majority of tag of a
+	 * given size in millimeters. Some individuals (like Queens) may
+	 * often use a bigger tag size that should individually be set in
+	 * their Identification. This value is then used for
+	 * Query::ComputeMeasurementFor.
+	 *
+	 * `fort-myrmidon` uses without white border convention for ARTag and
+	 * with white border convention Apriltag.
+	 *
+	 * @return the default tag size for the Experiment in millimeters
+	 */
 	double DefaultTagSize() const;
 
-	// Sets the default tag siye in mm
-	// @defaultTagSize the tag size in mm ( the one defined on tag sheet )
-	//
-	// R Version :
-	// ```R
-	// # sets the tag size to 0.7 mm
-	// e$setDefaultTagSize(0.7)
-	// ```
+	/**
+	 * Sets the default tag siye in mm
+	 *
+	 * * Python: `DefaultTagSize :float` read-write property of `py_fort_myrmidon.Experiment`
+	 * * R :
+	 * ```R
+	 * fmExperimentSetDefaultTagSize <- function(experiment, tagSize = 1.0)
+	 * ```
+	 *
+	 * @param defaultTagSize the tag size in millimeter ( the one defined on the tag sheet )
+	 *
+	 */
 	void SetDefaultTagSize(double defaultTagSize);
 
-
-	/* cldoc:begin-category(manual_measurement) */
-
-	// Creates a measurement type
-	// @name the wanted name for the new measurement
-	//
-	// R Version :
-	// ```R
-	// e$createMeasurementType("foo")
-	// ```
-	//
-	// @return the <MeasurementTypeID> identifying the new measurement
-	//         type
+	/**
+	 * Creates a measurement type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.CreateMeasurementType(self,name: str) -> int
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCreateMeasurementType <- function(experiment, name = '') # returns an integer
+	 * ```
+	 *
+	 * @param name the wanted name for the new measurement
+	 *
+	 * @return the MeasurementTypeID identifying the new measurement
+	 *         type
+	 */
 	MeasurementTypeID CreateMeasurementType(const std::string & name);
 
-	// Deletes a measurement type
-	// @mTypeID the <MeasurementTypeID> to delete
-	//
-	// R Version :
-	// ```R
-	// e$deleteMeasurementType(mTypeID)
-	// ```
-	void DeleteMeasurementType(MeasurementTypeID mTypeID);
+	/**
+	 * Deletes a measurement type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.DeleteMeasurementType(self,measurementTypeID :int)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentDeleteMeasurementType <- function(experiment, measurementTypeID = 0)
+	 * ```
+	 *
+	 * @param measurementTypeID the MeasurementTypeID to delete
+	 *
+	 * @throws std::invalid_argument if measurementTypeID is not valid
+	 *         for this Experiment.
+	 */
+	void DeleteMeasurementType(MeasurementTypeID measurementTypeID);
 
-	// Sets the name of a measurement type
-	// @mTypeID the <MeasurementTypeID> to modify
-	// @name the wanted name
-	//
-	// R Version :
-	// ```R
-	// e$setMeasurementTypeName(mTypeID,"bar")
-	// ```
+	/**
+	 * Sets the name of a measurement type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.SetMeasurementTypeName(self,measurementTypeID :int, name :str)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentSetMeasurementTypeName <- function(experiment, measurementTypeID = 0, name :str)
+	 * ```
+	 *
+	 * @param measurementTypeID the MeasurementTypeID to modify
+	 * @name the wanted name
+	 *
+	 * @throws std::invalid_argument if measurementTypeID is not valid
+	 *         for this Experiment.
+	 */
 	void SetMeasurementTypeName(MeasurementTypeID mTypeID,
 	                            const std::string & name);
 
-	// Gets the Experiment defined measurement type
-	//
-	// R Version :
-	// ```R
-	// e$measurementTypeNames()
-	// ```
-	//
-	// @return a map of measurement type name by their <MeasurementTypeID>
+	/**
+	 * Gets the Experiment defined measurement types
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.MeasurementTypeNames(self) -> Dict[int,str]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentMeasurementTypeNames <- function(experiment) # returns a named vector of the measurement type names
+	 * ```
+	 *
+	 * @return a map of measurement type name by their MeasurementTypeID
+	 */
 	std::map<MeasurementTypeID,std::string> MeasurementTypeNames() const;
 
-	/* cldoc:end-category() */
-
-	/* cldoc:begin-category(ant_interaction) */
-
-	// Creates a new Ant shape type
-	// @name the user defined name for the <Ant> Shape Type
-	//
-	// Creates a new <Ant> virtual shape body part type.
-	//
-	// R Version :
-	// ```R
-	// e$createAntShapeType(name)
-	// ```
-	// @return the <AntShapeTypeID> for the <Ant> shape type
+	/**
+	 * Creates a new Ant shape type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.CreateAntShapeType(self, name: str) -> int
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCreateAntShapeType <- function(experiment, name = '') # returns an integer
+	 * ```
+	 *
+	 * @param name the user defined name for the Ant Shape Type
+	 *
+	 * @return the AntShapeTypeID identifying the new Ant shape type.
+	 */
 	AntShapeTypeID CreateAntShapeType(const std::string & name);
 
-	// Gets the defined Ant shape type
-	//
-	// R Version :
-	// ```R
-	// e$antShapeTypeNames()
-	// ```
-	//
-	// @return the <Ant> shape type name by their <AntShapeTypeID>
+	/**
+	 * Gets the defined Ant shape type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.AntShapeTypeNames(self) -> Dict[int,str]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentAntShapeTypeNames <- function(experiment) # returns a named vector of the ant shape type names
+	 * ```
+	 *
+	 * @return the Ant shape type name by their AntShapeTypeID
+	 */
 	std::map<AntShapeTypeID,std::string> AntShapeTypeNames() const;
 
-	// Changes the name of an Ant Shape type
-	// @shapeTypeID the <AntShapeTypeID> of the shape type to rename
-	// @name the new name for the <Ant> shape typex
-	//
-	// R Version :
-	// ```R
-	// e$setAntShapeTypeName(shapeTypeID,name)
-	// ```
+	/**
+	 * Changes the name of an Ant Shape type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.SetAntShapeTypeName(self, shapeTypeID :int, name :str)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentSetAntShapeTypeName <- function(experiment, shapeTypeID = 0, name = '')
+	 * ```
+	 *
+	 * @param shapeTypeID the AntShapeTypeID of the shape type to rename
+	 * @name param the new name for the Ant shape type
+	 *
+	 * @throws std::invalid_argument if shapeTypeID is not valid for
+	 *         this Experiment.
+	 */
 	void SetAntShapeTypeName(AntShapeTypeID shapeTypeID,
 	                         const std::string & name);
 
-	// Removes a virtual Ant shape type
-	// @shapeTypeID the <AntShapeTypeID> of the shape type to remove
-	//
-	// R Version :
-	// ```R
-	// e$deleteAntShapeType(shapeTypeID)
-	// ```
+	/**
+	 * Removes a virtual Ant shape type
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.RemoveAntShapeType(self, shapeTypeID :int)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentRemoveAntShapeTypeName <- function(experiment, shapeTypeID = 0)
+	 * ```
+	 *
+	 * @param shapeTypeID the AntShapeTypeID of the shape type to remove
+	 *
+	 * @throws std::invalid_argument if shapeTypeID is not valid for
+	 *         this Experiment.
+	 */
 	void DeleteAntShapeType(AntShapeTypeID shapeTypeID);
 
-	/* cldoc:end-category() */
+	/**
+	 * Adds or modify a user-defined meta data key.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.SetMetaDataKey(self, key :str, value: py_fort_myrmidon.AntStaticValue)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentAddMetaDataKey <- function(experiment, key = '', value = fmAntStaticBool(FALSE) )
+	 * ```
+	 *
+	 * @param key the unique key to add or modify
+	 * @param defaultValue the default value for that key. It also
+	 *        determines the type for the key.
+	 *
+	 * Adds a non-tracking data key with the given name, type and
+	 * defaultValue.
+	 *
+	 */
+	void SetMetaDataKey(const std::string & key,
+	                    AntStaticValue defaultValue);
 
-	/* cldoc:begin-category(named_values) */
+	/**
+	 * Removes a meta data key.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.DeleteMetaDataKey(self, key :str)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentDeleteMetaDataKey <- function(experiment, key = '')
+	 * ```
+	 *
+	 * @param key the key to remove
+	 *
+	 * @throws std::invalid_argument if key is not valid for this
+	 *         Experiment.
+	 */
+	void DeleteMetaDataKey(const std::string & key);
 
-	// Adds a non-tracking data column
-	// @name the unique name for the column
-	// @type the <AntMetadataType> for the column
-	// @defaultValue the default value for that column
-	//
-	// Adds a non-tracking data column with the given <name> and
-	// <type>. <name> should be a non-empty unique string for the
-	// column.
-	//
-	// R Version :
-	// ```R
-	// # adds a column "alive" of type BOOL and defaults to TRUE
-	// e$addMetadataColumn("alive",fmAntMetadataType["BOOL"],fmAntStaticBool(TRUE))
-	// ```
-	void AddMetadataColumn(const std::string & name,
-	                       AntMetadataType type,
-	                       AntStaticValue defaultValue);
+	/**
+	 * Gets the meta data keys for this Experiment
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.MetaDataKeys(self) -> Dict[str,Tuple[py_fort_myrmidon.AntMetaDataType,py_fort_myrmidon.AntStaticValue]]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentMetaDataKeys <- function(experiment) # returns a named vector
+	 * ```
+	 *
+	 * @return a pairs of AntMetadataType and AntStaticValue
+	 *          indexed by key
+	 */
+	std::map<std::string,std::pair<AntMetaDataType,AntStaticValue> > MetaDataKeys() const;
 
-	// Removes a non-tracking data column.
-	// @name the name of the column to remove
-	//
-	// R Version :
-	// ```R
-	// e$deleteMetadataColumn(name)
-	// ```
-	void DeleteMetadataColumn(const std::string & name);
+	/**
+	 * Renames a meta data key
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.RenameMetaDataKey(self, oldKey :str, newKey :str)
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentRenameMetaDataKey <- function(experiment, oldKey = '', newKey = '')
+	 * ```
+	 *
+	 * @param oldKey the key to rename
+	 * @param newKey the new key name
+	 *
+	 *
+	 * @throws std::invalid_argument if key is not valid for this
+	 *         Experiment.
+	 */
+	void RenameMetaDataKey(const std::string & oldKey,
+	                       const std::string & newKey);
 
-	// Gets the types for non-tracking data columns
-	//
-	// R Version :
-	// ```R
-	// e$antMetadataColumns()
-	// ```
-	//
-	// @return a pairs of <AntMetadataType> and <AntStaticValue>
-	// indexed by column name for all columns defined in the
-	// experiment.
-	std::map<std::string,std::pair<AntMetadataType,AntStaticValue> > AntMetadataColumns() const;
-
-	// Renames a non-tracking data column
-	// @oldName the current name of the column to rename
-	// @newName the new wanted name for that column.
-	//
-	// R Version :
-	// ```R
-	// e$renameAntMetadataColumn(oldName,newName)
-	// ```
-	void RenameAntMetadataColumn(const std::string & oldName,
-	                             const std::string & newName);
-
-	// Changes the type of a non-tracking data column
-	// @name the name of the column
-	// @type the new wanted type.
-	// @defaultValue the new wantet default value
-	//
-	// R Version :
-	// ```R
-	// e$setAntMetadataColumnType("alive",fmAntMetadataType["STRING"],fmAntStaticString("yes"))
-	// ```
-	void SetAntMetadataColumnType(const std::string & name,
-	                              AntMetadataType type,
-	                              AntStaticValue defaultValue);
-
-	// Gets tracking data statistics about the Experiment
-	//
-	// R Version :
-	// ```R
-	// e$getDataInformations()
-	// ```
-	//
-	// @return an <ExperimentDataInfo> list of informations
+	/**
+	 * Gets tracking data statistics about the Experiment
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.GetDataInformations(self) -> py_fort_myrmidon.ExperimentDataInfo
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentGetDataInformations <- function(experiment) # a list of number of frames, and start and end date of the experiment.
+	 * ```
+	 *
+	 * @return an ExperimentDataInfo structure of informations
+	 */
 	ExperimentDataInfo GetDataInformations() const;
 
-	// Gets AntID <- TagID correspondances at a given time
-	// @time the wanted <Time> to query for the correspondances
-	// @removeUnidentifiedAnt if `true`, just do not report
-	//                        unidentified at this time. If `false`
-	//                        `std::numeric_limits<TagID>::max()` will
-	//                        be returned as a TagID for unidentified
-	//                        Ant (or `NA` for R).
-	//
-	// R Version
-	// ```R
-	// # will report NA for unidentified Ant
-	// e$identificationsAt(fmTimeParse("2029-11-02T23:42:00.000Z"),FALSE)
-	// ```
-	//
-	// @return a map with the correspondance between AntID and TagID. Unidentified Ant will be ommi
+	/**
+	 * Gets AntID <- TagID correspondances at a given time
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.IdentificationsAt(self, time :py_fort_myrmidon.Time) -> Dict[int,int]
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentIdentificationsAt <- function(experiment, time = fmTimeNow()) # named vector of antID
+	 * ```
+	 *
+	 * @param time the wanted Time to query for the correspondances
+	 * @param removeUnidentifiedAnt if `true`, just do not report
+	 *        unidentified at this time. If `false`
+	 *        `std::numeric_limits<TagID>::max()` will be returned as
+	 *        a TagID for unidentified Ant (or `NA` for R).
+	 *
+	 * @return a map with the correspondance between AntID and TagID.
+	 */
 	std::map<AntID,TagID> IdentificationsAt(const Time & time,
-	                                        bool removeUnidentifiedAnt = true) const;
+	                                        bool removeUnidentifiedAnt) const;
 
-	/* cldoc:end-category() */
-
-
-	// Compiles a TrackingSolver
-	//
-	// Compiles a <TrackingSolver>, typically use to identify and
-	// collide frame from live tracking data.
-	//
-	// @return a <TrackingSolver> for the experiment.
+	/**
+	 * Compiles a TrackingSolver
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Experiment.CompileTrackingSolver(self) -> py_fort_myrmidon.TrackingSolver
+	 * ```
+	 * * R :
+	 * ```R
+	 * fmExperimentCompileTrackingSolver <- function(experiment) # returns a Rcpp_fmTrackingSolver
+	 * ```
+	 *
+	 * Compiles a TrackingSolver, typically use to identify and
+	 * collide frame from online acquired tracking data.
+	 *
+	 * @return a TrackingSolver for the Experiment.
+	 */
 	TrackingSolver CompileTrackingSolver() const;
 
 

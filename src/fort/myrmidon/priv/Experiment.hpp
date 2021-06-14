@@ -244,14 +244,13 @@ public :
 
 	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
 
-	fort::myrmidon::priv::AntMetadataConstPtr AntMetadataConstPtr() const;
+	fort::myrmidon::priv::AntMetadataPtr AntMetadataPtr() const ;
 
-	fort::myrmidon::priv::AntMetadataPtr AntMetadataPtr();
+	AntMetadata::Key::Ptr SetMetaDataKey(const std::string & name, AntStaticValue type);
 
+	void DeleteMetaDataKey(const std::string & name);
 
-	AntMetadata::Column::Ptr AddAntMetadataColumn(const std::string & name, AntMetadata::Type type);
-
-	void DeleteAntMetadataColumn(const std::string & name);
+	void RenameMetaDataKey(const std::string & oldName, const std::string & newName);
 
 
 	void CloneAntShape(AntID sourceAntID,

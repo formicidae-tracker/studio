@@ -122,11 +122,11 @@ void Ant::SetValue(const std::string & name,
 	if ( time.IsForever() ) {
 		throw std::invalid_argument("Time cannot be +∞");
 	}
-	auto fi = d_metadata->CColumns().find(name);
-	if ( fi == d_metadata->CColumns().end() ) {
-		throw std::invalid_argument("Unknown value key '" + name + "'");
+	auto fi = d_metadata->Keys().find(name);
+	if ( fi == d_metadata->Keys().end() ) {
+		throw std::invalid_argument("Unknown meta data key '" + name + "'");
 	}
-	AntMetadata::CheckType(fi->second->MetadataType(),value);
+	AntMetadata::CheckType(fi->second->Type(),value);
 	auto vi = d_data.find(name);
 	if ( vi == d_data.end() ) {
 		auto res = d_data.insert(std::make_pair(name,std::vector<AntTimedValue>()));
@@ -189,7 +189,7 @@ const AntConstDataMap & Ant::CDataMap() const {
 
 void Ant::CompileData() {
 	std::map<std::string,AntStaticValue> defaults;
-	for ( const auto & [name,column] : d_metadata->CColumns() ) {
+	for ( const auto & [name,column] : d_metadata->Keys() ) {
 		defaults.insert(std::make_pair(name,column->DefaultValue()));
 	}
 	d_compiledData.Clear();

@@ -84,7 +84,7 @@ void AntMetadataWorkspace::onSelectedAntID(quint32 ID) {
 
 
 void AntMetadataWorkspace::onAddButtonClicked() {
-	auto column = d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::AntMetadata::Column::Ptr>();
+	auto column = d_ui->comboBox->currentData(Qt::UserRole+1).value<fmp::AntMetadata::Key::Ptr>();
 	if (!column || d_metadata->selectedAntID() == 0 ) {
 		return;
 	}

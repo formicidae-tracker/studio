@@ -131,9 +131,9 @@ const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
 typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
 
 /**
- * Possible types for named values
+ * AntMetaDataType enumerates possible type for AntStaticValue
  */
-enum class AntMetadataType {
+enum class AntMetaDataType {
                             /** A boolean */
                             BOOL = 0,
                             /** An integer */

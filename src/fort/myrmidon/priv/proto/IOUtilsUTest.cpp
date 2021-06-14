@@ -399,12 +399,14 @@ TEST_F(IOUtilsUTest,AntIO) {
 	};
 
 	auto e = Experiment::Create(TestSetup::Basedir() / "test-ant-io.myrmidon");
-	e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
-	e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
+	auto alive = e->SetMetaDataKey("alive",true);
+	auto group = e->SetMetaDataKey("group",std::string());
+	ASSERT_EQ(alive->Type(),AntMetaDataType::BOOL);
+	ASSERT_EQ(group->Type(),AntMetaDataType::STRING);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
 		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
-		                                     e->AntMetadataConstPtr());
+		                                     e->AntMetadataPtr());
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntDescription a,expected;
@@ -604,11 +606,11 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 			st->set_id(3);
 			st->set_name("antenna-right");
 
-			e->AddAntMetadataColumn("alive",AntMetadata::Type::BOOL);
+			e->SetMetaDataKey("alive",false);
 			auto c = expected.add_antmetadata();
 			c->set_name("alive");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(false));
-			e->AddAntMetadataColumn("group",AntMetadata::Type::STRING);
+			e->SetMetaDataKey("group",std::string());
 			c = expected.add_antmetadata();
 			c->set_name("group");
 			IOUtils::SaveAntStaticValue(c->mutable_defaultvalue(),AntStaticValue(std::string()));
@@ -633,14 +635,14 @@ TEST_F(IOUtilsUTest,ExperimentIO) {
 	// now we have a space, we are not undefined
 	EXPECT_EQ(res->Family(),e->Family());
 
-	EXPECT_EQ(e->AntMetadataConstPtr()->CColumns().size(),
-	          res->AntMetadataConstPtr()->CColumns().size());
-	for ( const auto [name,column] : e->AntMetadataConstPtr()->CColumns() ) {
-		auto ci = res->AntMetadataConstPtr()->CColumns().find(name);
-		if ( ci == res->AntMetadataConstPtr()->CColumns().cend() ) {
-			ADD_FAILURE() << "missing AntMetadataColumn '" << name << "'";
+	EXPECT_EQ(e->AntMetadataPtr()->Keys().size(),
+	          res->AntMetadataPtr()->Keys().size());
+	for ( const auto [name,key] : e->AntMetadataPtr()->Keys() ) {
+		auto ci = res->AntMetadataPtr()->Keys().find(name);
+		if ( ci == res->AntMetadataPtr()->Keys().cend() ) {
+			ADD_FAILURE() << "missing meta data key '" << name << "'";
 		} else {
-			EXPECT_EQ(ci->second->MetadataType(),column->MetadataType());
+			EXPECT_EQ(ci->second->Type(),key->Type());
 		}
 	}
 
