@@ -51,11 +51,13 @@ void BindTagStatistics(py::module_ & m) {
 			                       return ts.Counts;
 		                       },
 		                       py::return_value_policy::reference_internal,
-		                       "(numpy.ndarray): histogram of gaps of non-detection of this tag.")
+		                       R"pydoc(
+    (numpy.ndarray(numpy.int64[1xN])): histogram of gaps of
+        non-detection of this tag.
+)pydoc")
 		;
 
 }
-
 void BindIdentifiedFrame(py::module_ & m) {
 	using namespace fort::myrmidon;
 	py::class_<IdentifiedFrame,std::shared_ptr<IdentifiedFrame> >(m,
@@ -81,11 +83,9 @@ one video frame.
 			                       return f.Positions;
 		                       },py::return_value_policy::reference_internal,
 		                       R"pydoc(
-( numpy.ndarray(numpy.float64[N,5]) ): an array of ant IDs, positions, orientations and current zones.
-   * first column: the ant ID
-   * second and third columns: xy coordinate of the ant, in [0;Width[ x [0;Height[ space.
-   * fourth column: orientation of the ant in radian
-   * fifth column: the current ZoneID. `0` if the Zone are not computed or if the ant is not in a zone.
+    (numpy.ndarray(numpy.float64[N,5])): a N  array of
+        (antID,x,y,angle,zone) row vectors for each detected ant in the
+        frame. if Zone is undefined or non-computed, `zone` will be 0.
  )pydoc")
 		.def("Contains",
 		     &IdentifiedFrame::Contains,
@@ -107,7 +107,8 @@ one video frame.
    Args:
        index (int): the index in Positions
    Returns:
-       Tuple[int,numpy.ndarray(numpy.float64[3,1]),int] : the AntID, a vector with its (x,y,theta) position, and its current zone.
+       Tuple[int,numpy.ndarray(numpy.float64[3,1]),int] : the AntID, a
+           vector with its (x,y,theta) position, and its current zone.
    Raises:
        IndexError: if index >= len(Positions)
 )pydoc")
@@ -116,35 +117,68 @@ one video frame.
 
 void BindCollisionFrame(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<Collision>(m,"Collision")
-		.def_readonly("IDs",&Collision::IDs,"The AntID of the two Ants colliding")
-		.def_readonly("Zone",&Collision::Zone,"The ZoneID where the collision happens")
+	py::class_<Collision>(m,
+	                      "Collision",
+	                      "A Collision describe an instantaneous contact between two ants")
+		.def_readonly("IDs",
+		              &Collision::IDs,
+		              "(Tuple[int,int]) : the AntIDs of the two ants")
+		.def_readonly("Zone",
+		              &Collision::Zone,
+		              "(int) : the ZoneID where the collision happens")
 		.def_property_readonly("Types",
 		                       [](const Collision & c) -> const InteractionTypes & {
 			                       return c.Types;
 		                       },
 		                       py::return_value_policy::reference_internal,
-		                       "The matrix of AntShapeTypeID colliding")
+		                       R"pydoc(
+
+    (numpy.ndarray(numpy.int32[N,2])): an N row array describing the
+        colliding AntShapeTypeID. First column refers to shape type of
+        the first Ant, which are colliding with a part of the second
+        Ant in the second column.
+)pydoc")
 		;
-	py::class_<CollisionFrame,std::shared_ptr<CollisionFrame> >(m,"CollisionFrame")
-		.def_readonly("FrameTime",&CollisionFrame::FrameTime,"The Time of the frame")
-		.def_readonly("Space",&CollisionFrame::Space,"the Space the frame belongs to")
-		.def_readonly("Collisions",&CollisionFrame::Collisions,"the list of Collision in the frame")
+
+	py::class_<CollisionFrame,std::shared_ptr<CollisionFrame> >(m,
+	                                                            "CollisionFrame",
+	                                                            "A CollisionFrame regroups all Collision that happen in a video frame")
+		.def_readonly("FrameTime",
+		              &CollisionFrame::FrameTime,
+		              "(py_fort_myrmidon.Time) : the Time the video frame was acquired")
+		.def_readonly("Space",
+		              &CollisionFrame::Space,
+		              "(int) : the Space the video frame belongs to")
+		.def_readonly("Collisions",
+		              &CollisionFrame::Collisions,
+		              "(List[py_fort_myrmidon.Collision]): the list of Collision in the frame")
 		;
 }
 
 void BindAntTrajectory(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<AntTrajectory,std::shared_ptr<AntTrajectory> >(m,"AntTrajectory")
-		.def_readonly("Ant",&AntTrajectory::Ant,"The AntID of the Ant this trajectory describes.")
-		.def_readonly("Space",&AntTrajectory::Space,"The SpaceID where the trajectory happens.")
-		.def_readonly("Start",&AntTrajectory::Start,"The starting time of this trajectory.")
+	py::class_<AntTrajectory,std::shared_ptr<AntTrajectory> >(m,
+	                                                          "AntTrajectory",
+	                                                          "An Ant trajectory represents a continuous spatial trajectory of an Ant")
+		.def_readonly("Ant",
+		              &AntTrajectory::Ant,
+		              "(int) : the AntID of the Ant")
+		.def_readonly("Space",
+		              &AntTrajectory::Space,
+		              "(int) : the SpaceID where the trajectory takes place.")
+		.def_readonly("Start",
+		              &AntTrajectory::Start,
+		              "(py_fort_myrmidon.Time): the starting time of this trajectory.")
 		.def_property_readonly("Positions",
 		                       [](const AntTrajectory & t) -> const Eigen::Matrix<double,Eigen::Dynamic,5> & {
 			                       return t.Positions;
 		                       },
 		                       py::return_value_policy::reference_internal,
-		                       "The matrices of the ant pose in the trajectory local time")
+		                       R"pydoc(
+    (numpy.ndarray(numpy.float64[N,5])) : a N row array of
+        position. Columns are (t,x,y,angle,zone), where t is the
+        offset from Start in seconds.
+)pydoc")
 		;
 
 }
@@ -152,10 +186,29 @@ void BindAntTrajectory(py::module_ & m) {
 void BindAntInteraction(py::module_ & m) {
 	using namespace fort::myrmidon;
 
-	py::class_<AntTrajectorySegment>(m,"AntTrajectorySegment")
-		.def_readonly("Trajectory",&AntTrajectorySegment::Trajectory)
-		.def_readonly("Begin",&AntTrajectorySegment::Begin)
-		.def_readonly("End",&AntTrajectorySegment::End)
+	py::class_<AntTrajectorySegment>(m,
+	                                 "AntTrajectorySegment",
+	                                 R"pydoc(
+    Represents a section or a summary of an AntTrajectory.
+
+    This object is an hybrid object. Depending on Query option, it
+holds a pointer to an AntTrajectory and the corresponding index in
+that trajectory. Or it just holds the Mean in that trajectory.
+
+R)pydoc")
+		.def_readonly("Trajectory",
+		              &AntTrajectorySegment::Trajectory,
+		              R"pydoc(
+    (py_fort_myrmidon.Trajectory): the AntTrajectory it refers to. if
+        it contains a Mean, then this field will not be valid and
+        accessing it will raise an Error.
+)pydoc")
+		.def_readonly("Begin",
+		              &AntTrajectorySegment::Begin,
+		              "(int): the first index in Trajectory this segment refers to.")
+		.def_readonly("End",
+		              &AntTrajectorySegment::End,
+		              "(int): the last index+1 in Trajectory this segment refers to.")
 		.def_property_readonly("Mean",
 		                       [](const AntTrajectorySegment & ts) -> const Eigen::Vector3d & {
 			                       if ( !ts.Mean) {
@@ -163,48 +216,111 @@ void BindAntInteraction(py::module_ & m) {
 			                       }
 			                       return *ts.Mean;
 		                       },
-		                       py::return_value_policy::reference_internal)
+		                       py::return_value_policy::reference_internal,
+		                       R"pydoc(
+
+    numpy.ndarray(numpy.float64(3,1)): the average position and angle
+        in this Trajectory sub-segment.
+)pydoc")
 		;
 
-	py::class_<AntInteraction,std::shared_ptr<AntInteraction>>(m,"AntInteraction")
-		.def_readonly("IDs",&AntInteraction::IDs)
+	py::class_<AntInteraction,std::shared_ptr<AntInteraction>>(m,
+	                                                           "AntInteraction",
+	                                                           "Represent an interaction between two Ant")
+		.def_readonly("IDs",
+		              &AntInteraction::IDs,
+		              "(Tuple[int,int]): the AntIDs of the two Ant interaction")
 		.def_property_readonly("Types",
 		                       [](const AntInteraction & i) -> const InteractionTypes & {
 			                       return i.Types;
 		                       },
-		                       py::return_value_policy::reference_internal)
-		.def_readonly("Trajectories",&AntInteraction::Trajectories)
-		.def_readonly("Start",&AntInteraction::Start)
-		.def_readonly("End",&AntInteraction::End)
-		.def_readonly("Space",&AntInteraction::Space)
+		                       py::return_value_policy::reference_internal,
+		                       R"pydoc(
+    (numpy.ndarray(numpy.int32(N,2))): The AntShapeTypeID that were in
+        contact during the interaction. Any body part interacting at
+        least at one instant will add a row in this array. The first
+        column refers to the first Ant, and the second column to the
+        other Ant. Therefore, there is a difference between a (1,2)
+        and a (2,1) interaction.
+  )pydoc")
+		.def_readonly("Trajectories",
+		              &AntInteraction::Trajectories,
+		              R"pydoc(
+    (Tuple[py_fort_myrmidon.AntTrajectorySegment,py_fort_myrmidon.AntTrajectorySegment]):
+        The two AntTrajectorySegment for the two Ant during this interaction.
+)pydoc")
+		.def_readonly("Start",
+		              &AntInteraction::Start,
+		              "(py_fort_myrmidon.Time): the start Time of the interaction.")
+		.def_readonly("End",
+		              &AntInteraction::End,
+		              "(py_fort_myrmidon.Time): the end Time of the interaction.")
+		.def_readonly("Space",
+		              &AntInteraction::Space,
+		              "(int): the SpaceID of the Space the interaction takes place.")
 		;
 }
 
 void BindExperimentDataInfo(py::module_ & m) {
 	using namespace fort::myrmidon;
 
-	py::class_<TrackingDataDirectoryInfo>(m,"TrackingDataDirectoryInfo")
-		.def_readonly("URI",&TrackingDataDirectoryInfo::URI)
-		.def_readonly("AbsoluteFilePath",&TrackingDataDirectoryInfo::AbsoluteFilePath)
-		.def_readonly("Frames",&TrackingDataDirectoryInfo::Frames)
-		.def_readonly("Start",&TrackingDataDirectoryInfo::Start)
-		.def_readonly("End",&TrackingDataDirectoryInfo::End)
+	py::class_<TrackingDataDirectoryInfo>(m,
+	                                      "TrackingDataDirectoryInfo",
+	                                      "Tracking Data informations summary for a Tracking Data Directory.")
+		.def_readonly("URI",
+		              &TrackingDataDirectoryInfo::URI,
+		              "(str): The internal URI for the Tracking Data Directory")
+		.def_readonly("AbsoluteFilePath",
+		              &TrackingDataDirectoryInfo::AbsoluteFilePath,
+		              "(str): Absolute filepath of the Tracking Data Directory on the system")
+		.def_readonly("Frames",
+		              &TrackingDataDirectoryInfo::Frames,
+		              "(int): Number of frames found in this Tracking Data Directory")
+		.def_readonly("Start",
+		              &TrackingDataDirectoryInfo::Start,
+		              "(py_fort_myrmidon.Time): The Time of the first frame found in this Tracking Data Directory.")
+		.def_readonly("End",
+		              &TrackingDataDirectoryInfo::End,
+		              "(py_fort_myrmidon.Time): The Time plus a nanosecond, of the last frame found in This Tracking Data Directory")
 		;
 
-	py::class_<SpaceDataInfo>(m,"SpaceDataInfo")
-		.def_readonly("URI",&SpaceDataInfo::URI)
-		.def_readonly("Name",&SpaceDataInfo::Name)
-		.def_readonly("Frames",&SpaceDataInfo::Frames)
-		.def_readonly("Start",&SpaceDataInfo::Start)
-		.def_readonly("End",&SpaceDataInfo::End)
-		.def_readonly("TrackingDataDirectories",&SpaceDataInfo::TrackingDataDirectories)
+	py::class_<SpaceDataInfo>(m,
+	                          "SpaceDataInfo",
+	                          "Tracking Data information summary for a Space.")
+		.def_readonly("URI",
+		              &SpaceDataInfo::URI,
+		              "The internal URI for the Space")
+		.def_readonly("Name",
+		              &SpaceDataInfo::Name,
+		              "The name of the space")
+		.def_readonly("Frames",
+		              &SpaceDataInfo::Frames,
+		              "(int): Total number of frame found in this Space")
+		.def_readonly("Start",
+		              &SpaceDataInfo::Start,
+		              "(py_fort_myrmidon.Time): the Time of the first frame available in this space.")
+		.def_readonly("End",&SpaceDataInfo::End,
+		              "(py_fort_myrmidon.Time): the Time of the last frame available in this space.")
+		.def_readonly("TrackingDataDirectories",
+		              &SpaceDataInfo::TrackingDataDirectories,
+		              "(List[py_fort_myrmidon.Time]): The TrackingDataDirectoryInfo present in this Space")
 		;
 
-		py::class_<ExperimentDataInfo>(m,"ExperimentDataInfo")
-		.def_readonly("Frames",&ExperimentDataInfo::Frames)
-		.def_readonly("Start",&ExperimentDataInfo::Start)
-		.def_readonly("End",&ExperimentDataInfo::End)
-		.def_readonly("Spaces",&ExperimentDataInfo::Spaces)
+	py::class_<ExperimentDataInfo>(m,
+	                               "ExperimentDataInfo",
+	                               "Tracking Data information summary for an Experiment")
+		.def_readonly("Frames",
+		              &ExperimentDataInfo::Frames,
+		              "(int): Total number of Frames accessible in this Experiment.")
+		.def_readonly("Start",
+		              &ExperimentDataInfo::Start,
+		              "(py_fort_myrmidon.Time): the Time of the first frame available in this Experiement.")
+		.def_readonly("End",
+		              &ExperimentDataInfo::End,
+		              "(py_fort_myrmidon.Time): the Time of the first frame available in this Experiement.")
+		.def_readonly("Spaces",
+		              &ExperimentDataInfo::Spaces,
+		              "(Dict[int,py_fort_myrmidon.Time]): the SpaceDataInfo indexed by SpaceId.")
 		;
 }
 

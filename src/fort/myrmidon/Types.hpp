@@ -72,8 +72,10 @@ typedef uint32_t ZoneID;
 /**
  * C++ type for named values.
  *
- * * Python: any object that is either a `bool`, an `int`, a `float`, a `str` or a `py_fort_myrmidon.Time`.
- * * R: any S expression that is either a `logical`, an `integer`, a `numeric`, a `character` or a `fmTime`.
+ * * Python: any object that is either a `bool`, an `int`, a `float`,
+ *           a `str` or a `py_fort_myrmidon.Time`.
+ * * R: any S expression that is either a `logical`, an `integer`, a
+ *      `numeric`, a `character` or a `fmTime`.
  *
  * A c++ type that can hold only one of any #AntMetadataType.
  */

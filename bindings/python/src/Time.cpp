@@ -197,7 +197,7 @@ void BindTime(py::module_ & m) {
                            be `float('inf')` or `float('-inf')`.
 `)pydoc")
 		.def(py::init(&timeFromPythonDatetime),
-		     py::arg("dt")
+		     py::arg("dt"),
 		     R"pydoc(
     Constructor from a datetime.datetime object
 
@@ -402,7 +402,9 @@ and power of 10 of Nanosecond smaller than a second are supported.
         bool:  result of `self - other`
 
     Raises:
-        Error: if the result would not fit in a Duration (i.e. if one of the Time.IsInfinite())
+        Error: if the result would not fit in a Duration (i.e. if one
+            of the Time.IsInfinite())
+
 )pydoc")
 		.def("__str__",&fort::Time::Format)
 		.def("__repr__",&fort::Time::DebugString)
@@ -411,14 +413,18 @@ and power of 10 of Nanosecond smaller than a second are supported.
 		.def(py::self <= py::self)
 		.def(py::self > py::self)
 		.def(py::self >= py::self)
-		.def(py::self - py::self)
+		.def("__sub__",
+		     []( const fort::Time & a, const fort::Time & b) -> fort::Duration {
+			     return a.Sub(b);
+		     },
+		     py::is_operator())
 		.def("__add__",
-		     [](const fort::Time & t, const Duration & d) -> fort::Time {
+		     [](const fort::Time & t, const fort::Duration & d) -> fort::Time {
 			     return t.Add(d);
 		     },
 		     py::is_operator())
 		.def("__add__",
-		     [](const fort::Time & t, const Duration & d) -> fort::Time {
+		     [](const fort::Time & t, const fort::Duration & d) -> fort::Time {
 			     return t.Add(-1 * d);
 		     },
 		     py::is_operator())

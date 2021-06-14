@@ -9,7 +9,7 @@ namespace myrmidon {
 /**
  * Defines a RGB color.
  *
- * * Python: `py_fort_myrmidon.Color` class constructible from a 3 `int` `tuple`
+ * * Python: translate to a `Tuple[int,int,int]`
  * * R:
  * ```R
  * fmColor <- function(color = c(255,255,255)) # returns a Rcpp_fmColor.
@@ -24,7 +24,7 @@ typedef std::tuple<uint8_t,uint8_t,uint8_t> Color;
 /**
  * A Palette defines a collection of Color.
  *
- * * Python: a `list` of `py_fort_myrmidon.Color`
+ * * Python: translate to `List[Tuple[int,int,int]]`
  * * R: a `slist` of `Rcpp_fmColor`
  */
 typedef std::vector<Color> Palette;
@@ -35,7 +35,7 @@ typedef std::vector<Color> Palette;
  *
  * * Python:
  * ```python
- * py_fort_myrmidon.DefaultPalette() -> list(py_fort_myrmidon.Color)
+ * py_fort_myrmidon.DefaultPalette() -> List[Tuple[int,int,int]]
  * ```
  * * R:
  * ```R
@@ -52,7 +52,7 @@ const Palette & DefaultPalette();
  *
  * * Python:
  * ```python
- * py_fort_myrmidon.DefaultPaletteColor(index: int) -> py_fort_myrmidon.Color
+ * py_fort_myrmidon.DefaultPaletteColor(index: int) -> Tuple[int,int,int]
  * ```
  * * R:
  * ```R
