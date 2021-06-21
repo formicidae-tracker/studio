@@ -27,6 +27,18 @@ public:
 		fi->second.insert(std::make_pair(time,value));
 	}
 
+	inline void InsertOrAssign(const T & key, const U & value , const Time & time) {
+		if ( time.IsForever() == true ) {
+			throw std::invalid_argument("time value cannot be +∞");
+		}
+		auto fi = d_map.find(key);
+		if ( fi == d_map.end() ) {
+			auto res = d_map.insert(std::make_pair(key,ValuesByTime()));
+			fi = res.first;
+		}
+		fi->second.insert_or_assign(time,value);
+	}
+
 	inline const U & At(const T & key, const Time & t) const {
 		auto fi = d_map.find(key);
 		if ( fi == d_map.end() || fi->second.empty() ) {

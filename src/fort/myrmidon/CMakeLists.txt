@@ -63,10 +63,6 @@ set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       priv/TimeValid.hpp
                       priv/MovieSegment.hpp
                       priv/Types.hpp
-                      priv/Shape.hpp
-                      priv/Capsule.hpp
-                      priv/Circle.hpp
-                      priv/Polygon.hpp
                       priv/FrameReference.hpp
                       priv/TagCloseUp.hpp
                       priv/AntMetadata.hpp
@@ -126,10 +122,6 @@ set(SRC_PRIVATE_FILES utils/StringManipulation.cpp
                       priv/ExperimentReadWriter.cpp
                       priv/Isometry2D.cpp
                       priv/MovieSegment.cpp
-                      priv/Shape.cpp
-                      priv/Capsule.cpp
-                      priv/Circle.cpp
-                      priv/Polygon.cpp
                       priv/FrameReference.cpp
                       priv/TagCloseUp.cpp
                       priv/AntMetadata.cpp
@@ -179,7 +171,6 @@ set(COMMON_UTEST_HDR_FILES TestSetup.hpp
 set(SRC_UTEST_FILES main-check.cpp
                     utils/NotYetImplementedUTest.cpp
                     utils/ObjectPoolUTest.cpp
-                    priv/UtilsUTest.cpp
                     priv/DenseMapUTest.cpp
                     priv/TimedMapUTest.cpp
                     priv/SpaceUTest.cpp
@@ -219,7 +210,6 @@ set(SRC_UTEST_FILES main-check.cpp
 
 set(HDR_UTEST_FILES utils/NotYetImplementedUTest.hpp
                     utils/ObjectPoolUTest.cpp
-                    priv/UtilsUTest.hpp
                     priv/DenseMapUTest.hpp
                     priv/TimedMapUTest.hpp
                     priv/SpaceUTest.hpp

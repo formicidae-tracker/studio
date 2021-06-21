@@ -175,11 +175,11 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		return;
 	}
 
-	auto geometry = std::make_shared<const fmp::Zone::Geometry>(std::vector<fmp::Shape::ConstPtr>());
+	fm::Shape::List shapes;
 	if ( start.IsInfinite() == false ) {
-		geometry = z->AtTime(start.Add(-1));
+		shapes = z->AtTime(start.Add(-1));
 	} else if ( end.IsInfinite() == false ) {
-		geometry = z->AtTime(end.Add(1));
+		shapes = z->AtTime(end.Add(1));
 	}
 
 	try {
@@ -187,7 +187,7 @@ void ZoneBridge::addDefinition(QStandardItem * zoneRootItem) {
 		         << ToQString(start) << ","
 		         << ToQString(end)
 		         << ")";
-		z->AddDefinition(geometry->Shapes(),
+		z->AddDefinition(shapes,
 		                 start,end);
 	} catch ( const std::exception & e) {
 		qCritical() << "Coul not create definition: " << e.what();
@@ -329,7 +329,7 @@ QList<QStandardItem*> ZoneBridge::buildDefinition(const fmp::Zone::Definition::P
 	QList<QStandardItem*> res;
 	res.push_back(new QStandardItem(ToQString(definition->Start())));
 	res.push_back(new QStandardItem(ToQString(definition->End())));
-	res.push_back(new QStandardItem(QString::number(definition->GetGeometry()->Shapes().size())));
+	res.push_back(new QStandardItem(QString::number(definition->Shapes().size())));
 	for ( const auto & i : res ) {
 		i->setEditable(true);
 		i->setData(typeData,TypeRole);
@@ -617,12 +617,12 @@ bool ZoneDefinitionBridge::isActive() const {
 	return true;
 }
 
-const fmp::Zone::Geometry & ZoneDefinitionBridge::geometry() const {
-	return *d_definition->GetGeometry();
+const fm::Shape::List & ZoneDefinitionBridge::shapes() const {
+	return d_definition->Shapes();
 }
 
-void ZoneDefinitionBridge::setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes) {
-	d_definition->SetGeometry(std::make_shared<fmp::Zone::Geometry>(shapes));
+void ZoneDefinitionBridge::setShapes(const fm::Shape::List & shapes) {
+	d_definition->SetShapes(shapes);
 	setModified(true);
 	emit countUpdated(shapes.size());
 }

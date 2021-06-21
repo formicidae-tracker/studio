@@ -1,4 +1,4 @@
-#include "Capsule.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 
 #include "CapsuleUTest.hpp"
 
@@ -9,8 +9,6 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-
-#include "Capsule.hpp"
 
 namespace fort {
 namespace myrmidon {

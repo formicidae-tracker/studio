@@ -15,8 +15,8 @@ protected:
 	void SetUp();
 	void TearDown();
 
-	std::vector<Shape::ConstPtr> shapes;
-	Zone::Ptr                    zone;
+	std::vector<Shape::Ptr> shapes;
+	Zone::Ptr               zone;
 
 };
 

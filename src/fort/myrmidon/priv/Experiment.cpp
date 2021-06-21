@@ -15,7 +15,7 @@
 #include "AntPoseEstimate.hpp"
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
-#include "Capsule.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 #include "CollisionSolver.hpp"
 
 #include <fort/myrmidon/utils/Checker.hpp>
@@ -657,11 +657,11 @@ void Experiment::CloneAntShape(fort::myrmidon::AntID sourceAntID,
 			}
 		}
 		for ( const auto & [typeID,sourceCapsule] : source->Capsules() ) {
-			auto destCapsule = Capsule(scale * sourceCapsule.C1(),
-			                           scale * sourceCapsule.C2(),
-			                           scale * sourceCapsule.R1(),
-			                           scale * sourceCapsule.R2());
-			ant->AddCapsule(typeID,destCapsule);
+			auto destCapsule = std::make_shared<Capsule>(scale * sourceCapsule->C1(),
+			                                             scale * sourceCapsule->C2(),
+			                                             scale * sourceCapsule->R1(),
+			                                             scale * sourceCapsule->R2());
+			ant->AddCapsule(typeID,std::move(destCapsule));
 		}
 	}
 }

@@ -1,6 +1,6 @@
 #include "PolygonUTest.hpp"
 
-#include "Polygon.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 
 namespace fort {
 namespace myrmidon {

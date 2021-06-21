@@ -1,7 +1,7 @@
 #include "CollisionSolver.hpp"
 
 #include "Space.hpp"
-#include "Capsule.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 #include "AntShapeType.hpp"
 #include "KDTree.hpp"
 
@@ -12,18 +12,26 @@ namespace priv {
 CollisionSolver::CollisionSolver(const SpaceByID & spaces,
                                  const AntByID & ants) {
 
+	// Deep copy ant shape data.
 	for ( const auto & [aID,ant] : ants ) {
 		d_antGeometries.insert(std::make_pair(aID,ant->Capsules()));
 	}
 
 	for ( const auto & [spaceID,space] : spaces ) {
-		auto res = d_spaceDefinitions.insert(std::make_pair(spaceID,ZoneDefinitionsByTime()));
+		auto res = d_spaceDefinitions.insert(std::make_pair(spaceID,ZoneGeometriesByTime()));
 		d_zoneIDs.insert(std::make_pair(spaceID,std::vector<ZoneID>()));
 		auto & definitions = res.first->second;
 		for ( const auto & [zID,zone] : space->Zones() ) {
 			d_zoneIDs.at(spaceID).push_back(zID);
 			for ( const auto & definition : zone->Definitions() ) {
-				definitions.Insert(zID,definition,definition->Start());
+				definitions.InsertOrAssign(zID,
+				                           std::make_shared<ZoneGeometry>(definition->Shapes()),
+				                           definition->Start());
+				if ( definition->End().IsForever() == false) {
+					definitions.InsertOrAssign(zID,
+					                           std::make_shared<ZoneGeometry>(Shape::List()),
+					                           definition->End());
+				}
 			}
 		}
 	}
@@ -53,14 +61,8 @@ AntZoner::ConstPtr CollisionSolver::ZonerFor(const IdentifiedFrame & frame) cons
 	std::vector<std::pair<ZoneID,Zone::Geometry::ConstPtr> > currentGeometries;
 	for ( const auto & zID : d_zoneIDs.at(frame.Space) ) {
 		try {
-			auto definition = allDefinitions.At(zID,frame.FrameTime);
-			if ( definition->IsValid(frame.FrameTime) == false ) {
-				continue;
-			}
-			auto geometry = definition->GetGeometry();
-			if ( geometry ) {
-				currentGeometries.push_back(std::make_pair(zID,geometry));
-			}
+			auto geometry = allDefinitions.At(zID,frame.FrameTime);
+			currentGeometries.push_back(std::make_pair(zID,geometry));
 		} catch ( const std::exception & e ) {
 			continue;
 		}
@@ -106,9 +108,9 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 
 	//first-pass we compute possible interactions
 	struct AntTypedCapsule  {
-		Capsule           C;
-		AntID             ID;
-		AntShapeType::ID  TypeID;
+		Capsule          C;
+		AntID            ID;
+		AntShapeType::ID TypeID;
 		inline bool operator<( const AntTypedCapsule & other ) {
 			return ID < other.ID;
 		}
@@ -133,7 +135,7 @@ void CollisionSolver::ComputeCollisions(std::vector<Collision> &  result,
 
 		for ( const auto & [typeID,c] : fiGeom->second ) {
 			auto data =
-				AntTypedCapsule { .C = c.Transform(antToOrig),
+				AntTypedCapsule { .C = c->Transform(antToOrig),
 				                  .ID = antID,
 				                  .TypeID = typeID,
 			};

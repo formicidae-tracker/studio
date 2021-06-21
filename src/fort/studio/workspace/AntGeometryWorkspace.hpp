@@ -7,6 +7,8 @@
 
 #include "Workspace.hpp"
 
+#include <fort/myrmidon/Shapes.hpp>
+
 namespace Ui {
 class AntGeometryWorkspace;
 }
@@ -170,7 +172,7 @@ private slots:
 private:
 	void changeCapsuleType(Capsule * capsule,fmp::AntShapeTypeID stID);
 
-	fmp::CapsulePtr capsuleFromScene(const QSharedPointer<Capsule> & capsule);
+	fm::Capsule::Ptr capsuleFromScene(const QSharedPointer<Capsule> & capsule);
 	void rebuildCapsules();
 
 	quint32 selectedAntID() const;

@@ -2,11 +2,10 @@
 
 #include <random>
 
+#include <fort/myrmidon/Shapes.hpp>
+
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
-#include "Capsule.hpp"
-#include "Circle.hpp"
-#include "Polygon.hpp"
 #include "Space.hpp"
 
 #include <opencv2/imgcodecs.hpp>
@@ -39,11 +38,11 @@ void debugToImage(const IdentifiedFrame & frame,
 		auto antIso = Isometry2Dd(angle,position);
 		for ( const auto & [t,c] : ant->Capsules() ) {
 			auto color = t == 1 ? cv::Scalar(0,255,0) : cv::Scalar(255,0,255);
-			auto cc = c.Transform(antIso);
+			auto cc = c->Transform(antIso);
 			auto center1 = cv::Point(cc.C1().x(),cc.C1().y())/3;
 			auto center2 = cv::Point(cc.C2().x(),cc.C2().y())/3;
-			cv::circle(debug,center1,c.R1()/3,color,2);
-			cv::circle(debug,center2,c.R2()/3,color,2);
+			cv::circle(debug,center1,c->R1()/3,color,2);
+			cv::circle(debug,center2,c->R2()/3,color,2);
 			cv::line(debug,center1,center2,color,2);
 		}
 	}
@@ -93,16 +92,16 @@ void CollisionSolverUTest::SetUpTestSuite() {
 		auto ant = std::make_shared<Ant>(shapeTypes,
 		                                 metadata,
 		                                 i+1);
-		ant->AddCapsule(1,Capsule(Eigen::Vector2d(40+noise(e1),0),
-		                          Eigen::Vector2d(-100+2*noise(e1),0),
-		                          40+noise(e1),
-		                          60+noise(e1)));
-		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,10),
-		                          Eigen::Vector2d(60,50),
-		                          25,40));
-		ant->AddCapsule(2,Capsule(Eigen::Vector2d(20,-10),
-		                          Eigen::Vector2d(60,-50),
-		                          25,40));
+		ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(40+noise(e1),0),
+		                                            Eigen::Vector2d(-100+2*noise(e1),0),
+		                                            40+noise(e1),
+		                                            60+noise(e1)));
+		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,10),
+		                                            Eigen::Vector2d(60,50),
+		                                            25,40));
+		ant->AddCapsule(2,std::make_shared<Capsule>(Eigen::Vector2d(20,-10),
+		                                            Eigen::Vector2d(60,-50),
+		                                            25,40));
 
 		ants.insert(std::make_pair(ant->AntID(),ant));
 
@@ -120,13 +119,13 @@ void CollisionSolverUTest::SetUpTestSuite() {
 	auto foo = Space::Universe::Create(universe,1,"foo");
 	identifiedFrame->Space = 1;
 	auto nest = foo->CreateZone("nest");
-	std::vector<Shape::ConstPtr> nestShapes = {std::make_shared<Polygon>(Vector2dList({{WIDTH/2,0},{WIDTH,0},{WIDTH,HEIGHT},{WIDTH/2,HEIGHT}}))};
+	std::vector<Shape::Ptr> nestShapes = {std::make_shared<Polygon>(Vector2dList({{WIDTH/2,0},{WIDTH,0},{WIDTH,HEIGHT},{WIDTH/2,HEIGHT}}))};
 	nest->AddDefinition(nestShapes,
 	                    Time::SinceEver(),Time::Forever());
 
 	auto food = foo->CreateZone("food");
-	std::vector<Shape::ConstPtr> foodShapes = { std::make_shared<Circle>(Eigen::Vector2d(WIDTH/4,HEIGHT/2),
-	                                                                    WIDTH/8),
+	std::vector<Shape::Ptr> foodShapes = { std::make_shared<Circle>(Eigen::Vector2d(WIDTH/4,HEIGHT/2),
+	                                                                WIDTH/8),
 	};
 	food->AddDefinition(foodShapes,
 	                    Time::SinceEver(),Time::Forever());
@@ -141,7 +140,7 @@ CollisionFrame::Ptr CollisionSolverUTest::NaiveCollisions() {
 	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
 		bool found =  false;
 		for ( const auto & [zID,zone] : universe->Spaces().at(1)->Zones() ) {
-			if ( zone->AtTime(Time())->Contains(frame->Positions.block<1,2>(i,1).transpose()) == true ) {
+			if ( ZoneGeometry(zone->AtTime(Time())).Contains(frame->Positions.block<1,2>(i,1).transpose()) == true ) {
 				locatedAnt[zID].push_back(frame->Positions.row(i));
 				found = true;
 				break;
@@ -163,9 +162,9 @@ CollisionFrame::Ptr CollisionSolverUTest::NaiveCollisions() {
 			Isometry2Dd aIso(a(0,3),a.block<1,2>(0,1).transpose());
 			Isometry2Dd bIso(b(0,3),b.block<1,2>(0,1).transpose());
 			for ( const auto & [aType,aC] : aAnt->Capsules() ) {
-				Capsule aCapsule = aC.Transform(aIso);
+				Capsule aCapsule = aC->Transform(aIso);
 				for ( const auto & [bType,bC] : bAnt->Capsules() ) {
-					Capsule bCapsule = bC.Transform(bIso);
+					Capsule bCapsule = bC->Transform(bIso);
 					if ( aCapsule.Intersects(bCapsule) == true ) {
 						res.push_back(std::make_pair(aType,bType));
 					}

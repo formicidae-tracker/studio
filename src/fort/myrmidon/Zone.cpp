@@ -1,7 +1,7 @@
 #include "Zone.hpp"
 
 #include "priv/Zone.hpp"
-#include "priv/Shape.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 
 #include "utils/ConstClassHelper.hpp"
 
@@ -16,12 +16,12 @@ ZoneDefinition::ZoneDefinition(const PPtr & pDefinition)
 	: d_p(pDefinition) {
 }
 
-Shape::ConstList ZoneDefinition::Geometry() const {
-	return Shape::PublicListCast(d_p->GetGeometry()->Shapes());
+const Shape::List & ZoneDefinition::Shapes() const {
+	return d_p->Shapes();
 }
 
-void ZoneDefinition::SetGeometry(const Shape::ConstList & shapes) {
-	d_p->SetGeometry(std::make_shared<priv::ZoneGeometry>(Shape::PrivateListCast(shapes)));
+void ZoneDefinition::SetShapes(const Shape::List & shapes) {
+	d_p->SetShapes(shapes);
 }
 
 
@@ -41,10 +41,10 @@ void ZoneDefinition::SetEnd(const Time & end) {
 	d_p->SetEnd(end);
 }
 
-ZoneDefinition::Ptr Zone::AddDefinition(const Shape::ConstList & geometry,
-                                   const Time & start,
-                                   const Time & end) {
-	return ZoneDefinition::Ptr(new ZoneDefinition(d_p->AddDefinition(Shape::PrivateListCast(geometry),
+ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
+                                        const Time & start,
+                                        const Time & end) {
+	return ZoneDefinition::Ptr(new ZoneDefinition(d_p->AddDefinition(shapes,
 	                                                                 start,end)));
 }
 

@@ -1,30 +1,21 @@
 #include "ShapeUTest.hpp"
 
-#include "Circle.hpp"
-#include "Capsule.hpp"
-#include "Polygon.hpp"
-
+#include <fort/myrmidon/Shapes.hpp>
 
 namespace fort {
 namespace myrmidon {
 namespace priv {
 
-TEST_F(ShapeUTest,Casting) {
-	auto circle = std::make_shared<Circle>(Eigen::Vector2d(0,0),0);
-	auto capsule = std::make_shared<Capsule>(Eigen::Vector2d(0,0),Eigen::Vector2d(0,0),0,0);
-	auto polygon = std::make_shared<Polygon>(Polygon({{0,0},{0,0},{0,0}}));
+TEST_F(ShapeUTest,Type) {
+	auto circle = std::make_unique<Circle>(Eigen::Vector2d(0,0),0);
+	auto capsule = std::make_unique<Capsule>(Eigen::Vector2d(0,0),Eigen::Vector2d(0,0),0,0);
+	auto polygon = std::make_unique<Polygon>(Polygon({{0,0},{0,0},{0,0}}));
 
-	EXPECT_FALSE(!Shape::ToCircle(circle));
-	EXPECT_TRUE(!Shape::ToCapsule(circle));
-	EXPECT_TRUE(!Shape::ToPolygon(circle));
+	EXPECT_EQ(circle->ShapeType(),fort::myrmidon::Shape::Type::Circle);
+	EXPECT_EQ(capsule->ShapeType(),fort::myrmidon::Shape::Type::Capsule);
+	EXPECT_EQ(polygon->ShapeType(),fort::myrmidon::Shape::Type::Polygon);
 
-	EXPECT_TRUE(!Shape::ToCircle(capsule));
-	EXPECT_FALSE(!Shape::ToCapsule(capsule));
-	EXPECT_TRUE(!Shape::ToPolygon(capsule));
 
-	EXPECT_TRUE(!Shape::ToCircle(polygon));
-	EXPECT_TRUE(!Shape::ToCapsule(polygon));
-	EXPECT_FALSE(!Shape::ToPolygon(polygon));
 
 }
 

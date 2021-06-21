@@ -58,14 +58,14 @@ private:
 	Ui::ZoningWorkspace * d_ui;
 	ZoneBridge       * d_zones;
 
-	void appendShape(const fmp::Shape::ConstPtr & shape,
-	                 fmp::Zone::ID zID);
+	void appendShape(const fmp::Shape::Ptr & shape,
+	                 fm::ZoneID zID);
 	void rebuildGeometry(const QSharedPointer<Shape> & shape );
-	void rebuildGeometry(fmp::Zone::ID zID );
+	void rebuildGeometry(fm::ZoneID zID );
 
-	fmp::Zone::ID currentZoneID() const;
+	fm::ZoneID currentZoneID() const;
 
-	static fmp::Shape::ConstPtr convertShape(const QSharedPointer<Shape> & s);
+	static fm::Shape::Ptr convertShape(const QSharedPointer<Shape> & s);
 
 	void changeShapeType(Shape * shape, fmp::Zone::ID zID);
 

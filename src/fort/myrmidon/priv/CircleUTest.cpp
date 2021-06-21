@@ -1,7 +1,7 @@
 #include "CircleUTest.hpp"
 
 
-#include "Circle.hpp"
+#include <fort/myrmidon/Shapes.hpp>
 
 namespace fort {
 namespace myrmidon {

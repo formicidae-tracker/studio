@@ -7,7 +7,7 @@
 
 #include <fort/myrmidon/priv/KDTreePrinter.hpp>
 #include <fort/myrmidon/utils/FileSystem.hpp>
-#include <fort/myrmidon/priv/Capsule.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 #include <fort/myrmidon/priv/KDTree.hpp>
 
 #include <fstream>

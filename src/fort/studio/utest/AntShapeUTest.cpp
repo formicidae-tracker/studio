@@ -64,7 +64,7 @@ TEST_F(AntShapeUTest,ColumnAreInOrder) {
 
 
 TEST_F(AntShapeUTest,ShapesAreCounted) {
-	QSignalSpy capsuleAdded(d_experiment.antShapes(),SIGNAL(capsuleCreated(quint32,quint32,quint32,const fmp::Capsule::ConstPtr&)));
+	QSignalSpy capsuleAdded(d_experiment.antShapes(),SIGNAL(capsuleCreated(quint32,quint32,quint32,const fm::Capsule::Ptr&)));
 	QSignalSpy capsuleCleared(d_experiment.antShapes(),SIGNAL(capsuleCleared(quint32)));
 
 	auto m = d_experiment.antShapes()->model();

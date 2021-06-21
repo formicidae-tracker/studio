@@ -18,7 +18,7 @@
 #include <fort/myrmidon/priv/ForwardDeclaration.hpp>
 #include <fort/myrmidon/priv/TrackingDataDirectory.hpp>
 #include <fort/myrmidon/priv/Ant.hpp>
-#include <fort/myrmidon/priv/Shape.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 #include <Eigen/Core>
 #include <fort/myrmidon/Vector2d.pb.h>
@@ -252,26 +252,26 @@ public:
 	//
 	// @pb the protobuf message to read from
 	// @return a <Capsule::Ptr> initialized with the message data
-	static Capsule LoadCapsule(const pb::Capsule & pb);
+	static myrmidon::Capsule::Ptr LoadCapsule(const pb::Capsule & pb);
 
 	// Saves a Capsule to a message
 	//
 	// @pb the protobuf message to save to
 	// @capsule the <Capsule> to save to
-	static void SaveCapsule(pb::Capsule * pb,const Capsule & capsule);
+	static void SaveCapsule(pb::Capsule * pb, const Capsule & capsule);
 
 
-	static CirclePtr LoadCircle(const pb::Circle & pb);
+	static myrmidon::Circle::Ptr LoadCircle(const pb::Circle & pb);
 
-	static void SaveCircle(pb::Circle * pb, const CircleConstPtr & circle);
+	static void SaveCircle(pb::Circle * pb, const Circle & circle);
 
-	static PolygonPtr LoadPolygon(const pb::Polygon & pb);
+	static myrmidon::Polygon::Ptr LoadPolygon(const pb::Polygon & pb);
 
-	static void SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon);
+	static void SavePolygon(pb::Polygon * pb, const Polygon & polygon);
 
-	static Shape::Ptr LoadShape(const pb::Shape & pb);
+	static myrmidon::Shape::Ptr LoadShape(const pb::Shape & pb);
 
-	static void SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape);
+	static void SaveShape(pb::Shape * pb, const Shape & shape);
 
 
 };

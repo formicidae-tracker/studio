@@ -36,7 +36,7 @@ public:
 	// ```
 	//
 	// @return a union of <Shape> defining the geometry
-	Shape::ConstList Geometry() const;
+	const Shape::List & Shapes() const;
 
 	// Sets the geometry of this definition
 	// @shapes a union of <Shape> defining the <Zone> geometry.
@@ -45,7 +45,7 @@ public:
 	// ```R
 	// zd$setGeometry(list(fmCircle(c(x,y),r),...))
 	// ```
-	void SetGeometry(const Shape::ConstList & shapes);
+	void SetShapes(const Shape::List & shapes);
 
 	// Gets the first valid time of the Definition
 	//
@@ -170,7 +170,7 @@ public:
 	// ```
 	//
 	// @return the new <ZoneDefinition>
-	ZoneDefinition::Ptr AddDefinition(const Shape::ConstList & geometry,
+	ZoneDefinition::Ptr AddDefinition(const Shape::List & shapes,
 	                                  const Time & start,
 	                                  const Time & end);
 

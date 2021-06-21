@@ -3,6 +3,7 @@
 #include "Bridge.hpp"
 
 #include <fort/studio/MyrmidonTypes/Capsule.hpp>
+#include <fort/myrmidon/Types.hpp>
 
 class QAbstractItemModel;
 class AntGlobalModel;
@@ -18,7 +19,7 @@ public:
 
 	void initialize(ExperimentBridge * experiment) override;
 
-	const fmp::Ant::TypedCapsuleList & capsuleForAntID(fm::AntID antID) const;
+	const fm::TypedCapsuleList & capsuleForAntID(fm::AntID antID) const;
 
 
 public slots:
@@ -37,7 +38,7 @@ signals:
 	void capsuleCreated(quint32 antID,
 	                    quint32 index,
 	                    quint32 typeID,
-	                    const fmp::Capsule::ConstPtr & capsule);
+	                    const fm::Capsule::Ptr & capsule);
 
 	void capsuleCleared(quint32 ant);
 

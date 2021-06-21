@@ -1,7 +1,8 @@
 #include "AntUTest.hpp"
 
+#include <fort/myrmidon/Shapes.hpp>
+
 #include "Ant.hpp"
-#include "Capsule.hpp"
 #include "AntShapeType.hpp"
 #include "AntMetadata.hpp"
 
@@ -40,11 +41,11 @@ TEST_F(AntUTest,CapsuleEdition) {
 	                0.1);
 
 
-	EXPECT_THROW(ant->AddCapsule(3,Capsule()),std::invalid_argument);
+	EXPECT_THROW(ant->AddCapsule(3,std::make_unique<Capsule>()),std::invalid_argument);
 	EXPECT_NO_THROW({
-			ant->AddCapsule(1,capsule);
-			ant->AddCapsule(2,capsule);
-			ant->AddCapsule(2,capsule);
+			ant->AddCapsule(1,std::make_shared<Capsule>(capsule));
+			ant->AddCapsule(2,std::make_shared<Capsule>(capsule));
+			ant->AddCapsule(2,std::make_shared<Capsule>(capsule));
 		});
 	EXPECT_EQ(ant->Capsules().size(),3);
 	EXPECT_THROW(ant->DeleteCapsule(3),std::out_of_range);

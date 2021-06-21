@@ -6,17 +6,14 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #include <fort/myrmidon/UtilsUTest.hpp>
+#include <fort/myrmidon/TestSetup.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
-#include <fort/myrmidon/priv/UtilsUTest.hpp>
 #include <fort/myrmidon/priv/Experiment.hpp>
 #include <fort/myrmidon/priv/Identifier.hpp>
 #include <fort/myrmidon/priv/Ant.hpp>
 #include <fort/myrmidon/priv/Measurement.hpp>
 #include <fort/myrmidon/priv/Space.hpp>
-#include <fort/myrmidon/TestSetup.hpp>
-#include <fort/myrmidon/priv/Capsule.hpp>
-#include <fort/myrmidon/priv/Circle.hpp>
-#include <fort/myrmidon/priv/Polygon.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
 #include <fort/myrmidon/priv/AntMetadata.hpp>
 
@@ -232,7 +229,7 @@ TEST_F(IOUtilsUTest,CapsuleIO) {
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCapsule(c);
-		EXPECT_TRUE(CapsuleEqual(res,dC));
+		EXPECT_TRUE(CapsuleEqual(*res,dC));
 	}
 
 }
@@ -258,7 +255,7 @@ TEST_F(IOUtilsUTest,CircleIO) {
 		IOUtils::SaveVector(expected.mutable_center(),dCenter);
 		expected.set_radius(d.R);
 
-		IOUtils::SaveCircle(&c,dC);
+		IOUtils::SaveCircle(&c,*dC);
 		EXPECT_TRUE(MessageEqual(c,expected));
 
 		auto res = IOUtils::LoadCircle(c);
@@ -283,7 +280,7 @@ TEST_F(IOUtilsUTest,PolygonIO) {
 			IOUtils::SaveVector(expected.add_vertices(),v);
 		}
 
-		IOUtils::SavePolygon(&p,dP);
+		IOUtils::SavePolygon(&p,*dP);
 		EXPECT_TRUE(MessageEqual(p,expected));
 
 		auto res = IOUtils::LoadPolygon(p);
@@ -301,14 +298,14 @@ TEST_F(IOUtilsUTest,ShapeIO) {
 
 	for ( const auto dS : shapes ) {
 		pb::Shape s;
-		IOUtils::SaveShape(&s,dS);
+		IOUtils::SaveShape(&s,*dS);
 		size_t i = 0;
 		if ( s.has_circle() ) { ++i; }
 		if ( s.has_capsule() ) { ++i; }
 		if ( s.has_polygon() ) { ++i; }
 		EXPECT_EQ(i,1);
 		auto res = IOUtils::LoadShape(s);
-		EXPECT_TRUE(ShapeEqual(res,dS));
+		EXPECT_TRUE(ShapeEqual(*res,*dS));
 	}
 }
 
@@ -349,7 +346,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 
 	struct TestData {
 		std::vector<IdentificationData> IData;
-		std::vector<Capsule>            Capsules;
+		std::vector<Capsule::Ptr>       Capsules;
 		Color                           DisplayColor;
 		Ant::DisplayState               DisplayState;
 		AntDataMap                      DataMap;
@@ -371,12 +368,12 @@ TEST_F(IOUtilsUTest,AntIO) {
 		     },
 		    },
 		    {
-		     Capsule(Eigen::Vector2d(2.0,-4.0),
-		             Eigen::Vector2d(23.1,-7.3),
-		             1.0,2.0),
-		     Capsule(Eigen::Vector2d(13.0,23.0),
-		             Eigen::Vector2d(6.1,8.9),
-		             5.0,-3.0)
+		     std::make_shared<Capsule>(Eigen::Vector2d(2.0,-4.0),
+		                               Eigen::Vector2d(23.1,-7.3),
+		                               1.0,2.0),
+		     std::make_shared<Capsule>(Eigen::Vector2d(13.0,23.0),
+		                               Eigen::Vector2d(6.1,8.9),
+		                               5.0,-3.0)
 		    },
 		    {127,56,94},
 		    Ant::DisplayState::SOLO,
@@ -426,7 +423,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			auto sPb = expected.add_shape();
 			sPb->set_type(shapeType->TypeID());
 			IOUtils::SaveCapsule(sPb->mutable_capsule(),
-			                     c);
+			                     *c);
 		}
 
 		dA->SetDisplayColor(d.DisplayColor);
@@ -499,7 +496,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 			auto c = res->Capsules()[i].second;
 			auto ce = d.Capsules[i];
 			EXPECT_EQ(res->Capsules()[i].first,shapeType->TypeID());
-			EXPECT_TRUE(CapsuleEqual(c,ce));
+			EXPECT_TRUE(CapsuleEqual(*c,*ce));
 		}
 
 		EXPECT_EQ(res->DisplayColor(),
@@ -667,10 +664,10 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 	expected.set_name(dZ->Name());
 	auto pbDef1 = expected.add_definitions();
 	stamp.ToTimestamp(pbDef1->mutable_end());
-	IOUtils::SaveShape(pbDef1->add_shapes(),def1->GetGeometry()->Shapes().front());
+	IOUtils::SaveShape(pbDef1->add_shapes(),*def1->Shapes().front());
 	auto pbDef2 = expected.add_definitions();
 	stamp.ToTimestamp(pbDef2->mutable_start());
-	IOUtils::SaveShape(pbDef2->add_shapes(),def2->GetGeometry()->Shapes().front());
+	IOUtils::SaveShape(pbDef2->add_shapes(),*def2->Shapes().front());
 
 	IOUtils::SaveZone(&z,dZ);
 	EXPECT_TRUE(MessageEqual(z,expected));
@@ -686,16 +683,16 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 		const auto & definition = res->Definitions()[i];
 		EXPECT_TRUE(TimeEqual(definition->Start(),expectedDefinition->Start()));
 		EXPECT_TRUE(TimeEqual(definition->End(),expectedDefinition->End()));
-		ASSERT_FALSE(!expectedDefinition->GetGeometry());
-		ASSERT_FALSE(!definition->GetGeometry());
-		EXPECT_EQ(definition->GetGeometry()->Shapes().size(),
-		          expectedDefinition->GetGeometry()->Shapes().size());
-		for ( size_t j = 0; j < std::min(expectedDefinition->GetGeometry()->Shapes().size(),
-		                                 definition->GetGeometry()->Shapes().size()); ++j) {
-			const auto & shape =  definition->GetGeometry()->Shapes()[j];
-			const auto & expectedShape =  expectedDefinition->GetGeometry()->Shapes()[j];
+		ASSERT_FALSE(expectedDefinition->Shapes().empty());
+		ASSERT_FALSE(definition->Shapes().empty());
+		EXPECT_EQ(definition->Shapes().size(),
+		          expectedDefinition->Shapes().size());
+		for ( size_t j = 0; j < std::min(expectedDefinition->Shapes().size(),
+		                                 definition->Shapes().size()); ++j) {
+			const auto & shape =  definition->Shapes()[j];
+			const auto & expectedShape =  expectedDefinition->Shapes()[j];
 			EXPECT_EQ(shape->ShapeType(),expectedShape->ShapeType());
-			EXPECT_TRUE(ShapeEqual(shape,expectedShape));
+			EXPECT_TRUE(ShapeEqual(*shape,*expectedShape));
 		}
 	}
 

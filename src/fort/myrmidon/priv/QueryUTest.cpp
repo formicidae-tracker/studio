@@ -2,9 +2,9 @@
 
 #include "Query.hpp"
 #include "Ant.hpp"
-#include "Capsule.hpp"
 
 #include <fort/myrmidon/TestSetup.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 #include <fort/myrmidon/UtilsUTest.hpp>
 
@@ -114,9 +114,9 @@ TEST_F(QueryUTest,InteractionFrame) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
-				                          Eigen::Vector2d(0,-10),
-				                          10,10));
+				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
+				                                            Eigen::Vector2d(0,-10),
+				                                            10,10));
 			}
 		});
 
@@ -184,9 +184,9 @@ TEST_F(QueryUTest,InteractionComputation) {
 			experiment->CreateAntShapeType("body",1);
 
 			for ( const auto & ant : {a1,a2} ) {
-				ant->AddCapsule(1,Capsule(Eigen::Vector2d(0,10),
-				                          Eigen::Vector2d(0,-10),
-				                          10,10));
+				ant->AddCapsule(1,std::make_shared<Capsule>(Eigen::Vector2d(0,10),
+				                                            Eigen::Vector2d(0,-10),
+				                                            10,10));
 			}
 		});
 

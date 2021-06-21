@@ -14,7 +14,7 @@
 AntShapeBridge::AntShapeBridge(QObject * parent)
 	: GlobalBridge(parent)
 	, d_model(new AntGlobalModel(this)) {
-	qRegisterMetaType<fmp::Capsule::ConstPtr>();
+	qRegisterMetaType<fm::Capsule::Ptr>();
 }
 
 AntShapeBridge::~AntShapeBridge() {
@@ -43,7 +43,7 @@ void AntShapeBridge::initialize(ExperimentBridge * experiment) {
 
 int AntShapeBridge::addCapsule(fm::AntID antID,
                                fmp::AntShapeTypeID typeID,
-                               const fmp::CapsulePtr & capsule) {
+                               const fm::CapsulePtr & capsule) {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
 	auto antItem = d_model->itemFromAntID(antID);
 	int column = -1;
@@ -62,7 +62,7 @@ int AntShapeBridge::addCapsule(fm::AntID antID,
 		         << "," << ToQString(*capsule)
 		         << ")";
 
-		ant->AddCapsule(typeID,*capsule);
+		ant->AddCapsule(typeID,capsule);
 	} catch ( const std::exception & e) {
 		qCritical() << "[AntShapeBridge]: Could not add capsule to Ant "
 		            << ant->FormattedID().c_str()
@@ -117,10 +117,10 @@ void AntShapeBridge::clearCapsule(fm::AntID antID) {
 	emit capsuleCleared(ant->AntID());
 }
 
-const fmp::Ant::TypedCapsuleList &
+const fm::TypedCapsuleList &
 AntShapeBridge::capsuleForAntID(fm::AntID antID) const {
 	auto ant = AntGlobalModel::findAnt(d_experiment,antID);
-	static fmp::Ant::TypedCapsuleList empty;
+	static fm::TypedCapsuleList empty;
 	if ( ant == nullptr ) {
 		return empty;
 	}
@@ -275,7 +275,7 @@ void AntShapeBridge::countAnt(fm::AntID antID,
 		++index;
 		counts[typeID] += 1;
 		if ( sendSignals == true ) {
-			emit capsuleCreated(antID,index,typeID,std::make_shared<fmp::Capsule>(capsule));
+			emit capsuleCreated(antID,index,typeID,capsule);
 		}
 	}
 

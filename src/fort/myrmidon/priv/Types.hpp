@@ -27,8 +27,6 @@ typedef uint64_t MovieFrameID;
 // The ID for a tag
 typedef uint32_t TagID;
 
-// AABB
-typedef Eigen::AlignedBox<double,2> AABB;
 
 
 typedef std::pair<Time,AntStaticValue>   AntTimedValue;

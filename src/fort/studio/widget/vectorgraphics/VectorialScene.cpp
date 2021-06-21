@@ -12,7 +12,7 @@
 #include "Polygon.hpp"
 #include "Circle.hpp"
 
-#include <fort/myrmidon/priv/Capsule.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 #include <fort/studio/Utils.hpp>
 
 #include <fort/studio/MyrmidonTypes/Conversion.hpp>

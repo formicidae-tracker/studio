@@ -128,7 +128,7 @@ const MeasurementTypeID HEAD_TAIL_MEASUREMENT_TYPE = 1;
  * * R: \todo define me
  *
  */
-typedef std::vector<std::pair<AntShapeTypeID,const Capsule>> TypedCapsuleList;
+typedef std::vector<std::pair<AntShapeTypeID,std::shared_ptr<Capsule>>> TypedCapsuleList;
 
 /**
  * AntMetaDataType enumerates possible type for AntStaticValue
@@ -542,6 +542,11 @@ struct ExperimentDataInfo {
  */
 std::string FormatTagID(TagID tagID);
 
+
+/** \cond PRIVATE */
+/** An Axis-Aligned Bounding Box */
+typedef Eigen::AlignedBox<double,2> AABB;
+/** \endcond */
 }
 }
 

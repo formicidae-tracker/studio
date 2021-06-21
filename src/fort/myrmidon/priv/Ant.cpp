@@ -44,7 +44,7 @@ const Identification::ConstList & Ant::CIdentifications() const {
 }
 
 
-const Ant::TypedCapsuleList & Ant::Capsules() const {
+const TypedCapsuleList & Ant::Capsules() const {
 	return d_capsules;
 }
 
@@ -56,18 +56,19 @@ void Ant::DeleteCapsule(size_t index) {
 		                        + std::to_string(d_capsules.size())
 		                        + "[");
 	}
-	d_capsules.erase(d_capsules.begin() + index);
+	auto it = d_capsules.begin() + index;
+	d_capsules.erase(it);
 }
 
 void Ant::ClearCapsules() {
 	d_capsules.clear();
 }
 
-void Ant::AddCapsule(AntShapeTypeID typeID, const Capsule & capsule) {
+void Ant::AddCapsule(AntShapeTypeID typeID, const std::shared_ptr<Capsule> & capsule) {
 	if ( d_shapeTypes->Count(typeID) == 0 ) {
 		throw std::invalid_argument("Unknown AntShapeTypeID " + std::to_string(typeID));
 	}
-	d_capsules.push_back(std::make_pair(typeID,capsule));
+	d_capsules.push_back(std::make_pair(typeID,std::move(capsule)));
 }
 
 

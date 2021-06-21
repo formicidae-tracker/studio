@@ -7,32 +7,26 @@
 namespace fort {
 namespace myrmidon {
 
-
 namespace priv {
-// private <fort::myrmidon::priv> implementation
-class Shape;
-// private <fort::myrmidon::priv> implementation
-class Circle;
-// private <fort::myrmidon::priv> implementation
-class Capsule;
-// private <fort::myrmidon::priv> implementation
-class Polygon;
+template <typename T> class Isometry2D;
+
+
+typedef Isometry2D<double> Isometry2Dd;
 }
 
-// Base class for  geometric Shape
-//
-// Base class for geometruc Shape such as <Circle>, <Capsule> and
-// <Polygon>. This class is only here to be able to construct
-// hereterogenous <ConstList> of shape, and contains only static
-// methods to convert from and to opaque Shape.
+/**
+ * Base class for  geometric Shape
+ *
+ * Base class for geometruc Shape such as Circle, Capsule and
+ * Polygon. This class is only here to be able to construct
+ * hereterogenous List of shape
+ */
 class Shape {
 public:
 	// A pointer to a Shape
-	typedef std::shared_ptr<Shape>             Ptr;
-	// A const pointer to a Shape
-	typedef std::shared_ptr<const Shape>       ConstPtr;
-	// A const list of Shape
-	typedef std::vector<ConstPtr>              ConstList;
+	typedef std::shared_ptr<Shape> Ptr;
+	// A list of Shape
+	typedef std::vector<Ptr>       List;
 
 	// The type of a Shape.
 	enum class Type {
@@ -52,45 +46,24 @@ public:
 	// @return the <Type> of the Shape
 	Type ShapeType() const;
 
+	virtual bool Contains(const Eigen::Vector2d & point) const = 0;
+
+	virtual AABB ComputeAABB() const = 0;
+
+	virtual std::unique_ptr<Shape> Clone() const = 0;
+
 protected:
-	friend class ZoneDefinition;
-	friend class Zone;
-	// const pointer to private implementation
-	typedef std::shared_ptr<const priv::Shape> ConstPPtr;
-	// list of private implementation
-	typedef std::vector<ConstPPtr>             ConstPList;
+	Shape(Type type);
 
-	// internal conversion functions
-	// @pShape the shape to convert
-	//
-	// @return a converted Shape
-	static ConstPtr PublicCast(const ConstPPtr & pShape);
-	// internal conversion functions
-	// @shape the shape to convert
-	//
-	// @return a converted Shape
-	static ConstPPtr PrivateCast(const ConstPtr & shape);
-	// internal conversion functions
-	// @pShapes the shapes to convert
-	//
-	// @return a converted Shape List
-	static ConstList PublicListCast(const ConstPList & pShapes);
-	// internal conversion functions
-	// @shapes the shapes to convert
-	//
-	// @return a converted Shape List
-	static ConstPList PrivateListCast(const ConstList & shapes);
-
-	// Protected constructor. Use a child classes.
-	Shape();
-
-	// opaque pointer to implementation. Is set by child class.
-	priv::Shape * d_q;
+	Type  d_type;
 };
 
 // A circle
 class Circle : public Shape {
 public:
+	// A pointer to a Capsule
+	typedef std::shared_ptr<Circle>       Ptr;
+
 	// public constructor
 	// @center the center of the circle
 	// @radius the radius of the circle
@@ -141,20 +114,17 @@ public:
 	// @return the circle's radius
 	double Radius() const;
 
-	// Opaque pointer to implementation
-	typedef std::shared_ptr<priv::Circle> PPtr;
 
-	// Private implementation constructor.
-	// @pCircle opaque pointer to implementation
-	Circle(const PPtr & pCircle);
+	bool Contains(const Eigen::Vector2d & point) const override;
 
-	// Downcast to private implementation.
-	//
-	// @return the private implementation
-	const PPtr & ToPrivate() const;
+	AABB ComputeAABB() const override;
+
+	std::unique_ptr<Shape> Clone() const override;
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 private:
-	friend class Shape;
-	PPtr d_p;
+	Eigen::Vector2d d_center;
+	double d_radius;
 };
 
 // A capsule
@@ -164,8 +134,11 @@ private:
 // Their main purpose is to define <Ant> body parts.
 class Capsule  : public Shape {
 public:
-	// A const pointer to a Capsule
-	typedef std::shared_ptr<const Capsule> ConstPtr;
+	// A pointer to a Capsule
+	typedef std::shared_ptr<Capsule>       Ptr;
+
+	Capsule();
+
 	// public constructor
 	// @c1 the first center
 	// @c2 the second center
@@ -181,6 +154,7 @@ public:
 	        const Eigen::Vector2d & c2,
 	        double r1,
 	        double r2);
+
 	// virtual destructor
 	virtual ~Capsule();
 	// Sets the first center
@@ -207,7 +181,9 @@ public:
 	// ```
 	//
 	// @return the first center
-	const Eigen::Vector2d & C1() const;
+	inline const Eigen::Vector2d & C1() const {
+		return d_c1;
+	}
 	// Gets the second center
 	//
 	// R version:
@@ -216,7 +192,9 @@ public:
 	// ```
 	//
 	// @return the second center
-	const Eigen::Vector2d & C2() const;
+	inline const Eigen::Vector2d & C2() const {
+		return d_c2;
+	}
 	// Sets the radius at C1
 	// @r1 the radius at <C1>
 	//
@@ -241,7 +219,9 @@ public:
 	// ```
 	//
 	// @return the radius at <C1>
-	double R1() const;
+	inline double R1() const {
+		return d_r1;
+	}
 	// Gets the radius at C2
 	//
 	// R version:
@@ -250,22 +230,38 @@ public:
 	// ```
 	//
 	// @return the radius at <C2>
-	double R2() const;
+	inline double R2() const {
+		return d_r2;
+	}
 
-	// Opaque pointer to implementation
-	typedef std::shared_ptr<priv::Capsule> PPtr;
+	bool Contains(const Eigen::Vector2d & point) const override;
 
-	// Private implementation constructor.
-	// @pCapsule opaque pointer to implementation
-	Capsule(const PPtr & pCapsule);
+	AABB ComputeAABB() const override;
 
-	// Downcast to private implementation.
-	//
-	// @return the private implementation
-	const PPtr & ToPrivate() const;
+	std::unique_ptr<Shape> Clone() const override;
+
+	Capsule Transform(const priv::Isometry2Dd & transform) const;
+
+	inline bool Intersects(const Capsule & other) const {
+		return Intersect(d_c1,d_c2,d_r1,d_r2,
+		                 other.d_c1,other.d_c2,other.d_r1,other.d_r2);
+	}
+
+	static bool Intersect(const Eigen::Vector2d & aC1,
+	                      const Eigen::Vector2d & aC2,
+	                      double aR1,
+	                      double aR2,
+	                      const Eigen::Vector2d & bC1,
+	                      const Eigen::Vector2d & bC2,
+	                      double bR1,
+	                      double bR2);
+
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 private:
-	friend class Shape;
-	PPtr d_p;
+
+	Eigen::Vector2d d_c1,d_c2;
+	double d_r1,d_r2;
 };
 
 // A closed polygon
@@ -278,6 +274,9 @@ private:
 // square, and {(-1,-1),(1,-1),(-1,1),(1,1)} is an hourglass.
 class Polygon  : public Shape {
 public:
+	// A pointer to a Capsule
+	typedef std::shared_ptr<Polygon>       Ptr;
+
 	// Public constructor
 	// @vertices the vertices of the polygon
 	//
@@ -322,22 +321,19 @@ public:
 	// ```
 	void SetVertex(size_t i, const Eigen::Vector2d & v);
 
-	// Opaque pointer to implementation
-	typedef std::shared_ptr<priv::Polygon> PPtr;
 
-	// Private implementation constructor
-	// @pPolygon opaque pointer to implementation
-	Polygon(const PPtr & pPolygon);
+	bool Contains(const Eigen::Vector2d & point) const override;
 
-	// Downcast to private implementation.
-	//
-	// @return the private implementation
-	const PPtr & ToPrivate() const;
+	AABB ComputeAABB() const override;
+
+	std::unique_ptr<Shape> Clone() const override;
+
 private:
-	friend class Shape;
-	PPtr  d_p;
+	Vector2dList d_vertices;
 };
-
 
 } // namespace myrmidon
 } // namespace fort
+
+std::ostream  & operator<<(std::ostream & out,
+                           const fort::myrmidon::Capsule & c);

@@ -2,8 +2,8 @@
 
 #include <QObject>
 
-#include <fort/myrmidon/priv/Capsule.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 namespace fmp = fort::myrmidon::priv;
 
-Q_DECLARE_METATYPE(fmp::Capsule::ConstPtr)
+Q_DECLARE_METATYPE(fm::Capsule::Ptr)

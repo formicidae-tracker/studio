@@ -4,6 +4,7 @@
 
 #include <fort/myrmidon/Ant.hpp>
 #include <fort/myrmidon/Color.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 #include <fort/myrmidon/utils/FileSystem.hpp>
 
@@ -12,7 +13,6 @@
 
 #include "TimeMap.hpp"
 
-#include "Capsule.hpp"
 
 
 namespace fort {
@@ -43,9 +43,6 @@ public:
 	typedef std::shared_ptr<Ant>       Ptr;
 	// A pointer to an Ant
 	typedef std::shared_ptr<const Ant> ConstPtr;
-
-	// A List of shape
-	typedef std::vector<std::pair<AntShapeTypeID,Capsule>> TypedCapsuleList;
 
 	// The Constructor for an Ant
 	Ant(const AntShapeTypeContainerConstPtr & shapeTypeContainer,
@@ -108,7 +105,8 @@ public:
 	// @return the <myrmidon::Ant::ID> formatted in hexadecimal "0xabcd"
 	static std::string FormatID(fort::myrmidon::AntID ID);
 
-	void AddCapsule(AntShapeTypeID typeID, const Capsule & capsule);
+	void AddCapsule(AntShapeTypeID typeID,
+	                const std::shared_ptr<Capsule> & capsule);
 
 	const TypedCapsuleList & Capsules() const;
 

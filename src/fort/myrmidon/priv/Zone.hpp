@@ -2,7 +2,9 @@
 
 
 #include "LocatableTypes.hpp"
-#include "Shape.hpp"
+#include <fort/myrmidon/Shapes.hpp>
+
+#include "Types.hpp"
 
 namespace fort {
 namespace myrmidon {
@@ -29,9 +31,7 @@ class ZoneGeometry  {
 public:
 	typedef std::shared_ptr<const ZoneGeometry> ConstPtr;
 
-	ZoneGeometry(const std::vector<Shape::ConstPtr> & shapes);
-
-	const std::vector<Shape::ConstPtr> & Shapes() const;
+	ZoneGeometry(const Shape::List & shapes);
 
 	const AABB & GlobalAABB() const;
 	const std::vector<AABB> & IndividualAABB() const;
@@ -39,9 +39,9 @@ public:
 	bool Contains(const Eigen::Vector2d & point ) const;
 
 private:
-	std::vector<AABB>            d_AABBs;
-	AABB                         d_globalAABB;
-	std::vector<Shape::ConstPtr> d_shapes;
+	std::vector<AABB> d_AABBs;
+	AABB              d_globalAABB;
+	std::vector<std::unique_ptr<const Shape>>  d_shapes;
 };
 
 
@@ -54,13 +54,14 @@ public:
 	typedef ZoneGeometry                          Geometry;
 
 	ZoneDefinition(const ZonePtr & zone,
-	               Geometry::ConstPtr geometry,
+	               const Shape::List & shapes,
 	               const Time & start,
 	               const Time & end);
 	virtual ~ZoneDefinition();
-	const Geometry::ConstPtr & GetGeometry() const;
 
-	void SetGeometry(const Geometry::ConstPtr & geometry);
+	const Shape::List & Shapes() const;
+
+	void SetShapes(const Shape::List & shapes);
 
 	const Time & Start() const;
 
@@ -74,7 +75,7 @@ private:
 	void SetBound(const Time & start, const Time & end);
 
 	std::weak_ptr<Zone> d_zone;
-	Geometry::ConstPtr  d_geometry;
+	Shape::List         d_shapes;
 };
 
 
@@ -91,7 +92,7 @@ public:
 
 	static Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
 
-	Definition::Ptr AddDefinition(const std::vector<Shape::ConstPtr> & shapes,
+	Definition::Ptr AddDefinition(const Shape::List & shapes,
 	                              const Time & start,
 	                              const Time & end);
 
@@ -112,7 +113,7 @@ public:
 
 	ID ZoneID() const;
 
-	Geometry::ConstPtr AtTime(const Time & t);
+	const Shape::List & AtTime(const Time & t);
 
 private:
 	friend class ZoneDefinition;

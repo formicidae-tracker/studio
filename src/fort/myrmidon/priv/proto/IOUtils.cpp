@@ -8,10 +8,7 @@
 #include <fort/myrmidon/priv/Space.hpp>
 #include <fort/myrmidon/priv/AntShapeType.hpp>
 
-#include <fort/myrmidon/priv/Capsule.hpp>
-#include <fort/myrmidon/priv/Polygon.hpp>
-#include <fort/myrmidon/priv/Circle.hpp>
-
+#include <fort/myrmidon/Shapes.hpp>
 
 #include <fort/myrmidon/utils/Checker.hpp>
 
@@ -223,10 +220,10 @@ void IOUtils::SaveAnt(fort::myrmidon::pb::AntDescription * pb, const AntConstPtr
 		SaveIdentification(pb->add_identifications(),ident);
 	}
 
-	for ( const auto & c : ant->Capsules() ) {
+	for ( const auto & [type,capsule] : ant->Capsules() ) {
 		auto spb = pb->add_shape();
-		spb->set_type(c.first);
-		SaveCapsule(spb->mutable_capsule(),c.second);
+		spb->set_type(type);
+		SaveCapsule(spb->mutable_capsule(),*capsule);
 	}
 
 	SaveColor(pb->mutable_color(),ant->DisplayColor());
@@ -305,7 +302,7 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 	auto z = space->CreateZone(pb.name(),pb.id());
 	for ( const auto & dPb : pb.definitions() ) {
 		Zone::Geometry::ConstPtr geometry;
-		std::vector<Shape::ConstPtr> shapes;
+		std::vector<Shape::Ptr> shapes;
 		for ( const auto & sPb : dPb.shapes() ) {
 			shapes.push_back(LoadShape(sPb));
 		}
@@ -337,11 +334,8 @@ void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 		if ( d->End().IsForever() == false ) {
 			d->End().ToTimestamp(dPb->mutable_end());
 		}
-		if ( !d->GetGeometry() ) {
-			continue;
-		}
-		for ( const auto & s : d->GetGeometry()->Shapes() ) {
-			SaveShape(dPb->add_shapes(),s);
+		for ( const auto & s : d->Shapes() ) {
+			SaveShape(dPb->add_shapes(),*s);
 		}
 	}
 }
@@ -559,13 +553,13 @@ void IOUtils::SaveTagCloseUp(pb::TagCloseUp * pb,
 
 }
 
-Capsule IOUtils::LoadCapsule(const pb::Capsule & pb) {
+Capsule::Ptr IOUtils::LoadCapsule(const pb::Capsule & pb) {
 	Eigen::Vector2d c1,c2;
 	LoadVector(c1,pb.c1());
 	LoadVector(c2,pb.c2());
-	return Capsule(c1,c2,
-	               pb.r1(),
-	               pb.r2());
+	return std::make_shared<Capsule>(c1,c2,
+	                                 pb.r1(),
+	                                 pb.r2());
 }
 
 void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule & capsule) {
@@ -575,19 +569,19 @@ void IOUtils::SaveCapsule(pb::Capsule * pb,const Capsule & capsule) {
 	pb->set_r2(capsule.R2());
 }
 
-CirclePtr IOUtils::LoadCircle(const pb::Circle & pb) {
+Circle::Ptr IOUtils::LoadCircle(const pb::Circle & pb) {
 	Eigen::Vector2d center;
 	LoadVector(center,pb.center());
 	return std::make_shared<Circle>(center,pb.radius());
 }
 
-void IOUtils::SaveCircle(pb::Circle * pb, const CircleConstPtr & circle) {
+void IOUtils::SaveCircle(pb::Circle * pb, const Circle & circle) {
 	pb->Clear();
-	SaveVector(pb->mutable_center(),circle->Center());
-	pb->set_radius(circle->Radius());
+	SaveVector(pb->mutable_center(),circle.Center());
+	pb->set_radius(circle.Radius());
 }
 
-PolygonPtr IOUtils::LoadPolygon(const pb::Polygon & pb) {
+Polygon::Ptr IOUtils::LoadPolygon(const pb::Polygon & pb) {
 	Vector2dList vertices;
 	vertices.reserve(pb.vertices_size());
 	for ( const auto & v : pb.vertices() ) {
@@ -598,16 +592,16 @@ PolygonPtr IOUtils::LoadPolygon(const pb::Polygon & pb) {
 	return std::make_shared<Polygon>(vertices);
 }
 
-void IOUtils::SavePolygon(pb::Polygon * pb, const PolygonConstPtr & polygon) {
+void IOUtils::SavePolygon(pb::Polygon * pb, const Polygon & polygon) {
 	pb->Clear();
-	for ( size_t i = 0; i < polygon->Size(); ++i) {
-		SaveVector(pb->add_vertices(),polygon->Vertex(i));
+	for ( size_t i = 0; i < polygon.Size(); ++i) {
+		SaveVector(pb->add_vertices(),polygon.Vertex(i));
 	}
 }
 
 Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 	if ( pb.has_capsule() == true ) {
-		return std::make_shared<Capsule>(LoadCapsule(pb.capsule()));
+		return LoadCapsule(pb.capsule());
 	}
 
 	if ( pb.has_circle() == true ) {
@@ -620,16 +614,16 @@ Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 	return Shape::Ptr();
 }
 
-void IOUtils::SaveShape(pb::Shape * pb, const Shape::ConstPtr & shape) {
-	switch(shape->ShapeType()) {
+void IOUtils::SaveShape(pb::Shape * pb, const Shape & shape) {
+	switch(shape.ShapeType()) {
 	case myrmidon::Shape::Type::Capsule:
-		SaveCapsule(pb->mutable_capsule(),*std::static_pointer_cast<const Capsule>(shape));
+		SaveCapsule(pb->mutable_capsule(),static_cast<const Capsule &>(shape));
 		return;
 	case myrmidon::Shape::Type::Circle:
-		SaveCircle(pb->mutable_circle(),std::static_pointer_cast<const Circle>(shape));
+		SaveCircle(pb->mutable_circle(),static_cast<const Circle &>(shape));
 		return;
 	case myrmidon::Shape::Type::Polygon:
-		SavePolygon(pb->mutable_polygon(),std::static_pointer_cast<const Polygon>(shape));
+		SavePolygon(pb->mutable_polygon(),static_cast<const Polygon &>(shape));
 		return;
 	default:
 		return;

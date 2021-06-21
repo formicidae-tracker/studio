@@ -368,7 +368,7 @@ public:
 	 * @throws std::out_of_range if shapeTypeID is not defined in Experiment
 	 */
 	void AddCapsule(AntShapeTypeID shapeTypeID,
-	                const Capsule & capsule);
+	                const std::shared_ptr<Capsule> & capsule);
 
 	/**
 	 * Gets all capsules for this Ant
@@ -385,7 +385,7 @@ public:
 	 * @return a TypedCapsuleList representing the virtual shape of
 	 *        the Ant
 	 */
-	TypedCapsuleList Capsules() const;
+	const TypedCapsuleList & Capsules() const;
 
 	/**
 	 *  Delete a part of the virtual shape

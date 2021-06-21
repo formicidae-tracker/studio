@@ -2,7 +2,6 @@
 
 
 #include <fort/myrmidon/UtilsUTest.hpp>
-#include <fort/myrmidon/priv/UtilsUTest.hpp>
 
 namespace fort {
 namespace myrmidon {
@@ -11,12 +10,8 @@ namespace priv {
 
 void ZoneUTest::SetUp() {
 	zone = Zone::Create(1,"foo","bar");
-	shapes
-		= {
-		   std::static_pointer_cast<const Shape>(std::make_shared<Circle>(Eigen::Vector2d(0,0),2.0)),
-		   std::static_pointer_cast<const Shape>(std::make_shared<Polygon>(Vector2dList({{-1,-1},{1,-1},{1,1},{-1,1}}))),
-	};
-
+	shapes.emplace_back(std::unique_ptr<Shape>(new Circle(Eigen::Vector2d(0,0),2.0)));
+	shapes.emplace_back(std::unique_ptr<Shape>(new Polygon(Vector2dList({{-1,-1},{1,-1},{1,1},{-1,1}}))));
 }
 
 void ZoneUTest::TearDown() {
@@ -26,7 +21,7 @@ void ZoneUTest::TearDown() {
 
 TEST_F(ZoneUTest,GeometryHaveAABB) {
 
-	Zone::Geometry g(shapes);
+	Zone::Geometry g(std::move(shapes));
 	EXPECT_TRUE(AABBAlmostEqual(g.GlobalAABB(),shapes.front()->ComputeAABB()));
 	ASSERT_EQ(shapes.size(), g.IndividualAABB().size());
 	for( int i = 0; i < shapes.size(); ++i) {
@@ -40,13 +35,13 @@ TEST_F(ZoneUTest,DefinitionOwnsGeometry) {
 	                                      Time::SinceEver(),
 	                                      Time::Forever());
 
-	// Even if we pass a nullptr, geometry is not null
-	ASSERT_FALSE(!definition->GetGeometry());
+	// Even if we pass an empty list, geometry is valid
+	EXPECT_NO_THROW({ZoneGeometry(definition->Shapes());});
 
-	EXPECT_TRUE(definition->GetGeometry()->Shapes().empty());
+	EXPECT_TRUE(definition->Shapes().empty());
 
-	definition->SetGeometry(std::make_shared<Zone::Geometry>(shapes));
-	ASSERT_EQ(definition->GetGeometry()->Shapes(),
+	definition->SetShapes(shapes);
+	ASSERT_EQ(definition->Shapes(),
 	          shapes);
 }
 

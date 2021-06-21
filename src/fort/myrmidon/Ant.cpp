@@ -68,16 +68,12 @@ void Ant::DeleteValue(const std::string & name,
 }
 
 void Ant::AddCapsule(AntShapeTypeID shapeTypeID,
-                     const Capsule & capsule) {
-	d_p->AddCapsule(shapeTypeID,*capsule.ToPrivate());
+                     const std::shared_ptr<Capsule> & capsule) {
+	d_p->AddCapsule(shapeTypeID,capsule);
 }
 
-TypedCapsuleList Ant::Capsules() const {
-	TypedCapsuleList res;
-	for ( const auto & [shapeTypeID, pCapsule] : d_p->Capsules() ) {
-		res.push_back(std::make_pair(shapeTypeID,Capsule(std::make_shared<priv::Capsule>(pCapsule))));
-	}
-	return res;
+const TypedCapsuleList & Ant::Capsules() const {
+	return d_p->Capsules();
 }
 
 void Ant::DeleteCapsule(const size_t index) {

@@ -11,7 +11,7 @@
 #include <QComboBox>
 
 
-#include <fort/myrmidon/priv/Capsule.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
@@ -699,13 +699,13 @@ void AntShapeWorkspace::onNewCloseUp() {
 	fmp::Isometry2Dd tagToOrig(d_closeUp->TagAngle(),d_closeUp->TagPosition());
 	auto antToOrig = tagToOrig * identification->AntToTagTransform();
 	for ( const auto & [stID,c] : ant->Capsules() ) {
-		Eigen::Vector2d c1 = antToOrig * c.C1();
-		Eigen::Vector2d c2 = antToOrig * c.C2();
+		Eigen::Vector2d c1 = antToOrig * c->C1();
+		Eigen::Vector2d c2 = antToOrig * c->C2();
 		setColorFromType(stID);
 		auto capsule = d_vectorialScene->appendCapsule(QPointF(c1.x(),c1.y()),
 		                                               QPointF(c2.x(),c2.y()),
-		                                               c.R1(),
-		                                               c.R2());
+		                                               c->R1(),
+		                                               c->R2());
 		d_capsules.insert(std::make_pair(capsule,stID));
 		connect(capsule.data(),
 		        &Shape::updated,

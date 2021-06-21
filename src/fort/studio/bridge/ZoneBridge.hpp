@@ -18,17 +18,17 @@ public:
 	virtual ~ZoneDefinitionBridge();
 	bool isActive() const override;
 
-	const fmp::Zone::Geometry & geometry() const;
+	const fm::Shape::List & shapes() const;
 
-	void setGeometry(const std::vector<fmp::Shape::ConstPtr> & shapes);
+	void setShapes(const fm::Shape::List & shapes);
 
 	const fmp::Zone & zone() const;
 signals:
 	void countUpdated(int i);
 
 private:
-	fmp::Zone::Definition::Ptr d_definition;
-	fmp::Zone::ConstPtr        d_zone;
+	fmp::ZoneDefinition::Ptr d_definition;
+	fmp::Zone::ConstPtr      d_zone;
 };
 
 

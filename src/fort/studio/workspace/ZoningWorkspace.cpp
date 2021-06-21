@@ -11,9 +11,7 @@
 
 #include <QMainWindow>
 
-#include <fort/myrmidon/priv/Polygon.hpp>
-#include <fort/myrmidon/priv/Circle.hpp>
-#include <fort/myrmidon/priv/Capsule.hpp>
+#include <fort/myrmidon/Shapes.hpp>
 
 #include <fort/studio/bridge/ExperimentBridge.hpp>
 
@@ -337,7 +335,7 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 		                    quint32(zoneID));
 
 		d_vectorialScene->setColor(color);
-		for ( const auto & s : b->geometry().Shapes() ) {
+		for ( const auto & s : b->shapes() ) {
 			appendShape(s,zoneID);
 		}
 
@@ -345,8 +343,8 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 }
 
 
-void ZoningWorkspace::appendShape(const fmp::Shape::ConstPtr & s,
-                               fmp::Zone::ID zoneID) {
+void ZoningWorkspace::appendShape(const fm::Shape::Ptr & s,
+                                  fm::ZoneID zoneID) {
 	QSharedPointer<Shape> newShape;
 	if ( auto p = std::dynamic_pointer_cast<const fmp::Polygon>(s) ) {
 		if ( p->Size() > 2 ) {
@@ -396,7 +394,7 @@ void ZoningWorkspace::rebuildGeometry(fmp::Zone::ID zoneID ) {
 	if ( fi == d_definitions.end()) {
 		return;
 	}
-	std::vector<fmp::Shape::ConstPtr> shapes;
+	fm::Shape::List shapes;
 
 	for ( const auto & [shape,zoneID_] : d_shapes ) {
 		if ( zoneID != zoneID_) {
@@ -404,10 +402,10 @@ void ZoningWorkspace::rebuildGeometry(fmp::Zone::ID zoneID ) {
 		}
 		shapes.push_back(convertShape(shape));
 	}
-	fi->second->setGeometry(shapes);
+	fi->second->setShapes(shapes);
 }
 
-fmp::Shape::ConstPtr ZoningWorkspace::convertShape(const QSharedPointer<Shape> & s) {
+fm::Shape::Ptr ZoningWorkspace::convertShape(const QSharedPointer<Shape> & s) {
 	if ( auto p = s.dynamicCast<Polygon>() ) {
 		fm::Vector2dList vertices;
 		for ( const auto & v : p->vertices() ) {
@@ -427,10 +425,10 @@ fmp::Shape::ConstPtr ZoningWorkspace::convertShape(const QSharedPointer<Shape> &
 		                                      c->r2());
 	}
 
-	return fmp::Shape::ConstPtr();
+	return fm::Shape::Ptr();
 }
 
-fmp::Zone::ID ZoningWorkspace::currentZoneID() const {
+fm::ZoneID ZoningWorkspace::currentZoneID() const {
 	if ( d_comboBox->count() == 0 || d_comboBox->currentIndex() < 0 ) {
 		return 0;
 	}

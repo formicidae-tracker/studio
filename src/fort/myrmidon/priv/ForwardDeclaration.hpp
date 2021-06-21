@@ -63,15 +63,6 @@ FORT_MYRMIDON_FDECLARE_CLASS(MeasurementType)
 //Forward declaration for a <priv::Space>
 FORT_MYRMIDON_FDECLARE_CLASS(Space)
 
-//Forward declaration for a <priv::Capsule>
-FORT_MYRMIDON_FDECLARE_CLASS(Capsule)
-
-// Forward declaration for a <priv::Polygon>
-FORT_MYRMIDON_FDECLARE_CLASS(Polygon)
-
-// Forward declaration for a <priv::Circle>
-FORT_MYRMIDON_FDECLARE_CLASS(Circle)
-
 // Forward declaration for a <priv::Zone>
 FORT_MYRMIDON_FDECLARE_CLASS(Zone)
 
