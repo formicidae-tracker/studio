@@ -47,34 +47,110 @@ void BindMatchers(py::module_ & m) {
     Returns:
         py_fort_myrmidon.Matcher: a matcher that matches antID.
 )pydoc")
-		.def_static("AntColumn",&Matcher::AntColumn,
-		            py::arg("name"),py::arg("value"),
+		.def_static("AntMetaData",&Matcher::AntMetaData,
+		            py::arg("key"),py::arg("value"),
 		            R"pydoc(
-    A Matcher that matches a given user meta-data.
+    A Matcher that matches a given user meta data value.
 
     Args:
-        name (str): the name of the user meta-data column.
-        value (str): the AntStaticValue to match against.
+        key (str): the key to match from
+        value (str): the AntStaticValue for key.
     Returns:
         py_fort_myrmidon.Matcher: a Matcher that matches Ant who
-            current `name` value matches `value`.
+            current `key` meta data value matches `value`.
 )pydoc")
-		.def_static("AntDistanceSmallerThan",
+		.def_static("AntDistanceSmallerThen",
 		            &Matcher::AntDistanceSmallerThan,
 		            py::arg("distance"),
 		            R"pydoc(
     A Matcher that matches ant distance.
 
+    For `Query.ComputeAntTrajectories`, it matches anything, as it
+    requires two Ants.
 
+    Args:
+        distance (float): the distance in pixel to match
+
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when the two
+            Ant are within distance.
 )pydoc")
-		.def_static("AntDistanceGreaterThan",&Matcher::AntDistanceGreaterThan,
-		            py::arg("distance"))
-		.def_static("AntAngleSmallerThan",&Matcher::AntAngleSmallerThan,
-		            py::arg("distance"))
-		.def_static("AntAngleGreaterThan",&Matcher::AntAngleGreaterThan,
-		            py::arg("distance"))
-		.def_static("And",&MatcherAnd)
-		.def_static("Or",&MatcherOr)
+		.def_static("AntDistanceGreaterThan",
+		            &Matcher::AntDistanceGreaterThan,
+		            py::arg("distance"),
+		            R"pydoc(
+    A Matcher that matches ant distance.
+
+    For `Query.ComputeAntTrajectories`, it matches anything, as it
+    requires two Ants.
+
+    Args:
+        distance (float): the distance in pixel to match
+
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when the two
+            Ant are further than distance.
+)pydoc")
+		.def_static("AntAngleSmallerThan",
+		            &Matcher::AntAngleSmallerThan,
+		            py::arg("angle"),
+		            R"pydoc(
+    A Matcher that matches ant angles.
+
+    For `Query.ComputeAntTrajectories`, it matches anything, as it
+    requires two Ants.
+
+    Args:
+        angle (float): the angle in radians
+
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when the two
+            Ant are facing the same direction
+)pydoc")
+		.def_static("AntAngleGreaterThan",
+		            &Matcher::AntAngleGreaterThan,
+		            py::arg("angle"),
+		            R"pydoc(
+    A Matcher that matches ant angles.
+
+    For `Query.ComputeAntTrajectories`, it matches anything, as it
+    requires two Ants.
+
+    Args:
+        angle (float): the angle in radians
+
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when the two
+            Ant are facing directions which are greater appart than angle
+)pydoc")
+		.def_static("And",
+		            &MatcherAnd,
+		            R"pydoc(
+    Combines several Matcher together in conjuction
+
+    Args:
+        *args (py_fort_myrmidon.Matcher): several other Matcher
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when all
+            passed matcher also matches.
+)pydoc")
+		.def_static("Or",
+		            &MatcherOr,
+		            R"pydoc(
+    Combines several Matcher together in disjunction
+
+    Args:
+        *args (py_fort_myrmidon.Matcher): several other Matcher
+    Returns:
+        py_fort_myrmidon.Matcher: a Matcher that matches when any of
+            the passed matcher matches.
+  )pydoc")
+		.def("__str__",
+		     [](const fort::myrmidon::Matcher & m) -> std::string {
+			     std::ostringstream oss;
+			     oss << *m;
+			     return oss.str();
+		     })
 		;
 
 };

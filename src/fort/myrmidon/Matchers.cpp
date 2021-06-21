@@ -24,9 +24,9 @@ Matcher::Ptr Matcher::AntID(fort::myrmidon::AntID ID) {
 	return Matcher::Ptr(new Matcher(priv::Matcher::AntIDMatcher(ID)));
 }
 
-Matcher::Ptr Matcher::AntColumn(const std::string & name,
-                                       const AntStaticValue & value) {
-	return Matcher::Ptr(new Matcher(priv::Matcher::AntColumnMatcher(name,value)));
+Matcher::Ptr Matcher::AntMetaData(const std::string & key,
+                                  const AntStaticValue & value) {
+	return Matcher::Ptr(new Matcher(priv::Matcher::AntColumnMatcher(key,value)));
 }
 
 Matcher::Ptr Matcher::AntDistanceSmallerThan(double distance) {
