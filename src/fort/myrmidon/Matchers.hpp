@@ -274,21 +274,26 @@ public:
 	 *
 	 * * python:
 	 * ```python
-	 * py_fort_myrmidon.Matcher.AntDisplacement(under :float, in: py_fort_myrmidon.Duration) -> py_fort_myrmidon.Matcher
+	 * py_fort_myrmidon.Matcher.AntDisplacement(under :float, minimumGap: py_fort_myrmidon.Duration) -> py_fort_myrmidon.Matcher
 	 * ```
 	 * * R:
 	 * ```R
-	 * fmMatcherAntDisplacement <- function( under = 0.0, in = fmSeconds(0.0)) # returns a Rcpp_fmMatcher
+	 * fmMatcherAntDisplacement <- function( under = 0.0, minimumGap = fmSeconds(0.0)) # returns a Rcpp_fmMatcher
 	 * ```
-	 * @param under maximal allowed displacement
-	 * @param in minimal time between check
+	 * @param under maximal allowed displacement in pixels
+	 * @param minimumGap minimal time gap
+	 *
+	 *
+	 * Matches Trajectories and Interactions where Ant displacement
+	 * between two consecutive position is smaller than under. If
+	 * minimumGap is not zero, this check will be enforced only if
+	 * there was at least minimumGap Time ellapsed between the two
+	 * positions.
+	 *
+	 * @return a Matcher that reject large displacements in a tracking
+	 *         gap.
 	 */
-	static Ptr AntDisplacement(double under , Duration in);
-	// opaque pointer to implementation
-	typedef std::shared_ptr<priv::Matcher> PPtr;
-
-	static Ptr InteractionType(AntShapeTypeID type1,
-	                           AntShapeTypeID type2);
+	static Ptr AntDisplacement(double under , Duration minimumGap);
 
 
 private:
@@ -296,6 +301,10 @@ private:
 	friend class fort::myrmidon::priv::Query;
 	friend std::ostream & ::operator<<(std::ostream & out,
 	                                   const fort::myrmidon::Matcher & m);
+
+	// opaque pointer to implementation
+	typedef std::shared_ptr<priv::Matcher> PPtr;
+
 
 	// Private implementation constructor
 	// @pMatcher opaque pointer to implementation

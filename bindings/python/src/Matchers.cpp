@@ -145,8 +145,44 @@ void BindMatchers(py::module_ & m) {
         py_fort_myrmidon.Matcher: a Matcher that matches when any of
             the passed matcher matches.
   )pydoc")
+		.def_static("InteractionType",
+		            &Matcher::InteractionType,
+		            py::arg("type1"),
+		            py::arg("type2"),
+		            R"pydoc(
+    Matches InteractionType (type1,type2) and (type2,type1).
+
+    In the case of `Query.ComputeAntTrajectories` it matches anything.
+
+    Args:
+        type1 (int): the first AntShapeTypeID to match
+        type2 (int): the second AntShapeTypeID to match
+    Returns:
+        py_fort_myrmidon.Matcher that matches interactions
+            (type1,type2) or (type2,type1).
+)pydoc")
+		.def_static("AntDisplacement",
+		            &Matcher::AntDisplacement,
+		            py::arg("under"),
+		            py::arg("minimumGap") = fort::Duration(0),
+		            R"pydoc(
+    Discards large ants displacement.
+
+    Discards any trajectories and interactions where an Ant shows a
+    displacement from one detected position to another larger than
+    under. If minimumGap is larger than 0s, this check is enforced
+    only if there are more than minimumGap ellapsed between two
+    tracked positions.
+
+    Args:
+        under (float): maximum allowed Ant displacement in pixels
+        minimumGap (py_fort_myrmidon.Duration): minimum tracking time
+            between positions to enable the check.
+    Returns:
+        py_fort_myrmidon.Matcher that matches small Ant displacement.
+)pydoc")
 		.def("__str__",
-		     [](const fort::myrmidon::Matcher & m) -> std::string {
+		     [](const fort::myrmidon::Matcher::Ptr & m) -> std::string {
 			     std::ostringstream oss;
 			     oss << *m;
 			     return oss.str();
