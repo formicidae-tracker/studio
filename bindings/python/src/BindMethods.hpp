@@ -8,6 +8,8 @@ namespace py = pybind11;
 void BindTime(py::module_ &);
 void BindColor(py::module_ &);
 void BindTypes(py::module_ &);
+void BindShapes(py::module_ &);
+void BindIdentification(py::module_ &);
 void BindAnt(py::module_ & );
 void BindExperiment(py::module_ & );
 void BindMatchers(py::module_ &);

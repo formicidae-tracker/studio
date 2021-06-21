@@ -1,6 +1,8 @@
 set(SRC_FILES Time.cpp
               Types.cpp
               Experiment.cpp
+              Identification.cpp
+              Shapes.cpp
               Ant.cpp
               Matchers.cpp
               Query.cpp

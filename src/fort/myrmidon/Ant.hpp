@@ -97,23 +97,23 @@ public:
 	 */
 	enum class DisplayState {
 	                         /**
-	                          * Ant is visible
+	                          * the Ant is visible
 	                          *
-	                          * * Python: \todo
+	                          * * Python: `py_fort_myrmidon.Ant.DisplayState.VISIBLE`
 	                          * * R: `fmAntDisplayState$VISIBLE`
 	                          */
 	                         VISIBLE = 0,
 	                         /**
-	                          * Ant is hidden
+	                          * the Ant is hidden
 	                          *
-	                          * * Python: \todo
+ 	                          * * Python: `py_fort_myrmidon.Ant.DisplayState.HIDDEN`
 	                          * * R: `fmAntDisplayState$HIDDEN`
 	                          */
 	                         HIDDEN  = 1,
 	                         /**
 	                          * Ant is visible and all non-SOLO Ant will be hidden.
 	                          *
-	                          * * Python: \todo
+	                          * * Python: `py_fort_myrmidon.Ant.DisplayState.SOLO`
 	                          * * R: `fmAntDisplayState$SOLO`
 	                          */
 	                         SOLO    = 2,
@@ -147,7 +147,7 @@ public:
 	/**
 	 * Gets the Identification targetting this Ant.
 	 *
-	 * * Python: `Identications: list(py_fort.myrmidon.Identification)`
+	 * * Python: `Identificationn :list[py_fort.myrmidon.Identification]`
 	 *   read-only property of `py_fort_myrmidon.Ant` objects
 	 * * R:
 	 * ```R
@@ -231,7 +231,7 @@ public:
 	/**
 	 *  Gets the Ant display state
 	 *
-	 * * Python: `DisplayStatus: py_fort_myrmidon.DisplayState` property of `py_fort_myrmidon.Ant` objects
+	 * * Python: `DisplayStatus: py_fort_myrmidon.Ant.DisplayState` property of `py_fort_myrmidon.Ant` objects
 	 * * R:
 	 * ```R
 	 * fmAntDisplayStatus <- function(ant) # returns an integer which is one of the value of in the fmAntDisplayState list
@@ -253,7 +253,7 @@ public:
 	/**
 	 * Sets the Ant display state.
 	 *
-	 * * Python: `DisplayStatus: py_fort_myrmidon.DisplayState` property of `py_fort_myrmidon.Ant` objects
+	 * * Python: `DisplayStatus: py_fort_myrmidon.Ant.DisplayState` property of `py_fort_myrmidon.Ant` objects
 	 * * R:
 	 * ```R
 	 * fmAntSetDisplayStatus <- function(ant,state = fmAntDisplayState$VISIBLE)
@@ -268,29 +268,29 @@ public:
 	 *
 	 * * Python:
 	 * ```python
-	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> bool
-	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> int
-	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> float
-	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> str
-	 * py_fort_myrmidon.Ant.GetValue(self,name: str,time: py_fort_myrmidon.Time) -> py_fort_myrmidon.Time
+	 * py_fort_myrmidon.Ant.GetValue(self,key :str,time :py_fort_myrmidon.Time) -> bool
+	 * py_fort_myrmidon.Ant.GetValue(self,key :str,time :py_fort_myrmidon.Time) -> int
+	 * py_fort_myrmidon.Ant.GetValue(self,key :str,time :py_fort_myrmidon.Time) -> float
+	 * py_fort_myrmidon.Ant.GetValue(self,key :str,time :py_fort_myrmidon.Time) -> str
+	 * py_fort_myrmidon.Ant.GetValue(self,key :str,time :py_fort_myrmidon.Time) -> py_fort_myrmidon.Time
 	 * ```
 	 * * R:
 	 * ```R
 	 * fmAntGetValue <- function(ant, name = '', time = fmTimeForever() ) # returns either a logical, integer, numerical, character or fmTime
 	 * ```
 	 *
-	 * @param name the name of the user defined column in Experiment
+	 * @param key the key of the user defined key in Experiment
 	 * @param time the Time we want the value for (infinite Time are valid)
 	 *
-	 * Gets the value for name at time. Values are set with
-	 * SetValue(). If no value is sets prior to Time> (including -∞),
-	 * the Experiment default value for name will be returned.
+	 * Gets the value for a key at time. Values are set with
+	 * SetValue(). If no value is sets prior to Time (including -∞),
+	 * the Experiment default value for key will be returned.
 	 *
-	 * @return the wanted AntStaticValue for name at time, or the Experiment default one
+	 * @return the wanted AntStaticValue for key at time, or the Experiment default one
 	 *
-	 * @throws std::out_of_range if name is not a defined metadata column in Experiment.
+	 * @throws std::out_of_range if name is not a defined metadata key in Experiment.
 	 */
-	const AntStaticValue & GetValue(const std::string & name,
+	const AntStaticValue & GetValue(const std::string & key,
 	                                const Time & time) const;
 
 	/**
@@ -298,7 +298,7 @@ public:
 	 *
 	 * * Python:
 	 * ```python
-	 * py_fort_myrmidon.Ant.SetValue(self,name: str, value: object, time: py_fort_myrmidon.Time)
+	 * py_fort_myrmidon.Ant.SetValue(self,key: str, value: , time: py_fort_myrmidon.Time)
 	 * ```
 	 * * R:
 	 * ```R
@@ -314,8 +314,9 @@ public:
 	 * Time::SinceEver(), sets the starting value for name instead of
 	 * the Experiment's default value for name.
 	 *
-	 * @throws std::invalid_argument if name is not a defined column in Experiment
+	 * @throws std::invalid_argument if name is not a defined key in Experiment
 	 * @throws std::invalid_argument if time is Time::Forever()
+	 * @throws std::invalid_argument if value is not of the right type for key
 	 *
 	 */
 	void SetValue(const std::string & name,

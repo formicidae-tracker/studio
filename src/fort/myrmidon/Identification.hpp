@@ -118,7 +118,7 @@ public:
 	/*
 	 *  Sets the starting validity Time for this Identification
 	 *
-	 * * Python: `Start: py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
+	 * * Python: `Start :py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
 	 * * R:
 	 * ```R
 	 * fmIdentificationSetStart <- function(identification, start= fmTimeSinceEver() )
@@ -138,10 +138,7 @@ public:
 	/**
 	 *  Sets the ending validity time for this Identification
 	 *
-	 * * Python:
-	 * ```python
-	 * py_fort_myrmidon.Identification.Start # read-write property
-	 * ```
+	 * * Python: `End :py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
 	 * * R:
 	 * ```R
 	 * fmIdentificationSetEnd(identification, start = fmTimeForever())
@@ -163,7 +160,7 @@ public:
 	/**
 	 *  Gets the starting validity time
 	 *
-	 * * Python: `Start: py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
+	 * * Python: `Start :py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
 	 * * R:
 	 * ```R
 	 * fmIdentificationStart <- function(identification)# returns a Rcpp_fmTime
@@ -178,7 +175,7 @@ public:
 	/**
 	 * Gets the ending validity time
 	 *
-	 * * Python: `End: py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
+	 * * Python: `End :py_fort_myrmidon.Time` property of `py_fort_myrmidon.Identification` objects
 	 * * R:
 	 * ```R
 	 * fmIdentificationEnd <- function(identification)# returns a Rcpp_fmTime
@@ -193,7 +190,7 @@ public:
 	/**
 	 * Gets the Ant center position relatively to the tag center.
 	 *
-	 * * Python: `AntPositon: nm.Matrix` read-only property of `py_fort_myrmidon.Identification` objects.
+	 * * Python: `AntPositon: numpy.ndarray(numpy.float64(2,1))` read-only property of `py_fort_myrmidon.Identification` objects.
 	 * * R:
 	 * ```R
 	 * fmIdentificationAntPosition<- function(identification) # returns a vector of two numerical
@@ -210,7 +207,7 @@ public:
 	/**
 	 * Gets the Ant angle relatively to the tag rotation
 	 *
-	 * * Python: `AntAngle: float` read-only property of `py_fort_myrmidon.Identification` objects.
+	 * * Python: `AntAngle :float` read-only property of `py_fort_myrmidon.Identification` objects.
 	 * * R:
 	 * ```R
 	 * fmIdentificationAntAngle<- function(identification) # returns a vector of two numerical
@@ -253,7 +250,7 @@ public:
 	 *
 	 * * Python:
 	 * ```python
-	 * py_fort_myrmidon.Identification.SetUserDefinedAntPose(self,antPosition: nm.Matrix,antAngle: float)
+	 * py_fort_myrmidon.Identification.SetUserDefinedAntPose(self,antPosition: numpy.ndarray,antAngle: float)
 	 * ```
 	 * * R:
 	 * ```R

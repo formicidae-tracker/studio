@@ -18,6 +18,9 @@ PYBIND11_MODULE(py_fort_myrmidon, m) {
     m.doc() = "Bindings for libfort-myrmidon"; // optional module docstring
 
     BindTypes(m);
+    BindShapes(m);
+
+    BindIdentification(m);
     BindAnt(m);
     BindExperiment(m);
 
