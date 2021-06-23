@@ -11,9 +11,9 @@ TEST_F(ShapeUTest,Type) {
 	auto capsule = std::make_unique<Capsule>(Eigen::Vector2d(0,0),Eigen::Vector2d(0,0),0,0);
 	auto polygon = std::make_unique<Polygon>(Polygon({{0,0},{0,0},{0,0}}));
 
-	EXPECT_EQ(circle->ShapeType(),fort::myrmidon::Shape::Type::Circle);
-	EXPECT_EQ(capsule->ShapeType(),fort::myrmidon::Shape::Type::Capsule);
-	EXPECT_EQ(polygon->ShapeType(),fort::myrmidon::Shape::Type::Polygon);
+	EXPECT_EQ(circle->ShapeType(),fort::myrmidon::Shape::Type::CIRCLE);
+	EXPECT_EQ(capsule->ShapeType(),fort::myrmidon::Shape::Type::CAPSULE);
+	EXPECT_EQ(polygon->ShapeType(),fort::myrmidon::Shape::Type::POLYGON);
 
 
 

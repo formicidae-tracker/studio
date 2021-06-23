@@ -140,16 +140,16 @@ testing::AssertionResult ShapeEqual(const fort::myrmidon::Shape & a,
 	}
 
 	switch(a.ShapeType()) {
-	case fort::myrmidon::Shape::Type::Capsule: {
+	case fort::myrmidon::Shape::Type::CAPSULE: {
 		return CapsuleEqual(static_cast<const fort::myrmidon::Capsule &>(a),
 		                    static_cast<const fort::myrmidon::Capsule &>(b));
 
 	}
-	case fort::myrmidon::Shape::Type::Circle: {
+	case fort::myrmidon::Shape::Type::CIRCLE: {
 		return CircleEqual(static_cast<const fort::myrmidon::Circle &>(a),
 		                   static_cast<const fort::myrmidon::Circle &>(b));
 	}
-	case fort::myrmidon::Shape::Type::Polygon: {
+	case fort::myrmidon::Shape::Type::POLYGON: {
 		return PolygonEqual(static_cast<const fort::myrmidon::Polygon &>(a),
 		                    static_cast<const fort::myrmidon::Polygon &>(b));
 	}

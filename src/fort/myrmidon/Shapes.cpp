@@ -21,7 +21,7 @@ Shape::~Shape() {
 }
 
 Circle::Circle(const Eigen::Vector2d & center, double radius)
-	: Shape(Type::Circle)
+	: Shape(Type::CIRCLE)
 	, d_center(center)
 	, d_radius(radius) {
 }
@@ -60,7 +60,7 @@ std::unique_ptr<Shape> Circle::Clone() const {
 
 
 Capsule::Capsule()
-	: Shape(Type::Capsule)
+	: Shape(Type::CAPSULE)
 	, d_c1(0,0)
 	, d_c2(0,0)
 	, d_r1(0)
@@ -71,7 +71,7 @@ Capsule::Capsule(const Eigen::Vector2d & c1,
                  const Eigen::Vector2d & c2,
                  double r1,
                  double r2)
-	: Shape(Type::Capsule)
+	: Shape(Type::CAPSULE)
 	, d_c1(c1)
 	, d_c2(c2)
 	, d_r1(r1)
@@ -203,7 +203,7 @@ std::unique_ptr<Shape> Capsule::Clone() const {
 
 
 Polygon::Polygon(const Vector2dList & vertices)
-	: Shape(Type::Polygon)
+	: Shape(Type::POLYGON)
 	, d_vertices(vertices) {
 	if (d_vertices.size() < 3 ) {
 		throw std::invalid_argument("A polygon needs at least 3 points");

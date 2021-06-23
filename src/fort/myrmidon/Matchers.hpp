@@ -119,7 +119,7 @@ public:
 	/**
 	 * Matches a given AntID
 	 *
-	 * * python:
+	 * * Python:
 	 * ```python
 	 * py_fort_myrmidon.Matcher.AntID(antID :int) -> py_fort_myrmidon.Matcher
 	 * ```
@@ -135,7 +135,7 @@ public:
 	 *
 	 * @return a Matcher that matches Ant with the given antID
 	 */
-	static Ptr AntID(AntID ID);
+	static Ptr AntID(AntID antID);
 
 	/**
 	 *  Matches a given user meta data key/value
@@ -192,7 +192,7 @@ public:
 	 * fmMatcherAntDistanceGreaterThan <- function(distance = 0.0) # returns a Rcpp_fmMatcher
 	 * ```
 	 *
-	 * @distance the distance to be greater.
+	 * @param distance the distance to be greater.
 	 *
 	 * In case of Trajectories, it matches anything.
 	 *

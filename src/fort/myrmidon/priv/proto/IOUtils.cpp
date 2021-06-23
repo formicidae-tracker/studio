@@ -616,13 +616,13 @@ Shape::Ptr IOUtils::LoadShape(const pb::Shape & pb) {
 
 void IOUtils::SaveShape(pb::Shape * pb, const Shape & shape) {
 	switch(shape.ShapeType()) {
-	case myrmidon::Shape::Type::Capsule:
+	case myrmidon::Shape::Type::CAPSULE:
 		SaveCapsule(pb->mutable_capsule(),static_cast<const Capsule &>(shape));
 		return;
-	case myrmidon::Shape::Type::Circle:
+	case myrmidon::Shape::Type::CIRCLE:
 		SaveCircle(pb->mutable_circle(),static_cast<const Circle &>(shape));
 		return;
-	case myrmidon::Shape::Type::Polygon:
+	case myrmidon::Shape::Type::POLYGON:
 		SavePolygon(pb->mutable_polygon(),static_cast<const Polygon &>(shape));
 		return;
 	default:

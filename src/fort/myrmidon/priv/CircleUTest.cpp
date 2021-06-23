@@ -10,7 +10,7 @@ namespace priv {
 
 TEST_F(CircleUTest,Type) {
 	Circle circle(Eigen::Vector2d(0,0),0);
-	EXPECT_EQ(circle.ShapeType(),myrmidon::Shape::Type::Circle);
+	EXPECT_EQ(circle.ShapeType(),myrmidon::Shape::Type::CIRCLE);
 }
 
 

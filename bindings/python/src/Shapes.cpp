@@ -14,9 +14,9 @@ void BindShapes(py::module_ & m) {
 	                            " (py_fort_myrmidon.Shape.Type): the type of the shape");
 
 	py::enum_<Shape::Type>(shape,"Type","the type of a shape")
-		.value("Circle",Shape::Type::Circle,"a circle")
-		.value("Capsule",Shape::Type::Capsule,"a capsule")
-		.value("Polygon",Shape::Type::Polygon,"a polygon");
+		.value("Circle",Shape::Type::CIRCLE,"a circle")
+		.value("Capsule",Shape::Type::CAPSULE,"a capsule")
+		.value("Polygon",Shape::Type::POLYGON,"a polygon");
 
 	py::class_<Circle,Circle::Ptr>(m,"Circle",shape)
 		.def(py::init<Eigen::Vector2d,double>(),py::arg("center"),py::arg("radius"))

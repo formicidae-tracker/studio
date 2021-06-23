@@ -16,7 +16,7 @@ namespace priv {
 
 TEST_F(CapsuleUTest,Type) {
 	Capsule capsule(Eigen::Vector2d(0,0),Eigen::Vector2d(0,0),0,0);
-	EXPECT_EQ(capsule.ShapeType(),myrmidon::Shape::Type::Capsule);
+	EXPECT_EQ(capsule.ShapeType(),myrmidon::Shape::Type::CAPSULE);
 }
 
 TEST_F(CapsuleUTest,PointCollision) {
