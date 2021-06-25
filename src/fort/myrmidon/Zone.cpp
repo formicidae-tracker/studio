@@ -56,7 +56,7 @@ ZoneDefinition::List Zone::Definitions() {
 	return res;
 }
 
-void Zone::EraseDefinition(size_t index) {
+void Zone::DeleteDefinition(size_t index) {
 	d_p->EraseDefinition(index);
 }
 
@@ -68,7 +68,7 @@ void Zone::SetName(const std::string & name) {
 	d_p->SetName(name);
 }
 
-Zone::ID Zone::ZoneID() const {
+ZoneID Zone::ID() const {
 	return d_p->ZoneID();
 }
 

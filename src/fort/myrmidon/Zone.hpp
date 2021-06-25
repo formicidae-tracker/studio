@@ -15,80 +15,117 @@ class Zone;
 class ZoneDefinition;
 }
 
-
-// Defines the geometry of a <Zone> in <Time>
-//
-// ZoneDefinition sets for a time range [<Start>,<End>[ a <Geometry>
-// for a <Zone>. nullptr for <Start> or <End> represents -/+∞.
+/**
+ * Defines the shape of a Zone in Time
+ *
+ * ZoneDefinition contains for a time range [Start(),End()[ the Shapes()
+ * for a Zone.
+ */
 class ZoneDefinition {
 public:
 
-	// A pointer to a ZoneDefinition
+	/**
+	 * A pointer to a ZoneDefinition
+	 */
 	typedef std::shared_ptr<ZoneDefinition>       Ptr;
-	// A list of ZoneDefinition
+	/**
+	 * A list of ZoneDefinition
+	 */
 	typedef std::vector<Ptr>                      List;
 
-	// Gets the geometry of this definition
-	//
-	// R version:
-	// ```R
-	// zd$geometry()
-	// ```
-	//
-	// @return a union of <Shape> defining the geometry
+	/**
+	 * Gets the geometry of this ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.Shapes
+	 *           (List[py_fort_myrmidon.Shape])` read-write property
+	 *           of `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```R
+	 * fmZoneDefinitionShapes <- function(zoneDefinition) # returns a list of Rcpp_fmShape
+	 * ```
+	 *
+	 * @return a list of Shape that define the Shape of the Zone for
+	 *         [Start();End()[
+	 */
 	const Shape::List & Shapes() const;
 
-	// Sets the geometry of this definition
-	// @shapes a union of <Shape> defining the <Zone> geometry.
-	//
-	// R version:
-	// ```R
-	// zd$setGeometry(list(fmCircle(c(x,y),r),...))
-	// ```
+	/**
+	 * Sets the Shapes of this ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.Shapes
+	 *           (List[py_fort_myrmidon.Shape])` read-write property
+	 *           of `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```R
+	 * fmZoneDefinitionSetShapes <- function (zoneDefinition,shapes = list())
+	 * ```
+	 *
+	 * @param shapes a union of Shape defining the <Zone> shapes.
+	 */
 	void SetShapes(const Shape::List & shapes);
 
-	// Gets the first valid time of the Definition
-	//
-	// R version:
-	// ```R
-	// zd$start()
-	// ```
-	//
-	// @return a <Time> for the first valid time. It can be
-	//         <Time::SinceEver>.
+	/**
+	 * Gets the first valid time of the ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.Start
+	 *           (py_fort_myrmidon.Time)` read-write property of
+	 *           `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```
+	 * fmZoneDefinitionStart <- function(zoneDefinition) # returns a Rcpp_fmTime
+	 * ```
+	 *
+	 * @return the first valid Time of this definition. It can be
+	 *         Time::SinceEver().
+	 */
 	const Time & Start() const;
 
-	// Gets the ending valid time of the Definition
-	//
-	// R version:
-	// ```R
-	// zd$end()
-	// ```
-	//
-	// @return a <Time> before which the Definition is valid. It can
-	//         be <Time::Forever>.
+	/**
+	 * Gets the first invalid time of the ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.End
+	 *            (py_fort_myrmidon.Time)` read-write property of
+	 *            `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```
+	 * fmZoneDefinitionEnd <- function(zoneDefinition) # returns a Rcpp_fmTime
+	 * ```
+	 *
+	 * @return the first invalid Time of this definition. It can be
+	 *         Time::Forever().
+	 */
 	const Time & End() const;
 
-	// Sets the first valid time of the Definition
-	// @start the first valid <Time> for the Definition. It accepts
-	//        <Time::SinceEver>
-	//
-	// R version:
-	// ```R
-	// # const_ptr() is needed to convert to fmTimeCPtr
-	// zd$setStart(fmTimeParse()$const_ptr())
-	// ```
+	/**
+	 * Sets the first valid time of the ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.Start
+	 *            (py_fort_myrmidon.Time)` read-write property of
+	 *            `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```
+	 * fmZoneDefinitionSetStart <- function(zoneDefinition,time = fmTimeSinceEver() )
+	 * ```
+	 *
+	 * @param start the first valid Time of this definition. It can be
+	 *        Time::SinceEver().
+	 */
 	void SetStart(const Time & start);
 
-	// Sets the last valid time of the Definition
-	// @end the <Time> before which the Definition is
-	//      valid. It accepts <Time::Forever>
-	//
-	// R version:
-	// ```R
-	// # const_ptr() is needed to convert to fmTimeCPtr
-	// zd$setEnd(fmTimeParse()$const_ptr())
-	// ```
+	/**
+	 * Sets the first invalid time of the ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.ZoneDefinition.Start
+	 *           (py_fort_myrmidon.Time)` read-write property of
+	 *           `py_fort_myrmidon.ZoneDefinition` objects.
+	 * * R:
+	 * ```
+	 * fmZoneDefinitionSetStart <- function(zoneDefinition,time = fmTimeSinceEver() )
+	 * ```
+	 *
+	 * @param start the first valid Time of this definition. It can be
+	 *        Time::SinceEver().
+	 */
 	void SetEnd(const Time & end);
 
 private:
@@ -111,116 +148,152 @@ private:
 };
 
 
-// A tracking region where collisions/interactions are computed.
-//
-// A Zone defines a tracked area region where interaction can be
-// computed. I.e. two <Ant> in different Zone won't report
-// interactions.
-//
-// ## Naming and Identification
-//
-// Zone are managed by <Space>, and have a unique <ZoneID> within that
-// space. However two Zone from different <Space> can share the same
-// <ZoneID>. Zone have user definable <Name> but internally only their
-// <ZoneID> is used.
-//
-// By default, any <Ant> is considered to be within the `null` Zone
-// with <ZoneID> 0, so all possible interactions are reported. User
-// needs to add Zone only to prune unwanted interaction or to be able
-// to query where an <Ant> is at any given <Time>.
-//
-// ## Geometric definition
-//
-// Zone have time valid <ZoneDefinition>. In most cases there would be
-// a single <ZoneDefinition> for any <Zone> valid for ]-∞,+∞[ <Time>,
-// but it is possible to assign different <ZoneDefinition::Geometry> for
-// different time range using multiple <ZoneDefinition>.
-//
-// <ZoneDefinition> are manipulated using <AddDefinition> and
-// <EraseDefinition>.
+/**
+ * A tracking region where collisions/interactions are computed.
+ *
+ * A Zone defines a tracked area region where collisions and
+ * interactions can be computed. I.e. two Ant in different Zone won't
+ * report any collisions or interactions.
+ *
+ * Naming and Identification
+ * =========================
+ *
+ * Zone are managed by Space, and have a unique ZoneID within that
+ * space. However two Zone from different Space can share the same
+ * ZoneID. Zone have a user definable Name() but internally only their
+ * ZoneID is used.
+ *
+ * By default, any Ant is considered to be within the `null` Zone
+ * with ZoneID 0, so all possible interactions are reported. User
+ * needs to add Zone only to prune unwanted interactions or to be able
+ * to query where an Ant is at any given Time.
+ *
+ * Geometric definition
+ * ====================
+ *
+ * Zone have time valid ZoneDefinition. In most cases there would be a
+ * single ZoneDefinition for any Zone valid for
+ * ]Time::SinceEver(),Time::Forever()[, but it is possible to assign
+ * different ZoneDefinition::Shapes() for different time range using
+ * multiple ZoneDefinition.
+ *
+ * ZoneDefinition are manipulated using AddDefinition() and
+ * DeleteDefinition().
+ */
 class Zone {
 public:
-	// A Space-unique ID
-	//
-	// ID are unique within the same <Space>. Zone from two different
-	// <Space> can have the same <ZoneID>.
-	typedef uint32_t                    ID;
-
-	// A pointer to a Zone
+	/**
+	 * A pointer to a Zone
+	 */
 	typedef std::shared_ptr<Zone>       Ptr;
 
-	// A map of Zone indexed by <ZoneID>
-	typedef std::map<ID,Zone::Ptr>      ByID;
+	/**
+	 * A map of Zone indexed by ZoneID
+	 */
+	typedef std::map<ZoneID,Zone::Ptr>      ByID;
 
 
-	// Adds a new timed Definition
-	// @geometry the shape of the Zone as a <Shape::ConstList>
-	// @start the starting validi <Time> for this definition.
-	// @end the ending valid <Time> for this definition
-	//
-	// Adds a new timed <ZoneDefinition> valid for [<start>,<end>[. It
-	// accepts <Time::SinceEver> and <Time::Forever> for <start> or
-	// <end>.
-	//
-	// R version:
-	// ```R
-	// z$addDefinition(list(fmCircle(c(x,y),r),...),
-	//                 fmTimeParse("XXX")$const_ptr(), # const_ptr() needed to convert to fmTimeCPtr
-	//                 fmTimeParse("YYY")$const_ptr()) # const_ptr() needed to convert to fmTimeCPtr
-	// ```
-	//
-	// @return the new <ZoneDefinition>
+	/**
+	 * Adds a new timed ZoneDefinition
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Zone.AddDefinition(self,shapes: List[py_fort_myrmidon.Shape], start: py_fort_myrmidon.Time, end: py_fort_myrmidon.Time) -> py_fort_myrmidon.ZoneDefinition
+	 * ```
+	 * * R:
+	 * ```
+	 * fmZoneAddDefinition <- function(zone,shapes = list(), start = fmTimeSinceEver(), end = fmTimeForever()) # returns a Rcpp_fmZoneDefinition
+	 * ```
+	 *
+	 * Adds a new timed ZoneDefinition valid for [start,end[ to this Zone. It
+	 * accepts Time::SinceEver() and Time::Forever() for start or
+	 * end.
+	 *
+	 * @param shapes the shape of the Zone as a Shape::List
+	 * @param start the first valid Time for this definition.
+	 * @end the end valid Time for this definition
+	 *
+	 * @return the new ZoneDefinition
+	 *
+	 * @throws std::invalid_argument if start or end would make the
+	 *         resulting definition overlap in time with another
+	 *         ZoneDefinition for this Zone.
+	 */
 	ZoneDefinition::Ptr AddDefinition(const Shape::List & shapes,
 	                                  const Time & start,
 	                                  const Time & end);
 
-	// Gets Zone's ZoneDefinition
-	//
-	// R version:
-	// ```R
-	// z$definitions()
-	// ```
-	//
-	// @return a <ZoneDefinition::List> of <ZoneDefinition> for this Zone
+	/**
+	 * Gets the Zone's ZoneDefinition
+	 *
+	 * * Python: `py_fort_myrmidon.Zone.Definitions (List[py_fort_myrmidon.ZoneDefinition])` read-only property of `py_fort_myrmidon.Zone` objects.
+	 * * R:
+	 * ```R
+	 * fmZoneDefinitions <- function(zone) # returns a list of Rcpp_fmZoneDefinition
+	 * ```
+	 *
+	 * @return a ZoneDefinition::List of ZoneDefinition for this Zone
+	 *
+	 */
 	ZoneDefinition::List Definitions();
 
-	// Removes a ZoneDefinition
-	// @index the index in <Definitions> to remove.
-	void EraseDefinition(size_t index);
+	/**
+	 *
+	 * Removes a ZoneDefinition
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Zone.DeleteDefinition(self,index)
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmZoneDeleteDefinition <- function(zone,index = 0) # warning index starts at zero
+	 * ```
+	 *
+	 * @index the index in Definitions() to remove.
+	 *
+	 * @throws std::out_of_range if index >= Definitions().size()
+	 */
+	void DeleteDefinition(size_t index);
 
-	// Gets Zone name
-	//
-	// R version:
-	// ```R
-	// z$name()
-	// ```
-	//
-	// @return the Zone name
+	/**
+	 * Gets the Zone name
+	 *
+	 * * Python: `py_fort_myrmidon.Zone.Name (str)` read-write property of `py_fort_myrmidon.Zone` objects
+	 * * R:
+	 * ```R
+	 * fmZoneName <- function(zone) # returns a character
+	 * ```
+	 *
+	 * @return the Zone name
+	 */
 	const std::string & Name() const;
 
-	// Sets the Zone name
-	// @name the wanted new Zone name
-	//
-	// R version:
-	// ```R
-	// z$setName(name)
-	// ```
-	//
-	// There are no restrictions on Zone name
+	/**
+	 * Gets the Zone name
+	 *
+	 * * Python: `py_fort_myrmidon.Zone.Name (str)` read-write property of `py_fort_myrmidon.Zone` objects
+	 * * R:
+	 * ```R
+	 * fmZoneSetName <- function(zone,name = '')
+	 * ```
+	 *
+	 * @param name the wanted Name()
+	 */
 	void SetName(const std::string & name);
 
-	// Gets the Zone ID
-	//
-	// Gets the Zone <ID>. <ID> are unique within a <Space>, but two
-	// Zone in different <Space> can have the same <ID>.
-	//
-	// R version:
-	// ```R
-	// z$zoneID()
-	// ```
-	//
-	// @return the Zone <ID>x
-	ID ZoneID() const;
+	/**
+	 * Gets the Zone ID
+	 *
+	 * * Python: `py_fort_myrmidon.Zone.ID (int)` read-only property of `py_fort_myrmidon.Zone` objects
+	 * * R:
+	 * ```
+	 * fmZoneID <- function(zone) # returns an integer
+	 * ```
+	 *
+	 * @return the Zone ZoneID
+	 */
+	ZoneID ID() const;
 
 
 private:

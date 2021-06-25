@@ -159,12 +159,12 @@ public:
 	 *
 	 * @return an Identification::List of Identification that target this object.
 	 */
-	Identification::List Identifications();
+	const Identification::List & Identifications();
 
 	/**
-	 *  Gets the ::AntID of an Ant.
+	 *  Gets the AntID of an Ant.
 	 *
-	 * * Python: `AntID: int` read-only property of `py_fort_myrmidon.Ant` objects
+	 * * Python: `py_fort_myrmidon.Ant.ID (int)` read-only property of `py_fort_myrmidon.Ant` objects
 	 * * R:
 	 * ```R
 	 * fmAntGetID <- function(ant) # return an integer
@@ -175,7 +175,7 @@ public:
 	 *
 	 * @return the ::AntID of the Ant
 	 */
-	fort::myrmidon::AntID AntID() const;
+	fort::myrmidon::AntID ID() const;
 
 	/**
 	 * Gets the ID of the Ant formatted as a string.

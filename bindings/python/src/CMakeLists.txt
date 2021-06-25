@@ -7,6 +7,8 @@ set(SRC_FILES Time.cpp
               Matchers.cpp
               Query.cpp
               Color.cpp
+              Zone.cpp
+              Space.cpp
               main.cpp
               )
 

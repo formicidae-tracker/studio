@@ -28,7 +28,7 @@ Zone::Ptr Space::CreateZone(const std::string & name) {
 	return Zone::Ptr(new Zone(d_p->CreateZone(name,0)));
 }
 
-void Space::DeleteZone(Zone::ID ID) {
+void Space::DeleteZone(ZoneID ID) {
 	d_p->DeleteZone(ID);
 }
 

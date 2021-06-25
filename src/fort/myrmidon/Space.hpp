@@ -86,7 +86,7 @@ public:
 	// ```R
 	// s$deleteZone(zoneID)
 	// ```
-	void DeleteZone(Zone::ID ID);
+	void DeleteZone(ZoneID ID);
 
 	// Gets the Zones in this space
 	//

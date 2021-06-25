@@ -139,8 +139,8 @@ void BindAnt(py::module_ & m) {
 		.def("ClearCapsules",
 		     &Ant::ClearCapsules,
 		     R"pydoc(
-    Removes all capsule for this Ant
-)pydoc")
+    Removes all capsules for this Ant
+p)pydoc")
 		;
 
 }
