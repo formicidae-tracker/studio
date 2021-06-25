@@ -159,7 +159,7 @@ public:
 	 *
 	 * @return an Identification::List of Identification that target this object.
 	 */
-	const Identification::List & Identifications();
+	Identification::List Identifications();
 
 	/**
 	 *  Gets the AntID of an Ant.

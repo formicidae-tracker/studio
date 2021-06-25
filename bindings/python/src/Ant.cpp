@@ -38,8 +38,8 @@ void BindAnt(py::module_ & m) {
 		.def_property_readonly("Identifications",
 		                       &Ant::Identifications,
 		                       " (List[py_fort_myrmidon.Identification]): all Identification that target this Ant, ordered by validity time.")
-		.def_property_readonly("AntID",
-		                       &Ant::AntID,
+		.def_property_readonly("ID",
+		                       &Ant::ID,
 		                       " (int): the AntID for this Ant")
 		.def("FormattedID",
 		     &Ant::FormattedID,
