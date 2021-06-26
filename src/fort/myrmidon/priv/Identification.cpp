@@ -7,7 +7,6 @@ namespace fort {
 namespace myrmidon {
 namespace priv {
 
-const double Identification::DEFAULT_TAG_SIZE = 0.0;
 
 Identification::Identification(TagID tagValue,
                                const IdentifierPtr & identifier,
@@ -16,7 +15,7 @@ Identification::Identification(TagID tagValue,
 	, d_tagValue(tagValue)
 	, d_target(target)
 	, d_identifier(identifier)
-	, d_tagSize(DEFAULT_TAG_SIZE)
+	, d_tagSize(myrmidon::Identification::DEFAULT_TAG_SIZE)
 	, d_userDefinedPose(false) {
 	d_start = Time::SinceEver();
 	d_end = Time::Forever();
@@ -126,7 +125,7 @@ double Identification::TagSize() const {
 }
 
 bool Identification::UseDefaultTagSize() const {
-	return d_tagSize == DEFAULT_TAG_SIZE;
+	return d_tagSize == myrmidon::Identification::DEFAULT_TAG_SIZE;
 }
 
 void Identification::ComputePositionFromTag(double & x,

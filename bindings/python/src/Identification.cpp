@@ -12,6 +12,9 @@ void BindIdentification(py::module_ & m) {
     Identification relates TagID with Ant with time validity and
     geometric data.
 )pydoc")
+		.def_readonly_static("DEFAULT_TAG_SIZE",
+		                     &Identification::DEFAULT_TAG_SIZE,
+		                     " (float): a value that marks the Identification to use Experiment.DefaultTagSize")
 		.def_property_readonly("TagValue",
 		                       &Identification::TagValue,
 		                       " (int): the associated TagID of this identification")
@@ -36,6 +39,18 @@ void BindIdentification(py::module_ & m) {
 		              &Identification::End,
 		              &Identification::SetEnd,
 		              " (py_fort_myrmidon.Time): the first invalid Time fort this identification, it can be Time.Forever()")
+		.def_property("TagSize",
+		              &Identification::TagSize,
+		              &Identification::SetTagSize,
+		              " (float): the Identification tag size in millimeters, could be Identification.DEFAULT_TAG_SIZE to use Experiment.DefaultTagSize")
+		.def("HasDefaultTagSize",
+		     &Identification::HasDefaultTagSize,
+		     R"pydoc(
+    Returns:
+        bool: `true` if this Identification use
+            `Experiment.DefaultTagSize`, i.e. `self.TagSize ==
+            Identification.DEFAULT_TAG_SIZE`
+)pydoc")
 		.def("HasUserDefinedAntPose",
 		     &Identification::HasUserDefinedAntPose,
 		     R"pydoc(

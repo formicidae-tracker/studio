@@ -75,8 +75,6 @@ public:
 	typedef std::vector<ConstPtr> ConstList;
 
 
-	const static double DEFAULT_TAG_SIZE;
-
 	// Gets the TagID of this Identification
 	// @return <TagID> this <priv::Identification> refers to.
 	TagID TagValue() const;

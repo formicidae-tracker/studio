@@ -288,7 +288,7 @@ void IdentifierBridge::onSizeItemChanged(QStandardItem * item) {
 	auto identification = item->data().value<fmp::Identification::Ptr>();
 	if ( item->text().isEmpty() == true ) {
 		if ( identification->UseDefaultTagSize() == false ) {
-			identification->SetTagSize(fmp::Identification::DEFAULT_TAG_SIZE);
+			identification->SetTagSize(fm::Identification::DEFAULT_TAG_SIZE);
 			setModified(true);
 			qInfo() << "Set identification " << ToQString(*identification) << " to default tag size";
 			emit identificationSizeModified(identification);

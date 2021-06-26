@@ -53,7 +53,7 @@ void IOUtils::LoadIdentification(const ExperimentPtr & e, const AntPtr & target,
 	if ( pb.tagsize() != 0.0 ) {
 		res->SetTagSize(pb.tagsize());
 	} else {
-		res->SetTagSize(Identification::DEFAULT_TAG_SIZE);
+		res->SetTagSize(myrmidon::Identification::DEFAULT_TAG_SIZE);
 	}
 	if (pb.has_cachedpose() ) {
 		Eigen::Vector2d antPosition;

@@ -8,6 +8,7 @@
 namespace fort {
 namespace myrmidon {
 
+const double Identification::DEFAULT_TAG_SIZE = 0.0;
 
 Identification::Identification(const PPtr & pptr)
 	: d_p(pptr) {
@@ -58,6 +59,19 @@ void Identification::SetUserDefinedAntPose(const Eigen::Vector2d & antPosition,
 
 void Identification::ClearUserDefinedAntPose() {
 	d_p->ClearUserDefinedAntPose();
+}
+
+
+void Identification::SetTagSize(double size) {
+	d_p->SetTagSize(size);
+}
+
+double Identification::TagSize() const {
+	return d_p->TagSize();
+}
+
+bool Identification::HasDefaultTagSize() const {
+	return d_p->UseDefaultTagSize();
 }
 
 OverlappingIdentification::OverlappingIdentification(const priv::Identification & a,

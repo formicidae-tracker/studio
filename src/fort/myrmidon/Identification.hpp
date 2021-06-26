@@ -283,6 +283,70 @@ public:
 	 */
 	void ClearUserDefinedAntPose();
 
+	/**
+	 * Value use to mark the Identification to use the Experiment::DefaultTagSize()
+	 *
+	 * * Python: `py_fort_myrmidon.Identification.DEFAULT_TAG_SIZE
+	 *           (float)` class variable of
+	 *           `py_fort_myrmidon.Identification` class
+	 * * R: `fmIdentificationDEFAULT_TAG_SIZE` # a numerical value`
+	 *
+	 */
+	const static double DEFAULT_TAG_SIZE;
+
+	/**
+	 * Sets the tag size for this Identification
+	 *
+	 *
+	 * * Python: `py_fort_myrmidon.Identification.TagSize (float)`
+	 *           read-write property of
+	 *           `py_fort_myrmidon.Identification` objects
+	 * * R:
+	 * ```R
+	 * fmIdentificationSetTagSize <- function(identification, size = 0)
+	 * ```
+	 *
+	 * @param size the tag size in millimeters for this
+	 *        Identification. Can be Identification::DEFAULT_TAG_SIZE
+	 *        to force the use of the Experiment::DefaultTagSize().
+	 */
+	void SetTagSize(double size);
+
+	/**
+	 * Gets the tag size for this Identification
+	 *
+	 * * Python: `py_fort_myrmidon.Identification.TagSize (float)`
+	 *           read-write property of
+	 *           `py_fort_myrmidon.Identification` objects
+	 * * R:
+	 * ```R
+	 * fmIdentificationTagSize <- function(identification) # returns a numerical
+	 * ```
+	 *
+	 * @return size the tag size in millimeters for this
+	 *        Identification. If equal to Identification::DEFAULT_TAG_SIZE
+	 *        the Experiment::DefaultTagSize() is used instead.
+	 */
+	double TagSize() const;
+
+
+	/**
+	 * Checks if Experiment::DefaultTagSize() is used.
+	 *
+	 * * Python:
+	 * ```python
+	 * py_fort_myrmidon.Identification.HasDefaultTagSize(self) -> bool
+	 * ```
+	 * * R:
+	 * ```R
+	 * fmIdentificationHasDefaultTagSize <- function(identification) # returns a logical
+	 * ```
+	 *
+	 * @return `true` if this Identification uses Experiment::DefaultTagSize()
+	 */
+	bool HasDefaultTagSize() const;
+
+
 private:
 	friend class Ant;
 	friend class Experiment;
