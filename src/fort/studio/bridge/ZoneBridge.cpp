@@ -225,14 +225,14 @@ void ZoneBridge::addZone(QStandardItem * spaceRootItem) {
 	setModified(true);
 	int insertionRow = 0;
 	for ( ; insertionRow < spaceRootItem->rowCount(); ++insertionRow) {
-		if ( spaceRootItem->child(insertionRow)->data(Qt::DisplayRole).toInt() > z->ZoneID() ) {
+		if ( spaceRootItem->child(insertionRow)->data(Qt::DisplayRole).toInt() > z->ID() ) {
 			break;
 		};
 	}
 	spaceRootItem->insertRow(insertionRow,buildZone(z));
 	getSibling(spaceRootItem,2)->setText(QString::number(spaceRootItem->rowCount()));
 	qInfo() << "Created zone " << spaceRootItem->data(Qt::DisplayRole).toInt()
-	        << "." << z->ZoneID() << "'" << ToQString(z->Name()) << "'";
+	        << "." << z->ID() << "'" << ToQString(z->Name()) << "'";
 	if ( space == d_selectedSpace ) {
 		rebuildChildBridges();
 	}
@@ -247,9 +247,9 @@ void ZoneBridge::removeZone(QStandardItem * zoneItem) {
 	}
 	try {
 		qDebug() << "[ZoneBridge]: Calling fmp::Space::DeleteZone("
-		         << zone->ZoneID()
+		         << zone->ID()
 		         << ")";
-		space->DeleteZone(zone->ZoneID());
+		space->DeleteZone(zone->ID());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not delete zone: " << e.what();
 		return;

@@ -189,7 +189,7 @@ fmp::Identification::ConstPtr IdentifierBridge::identify(fmp::TagID tagID,
 	if ( !d_experiment ) {
 		return fmp::Identification::ConstPtr();
 	}
-	return d_experiment->CIdentifier().Identify(tagID,time);
+	return d_experiment->Identifier()->Identify(tagID,time);
 }
 
 
@@ -199,7 +199,7 @@ bool IdentifierBridge::freeRangeContaining(fort::Time & start,
 	if ( !d_experiment ) {
 		return false;
 	}
-	return d_experiment->CIdentifier().FreeRangeContaining(start,end,tagID,time);
+	return d_experiment->Identifier()->FreeRangeContaining(start,end,tagID,time);
 }
 
 
@@ -334,7 +334,7 @@ fmp::Identification::ConstPtr IdentifierBridge::identificationForIndex(const QMo
 
 std::vector<fm::AntID> IdentifierBridge::unidentifiedAntAt(const fort::Time & time) const {
 	std::vector<fm::AntID> res;
-	for ( const auto & [antID,ant] : d_experiment->CIdentifier().CAnts() ) {
+	for ( const auto & [antID,ant] : d_experiment->Identifier()->Ants() ) {
 		const auto & identifications = ant->CIdentifications();
 		if ( std::find_if(identifications.begin(),
 		                  identifications.end(),

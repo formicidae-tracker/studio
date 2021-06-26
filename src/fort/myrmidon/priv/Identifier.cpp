@@ -52,14 +52,10 @@ void Identifier::DeleteAnt(fort::myrmidon::AntID ID) {
 }
 
 
-const AntByID & Identifier::Ants() {
+const AntByID & Identifier::Ants() const {
 	return Objects();
 }
 
-
-const ConstAntByID & Identifier::CAnts() const {
-	return CObjects();
-}
 
 
 
@@ -340,7 +336,7 @@ Identifier::Compiled::ConstPtr Identifier::Compile() const {
 std::map<AntID,TagID> Identifier::IdentificationsAt(const Time & time,
                                                     bool removeUnidentifiedAnt) const {
 	std::map<AntID,TagID> res;
-	for ( const auto & [antID,a] : CAnts() ) {
+	for ( const auto & [antID,a] : Ants() ) {
 		try {
 			auto tagID = a->IdentifiedAt(time);
 			res[antID] = tagID;

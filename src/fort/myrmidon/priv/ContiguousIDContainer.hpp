@@ -67,14 +67,9 @@ public:
 		d_objectIDs.erase(ID);
 	}
 
-	const ObjectByID & Objects() {
+	const ObjectByID & Objects() const {
 		return d_objects;
 	}
-
-	const ConstObjectByID & CObjects() const {
-		return *reinterpret_cast<const ConstObjectByID*>(&d_objects);
-	}
-
 
 	size_t Count(TID ID) const {
 		return d_objects.count(ID);

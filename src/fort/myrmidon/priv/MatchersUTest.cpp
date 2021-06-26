@@ -20,7 +20,7 @@ private:
 public:
 	StaticMatcher(bool value) : d_value(value) {};
 
-	void SetUpOnce(const ConstAntByID & ants) override {
+	void SetUpOnce(const AntByID & ants) override {
 	}
 
 	void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
@@ -45,7 +45,7 @@ public:
 
 class MockMatcher : public Matcher {
 public:
-	MOCK_METHOD(void,SetUpOnce,(const ConstAntByID & ants),(override));
+	MOCK_METHOD(void,SetUpOnce,(const AntByID & ants),(override));
 	MOCK_METHOD(void,SetUp,(const IdentifiedFrame::Ptr & f,
 	                        const CollisionFrame::Ptr & i),(override));
 	MOCK_METHOD(bool,Match,(fort::myrmidon::AntID a,
@@ -125,7 +125,7 @@ TEST_F(MatchersUTest,ColumnMatcher) {
 	identifiedFrame->FrameTime = Time().Add(-1);
 	auto collisionFrame = std::make_shared<CollisionFrame>();
 	ASSERT_NO_THROW({
-			columnMatcher->SetUpOnce(experiment->CIdentifier().CAnts());
+			columnMatcher->SetUpOnce(experiment->Identifier()->Ants());
 		});
 
 	ASSERT_THROW({

@@ -69,7 +69,7 @@ void Zone::SetName(const std::string & name) {
 }
 
 ZoneID Zone::ID() const {
-	return d_p->ZoneID();
+	return d_p->ID();
 }
 
 

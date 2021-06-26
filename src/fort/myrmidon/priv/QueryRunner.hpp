@@ -11,7 +11,7 @@ namespace priv {
 
 class QueryRunner {
 public:
-	typedef std::pair<Space::ID,RawFrameConstPtr> RawData;
+	typedef std::pair<SpaceID,RawFrameConstPtr> RawData;
 
 	struct Args {
 		Time Start;

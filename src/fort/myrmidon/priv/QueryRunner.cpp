@@ -32,7 +32,7 @@ public:
 
 	QueryRunner::RawData operator()() const {
 		static int i = 0;
-		Space::ID next(0);
+		SpaceID next(0);
 		Time nextTime;
 		for (  auto & [spaceID,dataIter] : *d_dataIterators ) {
 			auto & rangeIterator = d_rangeIterators->at(spaceID);
@@ -69,16 +69,16 @@ public:
 private:
 	typedef std::pair<TrackingDataDirectory::const_iterator,
 	                  TrackingDataDirectory::const_iterator> DataRange;
-	typedef std::map<Space::ID,std::vector<DataRange>>       DataRangeBySpaceID;
+	typedef std::map<SpaceID,std::vector<DataRange>>         DataRangeBySpaceID;
 
-	typedef std::map<Space::ID,std::vector<DataRange>::const_iterator> RangesIteratorByID;
-	typedef std::map<Space::ID,TrackingDataDirectory::const_iterator> DataIteratorByID;
+	typedef std::map<SpaceID,std::vector<DataRange>::const_iterator> RangesIteratorByID;
+	typedef std::map<SpaceID,TrackingDataDirectory::const_iterator>  DataIteratorByID;
 
 	static void BuildRanges(const Experiment::ConstPtr & experiment,
 							const Time & start,
 							const Time & end,
 							DataRangeBySpaceID & ranges) {
-		const auto & spaces = experiment->CSpaces();
+		const auto & spaces = experiment->Spaces();
 		for ( const auto & [spaceID,space] : spaces ) {
 			for ( const auto & tdd : space->TrackingDataDirectories() ) {
 				TrackingDataDirectory::const_iterator ibegin(tdd->begin()),iend(tdd->end());
@@ -196,7 +196,7 @@ QueryRunner::Runner QueryRunner::RunnerFor(bool multithread,bool finalizerInCurr
 std::function<Query::CollisionData(const QueryRunner::RawData &)>
 QueryRunner::computeData(const Experiment::ConstPtr & experiment,
 						 const QueryRunner::Args & args) {
-	auto identifier = experiment->CIdentifier().Compile();
+	auto identifier = experiment->Identifier()->Compile();
 	if ( args.Collide == false && args.Localize == false ) {
 		return [identifier](const RawData & raw) {
 				   auto identified = std::get<1>(raw)->IdentifyFrom(*identifier,std::get<0>(raw));

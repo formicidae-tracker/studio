@@ -68,7 +68,7 @@ void StatisticsBridge::clear() {
 	d_model->clear();
 	auto nSpaces = 0;
 	if ( d_experiment ) {
-		nSpaces = d_experiment->CSpaces().size();
+		nSpaces = d_experiment->Spaces().size();
 	}
 	if ( nSpaces < 2 ) {
 		d_model->setHorizontalHeaderLabels({tr("Tag ID"),tr("First Seen"),tr("Last Seen"),
@@ -92,7 +92,7 @@ void StatisticsBridge::rebuildModel() {
 	if ( d_experiment == nullptr ) {
 		return;
 	}
-	auto nSpaces = d_experiment->CSpaces().size();
+	auto nSpaces = d_experiment->Spaces().size();
 	for ( const auto & [tagID,tagStats] : d_stats ) {
 
 		QList<QStandardItem*> row;

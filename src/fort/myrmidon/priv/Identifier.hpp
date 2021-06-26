@@ -81,11 +81,7 @@ public:
 
 	// Gets the Ants in the Identifier
 	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
-	const AntByID & Ants();
-
-	// Gets the Ants in the Identifier
-	// @return the map of <priv::Ant> by their <myrmidon::Ant::ID>
-	const ConstAntByID & CAnts() const;
+	const AntByID & Ants() const;
 
 
 	// Adds a new Identification

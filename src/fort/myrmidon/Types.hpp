@@ -64,7 +64,7 @@ typedef uint32_t SpaceID;
  * * Python: ZoneID translates to an `int`
  * * R: ZoneID translates to an `integer`
  *
- * Zone are uniquely identified within a Space with a ZoneID, which is
+ * Zone are uniquely identified within an Experiment with a ZoneID, which is
  * at least `1`. `0` is an invalid/undefined Zone.
  */
 typedef uint32_t ZoneID;

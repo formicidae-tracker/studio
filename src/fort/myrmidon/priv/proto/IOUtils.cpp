@@ -324,7 +324,7 @@ void IOUtils::LoadZone(const Space::Ptr & space,
 
 void IOUtils::SaveZone(pb::Zone * pb, const ZoneConstPtr & zone) {
 	pb->Clear();
-	pb->set_id(zone->ZoneID());
+	pb->set_id(zone->ID());
 	pb->set_name(zone->Name());
 	for ( const auto & d : zone->CDefinitions() ) {
 		auto dPb = pb->add_definitions();
@@ -359,12 +359,12 @@ void IOUtils::LoadSpace(const Experiment::Ptr & e,
 void IOUtils::SaveSpace(pb::Space * pb,
                         const Space::ConstPtr & space) {
 	pb->Clear();
-	pb->set_id(space->SpaceID());
+	pb->set_id(space->ID());
 	pb->set_name(space->Name());
 	for ( const auto & tdd : space->TrackingDataDirectories() ) {
 		pb->add_trackingdatadirectories(tdd->URI());
 	}
-	for ( const auto & [zoneID,z] : space->CZones() ) {
+	for ( const auto & [zoneID,z] : space->Zones() ) {
 		SaveZone(pb->add_zones(),z);
 	}
 }
@@ -419,13 +419,13 @@ void IOUtils::SaveExperiment(fort::myrmidon::pb::Experiment * pb, const Experime
 	pb->set_tagsize(e.DefaultTagSize());
 
 
-	for ( const auto & [MTID,t] : e.CMeasurementTypes() ) {
+	for ( const auto & [MTID,t] : e.MeasurementTypes() ) {
 		auto mtPb = pb->add_custommeasurementtypes();
 		mtPb->set_id(t->MTID());
 		mtPb->set_name(t->Name());
 	}
 
-	for ( const auto & [typeID,shapeType] : e.CAntShapeTypes() ) {
+	for ( const auto & [typeID,shapeType] : e.AntShapeTypes() ) {
 		auto stPb = pb->add_antshapetypes();
 		stPb->set_id(shapeType->TypeID());
 		stPb->set_name(shapeType->Name());

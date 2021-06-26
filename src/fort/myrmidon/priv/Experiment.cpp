@@ -162,20 +162,16 @@ void Experiment::Save(const fs::path & filepath) {
 	}
 }
 
-Space::Ptr Experiment::CreateSpace(const std::string & name,Space::ID ID) {
-	return Space::Universe::Create(d_universe,ID,name);
+Space::Ptr Experiment::CreateSpace(const std::string & name,SpaceID spaceID) {
+	return Space::Universe::CreateSpace(d_universe,spaceID,name);
 }
 
-void Experiment::DeleteSpace(Space::ID ID) {
-	d_universe->DeleteSpace(ID);
+void Experiment::DeleteSpace(SpaceID spaceID) {
+	d_universe->DeleteSpace(spaceID);
 }
 
-const SpaceByID & Experiment::Spaces() {
+const SpaceByID & Experiment::Spaces() const {
 	return d_universe->Spaces();
-}
-
-const ConstSpaceByID & Experiment::CSpaces() const {
-	return d_universe->CSpaces();
 }
 
 const Space::Universe::TrackingDataDirectoryByURI &
@@ -500,30 +496,17 @@ void Experiment::DeleteMeasurementType(MeasurementType::ID MTID) {
 	d_measurementTypes.DeleteObject(MTID);
 }
 
-const MeasurementTypeByID & Experiment::MeasurementTypes() {
+const MeasurementTypeByID & Experiment::MeasurementTypes() const {
 	return d_measurementTypes.Objects();
 }
 
-const ConstMeasurementTypeByID & Experiment::CMeasurementTypes() const {
-	return d_measurementTypes.CObjects();
-}
-
-std::pair<Space::ConstPtr,TrackingDataDirectoryPtr>
-Experiment::CLocateTrackingDataDirectory(const std::string & tddURI) const {
-	return d_universe->CLocateTrackingDataDirectory(tddURI);
-}
 
 std::pair<Space::Ptr,TrackingDataDirectoryPtr>
-Experiment::LocateTrackingDataDirectory(const std::string & tddURI) {
+Experiment::LocateTrackingDataDirectory(const std::string & tddURI) const {
 	return d_universe->LocateTrackingDataDirectory(tddURI);
 }
 
-
-Space::ConstPtr Experiment::CLocateSpace(const std::string & spaceName) const {
-	return d_universe->CLocateSpace(spaceName);
-}
-
-Space::Ptr Experiment::LocateSpace(const std::string & spaceName) {
+Space::Ptr Experiment::LocateSpace(const std::string & spaceName) const {
 	return d_universe->LocateSpace(spaceName);
 }
 
@@ -555,19 +538,11 @@ void Experiment::DeleteAntShapeType(AntShapeTypeID typeID) {
 }
 
 
-const AntShapeTypeByID & Experiment::AntShapeTypes() {
+const AntShapeTypeByID & Experiment::AntShapeTypes() const {
 	return d_antShapeTypes->Types();
 }
 
-const ConstAntShapeTypeByID & Experiment::CAntShapeTypes() const {
-	return d_antShapeTypes->CTypes();
-}
-
-AntShapeTypeContainerConstPtr Experiment::AntShapeTypesConstPtr() const {
-	return d_antShapeTypes;
-}
-
-fort::myrmidon::priv::AntMetadataPtr Experiment::AntMetadataPtr() const {
+const fort::myrmidon::priv::AntMetadataPtr & Experiment::AntMetadataPtr() const {
 	return d_antMetadata;
 }
 

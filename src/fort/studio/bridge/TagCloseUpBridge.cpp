@@ -105,7 +105,7 @@ TagCloseUpBridge::addCloseUp(const fmp::TagCloseUp::ConstPtr & closeUp) {
 
 	d_tagsLists[tagID].push_back(closeUp);
 	if ( d_experiment ) {
-		auto identification = d_experiment->CIdentifier().Identify(closeUp->TagValue(),
+		auto identification = d_experiment->Identifier()->Identify(closeUp->TagValue(),
 		                                                           closeUp->Frame().Time());
 		if ( identification ) {
 			antID = identification->Target()->AntID();
@@ -234,11 +234,11 @@ void TagCloseUpBridge::count(fm::TagID tagID) {
 	size_t total = closeUps.size();
 	size_t used = 0;
 	if ( d_experiment ) {
-		const auto & identifier = d_experiment->CIdentifier();
+		const auto & identifier = d_experiment->Identifier();
 		used = std::count_if(closeUps.begin(),
 		                     closeUps.end(),
 		                     [&identifier](const fmp::TagCloseUp::ConstPtr & tcu) -> bool {
-			                     return identifier.Identify(tcu->TagValue(),tcu->Frame().Time()) != nullptr;
+			                     return identifier->Identify(tcu->TagValue(),tcu->Frame().Time()) != nullptr;
 		                     });
 	}
 

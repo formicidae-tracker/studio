@@ -102,12 +102,11 @@ public :
 
 
 	Space::Ptr CreateSpace(const std::string & name,
-	                       Space::ID spaceID = Space::Universe::NEXT_AVAILABLE_SPACE_ID);
+	                       SpaceID spaceID = Space::Universe::NEXT_AVAILABLE_SPACE_ID);
 
-	void DeleteSpace(Space::ID spaceID);
+	void DeleteSpace(SpaceID spaceID);
 
-	const SpaceByID & Spaces();
-	const ConstSpaceByID & CSpaces() const;
+	const SpaceByID & Spaces() const;
 
 	const Space::Universe::TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
@@ -119,34 +118,18 @@ public :
 	                              const TrackingDataDirectoryPtr & tdd);
 
 	std::pair<Space::Ptr,TrackingDataDirectoryPtr>
-	LocateTrackingDataDirectory(const std::string & tddURI);
+	LocateTrackingDataDirectory(const std::string & tddURI) const;
 
-
-	std::pair<Space::ConstPtr,TrackingDataDirectoryPtr>
-	CLocateTrackingDataDirectory(const std::string & tddURI) const;
-
-
-	Space::ConstPtr CLocateSpace(const std::string & spaceName) const;
-
-	Space::Ptr LocateSpace(const std::string & spaceName);
-
+	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
 	AntPtr CreateAnt(AntID aID = 0);
 
 	// Accessor to the underlying Identifier
 	//
 	// @return a reference to the underlying <Identifier>
-	inline fort::myrmidon::priv::IdentifierPtr &  Identifier() {
+	inline const fort::myrmidon::priv::IdentifierPtr &  Identifier() const{
 		return d_identifier;
 	}
-
-	// ConstAccessor to the underlying Identifier
-	//
-	// @return a reference to the underlying <Identifier>
-	inline const fort::myrmidon::priv::Identifier & CIdentifier() const {
-		return *d_identifier;
-	}
-
 
 	// The name of the Experiment.
 	//
@@ -199,9 +182,7 @@ public :
 
 	void DeleteMeasurementType(MeasurementTypeID MTID);
 
-	const ConstMeasurementTypeByID & CMeasurementTypes() const;
-
-	const MeasurementTypeByID & MeasurementTypes();
+	const MeasurementTypeByID & MeasurementTypes() const;
 
 	// Adds or modifies a Measurement
 	//
@@ -238,13 +219,12 @@ public :
 
 	void DeleteAntShapeType(AntShapeTypeID TypeID);
 
-	const ConstAntShapeTypeByID & CAntShapeTypes() const;
 
-	const AntShapeTypeByID & AntShapeTypes();
+	const AntShapeTypeByID & AntShapeTypes() const;
 
-	AntShapeTypeContainerConstPtr AntShapeTypesConstPtr() const;
+	const priv::AntShapeTypePtr & AntShapeTypesPtr() const;
 
-	fort::myrmidon::priv::AntMetadataPtr AntMetadataPtr() const ;
+	const priv::AntMetadataPtr & AntMetadataPtr() const ;
 
 	AntMetadata::Key::Ptr SetMetaDataKey(const std::string & name, AntStaticValue type);
 

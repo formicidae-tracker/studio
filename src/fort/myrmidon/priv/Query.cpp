@@ -42,7 +42,7 @@ void Query::ComputeTagStatistics(const Experiment::ConstPtr & experiment,TagStat
 	std::vector<TagStatistics::ByTagID> allSpaceResult;
 
 	typedef std::vector<TagStatisticsHelper::Loader> StatisticLoaderList;
-	for ( const auto & [spaceID,space] : experiment->CSpaces() ) {
+	for ( const auto & [spaceID,space] : experiment->Spaces() ) {
 		EnsureTagStatisticsAreComputed(space);
 		std::vector<TagStatisticsHelper::Timed> spaceResults;
 		for ( const auto & tdd : space->TrackingDataDirectories() ) {

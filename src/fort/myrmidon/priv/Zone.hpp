@@ -83,14 +83,13 @@ class Zone : public Identifiable {
 public:
 	typedef std::shared_ptr<Zone>       Ptr;
 	typedef std::shared_ptr<const Zone> ConstPtr;
-	typedef uint32_t                    ID;
 
 	typedef ZoneGeometry   Geometry;
 	typedef ZoneDefinition Definition;
 
 	virtual ~Zone();
 
-	static Ptr Create(ID ZID,const std::string & name,const std::string & parentURI);
+	static Ptr Create(ZoneID ZID,const std::string & name,const std::string & parentURI);
 
 	Definition::Ptr AddDefinition(const Shape::List & shapes,
 	                              const Time & start,
@@ -111,16 +110,16 @@ public:
 
 	const std::string & URI() const;
 
-	ID ZoneID() const;
+	ZoneID ID() const;
 
 	const Shape::List & AtTime(const Time & t);
 
 private:
 	friend class ZoneDefinition;
 
-	Zone(ID ZID,const std::string & name, const std::string & parentURI);
+	Zone(ZoneID zoneID,const std::string & name, const std::string & parentURI);
 
-	ID                  d_ZID;
+	ZoneID              d_zoneID;
 	std::weak_ptr<Zone> d_itself;
 	std::string         d_name,d_URI;
 	Definition::List    d_definitions;

@@ -76,10 +76,10 @@ TEST_F(ExperimentUTest,IOTest) {
 		ASSERT_EQ(tdd.size(),1);
 		ASSERT_EQ(tdd[0]->URI(),"foo.0000");
 		ASSERT_EQ(tdd[0]->AbsoluteFilePath(),TestSetup::Basedir() / "foo.0000");
-		ASSERT_EQ(e->CIdentifier().CAnts().size(),3);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(1)->second->AntID(),1);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(2)->second->AntID(),2);
-		EXPECT_EQ(e->CIdentifier().CAnts().find(3)->second->AntID(),3);
+		ASSERT_EQ(e->Identifier()->Ants().size(),3);
+		EXPECT_EQ(e->Identifier()->Ants().find(1)->second->AntID(),1);
+		EXPECT_EQ(e->Identifier()->Ants().find(2)->second->AntID(),2);
+		EXPECT_EQ(e->Identifier()->Ants().find(3)->second->AntID(),3);
 		EXPECT_EQ(e->AbsoluteFilePath(),TestSetup::Basedir() / "test.myrmidon");
 		EXPECT_EQ(e->Basedir(), TestSetup::Basedir());
 
@@ -396,7 +396,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 
 	EXPECT_THROW({
 			// contains a tracking data directory
-			e->DeleteSpace(s->SpaceID());
+			e->DeleteSpace(s->ID());
 		},std::runtime_error);
 
 	EXPECT_THROW({
@@ -434,7 +434,7 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 		});
 
 	EXPECT_NO_THROW({
-			e->DeleteSpace(s->SpaceID());
+			e->DeleteSpace(s->ID());
 		});
 
 

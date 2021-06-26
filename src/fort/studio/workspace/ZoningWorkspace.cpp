@@ -326,7 +326,7 @@ void ZoningWorkspace::onNewZoneDefinition(QList<ZoneDefinitionBridge*> bridges) 
 	}
 
 	for ( const auto & b : bridges ) {\
-		auto zoneID = b->zone().ZoneID();
+		auto zoneID = b->zone().ID();
 		d_definitions.insert(std::make_pair(zoneID,b));
 		auto colorFM = fmp::DefaultPaletteColor(zoneID);
 		auto color = Conversion::colorFromFM(colorFM);
@@ -389,7 +389,7 @@ void ZoningWorkspace::rebuildGeometry(const QSharedPointer<Shape> & shape ) {
 	rebuildGeometry(fi->second);
 }
 
-void ZoningWorkspace::rebuildGeometry(fmp::Zone::ID zoneID ) {
+void ZoningWorkspace::rebuildGeometry(fm::ZoneID zoneID ) {
 	auto fi = d_definitions.find(zoneID);
 	if ( fi == d_definitions.end()) {
 		return;
@@ -473,10 +473,10 @@ void ZoningWorkspace::onComboBoxCurrentIndexChanged(int) {
 }
 
 
-void ZoningWorkspace::changeShapeType(Shape * shape, fmp::Zone::ID zoneID) {
+void ZoningWorkspace::changeShapeType(Shape * shape, fm::ZoneID zoneID) {
 	auto fi = std::find_if(d_shapes.begin(),
 	                       d_shapes.end(),
-	                       [shape](const std::pair<QSharedPointer<Shape>,fmp::Zone::ID> & iter ) -> bool {
+	                       [shape](const std::pair<QSharedPointer<Shape>,fm::ZoneID> & iter ) -> bool {
 		                       return iter.first.data() == shape;
 	                       });
 	if ( fi == d_shapes.end() ) {

@@ -120,7 +120,7 @@ QList<QStandardItem*> UniverseBridge::buildSpace(const fmp::Space::Ptr & s) {
 	for(size_t i = 0 ; i < 4; ++i) {
 		auto dummyItem = new QStandardItem("");
 		if ( i == 0 ) {
-			dummyItem->setText(QString::number(s->SpaceID()));
+			dummyItem->setText(QString::number(s->ID()));
 		}
 		dummyItem->setEditable(false);
 		dummyItem->setData(SPACE_TYPE,Qt::UserRole+1);
@@ -149,8 +149,8 @@ void UniverseBridge::addSpace(const QString & spaceName) {
 		return;
 	}
 
-	qInfo() << "Created space '" << spaceName << "' with ID" << newSpace->SpaceID();
-	if ( newSpace->SpaceID() == d_experiment->Spaces().size() ) {
+	qInfo() << "Created space '" << spaceName << "' with ID" << newSpace->ID();
+	if ( newSpace->ID() == d_experiment->Spaces().size() ) {
 		d_model->appendRow(buildSpace(newSpace));
 	} else {
 		d_model->removeRows(0,d_model->rowCount());
@@ -206,8 +206,8 @@ void UniverseBridge::deleteSpace(const QString & spaceName) {
 	}
 	try {
 		qDebug() << "[UniverseBridge]: Calling fort::myrmidon::priv::Experiment::DeleteSpace("
-		         << s->SpaceID() << ")";
-		d_experiment->DeleteSpace(s->SpaceID());
+		         << s->ID() << ")";
+		d_experiment->DeleteSpace(s->ID());
 	} catch ( const std::exception & e) {
 		qCritical() << "Could not remove space '" << spaceName << "': " << e.what();
 		return;

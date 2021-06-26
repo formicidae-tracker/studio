@@ -67,7 +67,7 @@ private:
 
 	static fm::Shape::Ptr convertShape(const QSharedPointer<Shape> & s);
 
-	void changeShapeType(Shape * shape, fmp::Zone::ID zID);
+	void changeShapeType(Shape * shape, fm::ZoneID zID);
 
 	void setUpFullFrameLabels(const std::shared_ptr<ZoneBridge::FullFrame> & fullFrame);
 
@@ -88,6 +88,6 @@ private:
 
 
 
-	std::map<fmp::Zone::ID,ZoneDefinitionBridge*> d_definitions;
-	std::map<QSharedPointer<Shape>,fmp::Zone::ID> d_shapes;
+	std::map<fm::ZoneID,ZoneDefinitionBridge*> d_definitions;
+	std::map<QSharedPointer<Shape>,fm::ZoneID> d_shapes;
 };

@@ -305,7 +305,7 @@ fmp::Ant::ConstPtr ExperimentBridge::ant(fm::AntID aID) const {
 	if ( !d_experiment == true ) {
 		return fmp::Ant::ConstPtr();
 	}
-	const auto & ants = d_experiment->CIdentifier().CAnts();
+	const auto & ants = d_experiment->Identifier()->Ants();
 	auto fi = ants.find(aID);
 	if ( fi == ants.cend() ) {
 		return fmp::Ant::ConstPtr();

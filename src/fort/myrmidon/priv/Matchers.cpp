@@ -17,7 +17,7 @@ Matcher::Ptr Matcher::And(const std::vector<Ptr>  &matchers) {
 			: d_matchers(matchers) {
 		}
 		virtual ~AndMatcher() {}
-		void SetUpOnce(const ConstAntByID & ants) override {
+		void SetUpOnce(const AntByID & ants) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
 			              [&ants](const Ptr & matcher) { matcher->SetUpOnce(ants); });
 		}
@@ -63,7 +63,7 @@ Matcher::Ptr Matcher::Or(const std::vector<Ptr> & matchers) {
 			: d_matchers(matchers) {
 		}
 		virtual ~OrMatcher() {}
-		void SetUpOnce(const ConstAntByID & ants) override {
+		void SetUpOnce(const AntByID & ants) override {
 			std::for_each(d_matchers.begin(),d_matchers.end(),
 			              [&ants](const Ptr & matcher) { matcher->SetUpOnce(ants); });
 		}
@@ -109,7 +109,7 @@ Matcher::Ptr Matcher::AntIDMatcher(AntID ID) {
 			: d_id(ant) {
 		}
 		virtual ~AntIDMatcher() {}
-		void SetUpOnce(const ConstAntByID & ants) override {
+		void SetUpOnce(const AntByID & ants) override {
 		}
 
 		void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
@@ -138,7 +138,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 	private:
 		std::string    d_name;
 		AntStaticValue d_value;
-		ConstAntByID   d_ants;
+		AntByID        d_ants;
 		Time           d_time;
 	public:
 		AntColumnMatcher (const std::string & name,
@@ -147,7 +147,7 @@ Matcher::Ptr Matcher::AntColumnMatcher(const std::string & name, const AntStatic
 			, d_value(value){
 		}
 		virtual ~AntColumnMatcher() {}
-		void SetUpOnce(const ConstAntByID & ants) override {
+		void SetUpOnce(const AntByID & ants) override {
 			d_ants = ants;
 		}
 
@@ -197,7 +197,7 @@ protected:
 	IdentifiedFrame::Ptr                     d_identifiedFrame;
 public:
 	virtual ~AntGeometryMatcher(){}
-	void SetUpOnce(const ConstAntByID & ) override {}
+	void SetUpOnce(const AntByID & ) override {}
 	void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
 	           const CollisionFrame::Ptr & collisionFrame) override {
 		if ( !identifiedFrame ) {
@@ -288,7 +288,7 @@ public:
 		: d_type(type) {
 	}
 	virtual ~InteractionTypeSingleMatcher() {}
-	void SetUpOnce(const ConstAntByID & ants) override {
+	void SetUpOnce(const AntByID & ants) override {
 	}
 
 	void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
@@ -328,7 +328,7 @@ public:
 		}
 	}
 	virtual ~InteractionTypeDualMatcher() {}
-	void SetUpOnce(const ConstAntByID & ants) override {
+	void SetUpOnce(const AntByID & ants) override {
 	}
 
 	void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,

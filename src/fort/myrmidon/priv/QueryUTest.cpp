@@ -75,7 +75,7 @@ TEST_F(QueryUTest,IdentifiedFrame) {
 		ASSERT_EQ(AntID(frame->Positions(0,0)),1);
 	}
 
-	auto t = experiment->CSpaces().begin()->second->TrackingDataDirectories().front()->StartDate();
+	auto t = experiment->Spaces().begin()->second->TrackingDataDirectories().front()->StartDate();
 	identifieds.clear();
 	ASSERT_NO_THROW({
 			myrmidon::Query::IdentifyFramesArgs args;
@@ -237,7 +237,7 @@ TEST_F(QueryUTest,FrameSelection) {
 			Identifier::AddIdentification(experiment->Identifier(),1,123,Time::SinceEver(),Time::Forever());
 		});
 
-	auto firstDate = experiment->CSpaces().at(1)->TrackingDataDirectories().front()->StartDate();
+	auto firstDate = experiment->Spaces().at(1)->TrackingDataDirectories().front()->StartDate();
 
 	std::vector<IdentifiedFrame::Ptr> frames;
 

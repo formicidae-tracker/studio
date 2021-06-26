@@ -116,7 +116,7 @@ void CollisionSolverUTest::SetUpTestSuite() {
 
 	//defines the space
 	universe = std::make_shared<Space::Universe>();
-	auto foo = Space::Universe::Create(universe,1,"foo");
+	auto foo = Space::Universe::CreateSpace(universe,1,"foo");
 	identifiedFrame->Space = 1;
 	auto nest = foo->CreateZone("nest");
 	std::vector<Shape::Ptr> nestShapes = {std::make_shared<Polygon>(Vector2dList({{WIDTH/2,0},{WIDTH,0},{WIDTH,HEIGHT},{WIDTH/2,HEIGHT}}))};
@@ -136,7 +136,7 @@ void CollisionSolverUTest::SetUpTestSuite() {
 
 
 CollisionFrame::Ptr CollisionSolverUTest::NaiveCollisions() {
-	std::unordered_map<Zone::ID,std::vector<PositionedAntConstRef> > locatedAnt;
+	std::unordered_map<ZoneID,std::vector<PositionedAntConstRef> > locatedAnt;
 	for ( size_t i = 0; i < frame->Positions.rows(); ++i ) {
 		bool found =  false;
 		for ( const auto & [zID,zone] : universe->Spaces().at(1)->Zones() ) {

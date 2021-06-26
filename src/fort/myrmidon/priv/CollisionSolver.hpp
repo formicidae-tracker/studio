@@ -42,7 +42,7 @@ private:
 	typedef TimeMap<ZoneID,ZoneGeometry::ConstPtr>                          ZoneGeometriesByTime;
 	typedef DenseMap<SpaceID,ZoneGeometriesByTime>                          GeometriesBySpaceID;
 	typedef DenseMap<SpaceID,std::vector<ZoneID>>                           ZoneIDsBySpaceID;
-	typedef std::unordered_map<Zone::ID,std::vector<PositionedAntConstRef>> LocatedAnts;
+	typedef std::unordered_map<ZoneID,std::vector<PositionedAntConstRef>>   LocatedAnts;
 
 	void LocateAnts(LocatedAnts & locatedAnts,
 	                const IdentifiedFrame::Ptr & frame) const;

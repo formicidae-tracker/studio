@@ -32,7 +32,7 @@ public:
 	static Ptr InteractionType(AntShapeTypeID type1,
 	                           AntShapeTypeID type2);
 
-	virtual void SetUpOnce(const ConstAntByID & ants) = 0;
+	virtual void SetUpOnce(const AntByID & ants) = 0;
 
 	virtual void SetUp(const IdentifiedFrame::Ptr & identifiedFrame,
 	                   const CollisionFrame::Ptr & collisionFrame) = 0;

@@ -12,8 +12,8 @@ Space::Space(const PPtr & pSpace)
 	: d_p(pSpace) {
 }
 
-SpaceID Space::SpaceID() const {
-	return d_p->SpaceID();
+SpaceID Space::ID() const {
+	return d_p->ID();
 }
 
 const std::string & Space::Name() const {

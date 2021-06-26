@@ -40,14 +40,13 @@ public:
 
 	void Delete(AntShapeType::ID typeID);
 
-	AntShapeType::ConstByID::const_iterator Find(AntShapeType::ID typeID) const;
+	AntShapeType::ByID::const_iterator Find(AntShapeType::ID typeID) const;
 
-	AntShapeType::ConstByID::const_iterator End() const;
+	AntShapeType::ByID::const_iterator End() const;
 
 	size_t Count(AntShapeType::ID typeID) const;
 
 	const AntShapeType::ByID & Types();
-	const AntShapeType::ConstByID & CTypes() const;
 private:
 	AlmostContiguousIDContainer<AntShapeType::ID,AntShapeType> d_container;
 };

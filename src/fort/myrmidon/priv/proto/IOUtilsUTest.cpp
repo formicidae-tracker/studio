@@ -402,8 +402,7 @@ TEST_F(IOUtilsUTest,AntIO) {
 	ASSERT_EQ(group->Type(),AntMetaDataType::STRING);
 	auto shapeType = e->CreateAntShapeType("whole-body");
 	for(auto & d: testdata) {
-		auto dA = e->Identifier()->CreateAnt(e->AntShapeTypesConstPtr(),
-		                                     e->AntMetadataPtr());
+		auto dA = e->CreateAnt();
 		std::vector<Identification::Ptr> dIdents;
 
 		pb::AntDescription a,expected;
@@ -466,9 +465,9 @@ TEST_F(IOUtilsUTest,AntIO) {
 			});
 
 		IOUtils::LoadAnt(e,a);
-		auto fi = e->CIdentifier().CAnts().find(expected.id());
-		EXPECT_TRUE(fi != e->CIdentifier().CAnts().cend());
-		if ( fi == e->CIdentifier().CAnts().cend() ) {
+		auto fi = e->Identifier()->Ants().find(expected.id());
+		EXPECT_TRUE(fi != e->Identifier()->Ants().cend());
+		if ( fi == e->Identifier()->Ants().cend() ) {
 			continue;
 		}
 		auto res = fi->second;
@@ -660,7 +659,7 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 	                              Time::Forever());
 
 	pb::Zone z,expected;
-	expected.set_id(dZ->ZoneID());
+	expected.set_id(dZ->ID());
 	expected.set_name(dZ->Name());
 	auto pbDef1 = expected.add_definitions();
 	stamp.ToTimestamp(pbDef1->mutable_end());
@@ -671,11 +670,12 @@ TEST_F(IOUtilsUTest,ZoneIO) {
 
 	IOUtils::SaveZone(&z,dZ);
 	EXPECT_TRUE(MessageEqual(z,expected));
-	auto s2 = e->CreateSpace("bar");
+	auto e2 = Experiment::Create(TestSetup::Basedir()/ "zone-io.myrmidon");
+	auto s2 = e2->CreateSpace("foo");
 	IOUtils::LoadZone(s2,z);
 	ASSERT_FALSE(s2->Zones().empty());
 	auto res = s2->Zones().begin()->second;
-	EXPECT_EQ(dZ->ZoneID(),res->ZoneID());
+	EXPECT_EQ(dZ->ID(),res->ID());
 	EXPECT_EQ(dZ->Name(),res->Name());
 	EXPECT_EQ(dZ->Definitions().size(),res->Definitions().size());
 	for(size_t i = 0; i < std::min(dZ->Definitions().size(),res->Definitions().size()); ++i ) {
@@ -707,7 +707,7 @@ TEST_F(IOUtilsUTest,SpaceIO) {
 	e->AddTrackingDataDirectory(dS,tdd);
 	auto z =dS->CreateZone("bar");
 	pb::Space expected,s;
-	expected.set_id(dS->SpaceID());
+	expected.set_id(dS->ID());
 	expected.set_name(dS->Name());
 	expected.add_trackingdatadirectories("foo.0000");
 	IOUtils::SaveZone(expected.add_zones(),z);
@@ -717,12 +717,12 @@ TEST_F(IOUtilsUTest,SpaceIO) {
 	IOUtils::LoadSpace(e2,s);
 	ASSERT_EQ(e2->Spaces().size(),1);
 	auto res = e2->Spaces().begin()->second;
-	EXPECT_EQ(res->SpaceID(),dS->SpaceID());
+	EXPECT_EQ(res->ID(),dS->ID());
 	EXPECT_EQ(res->Name(),dS->Name());
 	ASSERT_EQ(res->TrackingDataDirectories().size(),1);
 	EXPECT_EQ(res->TrackingDataDirectories().front()->URI(),"foo.0000");
 	ASSERT_EQ(res->Zones().size(),1);
-	ASSERT_EQ(res->Zones().begin()->second->ZoneID(),z->ZoneID());
+	ASSERT_EQ(res->Zones().begin()->second->ID(),z->ID());
 	ASSERT_EQ(res->Zones().begin()->second->Name(),z->Name());
 
 

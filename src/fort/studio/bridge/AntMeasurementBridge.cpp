@@ -183,7 +183,7 @@ void AntMeasurementBridge::updateMeasurementCount(const fmp::Measurement::ConstP
 	fmp::AntID antID(0);
 	try {
 		auto frameRef = d_experiment->TrackingDataDirectories().at(tddURI)->FrameReferenceAt(frameID);
-		auto identification = d_experiment->CIdentifier().Identify(tagID,frameRef.Time());
+		auto identification = d_experiment->Identifier()->Identify(tagID,frameRef.Time());
 		if ( !identification ) {
 			return;
 		}

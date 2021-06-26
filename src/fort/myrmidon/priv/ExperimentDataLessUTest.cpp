@@ -79,7 +79,7 @@ TEST_F(ExperimentDataLessUTest,DataLessDoesNotListTDD) {
 	auto experiment = Experiment::OpenDataLess(experimentPath);
 
 	EXPECT_EQ(experiment->TrackingDataDirectories().size(),0);
-	const auto & spaces = experiment->CSpaces();
+	const auto & spaces = experiment->Spaces();
 	ASSERT_EQ(spaces.size(),2);
 	EXPECT_EQ(spaces.at(1)->Name(),"nest");
 	EXPECT_EQ(spaces.at(2)->Name(),"foraging");
@@ -110,13 +110,13 @@ TEST_F(ExperimentDataLessUTest,DataLessDoesNotListMeasurements) {
 TEST_F(ExperimentDataLessUTest,PoseInformationIsConserved) {
 	auto experiment = Experiment::OpenDataLess(experimentPath);
 
-	ASSERT_EQ(experiment->CIdentifier().CAnts().size(),1);
+	ASSERT_EQ(experiment->Identifier()->Ants().size(),1);
 
-	auto a = experiment->CIdentifier().CAnts().at(1);
+	auto a = experiment->Identifier()->Ants().at(1);
 
-	ASSERT_FALSE(a->CIdentifications().empty());
+	ASSERT_FALSE(a->Identifications().empty());
 
-	auto ident = a->CIdentifications().front();
+	auto ident = a->Identifications().front();
 
 	EXPECT_DOUBLE_EQ(ident->AntPosition().x(),1.0);
 	EXPECT_DOUBLE_EQ(ident->AntPosition().y(),2.0);

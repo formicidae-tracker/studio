@@ -44,11 +44,11 @@ TEST_F(SpaceUTest,NameCheck) {
 		};
 	auto universe = std::make_shared<Space::Universe>();
 
-	auto good = Space::Universe::Create(universe,0,"good");
+	auto good = Space::Universe::CreateSpace(universe,0,"good");
 	for (const auto & d : testdata) {
 		if (d.Throws == true) {
 			EXPECT_THROW({
-					Space::Universe::Create(universe,0,d.Name);
+					Space::Universe::CreateSpace(universe,0,d.Name);
 					;},Space::InvalidName) << "Testing " << d.Name;
 			EXPECT_THROW({
 					good->SetName(d.Name);
@@ -59,22 +59,22 @@ TEST_F(SpaceUTest,NameCheck) {
 					EXPECT_EQ(good->Name(),
 					          d.Name);
 					EXPECT_EQ(good->URI(),
-					          "spaces/" + std::to_string(good->SpaceID()));
+					          "spaces/" + std::to_string(good->ID()));
 					good->SetName("good");
 				}) << "Testing " << d.Name;
 
 			EXPECT_NO_THROW({
-					auto res = Space::Universe::Create(universe,0,d.Name);
+					auto res = Space::Universe::CreateSpace(universe,0,d.Name);
 					EXPECT_EQ(res->Name(),
 					          d.Name);
 					EXPECT_EQ(res->URI(),
-					          "spaces/" + std::to_string(res->SpaceID()));
+					          "spaces/" + std::to_string(res->ID()));
 				}) << "Testing " << d.Name;
 		}
 	}
 
 	EXPECT_THROW({
-			Space::Universe::Create(universe,0,"good");
+			Space::Universe::CreateSpace(universe,0,"good");
 		}, Space::InvalidName);
 
 	universe.reset();
@@ -87,7 +87,7 @@ TEST_F(SpaceUTest,NameCheck) {
 TEST_F(SpaceUTest,CanHoldTDD) {
 
 	auto universe = std::make_shared<Space::Universe>();
-	auto foo = Space::Universe::Create(universe,0,"foo");
+	auto foo = Space::Universe::CreateSpace(universe,0,"foo");
 	EXPECT_NO_THROW({
 			foo->AddTrackingDataDirectory(s_foo[2]);
 			foo->AddTrackingDataDirectory(s_foo[1]);
@@ -120,14 +120,14 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 
 	EXPECT_THROW({
 			// Still having some data
-			universe->DeleteSpace(foo->SpaceID());
+			universe->DeleteSpace(foo->ID());
 		},Space::SpaceNotEmpty);
 
 	EXPECT_THROW({
-			universe->DeleteSpace(foo->SpaceID()+1);
+			universe->DeleteSpace(foo->ID()+1);
 		},Space::UnmanagedSpace);
 
-	auto bar = Space::Universe::Create(universe,0,"bar");
+	auto bar = Space::Universe::CreateSpace(universe,0,"bar");
 
 	EXPECT_NO_THROW({
 			//not used by any other zone
@@ -145,7 +145,7 @@ TEST_F(SpaceUTest,CanHoldTDD) {
 			// removes data that is associated with foo
 			universe->DeleteTrackingDataDirectory(s_foo[0]->URI());
 			// removes the zone is OK now
-			universe->DeleteSpace(bar->SpaceID());
+			universe->DeleteSpace(bar->ID());
 		});
 
 }
@@ -161,7 +161,7 @@ TEST_F(SpaceUTest,ExceptionFormatting) {
 
 	ASSERT_NO_THROW({
 			universe = std::make_shared<Space::Universe>();
-			z = Space::Universe::Create(universe,0,"z");
+			z = Space::Universe::CreateSpace(universe,0,"z");
 			z->AddTrackingDataDirectory(s_foo[1]);
 			z->AddTrackingDataDirectory(s_foo[0]);
 		});

@@ -179,7 +179,7 @@ void AntShapeBridge::setUpExperiment() {
 		return;
 	}
 
-	for ( const auto & [typeID,type] : d_experiment->CAntShapeTypes() ) {
+	for ( const auto & [typeID,type] : d_experiment->AntShapeTypes() ) {
 		onTypeModified(typeID,type->Name().c_str());
 	}
 
@@ -246,7 +246,7 @@ QList<QStandardItem*> AntShapeBridge::buildAnt(const fmp::Ant::Ptr & ant) {
 	auto antItem = new QStandardItem(AntGlobalModel::formatAntName(ant));
 	AntGlobalModel::setItemUserData(antItem,ant);
 	QList<QStandardItem*> res = {antItem};
-	for ( const auto & t : d_experiment->CAntShapeTypes() ) {
+	for ( const auto & t : d_experiment->AntShapeTypes() ) {
 		auto countItem = new QStandardItem("0");
 		res.push_back(countItem);
 	}
@@ -267,7 +267,7 @@ void AntShapeBridge::countAnt(fm::AntID antID,
 	}
 	std::map<fmp::AntShapeTypeID,size_t> counts;
 
-	for ( const auto & [typeID,shapeType] : d_experiment->CAntShapeTypes() ) {
+	for ( const auto & [typeID,shapeType] : d_experiment->AntShapeTypes() ) {
 		counts[typeID] = 0;
 	}
 	int index = -1;
@@ -292,7 +292,7 @@ void AntShapeBridge::rebuildColumnIndex() {
 		return;
 	}
 	int index = 0;
-	for ( const auto & [typeID,type] : d_experiment->CAntShapeTypes() ) {
+	for ( const auto & [typeID,type] : d_experiment->AntShapeTypes() ) {
 		if ( ++index < d_model->columnCount() ) {
 			d_columnIndex[typeID] = index;
 		}

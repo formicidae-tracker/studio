@@ -110,8 +110,8 @@ void ZoneDefinition::SetBound(const Time & start, const Time & end) {
 
 
 
-Zone::Ptr Zone::Create(ID ZID,const std::string & name,const std::string & parentURI) {
-	Zone::Ptr res(new Zone(ZID,name,parentURI));
+Zone::Ptr Zone::Create(ZoneID zoneID,const std::string & name,const std::string & parentURI) {
+	Zone::Ptr res(new Zone(zoneID,name,parentURI));
 	res->d_itself = res;
 	return res;
 }
@@ -150,8 +150,8 @@ const std::string & Zone::URI() const {
 	return d_URI;
 }
 
-Zone::ID Zone::ZoneID() const {
-	return d_ZID;
+ZoneID Zone::ID() const {
+	return d_zoneID;
 }
 
 const Shape::List & Zone::AtTime(const Time & t) {
@@ -165,10 +165,10 @@ const Shape::List & Zone::AtTime(const Time & t) {
 
 Zone::~Zone() {}
 
-Zone::Zone(ID ZID,const std::string & name, const std::string & parentURI)
-	: d_ZID(ZID)
+Zone::Zone(ZoneID zoneID,const std::string & name, const std::string & parentURI)
+	: d_zoneID(zoneID)
 	, d_name(name)
-	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(ZID)).generic_string() ) {
+	, d_URI( (fs::path(parentURI) / "zones" / std::to_string(zoneID)).generic_string() ) {
 }
 
 

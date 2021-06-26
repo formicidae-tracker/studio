@@ -99,7 +99,7 @@ void Experiment::DeleteIdentification(const Identification::Ptr & identification
 std::tuple<fort::Time,fort::Time>
 Experiment::FreeIdentificationRangeAt(TagID tagID, const Time & time) const {
 	fort::Time start,end;
-	if ( d_p->CIdentifier().FreeRangeContaining(start,end,tagID,time) == false ) {
+	if ( d_p->Identifier()->FreeRangeContaining(start,end,tagID,time) == false ) {
 		std::ostringstream oss;
 		oss << fort::myrmidon::FormatTagID(tagID) << " identifies an Ant at " << time;
 		throw std::runtime_error(oss.str());
@@ -165,7 +165,7 @@ void Experiment::SetMeasurementTypeName(MeasurementTypeID mTypeID,
 
 std::map<MeasurementTypeID,std::string> Experiment::MeasurementTypeNames() const {
 	std::map<MeasurementTypeID,std::string> res;
-	for ( const auto & [mtID,mt] : d_p->CMeasurementTypes() ) {
+	for ( const auto & [mtID,mt] : d_p->MeasurementTypes() ) {
 		res.insert(std::make_pair(mtID,mt->Name()));
 	}
 	return res;
@@ -177,7 +177,7 @@ AntShapeTypeID Experiment::CreateAntShapeType(const std::string & name) {
 
 std::map<AntShapeTypeID,std::string> Experiment::AntShapeTypeNames() const {
 	std::map<AntShapeTypeID,std::string> res;
-	for ( const auto & [shapeTypeID,shapeType] : d_p->CAntShapeTypes() ) {
+	for ( const auto & [shapeTypeID,shapeType] : d_p->AntShapeTypes() ) {
 		res.insert(std::make_pair(shapeTypeID,shapeType->Name()));
 	}
 	return res;
@@ -258,7 +258,7 @@ SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
 
 ExperimentDataInfo Experiment::GetDataInformations() const {
 	ExperimentDataInfo res = { .Frames = 0, .Start = Time::Forever(), .End = Time::SinceEver() };
-	const auto & spaces = d_p->CSpaces();
+	const auto & spaces = d_p->Spaces();
 	for ( const auto & [spaceID,space] : spaces ) {
 		auto sInfo = buildSpaceInfos(space);
 		res.Start = std::min(res.Start,sInfo.Start);
@@ -272,7 +272,7 @@ ExperimentDataInfo Experiment::GetDataInformations() const {
 
 std::map<AntID,TagID> Experiment::IdentificationsAt(const Time & time,
                                                     bool removeUnidentifiedAnt) const {
-	return d_p->CIdentifier().IdentificationsAt(time,removeUnidentifiedAnt);
+	return d_p->Identifier()->IdentificationsAt(time,removeUnidentifiedAnt);
 }
 
 TrackingSolver Experiment::CompileTrackingSolver() const {

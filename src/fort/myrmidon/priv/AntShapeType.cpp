@@ -36,14 +36,14 @@ void AntShapeTypeContainer::Delete(AntShapeType::ID typeID) {
 	d_container.DeleteObject(typeID);
 }
 
-AntShapeType::ConstByID::const_iterator
+AntShapeType::ByID::const_iterator
 AntShapeTypeContainer::Find(AntShapeType::ID typeID) const {
-	return d_container.CObjects().find(typeID);
+	return d_container.Objects().find(typeID);
 }
 
-AntShapeType::ConstByID::const_iterator
+AntShapeType::ByID::const_iterator
 AntShapeTypeContainer::End() const {
-	return d_container.CObjects().cend();
+	return d_container.Objects().cend();
 }
 
 size_t AntShapeTypeContainer::Count(AntShapeType::ID typeID) const {
@@ -54,9 +54,6 @@ const AntShapeType::ByID & AntShapeTypeContainer::Types() {
 	return d_container.Objects();
 }
 
-const AntShapeType::ConstByID & AntShapeTypeContainer::CTypes() const {
-	return d_container.CObjects();
-}
 
 
 
