@@ -68,12 +68,24 @@ Space::TDDAlreadyInUse::TDDAlreadyInUse(const std::string & tddURI, const std::s
 	                     + spaceURI + "'") {
 }
 
+myrmidon::Space & Space::Universe::PublicCreateSpace(const Ptr & itself,
+                                                     SpaceID spaceID,
+                                                     const std::string & name) {
+	auto space = itself->d_spaces.CreateObject([&itself,&name](SpaceID spaceID) {
+		                                           return Space::Ptr(new Space(spaceID,name,itself));
+	                                           });
+	itself->d_publicSpaces.insert_or_assign(space->ID(),myrmidon::Space(space));
+
+	return itself->d_publicSpaces.at(space->ID());
+}
+
 Space::Ptr Space::Universe::CreateSpace(const Ptr & itself,
                                         SpaceID spaceID,
                                         const std::string & name) {
-	return itself->d_spaces.CreateObject([&itself,&name](SpaceID spaceID) {
-		                                     return Space::Ptr(new Space(spaceID,name,itself));
-	                                    });
+	auto & res = PublicCreateSpace(itself,
+	                               spaceID,
+	                               name);
+	return res.d_p;
 }
 
 void Space::Universe::DeleteSpace(SpaceID spaceID) {
@@ -103,6 +115,10 @@ void Space::Universe::DeleteTrackingDataDirectory(const std::string & URI) {
 
 const SpaceByID & Space::Universe::Spaces() const {
 	return d_spaces.Objects();
+}
+
+const myrmidon::Space::ByID & Space::Universe::PublicSpaces() const {
+	return d_publicSpaces;
 }
 
 Space::Space(SpaceID spaceID, const std::string & name, const Universe::Ptr & universe)

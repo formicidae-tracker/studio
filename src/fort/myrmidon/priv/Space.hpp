@@ -2,6 +2,8 @@
 
 #include <map>
 
+#include <fort/myrmidon/Space.hpp>
+
 #include "LocatableTypes.hpp"
 #include "ForwardDeclaration.hpp"
 #include "Zone.hpp"
@@ -109,11 +111,19 @@ public:
 		                              SpaceID spaceID,
 		                              const std::string & name);
 
+		static myrmidon::Space & PublicCreateSpace(const Ptr & itself,
+		                                           SpaceID spaceID,
+		                                           const std::string & name);
+
+
+
 		void DeleteSpace(SpaceID spaceID);
 
 		void DeleteTrackingDataDirectory(const std::string & URI);
 
 		const SpaceByID & Spaces() const;
+
+		const myrmidon::Space::ByID & PublicSpaces() const;
 
 		const TrackingDataDirectoryByURI & TrackingDataDirectories() const;
 
@@ -136,6 +146,8 @@ public:
 		AlmostContiguousIDContainer<ZoneID,Zone> d_zones;
 
 		TrackingDataDirectoryByURI d_tddsByURI;
+
+		std::map<SpaceID,myrmidon::Space> d_publicSpaces;
 	};
 
 	virtual ~Space();

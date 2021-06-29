@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <map>
 
 #include "Zone.hpp"
 
@@ -34,9 +34,10 @@ class Space;
 class Space {
 public:
 	/**
-	 * A pointer to a Space
+	 * Space indexed by their ID
 	 */
-	typedef std::shared_ptr<Space>       Ptr;
+
+	typedef std::map<SpaceID,Space> ByID;
 
 	/**
 	 * Gets the Space ID
@@ -147,8 +148,11 @@ public:
 	std::pair<std::string,uint64_t> LocateMovieFrame(const Time & time) const;
 
 
+	Space(Space &&) = default;
+	Space & operator= (Space &&) = default;
+
 private:
-	friend class Experiment;
+	friend class priv::Space;
 
 	// Opaque pointer for implementation
 	typedef std::shared_ptr<priv::Space> PPtr;

@@ -145,7 +145,7 @@ public:
 	/**
 	 * Path to the underlying `.myrmidon` file
 	 *
-	 * * Python: `AbsoluteFilePath :str` read-only property of `py_fort_myrmidon.Experiment`.
+	 * * Python: `AbsoluteFilePath (str)` read-only property of `py_fort_myrmidon.Experiment`.
 	 * R Version :
 	 * ```R
 	 * fmExperimentAbsoluteFilePath <- function(experiment)
@@ -171,7 +171,7 @@ public:
 	 *
 	 * @return the newly created Space.
 	 */
-	Space::Ptr CreateSpace(const std::string & name);
+	Space & CreateSpace(const std::string & name);
 
 	/**
 	 * Deletes a Space
@@ -206,7 +206,7 @@ public:
 	 *
 	 * @return a map of the Experiment Space indexed by their SpaceID
 	 */
-	std::map<SpaceID,Space::Ptr> Spaces();
+	const Space::ByID & Spaces() const;
 
 	/**
 	 * Adds a tracking data directory to one of Experiment's Space

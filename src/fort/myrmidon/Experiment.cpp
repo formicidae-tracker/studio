@@ -34,20 +34,16 @@ std::string Experiment::AbsoluteFilePath() const {
 	return d_p->AbsoluteFilePath().string();
 }
 
-Space::Ptr Experiment::CreateSpace(const std::string & name) {
-	return Space::Ptr(new Space(d_p->CreateSpace(name)));
+Space & Experiment::CreateSpace(const std::string & name) {
+	return d_p->PublicCreateSpace(name);
 }
 
 void Experiment::DeleteSpace(SpaceID spaceID) {
 	d_p->DeleteSpace(spaceID);
 }
 
-std::map<SpaceID,Space::Ptr> Experiment::Spaces() {
-	std::map<SpaceID,Space::Ptr> res;
-	for ( const auto & [spaceID, space] : d_p->Spaces() ) {
-		res.insert(std::make_pair(spaceID,Space::Ptr(new Space(space))));
-	}
-	return res;
+const Space::ByID & Experiment::Spaces() const {
+	return d_p->PublicSpaces();
 }
 
 std::string Experiment::AddTrackingDataDirectory(SpaceID spaceID,

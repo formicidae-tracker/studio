@@ -166,12 +166,20 @@ Space::Ptr Experiment::CreateSpace(const std::string & name,SpaceID spaceID) {
 	return Space::Universe::CreateSpace(d_universe,spaceID,name);
 }
 
+myrmidon::Space & Experiment::PublicCreateSpace(const std::string & name,SpaceID spaceID) {
+	return Space::Universe::PublicCreateSpace(d_universe,spaceID,name);
+}
+
 void Experiment::DeleteSpace(SpaceID spaceID) {
 	d_universe->DeleteSpace(spaceID);
 }
 
 const SpaceByID & Experiment::Spaces() const {
 	return d_universe->Spaces();
+}
+
+const myrmidon::Space::ByID & Experiment::PublicSpaces() const {
+	return d_universe->PublicSpaces();
 }
 
 const Space::Universe::TrackingDataDirectoryByURI &
