@@ -150,7 +150,11 @@ public:
 
 	const static ZoneID NEXT_AVAILABLE_ID = 0;
 
+	myrmidon::Zone & PublicCreateZone(const std::string & name, ZoneID zoneID = NEXT_AVAILABLE_ID);
+
 	Zone::Ptr CreateZone(const std::string & name, ZoneID zoneID = NEXT_AVAILABLE_ID);
+
+	const myrmidon::Zone::ByID & PublicZones() const;
 
 	void DeleteZone(ZoneID ID);
 
@@ -189,6 +193,8 @@ private :
 	std::vector<TrackingDataDirectoryPtr> d_tdds;
 
 	DenseMap<ZoneID,Zone::Ptr> d_zones;
+
+	myrmidon::Zone::ByID d_publicZones;
 };
 
 

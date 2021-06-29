@@ -41,13 +41,13 @@ void ZoneDefinition::SetEnd(const Time & end) {
 	d_p->SetEnd(end);
 }
 
-ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
-                                        const Time & start,
-                                        const Time & end) {
+ZoneDefinition & Zone::AddDefinition(const Shape::List & shapes,
+                                     const Time & start,
+                                     const Time & end) {
 	return d_p->PublicAddDefinition(shapes,start,end);
 }
 
-ZoneDefinition::List Zone::Definitions() {
+const ZoneDefinition::List & Zone::Definitions() const {
 	return d_p->PublicDefinitions();
 }
 

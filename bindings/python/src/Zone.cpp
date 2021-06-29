@@ -7,9 +7,9 @@ namespace py = pybind11;
 
 void BindZoneDefinition(py::module_ & m) {
 	using namespace fort::myrmidon;
-	py::class_<ZoneDefinition,ZoneDefinition::Ptr>(m,
-	                                               "ZoneDefinition",
-	                                               "Defines the geometry of a Zone during a time interval")
+	py::class_<ZoneDefinition>(m,
+	                           "ZoneDefinition",
+	                           "Defines the geometry of a Zone during a time interval")
 		.def_property("Shapes",
 		     &ZoneDefinition::Shapes,
 		     &ZoneDefinition::SetShapes,
@@ -28,9 +28,9 @@ void BindZoneDefinition(py::module_ & m) {
 void BindZone(py::module_ & m) {
 	using namespace fort::myrmidon;
 	BindZoneDefinition(m);
-	py::class_<Zone,Zone::Ptr>(m,
-	                           "Zone",
-	                           "Defines a named region of interest for tracking and interactions")
+	py::class_<Zone>(m,
+	                 "Zone",
+	                 "Defines a named region of interest for tracking and interactions")
 		.def_property("Name",
 		     &Zone::Name,
 		     &Zone::SetName,
@@ -40,12 +40,14 @@ void BindZone(py::module_ & m) {
 		                       " (int): the unique ID for this Zone")
 		.def_property_readonly("Definitions",
 		                       &Zone::Definitions,
+		                       py::return_value_policy::reference_internal,
 		                       " (List[py_fort_myrmidon.ZoneDefinition]): the definitions for this Zone")
 		.def("AddDefinition",
 		     &Zone::AddDefinition,
 		     py::arg("shapes"),
 		     py::arg("start") = fort::Time::SinceEver(),
 		     py::arg("end") = fort::Time::Forever(),
+		     py::return_value_policy::reference_internal,
 		     R"pydoc(
     Adds a new ZoneDefinition to this Zone
 

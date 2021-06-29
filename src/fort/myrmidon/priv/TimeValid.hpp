@@ -31,6 +31,21 @@ public:
 		return d_start <= time && time < d_end;
 	}
 
+	template <typename T>
+	static inline T & MaybeDeref(T & x) { return x;}
+	template <typename T>
+	static inline T & MaybeDeref(T* x) { return *x;}
+	template <typename T>
+	static inline T & MaybeDeref(std::shared_ptr<T> & x) { return *x;}
+	template <typename T>
+	static inline T & MaybeDeref(std::unique_ptr<T> & x) { return *x;}
+	template <typename T>
+	static inline T & MaybeDeref(const std::shared_ptr<T> & x) { return *x;}
+	template <typename T>
+	static inline T & MaybeDeref(const std::unique_ptr<T> & x) { return *x;}
+
+
+
 	// Sorts a collection and return first time-overlapping objects
 	// @InputIt the iterator type
 	// @begin the start of the range
@@ -43,7 +58,7 @@ public:
 		std::sort(begin,end,
 		          [](const auto & a,
 		             const auto & b) -> bool {
-			          return a->Start() < b->Start();
+			          return MaybeDeref(a).Start() < MaybeDeref(b).Start();
 		          });
 
 		if ( std::distance(begin,end) < 2 ) {
@@ -56,7 +71,7 @@ public:
 		      ++i) {
 
 			// if end == start, we are good as validity range is end opened ([start,end[)
-			if ( ((*prev)->End().After((*i)->Start())) ) {
+			if ( MaybeDeref(*prev).End().After(MaybeDeref(*i).Start()) ) {
 				return std::make_pair(prev,i);
 			}
 

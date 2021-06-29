@@ -9,10 +9,9 @@ namespace fort {
 namespace myrmidon {
 
 namespace priv {
-// private <fort::myrmidon::priv> implementation
 class Zone;
-// private <fort::myrmidon::priv> implementation
 class ZoneDefinition;
+class Space;
 }
 
 /**
@@ -23,15 +22,10 @@ class ZoneDefinition;
  */
 class ZoneDefinition {
 public:
-
-	/**
-	 * A pointer to a ZoneDefinition
-	 */
-	typedef std::shared_ptr<ZoneDefinition>       Ptr;
 	/**
 	 * A list of ZoneDefinition
 	 */
-	typedef std::vector<Ptr>                      List;
+	typedef std::vector<ZoneDefinition> List;
 
 	/**
 	 * Gets the geometry of this ZoneDefinition
@@ -128,6 +122,10 @@ public:
 	 */
 	void SetEnd(const Time & end);
 
+	ZoneDefinition & operator=( ZoneDefinition &&) = default;
+	ZoneDefinition( ZoneDefinition &&) = default;
+
+
 private:
 	friend class priv::Zone;
 
@@ -183,14 +181,9 @@ private:
 class Zone {
 public:
 	/**
-	 * A pointer to a Zone
-	 */
-	typedef std::shared_ptr<Zone>       Ptr;
-
-	/**
 	 * A map of Zone indexed by ZoneID
 	 */
-	typedef std::map<ZoneID,Zone::Ptr>      ByID;
+	typedef std::map<ZoneID,Zone>      ByID;
 
 
 	/**
@@ -219,9 +212,9 @@ public:
 	 *         resulting definition overlap in time with another
 	 *         ZoneDefinition for this Zone.
 	 */
-	ZoneDefinition::Ptr AddDefinition(const Shape::List & shapes,
-	                                  const Time & start,
-	                                  const Time & end);
+	ZoneDefinition & AddDefinition(const Shape::List & shapes,
+	                               const Time & start,
+	                               const Time & end);
 
 	/**
 	 * Gets the Zone's ZoneDefinition
@@ -235,7 +228,7 @@ public:
 	 * @return a ZoneDefinition::List of ZoneDefinition for this Zone
 	 *
 	 */
-	ZoneDefinition::List Definitions();
+	const ZoneDefinition::List & Definitions() const;
 
 	/**
 	 *
@@ -296,8 +289,12 @@ public:
 	ZoneID ID() const;
 
 
+	Zone & operator=( Zone &&) = default;
+	Zone( Zone &&) = default;
+
 private:
 	friend class Space;
+	friend class priv::Space;
 
 	// Opaque pointer for implementation
 	typedef std::shared_ptr<priv::Zone> PPtr;
@@ -311,6 +308,7 @@ private:
 
 	Zone & operator=( const Zone &) = delete;
 	Zone(const Zone &) = delete;
+
 
 	PPtr d_p;
 };
