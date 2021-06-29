@@ -116,30 +116,43 @@ Zone::Ptr Zone::Create(ZoneID zoneID,const std::string & name,const std::string 
 	return res;
 }
 
-ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
-                                        const Time & start,
-                                        const Time & end) {
+myrmidon::ZoneDefinition::Ptr Zone::PublicAddDefinition(const Shape::List & shapes,
+                                                        const Time & start,
+                                                        const Time & end) {
 	auto itself = d_itself.lock();
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
 	}
-	auto res = std::make_shared<Definition>(itself,shapes,start,end);
+	auto def = std::make_shared<Definition>(itself,shapes,start,end);
 	auto oldDefinitions = d_definitions;
-	d_definitions.push_back(res);
+	d_definitions.push_back(def);
 	auto check = TimeValid::SortAndCheckOverlap(d_definitions.begin(),d_definitions.end());
 	if ( check.first != check.second ) {
 		d_definitions = oldDefinitions;
 		throw std::runtime_error("Zone definition would overlaps with another");
 	}
+	auto res = std::shared_ptr<myrmidon::ZoneDefinition>(new myrmidon::ZoneDefinition(def));
+	d_publicDefinitions.push_back(res);
+	TimeValid::SortAndCheckOverlap(d_publicDefinitions.begin(),
+	                               d_publicDefinitions.end());
+
 	return res;
 }
 
-const ZoneDefinition::List & Zone::Definitions() {
-	return d_definitions;
+ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
+                                        const Time & start,
+                                        const Time & end) {
+	auto res = PublicAddDefinition(shapes,start,end);
+	return res->d_p;
 }
 
-const ZoneDefinition::ConstList & Zone::CDefinitions() const {
-	return reinterpret_cast<const ZoneDefinition::ConstList&>(d_definitions);
+const myrmidon::ZoneDefinition::List & Zone::PublicDefinitions() const {
+	return d_publicDefinitions;
+}
+
+
+const ZoneDefinition::List & Zone::Definitions() const {
+	return d_definitions;
 }
 
 const std::string & Zone::Name() const {

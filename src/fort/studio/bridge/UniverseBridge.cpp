@@ -98,8 +98,8 @@ QList<QStandardItem*> UniverseBridge::buildTDD(const fmp::TrackingDataDirectory:
 	auto path = new QStandardItem(tdd->AbsoluteFilePath().c_str());
 	auto start = new QStandardItem(QString::number(tdd->StartFrame()));
 	auto end = new QStandardItem(QString::number(tdd->EndFrame()));
-	auto startDate = new QStandardItem(ToQString(tdd->StartDate()));
-	auto endDate = new QStandardItem(ToQString(tdd->EndDate()));
+	auto startDate = new QStandardItem(ToQString(tdd->Start()));
+	auto endDate = new QStandardItem(ToQString(tdd->End()));
 
 	QList<QStandardItem*> res = {uri,path,start,end,startDate,endDate};
 	for(const auto i : res) {

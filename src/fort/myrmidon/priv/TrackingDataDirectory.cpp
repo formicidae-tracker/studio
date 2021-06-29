@@ -127,11 +127,11 @@ uint64_t TrackingDataDirectory::EndFrame() const {
 	return d_endFrame;
 }
 
-const Time & TrackingDataDirectory::StartDate() const {
+const Time & TrackingDataDirectory::Start() const {
 	return d_start;
 }
 
-const Time & TrackingDataDirectory::EndDate() const {
+const Time & TrackingDataDirectory::End() const {
 	return d_end;
 }
 
@@ -617,10 +617,10 @@ TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAt(uint64_t fr
 }
 
 TrackingDataDirectory::const_iterator TrackingDataDirectory::FrameAfter(const Time & t) const {
-	if ( t < StartDate() ) {
+	if ( t < Start() ) {
 		std::ostringstream oss;
 		oss << t << " is not in ["
-		    << StartDate() << ",+∞[";
+		    << Start() << ",+∞[";
 		throw std::out_of_range(oss.str());
 	}
 	auto iter = FrameAt(d_segments->Find(t).first.FrameID());
@@ -1044,7 +1044,7 @@ void TrackingDataDirectory::LoadDetectionSettings() {
 std::ostream & operator<<(std::ostream & out,
                           const fort::myrmidon::priv::TrackingDataDirectory & a) {
 	return out << "TDD{URI:'" << a.URI()
-	           << "', start:" << a.StartDate()
-	           << ", end:" << a.EndDate()
+	           << "', start:" << a.Start()
+	           << ", end:" << a.End()
 	           << "}";
 }

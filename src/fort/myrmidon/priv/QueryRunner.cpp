@@ -83,15 +83,15 @@ private:
 			for ( const auto & tdd : space->TrackingDataDirectories() ) {
 				TrackingDataDirectory::const_iterator ibegin(tdd->begin()),iend(tdd->end());
 				if ( start.IsSinceEver() == false ) {
-					if ( tdd->EndDate().Before(start) == true ) {
+					if ( tdd->End().Before(start) == true ) {
 						continue;
 					}
-					if ( start.After(tdd->StartDate()) == true ) {
+					if ( start.After(tdd->Start()) == true ) {
 						ibegin = tdd->FrameAfter(start);
 					}
 				}
 				if (end.IsForever() == false ) {
-					if (end.Before(tdd->StartDate()) == true ) {
+					if (end.Before(tdd->Start()) == true ) {
 						continue;
 					}
 					iend = tdd->FrameAfter(end);

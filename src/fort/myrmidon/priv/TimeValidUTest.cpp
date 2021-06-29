@@ -27,6 +27,10 @@ public:
 		   << "}";
 		return os.str();
 	}
+
+	const fort::Time & Start() { return d_start; }
+	const fort::Time & End() { return d_end; }
+
 };
 
 std::ostream & operator<<(std::ostream & out, const TestObject & o ) {

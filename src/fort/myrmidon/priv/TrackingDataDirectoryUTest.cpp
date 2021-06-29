@@ -32,8 +32,8 @@ TEST_F(TrackingDataDirectoryUTest,ExtractInfoFromTrackingDatadirectories) {
 		EXPECT_EQ(tdd->URI(),"foo.0001");
 		EXPECT_EQ(tdd->StartFrame(),0);
 		EXPECT_EQ(tdd->EndFrame(),199);
-		EXPECT_TRUE(TimeEqual(tdd->StartDate(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
-		EXPECT_TRUE(TimeEqual(tdd->EndDate(),TestSetup::EndTime("foo.0001/tracking.0001.hermes")));
+		EXPECT_TRUE(TimeEqual(tdd->Start(),TestSetup::StartTime("foo.0001/tracking.0000.hermes")));
+		EXPECT_TRUE(TimeEqual(tdd->End(),TestSetup::EndTime("foo.0001/tracking.0001.hermes")));
 
 		std::vector<SegmentIndexer<std::string>::Segment> segments;
 
@@ -193,24 +193,24 @@ TEST_F(TrackingDataDirectoryUTest,AlmostRandomAccess) {
 		},std::out_of_range);
 
 	EXPECT_NO_THROW({
-			auto iter = tdd->FrameAfter(tdd->StartDate());
+			auto iter = tdd->FrameAfter(tdd->Start());
 			EXPECT_EQ(iter,tdd->begin());
-			auto next = tdd->FrameAfter(tdd->StartDate().Add(1));
+			auto next = tdd->FrameAfter(tdd->Start().Add(1));
 			EXPECT_EQ(++iter,next);
-			auto iterLast = tdd->FrameAfter(tdd->EndDate().Add(-1));
+			auto iterLast = tdd->FrameAfter(tdd->End().Add(-1));
 			EXPECT_EQ((*iterLast)->Frame().FrameID(),tdd->EndFrame());
-			auto iterEnd = tdd->FrameAfter(tdd->EndDate());
+			auto iterEnd = tdd->FrameAfter(tdd->End());
 			EXPECT_EQ(iterEnd,tdd->end());
 		});
 
 	EXPECT_THROW({
-			auto iterEnd = tdd->FrameAfter(tdd->StartDate().Add(-1));
+			auto iterEnd = tdd->FrameAfter(tdd->Start().Add(-1));
 		}, std::out_of_range);
 
 	EXPECT_NO_THROW({
-			auto ref = tdd->FrameReferenceAfter(tdd->StartDate());
+			auto ref = tdd->FrameReferenceAfter(tdd->Start());
 			EXPECT_EQ(ref.FrameID(),tdd->StartFrame());
-			ref = tdd->FrameReferenceAfter(tdd->StartDate().Add(1));
+			ref = tdd->FrameReferenceAfter(tdd->Start().Add(1));
 			EXPECT_EQ(ref.FrameID(),tdd->StartFrame()+1);
 		});
 

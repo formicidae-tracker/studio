@@ -82,11 +82,11 @@ void TDDCache::Save(const TrackingDataDirectory::Ptr & tdd) {
 	IOUtils::SaveFrameReference(h.mutable_start(),
 	                            FrameReference(tdd->URI(),
 	                                           tdd->StartFrame(),
-	                                           tdd->StartDate()));
+	                                           tdd->Start()));
 	IOUtils::SaveFrameReference(h.mutable_end(),
 	                            FrameReference(tdd->URI(),
 	                                           tdd->EndFrame(),
-	                                           tdd->EndDate()));
+	                                           tdd->End()));
 	h.set_cacheversion(CACHE_VERSION);
 	std::vector<std::function<void (pb::TrackingDataDirectoryFileLine &)> > lines;
 

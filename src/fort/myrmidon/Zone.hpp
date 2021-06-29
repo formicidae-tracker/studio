@@ -129,7 +129,7 @@ public:
 	void SetEnd(const Time & end);
 
 private:
-	friend class Zone;
+	friend class priv::Zone;
 
 	// Opaque implementation pointer
 	typedef std::shared_ptr<priv::ZoneDefinition> PPtr;

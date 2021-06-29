@@ -41,11 +41,11 @@ TEST_F(TDDCacheUTest,CahceIO) {
 	IOUtils::SaveFrameReference(h.mutable_start(),
 	                            FrameReference(cached->URI(),
 	                                           cached->StartFrame(),
-	                                           cached->StartDate()));
+	                                           cached->Start()));
 	IOUtils::SaveFrameReference(h.mutable_end(),
 	                            FrameReference(cached->URI(),
 	                                           cached->EndFrame(),
-	                                           cached->EndDate()));
+	                                           cached->End()));
 	std::vector<TDDCache::ReadWriter::LineWriter> lines=
 		{
 		 [&cached](pb::TrackingDataDirectoryFileLine & line) {

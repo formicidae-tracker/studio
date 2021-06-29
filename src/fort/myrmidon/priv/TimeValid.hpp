@@ -43,7 +43,7 @@ public:
 		std::sort(begin,end,
 		          [](const auto & a,
 		             const auto & b) -> bool {
-			          return a->d_start < b->d_start;
+			          return a->Start() < b->Start();
 		          });
 
 		if ( std::distance(begin,end) < 2 ) {
@@ -56,7 +56,7 @@ public:
 		      ++i) {
 
 			// if end == start, we are good as validity range is end opened ([start,end[)
-			if ( ((*prev)->d_end.After((*i)->d_start)) ) {
+			if ( ((*prev)->End().After((*i)->Start())) ) {
 				return std::make_pair(prev,i);
 			}
 

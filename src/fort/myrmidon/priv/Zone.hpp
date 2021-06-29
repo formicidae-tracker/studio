@@ -4,6 +4,8 @@
 #include "LocatableTypes.hpp"
 #include <fort/myrmidon/Shapes.hpp>
 
+#include <fort/myrmidon/Zone.hpp>
+
 #include "Types.hpp"
 
 namespace fort {
@@ -95,12 +97,15 @@ public:
 	                              const Time & start,
 	                              const Time & end);
 
+	myrmidon::ZoneDefinition::Ptr PublicAddDefinition(const Shape::List & shapes,
+	                                                  const Time & start,
+	                                                  const Time & end);
 
 	bool NextFreeTimeRegion(Time & start,Time & end) const;
 
-	const Definition::List & Definitions();
+	const Definition::List & Definitions() const;
 
-	const Definition::ConstList & CDefinitions() const;
+	const myrmidon::ZoneDefinition::List & PublicDefinitions() const;
 
 	void EraseDefinition(size_t index);
 
@@ -123,6 +128,7 @@ private:
 	std::weak_ptr<Zone> d_itself;
 	std::string         d_name,d_URI;
 	Definition::List    d_definitions;
+	std::vector<myrmidon::ZoneDefinition::Ptr> d_publicDefinitions;
 };
 
 } // namespace priv

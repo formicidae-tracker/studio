@@ -23,8 +23,6 @@ void BindZoneDefinition(py::module_ & m) {
 		              &ZoneDefinition::SetEnd,
 		              " (py_fort_myrmidon.Time): the first invalid Time for this ZoneDefinition")
 		;
-
-
 }
 
 void BindZone(py::module_ & m) {
@@ -37,5 +35,44 @@ void BindZone(py::module_ & m) {
 		     &Zone::Name,
 		     &Zone::SetName,
 		     " (str): the name of the Zone")
+		.def_property_readonly("ID",
+		                       &Zone::ID,
+		                       " (int): the unique ID for this Zone")
+		.def_property_readonly("Definitions",
+		                       &Zone::Definitions,
+		                       " (List[py_fort_myrmidon.ZoneDefinition]): the definitions for this Zone")
+		.def("AddDefinition",
+		     &Zone::AddDefinition,
+		     py::arg("shapes"),
+		     py::arg("start") = fort::Time::SinceEver(),
+		     py::arg("end") = fort::Time::Forever(),
+		     R"pydoc(
+    Adds a new ZoneDefinition to this Zone
+
+    Args:
+        shapes (List[py_fort_myrmidon.Shape]): the geometry of the
+            ZoneDefinition
+        start (py_fort_myrmidon.Time): the first valid Time for the
+            ZoneDefinition
+        end (py_fort_myrmidon.Time): the first valid Time for the
+            ZoneDefinition
+    Returns:
+        py_fort_myrmidon.ZoneDefinition: the new ZoneDefinition for
+            this Zone
+    Raises:
+        ValueError: if start or end would make an overlapping
+            definition with another Zone's ZoneDefinition
+)pydoc")
+		.def("DeleteDefinition",
+		     &Zone::DeleteDefinition,
+		     py::arg("index"),
+		     R"pydoc(
+    Removes a ZoneDefinition
+
+    Args:
+        index (int): the index in Zone.Definitions to remove.
+    Raises:
+        IndexError: if index >= len(Zone.Definitions)
+)pydoc")
 		;
 }

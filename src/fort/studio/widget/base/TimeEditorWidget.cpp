@@ -61,7 +61,7 @@ TimeEditorWidget::TimeEditorWidget(QWidget *parent)
 			                     if ( !d_universe || d_universe->trackingDataDirectories().empty() == true) {
 				                     return;
 			                     }
-			                     time = d_universe->trackingDataDirectories().begin()->second->StartDate();
+			                     time = d_universe->trackingDataDirectories().begin()->second->Start();
 		                     }
 		                     QDateTime date = QDateTime::fromSecsSinceEpoch(time.ToTimeT());
 		                     d_timeEdit->setTime(date.time());

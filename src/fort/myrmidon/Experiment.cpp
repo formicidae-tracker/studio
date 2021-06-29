@@ -233,8 +233,8 @@ TrackingDataDirectoryInfo buildTddInfos(const priv::TrackingDataDirectory::Ptr &
 	        .URI = tdd->URI(),
 	        .AbsoluteFilePath = tdd->AbsoluteFilePath().string(),
 	        .Frames = tdd->EndFrame() - tdd->StartFrame() + 1,
-	        .Start  = tdd->StartDate(),
-	        .End = tdd->EndDate(),
+	        .Start  = tdd->Start(),
+	        .End = tdd->End(),
 	};
 }
 
@@ -245,8 +245,8 @@ SpaceDataInfo 	buildSpaceInfos( const priv::Space::ConstPtr & space ) {
 	if ( tdds.empty() == true ) {
 		return res;
 	}
-	res.Start = tdds.front()->StartDate();
-	res.End = tdds.back()->EndDate();
+	res.Start = tdds.front()->Start();
+	res.End = tdds.back()->End();
 	res.TrackingDataDirectories.reserve(tdds.size());
 	for ( const auto & tdd : tdds ) {
 		res.TrackingDataDirectories.push_back(buildTddInfos(tdd));

@@ -44,16 +44,11 @@ void ZoneDefinition::SetEnd(const Time & end) {
 ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
                                         const Time & start,
                                         const Time & end) {
-	return ZoneDefinition::Ptr(new ZoneDefinition(d_p->AddDefinition(shapes,
-	                                                                 start,end)));
+	return d_p->PublicAddDefinition(shapes,start,end);
 }
 
 ZoneDefinition::List Zone::Definitions() {
-	ZoneDefinition::List res;
-	for ( const auto & d : d_p->Definitions() ) {
-		res.push_back(ZoneDefinition::Ptr(new ZoneDefinition(d)));
-	}
-	return res;
+	return d_p->PublicDefinitions();
 }
 
 void Zone::DeleteDefinition(size_t index) {

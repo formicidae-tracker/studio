@@ -228,13 +228,13 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	                                                  antBefore->AntID(),
 	                                                  1,
 	                                                  Time::SinceEver(),
-	                                                  foo0->EndDate());
+	                                                  foo0->End());
 	identBefore1->SetTagSize(2.0);
 
 	auto identBefore2 = Identifier::AddIdentification(e->Identifier(),
 	                                                  antBefore->AntID(),
 	                                                  0,
-	                                                  foo1->StartDate(),
+	                                                  foo1->Start(),
 	                                                  Time::Forever());
 	identBefore2->SetTagSize(2.0);
 
@@ -291,14 +291,14 @@ TEST_F(ExperimentUTest,MeasurementEndToEnd) {
 	                                                 antAfter->AntID(),
 	                                                 0,
 	                                                 Time::SinceEver(),
-	                                                 foo0->EndDate());
+	                                                 foo0->End());
 
 
 
 	auto identAfter2 = Identifier::AddIdentification(e->Identifier(),
 	                                                 antAfter->AntID(),
 	                                                 1,
-	                                                 foo1->StartDate(),
+	                                                 foo1->Start(),
 	                                                 Time::Forever());
 	e->SetDefaultTagSize(1.0);
 	EXPECT_TRUE(VectorAlmostEqual(identAfter1->AntPosition(),

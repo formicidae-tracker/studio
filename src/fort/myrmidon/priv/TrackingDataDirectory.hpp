@@ -146,11 +146,11 @@ public:
 
 	// Gets the time of the first frame in this directory
 	// @return the time of the first frame in this directory
-	const Time & StartDate() const;
+	const Time & Start() const;
 
 	// Gets the time of the last frame in this directory
 	// @return the time of the last frame in this directory
-	const Time & EndDate() const;
+	const Time & End() const;
 
 
 	const_iterator begin() const;
