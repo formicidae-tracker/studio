@@ -277,11 +277,15 @@ fort::tags::Family Experiment::Family() const {
 	return tdds.begin()->second->DetectionSettings().Family;
 }
 
-Ant::Ptr Experiment::CreateAnt(fort::myrmidon::AntID aID) {
+
+
+Ant::Ptr Experiment::CreateAnt(fort::myrmidon::AntID antID) {
 	return d_identifier->CreateAnt(d_antShapeTypes,
 	                               d_antMetadata,
-	                               aID);
+	                               antID);
 }
+
+
 
 void Experiment::SetMeasurement(const Measurement::ConstPtr & m) {
 	if ( d_measurementTypes.Objects().count(m->Type()) == 0 ) {

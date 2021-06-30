@@ -267,7 +267,7 @@ public:
 	 *
 	 * @return the newly created Ant
 	 */
-	Ant::Ptr CreateAnt();
+	const Ant::Ptr & CreateAnt();
 
 	/**
 	 * Gets the Ant in the Experiment
@@ -283,7 +283,7 @@ public:
 	 *
 	 * @return the Ant indexed by their AntID in the Experiment.
 	 */
-	std::map<AntID,Ant::Ptr> Ants();
+	const std::map<AntID,const Ant::Ptr> & Ants() const;
 
 	/**
 	 * Adds an Identification to the Experiment

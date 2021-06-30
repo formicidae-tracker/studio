@@ -6,6 +6,7 @@
 
 #include <fort/time/Time.hpp>
 #include <fort/myrmidon/Space.hpp>
+#include <fort/myrmidon/Ant.hpp>
 #include <fort/myrmidon/utils/FileSystem.hpp>
 
 
@@ -130,6 +131,8 @@ public :
 	Space::Ptr LocateSpace(const std::string & spaceName) const;
 
 	AntPtr CreateAnt(AntID aID = 0);
+
+	const myrmidon::Ant::Ptr & PublicCreateAnt(AntID antID = 0);
 
 	// Accessor to the underlying Identifier
 	//

@@ -12,8 +12,8 @@ namespace fort {
 namespace myrmidon {
 
 namespace priv {
-// private <fort::myrmidon::Ant> implemenation
 class Ant;
+class Identifier;
 } // namespace priv
 
 
@@ -84,7 +84,7 @@ public:
 	/**
 	 * A pointer to an Ant
 	 */
-	typedef std::shared_ptr<Ant>       Ptr;
+	typedef std::unique_ptr<Ant>       Ptr;
 
 	/**
 	 * The DisplayState of an Ant in an Experiment
@@ -419,7 +419,7 @@ public:
 	void ClearCapsules();
 
 private:
-	friend class Experiment;
+	friend class priv::Identifier;
 	// Opaque pointer to implementation
 	typedef const std::shared_ptr<priv::Ant> PPtr;
 

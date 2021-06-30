@@ -23,9 +23,15 @@ class Space;
 class ZoneDefinition {
 public:
 	/**
+	 * A pointer to a Zone
+	 */
+	typedef std::unique_ptr<ZoneDefinition> Ptr;
+
+
+	/**
 	 * A list of ZoneDefinition
 	 */
-	typedef std::vector<ZoneDefinition> List;
+	typedef std::vector<const Ptr> List;
 
 	/**
 	 * Gets the geometry of this ZoneDefinition
@@ -212,9 +218,9 @@ public:
 	 *         resulting definition overlap in time with another
 	 *         ZoneDefinition for this Zone.
 	 */
-	ZoneDefinition & AddDefinition(const Shape::List & shapes,
-	                               const Time & start,
-	                               const Time & end);
+	const ZoneDefinition::Ptr & AddDefinition(const Shape::List & shapes,
+	                                          const Time & start,
+	                                          const Time & end);
 
 	/**
 	 * Gets the Zone's ZoneDefinition

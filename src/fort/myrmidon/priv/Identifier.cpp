@@ -34,10 +34,19 @@ Identifier::Identifier()
 
 Identifier::~Identifier() {}
 
+const myrmidon::Ant::Ptr & Identifier::PublicCreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
+                                                       const AntMetadataConstPtr & antMetadata,
+                                                       fort::myrmidon::AntID ID ) {
+	auto ant = CreateObject([&shapeTypes,&antMetadata](fort::myrmidon::AntID ID) { return std::make_shared<Ant>(shapeTypes,antMetadata,ID); },ID);
+	d_publicAnts.insert_or_assign(ant->AntID(),myrmidon::Ant::Ptr(new myrmidon::Ant(ant)));
+	return d_publicAnts.at(ant->AntID());
+}
+
 AntPtr Identifier::CreateAnt(const AntShapeTypeContainerConstPtr & shapeTypes,
                              const AntMetadataConstPtr & antMetadata,
-                             fort::myrmidon::AntID ID ) {
-	return CreateObject([&shapeTypes,&antMetadata](fort::myrmidon::AntID ID) { return std::make_shared<Ant>(shapeTypes,antMetadata,ID); },ID);
+                             fort::myrmidon::AntID antID ) {
+	auto & res = PublicCreateAnt(shapeTypes,antMetadata,antID);
+	return res->d_p;
 }
 
 void Identifier::DeleteAnt(fort::myrmidon::AntID ID) {

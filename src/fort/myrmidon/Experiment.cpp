@@ -62,17 +62,12 @@ void Experiment::RemoveTrackingDataDirectory(const std::string & URI) {
 }
 
 
-Ant::Ptr Experiment::CreateAnt() {
-	return Ant::Ptr(new Ant(d_p->CreateAnt()));
+const Ant::Ptr & Experiment::CreateAnt() {
+	return d_p->PublicCreateAnt();
 }
 
-std::map<AntID,Ant::Ptr> Experiment::Ants() {
-	std::map<AntID,Ant::Ptr> res;
-	for ( const auto & [antID, ant] : d_p->Identifier()->Ants() ) {
-		res.insert(std::make_pair(antID,
-		                          Ant::Ptr(new Ant(ant))));
-	}
-	return res;
+const std::map<AntID,const Ant::Ptr> & Experiment::Ants() const {
+	return d_p->Identifier()->PublicAnts();
 }
 
 Identification::Ptr Experiment::AddIdentification(AntID antID,

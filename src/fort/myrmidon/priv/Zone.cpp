@@ -116,9 +116,9 @@ Zone::Ptr Zone::Create(ZoneID zoneID,const std::string & name,const std::string 
 	return res;
 }
 
-myrmidon::ZoneDefinition & Zone::PublicAddDefinition(const Shape::List & shapes,
-                                                     const Time & start,
-                                                     const Time & end) {
+const myrmidon::ZoneDefinition::Ptr & Zone::PublicAddDefinition(const Shape::List & shapes,
+                                                                const Time & start,
+                                                                const Time & end) {
 	auto itself = d_itself.lock();
 	if ( !itself ) {
 		throw DeletedReference<Zone>();
@@ -131,23 +131,23 @@ myrmidon::ZoneDefinition & Zone::PublicAddDefinition(const Shape::List & shapes,
 		d_definitions = oldDefinitions;
 		throw std::runtime_error("Zone definition would overlaps with another");
 	}
-	d_publicDefinitions.emplace_back(myrmidon::ZoneDefinition(def));
+	d_publicDefinitions.emplace_back(new myrmidon::ZoneDefinition(def));
 	TimeValid::SortAndCheckOverlap(d_publicDefinitions.begin(),
 	                               d_publicDefinitions.end());
 	return *std::find_if(d_publicDefinitions.begin(),
 	                     d_publicDefinitions.end(),
-	                     [&def](const myrmidon::ZoneDefinition & d) { return d.d_p == def; });
+	                     [&def](const myrmidon::ZoneDefinition::Ptr & d) { return d->d_p == def; });
 }
 
 ZoneDefinition::Ptr Zone::AddDefinition(const Shape::List & shapes,
                                         const Time & start,
                                         const Time & end) {
 	auto & res = PublicAddDefinition(shapes,start,end);
-	return res.d_p;
+	return res->d_p;
 }
 
 const myrmidon::ZoneDefinition::List & Zone::PublicDefinitions() const {
-	return d_publicDefinitions;
+	return reinterpret_cast<const myrmidon::ZoneDefinition::List&>(d_publicDefinitions);
 }
 
 

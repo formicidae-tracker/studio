@@ -43,7 +43,9 @@ void BindZone(py::module_ & m) {
 		                       py::return_value_policy::reference_internal,
 		                       " (List[py_fort_myrmidon.ZoneDefinition]): the definitions for this Zone")
 		.def("AddDefinition",
-		     &Zone::AddDefinition,
+		     [](Zone & zone, const Shape::List & shapes, const fort::Time & start, const fort::Time & end) -> ZoneDefinition & {
+			     return * zone.AddDefinition(shapes,start,end);
+		     },
 		     py::arg("shapes"),
 		     py::arg("start") = fort::Time::SinceEver(),
 		     py::arg("end") = fort::Time::Forever(),
