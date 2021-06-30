@@ -42,6 +42,7 @@ include_directories(${PROJECT_BINARY_DIR}/src
 
 set(HDR_PRIVATE_FILES utils/StringManipulation.hpp
                       utils/ObjectPool.hpp
+                      priv/HandleInContext.hpp
                       priv/ForwardDeclaration.hpp
                       priv/LocatableTypes.hpp
                       priv/TimeUtils.hpp

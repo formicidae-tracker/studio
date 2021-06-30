@@ -123,7 +123,7 @@ public:
 	 * ```
 	 * @return a map of Zone::ByID of all Zone in this Space.
 	 */
-	const Zone::ByID & Zones() const;
+	const ZoneByID & Zones() const;
 
 	/**
 	 * Locates a movie file and frame number

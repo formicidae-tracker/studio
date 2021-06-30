@@ -1,18 +1,14 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
 #include "Shapes.hpp"
 
 namespace fort {
 namespace myrmidon {
 
-namespace priv {
-class Zone;
-class ZoneDefinition;
-class Space;
-}
+class ZoneDefinitionHandle;
+class ZoneHandle;
 
 /**
  * Defines the shape of a Zone in Time
@@ -25,13 +21,7 @@ public:
 	/**
 	 * A pointer to a Zone
 	 */
-	typedef std::unique_ptr<ZoneDefinition> Ptr;
-
-
-	/**
-	 * A list of ZoneDefinition
-	 */
-	typedef std::vector<const Ptr> List;
+	typedef std::shared_ptr<ZoneDefinition> Ptr;
 
 	/**
 	 * Gets the geometry of this ZoneDefinition
@@ -128,27 +118,20 @@ public:
 	 */
 	void SetEnd(const Time & end);
 
-	ZoneDefinition & operator=( ZoneDefinition &&) = default;
-	ZoneDefinition( ZoneDefinition &&) = default;
-
-
 private:
-	friend class priv::Zone;
-
-	// Opaque implementation pointer
-	typedef std::shared_ptr<priv::ZoneDefinition> PPtr;
+	friend class ZoneHandle;
 
 	// Private implementation constructor
 	// @pDefinition opaque pointer to implementation
 	//
 	// User cannot build Defoninition directly. They must be build and
 	// accessed from <Zone>.
-	ZoneDefinition(const PPtr & pDefinition);
+	ZoneDefinition(std::unique_ptr<ZoneDefinitionHandle> handle);
 
 	ZoneDefinition & operator=( const ZoneDefinition &) = delete;
 	ZoneDefinition(const ZoneDefinition & ) = delete;
 
-	PPtr d_p;
+	std::unique_ptr<ZoneDefinitionHandle> d_p;
 };
 
 
@@ -186,11 +169,6 @@ private:
  */
 class Zone {
 public:
-	/**
-	 * A map of Zone indexed by ZoneID
-	 */
-	typedef std::map<ZoneID,Zone>      ByID;
-
 
 	/**
 	 * Adds a new timed ZoneDefinition
@@ -234,7 +212,7 @@ public:
 	 * @return a ZoneDefinition::List of ZoneDefinition for this Zone
 	 *
 	 */
-	const ZoneDefinition::List & Definitions() const;
+	const ZoneDefinitionList & Definitions() const;
 
 	/**
 	 *
@@ -295,28 +273,21 @@ public:
 	ZoneID ID() const;
 
 
-	Zone & operator=( Zone &&) = default;
-	Zone( Zone &&) = default;
-
 private:
 	friend class Space;
-	friend class priv::Space;
-
-	// Opaque pointer for implementation
-	typedef std::shared_ptr<priv::Zone> PPtr;
 
 	// Private implementation constructor
 	// @pZone opaque pointer to implementation
 	//
 	// User cannot build Zone directly. They must be build and
 	// accessed from <Space>.
-	Zone(const PPtr & pZone);
+	Zone(std::unique_ptr<ZoneHandle> handle);
 
 	Zone & operator=( const Zone &) = delete;
 	Zone(const Zone &) = delete;
 
 
-	PPtr d_p;
+	std::unique_ptr<ZoneHandle> d_p;
 };
 
 

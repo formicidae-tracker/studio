@@ -166,7 +166,7 @@ public:
 
 	Zone::Ptr CreateZone(const std::string & name, ZoneID zoneID = NEXT_AVAILABLE_ID);
 
-	const myrmidon::Zone::ByID & PublicZones() const;
+	const myrmidon::ZoneByID & PublicZones() const;
 
 	void DeleteZone(ZoneID ID);
 
@@ -206,7 +206,7 @@ private :
 
 	DenseMap<ZoneID,Zone::Ptr> d_zones;
 
-	myrmidon::Zone::ByID d_publicZones;
+	myrmidon::ZoneByID d_publicZones;
 };
 
 

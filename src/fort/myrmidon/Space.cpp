@@ -32,7 +32,7 @@ void Space::DeleteZone(ZoneID zoneID) {
 	d_p->DeleteZone(zoneID);
 }
 
-const Zone::ByID & Space::Zones() const {
+const ZoneByID & Space::Zones() const {
 	return d_p->PublicZones();
 }
 

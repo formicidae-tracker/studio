@@ -87,6 +87,16 @@ typedef std::variant<bool,int32_t,double,std::string,Time> AntStaticValue;
  */
 typedef std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d>> Vector2dList;
 
+
+class ZoneDefinition;
+/**
+ * A List of ZoneDefinition
+ */
+typedef std::vector<std::shared_ptr<ZoneDefinition>> ZoneDefinitionList;
+
+class Zone;
+typedef std::map<ZoneID,std::shared_ptr<Zone>> ZoneByID;
+
 /**
  * The ID for Ant virtual body parts
  *

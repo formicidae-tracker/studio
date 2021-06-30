@@ -97,15 +97,10 @@ public:
 	                              const Time & start,
 	                              const Time & end);
 
-	const myrmidon::ZoneDefinition::Ptr & PublicAddDefinition(const Shape::List & shapes,
-	                                                          const Time & start,
-	                                                          const Time & end);
-
 	bool NextFreeTimeRegion(Time & start,Time & end) const;
 
 	const Definition::List & Definitions() const;
 
-	const myrmidon::ZoneDefinition::List & PublicDefinitions() const;
 
 	void EraseDefinition(size_t index);
 
@@ -128,7 +123,6 @@ private:
 	std::weak_ptr<Zone> d_itself;
 	std::string         d_name,d_URI;
 	Definition::List    d_definitions;
-	std::vector<myrmidon::ZoneDefinition::Ptr> d_publicDefinitions;
 };
 
 } // namespace priv
